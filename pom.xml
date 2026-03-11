@@ -250,7 +250,7 @@
         <jakarta.jaxb-api.version>4.0.4</jakarta.jaxb-api.version>
         <jaxb-impl.version>4.0.6</jaxb-impl.version>
 
-        <zookeeper.version>3.8.4</zookeeper.version>
+        <zookeeper.version>3.8.6</zookeeper.version>
 
         <mockito.version>4.11.0</mockito.version>
         <bytebuddy.version>1.12.23</bytebuddy.version>
