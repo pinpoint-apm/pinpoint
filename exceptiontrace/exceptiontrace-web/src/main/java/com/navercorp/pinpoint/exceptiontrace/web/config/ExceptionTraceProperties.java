@@ -36,14 +36,14 @@ public class ExceptionTraceProperties {
     private int exceptionTracePeriodMax;
 
     @Value("${web.exceptiontrace.api.period.interval:5m,20m,1h,3h,6h,12h,1d,2d,1w}")
-    private List<String> exceptionTracePeriodInteval;
+    private List<String> exceptionTracePeriodInterval;
 
     public int getExceptionTracePeriodMax() {
         return exceptionTracePeriodMax;
     }
 
-    public List<String> getExceptionTracePeriodInteval() {
-        return exceptionTracePeriodInteval;
+    public List<String> getExceptionTracePeriodInterval() {
+        return exceptionTracePeriodInterval;
     }
 
     @PostConstruct
@@ -56,7 +56,7 @@ public class ExceptionTraceProperties {
     @Override
     public String toString() {
         return "ExceptionTraceProperties{" +
-                "exceptionTracePeriodInteval=" + exceptionTracePeriodInteval +
+                "exceptionTracePeriodInterval=" + exceptionTracePeriodInterval +
                 ", exceptionTracePeriodMax=" + exceptionTracePeriodMax +
                 '}';
     }

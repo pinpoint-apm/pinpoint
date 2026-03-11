@@ -36,6 +36,6 @@ public class ExceptionTracePropertiesExporter implements FrontendConfigExporter 
     @Override
     public void export(Map<String, Object> export) {
         export.put("periodMax.exceptionTrace", exceptionTraceProperties.getExceptionTracePeriodMax());
-        export.put("periodInterval.exceptionTrace", exceptionTraceProperties.getExceptionTracePeriodInteval());
+        export.put("periodInterval.exceptionTrace", exceptionTraceProperties.getExceptionTracePeriodInterval());
     }
 }
