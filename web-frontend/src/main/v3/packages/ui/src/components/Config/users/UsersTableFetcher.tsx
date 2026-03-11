@@ -30,7 +30,9 @@ export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => 
   const [open, setOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<ConfigUsers.User>();
 
-  const { data, refetch } = useGetConfigUsers(query ? { searchKey: query } : undefined);
+  const { data, refetch } = useGetConfigUsers(query ? { searchKey: query } : undefined, {
+    throwOnError: true,
+  });
 
   const onSuccess = React.useCallback((message: string) => {
     toast.success(message, {
