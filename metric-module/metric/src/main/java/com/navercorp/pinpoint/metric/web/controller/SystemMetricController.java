@@ -59,8 +59,7 @@ public class SystemMetricController {
                                   SystemMetricHostInfoService systemMetricHostInfoService,
                                   YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager,
                                   TenantProvider tenantProvider,
-                                  SystemMetricProperties systemMetricProperties
-                                  ) {
+                                  SystemMetricProperties systemMetricProperties) {
         this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
@@ -106,7 +105,7 @@ public class SystemMetricController {
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         String tenantId = tenantProvider.getTenantId();
-        TimeWindow timeWindow = new TimeWindow(Range.between(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
+        TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
         MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(tenantId, hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
         List<Tag> tagList = TagUtils.parseTags(tags);
 

@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * @author Hyunjoon Cho
@@ -59,6 +60,9 @@ public class TelegrafMetricController {
     private final TenantProvider tenantProvider;
 
     private static final String[] ignoreTags = {"host"};
+    private static final Pattern VALID_NAME = Pattern.compile("[a-zA-Z0-9._\\-]+");
+    private static final Pattern CONTROL_CHARS = Pattern.compile("[\\p{Cntrl}]");
+    private static final int MAX_LOG_LENGTH = 100;
 
     public TelegrafMetricController(SystemMetricService systemMetricService,
                                     SystemMetricDataTypeService systemMetricMetadataService,
@@ -78,20 +82,27 @@ public class TelegrafMetricController {
     ) throws BindException {
         if (bindingResult.hasErrors()) {
             SimpleErrorMessage simpleErrorMessage = new SimpleErrorMessage(bindingResult);
-            logger.warn("metric binding error. header=hostGroupName:{} errorCount:{} {}", hostGroupName, bindingResult.getErrorCount(), simpleErrorMessage);
+            logger.warn("metric binding error. header=hostGroupName:{} errorCount:{} {}", sanitizeForLog(hostGroupName), bindingResult.getErrorCount(), simpleErrorMessage);
             throw new BindException(bindingResult);
+        }
+
+        if (!VALID_NAME.matcher(hostGroupName).matches()) {
+            logger.warn("invalid hostGroupName='{}'", sanitizeForLog(hostGroupName));
         }
 
         String hostName = getHost(telegrafMetrics);
         if (StringUtils.isEmpty(hostName)) {
             // hostname null check
-            logger.info("hostName is empty. hostGroupName={}", hostGroupName);
+            logger.info("hostName is empty. hostGroupName={}", sanitizeForLog(hostGroupName));
             return ResponseEntity.badRequest().build();
         }
 
+        if (!VALID_NAME.matcher(hostName).matches()) {
+            logger.warn("invalid hostName='{}', hostGroupName='{}'", sanitizeForLog(hostName), sanitizeForLog(hostGroupName));
+        }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("hostGroupName:{} host:{} size:{}", hostGroupName, hostName, telegrafMetrics.size());
+            logger.debug("hostGroupName:{} host:{} size:{}", sanitizeForLog(hostGroupName), sanitizeForLog(hostName), telegrafMetrics.size());
         }
 
         String tenantId = tenantProvider.getTenantId();
@@ -163,6 +174,17 @@ public class TelegrafMetricController {
             }
         }
         return null;
+    }
+
+    static String sanitizeForLog(String value) {
+        if (value == null) {
+            return null;
+        }
+        String sanitized = CONTROL_CHARS.matcher(value).replaceAll("_");
+        if (sanitized.length() > MAX_LOG_LENGTH) {
+            sanitized = sanitized.substring(0, MAX_LOG_LENGTH) + "...(truncated)";
+        }
+        return sanitized;
     }
 
     static List<Tag> filterTag(List<Tag> tTags, String[] ignoreTagName) {
