@@ -49,7 +49,6 @@ public class PinotExceptionTraceDao implements ExceptionTraceDao {
     private static final String SELECT_EXACT_QUERY = "selectExactException";
     private static final String SELECT_GROUP_SUMMARIES_QUERY = "selectGroupSummaries";
     private static final String SELECT_CHART_QUERY = "selectChartValueViews";
-    private static final String SELECT_ERROR_SUMMARIES_QUERY = "selectErrorSummaries";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
