@@ -103,6 +103,19 @@ apps/web/src/pages/Inspector.tsx  →  wraps InspectorPage from @pinpoint-fe/ui
 - Lazy loading via `React.lazy()` for all pages except ServerMap (the default route)
 - i18n: `i18next` with English and Korean locales in `packages/ui/src/constants/locales/`
 
+## `.claude/` Resource Discovery (IMPORTANT)
+
+Configuration files in `.claude/` (skills, rules, commands, settings, etc.) are distributed across multiple directories in this monorepo. **For any `.claude/` resource**, if it is not found in the current working directory, traverse upward through parent directories until found:
+
+1. First check `<cwd>/.claude/`
+2. If not found, search parent directories: `packages/.claude/`, `apps/web/.claude/`, root `.claude/`
+3. Known locations:
+   - `packages/.claude/skills/` — add-translation, create-api-hook, create-component, create-page, review-code
+   - `packages/.claude/rules/` — code-style, monorepo, git-workflow, tool-usage, code-review-policy
+   - `apps/web/.claude/skills/` — mvn-web
+
+This applies to **all** `.claude/` resources: skills, rules, commands, and any other configuration.
+
 ## Build Integration
 
 The web app output is deployed as static assets within a Java/Maven backend. `yarn move:dist` copies `dist/` to `target/classes/static/`. `BASE_PATH` env var controls the serving subpath.
