@@ -116,10 +116,11 @@ public class ApplicationAgentHostList {
 
         private AgentHost newAgentHost(AgentInfo agentInfo) {
             String agentId = Objects.toString(agentInfo.getAgentId(), "");
+            String agentName = Objects.toString(agentInfo.getAgentName(), "");
             String hostName = Objects.toString(agentInfo.getHostName(), "");
             String ip = Objects.toString(agentInfo.getIp(), "");
             String serviceType = agentInfo.getServiceType().getDesc();
-            return new AgentHost(agentId, hostName, ip, serviceType);
+            return new AgentHost(agentId, agentName, hostName, ip, serviceType);
         }
 
         public ApplicationAgentHostList build() {
@@ -151,7 +152,7 @@ public class ApplicationAgentHostList {
     public record ApplicationInfo(String applicationName, List<AgentHost> agents) {
     }
 
-    public record AgentHost(String agentId, String hostName, String ip, String serviceType) {
+    public record AgentHost(String agentId, String agentName, String hostName, String ip, String serviceType) {
     }
 
 }
