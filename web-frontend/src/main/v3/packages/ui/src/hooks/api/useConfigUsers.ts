@@ -10,14 +10,17 @@ const getQueryString = (queryParams?: Partial<ConfigUsers.Parameters>) => {
   return '';
 };
 
-export const useGetConfigUsers = (params?: ConfigUsers.Parameters) => {
+export const useGetConfigUsers = (
+  params?: ConfigUsers.Parameters,
+  { throwOnError }: { throwOnError?: boolean } = {},
+) => {
   const queryString = getQueryString(params);
 
   const { data, isLoading, refetch } = useQuery<ConfigUsers.Response>({
     queryKey: [END_POINTS.CONFIG_USERS, params],
     queryFn: queryFn(`${END_POINTS.CONFIG_USERS}${queryString}`),
     enabled: !!queryString,
-    throwOnError: true,
+    throwOnError,
   });
   return { data, isLoading, refetch };
 };
