@@ -40,11 +40,6 @@ export const GroupMemberAddPopup = ({
 
       onCompleteAdd?.();
     },
-    onError: () => {
-      toast.error(t('COMMON.SUBMIT_FAIL'), {
-        autoClose: 2000,
-      });
-    },
   });
   const shouldDisable = (userId: string) => {
     return isMutating || groupMember?.some(({ memberId }) => memberId === userId);

@@ -37,11 +37,6 @@ export const UserGroupTableFetcher = ({
       });
       refetch();
     },
-    onError: () => {
-      toast.error(t('COMMON.REMOVE_FAIL'), {
-        autoClose: 2000,
-      });
-    },
   });
 
   const columns = getUserGroupTableColumns({

@@ -37,11 +37,6 @@ export const GroupMemberTableFetcher = ({
       });
       refetch();
     },
-    onError: () => {
-      toast.error(t('COMMON.REMOVE_FAIL'), {
-        autoClose: 2000,
-      });
-    },
   });
   const [rowFilterInfo, setRowFilterInfo] = React.useState<RowFilterInfo>();
   const columns = getGroupMemberTableColumns({

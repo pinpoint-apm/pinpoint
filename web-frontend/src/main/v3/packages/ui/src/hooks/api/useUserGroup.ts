@@ -46,7 +46,6 @@ export const usePostUserGroup = ({ onCompleteSubmit, onError }: PostUserGroupPro
       }
       return response.json();
     },
-    meta: { ignoreGlobalError: true },
   });
 
   const onSubmit = async (userGroupInfo: ConfigUserGroup.Body) => {
@@ -82,7 +81,6 @@ export const useDeleteUserGroup = ({ onCompleteRemove, onError }: DeleteUserGrou
       }
       return response.json();
     },
-    meta: { ignoreGlobalError: true },
   });
 
   const onRemove = async (params: ConfigUserGroup.Body) => {

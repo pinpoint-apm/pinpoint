@@ -61,11 +61,6 @@ export const UserGroupAddPopup = ({
       setOpen(false);
       onCompleteAdd?.(userGroupName);
     },
-    onError: () => {
-      toast.error(t('COMMON.SUBMIT_FAIL'), {
-        autoClose: 2000,
-      });
-    },
   });
 
   const handleSubmit = (userGroupFormData: z.infer<typeof userGroupFormSchema>) => {
