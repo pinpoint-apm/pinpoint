@@ -10,6 +10,53 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TelegrafMetricControllerTest {
 
     @Test
+    void isValidHostName_valid() {
+        assertThat(TelegrafMetricController.isValidHostName("hostname")).isTrue();
+        assertThat(TelegrafMetricController.isValidHostName("host-name")).isTrue();
+        assertThat(TelegrafMetricController.isValidHostName("host1")).isTrue();
+        assertThat(TelegrafMetricController.isValidHostName("a")).isTrue();
+        assertThat(TelegrafMetricController.isValidHostName("a1")).isTrue();
+        assertThat(TelegrafMetricController.isValidHostName("abc-123-def")).isTrue();
+        assertThat(TelegrafMetricController.isValidHostName("host.name")).isTrue();
+        assertThat(TelegrafMetricController.isValidHostName("host_name")).isTrue();
+    }
+
+    @Test
+    void isValidHostName_invalid() {
+        assertThat(TelegrafMetricController.isValidHostName("-hostname")).isFalse();
+        assertThat(TelegrafMetricController.isValidHostName("hostname-")).isFalse();
+        assertThat(TelegrafMetricController.isValidHostName("1hostname")).isFalse();
+        assertThat(TelegrafMetricController.isValidHostName("HostName")).isFalse();
+        assertThat(TelegrafMetricController.isValidHostName("host name")).isFalse();
+        assertThat(TelegrafMetricController.isValidHostName("")).isFalse();
+    }
+
+    @Test
+    void isValidHostName_exceedsMaxLabelLength() {
+        String longName = "a".repeat(300);
+        assertThat(TelegrafMetricController.isValidHostName(longName)).isFalse();
+    }
+
+    @Test
+    void isValidGroupName_valid() {
+        assertThat(TelegrafMetricController.isValidGroupName("group1")).isTrue();
+        assertThat(TelegrafMetricController.isValidGroupName("Group-Name")).isTrue();
+        assertThat(TelegrafMetricController.isValidGroupName("group.name")).isTrue();
+        assertThat(TelegrafMetricController.isValidGroupName("Group.Name-01")).isTrue();
+        assertThat(TelegrafMetricController.isValidGroupName("group_name")).isTrue();
+        assertThat(TelegrafMetricController.isValidGroupName("A")).isTrue();
+    }
+
+    @Test
+    void isValidGroupName_invalid() {
+        assertThat(TelegrafMetricController.isValidGroupName("{groupname}")).isFalse();
+        assertThat(TelegrafMetricController.isValidGroupName("-group")).isFalse();
+        assertThat(TelegrafMetricController.isValidGroupName(".group")).isFalse();
+        assertThat(TelegrafMetricController.isValidGroupName("group name")).isFalse();
+        assertThat(TelegrafMetricController.isValidGroupName("")).isFalse();
+    }
+
+    @Test
     void filterTag() {
         List<Tag> tags = List.of(
                 new Tag("tag1", "value1"),
@@ -21,32 +68,4 @@ class TelegrafMetricControllerTest {
                 .containsExactly(new Tag("tag1", "value1"));
     }
 
-    @Test
-    void sanitizeForLog_null() {
-        assertThat(TelegrafMetricController.sanitizeForLog(null)).isNull();
-    }
-
-    @Test
-    void sanitizeForLog_replaceControlChars() {
-        assertThat(TelegrafMetricController.sanitizeForLog("host\ninjected"))
-                .isEqualTo("host_injected");
-        assertThat(TelegrafMetricController.sanitizeForLog("host\r\ninjected"))
-                .isEqualTo("host__injected");
-        assertThat(TelegrafMetricController.sanitizeForLog("normal-host_name.01"))
-                .isEqualTo("normal-host_name.01");
-    }
-
-    @Test
-    void sanitizeForLog_truncate() {
-        String longValue = "a".repeat(150);
-        String result = TelegrafMetricController.sanitizeForLog(longValue);
-        assertThat(result).hasSize(100 + "...(truncated)".length());
-        assertThat(result).endsWith("...(truncated)");
-    }
-
-    @Test
-    void sanitizeForLog_exactlyMaxLength() {
-        String value = "a".repeat(100);
-        assertThat(TelegrafMetricController.sanitizeForLog(value)).isEqualTo(value);
-    }
 }

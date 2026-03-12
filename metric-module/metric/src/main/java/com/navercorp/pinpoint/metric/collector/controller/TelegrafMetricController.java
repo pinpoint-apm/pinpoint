@@ -60,9 +60,8 @@ public class TelegrafMetricController {
     private final TenantProvider tenantProvider;
 
     private static final String[] ignoreTags = {"host"};
-    private static final Pattern VALID_NAME = Pattern.compile("[a-zA-Z0-9._\\-]+");
-    private static final Pattern CONTROL_CHARS = Pattern.compile("[\\p{Cntrl}]");
-    private static final int MAX_LOG_LENGTH = 100;
+    private static final Pattern VALID_HOST_NAME = Pattern.compile("[a-z]([a-z0-9\\-._]{0,254}[a-z0-9])?");
+    private static final Pattern VALID_GROUP_NAME = Pattern.compile("[A-Za-z0-9][A-Za-z0-9.\\-_]*");
 
     public TelegrafMetricController(SystemMetricService systemMetricService,
                                     SystemMetricDataTypeService systemMetricMetadataService,
@@ -76,33 +75,34 @@ public class TelegrafMetricController {
 
 
     @PostMapping(value = "/telegraf")
-    public ResponseEntity<Void> saveSystemMetric(
+    public ResponseEntity<String> saveSystemMetric(
             @RequestHeader(value = "hostGroupName") String hostGroupName,
             @RequestBody TelegrafMetrics telegrafMetrics, BindingResult bindingResult
     ) throws BindException {
         if (bindingResult.hasErrors()) {
             SimpleErrorMessage simpleErrorMessage = new SimpleErrorMessage(bindingResult);
-            logger.warn("metric binding error. header=hostGroupName:{} errorCount:{} {}", sanitizeForLog(hostGroupName), bindingResult.getErrorCount(), simpleErrorMessage);
+            logger.warn("metric binding error. header=hostGroupName:{} errorCount:{} {}", hostGroupName, bindingResult.getErrorCount(), simpleErrorMessage);
             throw new BindException(bindingResult);
         }
 
-        if (!VALID_NAME.matcher(hostGroupName).matches()) {
-            logger.warn("invalid hostGroupName='{}'", sanitizeForLog(hostGroupName));
+        if (!isValidGroupName(hostGroupName)) {
+            logger.warn("invalid hostGroupName='{}'", hostGroupName);
+            return ResponseEntity.badRequest().body("invalid hostGroupName='" + hostGroupName + "'");
         }
 
         String hostName = getHost(telegrafMetrics);
         if (StringUtils.isEmpty(hostName)) {
             // hostname null check
-            logger.info("hostName is empty. hostGroupName={}", sanitizeForLog(hostGroupName));
-            return ResponseEntity.badRequest().build();
+            logger.info("hostName is empty. hostGroupName={}", hostGroupName);
+            return ResponseEntity.badRequest().body("hostName is empty");
         }
 
-        if (!VALID_NAME.matcher(hostName).matches()) {
-            logger.warn("invalid hostName='{}', hostGroupName='{}'", sanitizeForLog(hostName), sanitizeForLog(hostGroupName));
+        if (!isValidHostName(hostName)) {
+            logger.warn("invalid hostName='{}', hostGroupName='{}'", hostName, hostGroupName);
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("hostGroupName:{} host:{} size:{}", sanitizeForLog(hostGroupName), sanitizeForLog(hostName), telegrafMetrics.size());
+            logger.debug("hostGroupName:{} host:{} size:{}", hostGroupName, hostName, telegrafMetrics.size());
         }
 
         String tenantId = tenantProvider.getTenantId();
@@ -112,7 +112,7 @@ public class TelegrafMetricController {
         updateMetadata(systemMetric);
         systemMetricService.insert(systemMetric);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(null);
     }
 
     private String getHost(TelegrafMetrics metrics) {
@@ -176,15 +176,12 @@ public class TelegrafMetricController {
         return null;
     }
 
-    static String sanitizeForLog(String value) {
-        if (value == null) {
-            return null;
-        }
-        String sanitized = CONTROL_CHARS.matcher(value).replaceAll("_");
-        if (sanitized.length() > MAX_LOG_LENGTH) {
-            sanitized = sanitized.substring(0, MAX_LOG_LENGTH) + "...(truncated)";
-        }
-        return sanitized;
+    static boolean isValidHostName(String value) {
+        return VALID_HOST_NAME.matcher(value).matches();
+    }
+
+    static boolean isValidGroupName(String value) {
+        return VALID_GROUP_NAME.matcher(value).matches();
     }
 
     static List<Tag> filterTag(List<Tag> tTags, String[] ignoreTagName) {
