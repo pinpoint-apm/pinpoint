@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
 import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
 import com.navercorp.pinpoint.batch.config.AgentCountJobXmlConfig;
+import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
 import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
@@ -64,6 +65,7 @@ import java.util.List;
         AgentCountJobXmlConfig.class,
         AgentCountJobConfig.class,
         CleanupInactiveApplicationsJobConfig.class,
+        CleanupAgentAndApplicationJobConfig.class,
 
         WebServiceConfig.CommonConfig.class,
         TraceConfiguration.TraceServiceConfiguration.class,

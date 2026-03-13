@@ -82,4 +82,16 @@ public class AgentIdEntry {
     public long getCurrentStateTimestamp() {
         return currentStateTimestamp;
     }
+
+    @Override
+    public String toString() {
+        return "AgentIdEntry{" +
+                "application=" + application +
+                ", agentId='" + agentId + '\'' +
+                ", agentStartTime=" + agentStartTime +
+                ", agentName='" + agentName + '\'' +
+                ", currentState=" + currentState +
+                ", currentStateTimestamp=" + currentStateTimestamp +
+                '}';
+    }
 }

@@ -23,9 +23,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  */
@@ -72,6 +69,21 @@ public class BatchProperties {
 
     @Value("${job.cleanup.inactive.applications.cron}")
     private String cleanupInactiveApplicationsJobCron;
+
+    @Value("${job.cleanup.inactive.agent-application.enable:false}")
+    private boolean cleanupAgentAndApplicationJobEnable;
+
+    @Value("${job.cleanup.inactive.agent-application.cron:0 0 4 * * THU}")
+    private String cleanupAgentAndApplicationJobCron;
+
+    @Value("${job.cleanup.inactive.agent-application.dry-run:true}")
+    private boolean cleanupAgentAndApplicationJobDryRun;
+
+    @Value("${job.cleanup.inactive.agent.threshold-days:30}")
+    private int cleanupAgentInactiveThresholdDays;
+
+    @Value("${job.cleanup.inactive.agent.grace-days:7}")
+    private int cleanupAgentAndApplicationGraceDays;
 
     private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
 
@@ -138,6 +150,22 @@ public class BatchProperties {
         return cleanupInactiveApplicationsJobCron;
     }
 
+    public boolean isCleanupAgentAndApplicationJobEnable() {
+        return cleanupAgentAndApplicationJobEnable;
+    }
+
+    public String getCleanupAgentAndApplicationJobCron() {
+        return cleanupAgentAndApplicationJobCron;
+    }
+
+    public int getCleanupAgentInactiveThresholdDays() {
+        return cleanupAgentInactiveThresholdDays;
+    }
+
+    public boolean isCleanupAgentAndApplicationJobDryRun() {
+        return cleanupAgentAndApplicationJobDryRun;
+    }
+
     public int getAgentInspectorStatTableCount() {
         return alarmAgentInspectorStatTableCount;
     }
@@ -167,5 +195,9 @@ public class BatchProperties {
                 ", cleanupInactiveApplicationsJobEnable=" + cleanupInactiveApplicationsJobEnable +
                 ", cleanupInactiveApplicationsJobCron='" + cleanupInactiveApplicationsJobCron + '\'' +
                 '}';
+    }
+
+    public int getCleanupAgentAndApplicationGraceDays() {
+        return cleanupAgentAndApplicationGraceDays;
     }
 }
