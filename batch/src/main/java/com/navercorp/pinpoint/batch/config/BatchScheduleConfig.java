@@ -70,6 +70,14 @@ public class BatchScheduleConfig implements SchedulingConfigurer {
         );
 
         taskRegistrar.addTriggerTask(
+                batchJobLauncher::cleanAgentAndApplicationJob,
+                triggerContext -> {
+                    String cron = batchProperties.getCleanupAgentAndApplicationJobCron();
+                    return new CronTrigger(cron).nextExecution(triggerContext);
+                }
+        );
+
+        taskRegistrar.addTriggerTask(
                 batchJobLauncher::uriStatAlarmJob,
                 triggerContext -> {
                     String cron = batchProperties.getUriStatAlarmJobCron();
@@ -81,7 +89,7 @@ public class BatchScheduleConfig implements SchedulingConfigurer {
     @Bean
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(4);
+        scheduler.setPoolSize(5);
         scheduler.setThreadNamePrefix("batch-scheduler-");
         scheduler.initialize();
         return scheduler;

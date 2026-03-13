@@ -33,6 +33,7 @@ import java.util.Objects;
 
 @Repository
 public class HbaseAgentIdDao implements AgentIdDao {
+    private static final int DEFAULT_SCAN_CACHING = 5000;
     private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.AGENT_ID;
     private static final byte VERSION_0 = (byte) 0;
 
@@ -78,7 +79,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
         scan.setStartStopRowForPrefixScan(rowKeyPrefix);
         scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
         scan.addColumn(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER);
-        scan.setCaching(100);
+        scan.setCaching(DEFAULT_SCAN_CACHING);
         return scan;
     }
 
@@ -147,5 +148,36 @@ public class HbaseAgentIdDao implements AgentIdDao {
         buffer.putLong(eventTimestamp);
         buffer.putShort(state.getCode());
         return buffer.getBuffer();
+    }
+
+    @Override
+    public List<AgentIdEntry> getInactiveAgentIdEntry(long maxStatusTimestamp, int limit, @Nullable AgentIdEntry lastAgentIdEntry) {
+        Scan scan = new Scan();
+        if (lastAgentIdEntry != null) {
+            byte[] startRow = AgentIdRowKeyUtils.createRow(
+                    lastAgentIdEntry.getService().getUid(),
+                    lastAgentIdEntry.getApplicationName(),
+                    lastAgentIdEntry.getServiceTypeCode(),
+                    lastAgentIdEntry.getAgentId(),
+                    lastAgentIdEntry.getAgentStartTime());
+            scan.withStartRow(startRow, false);
+        }
+        scan.setLimit(limit);
+        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
+        scan.addColumn(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER);
+        scan.setCaching(limit);
+        SingleColumnValueFilter filter = new SingleColumnValueFilter(
+                DESCRIPTOR.getName(),
+                HbaseTables.AGENT_ID_STATE_QUALIFIER,
+                CompareOperator.LESS,
+                new BinaryPrefixComparator(Bytes.toBytes(maxStatusTimestamp))
+        );
+        filter.setFilterIfMissing(false);
+        scan.setFilter(filter);
+
+        final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        RowMapper<List<AgentIdEntry>> mapper = new AgentIdEntryMapper(applicationFactory, null);
+        List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, mapper);
+        return ListListUtils.toList(results);
     }
 }

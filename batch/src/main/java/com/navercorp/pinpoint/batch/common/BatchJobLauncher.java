@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.batch.common;
 
+import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
+import com.navercorp.pinpoint.batch.util.JobParametersUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.JobParameters;
@@ -24,7 +26,6 @@ import org.springframework.batch.core.configuration.JobLocator;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -63,10 +64,7 @@ public class BatchJobLauncher extends JobLaunchSupport {
     }
 
     public static JobParameters createTimeParameter() {
-        JobParametersBuilder builder = new JobParametersBuilder();
-        Date now = new Date();
-        builder.addDate("schedule.date", now);
-        return builder.toJobParameters();
+        return JobParametersUtils.newJobParametersBuilder().toJobParameters();
     }
 
     public void agentCountJob() {
@@ -83,6 +81,20 @@ public class BatchJobLauncher extends JobLaunchSupport {
         } else {
             logger.debug("Skip applicationCleanJob, because 'enableCleanupInactiveApplicationsJob' is disabled.");
         }
+    }
+
+    public void cleanAgentAndApplicationJob() {
+        if (batchProperties.isCleanupAgentAndApplicationJobEnable()) {
+            run(CleanupAgentAndApplicationJobConfig.JOB_NAME, createTimeParameter(batchProperties.isCleanupAgentAndApplicationJobDryRun()));
+        } else {
+            logger.debug("Skip {}, because 'agentIdCleanJobEnable' is disabled.", CleanupAgentAndApplicationJobConfig.JOB_NAME);
+        }
+    }
+
+    public static JobParameters createTimeParameter(boolean dryRun) {
+        JobParametersBuilder builder = JobParametersUtils.newJobParametersBuilder();
+        builder.addString("dryRun", String.valueOf(dryRun));
+        return builder.toJobParameters();
     }
 
 }
