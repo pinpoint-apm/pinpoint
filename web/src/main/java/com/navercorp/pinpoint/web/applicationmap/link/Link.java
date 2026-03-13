@@ -94,6 +94,10 @@ public class Link {
         return range;
     }
 
+    public ServiceLinkName getServiceLinkName() {
+        return ServiceLinkName.of(fromNode.getApplication(), toNode.getApplication());
+    }
+
     public LinkName getLinkName() {
         return LinkName.of(fromNode.getApplication(), toNode.getApplication());
     }
