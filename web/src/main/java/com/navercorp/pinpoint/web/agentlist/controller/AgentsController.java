@@ -165,6 +165,7 @@ public class AgentsController {
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
                 .Builder(application, timeWindow,
                 fromApplications, toApplications)
+                .setUseStatisticsAgentState(true)
                 .build();
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(
