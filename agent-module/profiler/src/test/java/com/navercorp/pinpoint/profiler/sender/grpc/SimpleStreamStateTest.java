@@ -64,10 +64,10 @@ class SimpleStreamStateTest {
     }
 
     @Test
-    void fail_recordsFirstFailureTime() {
+    void isFailure_singleFail_belowCountThreshold() {
         SimpleStreamState state = new SimpleStreamState(10, 1000);
         state.fail();
-        // After first fail, failureTime should be set (non-zero)
+        // Single fail, failCount(1) <= limitCount(10)
         Assertions.assertFalse(state.isFailure());
     }
 
