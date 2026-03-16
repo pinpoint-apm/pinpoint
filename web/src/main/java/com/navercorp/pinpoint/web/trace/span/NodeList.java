@@ -46,7 +46,7 @@ public class NodeList implements Iterable<Node> {
 
         List<Node> list = new ArrayList<>(spans.size());
         for (SpanBo span : spans) {
-            list.add(Node.toNode(span));
+            list.add(new Node(span));
         }
         list.sort(STARTTIME_COMPARATOR);
         return new NodeList(list);
@@ -160,6 +160,4 @@ public class NodeList implements Iterable<Node> {
             }
         };
     }
-
-
 }

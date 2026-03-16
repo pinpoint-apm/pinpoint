@@ -35,14 +35,12 @@ import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-@Service
 public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase {
-    private static final Supplier<ServiceUid> DEFAULT_SERVICE_UID = () -> ServiceUid.DEFAULT;
+    public static final Supplier<ServiceUid> DEFAULT_SERVICE_UID = () -> ServiceUid.DEFAULT;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -85,9 +83,6 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         for (SpanBo spanBo : otlpTraceMapperData.getSpanBoList()) {
             try {
                 traceService.insertSpan(spanBo);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SpanBo inserted. {}", spanBo);
-                }
             } catch (Exception e) {
                 errorCount++;
                 logger.warn("Failed to insert spanBo", e);
@@ -97,9 +92,6 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         for (SpanChunkBo spanChunkBo : otlpTraceMapperData.getSpanChunkBoList()) {
             try {
                 traceService.insertSpanChunk(spanChunkBo);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SpanChunkBo inserted. {}", spanChunkBo);
-                }
             } catch (Exception e) {
                 errorCount++;
                 logger.warn("Failed to insert spanChunkBo", e);
@@ -115,10 +107,10 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         int agentInfoErrorCount = 0;
         for (AgentInfoBo agentInfoBo : otlpTraceMapperData.getAgentInfoBoList()) {
             if (agentIdCache.get(agentInfoBo.getAgentId()) == null) {
-                agentIdCache.put(agentInfoBo.getAgentId(), true);
                 try {
                     agentInfoService.insert(agentInfoBo);
                     applicationIndexV2Service.insert(DEFAULT_SERVICE_UID, agentInfoBo);
+                    agentIdCache.put(agentInfoBo.getAgentId(), true);
                 } catch (Exception e) {
                     agentInfoErrorCount++;
                     logger.warn("Failed to insert agentInfoBo", e);

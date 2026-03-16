@@ -102,10 +102,10 @@ public class CallTreeNode {
     @Override
     public String toString() {
         return "{depth=" + getDepth() +
-               ", child=" + exist(child) +
-               ", sibling=" + exist(sibling) +
-               ", align=" + align +
-               "}";
+                ", child=" + exist(child) +
+                ", sibling=" + exist(sibling) +
+                ", align=" + align +
+                "}";
     }
 
     private static boolean exist(CallTreeNode node) {

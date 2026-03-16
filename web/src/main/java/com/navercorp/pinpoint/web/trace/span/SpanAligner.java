@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.logging.log4j.LogManager;
@@ -46,6 +45,7 @@ public class SpanAligner {
     private final LinkMap linkMap;
     private final MetaSpanCallTreeFactory metaSpanCallTreeFactory = new MetaSpanCallTreeFactory();
     private final Predicate<CallTreeNode> callTreeNodeNonProductiveFilter;
+
 
     public SpanAligner(final List<SpanBo> spans, Predicate<SpanBo> filter, ServiceTypeRegistryService serviceTypeRegistryService) {
         this.nodeList = NodeList.newNodeList(spans);
@@ -88,17 +88,23 @@ public class SpanAligner {
                 SpanAsyncEventMap asyncSpanEventMap = node.getAsyncSpanEventMap();
                 logger.debug("Populate span {parentSpanId={}, spanId={}, startTime={}, root={}, eventSize={}, asyncEventSize={}}", span.getParentSpanId(), span.getSpanId(), span.getStartTime(), span.isRoot(), alignList.size(), asyncSpanEventMap.size());
             }
+
             populateSpanEvent(node, node.getSpanCallTree(), node.getAlignList());
         }
     }
 
     private void populateSpanEvent(final Node node, final SpanCallTree spanCallTree, final List<Align> alignList) {
+        // cursor tree
+        SpanCallTree tree = spanCallTree;
+        if (node.isOpentelemetry()) {
+            SpanBo spanBo = node.getSpanBo();
+            addLink(spanBo.getParentSpanId(), spanBo.getSpanId(), node, tree);
+        }
+
         if (CollectionUtils.isEmpty(alignList)) {
             return;
         }
 
-        // cursor tree
-        SpanCallTree tree = spanCallTree;
         for (Align align : alignList) {
             try {
                 if (!node.isCorrupted()) {
@@ -117,25 +123,26 @@ public class SpanAligner {
                 tree = corruptedCallTree;
             }
             // link
-            final long nextSpanId = align.getSpanEventBo().getNextSpanId();
-            if (nextSpanId != -1) {
-                // add linked call tree
-                final LinkedCallTree linkedCallTree = new LinkedCallTree(new SpanAlign(new SpanBo()));
-                tree.add(linkedCallTree);
-                final Link link = Link.newLink(align, linkedCallTree);
-                this.linkList.add(link);
-            }
+            if (node.isOpentelemetry()) {
+                addLink(align.getSpanBo().getParentSpanId(), align.getOpenTelemetrySpanId(), node, tree);
+            } else {
+                final long nextSpanId = align.getSpanEventBo().getNextSpanId();
+                if (nextSpanId != -1) {
+                    // add linked call trees
+                    final Link link = new Link(align.getSpanBo().getParentSpanId(), align.getSpanBo().getSpanId(), align.getSpanEventBo().getNextSpanId(), node, tree.getCursor());
+                    this.linkList.add(link);
+                }
 
-            // async
-            final int nextAsyncId = align.getSpanEventBo().getNextAsyncId();
-            final SpanAsyncEventMap asyncSpanEventMap = node.getAsyncSpanEventMap();
+                // async
+                final int nextAsyncId = align.getSpanEventBo().getNextAsyncId();
+                final SpanAsyncEventMap asyncSpanEventMap = node.getAsyncSpanEventMap();
 
-            for (List<Align> asyncAlignList : asyncSpanEventMap.getAsyncAlign(nextAsyncId)) {
-                populateAsyncSpanEvent(node, tree, asyncAlignList);
+                for (List<Align> asyncAlignList : asyncSpanEventMap.getAsyncAlign(nextAsyncId)) {
+                    populateAsyncSpanEvent(node, tree, asyncAlignList);
+                }
             }
         }
     }
-
 
     private void populateAsyncSpanEvent(final Node node, final SpanCallTree callTree, final List<Align> alignList) {
         if (node.isCorrupted()) {
@@ -150,9 +157,16 @@ public class SpanAligner {
         }
     }
 
+    private void addLink(long parentSpanId, long spanId, Node node, SpanCallTree tree) {
+        List<Node> linkNodeList = linkMap.getFirstKey(spanId);
+        for (Node linkNode : linkNodeList) {
+            final Link link = new Link(parentSpanId, spanId, linkNode.getSpanBo().getSpanId(), node, tree.getCursor());
+            this.linkList.add(link);
+        }
+    }
+
     private void link() {
         LinkList filter = this.linkList.filter(this::usedLink);
-
         // remove linked
         this.linkList.removeAll(filter);
     }
@@ -162,52 +176,22 @@ public class SpanAligner {
         if (CollectionUtils.isEmpty(nodeList)) {
             return false;
         }
-        int size = nodeList.size();
-        if (size > 1) {
-            boolean result = false;
-            for (Node node : nodeList) {
-                if (putNodeToLink(link, node, true)) {
-                    result = true;
-                }
-            }
-            return result;
-        } else if (size == 1) {
-            Node node = nodeList.get(0);
-            if (putNodeToLink(link, node, false)) {
-                return true;
-            }
-        }
-        return false;
-    }
+        nodeList.removeIf(Node::isLinked);
 
-    private boolean putNodeToLink(Link link, Node node, boolean hasMultipleChild) {
-        if (node == null) {
-            return false;
+        boolean linked = false;
+        for (Node node : nodeList) {
+            SpanCallTree callTree = link.getSpanCallTree();
+            callTree.add(node.getSpanCallTree());
+            node.setLinked(true);
+            linked = true;
         }
 
-        if (node.isLinked()) {
-            // Duplicated nextSpanId
-            logger.warn("Already linked node. link {} to node {}", link, node);
-            return false;
-        }
-
-        if (isDebug) {
-            logger.debug("Linked link {} to node {}", link, node);
-        }
-
-        // linked
-        node.setLinked(true);
-        link.setLinked(true);
-        if (hasMultipleChild) {
-            link.getLinkedCallTree().updateForMultipleChild(node.getSpanCallTree());
-        } else {
-            link.getLinkedCallTree().update(node.getSpanCallTree());
-        }
-        return true;
+        return linked;
     }
 
     private void fill() {
         final NodeList unlinkedNodeList = this.nodeList.filter(NodeList.unlinkFilter());
+        // TODO node.isOpenTelemetry
         for (Node node : unlinkedNodeList) {
             final SpanBo spanBo = node.getSpanBo();
             if (node.isLinked() || spanBo.isRoot()) {
@@ -216,38 +200,20 @@ public class SpanAligner {
             // find missing grand parent.
             final LinkList targetLinkList = this.linkList.filter(LinkList.spanFilter(spanBo));
             if (!targetLinkList.isEmpty()) {
-                final Link matchedLink = targetLinkList.matchSpan(spanBo);
-                if (matchedLink != null) {
-                    if (isDebug) {
-                        logger.debug("Fill link {} to node {}", matchedLink, node);
-                    }
-                    if (OpenTelemetryServiceTypeCategory.isServer(spanBo.getServiceType())) {
-                        // OpeanTelemetry Span to Span
-                        node.setLinked(true);
-                        matchedLink.getLinkedCallTree().update(node.getSpanCallTree());
-                        matchedLink.setLinked(true);
-                    } else {
-                        final CallTree unknownSpanCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTime());
-                        unknownSpanCallTree.add(node.getSpanCallTree());
-                        node.setLinked(true);
-                        matchedLink.getLinkedCallTree().update(unknownSpanCallTree);
-                        matchedLink.setLinked(true);
-                    }
-
-                    // clear
-                    this.linkList.remove(matchedLink);
-                    traceState.progress();
+                traceState.progress();
+                for (Link link : targetLinkList) {
+                    final CallTree unknownSpanCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTime());
+                    unknownSpanCallTree.add(node.getSpanCallTree());
+                    node.setLinked(true);
+                    SpanCallTree callTree = link.getSpanCallTree();
+                    callTree.add(unknownSpanCallTree);
                 }
+                linkList.removeAll(targetLinkList);
             }
         }
     }
 
     private void clear() {
-        for (Link link : this.linkList) {
-            if (!link.isLinked()) {
-                link.getLinkedCallTree().remove();
-            }
-        }
     }
 
     private CallTree root() {

@@ -108,4 +108,12 @@ public interface Align {
     String getDestinationId();
 
     int getAsyncId();
+
+    boolean isOpenTelemetry();
+
+    long getOpenTelemetrySpanId();
+
+    long getOpenTelemetryParentSpanId();
+
+    long getOpenTelemetryStartTime();
 }

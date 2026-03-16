@@ -257,4 +257,6 @@ public interface AnnotationKey {
     AnnotationKey OPENTELEMETRY_START_TIME = AnnotationKeyFactory.of(401, "StartTimeUnixNano");
     AnnotationKey OPENTELEMETRY_EVENT = AnnotationKeyFactory.of(402, "Event", VIEW_IN_RECORD_SET);
     AnnotationKey OPENTELEMETRY_LINK = AnnotationKeyFactory.of(403, "Link", VIEW_IN_RECORD_SET);
+    AnnotationKey OPENTELEMETRY_SPAN_ID = AnnotationKeyFactory.of(404, "SpanId");
+    AnnotationKey OPENTELEMETRY_PARENT_SPAN_ID = AnnotationKeyFactory.of(405, "ParentSpanId");
 }

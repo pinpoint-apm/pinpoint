@@ -25,6 +25,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -32,12 +33,6 @@ import java.util.function.Predicate;
  * @author Woonduk Kang(emeroad)
  */
 public class LinkMap {
-    private final MultiValueMap<LongPair, Node> spanToLinkMap;
-
-    public LinkMap(MultiValueMap<LongPair, Node> spanToLinkMap, List<Node> duplicatedNodeList) {
-        this.spanToLinkMap = Objects.requireNonNull(spanToLinkMap, "spanToLinkMap");
-    }
-
     public static LinkMap buildLinkMap(NodeList nodeList, TraceState traceState, Predicate<SpanBo> focusFilter, ServiceTypeRegistryService serviceTypeRegistryService) {
         Objects.requireNonNull(focusFilter, "focusFilter");
 
@@ -66,10 +61,38 @@ public class LinkMap {
         return new LinkMap(spanToLinkMap, duplicatedNodeList);
     }
 
+    private final MultiValueMap<LongPair, Node> spanToLinkMap;
+    private final MultiValueMap<Long, Node> firstKeyIndex;
+
+    private LinkMap(MultiValueMap<LongPair, Node> spanToLinkMap, List<Node> duplicatedNodeList) {
+        this.spanToLinkMap = Objects.requireNonNull(spanToLinkMap, "spanToLinkMap");
+        this.firstKeyIndex = buildFirstKeyIndex(this.spanToLinkMap);
+    }
+
+    private MultiValueMap<Long, Node> buildFirstKeyIndex(MultiValueMap<LongPair, Node> spanToLinkMap) {
+        MultiValueMap<Long, Node> index = new LinkedMultiValueMap<>();
+        for (Map.Entry<LongPair, List<Node>> entry : spanToLinkMap.entrySet()) {
+            LongPair key = entry.getKey();
+            Long first = key.first();
+            for (Node node : entry.getValue()) {
+                index.add(first, node);
+            }
+        }
+        return index;
+    }
+
     public List<Node> findNode(Link link) {
         Objects.requireNonNull(link, "link");
 
         final LongPair key = new LongPair(link.getSpanId(), link.getNextSpanId());
         return this.spanToLinkMap.get(key);
+    }
+
+    public List<Node> getFirstKey(long firstKey) {
+        List<Node> nodes = this.firstKeyIndex.get(firstKey);
+        if (nodes == null || nodes.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(nodes);
     }
 }
