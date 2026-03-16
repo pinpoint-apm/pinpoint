@@ -25,6 +25,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -71,5 +72,15 @@ public class LinkMap {
 
         final LongPair key = new LongPair(link.getSpanId(), link.getNextSpanId());
         return this.spanToLinkMap.get(key);
+    }
+
+    public List<Node> getFirstKey(long firstKey) {
+        List<Node> nodeList = new ArrayList<>();
+        for (Map.Entry<LongPair, List<Node>> entry : this.spanToLinkMap.entrySet()) {
+            if (entry.getKey().first() == firstKey) {
+                nodeList.addAll(entry.getValue());
+            }
+        }
+        return nodeList;
     }
 }

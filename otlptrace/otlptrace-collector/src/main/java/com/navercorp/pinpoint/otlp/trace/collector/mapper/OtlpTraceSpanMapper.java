@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-
 @Component
 public class OtlpTraceSpanMapper {
     private final OtlpTraceAttributeMapper attributeMapper;
@@ -80,9 +79,8 @@ public class OtlpTraceSpanMapper {
         int elapsed = (int) (endTime - startTime);
         spanBo.setElapsed(elapsed);
         spanBo.setAgentStartTime(startTime);
-
-        // OPENTELEMETRY
         spanBo.setServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
+
         spanBo.setFlag((short) 0); // TODO ?
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
             spanBo.setErrCode(1);
@@ -126,32 +124,74 @@ public class OtlpTraceSpanMapper {
     }
 
     String getServerSpanToEndPoint(Span span) {
-        String endPoint = "UNKNOWN";
-        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
+        String endPoint = null;
+        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             // HTTP Server
             final String serverAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
             if (serverAddress != null) {
                 final long serverPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
-                endPoint = HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
+                return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
+            }
+            final String httpUrl = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
+            if (httpUrl != null) {
+                return extractHostAndPort(httpUrl);
+            }
+            final String rpcService = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SERVICE, null);
+            if (rpcService != null) {
+                return rpcService;
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
             final String clientId = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
             if (clientId != null) {
                 endPoint = clientId;
             }
-        } else {
-            throw new IllegalArgumentException("not supported span kind=" + span.getKind().getNumber());
         }
 
         return endPoint;
     }
 
+    public static String extractHostAndPort(String url) {
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
+
+        int start = 0;
+
+        int schemeEnd = url.indexOf("://");
+        if (schemeEnd >= 0) {
+            start = schemeEnd + 3;
+        }
+
+        int end = url.length();
+        for (int i = start; i < url.length(); i++) {
+            char c = url.charAt(i);
+            if (c == '/' || c == '?' || c == '#') {
+                end = i;
+                break;
+            }
+        }
+
+        return url.substring(start, end); // "host" or "host:port"
+    }
+
     String getServerSpanToRpc(Span span) {
-        String rpc = "UNKNOWN";
-        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
+        String rpc = span.getName();
+        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             final String urlPath = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
-                rpc = urlPath;
+                return urlPath;
+            }
+            final String httpUrl = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
+            if (httpUrl != null) {
+                return extractPath(httpUrl);
+            }
+            final String httpTaret = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_TARGET, null);
+            if (httpTaret != null) {
+                return httpTaret;
+            }
+            final String rpcMethod = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD, null);
+            if (rpcMethod != null) {
+                return rpcMethod;
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
             final String destinationName = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME, null);
@@ -167,24 +207,70 @@ public class OtlpTraceSpanMapper {
             if (offset != 0) {
                 rpc = rpc + ",offset=" + offset;
             }
-        } else {
-            throw new IllegalArgumentException("not supported span kind=" + span.getKind());
         }
 
         return rpc;
     }
 
+    public static String extractPath(String url) {
+        if (url == null || url.isEmpty()) {
+            return "/";
+        }
+
+        int start = 0;
+        int schemeEnd = url.indexOf("://");
+        if (schemeEnd >= 0) {
+            start = schemeEnd + 3;
+        }
+
+        int pathStart = url.indexOf('/', start);
+        if (pathStart < 0) {
+            return "/"; // path 없음
+        }
+
+        int pathEnd = url.length();
+        for (int i = pathStart; i < url.length(); i++) {
+            char c = url.charAt(i);
+            if (c == '?' || c == '#') {
+                pathEnd = i;
+                break;
+            }
+        }
+
+        return url.substring(pathStart, pathEnd);
+    }
+
     String getServerSpanToRemoteAddress(Span span) {
-        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
-            return AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_CLIENT_ADDRESS, "UNKNOWN");
+        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
+            String remoteAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_CLIENT_ADDRESS, null);
+            if (remoteAddress != null) {
+                return remoteAddress;
+            }
+            remoteAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_PEER_ADDRESS, null);
+            if (remoteAddress != null) {
+                return remoteAddress;
+            }
+            remoteAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_IP, null);
+            if (remoteAddress != null) {
+                return remoteAddress;
+            }
+            final String networkPeerIp = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, null);
+            if (networkPeerIp != null) {
+                final long networkPeerPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, 0L);
+                return HostAndPort.toHostAndPortString(networkPeerIp, (int) networkPeerPort, 0);
+            }
+            return null;
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
             return null;
-        } else {
-            throw new IllegalArgumentException("not supported span kind=" + span.getKind());
         }
+        return null;
     }
 
     long getServerSpanToResponseStatusCode(Span span) {
-        return AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, -1L);
+        long httpStatusCode = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, -1L);
+        if (httpStatusCode != -1) {
+            return httpStatusCode;
+        }
+        return AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_STATUS_CODE, -1L);
     }
 }

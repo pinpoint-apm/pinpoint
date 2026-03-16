@@ -21,17 +21,30 @@ import java.util.function.Predicate;
 
 public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_CLIENT_ADDRESS = "client.address";
+    public static final String ATTRIBUTE_KEY_PEER_ADDRESS = "peer.address";
+    public static final String ATTRIBUTE_KEY_NET_PEER_IP = "net.peer.ip";
+    public static final String ATTRIBUTE_KEY_NETWORK_PEER_IP = "network.peer.address";
+    public static final String ATTRIBUTE_KEY_NETWORK_PEER_PORT = "network.peer.port";
     public static final String ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE = "http.response.status_code";
+    public static final String ATTRIBUTE_KEY_HTTP_STATUS_CODE = "http.status_code";
     public static final String ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET = "messaging.kafka.message.offset";
     public static final String ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID = "messaging.destination.partition.id";
     public static final String ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME = "messaging.destination.name";
     public static final String ATTRIBUTE_KEY_URL_PATH = "url.path";
+    public static final String ATTRIBUTE_KEY_HTTP_URL = "http.url";
+    public static final String ATTRIBUTE_KEY_HTTP_TARGET = "http.target";
+    public static final String ATTRIBUTE_KEY_RPC_SERVICE = "rpc.service";
+    public static final String ATTRIBUTE_KEY_RPC_METHOD = "rpc.method";
     public static final String ATTRIBUTE_KEY_MESSAGING_CLIENT_ID = "messaging.client_id";
     public static final String ATTRIBUTE_KEY_SERVER_PORT = "server.port";
     public static final String ATTRIBUTE_KEY_SERVER_ADDRESS = "server.address";
+    public static final String ATTRIBUTE_KEY_UPSTREAM_ADDRESS = "upstream_address";
     public static final String ATTRIBUTE_KEY_DB_NAME = "db.name";
+    public static final String ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME = "upstream_cluster.name";
     public static final String ATTRIBUTE_KEY_DB_STATEMENT = "db.statement";
+    public static final String ATTRIBUTE_KEY_DB_QUERY_TEXT = "db.query.text";
     public static final String ATTRIBUTE_KEY_DB_SYSTEM = "db.system";
+    public static final String ATTRIBUTE_KEY_DB_SYSTEM_NAME = "db.system.name";
 
     public static final Map<String, Boolean> FILTERED_ATTRIBUTE_KEY_MAP = Map.ofEntries(
             Map.entry(ATTRIBUTE_KEY_CLIENT_ADDRESS, Boolean.TRUE),

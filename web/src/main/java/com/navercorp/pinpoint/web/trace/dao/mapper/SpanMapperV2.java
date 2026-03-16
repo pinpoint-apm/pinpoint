@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -33,6 +34,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -209,8 +212,14 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     }
 
     private boolean isChildSpanChunk(SpanBo spanBo, SpanChunkBo spanChunkBo) {
-        if (spanBo.getSpanId() != spanChunkBo.getSpanId()) {
-            return false;
+        if (OpenTelemetryServiceTypeCategory.contains(spanBo.getServiceType())) {
+            if (!isOpenTelemetryChildSpanChunk(spanBo, spanChunkBo)) {
+                return false;
+            }
+        } else {
+            if (spanBo.getSpanId() != spanChunkBo.getSpanId()) {
+                return false;
+            }
         }
         if (!Strings.CS.equals(spanBo.getAgentId(), spanChunkBo.getAgentId())) {
             return false;
@@ -220,6 +229,36 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         }
         return true;
     }
+
+    private boolean isOpenTelemetryChildSpanChunk(SpanBo spanBo, SpanChunkBo spanChunkBo) {
+        if (spanBo.getSpanId() == spanChunkBo.getSpanId()) {
+            return true;
+        }
+        List<Long> parentSpanIdList = new ArrayList<>();
+        for (SpanEventBo spanEventBo : spanChunkBo.getSpanEventBoList()) {
+            for (AnnotationBo annotationBo : spanEventBo.getAnnotationBoList()) {
+                if (AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode() == annotationBo.getKey()) {
+                    parentSpanIdList.add((Long) annotationBo.getValue());
+                }
+            }
+        }
+
+        if (parentSpanIdList.contains(spanBo.getSpanId())) {
+            return true;
+        }
+        for (SpanEventBo spanEventBo : spanBo.getSpanEventBoList()) {
+            for (AnnotationBo annotationBo : spanEventBo.getAnnotationBoList()) {
+                if (AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode() == annotationBo.getKey()) {
+                    if (parentSpanIdList.contains((Long) annotationBo.getValue())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     private AgentKey newAgentKey(BasicSpan basicSpan) {
         return new AgentKey(basicSpan.getApplicationName(), basicSpan.getAgentId(), basicSpan.getSpanId());

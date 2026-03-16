@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.web.trace.span;
 
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-
-import java.util.Objects;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -27,27 +23,15 @@ public class Link {
     private final long parentSpanId;
     private final long spanId;
     private final long nextSpanId;
-    private final LinkedCallTree linkedCallTree;
-    private final long startTimeMillis;
+    private final Node sourceNode;
+    private CallTreeNode cursor;
 
-    private boolean linked;
-
-    public static Link newLink(Align align, LinkedCallTree linkedCallTree) {
-        Objects.requireNonNull(align, "align");
-        Objects.requireNonNull(linkedCallTree, "linkedCallTree");
-
-        final SpanBo spanBo = align.getSpanBo();
-        final long startTimeMillis = align.getStartTime();
-        final long nextSpanId = align.getSpanEventBo().getNextSpanId();
-        return new Link(spanBo.getParentSpanId(), spanBo.getSpanId(), nextSpanId, linkedCallTree, startTimeMillis);
-    }
-
-    public Link(final long parentSpanId, final long spanId, final long nextSpanId, final LinkedCallTree linkedCallTree, final long startTimeMillis) {
+    public Link(final long parentSpanId, final long spanId, final long nextSpanId, Node sourceNode, CallTreeNode cursor) {
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.nextSpanId = nextSpanId;
-        this.linkedCallTree = Objects.requireNonNull(linkedCallTree, "linkedCallTree");
-        this.startTimeMillis = startTimeMillis;
+        this.sourceNode = sourceNode;
+        this.cursor = cursor;
     }
 
     public long getParentSpanId() {
@@ -62,33 +46,20 @@ public class Link {
         return nextSpanId;
     }
 
-    public long getStartTimeMillis() {
-        return startTimeMillis;
-    }
-
-    public LinkedCallTree getLinkedCallTree() {
-        return linkedCallTree;
-    }
-
-    public boolean isLinked() {
-        return linked;
-    }
-
-    public void setLinked(boolean linked) {
-        this.linked = linked;
+    public SpanCallTree getSpanCallTree() {
+        final SpanCallTree spanCallTree = sourceNode.getSpanCallTree();
+        spanCallTree.setCursor(cursor);
+        return spanCallTree;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("parentSpanId=").append(parentSpanId);
-        sb.append(", spanId=").append(spanId);
-        sb.append(", nextSpanId=").append(nextSpanId);
-        sb.append(", linked=").append(linked);
-        sb.append(", startTimeMillis=").append(startTimeMillis);
-        sb.append('}');
-        return sb.toString();
+        return "Link{" +
+                "parentSpanId=" + parentSpanId +
+                ", spanId=" + spanId +
+                ", nextSpanId=" + nextSpanId +
+                ", sourceNode=" + sourceNode +
+                ", parentCallTreeNode=" + cursor +
+                '}';
     }
-
-
 }

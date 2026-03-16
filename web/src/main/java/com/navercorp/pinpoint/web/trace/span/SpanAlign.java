@@ -35,6 +35,7 @@ public class SpanAlign implements Align {
     private final SpanBo spanBo;
     private final boolean hasChild;
     private final boolean meta;
+    private final boolean openTelemetry;
 
     private int id;
     private long gap;
@@ -46,9 +47,14 @@ public class SpanAlign implements Align {
     }
 
     public SpanAlign(SpanBo spanBo, boolean meta) {
+        this(spanBo, meta, false);
+    }
+
+    public SpanAlign(SpanBo spanBo, boolean meta, boolean openTelemetry) {
         this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
         this.hasChild = hasChild0(spanBo);
         this.meta = meta;
+        this.openTelemetry = openTelemetry;
     }
 
     private boolean hasChild0(SpanBo spanBo) {
@@ -280,11 +286,32 @@ public class SpanAlign implements Align {
     }
 
     @Override
+    public boolean isOpenTelemetry() {
+        return openTelemetry;
+    }
+
+    @Override
+    public long getOpenTelemetrySpanId() {
+        return spanBo.getSpanId();
+    }
+
+    @Override
+    public long getOpenTelemetryParentSpanId() {
+        return spanBo.getParentSpanId();
+    }
+
+    @Override
+    public long getOpenTelemetryStartTime() {
+        return spanBo.getStartTime();
+    }
+
+    @Override
     public String toString() {
         return "SpanAlign{" +
                 "spanBo=" + spanBo.getSpanId() +
                 ", hasChild=" + hasChild +
                 ", meta=" + meta +
+                ", openTelemetry=" + openTelemetry +
                 ", id=" + id +
                 ", gap=" + gap +
                 ", depth=" + depth +
