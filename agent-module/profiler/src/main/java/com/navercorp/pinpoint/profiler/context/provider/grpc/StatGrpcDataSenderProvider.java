@@ -31,7 +31,9 @@ import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+import com.navercorp.pinpoint.profiler.sender.grpc.SimpleStreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.StatGrpcDataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.StreamState;
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 import io.netty.handler.ssl.SslContext;
@@ -89,7 +91,12 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<MetricTyp
 
         // not singleton
         ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
-        return new StatGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory);
+
+        ClientOption statClientOption = grpcTransportConfig.getStatClientOption();
+        final StreamState failState = new SimpleStreamState(statClientOption.getLimitCount(), statClientOption.getLimitTime());
+        logger.info("failState:{}", failState);
+
+        return new StatGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory, failState);
     }
 
     private ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable) {

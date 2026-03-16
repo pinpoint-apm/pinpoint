@@ -22,6 +22,9 @@ public class SimpleStreamState implements StreamState {
 
     @Override
     public boolean isFailure() {
+        if (failureTime == 0) {
+            return false;
+        }
         final long errorDuration = System.currentTimeMillis() - failureTime;
         return errorDuration > limitTime && failCount > limitCount;
     }

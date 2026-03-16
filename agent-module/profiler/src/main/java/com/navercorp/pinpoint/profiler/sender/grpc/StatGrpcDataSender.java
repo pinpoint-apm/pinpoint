@@ -100,7 +100,8 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
                               int executorQueueSize,
                               MessageConverter<MetricType, GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactory channelFactory) {
+                              ChannelFactory channelFactory,
+                              StreamState failState) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
         this.statStub = StatGrpc.newStub(managedChannel);
 
@@ -112,7 +113,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
             }
         };
         this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
-        this.failState = new SimpleStreamState(100, 5000);
+        this.failState = Objects.requireNonNull(failState, "failState");
         this.streamExecutorFactory = new StreamExecutorFactory<>(executor);
 
         ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
