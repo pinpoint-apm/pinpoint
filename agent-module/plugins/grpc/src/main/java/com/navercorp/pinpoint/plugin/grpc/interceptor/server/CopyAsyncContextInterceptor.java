@@ -79,8 +79,8 @@ public class CopyAsyncContextInterceptor implements AroundInterceptor {
             return null;
         }
 
-        if (object instanceof ServerStreamGetter) {
-            ServerStream serverStream = ((ServerStreamGetter) object)._$PINPOINT$_getServerStream();
+        if (target instanceof ServerStreamGetter) {
+            ServerStream serverStream = ((ServerStreamGetter) target)._$PINPOINT$_getServerStream();
             if (serverStream instanceof AsyncContextAccessor) {
                 return ((AsyncContextAccessor) serverStream)._$PINPOINT$_getAsyncContext();
             }
