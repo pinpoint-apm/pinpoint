@@ -161,7 +161,7 @@ export const ServerMapPage = ({
           <div className="flex items-center gap-2">
             <PiTreeStructureDuotone />
             <div className="flex items-center gap-1">
-              Servermap
+              Servermap2
               <HelpPopover helpKey="HELP_VIEWER.SERVER_MAP" />
             </div>
           </div>
