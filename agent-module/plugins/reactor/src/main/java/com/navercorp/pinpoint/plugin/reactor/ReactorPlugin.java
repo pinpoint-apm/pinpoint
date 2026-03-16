@@ -415,9 +415,12 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             if (onSubscribeMethod != null) {
                 onSubscribeMethod.addInterceptor(CoreSubscriberOnSubscribeInterceptor.class);
             }
-            final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
-            if (onNextMethod != null) {
-                onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+            final ReactorPluginConfig config = new ReactorPluginConfig(instrumentor.getProfilerConfig());
+            if (config.isTraceOnNext()) {
+                final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
+                if (onNextMethod != null) {
+                    onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+                }
             }
             final InstrumentMethod onErrorMethod = target.getDeclaredMethod("onError", "java.lang.Throwable");
             if (onErrorMethod != null) {
@@ -447,9 +450,12 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             if (onSubscribeMethod != null) {
                 onSubscribeMethod.addInterceptor(CoreSubscriberOnSubscribeInterceptor.class);
             }
-            final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
-            if (onNextMethod != null) {
-                onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+            final ReactorPluginConfig config = new ReactorPluginConfig(instrumentor.getProfilerConfig());
+            if (config.isTraceOnNext()) {
+                final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
+                if (onNextMethod != null) {
+                    onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+                }
             }
             // reactor.core.publisher.FluxPublishOn$PublishOnConditionalSubscriber
             // reactor.core.publisher.FluxPublishOn$PublishOnSubscriber
@@ -482,9 +488,12 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             if (onSubscribeMethod != null) {
                 onSubscribeMethod.addInterceptor(CoreSubscriberOnSubscribeInterceptor.class);
             }
-            final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
-            if (onNextMethod != null) {
-                onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+            final ReactorPluginConfig config = new ReactorPluginConfig(instrumentor.getProfilerConfig());
+            if (config.isTraceOnNext()) {
+                final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
+                if (onNextMethod != null) {
+                    onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+                }
             }
 
             final InstrumentMethod doTimeoutMethod = target.getDeclaredMethod("handleTimeout");
@@ -515,9 +524,12 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             if (onSubscribeMethod != null) {
                 onSubscribeMethod.addInterceptor(CoreSubscriberOnSubscribeInterceptor.class);
             }
-            final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
-            if (onNextMethod != null) {
-                onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+            final ReactorPluginConfig config = new ReactorPluginConfig(instrumentor.getProfilerConfig());
+            if (config.isTraceOnNext()) {
+                final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
+                if (onNextMethod != null) {
+                    onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+                }
             }
 
             final InstrumentMethod whenErrorMethod = target.getDeclaredMethod("whenError", "java.lang.Throwable");

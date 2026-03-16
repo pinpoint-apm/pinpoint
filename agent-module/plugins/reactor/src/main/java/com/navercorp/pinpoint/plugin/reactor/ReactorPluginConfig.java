@@ -27,6 +27,7 @@ public class ReactorPluginConfig {
     private final boolean enable;
 
     private final boolean traceOnError;
+    private final boolean traceOnNext;
     private final boolean tracePublishOn;
     private final boolean traceSubscribeOn;
     private final boolean traceDelay;
@@ -44,6 +45,7 @@ public class ReactorPluginConfig {
         this.enable = config.readBoolean("profiler.reactor.enable", true);
         this.traceOnError = config.readBoolean("profiler.reactor.trace.onError", false);
         this.markErrorOnError = config.readBoolean("profiler.reactor.mark.error.onError", false);
+        this.traceOnNext = config.readBoolean("profiler.reactor.trace.onNext", true);
         this.tracePublishOn = config.readBoolean("profiler.reactor.trace.publishOn", true);
         this.traceSubscribeOn = config.readBoolean("profiler.reactor.trace.subscribeOn", true);
         this.traceDelay = config.readBoolean("profiler.reactor.trace.delay", true);
@@ -62,6 +64,10 @@ public class ReactorPluginConfig {
 
     public boolean isTraceOnError() {
         return traceOnError;
+    }
+
+    public boolean isTraceOnNext() {
+        return traceOnNext;
     }
 
     public boolean isTracePublishOn() {
@@ -105,6 +111,7 @@ public class ReactorPluginConfig {
         return "ReactorPluginConfig{" +
                 "enable=" + enable +
                 ", traceOnError=" + traceOnError +
+                ", traceOnNext=" + traceOnNext +
                 ", tracePublishOn=" + tracePublishOn +
                 ", traceSubscribeOn=" + traceSubscribeOn +
                 ", traceDelay=" + traceDelay +
