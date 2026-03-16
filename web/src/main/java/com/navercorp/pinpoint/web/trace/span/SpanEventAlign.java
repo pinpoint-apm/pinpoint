@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.web.util.OpenTelemetryAnnotationValueUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,15 +32,31 @@ import java.util.Objects;
 public class SpanEventAlign implements Align {
     private final SpanBo spanBo;
     private final SpanEventBo spanEventBo;
+    private final boolean openTelemetry;
 
     private int id;
     private long gap;
     private int depth;
     private long executionMilliseconds;
+    private long openTelemetrySpanId = -1;
+    private long openTelemetryParentSpanId = -1;
+    private long openTelemetryStartTime = -1;
 
     public SpanEventAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
+        this(spanBo, spanEventBo, false);
+    }
+
+    public SpanEventAlign(SpanBo spanBo, SpanEventBo spanEventBo, boolean openTelemetry) {
         this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
         this.spanEventBo = Objects.requireNonNull(spanEventBo, "spanEventBo");
+        this.openTelemetry = openTelemetry;
+
+        if (openTelemetry) {
+            OpenTelemetryAnnotationValueUtils.Values annotationValue = OpenTelemetryAnnotationValueUtils.getValues(spanEventBo.getAnnotationBoList());
+            openTelemetrySpanId = annotationValue.spanId();
+            openTelemetryParentSpanId = annotationValue.parentSpanId();
+            openTelemetryStartTime = annotationValue.startTime();
+        }
     }
 
     @Override
@@ -245,14 +262,38 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
+    public boolean isOpenTelemetry() {
+        return openTelemetry;
+    }
+
+    @Override
+    public long getOpenTelemetrySpanId() {
+        return openTelemetrySpanId;
+    }
+
+    @Override
+    public long getOpenTelemetryParentSpanId() {
+        return openTelemetryParentSpanId;
+    }
+
+    @Override
+    public long getOpenTelemetryStartTime() {
+        return openTelemetryStartTime;
+    }
+
+    @Override
     public String toString() {
         return "SpanEventAlign{" +
                 "spanBo=" + spanBo.getSpanId() +
                 ", spanEventBo=" + spanEventBo +
+                ", openTelemetry=" + openTelemetry +
                 ", id=" + id +
                 ", gap=" + gap +
                 ", depth=" + depth +
                 ", executionMilliseconds=" + executionMilliseconds +
+                ", openTelemetrySpanId=" + openTelemetrySpanId +
+                ", openTelemetryParentSpanId=" + openTelemetryParentSpanId +
+                ", openTelemetryStartTime=" + openTelemetryStartTime +
                 '}';
     }
 

@@ -46,6 +46,13 @@ public class OtlpTraceSpanEventMapper {
     }
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
+        // Delegate to depth-aware mapper with default depth=1
+        List<SpanEventBo> list = new ArrayList<>();
+        list.add(map(spanStartTime, span, 1));
+        return list;
+    }
+
+    SpanEventBo map(long spanStartTime, Span span, int depth) {
         SpanEventBo spanEventBo = new SpanEventBo();
         spanEventBo.setVersion(SpanVersion.TRACE_V2); // TODO
         spanEventBo.setSequence((short) 0);
@@ -76,12 +83,15 @@ public class OtlpTraceSpanEventMapper {
             spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_CLIENT.getCode());
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.PRODUCER_METHOD_NAME));
         } else {
+            // TODO move span
             spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_INTERNAL.getCode());
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.INTERNAL_METHOD_NAME));
         }
         // api
         spanEventBo.setApiId(0);
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_START_TIME.getCode(), span.getStartTimeUnixNano()));
+        spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode(), OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
+        spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
         // attributes
         if (span.getAttributesCount() > 0) {
             attributeMapper.addAttributesToAnnotation(span.getAttributesList(), spanEventBo::addAnnotation);
@@ -93,17 +103,14 @@ public class OtlpTraceSpanEventMapper {
             eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation);
         }
 
-        spanEventBo.setDepth(1);
+        spanEventBo.setDepth(depth);
 
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE) {
             final long nextSpanId = ByteStringUtils.parseLong(span.getSpanId());
             spanEventBo.setNextSpanId(nextSpanId);
         }
 
-        List<SpanEventBo> spanEventBoList = new ArrayList<>();
-        spanEventBoList.add(spanEventBo);
-
-        return spanEventBoList;
+        return spanEventBo;
     }
 
     boolean isClient(Span span) {
@@ -115,15 +122,19 @@ public class OtlpTraceSpanEventMapper {
     }
 
     boolean isDatabase(Span span) {
-        return AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM);
+        return AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM) || AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM_NAME);
     }
 
     boolean isDatabaseExecuteQuery(Span span) {
-        return AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT);
+        return AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT) || AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT);
     }
 
     String getClientSpanDbStatement(Span span) {
-        return AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
+        String statement = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
+        if (statement == null) {
+            statement = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT, null);
+        }
+        return statement;
     }
 
     String getClientSpanToEndPoint(Span span) {
@@ -132,14 +143,18 @@ public class OtlpTraceSpanEventMapper {
             final long serverPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
-
-        return null;
+        // proxy
+        return AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
     }
 
     String getClientSpanToDestinationId(Span span) {
         final String dbName = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
         if (dbName != null) {
             return dbName;
+        }
+        final String upstreamClusterName = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
+        if (upstreamClusterName != null) {
+            return upstreamClusterName;
         }
 
         final String serverAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
@@ -148,6 +163,7 @@ public class OtlpTraceSpanEventMapper {
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
 
-        return null;
+        // proxy
+        return AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
     }
 }

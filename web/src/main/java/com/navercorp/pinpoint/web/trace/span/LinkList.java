@@ -17,24 +17,18 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class LinkList implements Iterable<Link> {
-
-    private static final Comparator<Link> STARTTIME_COMPARATOR = Comparator.comparingLong(Link::getStartTimeMillis);
-
     private final List<Link> linkList;
 
     public LinkList() {
@@ -106,33 +100,5 @@ public class LinkList implements Iterable<Link> {
             }
         };
     }
-
-    public Link matchSpan(final SpanBo span) {
-        if (CollectionUtils.isEmpty(linkList)) {
-            return null;
-        }
-
-        linkList.sort(STARTTIME_COMPARATOR);
-        if(OpenTelemetryServiceTypeCategory.isServer(span.getServiceType())) {
-            return linkList.get(0);
-        }
-
-        Optional<Link> first = linkList.stream()
-                .filter(LinkList.startTimeFilter(span))
-                .findFirst();
-
-        return first.orElse(null);
-    }
-
-    public static Predicate<Link> startTimeFilter(final SpanBo span) {
-        return new Predicate<Link>() {
-            @Override
-            public boolean test(Link link) {
-                return link.getStartTimeMillis() <= span.getStartTime();
-            }
-        };
-
-    }
-
 
 }

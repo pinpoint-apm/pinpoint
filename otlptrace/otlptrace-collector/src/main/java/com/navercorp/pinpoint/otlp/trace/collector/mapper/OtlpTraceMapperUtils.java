@@ -43,23 +43,40 @@ public class OtlpTraceMapperUtils {
         if (agentId == null) {
             final String serviceInstanceId = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_SERVICE_INSTANCE_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
             if (serviceInstanceId == null) {
-                throw new IllegalArgumentException("not found agentId");
-            }
-            // check UUID
-            if (serviceInstanceId.length() == 36) {
-                final UUID uuid = UUID.fromString(serviceInstanceId);
-                final String encoded = Base64Utils.encode(uuid.toString());
-                return new IdAndName(encoded, serviceInstanceId, getApplicationName(attributesList));
-            }
-            // agentId
-            if (!IdValidateUtils.validateId(serviceInstanceId, PinpointConstants.AGENT_ID_MAX_LEN)) {
-                throw new IllegalArgumentException("invalid agentId=" + serviceInstanceId);
+                final String hostName = attributesList.stream().filter(kv -> kv.getKey().equals("host.name")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+                if (hostName != null) {
+                    if (!IdValidateUtils.validateId(hostName, PinpointConstants.AGENT_ID_MAX_LEN)) {
+                        throw new IllegalArgumentException("invalid host.name=" + hostName);
+                    }
+                    return new IdAndName(hostName, null, getApplicationName(attributesList));
+                }
+                // TODO
+                final String applicationName = getApplicationName(attributesList);
+                if (!IdValidateUtils.validateId(applicationName, PinpointConstants.AGENT_ID_MAX_LEN)) {
+                    throw new IllegalArgumentException("invalid agentId(derived from applicationName)=" + applicationName);
+                }
+                return new IdAndName(applicationName, null, applicationName);
+            } else {
+                // check UUID safely
+                if (serviceInstanceId.length() == 36) {
+                    try {
+                        final UUID uuid = UUID.fromString(serviceInstanceId);
+                        final String encoded = Base64Utils.encode(uuid);
+                        return new IdAndName(encoded, serviceInstanceId, getApplicationName(attributesList));
+                    } catch (IllegalArgumentException ignore) {
+                        // not a valid UUID string, fall through to treat as plain agentId
+                    }
+                }
+                // agentId
+                if (!IdValidateUtils.validateId(serviceInstanceId, PinpointConstants.AGENT_ID_MAX_LEN)) {
+                    throw new IllegalArgumentException("invalid service.instance.id=" + serviceInstanceId);
+                }
             }
             return new IdAndName(serviceInstanceId, null, getApplicationName(attributesList));
         }
 
         if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
-            throw new IllegalArgumentException("invalid agentId=" + agentId);
+            throw new IllegalArgumentException("invalid pinpoint.agentId=" + agentId);
         }
 
         return new IdAndName(agentId, null, getApplicationName(attributesList));

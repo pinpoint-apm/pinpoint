@@ -68,8 +68,8 @@ public class OtlpTraceCollectorModule {
     }
 
     @Bean
-    public ServerServiceDefinition serverServiceDefinition(@Qualifier("hbaseOtlpTraceService") TraceService traceService, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper) {
-        BindableService spanService = new GrpcOtlpTraceService(traceService, agentInfoService, applicationIndexV2Service, mapper);
+    public ServerServiceDefinition serverServiceDefinition(TraceService traceServiceList, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper) {
+        BindableService spanService = new GrpcOtlpTraceService(traceServiceList, agentInfoService, applicationIndexV2Service, mapper);
         return ServerInterceptors.intercept(spanService);
     }
 

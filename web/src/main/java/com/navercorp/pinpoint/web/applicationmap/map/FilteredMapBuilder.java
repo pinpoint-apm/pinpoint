@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.DotExtractor;
+import com.navercorp.pinpoint.web.util.OpenTelemetryAnnotationValueUtils;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.Service;
@@ -180,20 +181,14 @@ public class FilteredMapBuilder {
     private MultiValueMap<Long, SpanBo> createTransactionSpanMap(List<SpanBo> transaction) {
         final MultiValueMap<Long, SpanBo> transactionSpanMap = new LinkedMultiValueMap<>(transaction.size());
         for (SpanBo span : transaction) {
-            if (OpenTelemetryServiceTypeCategory.isServer(span.getServiceType())) {
-                for (SpanEventBo spanEventBo : span.getSpanEventBoList()) {
-                    final long key = spanEventBo.getNextSpanId();
-                    if (isParentSpanId(key, transaction)) {
-                        transactionSpanMap.add(key, span);
-                    }
+            if (OpenTelemetryServiceTypeCategory.contains(span.getServiceType())) {
+                if (isParentSpanId(span.getSpanId(), transaction)) {
+                    transactionSpanMap.add(span.getSpanId(), span);
                 }
+
+                createOpenTelemetryTransactionSpanMap(transaction, transactionSpanMap, span, span.getSpanEventBoList());
                 for (SpanChunkBo spanChunkBo : span.getSpanChunkBoList()) {
-                    for (SpanEventBo spanEventBo : spanChunkBo.getSpanEventBoList()) {
-                        final long key = spanEventBo.getNextSpanId();
-                        if (isParentSpanId(key, transaction)) {
-                            transactionSpanMap.add(key, span);
-                        }
-                    }
+                    createOpenTelemetryTransactionSpanMap(transaction, transactionSpanMap, span, spanChunkBo.getSpanEventBoList());
                 }
             } else {
                 if (transactionSpanMap.containsKey(span.getSpanId())) {
@@ -204,6 +199,18 @@ public class FilteredMapBuilder {
         }
         return transactionSpanMap;
     }
+
+    private void createOpenTelemetryTransactionSpanMap(List<SpanBo> transaction, MultiValueMap<Long, SpanBo> transactionSpanMap, SpanBo span, List<SpanEventBo> spanEventBoList) {
+        for (SpanEventBo spanEventBo : spanEventBoList) {
+            long spanId = OpenTelemetryAnnotationValueUtils.getSpanId(spanEventBo.getAnnotationBoList());
+            if (spanId != OpenTelemetryAnnotationValueUtils.DEFAULT_SPAN_ID) {
+                if (isParentSpanId(spanId, transaction)) {
+                    transactionSpanMap.add(spanId, span);
+                }
+            }
+        }
+    }
+
 
     boolean isParentSpanId(long parentSpanId, List<SpanBo> transaction) {
         for (SpanBo span : transaction) {

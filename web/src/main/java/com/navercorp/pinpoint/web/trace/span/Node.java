@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.web.trace.span;
 
-import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -41,17 +39,21 @@ public class Node {
 
     private final SpanBo span;
     private final SpanCallTree spanCallTree;
+    private final boolean opentelemetry;
+    private final List<Align> alignList;
+    private final SpanAsyncEventMap asyncSpanEventMap;
+
     private boolean linked = false;
     private boolean corrupted = false;
 
-    private List<Align> alignList;
-    private SpanAsyncEventMap asyncSpanEventMap;
 
-    public Node(final SpanBo span, final SpanCallTree spanCallTree) {
+    public Node(final SpanBo span) {
         this.span = Objects.requireNonNull(span, "span");
-        this.spanCallTree = Objects.requireNonNull(spanCallTree, "spanCallTree");
+        this.opentelemetry = OpenTelemetryServiceTypeCategory.contains(span.getServiceType());
+        this.spanCallTree = new SpanCallTree(new SpanAlign(span, false, opentelemetry));
+        alignList = buildAlignList(span);
+        asyncSpanEventMap = SpanAsyncEventMap.build(span);
     }
-
 
     public SpanBo getSpanBo() {
         return span;
@@ -77,6 +79,10 @@ public class Node {
         this.corrupted = corrupted;
     }
 
+    public boolean isOpentelemetry() {
+        return opentelemetry;
+    }
+
     @Override
     public String toString() {
         return "Node{" + "applicationName" + span.getApplicationName() +
@@ -92,67 +98,22 @@ public class Node {
 
     private Align newSpanEventAlign(SpanEventBo spanEventBo) {
         Objects.requireNonNull(spanEventBo, "spanEventBo");
-        return new SpanEventAlign(span, spanEventBo);
+        return new SpanEventAlign(span, spanEventBo, opentelemetry);
     }
 
     private Align newSpanEventAlign(SpanChunkBo spanChunkBo, SpanEventBo spanEventBo) {
         Objects.requireNonNull(spanChunkBo, "spanChunkBo");
         Objects.requireNonNull(spanEventBo, "spanEventBo");
-        return new SpanChunkEventAlign(span, spanChunkBo, spanEventBo);
+        return new SpanChunkEventAlign(span, spanChunkBo, spanEventBo, opentelemetry);
     }
 
-    public static Node toNode(SpanBo span) {
-        SpanCallTree spanCallTree = new SpanCallTree(new SpanAlign(span));
-        return Node.build(span, spanCallTree);
-    }
-
-    public static Node build(SpanBo spanBo, SpanCallTree spanCallTree) {
-        Objects.requireNonNull(spanBo, "spanBo");
-        Objects.requireNonNull(spanCallTree, "spanCallTree");
-
-        Node node = new Node(spanBo, spanCallTree);
-
-        node.alignList = buildAlignList(spanBo, node);
-
-        node.asyncSpanEventMap = SpanAsyncEventMap.build(spanBo);
-
-        return node;
-    }
-
-    private static List<Align> buildAlignList(SpanBo spanBo, Node node) {
-
+    private List<Align> buildAlignList(SpanBo spanBo) {
         List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
-        List<Align> alignList = node.buildAlignList(spanEventBoList);
-
+        List<Align> alignList = buildAlignList(spanEventBoList);
         List<SpanChunkBo> spanChunkBoList = spanBo.getSpanChunkBoList();
-        List<Align> chunkSpanEventList = node.buildSpanChunkBaseAligns(spanChunkBoList);
+        List<Align> chunkSpanEventList = buildSpanChunkBaseAligns(spanChunkBoList);
 
         return mergeAndSort(spanBo, alignList, chunkSpanEventList);
-    }
-
-    private static List<Align> mergeAndSort(SpanBo spanBo, List<Align> alignList1, List<Align> alignList2) {
-        List<Align> mergedList = ListUtils.union(alignList1, alignList2);
-        if (mergedList.size() > 1 && OpenTelemetryServiceTypeCategory.isServer(spanBo.getServiceType())) {
-            mergedList.sort(AlignComparator.OPENTELEMETRY);
-            short sequence = 0;
-            for (Align align : mergedList) {
-                SpanEventBo spanEventBo = align.getSpanEventBo();
-                for (AnnotationBo annotationBo : spanEventBo.getAnnotationBoList()) {
-                    if (AnnotationKey.OPENTELEMETRY_START_TIME.getCode() == annotationBo.getKey()) {
-                        if (annotationBo.getValue() instanceof Long) {
-                            final long eventStartTime = TimeUnit.NANOSECONDS.toMillis((Long) annotationBo.getValue());
-                            // ignored overflow
-                            final int startElapsed = (int) (eventStartTime - spanBo.getStartTime());
-                            spanEventBo.setStartElapsed(startElapsed);
-                        }
-                    }
-                }
-                spanEventBo.setSequence(sequence++);
-            }
-        }
-
-        mergedList.sort(AlignComparator.INSTANCE);
-        return mergedList;
     }
 
     private List<Align> buildAlignList(List<SpanEventBo> spanEventBoList) {
@@ -169,6 +130,47 @@ public class Node {
             alignList.add(spanEventAlign);
         }
         return alignList;
+    }
+
+    private List<Align> mergeAndSort(SpanBo spanBo, List<Align> alignList1, List<Align> alignList2) {
+        List<Align> mergedList = ListUtils.union(alignList1, alignList2);
+        if (mergedList.size() > 1 && OpenTelemetryServiceTypeCategory.contains(spanBo.getServiceType())) {
+            return findOpenTelemetryChildSpanEvent(spanBo, mergedList, spanBo.getSpanId(), 1, (short) 0);
+        }
+
+        mergedList.sort(AlignComparator.INSTANCE);
+        return mergedList;
+    }
+
+    private List<Align> findOpenTelemetryChildSpanEvent(SpanBo spanBo, List<Align> alignList, long parentSpanId, int depth, short sequence) {
+        if (alignList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final List<Align> sortedAlignList = new ArrayList<>();
+        final List<Align> childAlignList = new ArrayList<>();
+        for (Align align : alignList) {
+            if (parentSpanId == align.getOpenTelemetryParentSpanId()) {
+                childAlignList.add(align);
+            }
+        }
+        alignList.removeAll(childAlignList);
+        childAlignList.sort(AlignComparator.OPENTELEMETRY_START_TIME);
+        for (Align align : childAlignList) {
+            // set depth, sequence, startElapsed
+            final SpanEventBo spanEventBo = align.getSpanEventBo();
+            spanEventBo.setDepth(depth);
+            spanEventBo.setSequence(sequence++);
+            final long eventStartTime = TimeUnit.NANOSECONDS.toMillis(align.getOpenTelemetryStartTime());
+            final int startElapsed = (int) (eventStartTime - spanBo.getStartTime());
+            spanEventBo.setStartElapsed(startElapsed);
+            sortedAlignList.add(align);
+            final List<Align> list = findOpenTelemetryChildSpanEvent(spanBo, alignList, align.getOpenTelemetrySpanId(), depth + 1, sequence);
+            sequence += (short) list.size();
+            sortedAlignList.addAll(list);
+        }
+
+        return sortedAlignList;
     }
 
     public List<Align> getAlignList() {
