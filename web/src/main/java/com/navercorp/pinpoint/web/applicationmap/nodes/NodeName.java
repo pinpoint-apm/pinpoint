@@ -10,7 +10,8 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class NodeName {
-    public static final String NODE_DELIMITER = "^";
+    public static final char NODE_DELIMITER_CHAR = '^';
+    public static final String NODE_DELIMITER = "" + NODE_DELIMITER_CHAR;
 
     private final String name;
     private final ServiceType serviceType;
@@ -31,11 +32,15 @@ public class NodeName {
     }
 
     public static String toNodeName(String name, ServiceType serviceType) {
-        return name + NODE_DELIMITER + serviceType.getDesc();
+        return newNodeKey(name, serviceType.getDesc());
     }
 
     public static String toNodeKey(String name, ServiceType serviceType) {
-        return name + NODE_DELIMITER + serviceType.getName();
+        return newNodeKey(name, serviceType.getName());
+    }
+
+    private static String newNodeKey(String name, String serviceType) {
+        return name + NODE_DELIMITER_CHAR + serviceType;
     }
 
     @Override

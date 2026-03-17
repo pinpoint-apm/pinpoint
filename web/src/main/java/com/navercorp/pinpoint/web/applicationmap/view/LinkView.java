@@ -77,12 +77,17 @@ public class LinkView {
             Link link = linkView.getLink();
             jgen.writeStartObject();
 
-            jgen.writeObjectField("key", link.getLinkName());  // for servermap
+            jgen.writeObjectField("key", link.getServiceLinkName().toString());  // for servermap
+//            jgen.writeObjectField("key", link.getLinkName());  // for servermap
+
             jgen.writeStringField("linkKey", link.getLinkNameKey());
             jgen.writeObjectField("serviceKey", link.getServiceLinkName().toString());
 
-            jgen.writeObjectField("from", link.getFrom().getNodeName());  // necessary for go.js
-            jgen.writeObjectField("to", link.getTo().getNodeName()); // necessary for go.js
+//            jgen.writeObjectField("from", link.getFrom().getNodeName());  // necessary for servermap
+//            jgen.writeObjectField("to", link.getTo().getNodeName()); // necessary for servermap
+
+            jgen.writeObjectField("from", link.getFrom().getServiceNodeName().toString());  // necessary for servermap
+            jgen.writeObjectField("to", link.getTo().getServiceNodeName().toString()); // necessary for servermap
 
             // for FilterWizard, to agent mapping data
             writeAgents("fromAgents", link.getFrom(), jgen);

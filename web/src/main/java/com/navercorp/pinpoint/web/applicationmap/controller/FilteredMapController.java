@@ -108,6 +108,7 @@ public class FilteredMapController {
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
                     boolean useStatisticsAgentState,
             @RequestParam(value = "traceIndexReadV2", required = false) Optional<Boolean> traceIndexReadV2) {
+        final String serviceName = appForm.getServiceName();
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);

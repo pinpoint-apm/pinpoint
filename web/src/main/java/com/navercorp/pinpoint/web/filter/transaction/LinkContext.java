@@ -32,30 +32,35 @@ public class LinkContext {
 
     private final SpanContext spanContext;
 
+    private final String fromServiceName;
     private final String fromApplicationName;
     private final List<ServiceType> fromServiceDescList;
     private final AgentFilter fromAgentFilter;
 
 
+    private final String toServiceName;
     private final String toApplicationName;
     private final List<ServiceType> toServiceDescList;
     private final AgentFilter toAgentFilter;
 
     public LinkContext(SpanContext spanContext,
+                       String fromServiceName,
                        String fromApplicationName,
                        List<ServiceType> fromServiceDescList,
                        AgentFilter fromAgentFilter,
 
+                       String toServiceName,
                        String toApplicationName,
                        List<ServiceType> toServiceDescList,
                        AgentFilter toAgentFilter) {
         this.spanContext = Objects.requireNonNull(spanContext, "spanContext");
 
-
+        this.fromServiceName = Objects.requireNonNull(fromServiceName, "fromServiceName");
         this.fromApplicationName = Objects.requireNonNull(fromApplicationName, "fromApplicationName");
         this.fromServiceDescList = Objects.requireNonNull(fromServiceDescList, "fromServiceDescList");
         this.fromAgentFilter = Objects.requireNonNull(fromAgentFilter, "fromAgentFilter");
 
+        this.toServiceName = Objects.requireNonNull(toServiceName, "toServiceName");
         this.toApplicationName = Objects.requireNonNull(toApplicationName, "toApplicationName");
         this.toServiceDescList = Objects.requireNonNull(toServiceDescList, "toServiceDescList");
         this.toAgentFilter = Objects.requireNonNull(toAgentFilter, "toAgentFilter");
@@ -64,7 +69,7 @@ public class LinkContext {
 
 
     public List<SpanBo> findFromNode() {
-        return spanContext.findNode(fromApplicationName, fromServiceDescList, fromAgentFilter);
+        return spanContext.findNode(fromServiceName, fromApplicationName, fromServiceDescList, fromAgentFilter);
     }
 
 //    public List<SpanBo> findToNode() {
@@ -72,7 +77,7 @@ public class LinkContext {
 //    }
 
     public List<SpanBo> findToNode(URLPatternFilter acceptURLFilter) {
-        final List<SpanBo> node = spanContext.findNode(toApplicationName, toServiceDescList, toAgentFilter);
+        final List<SpanBo> node = spanContext.findNode(toServiceName, toApplicationName, toServiceDescList, toAgentFilter);
         if (acceptURLFilter == null) {
             return node;
         }

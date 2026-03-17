@@ -101,7 +101,8 @@ public class NodeView {
 
             jgen.writeStartObject();
 //        jgen.writeStringField("id", node.getNodeName()); serverInstanceList
-            jgen.writeObjectField("key", node.getNodeName()); // necessary for go.js
+            jgen.writeObjectField("key", node.getServiceNodeName().toString()); // necessary for servermap
+//            jgen.writeObjectField("key", node.getNodeName()); // necessary for servermap
             jgen.writeStringField("nodeKey", node.getNodeKey());
 
             jgen.writeObjectField("serviceKey", node.getServiceNodeName().toString());
