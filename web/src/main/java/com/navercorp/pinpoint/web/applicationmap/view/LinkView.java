@@ -148,9 +148,7 @@ public class LinkView {
             Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();
             for (Application application : sourceLinkTargetAgentList) {
                 jgen.writeStartObject();
-                jgen.writeStringField("rpcServiceName", application.getService().getServiceName());
                 jgen.writeStringField("rpc", application.getApplicationName());
-                jgen.writeStringField("rpcApplicationName", application.getApplicationName());
                 jgen.writeNumberField("rpcServiceTypeCode", application.getServiceTypeCode());
                 jgen.writeEndObject();
             }
