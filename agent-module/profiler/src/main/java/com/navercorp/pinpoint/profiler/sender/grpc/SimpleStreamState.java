@@ -51,13 +51,12 @@ public class SimpleStreamState implements StreamState {
         }
 
         final long elapsedMs = System.currentTimeMillis() - startTime;
-        final double elapsedSec = elapsedMs / 1000.0;
-        final double tps;
-        if (elapsedSec > 0) {
-            tps = currentSuccessCount / elapsedSec;
-        } else {
-            tps = currentSuccessCount;
+        if (elapsedMs <= 0) {
+            return String.format("SimpleStreamState.report{successCount=%d, elapsedMs=0, tps=N/A}", currentSuccessCount);
         }
+
+        final double elapsedSec = elapsedMs / 1000.0;
+        final double tps = currentSuccessCount / elapsedSec;
 
         return String.format("SimpleStreamState.report{successCount=%d, elapsedMs=%d, tps=%.2f}", currentSuccessCount, elapsedMs, tps);
     }

@@ -69,7 +69,7 @@ class SimpleStreamStateTest {
     }
 
     @Test
-    void reportTpsCalculation() throws InterruptedException {
+    void reportTpsIsNonZeroAfterDelay() throws InterruptedException {
         SimpleStreamState state = new SimpleStreamState(10, 1000);
 
         for (int i = 0; i < 10; i++) {
