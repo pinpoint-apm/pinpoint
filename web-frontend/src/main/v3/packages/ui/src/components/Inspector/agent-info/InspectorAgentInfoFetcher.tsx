@@ -36,6 +36,16 @@ export const InspectorAgentInfoFetcher = () => {
           value: data.applicationName,
         },
         {
+          key: 'agentName',
+          label: 'Agent Name',
+          value: data.agentName,
+        },
+        {
+          key: 'agentId',
+          label: 'Agent ID',
+          value: data.agentId,
+        },
+        {
           key: 'agentVersion',
           label: 'Agent Version',
           value: data.agentVersion,

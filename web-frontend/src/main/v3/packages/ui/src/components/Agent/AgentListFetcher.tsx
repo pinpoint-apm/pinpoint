@@ -53,13 +53,15 @@ export const AgentListFetcher = ({
 
     const sortedList = [...data].sort((a, b) => {
       switch (sortBy) {
-        case AGENT_LIST_SORT_BY.NAME:
-          return (a.agentName ?? '').localeCompare(b.agentName ?? '');
-        case AGENT_LIST_SORT_BY.RECENT:
+        case AGENT_LIST_SORT_BY.STARTTIME_ASC:
           return a.startTimestamp - b.startTimestamp;
-        case AGENT_LIST_SORT_BY.ID:
+        case AGENT_LIST_SORT_BY.NAME_DESC:
+          return (b.agentName ?? '').localeCompare(a.agentName ?? '');
+        case AGENT_LIST_SORT_BY.NAME_ASC:
+          return (a.agentName ?? '').localeCompare(b.agentName ?? '');
+        case AGENT_LIST_SORT_BY.STARTTIME_DESC:
         default:
-          return a.agentId.localeCompare(b.agentId);
+          return b.startTimestamp - a.startTimestamp;
       }
     });
 
@@ -68,7 +70,7 @@ export const AgentListFetcher = ({
     }
 
     const fuse = new Fuse(sortedList, {
-      keys: ['agentId'],
+      keys: ['agentName'],
       threshold: 0.3,
     });
     return fuse.search(filterKeyword).map(({ item }) => item);
@@ -126,7 +128,7 @@ export const AgentListFetcher = ({
             );
           })
         ) : (
-          <div className="flex justify-center items-center p-3 opacity-50">{emptyMessage}</div>
+          <div className="flex items-center justify-center p-3 opacity-50">{emptyMessage}</div>
         )}
       </div>
     </TooltipProvider>
