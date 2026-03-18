@@ -131,7 +131,6 @@ public class NodeView {
 
         private void writeServerGroupList(NodeView nodeView, JsonGenerator jgen) throws IOException {
             final Node node = nodeView.getNode();
-            ServerGroupList serverGroupList = node.getServerGroupList();
 
             if (node.getServiceType().isUnknown()) {
                 writeAgentCount(0, 0, jgen);
@@ -141,6 +140,8 @@ public class NodeView {
                 ServerListNodeView detailedServerListNodeView = nodeView.getServerListView();
                 detailedServerListNodeView.writeServerList(nodeView, jgen);
             } else {
+                ServerGroupList serverGroupList = node.getServerGroupList();
+
                 writeAgentCount(serverGroupList.getInstanceCount(), getInstanceErrorCount(node), jgen);
 
                 agentServerGroupListWriter.write("agents", serverGroupList, jgen);
