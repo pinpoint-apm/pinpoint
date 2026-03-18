@@ -34,9 +34,15 @@ public abstract class AbstractAsyncContextSpanEventEndPointInterceptor {
     protected final boolean isDebug = logger.isDebugEnabled();
 
     protected final TraceContext traceContext;
+    protected final boolean asyncTraceBlock;
 
     public AbstractAsyncContextSpanEventEndPointInterceptor(TraceContext traceContext) {
+        this(traceContext, true);
+    }
+
+    public AbstractAsyncContextSpanEventEndPointInterceptor(TraceContext traceContext, boolean asyncTraceBlock) {
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.asyncTraceBlock = asyncTraceBlock;
     }
 
     protected AsyncContext getAsyncContext(Object target, Object[] args) {
@@ -48,7 +54,7 @@ public abstract class AbstractAsyncContextSpanEventEndPointInterceptor {
     }
 
     protected Trace getAsyncTrace(AsyncContext asyncContext) {
-        final Trace trace = asyncContext.continueAsyncTraceObject();
+        final Trace trace = asyncContext.continueAsyncTraceObject(asyncTraceBlock);
         if (trace == null) {
             return null;
         }

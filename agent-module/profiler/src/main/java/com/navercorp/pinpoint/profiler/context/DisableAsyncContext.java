@@ -31,6 +31,11 @@ public class DisableAsyncContext implements AsyncContext {
 
     @Override
     public Trace continueAsyncTraceObject() {
+        return continueAsyncTraceObject(true);
+    }
+
+    @Override
+    public Trace continueAsyncTraceObject(boolean asyncTraceBlock) {
         final Reference<Trace> reference = local.binder().get();
         final Trace nestedTrace = reference.get();
         if (nestedTrace != null) {

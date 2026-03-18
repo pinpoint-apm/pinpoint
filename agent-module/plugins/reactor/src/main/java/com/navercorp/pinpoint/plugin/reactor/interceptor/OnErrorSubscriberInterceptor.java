@@ -32,10 +32,9 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwar
     private final boolean markErrorOnError;
 
     public OnErrorSubscriberInterceptor(TraceContext traceContext) {
-        super(traceContext);
-        final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
-        this.traceOnError = config.isTraceOnError();
-        this.markErrorOnError = config.isMarkErrorOnError();
+        super(traceContext, ReactorPluginConfig.isTraceOnError(traceContext.getProfilerConfig()));
+        this.traceOnError = ReactorPluginConfig.isTraceOnError(traceContext.getProfilerConfig());
+        this.markErrorOnError = ReactorPluginConfig.isMarkErrorOnError(traceContext.getProfilerConfig());
     }
 
     // AsyncContext must exist in Target for tracking.
