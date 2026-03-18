@@ -81,6 +81,7 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
             private void dispatch(ClientCallStateStreamObserver<ReqT> stream) {
                 logger.info("dispatch start {}", this);
                 FinishStatus status = FinishStatus.UNKNOWN;
+                failState.init();
 
                 try {
 //            while (true) {
