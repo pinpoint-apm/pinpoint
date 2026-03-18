@@ -30,13 +30,7 @@ public interface BatchApplicationIndexService {
     @Deprecated
     List<String> selectAllApplicationNames();
 
-    void remove(String applicationName, int serviceTypeCode);
-
     List<String> selectAgentIds(String applicationName);
 
     List<String> selectAgentIds(String applicationName, int serviceTypeCode);
-
-    List<String> selectAgentIds(String applicationName, int serviceTypeCode, long maxTimestamp);
-
-    void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds);
 }

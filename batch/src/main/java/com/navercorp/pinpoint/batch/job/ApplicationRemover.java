@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -32,21 +33,29 @@ import java.util.Objects;
 public class ApplicationRemover implements ItemWriter<CleanTarget.TypeApplication> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final BatchApplicationIndexService batchApplicationIndexService;
+    private final ApplicationIndexDao applicationIndexDao;
 
-    public ApplicationRemover(BatchApplicationIndexService batchApplicationIndexService) {
-        this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "applicationService");
+    public ApplicationRemover(ApplicationIndexDao applicationIndexDao) {
+        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
     }
 
     @Override
     public void write(Chunk<? extends CleanTarget.TypeApplication> targets) throws Exception {
+        if (targets.isEmpty()) {
+            return;
+        }
+        // Unreachable code due to the ApplicationIndex table structure.
+        logger.warn("ApplicationIndex table cleanup job doesn't need application deletion: {}", targets);
         for (CleanTarget.TypeApplication target : targets) {
-            logger.info("Removing application: {}", targets);
-            Application application = target.application();
-            try {
-                this.batchApplicationIndexService.remove(application.getApplicationName(), application.getServiceTypeCode());
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to remove application: " + target, e);
+            List<Application> applications = applicationIndexDao.selectApplicationName(target.application().getApplicationName());
+            if (applications.size() == 1) {
+                logger.info("Deleting applications: {}", applications);
+                applicationIndexDao.deleteApplicationName(target.application().getApplicationName());
+            } else {
+                Application application = target.application();
+                List<String> agentIds = applicationIndexDao.selectAgentIds(application.getApplicationName(), application.getServiceTypeCode());
+                logger.info("Deleting application: {}", application);
+                applicationIndexDao.deleteAgentIds(application.getApplicationName(), agentIds);
             }
         }
     }

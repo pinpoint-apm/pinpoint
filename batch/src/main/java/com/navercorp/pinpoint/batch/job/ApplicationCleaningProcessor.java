@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
@@ -40,16 +40,16 @@ public class ApplicationCleaningProcessor implements ItemProcessor<Application, 
     private static final Logger logger = LogManager.getLogger(ApplicationCleaningProcessor.class);
 
     private final ActiveAgentValidator activeAgentValidator;
-    private final BatchApplicationIndexService batchApplicationIndexService;
+    private final ApplicationIndexDao applicationIndexDao;
     private final Duration emptyDurationThreshold;
 
     public ApplicationCleaningProcessor(
             ActiveAgentValidator activeAgentValidator,
-            BatchApplicationIndexService batchApplicationIndexService,
+            ApplicationIndexDao applicationIndexDao,
             @Value("${job.cleanup.inactive.applications.emptydurationthreshold:P35D}") Duration emptyDurationThreshold
     ) {
         this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
-        this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "applicationService");
+        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.emptyDurationThreshold = Objects.requireNonNull(emptyDurationThreshold, "emptyDurationThreshold");
     }
 
@@ -76,7 +76,9 @@ public class ApplicationCleaningProcessor implements ItemProcessor<Application, 
         // Find empty application
         if (oldAgentIds.size() == targetAgentIds.size()) {
             if (getAllAgents(application).size() == targetAgentIds.size()) {
-                targets.add(new CleanTarget.TypeApplication(application));
+                // unnecessary code due to the ApplicationIndex table structure.
+                //targets.add(new CleanTarget.TypeApplication(application));
+
                 removeApplication = true;
             }
         }
@@ -93,11 +95,11 @@ public class ApplicationCleaningProcessor implements ItemProcessor<Application, 
     }
 
     private List<String> getOldAgents(Application application, long maxTimestamp) {
-        return this.batchApplicationIndexService.selectAgentIds(application.getApplicationName(), application.getServiceTypeCode(), maxTimestamp);
+        return this.applicationIndexDao.selectAgentIds(application.getApplicationName(), application.getServiceTypeCode(), maxTimestamp);
     }
 
     private List<String> getAllAgents(Application application) {
-        return this.batchApplicationIndexService.selectAgentIds(application.getApplicationName(), application.getServiceTypeCode());
+        return this.applicationIndexDao.selectAgentIds(application.getApplicationName(), application.getServiceTypeCode());
     }
 
     private Range getRange() {
