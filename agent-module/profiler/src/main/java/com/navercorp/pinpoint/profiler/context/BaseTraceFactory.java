@@ -35,7 +35,7 @@ public interface BaseTraceFactory {
     @InterfaceAudience.LimitedPrivate("vert.x")
     Trace continueAsyncTraceObject(TraceId traceId);
 
-    Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId);
+    Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean asyncTraceBlock);
 
     Trace continueDisableAsyncContextTraceObject(LocalTraceRoot traceRoot);
 

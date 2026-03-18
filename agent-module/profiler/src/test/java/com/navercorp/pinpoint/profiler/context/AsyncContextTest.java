@@ -35,7 +35,7 @@ public abstract class AsyncContextTest {
         BaseTraceFactory baseTraceFactory = mock(DefaultBaseTraceFactory.class);
         BaseTraceFactoryProvider baseTraceFactoryProvider = mock(BaseTraceFactoryProvider.class);
 
-        when(baseTraceFactory.continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class)))
+        when(baseTraceFactory.continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class), any(Boolean.class)))
                 .thenAnswer(new Answer<Trace>() {
                     @Override
                     public Trace answer(InvocationOnMock invocationOnMock) {
@@ -73,8 +73,8 @@ public abstract class AsyncContextTest {
         assertNull(disabledAsyncContext.currentAsyncTraceObject());
 
         // invoke continueTraceObject
-        Trace enabledTrace = enabledAsyncContext.continueAsyncTraceObject();
-        Trace disabledTrace = disabledAsyncContext.continueAsyncTraceObject();
+        Trace enabledTrace = enabledAsyncContext.continueAsyncTraceObject(true);
+        Trace disabledTrace = disabledAsyncContext.continueAsyncTraceObject(true);
         assertThat(enabledTrace)
                 .isInstanceOf(ChildTrace.class)
                 .isEqualTo(enabledAsyncContext.currentAsyncTraceObject());
@@ -84,7 +84,7 @@ public abstract class AsyncContextTest {
 
 
         // re-invocation of continueTraceObject must not change trace object
-        Trace anotherEnabledTrace = enabledAsyncContext.continueAsyncTraceObject();
+        Trace anotherEnabledTrace = enabledAsyncContext.continueAsyncTraceObject(true);
         assertEquals(enabledTrace, anotherEnabledTrace);
     }
 
@@ -94,7 +94,7 @@ public abstract class AsyncContextTest {
         AsyncContext asyncContext = newAsyncContext(true);
 
         // invoke continueTraceObject
-        Trace trace = asyncContext.continueAsyncTraceObject();
+        Trace trace = asyncContext.continueAsyncTraceObject(true);
         assertNotNull(trace);
 
         // close

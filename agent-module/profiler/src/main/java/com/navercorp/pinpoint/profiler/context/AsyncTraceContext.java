@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
  */
 public interface AsyncTraceContext {
 
-    Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId);
+    Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean asyncTraceBlock);
 
     Trace continueDisableAsyncContextTraceObject(LocalTraceRoot traceRoot);
 
