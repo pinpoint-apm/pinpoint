@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 public class RunnableSubscriptionInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     public RunnableSubscriptionInterceptor(TraceContext traceContext) {
-        super(traceContext);
+        super(traceContext, false);
     }
 
     @Override

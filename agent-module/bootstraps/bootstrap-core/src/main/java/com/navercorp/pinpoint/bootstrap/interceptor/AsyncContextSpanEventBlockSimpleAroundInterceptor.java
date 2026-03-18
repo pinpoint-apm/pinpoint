@@ -30,7 +30,11 @@ public abstract class AsyncContextSpanEventBlockSimpleAroundInterceptor extends 
     protected final MethodDescriptor methodDescriptor;
 
     public AsyncContextSpanEventBlockSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext);
+        this(traceContext, methodDescriptor, true);
+    }
+
+    public AsyncContextSpanEventBlockSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, boolean asyncTraceBlock) {
+        super(traceContext, asyncTraceBlock);
         this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
@@ -54,11 +58,12 @@ public abstract class AsyncContextSpanEventBlockSimpleAroundInterceptor extends 
 
         final TraceBlock traceBlock = trace.getTraceBlock();
         try {
-            if (checkBeforeTraceBlockBegin(asyncContext, trace, target, args)) {
+            if (asyncTraceBlock && checkBeforeTraceBlockBegin(asyncContext, trace, target, args)) {
                 traceBlock.begin();
                 beforeTrace(asyncContext, trace, traceBlock, target, args);
                 doInBeforeTrace(traceBlock, asyncContext, target, args);
             }
+            beforeAction(asyncContext, trace, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
@@ -76,6 +81,9 @@ public abstract class AsyncContextSpanEventBlockSimpleAroundInterceptor extends 
     }
 
     protected abstract void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args);
+
+    protected void beforeAction(AsyncContext asyncContext, Trace trace, Object target, Object[] args) {
+    }
 
     @Override
     public void after(TraceBlock block, Object target, Object[] args, Object result, Throwable throwable) {
@@ -108,10 +116,11 @@ public abstract class AsyncContextSpanEventBlockSimpleAroundInterceptor extends 
         }
 
         try (TraceBlock traceBlock = block) {
-            if (traceBlock.isBegin()) {
+            if (asyncTraceBlock && traceBlock.isBegin()) {
                 afterTrace(asyncContext, trace, traceBlock, target, args, result, throwable);
                 doInAfterTrace(traceBlock, target, args, result, throwable);
             }
+            afterAction(asyncContext, trace, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
@@ -127,4 +136,7 @@ public abstract class AsyncContextSpanEventBlockSimpleAroundInterceptor extends 
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
+
+    protected void afterAction(AsyncContext asyncContext, Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    }
 }

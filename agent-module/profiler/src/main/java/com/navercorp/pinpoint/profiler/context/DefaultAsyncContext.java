@@ -60,8 +60,12 @@ public class DefaultAsyncContext implements AsyncContext {
         return traceRoot;
     }
 
-    @Override
     public Trace continueAsyncTraceObject() {
+        return continueAsyncTraceObject(true);
+    }
+
+    @Override
+    public Trace continueAsyncTraceObject(boolean asyncTraceBlock) {
         final Reference<Trace> reference = remote.binder().get();
         final Trace nestedTrace = reference.get();
         if (nestedTrace != null) {
@@ -75,14 +79,14 @@ public class DefaultAsyncContext implements AsyncContext {
             return null;
         }
 
-        return newAsyncContextTrace(reference);
+        return newAsyncContextTrace(reference, asyncTraceBlock);
     }
 
-    private Trace newAsyncContextTrace(Reference<Trace> reference) {
+    private Trace newAsyncContextTrace(Reference<Trace> reference, boolean asyncTraceBlock) {
 //        final int asyncId = this.asyncId.getAsyncId();
 //        final short asyncSequence = this.asyncId.nextAsyncSequence();
         final LocalAsyncId localAsyncId = this.asyncId.nextLocalAsyncId();
-        final Trace asyncTrace = remote.asyncTraceContext().continueAsyncContextTraceObject(traceRoot, localAsyncId);
+        final Trace asyncTrace = remote.asyncTraceContext().continueAsyncContextTraceObject(traceRoot, localAsyncId, asyncTraceBlock);
 
         bind(reference, asyncTrace);
 
@@ -94,11 +98,13 @@ public class DefaultAsyncContext implements AsyncContext {
             return null;
         }
 
-        // first block.
-        final SpanEventRecorder recorder = asyncTrace.currentSpanEventRecorder();
-        if (recorder != null) {
-            recorder.recordServiceType(ServiceType.ASYNC);
-            recorder.recordApiId(remote.asyncMethodApiId());
+        if (asyncTraceBlock) {
+            // first block.
+            final SpanEventRecorder recorder = asyncTrace.currentSpanEventRecorder();
+            if (recorder != null) {
+                recorder.recordServiceType(ServiceType.ASYNC);
+                recorder.recordApiId(remote.asyncMethodApiId());
+            }
         }
 
         return asyncTrace;

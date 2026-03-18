@@ -53,10 +53,11 @@ public class ChildTrace implements Trace {
 
     private final TraceRoot traceRoot;
     private final LocalAsyncId localAsyncId;
+    private final boolean asyncTraceBlock;
 
     public ChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage,
                       SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder,
-                      final LocalAsyncId localAsyncId) {
+                      final LocalAsyncId localAsyncId, boolean asyncTraceBlock) {
 
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
         this.callStack = Objects.requireNonNull(callStack, "callStack");
@@ -66,9 +67,12 @@ public class ChildTrace implements Trace {
         this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
         this.localAsyncId = Objects.requireNonNull(localAsyncId, "localAsyncId");
-        traceBlockBegin(ASYNC_BEGIN_STACK_ID);
+        this.asyncTraceBlock = asyncTraceBlock;
+        if (this.asyncTraceBlock) {
+            // add async block (Asynchronous Invocation)
+            traceBlockBegin(ASYNC_BEGIN_STACK_ID);
+        }
     }
-
 
     private TraceRoot getTraceRoot() {
         return this.traceRoot;
@@ -83,7 +87,6 @@ public class ChildTrace implements Trace {
     public SpanEventRecorder traceBlockBegin() {
         return traceBlockBegin(DEFAULT_STACKID);
     }
-
 
     @Override
     public SpanEventRecorder traceBlockBegin(final int stackId) {
@@ -163,7 +166,9 @@ public class ChildTrace implements Trace {
 
     @Override
     public void close() {
-        traceBlockEnd(ASYNC_BEGIN_STACK_ID);
+        if (asyncTraceBlock) {
+            traceBlockEnd(ASYNC_BEGIN_STACK_ID);
+        }
         close0();
     }
 
@@ -184,7 +189,6 @@ public class ChildTrace implements Trace {
         }
         this.wrappedSpanEventRecorder.close();
         this.storage.close();
-
     }
 
     @Override
