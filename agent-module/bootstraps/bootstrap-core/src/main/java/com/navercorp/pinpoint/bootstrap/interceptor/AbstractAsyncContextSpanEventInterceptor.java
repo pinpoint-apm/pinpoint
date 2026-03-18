@@ -28,9 +28,11 @@ public abstract class AbstractAsyncContextSpanEventInterceptor {
     protected final PluginLogger logger = PluginLogManager.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
     protected final boolean isTrace = logger.isTraceEnabled();
+    protected final boolean asyncTraceBlock;
 
-    public AbstractAsyncContextSpanEventInterceptor(TraceContext traceContext) {
+    public AbstractAsyncContextSpanEventInterceptor(TraceContext traceContext, boolean asyncTraceBlock) {
         Objects.requireNonNull(traceContext, "traceContext");
+        this.asyncTraceBlock = asyncTraceBlock;
     }
 
     protected AsyncContext getAsyncContext(Object target, Object[] args) {
@@ -42,7 +44,7 @@ public abstract class AbstractAsyncContextSpanEventInterceptor {
     }
 
     protected Trace getAsyncTrace(AsyncContext asyncContext) {
-        final Trace trace = asyncContext.continueAsyncTraceObject();
+        final Trace trace = asyncContext.continueAsyncTraceObject(asyncTraceBlock);
         if (trace == null) {
             if (isDebug) {
                 logger.debug("Failed to continue async trace. 'result is null'");

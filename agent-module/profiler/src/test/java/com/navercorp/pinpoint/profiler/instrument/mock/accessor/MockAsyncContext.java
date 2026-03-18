@@ -29,6 +29,11 @@ public class MockAsyncContext implements AsyncContext {
     }
 
     @Override
+    public Trace continueAsyncTraceObject(boolean asyncTraceBlock) {
+        return null;
+    }
+
+    @Override
     public Trace currentAsyncTraceObject() {
         return null;
     }
