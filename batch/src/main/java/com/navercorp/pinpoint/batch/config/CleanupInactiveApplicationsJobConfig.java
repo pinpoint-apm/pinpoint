@@ -23,10 +23,8 @@ import com.navercorp.pinpoint.batch.job.ApplicationRemover;
 import com.navercorp.pinpoint.batch.job.CleanTargetWriter;
 import com.navercorp.pinpoint.batch.job.EmptyItemWriter;
 import com.navercorp.pinpoint.batch.job.ItemListWriter;
-import com.navercorp.pinpoint.batch.service.BatchAgentServiceImpl;
-import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
-import com.navercorp.pinpoint.batch.service.BatchApplicationIndexServiceImpl;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.batch.core.Job;
@@ -43,9 +41,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -59,19 +55,6 @@ import java.util.Optional;
  * @author youngjin.kim2
  */
 @Configuration(proxyBeanMethods = false)
-@ComponentScan(
-        basePackages = "com.navercorp.pinpoint.batch.service",
-        useDefaultFilters = false,
-        includeFilters = {
-                @ComponentScan.Filter(
-                        type = FilterType.ASSIGNABLE_TYPE,
-                        classes = {
-                                BatchApplicationIndexServiceImpl.class,
-                                BatchAgentServiceImpl.class
-                        }
-                )
-        }
-)
 public class CleanupInactiveApplicationsJobConfig {
 
     private final JobRepository jobRepository;
@@ -135,18 +118,18 @@ public class CleanupInactiveApplicationsJobConfig {
     }
 
     @Bean
-    public ApplicationReader applicationReader(BatchApplicationIndexService batchApplicationIndexService) {
-        return new ApplicationReader(batchApplicationIndexService);
+    public ApplicationReader applicationReader(ApplicationIndexDao applicationIndexDao) {
+        return new ApplicationReader(applicationIndexDao);
     }
 
     @Bean
     @StepScope
     public ApplicationCleaningProcessor applicationCleaningProcessor(
             ActiveAgentValidator activeAgentValidator,
-            BatchApplicationIndexService batchApplicationIndexService,
+            ApplicationIndexDao applicationIndexDao,
             @Value("${job.cleanup.inactive.applications.emptydurationthreshold:P35D}") Duration emptyDurationThreshold
     ) {
-        return new ApplicationCleaningProcessor(activeAgentValidator, batchApplicationIndexService, emptyDurationThreshold);
+        return new ApplicationCleaningProcessor(activeAgentValidator, applicationIndexDao, emptyDurationThreshold);
     }
 
     @Bean
@@ -179,12 +162,12 @@ public class CleanupInactiveApplicationsJobConfig {
     }
 
     @Bean
-    public ApplicationRemover applicationRemover(BatchApplicationIndexService batchApplicationIndexService) {
-        return new ApplicationRemover(batchApplicationIndexService);
+    public ApplicationRemover applicationRemover(ApplicationIndexDao applicationIndexDao) {
+        return new ApplicationRemover(applicationIndexDao);
     }
 
     @Bean
-    public AgentRemover agentRemover(BatchApplicationIndexService batchApplicationIndexService) {
-        return new AgentRemover(batchApplicationIndexService);
+    public AgentRemover agentRemover(ApplicationIndexDao applicationIndexDao) {
+        return new AgentRemover(applicationIndexDao);
     }
 }

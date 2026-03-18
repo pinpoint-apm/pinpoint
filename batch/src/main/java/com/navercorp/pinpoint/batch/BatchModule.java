@@ -45,6 +45,7 @@ import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
@@ -79,6 +80,9 @@ import java.util.List;
         UriStatAlarmConfiguration.class,
         AlarmSenderConfiguration.class,
         CommonCacheManagerConfiguration.class
+})
+@ComponentScan(basePackages = {
+        "com.navercorp.pinpoint.batch.service",
 })
 public class BatchModule {
 
