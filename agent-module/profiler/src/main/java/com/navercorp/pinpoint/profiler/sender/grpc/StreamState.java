@@ -6,4 +6,6 @@ public interface StreamState {
     boolean isFailure();
 
     void success();
+
+    void init();
 }
