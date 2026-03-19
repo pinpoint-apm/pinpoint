@@ -30,7 +30,7 @@ public interface AgentLifeCycleDao {
 
     AgentStatus getAgentStatus(String agentId, long timestamp);
 
-    Optional<AgentStatus> getAgentStatus(String agentId, long agentStartTimestamp, long timestamp);
+    AgentStatus getAgentStatus(String agentId, long agentStartTimestamp, long timestamp);
 
     List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery agentStatusQuery);
 

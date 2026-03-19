@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.ApplicationAgentHostService;
 import com.navercorp.pinpoint.web.service.ApplicationIndexService;
 import com.navercorp.pinpoint.web.service.CacheService;
 import com.navercorp.pinpoint.web.service.CommonService;
@@ -53,7 +53,7 @@ public class ApplicationController {
     public static final int MAX_PAGING_LIMIT = 100;
     public static final int MAX_DURATION_DAYS = 7;
 
-    private final AgentInfoService agentInfoService;
+    private final ApplicationAgentHostService applicationAgentHostService;
 
     private final ApplicationIndexService applicationIndexService;
 
@@ -62,8 +62,8 @@ public class ApplicationController {
 
     private static final String KEY = CacheService.DEFAULT_KEY;
 
-    public ApplicationController(AgentInfoService agentInfoService, ApplicationIndexService applicationIndexService, CommonService commonService, CacheService cacheService) {
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+    public ApplicationController(ApplicationAgentHostService applicationAgentHostService, ApplicationIndexService applicationIndexService, CommonService commonService, CacheService cacheService) {
+        this.applicationAgentHostService = Objects.requireNonNull(applicationAgentHostService, "applicationAgentHostService");
         this.applicationIndexService = Objects.requireNonNull(applicationIndexService, "applicationIndexService");
         this.commonService = Objects.requireNonNull(commonService, "commonService");
         this.cacheService = Objects.requireNonNull(cacheService, "cacheService");
@@ -83,7 +83,7 @@ public class ApplicationController {
 
         List<Application> applicationList = getApplicationList(useCache);
 
-        return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationHours, applicationList, agentInfoFilter);
+        return applicationAgentHostService.getApplicationAgentHostList(offset, maxLimit, durationHours, applicationList, agentInfoFilter);
     }
 
     @GetMapping(value = "/getApplicationHostInfo")

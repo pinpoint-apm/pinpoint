@@ -16,21 +16,17 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
-import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * @author netspider
@@ -38,30 +34,27 @@ import java.util.function.Predicate;
  */
 public interface AgentInfoService {
 
-    int NO_DURATION = -1;
+    List<DetailedAgentAndStatus> getAgentsStatisticsList(Range range);
 
-    List<DetailedAgentAndStatus> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range);
+    @Deprecated
+    List<AgentInfo> getAgentInfoByApplicationName(String applicationName, long timestamp);
 
-    ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays, List<Application> applicationList, Predicate<AgentInfo> agentInfoFilter);
+    AgentAndStatus findAgentInfoAndStatus(String agentId, long timestamp);
 
-    Set<AgentAndStatus> getAgentsByApplicationName(String applicationName, long timestamp);
+    DetailedAgentAndStatus findDetailedAgentInfoAndStatus(String agentId, long timestamp);
 
-    Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp);
+    AgentInfo findAgentInfo(String agentId, long timestamp);
 
-    AgentAndStatus getAgentInfo(String agentId, long timestamp);
+    AgentInfo findAgentInfo(String agentId, long fromTimestamp, long toTimestamp);
 
-    DetailedAgentAndStatus getDetailedAgentInfo(String agentId, long timestamp);
+    AgentInfo getAgentInfo(String agentId, long agentStartTime);
 
-    AgentInfo getAgentInfoWithoutStatus(String agentId, long timestamp);
+    List<AgentInfo> getAgentInfos(List<SimpleAgentKey> simpleAgentKeyList);
 
-    AgentInfo getAgentInfoWithoutStatus(String agentId, long agentStartTime, int deltaTimeInMilliseconds);
-
-    AgentStatus getAgentStatus(String agentId, long timestamp);
+    AgentStatus findAgentStatus(String agentId, long timestamp);
 
     List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery query);
 
-    InspectorTimeline getAgentStatusTimeline(String applicatioName, String agentId, Range range, int... excludeAgentEventTypeCodes);
-
-    boolean isExistAgentId(String agentId);
+    InspectorTimeline getAgentStatusTimeline(String applicationName, String agentId, Range range, int... excludeAgentEventTypeCodes);
 
 }

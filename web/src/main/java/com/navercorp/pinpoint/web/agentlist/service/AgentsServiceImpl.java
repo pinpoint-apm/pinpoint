@@ -90,7 +90,7 @@ public class AgentsServiceImpl implements AgentsService {
             case ACTIVE_ALL ->
                     applicationAgentListService.activeAllAgentList(applicationName, serviceType, timeWindow, agentInfoFilter);
             default ->
-                    applicationAgentListService.allAgentList(applicationName, serviceType, windowRange, agentInfoFilter);
+                    applicationAgentListService.allAgentList(applicationName, serviceType, windowRange.getTo(), agentInfoFilter);
         };
     }
 }
