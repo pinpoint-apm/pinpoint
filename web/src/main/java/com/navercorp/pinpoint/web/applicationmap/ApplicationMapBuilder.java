@@ -100,7 +100,7 @@ public class ApplicationMapBuilder {
             return NodeList.of();
         }
         Node query = new Node(application);
-        ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(query, range.getTo());
+        ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(query, range);
         if (runningInstances.hasServerInstance()) {
             Node node = new Node(application);
             node.setServerGroupList(runningInstances);

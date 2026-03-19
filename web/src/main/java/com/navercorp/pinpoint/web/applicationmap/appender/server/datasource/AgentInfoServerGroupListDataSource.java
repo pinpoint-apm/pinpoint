@@ -16,15 +16,20 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 
+import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
@@ -46,30 +51,39 @@ import java.util.stream.Collectors;
  * @author HyunGil Jeong
  */
 public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSource {
-
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentInfoService agentInfoService;
+    private final AgentListV2Service agentListV2Service;
+    private final boolean agentReadV2;
 
-    public AgentInfoServerGroupListDataSource(AgentInfoService agentInfoService) {
+    public AgentInfoServerGroupListDataSource(AgentInfoService agentInfoService, AgentListV2Service agentListV2Service, boolean agentReadV2) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.agentListV2Service = Objects.requireNonNull(agentListV2Service, "agentListV2Service");
+        this.agentReadV2 = agentReadV2;
     }
 
-    public ServerGroupList createServerGroupList(Node node, long timestamp) {
+    public ServerGroupList createServerGroupList(Node node, Range range) {
         Objects.requireNonNull(node, "node");
-        if (timestamp < 0) {
+        if (range.getTo() < 0) {
             return ServerGroupList.empty();
         }
+        if (agentReadV2) {
+            return createServerGroupListV2(node, range);
+        }
+        return createServerGroupListV1(node, range.getTo());
+    }
 
+    private ServerGroupList createServerGroupListV1(Node node, long timestamp) {
         Application application = node.getApplication();
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(application.getApplicationName(), timestamp);
+        Set<AgentInfo> agentInfos = new HashSet<>(agentInfoService.getAgentInfoByApplicationName(application.getApplicationName(), timestamp));
         if (CollectionUtils.isEmpty(agentInfos)) {
             logger.info("agentInfo not found. application:{}", application);
             return ServerGroupList.empty();
         }
 
         logger.debug("unfiltered agentInfos {}", agentInfos);
-        agentInfos = filterAgentInfos(agentInfos, timestamp, node);
+        agentInfos = filterAgentInfosV1(agentInfos, timestamp, node);
         logger.debug("add agentInfos {} : {}", application, agentInfos);
 
         Set<AgentAndStatus> agentAndStatusSet = agentInfos.stream()
@@ -82,7 +96,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
     }
 
     // TODO Change to list of filters?
-    private Set<AgentInfo> filterAgentInfos(Set<AgentInfo> agentInfos, long timestamp, Node node) {
+    private Set<AgentInfo> filterAgentInfosV1(Set<AgentInfo> agentInfos, long timestamp, Node node) {
 
         final Map<String, Histogram> agentHistogramMap = getAgentHistogramMap(node);
 
@@ -111,6 +125,38 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
         }
 
         return filteredAgentInfos;
+    }
+
+    private ServerGroupList createServerGroupListV2(Node node, Range range) {
+        Application application = node.getApplication();
+        List<AgentIdEntry> agentIdEntries = agentListV2Service.getAgentList(
+                ServiceUid.DEFAULT, application.getApplicationName(), application.getServiceType(), range);
+
+        if (CollectionUtils.isEmpty(agentIdEntries)) {
+            logger.info("agentIdEntry not found. application:{}", application);
+            return ServerGroupList.empty();
+        }
+
+        List<SimpleAgentKey> simpleAgentKeys = agentIdEntries.stream()
+                .map(entry -> new SimpleAgentKey(entry.getAgentId(), entry.getAgentStartTime()))
+                .toList();
+        List<AgentInfo> agentInfoList = agentInfoService.getAgentInfos(simpleAgentKeys);
+
+        Set<AgentAndStatus> agentAndStatusSet = new HashSet<>();
+        for (int i = 0; i < agentIdEntries.size(); i++) {
+            AgentInfo agentInfo = agentInfoList.get(i);
+            if (agentInfo == null) {
+                continue;
+            }
+            AgentIdEntry entry = agentIdEntries.get(i);
+            AgentStatus agentStatus = new AgentStatus(entry.getAgentId(), entry.getCurrentState(), entry.getCurrentStateTimestamp());
+            agentAndStatusSet.add(new AgentAndStatus(agentInfo, agentStatus));
+        }
+        logger.debug("add agentAndStatusSet {} : {}", application, agentAndStatusSet);
+
+        ServerBuilder builder = new ServerBuilder();
+        builder.addAgentInfo(agentAndStatusSet);
+        return builder.build();
     }
 
     private Map<String, Histogram> getAgentHistogramMap(Node node) {

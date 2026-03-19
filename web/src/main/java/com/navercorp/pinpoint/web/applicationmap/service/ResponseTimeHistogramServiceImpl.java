@@ -151,7 +151,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         node.setNodeHistogram(nodeHistogram);
 
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
-        ServerGroupList serverGroupList = serverGroupListFactory.createWasNodeInstanceList(node, range.getTo());
+        ServerGroupList serverGroupList = serverGroupListFactory.createWasNodeInstanceList(node, range);
         return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);
     }
 

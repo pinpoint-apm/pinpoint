@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
@@ -38,8 +39,8 @@ public class DefaultServerGroupListFactory implements ServerGroupListFactory {
     }
 
     @Override
-    public ServerGroupList createWasNodeInstanceList(Node wasNode, long timestamp) {
-        return serverGroupListDataSource.createServerGroupList(wasNode, timestamp);
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, Range range) {
+        return serverGroupListDataSource.createServerGroupList(wasNode, range);
     }
 
     @Override

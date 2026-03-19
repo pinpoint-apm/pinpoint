@@ -74,21 +74,21 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     public AgentAndStatus getAgentInfo(
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        return this.agentInfoService.getAgentInfo(agentId, timestamp);
+        return this.agentInfoService.findAgentInfoAndStatus(agentId, timestamp);
     }
 
     @GetMapping(value = "/getDetailedAgentInfo")
     public DetailedAgentAndStatus getDetailedAgentInfo(
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        return this.agentInfoService.getDetailedAgentInfo(agentId, timestamp);
+        return this.agentInfoService.findDetailedAgentInfoAndStatus(agentId, timestamp);
     }
 
     @GetMapping(value = "/getAgentStatus")
     public AgentStatus getAgentStatus(
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        return this.agentInfoService.getAgentStatus(agentId, timestamp);
+        return this.agentInfoService.findAgentStatus(agentId, timestamp);
     }
 
     @GetMapping(value = "/getAgentEvent")
@@ -165,7 +165,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
                     "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")"
             );
         }
-        if (agentInfoService.isExistAgentId(agentId)) {
+        if (agentInfoService.findAgentInfo(agentId, System.currentTimeMillis()) != null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "agentId already exists");
         }
         return CodeResult.ok("OK");

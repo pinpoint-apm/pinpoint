@@ -53,15 +53,6 @@ public class AgentIdEntryMapper implements RowMapper<List<AgentIdEntry>> {
             return Collections.emptyList();
         }
 
-        // parse cell
-        Cell cell = result.getColumnLatestCell(HbaseTables.AGENT_ID.getName(), HbaseTables.AGENT_ID.getName());
-        if (cell == null) {
-            return Collections.emptyList();
-        }
-        Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-        valueBuffer.skip(1); // version
-        String agentName = valueBuffer.readPrefixedString();
-
         // parse row
         int serviceUid = AgentIdRowKeyUtils.extractServiceUid(row);
         String applicationName = AgentIdRowKeyUtils.extractApplicationName(row);
@@ -69,6 +60,17 @@ public class AgentIdEntryMapper implements RowMapper<List<AgentIdEntry>> {
         Application application = applicationFactory.createApplication(serviceUid, applicationName, serviceTypeCode);
         String agentId = AgentIdRowKeyUtils.extractAgentId(row);
         long agentStartTime = AgentIdRowKeyUtils.extractAgentStartTime(row);
+
+        // parse cell
+        Cell cell = result.getColumnLatestCell(HbaseTables.AGENT_ID.getName(), HbaseTables.AGENT_ID.getName());
+        String agentName;
+        if (cell == null) {
+            agentName = null;
+        } else {
+            Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+            valueBuffer.skip(1); // version
+            agentName = valueBuffer.readPrefixedString();
+        }
 
         // parse state cell
         Cell stateCell = result.getColumnLatestCell(HbaseTables.AGENT_ID.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER);

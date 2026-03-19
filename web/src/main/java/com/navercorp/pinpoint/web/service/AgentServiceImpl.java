@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -41,7 +42,7 @@ public class AgentServiceImpl implements AgentService {
     public ClusterKey getClusterKey(String applicationName, String agentId) {
         long currentTime = System.currentTimeMillis();
 
-        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+        List<AgentInfo> agentInfos = agentInfoService.getAgentInfoByApplicationName(applicationName, currentTime);
         for (AgentInfo agentInfo : agentInfos) {
             if (agentInfo == null) {
                 continue;
@@ -69,7 +70,7 @@ public class AgentServiceImpl implements AgentService {
         if (checkDB) {
             long currentTime = System.currentTimeMillis();
 
-            Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(applicationName, currentTime);
+            List<AgentInfo> agentInfos = agentInfoService.getAgentInfoByApplicationName(applicationName, currentTime);
             for (AgentInfo agentInfo : agentInfos) {
                 if (agentInfo == null) {
                     continue;

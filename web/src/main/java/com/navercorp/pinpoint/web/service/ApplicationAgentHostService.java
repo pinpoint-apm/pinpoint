@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
+package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 
-/**
- * @author emeroad
- * @author minwoo.jung
- * @author HyunGil Jeong
- */
-public interface ServerGroupListDataSource {
+import java.util.List;
+import java.util.function.Predicate;
 
-    ServerGroupList createServerGroupList(Node node, Range range);
+public interface ApplicationAgentHostService {
+    ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationHours, List<Application> applicationList, Predicate<AgentInfo> agentInfoFilter);
 }

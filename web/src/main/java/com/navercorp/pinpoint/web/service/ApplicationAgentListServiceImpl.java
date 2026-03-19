@@ -77,9 +77,9 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     }
 
     @Override
-    public List<AgentAndStatus> allAgentList(String applicationName, ServiceType serviceType, Range range, Predicate<AgentInfo> agentInfoPredicate) {
+    public List<AgentAndStatus> allAgentList(String applicationName, ServiceType serviceType, long toTimestamp, Predicate<AgentInfo> agentInfoPredicate) {
         final List<String> agentIds = this.applicationIndexService.selectAgentIds(applicationName);
-        final List<AgentInfo> agentInfoList = getNullHandledAgentInfo(applicationName, serviceType, agentIds, range.getTo());
+        final List<AgentInfo> agentInfoList = getNullHandledAgentInfo(applicationName, serviceType, agentIds, toTimestamp);
         final Predicate<AgentInfo> agentServiceTypeFilter = getServiceTypeFilter(serviceType);
 
         List<AgentAndStatus> agentAndStatusList = agentInfoList.stream()
@@ -170,7 +170,7 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     }
 
     private List<AgentInfo> getNullHandledAgentInfo(String applicationName, ServiceType serviceType, List<String> agentIds, long toTimestamp) {
-        final List<AgentInfo> agentInfos = this.agentInfoDao.getSimpleAgentInfos(agentIds, toTimestamp);
+        final List<AgentInfo> agentInfos = this.agentInfoDao.findAgentInfos(agentIds, toTimestamp);
         List<AgentInfo> result = new ArrayList<>(agentIds.size());
         for (int i = 0; i < agentIds.size(); i++) {
             String agentId = agentIds.get(i);

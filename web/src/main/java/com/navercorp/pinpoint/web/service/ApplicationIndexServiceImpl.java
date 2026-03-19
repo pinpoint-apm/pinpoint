@@ -38,6 +38,8 @@ import java.util.Set;
  */
 @Service
 public class ApplicationIndexServiceImpl implements ApplicationIndexService {
+    private static final int AGENT_ID_ENTRY_DELETE_BATCH_SIZE = 100;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationIndexDao applicationIndexDao;
@@ -66,7 +68,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<Application> selectAllApplications() {
-        if (v2TableEnabled && applicationReadV2) {
+        if (applicationReadV2) {
             return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE);
         }
         return this.applicationIndexDao.selectAllApplicationNames();
@@ -74,7 +76,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<Application> selectApplication(String applicationName) {
-        if (v2TableEnabled && applicationReadV2) {
+        if (applicationReadV2) {
             return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
         }
         return this.applicationIndexDao.selectApplicationName(applicationName);
@@ -121,7 +123,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         if (applicationName == null) {
             return false;
         }
-        if (v2TableEnabled && applicationReadV2) {
+        if (applicationReadV2) {
             return !applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName).isEmpty();
         }
         List<Application> applications = applicationIndexDao.selectApplicationName(applicationName);
@@ -135,7 +137,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<String> selectAgentIds(String applicationName) {
-        if (v2TableEnabled && agentReadV2) {
+        if (agentReadV2) {
             return this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName).stream()
                     .map(AgentIdEntry::getAgentId)
                     .distinct()
@@ -147,7 +149,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
-        if (v2TableEnabled && agentReadV2) {
+        if (agentReadV2) {
             return this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode).stream()
                     .map(AgentIdEntry::getAgentId)
                     .distinct()
@@ -173,9 +175,11 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     public void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds) {
         if (v2TableEnabled) {
+            logger.info("deleteAgentIds v2 applicationName:{}, serviceTypeCode:{}, agentIds:{}", applicationName, serviceTypeCode, agentIds);
             batchDeleteAgentIdsV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, agentIds);
         }
         if (v1TableEnabled) {
+            logger.info("deleteAgentIds v1 applicationName:{}, serviceTypeCode:{}, agentIds:{}", applicationName, serviceTypeCode, agentIds);
             applicationIndexDao.deleteAgentIds(applicationName, agentIds);
         }
     }
@@ -191,25 +195,16 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         deleteAgentIds(applicationName, serviceTypeCode, List.of(agentId));
     }
 
-    private void deleteAgentIdV2(int serviceUid, String applicationName, int serviceTypeCode, String agentId) {
-        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode, agentId);
-        if (agentIdEntryList.isEmpty()) {
-            logger.warn("AgentIdEntry not found. serviceUid: {} application: {}@{}, agentId: {}", serviceUid, applicationName, serviceTypeCode, agentId);
-        } else {
-            agentIdDao.delete(agentIdEntryList);
-        }
-    }
-
     private void batchDeleteAgentIdsV2(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIds) {
         List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
-        List<AgentIdEntry> targetAgentIdEntryList = new ArrayList<>(100);
+        List<AgentIdEntry> targetAgentIdEntryList = new ArrayList<>(AGENT_ID_ENTRY_DELETE_BATCH_SIZE);
         Set<String> agentIdsSet = new HashSet<>(agentIds);
         for (AgentIdEntry agentIdEntry : agentIdEntryList) {
             if (agentIdsSet.contains(agentIdEntry.getAgentId())) {
                 targetAgentIdEntryList.add(agentIdEntry);
             }
 
-            if (targetAgentIdEntryList.size() >= 100) {
+            if (targetAgentIdEntryList.size() >= AGENT_ID_ENTRY_DELETE_BATCH_SIZE) {
                 agentIdDao.delete(targetAgentIdEntryList);
                 targetAgentIdEntryList.clear();
             }

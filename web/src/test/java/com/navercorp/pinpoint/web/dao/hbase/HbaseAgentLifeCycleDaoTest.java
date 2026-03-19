@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
@@ -113,8 +114,7 @@ public class HbaseAgentLifeCycleDaoTest {
         AgentInfo givenAgentInfo = new AgentInfo();
         givenAgentInfo.setAgentId(expectedAgentId);
         givenAgentInfo.setStartTimestamp(expectedTimestamp);
-        Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
-        AgentStatus givenStatus = agentStatus.get();
+        AgentStatus givenStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
 
         // Then
         assertStatus(givenStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
@@ -140,8 +140,7 @@ public class HbaseAgentLifeCycleDaoTest {
         givenAgentInfo.setAgentId(expectedAgentId);
         givenAgentInfo.setStartTimestamp(expectedTimestamp);
         // When
-        Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
-        AgentStatus actualAgentStatus = agentStatus.get();
+        AgentStatus actualAgentStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
 
         // Then
         assertStatus(actualAgentStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
@@ -181,6 +180,55 @@ public class HbaseAgentLifeCycleDaoTest {
         AgentStatusQuery.Builder builder = AgentStatusQuery.newBuilder();
         AgentStatusQuery query = builder.build(1000);
         this.agentLifeCycleDao.getAgentStatus(query);
+    }
+
+    @Test
+    public void getCurrentAgentStatus_with_agentId_and_agentStartTime() {
+        // Given
+        final String expectedAgentId = "test-agent";
+        final long expectedTimestamp = 1000L;
+        final AgentLifeCycleState expectedState = AgentLifeCycleState.RUNNING;
+
+        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedState);
+        when(this.hbaseOperations.findParallel(any(TableName.class), anyList(), any(ResultsExtractor.class)))
+                .thenReturn(List.of(scannedLifeCycleBo));
+
+        List<SimpleAgentKey> agentKeys = List.of(new SimpleAgentKey(expectedAgentId, expectedTimestamp));
+        // When
+        List<Optional<AgentStatus>> result = this.agentLifeCycleDao.getCurrentAgentStatus(agentKeys);
+        // Then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isPresent();
+        assertStatus(result.get(0).get(), expectedAgentId, expectedTimestamp, expectedState);
+    }
+
+    @Test
+    public void getCurrentAgentStatus_should_handle_null_entries() {
+        // Given
+        final String expectedAgentId = "test-agent";
+        final long expectedTimestamp = 1000L;
+        final AgentLifeCycleState expectedState = AgentLifeCycleState.RUNNING;
+
+        final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedState);
+        when(this.hbaseOperations.findParallel(any(TableName.class), anyList(), any(ResultsExtractor.class)))
+                .thenReturn(List.of(scannedLifeCycleBo));
+
+        List<SimpleAgentKey> agentKeys = Arrays.asList(new SimpleAgentKey(expectedAgentId, expectedTimestamp), null);
+        // When
+        List<Optional<AgentStatus>> result = this.agentLifeCycleDao.getCurrentAgentStatus(agentKeys);
+        // Then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0)).isPresent();
+        assertStatus(result.get(0).get(), expectedAgentId, expectedTimestamp, expectedState);
+        assertThat(result.get(1)).isEmpty();
+    }
+
+    @Test
+    public void getCurrentAgentStatus_should_return_empty_for_empty_input() {
+        // When
+        List<Optional<AgentStatus>> result = this.agentLifeCycleDao.getCurrentAgentStatus(List.of());
+        // Then
+        assertThat(result).isEmpty();
     }
 
     private AgentLifeCycleBo createAgentLifeCycleBo(String agentId, long eventTimestamp, AgentLifeCycleState state) {

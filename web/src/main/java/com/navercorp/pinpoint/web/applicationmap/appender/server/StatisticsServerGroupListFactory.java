@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -44,12 +45,12 @@ public class StatisticsServerGroupListFactory implements ServerGroupListFactory 
     }
 
     @Override
-    public ServerGroupList createWasNodeInstanceList(Node wasNode, long timestamp) {
-        ServerGroupList serverGroupList = createWasNodeInstanceListFromHistogram(wasNode, timestamp);
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, Range range) {
+        ServerGroupList serverGroupList = createWasNodeInstanceListFromHistogram(wasNode, range.getTo());
         if (serverGroupList.getServerGroupList().isEmpty()) {
             if (agentInfoInterpolation) {
                 // When there is no transaction information, agentInfo information is used.
-                serverGroupList = createWasNodeInstanceListFromAgentInfo(wasNode, timestamp);
+                serverGroupList = createWasNodeInstanceListFromAgentInfo(wasNode, range);
             }
         }
         return serverGroupList;
@@ -79,8 +80,8 @@ public class StatisticsServerGroupListFactory implements ServerGroupListFactory 
         return builder.build();
     }
 
-    ServerGroupList createWasNodeInstanceListFromAgentInfo(Node wasNode, long timestamp) {
-        return serverGroupListDataSource.createServerGroupList(wasNode, timestamp);
+    ServerGroupList createWasNodeInstanceListFromAgentInfo(Node wasNode, Range range) {
+        return serverGroupListDataSource.createServerGroupList(wasNode, range);
     }
 
     @Override
