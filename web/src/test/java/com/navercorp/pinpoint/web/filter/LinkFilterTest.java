@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -37,6 +38,7 @@ import static org.mockito.Mockito.when;
  */
 public class LinkFilterTest {
 
+    private static final String DEFAULT_SERVICE = Service.DEFAULT.getServiceName();
     private static final int RPC_ANNOTATION_CODE = -1;
     private static final String RPC_ANNOTATION_NAME = "rpc.url";
 
@@ -61,9 +63,9 @@ public class LinkFilterTest {
         ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
         final int tomcatServiceType = tomcat.getCode();
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_B", tomcat.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE, "APP_A", tomcat.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE, "APP_B", tomcat.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor.Option option = new FilterDescriptor.Option(null, null);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -102,9 +104,9 @@ public class LinkFilterTest {
         final ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
         final int tomcatServiceType = tomcat.getCode();
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), "AGENT_A");
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_B", tomcat.getName(), "AGENT_B");
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE, "APP_A", tomcat.getName(), "AGENT_A");
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE, "APP_B", tomcat.getName(), "AGENT_B");
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor.Option option = new FilterDescriptor.Option(null, null);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -141,9 +143,9 @@ public class LinkFilterTest {
         final ServiceType user = serviceTypeRegistryService.findServiceTypeByName(USER_TYPE_NAME);
         final ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("USER", user.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE,"USER", user.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE,"APP_A", tomcat.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.Option option = new FilterDescriptor.Option(null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -188,9 +190,9 @@ public class LinkFilterTest {
         final String rpcUrl = "http://" + rpcHost + "/some/test/path";
         final String urlPattern = "/some/test/**";
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(rpcHost, unknown.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE,"APP_A", tomcat.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE,rpcHost, unknown.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.Option option = new FilterDescriptor.Option(encodeUrl(urlPattern), null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -222,9 +224,9 @@ public class LinkFilterTest {
     public void wasToWasFilter_perfectMatch() {
         final ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_B", tomcat.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE,"APP_A", tomcat.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE,"APP_B", tomcat.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor.Option option = new FilterDescriptor.Option(null, null);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -252,9 +254,9 @@ public class LinkFilterTest {
     public void wasToWasFilter_noMatch() {
         final ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_B", tomcat.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE,"APP_A", tomcat.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE,"APP_B", tomcat.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor.Option option = new FilterDescriptor.Option(null, null);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -298,9 +300,9 @@ public class LinkFilterTest {
         final String rpcHost = "some.domain.name";
         final String rpcUrl = "http://" + rpcHost + "/some/test/path";
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_B", tomcat.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE,"APP_A", tomcat.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE,"APP_B", tomcat.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor.Option option = mock(FilterDescriptor.Option.class);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -360,9 +362,9 @@ public class LinkFilterTest {
         final String destinationA = "BACKEND_A";
         final String destinationB = "BACKEND_B";
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(destinationA, backend.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE, "APP_A", tomcat.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE, destinationA, backend.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor.Option option = mock(FilterDescriptor.Option.class);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -407,9 +409,9 @@ public class LinkFilterTest {
         final String messageQueueA = "QUEUE_A";
         final String messageQueueB = "QUEUE_B";
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(messageQueueA, messageQueue.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE, "APP_A", tomcat.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE, messageQueueA, messageQueue.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor.Option option = mock(FilterDescriptor.Option.class);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
@@ -454,9 +456,9 @@ public class LinkFilterTest {
         final String messageQueueA = "QUEUE_A";
         final String messageQueueB = "QUEUE_B";
 
-        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(messageQueueA, messageQueue.getName(), null);
-        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_A", tomcat.getName(), null);
-        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null);
+        FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode(DEFAULT_SERVICE, messageQueueA, messageQueue.getName(), null);
+        FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode(DEFAULT_SERVICE, "APP_A", tomcat.getName(), null);
+        FilterDescriptor.SelfNode selfNode = new FilterDescriptor.SelfNode(null, null, null, null);
         FilterDescriptor.ResponseTime responseTime = new FilterDescriptor.ResponseTime(null, null);
         FilterDescriptor.Option option = mock(FilterDescriptor.Option.class);
         FilterDescriptor descriptor = new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);

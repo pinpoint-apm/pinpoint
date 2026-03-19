@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.web.vo.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -77,14 +78,20 @@ public class FilterDescriptor {
 
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class Node {
+        private final String serviceName;
         private final String applicationName;
         private final String serviceType ;
         private final String agentId;
 
-        public Node(String applicationName, String serviceType, String agentId) {
+        public Node(String serviceName, String applicationName, String serviceType, String agentId) {
+            this.serviceName = Objects.requireNonNullElse(serviceName, Service.DEFAULT.getServiceName());
             this.applicationName = applicationName;
             this.serviceType = serviceType;
             this.agentId = agentId;
+        }
+
+        public String getServiceName() {
+            return serviceName;
         }
 
         public String getApplicationName() {
@@ -100,12 +107,13 @@ public class FilterDescriptor {
         }
 
         public boolean isValid() {
-            return StringUtils.hasLength(applicationName) && StringUtils.hasLength(serviceType);
+            return StringUtils.hasLength(serviceName) & StringUtils.hasLength(applicationName) && StringUtils.hasLength(serviceType);
         }
 
         @Override
         public String toString() {
             return this.getClass().getSimpleName()  + "{" +
+                    "serviceName='" + serviceName + '\'' +
                     "applicationName='" + applicationName + '\'' +
                     ", serviceType='" + serviceType + '\'' +
                     ", agentId='" + agentId + '\'' +
@@ -115,10 +123,11 @@ public class FilterDescriptor {
 
     public static class FromNode extends Node {
         @JsonCreator
-        public FromNode(@JsonProperty("fa") String applicationName,
+        public FromNode(@JsonProperty("fs") String serviceName,
+                        @JsonProperty("fa") String applicationName,
                         @JsonProperty("fst") String serviceType,
                         @JsonProperty("fan") String agentId) {
-            super(applicationName, serviceType, agentId);
+            super(serviceName, applicationName, serviceType, agentId);
         }
     }
 
@@ -127,10 +136,11 @@ public class FilterDescriptor {
          * to application
          */
         @JsonCreator
-        public ToNode(@JsonProperty("ta") String applicationName,
+        public ToNode(@JsonProperty("ts") String serviceName,
+                      @JsonProperty("ta") String applicationName,
                       @JsonProperty("tst") String serviceType,
                       @JsonProperty("tan") String agentId) {
-            super(applicationName, serviceType, agentId);
+            super(serviceName, applicationName, serviceType, agentId);
         }
     }
 
@@ -139,10 +149,11 @@ public class FilterDescriptor {
          * self application
          */
         @JsonCreator
-        public SelfNode(@JsonProperty("a") String applicationName,
+        public SelfNode(@JsonProperty("s") String serviceName,
+                      @JsonProperty("a") String applicationName,
                       @JsonProperty("st") String serviceType,
                       @JsonProperty("an") String agentId) {
-            super(applicationName, serviceType, agentId);
+            super(serviceName, applicationName, serviceType, agentId);
         }
     }
 
