@@ -32,10 +32,9 @@ public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventApi
     private final boolean markErrorRetry;
 
     public RetryWhenMainSubscriberInterceptor(TraceContext traceContext) {
-        super(traceContext);
-        final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
-        this.traceRetry = config.isTraceRetry();
-        this.markErrorRetry = config.isMarkErrorRetry();
+        super(traceContext, ReactorPluginConfig.isTraceRetry(traceContext.getProfilerConfig()));
+        this.traceRetry = ReactorPluginConfig.isTraceRetry(traceContext.getProfilerConfig());
+        this.markErrorRetry = ReactorPluginConfig.isMarkErrorRetry(traceContext.getProfilerConfig());
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args) {

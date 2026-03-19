@@ -28,6 +28,7 @@ public interface AsyncContext {
     String ASYNC_TRACE_SCOPE = "##ASYNC_TRACE_SCOPE";
 
     Trace continueAsyncTraceObject();
+    Trace continueAsyncTraceObject(boolean asyncTraceBlock);
 
     Trace currentAsyncTraceObject();
 

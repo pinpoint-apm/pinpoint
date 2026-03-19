@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriber;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessorUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -30,7 +28,7 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiI
     private final ServiceType serviceType;
 
     public CoreSubscriberRunInterceptor(TraceContext traceContext, ServiceType serviceType) {
-        super(traceContext);
+        super(traceContext, false);
         this.serviceType = serviceType;
     }
 
@@ -45,7 +43,6 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiI
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apidId, Object[] args) {
-        recorder.recordServiceType(serviceType);
     }
 
     @Override
@@ -59,7 +56,5 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiI
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApiId(apiId);
-        recorder.recordException(throwable);
     }
 }
