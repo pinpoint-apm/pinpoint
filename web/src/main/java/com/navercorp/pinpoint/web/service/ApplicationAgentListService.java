@@ -16,10 +16,7 @@ public interface ApplicationAgentListService {
     String AGENT_INFO_NOT_FOUND_HOSTNAME = "!noAgentInfo";
     Predicate<AgentInfo> ACTUAL_AGENT_INFO_PREDICATE = agentInfo -> !AGENT_INFO_NOT_FOUND_HOSTNAME.equals(agentInfo.getHostName());
 
-    List<AgentAndStatus> allAgentList(String applicationName,
-                                      @Nullable ServiceType serviceType,
-                                      Range range,
-                                      Predicate<AgentInfo> agentInfoPredicate);
+    List<AgentAndStatus> allAgentList(String applicationName, ServiceType serviceType, long toTimestamp, Predicate<AgentInfo> agentInfoPredicate);
 
     List<AgentAndStatus> activeStatusAgentList(String applicationName,
                                                @Nullable ServiceType serviceType,

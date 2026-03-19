@@ -31,6 +31,7 @@ public interface ApplicationIndexService {
 
     List<Application> selectApplication(String applicationName);
 
+    @Deprecated
     void deleteApplicationName(String applicationName);
 
     void deleteApplication(String applicationName, int serviceTypeCode);

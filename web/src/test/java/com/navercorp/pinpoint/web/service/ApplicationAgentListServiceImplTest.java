@@ -97,9 +97,9 @@ public class ApplicationAgentListServiceImplTest {
         Range range = Range.between(0, 60_000);
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
-        when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
+        when(agentInfoDao.findAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, testApplicationServiceType, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, testApplicationServiceType, range.getTo(), AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -111,9 +111,9 @@ public class ApplicationAgentListServiceImplTest {
         Range range = Range.between(0, 60_000);
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
-        when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
+        when(agentInfoDao.findAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, null, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, null, range.getTo(), AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -126,7 +126,7 @@ public class ApplicationAgentListServiceImplTest {
         TimeWindow timeWindow = new TimeWindow(range);
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
-        when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
+        when(agentInfoDao.findAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
         when(agentLifeCycleDao.getAgentStatus(ArgumentMatchers.any())).thenReturn(List.of(Optional.of(testAgentStatus)));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatusAgentList(testApplicationName, testApplicationServiceType, timeWindow, AgentInfoFilters.acceptAll());
@@ -144,7 +144,7 @@ public class ApplicationAgentListServiceImplTest {
 
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
-        when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
+        when(agentInfoDao.findAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
         when(agentLifeCycleDao.getAgentStatus(ArgumentMatchers.any())).thenReturn(List.of(Optional.of(testAgentStatus)));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatusAgentList(testApplicationName, null, timeWindow, AgentInfoFilters.acceptAll());
@@ -162,7 +162,7 @@ public class ApplicationAgentListServiceImplTest {
 
         List<String> agentIds = List.of(testAgentId);
         when(mapAgentResponseDao.selectAgentIds(any(), any())).thenReturn(Set.of(testAgentId));
-        when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
+        when(agentInfoDao.findAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatisticsAgentList(testApplicationName, testApplicationServiceType, timeWindow, AgentInfoFilters.acceptAll());
 
@@ -179,7 +179,7 @@ public class ApplicationAgentListServiceImplTest {
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectApplication(testApplicationName)).thenReturn(List.of(testApplication));
         when(mapAgentResponseDao.selectAgentIds(any(), any())).thenReturn(Set.of(testAgentId));
-        when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
+        when(agentInfoDao.findAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatisticsAgentList(testApplicationName, null, timeWindow, AgentInfoFilters.acceptAll());
 
@@ -197,9 +197,9 @@ public class ApplicationAgentListServiceImplTest {
 
         List<AgentInfo> nullAgentInfoList = new ArrayList<>();
         nullAgentInfoList.add(null);
-        when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);
+        when(agentInfoDao.findAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);
 
-        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, testApplicationServiceType, range, AgentInfoFilters.acceptAll());
+        List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, testApplicationServiceType, range.getTo(), AgentInfoFilters.acceptAll());
 
         Assertions.assertThat(agentAndStatusList).hasSize(1);
         AgentAndStatus agentAndStatus = agentAndStatusList.get(0);
@@ -219,7 +219,7 @@ public class ApplicationAgentListServiceImplTest {
 
         List<AgentInfo> nullAgentInfoList = new ArrayList<>();
         nullAgentInfoList.add(null);
-        when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);
+        when(agentInfoDao.findAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatisticsAgentList(testApplicationName, testApplicationServiceType, timeWindow, AgentInfoFilters.acceptAll());
 

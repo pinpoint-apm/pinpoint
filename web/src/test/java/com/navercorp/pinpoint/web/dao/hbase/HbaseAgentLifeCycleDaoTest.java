@@ -113,8 +113,7 @@ public class HbaseAgentLifeCycleDaoTest {
         AgentInfo givenAgentInfo = new AgentInfo();
         givenAgentInfo.setAgentId(expectedAgentId);
         givenAgentInfo.setStartTimestamp(expectedTimestamp);
-        Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
-        AgentStatus givenStatus = agentStatus.get();
+        AgentStatus givenStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
 
         // Then
         assertStatus(givenStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
@@ -140,8 +139,7 @@ public class HbaseAgentLifeCycleDaoTest {
         givenAgentInfo.setAgentId(expectedAgentId);
         givenAgentInfo.setStartTimestamp(expectedTimestamp);
         // When
-        Optional<AgentStatus> agentStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
-        AgentStatus actualAgentStatus = agentStatus.get();
+        AgentStatus actualAgentStatus = this.agentLifeCycleDao.getAgentStatus(givenAgentInfo.getAgentId(), givenAgentInfo.getStartTimestamp(), expectedTimestamp);
 
         // Then
         assertStatus(actualAgentStatus, expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);

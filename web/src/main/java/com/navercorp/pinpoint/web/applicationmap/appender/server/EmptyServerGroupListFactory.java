@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
@@ -26,7 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 public class EmptyServerGroupListFactory implements ServerGroupListFactory {
 
     @Override
-    public ServerGroupList createWasNodeInstanceList(Node wasNode, long timestamp) {
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, Range range) {
         return ServerGroupList.empty();
     }
 

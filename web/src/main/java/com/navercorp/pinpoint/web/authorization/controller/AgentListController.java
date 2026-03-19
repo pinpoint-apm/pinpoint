@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,9 +40,8 @@ public class AgentListController implements AccessDeniedExceptionHandler {
     @GetMapping(value = "/statistics")
     public List<DetailedAgentAndStatus> getAllAgentStatistics() {
         final long timestamp = System.currentTimeMillis();
-        return this.agentInfoService.getAllAgentsStatisticsList(
-                        AgentStatusFilters.acceptAll(),
-                        Range.between(timestamp, timestamp)
+        return this.agentInfoService.getAgentsStatisticsList(
+                        Range.between(0, timestamp)
                 );
     }
 
@@ -55,8 +53,7 @@ public class AgentListController implements AccessDeniedExceptionHandler {
     ) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
-        return this.agentInfoService.getAllAgentsStatisticsList(
-                        AgentStatusFilters.acceptAll(),
+        return this.agentInfoService.getAgentsStatisticsList(
                         range
                 );
     }

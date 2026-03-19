@@ -10,6 +10,7 @@ import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,10 +78,10 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
         }
 
         String previousAgentId = null;
-        long previousAgentStartTime = 0;
+        Long previousAgentStartTime = null;
         int iteration = 0;
         while (iteration < maxIteration) {
-            List<AgentInfoBo> agentInfoBoList = agentInfoDao.getAgentInfoBo(batchSize, fromTimestamp, previousAgentId, previousAgentStartTime).stream()
+            List<AgentInfoBo> agentInfoBoList = agentInfoDao.fetchAgentInfoBo(batchSize, fromTimestamp, previousAgentId, previousAgentStartTime).stream()
                     .filter(Objects::nonNull)
                     .toList();
             logger.info("iteration={}, fetched agentInfo size={}", iteration, agentInfoBoList.size());
@@ -99,6 +100,23 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
         }
         stopWatch.stop();
         logger.info(stopWatch.prettyPrint());
+    }
+
+    private void copyAgentInfoBo(List<AgentInfoBo> agentInfoBoList) {
+        List<SimpleAgentKey> keys = agentInfoBoList.stream()
+                .map(bo -> new SimpleAgentKey(bo.getAgentId(), bo.getStartTime()))
+                .toList();
+        List<Optional<AgentStatus>> currentAgentStatus = agentLifeCycleDao.getCurrentAgentStatus(keys);
+        try {
+            for (int i = 0; i < agentInfoBoList.size(); i++) {
+                AgentInfoBo agentInfoBo = agentInfoBoList.get(i);
+                AgentStatus agentStatus = currentAgentStatus.get(i).orElse(null);
+                agentIdDao.insert(ServiceUid.DEFAULT_SERVICE_UID_CODE, agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId(),
+                        agentInfoBo.getStartTime(), agentInfoBo.getAgentName(), agentStatus);
+            }
+        } catch (Exception e) {
+            logger.error("Failed to insert agentInfoBo batch. batchSize={}", agentInfoBoList.size(), e);
+        }
     }
 
     @Override
@@ -134,31 +152,32 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
 
     private void batchCopyAgentId(List<String> agentIds, int agentIdBatchSize) {
         logger.info("batchCopyAgentId started. agentIds size={}, agentIdBatchSize={}", agentIds.size(), agentIdBatchSize);
+        long timestamp = System.currentTimeMillis();
         for (int i = 0; i < agentIds.size(); i += agentIdBatchSize) {
             int end = Math.min(i + agentIdBatchSize, agentIds.size());
             List<String> agentIdBatch = agentIds.subList(i, end);
 
-            List<AgentInfoBo> agentInfoBoList = agentInfoDao.getAgentInfoBo(agentIdBatch).stream()
+            List<AgentInfo> agentInfoList = agentInfoDao.findAgentInfos(agentIdBatch, timestamp).stream()
                     .filter(Objects::nonNull)
                     .toList();
-            copyAgentInfoBo(agentInfoBoList);
+            copyAgentInfo(agentInfoList);
         }
     }
 
-    private void copyAgentInfoBo(List<AgentInfoBo> agentInfoBoList) {
-        List<SimpleAgentKey> keys = agentInfoBoList.stream()
-                .map(bo -> new SimpleAgentKey(bo.getAgentId(), bo.getStartTime()))
+    private void copyAgentInfo(List<AgentInfo> agentInfoList) {
+        List<SimpleAgentKey> keys = agentInfoList.stream()
+                .map(info -> new SimpleAgentKey(info.getAgentId(), info.getStartTimestamp()))
                 .toList();
         List<Optional<AgentStatus>> currentAgentStatus = agentLifeCycleDao.getCurrentAgentStatus(keys);
         try {
-            for (int i = 0; i < agentInfoBoList.size(); i++) {
-                AgentInfoBo agentInfoBo = agentInfoBoList.get(i);
+            for (int i = 0; i < agentInfoList.size(); i++) {
+                AgentInfo agentInfo = agentInfoList.get(i);
                 AgentStatus agentStatus = currentAgentStatus.get(i).orElse(null);
-                agentIdDao.insert(ServiceUid.DEFAULT_SERVICE_UID_CODE, agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId(),
-                        agentInfoBo.getStartTime(), agentInfoBo.getAgentName(), agentStatus);
+                agentIdDao.insert(ServiceUid.DEFAULT_SERVICE_UID_CODE, agentInfo.getApplicationName(), agentInfo.getServiceTypeCode(), agentInfo.getAgentId(),
+                        agentInfo.getStartTimestamp(), agentInfo.getAgentName(), agentStatus);
             }
         } catch (Exception e) {
-            logger.error("Failed to insert agentInfoBo batch. batchSize={}", agentInfoBoList.size(), e);
+            logger.error("Failed to insert agentInfo batch. batchSize={}", agentInfoList.size(), e);
         }
     }
 }
