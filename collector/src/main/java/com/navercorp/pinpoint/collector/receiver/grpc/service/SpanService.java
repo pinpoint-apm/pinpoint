@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
+import com.navercorp.pinpoint.grpc.trace.PSpanMessageBatch;
+import com.navercorp.pinpoint.grpc.trace.PSpanResultBatch;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
@@ -74,6 +76,40 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     }
 
     @Override
+    public void sendSpanBatch(PSpanMessageBatch request, StreamObserver<PSpanResultBatch> responseObserver) {
+        final Context current = Context.current();
+        final UidFetcher fetcher = uidFetcherStreamService.newUidFetcher();
+        final SpanBatchErrorResult errorReporter = new SpanBatchErrorResult();
+        for (PSpanMessage spanMessage : request.getSpanList()) {
+            if (isDebug) {
+                logger.debug("SendSpanList PSpanMessage={}", MessageFormatUtils.debugLog(spanMessage));
+            }
+            if (spanMessage.hasSpan()) {
+                final PSpan span = spanMessage.getSpan();
+                final ServerRequest<PSpan> serverRequest = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPAN, span);
+                try {
+                    spanHandler.handleSimple(serverRequest);
+                } catch (Throwable e) {
+                    logger.warn("Failed to handle span. header={} spanErrorId={}", serverRequest.getHeader(), errorReporter.getErrorId(), e);
+                    errorReporter.recordException(e);
+                }
+            } else if (spanMessage.hasSpanChunk()) {
+                final PSpanChunk spanChunk = spanMessage.getSpanChunk();
+                final ServerRequest<PSpanChunk> serverRequest = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPANCHUNK, spanChunk);
+                try {
+                    spanCheckHandler.handleSimple(serverRequest);
+                } catch (Throwable e) {
+                    logger.warn("Failed to handle spanChunk. header={} spanErrorId={}", serverRequest.getHeader(), errorReporter.getErrorId(), e);
+                    errorReporter.recordException(e);
+                }
+            }
+        }
+
+        responseObserver.onNext(errorReporter.buildResultBatch());
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseStream) {
         final ServerCallStreamObserver<Empty> responseObserver = (ServerCallStreamObserver<Empty>) responseStream;
         long streamId = serverStreamId.incrementAndGet();
@@ -89,8 +125,9 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         }
 
         final Context current = Context.current();
+        final Runnable spanTask = current.wrap(() -> spanDispatch(current, spanMessage, call, responseObserver));
         try {
-            executor.execute(current.wrap(() -> spanDispatch(current, spanMessage, call, responseObserver)));
+            executor.execute(spanTask);
         } catch (RejectedExecutionException e) {
             logger.warn("Failed to request. Executor rejected. header:{}", ServerContext.getAgentInfo(current));
         }
@@ -124,7 +161,5 @@ public class SpanService extends SpanGrpc.SpanImplBase {
             responseObserver.onNextError(e);
         }
     }
-
-
 
 }

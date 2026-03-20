@@ -92,8 +92,9 @@ public class StatService extends StatGrpc.StatImplBase {
         }
 
         final Context current = Context.current();
+        final Runnable statTask = current.wrap(() -> statDispatch(current, statMessage, call, response));
         try {
-            executor.execute(current.wrap(() -> statDispatch(current, statMessage, call, response)));
+            executor.execute(statTask);
         } catch (RejectedExecutionException e) {
             logger.warn("Failed to request. Executor rejected. header:{}", ServerContext.getAgentInfo(current));
         }
