@@ -107,7 +107,7 @@ public class ServerInfoAppenderTest {
         NodeList nodeList = NodeList.of(wasNode);
 
         ServerGroupList serverGroupList = ServerGroupList.empty();
-        when(serverGroupListDataSource.createServerGroupList(wasNode, range.getTo())).thenReturn(serverGroupList);
+        when(serverGroupListDataSource.createServerGroupList(wasNode, range)).thenReturn(serverGroupList);
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
@@ -129,9 +129,9 @@ public class ServerInfoAppenderTest {
         NodeList nodeList = nodeBuilder.build();
 
         ServerGroupList serverGroupList1 = ServerGroupList.empty();
-        when(serverGroupListDataSource.createServerGroupList(wasNode1, range.getTo())).thenReturn(serverGroupList1);
+        when(serverGroupListDataSource.createServerGroupList(wasNode1, range)).thenReturn(serverGroupList1);
         ServerGroupList serverGroupList2 = ServerGroupList.empty();
-        when(serverGroupListDataSource.createServerGroupList(wasNode2, range.getTo())).thenReturn(serverGroupList2);
+        when(serverGroupListDataSource.createServerGroupList(wasNode2, range)).thenReturn(serverGroupList2);
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then

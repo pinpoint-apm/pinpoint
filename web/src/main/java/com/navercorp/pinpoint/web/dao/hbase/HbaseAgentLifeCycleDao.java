@@ -86,21 +86,17 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     }
 
     @Override
-    public Optional<AgentStatus> getAgentStatus(String agentId, long agentStartTimestamp, long timestamp) {
+    public AgentStatus getAgentStatus(String agentId, long agentStartTimestamp, long timestamp) {
         if (agentId == null) {
-            return Optional.empty();
+            return null;
         }
         Assert.isTrue(timestamp >= 0, "timestamp must not be less than 0");
-        // startTimestamp is stored in reverse order
-        final long toTimestamp = agentStartTimestamp;
-        final long fromTimestamp = toTimestamp - 1;
-        Scan scan = createScan(agentId, fromTimestamp, toTimestamp);
+        Scan scan = createScan(agentId, agentStartTimestamp);
 
         TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         ResultsExtractor<AgentLifeCycleBo> resultsExtractor = getRecentAgentLifeCycleResultsExtractor(timestamp);
         AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations.find(agentLifeCycleTableName, scan, resultsExtractor);
-        AgentStatus agentStatus = createAgentStatus(agentId, agentLifeCycleBo);
-        return Optional.of(agentStatus);
+        return createAgentStatus(agentId, agentLifeCycleBo);
     }
 
     private ResultsExtractor<AgentLifeCycleBo> getRecentAgentLifeCycleResultsExtractor(long timestamp) {
@@ -122,9 +118,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
             if (agentInfo != null) {
                 final String agentId = agentInfo.agentId();
                 // startTimestamp is stored in reverse order
-                final long toTimestamp = agentInfo.agentStartTime();
-                final long fromTimestamp = toTimestamp - 1;
-                scans.add(createScan(agentId, fromTimestamp, toTimestamp));
+                scans.add(createScan(agentId, agentInfo.agentStartTime()));
             }
         }
 
@@ -134,9 +128,19 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         return mergeResult(agentKeyList, agentLifeCycles);
     }
 
-    private Scan createScan(String agentId, long fromTimestamp, long toTimestamp) {
-        byte[] startKeyBytes = rowKeyEncoder.encodeRowKey(agentId, toTimestamp);
-        byte[] endKeyBytes = rowKeyEncoder.encodeRowKey(agentId, fromTimestamp);
+    private Scan createScan(String agentId, long agentStartTime) {
+        byte[] rowPrefix = rowKeyEncoder.encodeRowKey(agentId, agentStartTime);
+        Scan scan = new Scan();
+        scan.setStartStopRowForPrefixScan(rowPrefix);
+        scan.addColumn(DESCRIPTOR.getName(), HbaseTables.AgentLifeCycleStatus.QUALIFIER_STATES);
+        scan.setCaching(SCANNER_CACHING);
+        return scan;
+    }
+
+    // agentStartTime is reversed so (min, max]
+    private Scan createScan(String agentId, long minAgentStartTime, long maxAgentStartTime) {
+        byte[] startKeyBytes = rowKeyEncoder.encodeRowKey(agentId, maxAgentStartTime);
+        byte[] endKeyBytes = rowKeyEncoder.encodeRowKey(agentId, minAgentStartTime);
 
         Scan scan = new Scan();
         scan.withStartRow(startKeyBytes);
@@ -159,7 +163,9 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         List<Scan> scans = new ArrayList<>(agentKeyList.size());
         for (SimpleAgentKey agentInfo : agentKeyList) {
             if (agentInfo != null) {
-                scans.add(createScan(agentInfo.agentId(), agentInfo.agentStartTime()));
+                Scan scan = createScan(agentInfo.agentId(), agentInfo.agentStartTime());
+                scan.setOneRowLimit();
+                scans.add(scan);
             }
         }
 
@@ -167,15 +173,6 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         ResultsExtractor<AgentLifeCycleBo> action = getRecentAgentLifeCycleResultsExtractor(Long.MAX_VALUE);
         List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations.findParallel(agentLifeCycleTableName, scans, action);
         return mergeResult(agentKeyList, agentLifeCycles);
-    }
-
-    private Scan createScan(String agentId, long agentStartTime) {
-        byte[] rowPreFix = rowKeyEncoder.encodeRowKey(agentId, agentStartTime);
-        Scan scan = new Scan();
-        scan.setStartStopRowForPrefixScan(rowPreFix);
-        scan.addColumn(DESCRIPTOR.getName(), HbaseTables.AgentLifeCycleStatus.QUALIFIER_STATES);
-        scan.setOneRowLimit();
-        return scan;
     }
 
     private List<Optional<AgentStatus>> mergeResult(List<SimpleAgentKey> agentKeyList, List<AgentLifeCycleBo> agentLifeCycles) {

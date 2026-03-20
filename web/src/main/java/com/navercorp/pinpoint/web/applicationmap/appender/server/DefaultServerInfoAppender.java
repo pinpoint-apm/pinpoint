@@ -98,8 +98,7 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
             return CompletableFuture.supplyAsync(new Supplier<>() {
                 @Override
                 public ServerGroupList get() {
-                    final long to = range.getTo();
-                    return serverGroupListFactory.createWasNodeInstanceList(node, to);
+                    return serverGroupListFactory.createWasNodeInstanceList(node, range);
                 }
             }, executor);
         } else if (nodeServiceType.isTerminal() || nodeServiceType.isAlias()) {

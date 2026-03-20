@@ -33,10 +33,10 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.Agen
 import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
@@ -49,7 +49,6 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -92,7 +91,8 @@ public class ApplicationMapBuilderTest {
         responseHistogramBuilderNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(responseHistograms);
 
         AgentInfoService agentInfoService = mock(AgentInfoService.class);
-        agentInfoServerGroupListDataSource = new AgentInfoServerGroupListDataSource(agentInfoService);
+        AgentListV2Service agentListV2Service = mock(AgentListV2Service.class);
+        agentInfoServerGroupListDataSource = new AgentInfoServerGroupListDataSource(agentInfoService, agentListV2Service, false);
 
         Answer<List<ResponseTime>> responseTimeAnswer = new Answer<>() {
             final long timestamp = System.currentTimeMillis();
@@ -110,25 +110,15 @@ public class ApplicationMapBuilderTest {
         when(mapAgentResponseDao.selectResponseTime(any(Application.class), any(TimeWindow.class))).thenAnswer(responseTimeAnswer);
         when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
-        when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<>() {
+        when(agentInfoService.getAgentInfoByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<>() {
             @Override
-            public Set<AgentAndStatus> answer(InvocationOnMock invocation) throws Throwable {
+            public List<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
                 String applicationName = invocation.getArgument(0);
                 AgentInfo agentInfo = ApplicationMapBuilderTestHelper.createAgentInfoFromApplicationName(applicationName);
-                AgentStatus agentStatus = new AgentStatus(agentInfo.getAgentId(), AgentLifeCycleState.RUNNING, 0);
-
-                return Set.of(new AgentAndStatus(agentInfo, agentStatus));
+                return List.of(agentInfo);
             }
         });
-        when(agentInfoService.getAgentsByApplicationNameWithoutStatus(anyString(), anyLong())).thenAnswer(new Answer<>() {
-            @Override
-            public Set<AgentInfo> answer(InvocationOnMock invocation) throws Throwable {
-                String applicationName = invocation.getArgument(0);
-                AgentInfo agentInfo = ApplicationMapBuilderTestHelper.createAgentInfoFromApplicationName(applicationName);
-                return Set.of(agentInfo);
-            }
-        });
-        when(agentInfoService.getAgentStatus(anyString(), anyLong())).thenAnswer(new Answer<>()  {
+        when(agentInfoService.findAgentStatus(anyString(), anyLong())).thenAnswer(new Answer<>()  {
             @Override
             public AgentStatus answer(InvocationOnMock invocation) throws Throwable {
                 String agentId = invocation.getArgument(0);

@@ -87,7 +87,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         ServerGroupListDataSource dataSource = new ServerGroupListDataSource() {
             @Override
-            public ServerGroupList createServerGroupList(Node node, long timestamp) {
+            public ServerGroupList createServerGroupList(Node node, Range range) {
                 return ServerGroupList.empty();
             }
         };
