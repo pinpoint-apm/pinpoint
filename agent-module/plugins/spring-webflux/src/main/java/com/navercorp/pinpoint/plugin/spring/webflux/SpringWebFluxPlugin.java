@@ -81,6 +81,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         transformTemplate.transform(invokeMatcher, DispatchHandlerInvokeHandlerTransform.class);
 
         transformTemplate.transform("org.springframework.web.server.adapter.DefaultServerWebExchange", ServerWebExchangeTransform.class);
+        transformTemplate.transform("org.springframework.security.web.server.context.SecurityContextServerWebExchange", ServerWebExchangeTransform.class);
         transformTemplate.transform("org.springframework.web.reactive.result.method.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
 
         // Reactive
