@@ -53,6 +53,7 @@ class ExceptionMetaDataMapperTest {
         Assertions.assertEquals(expected.getSpanId(), actual.getSpanId());
         Assertions.assertEquals(expected.getExceptionId(), actual.getExceptionId());
 
+        Assertions.assertEquals(expected.getServiceName(), actual.getServiceName());
         Assertions.assertEquals(expected.getApplicationServiceType(), actual.getApplicationServiceType());
         Assertions.assertEquals(expected.getApplicationName(), actual.getApplicationName());
         Assertions.assertEquals(expected.getAgentId(), actual.getAgentId());
@@ -91,6 +92,7 @@ class ExceptionMetaDataMapperTest {
                 "transactionId",
                 random.nextLong(),
                 random.nextLong(),
+                "serviceName",
                 "applicationServiceType",
                 "applicationName",
                 "agentId",
