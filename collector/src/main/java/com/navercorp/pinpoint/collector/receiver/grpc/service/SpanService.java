@@ -25,6 +25,9 @@ import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
+import com.navercorp.pinpoint.grpc.trace.PSpanMessageBatch;
+import com.navercorp.pinpoint.grpc.trace.PSpanResultBatch;
+import com.navercorp.pinpoint.grpc.trace.PPartialSuccess;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
@@ -64,6 +67,62 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         this.uidFetcherStreamService = Objects.requireNonNull(uidFetcherStreamService, "uidFetcherStreamService");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
         this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
+    }
+
+    @Override
+    public void sendSpanList(PSpanMessageBatch request, StreamObserver<PSpanResultBatch> responseObserver) {
+        final Context current = Context.current();
+        final UidFetcher fetcher = uidFetcherStreamService.newUidFetcher();
+        long rejectedSpans = 0;
+        StringBuilder errorMessages = null;
+        for (PSpanMessage spanMessage : request.getSpanList()) {
+            if (isDebug) {
+                logger.debug("SendSpanList PSpanMessage={}", MessageFormatUtils.debugLog(spanMessage));
+            }
+            if (spanMessage.hasSpan()) {
+                final PSpan span = spanMessage.getSpan();
+                final ServerRequest<PSpan> serverRequest = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPAN, span);
+                try {
+                    spanHandler.handleSimple(serverRequest);
+                } catch (Throwable e) {
+                    logger.warn("Failed to handle span. header={}", serverRequest.getHeader(), e);
+                    rejectedSpans++;
+                    errorMessages = appendErrorMessage(errorMessages, e);
+                }
+            } else if (spanMessage.hasSpanChunk()) {
+                final PSpanChunk spanChunk = spanMessage.getSpanChunk();
+                final ServerRequest<PSpanChunk> serverRequest = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPANCHUNK, spanChunk);
+                try {
+                    spanCheckHandler.handleSimple(serverRequest);
+                } catch (Throwable e) {
+                    logger.warn("Failed to handle spanChunk. header={}", serverRequest.getHeader(), e);
+                    rejectedSpans++;
+                    errorMessages = appendErrorMessage(errorMessages, e);
+                }
+            }
+        }
+
+        final PSpanResultBatch.Builder responseBuilder = PSpanResultBatch.newBuilder();
+        if (rejectedSpans > 0 || errorMessages != null) {
+            final PPartialSuccess.Builder partialSuccess = PPartialSuccess.newBuilder();
+            partialSuccess.setRejectedSpans(rejectedSpans);
+            if (errorMessages != null) {
+                partialSuccess.setErrorMessage(errorMessages.toString());
+            }
+            responseBuilder.setPartialSuccess(partialSuccess);
+        }
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+    }
+
+    private StringBuilder appendErrorMessage(StringBuilder builder, Throwable e) {
+        if (builder == null) {
+            builder = new StringBuilder();
+        } else {
+            builder.append(", ");
+        }
+        builder.append(e.getMessage());
+        return builder;
     }
 
     @Override

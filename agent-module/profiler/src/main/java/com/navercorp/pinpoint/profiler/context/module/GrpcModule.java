@@ -57,6 +57,7 @@ import com.navercorp.pinpoint.profiler.context.provider.grpc.MetadataGrpcDataSen
 import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectExecutorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectSchedulerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SSLContextProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanBatchGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.StatGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
@@ -124,7 +125,7 @@ public class GrpcModule extends PrivateModule {
 
         bindAgentDataSender();
 
-        bindSpanDataSender();
+        bindSpanDataSender(grpcTransportConfig);
 
         bindStatDataSender();
 
@@ -194,7 +195,7 @@ public class GrpcModule extends PrivateModule {
         expose(statDataSender);
     }
 
-    private void bindSpanDataSender() {
+    private void bindSpanDataSender(GrpcTransportConfig grpcTransportConfig) {
         // Span
         TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {
         };
@@ -209,7 +210,12 @@ public class GrpcModule extends PrivateModule {
         TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {
         };
         Key<DataSender<SpanType>> spanDataSender = Key.get(spanDataSenderType, SpanDataSender.class);
-        bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        if (grpcTransportConfig.isSpanSenderBatchEnable()) {
+            logger.info("Span batch sender enabled");
+            bind(spanDataSender).toProvider(SpanBatchGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        } else {
+            bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        }
         expose(spanDataSender);
     }
 
