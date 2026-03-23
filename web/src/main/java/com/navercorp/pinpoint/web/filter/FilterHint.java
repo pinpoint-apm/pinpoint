@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.filter;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.filter.deserializer.FilterHintListJsonDeserializer;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class FilterHint {
 
 
     public FilterHint(List<RpcHint> rpcHintList) {
-        if (rpcHintList == null) {
+        if (CollectionUtils.isEmpty(rpcHintList)) {
             rpcHintList = Collections.emptyList();
         }
         this.rpcHintList = rpcHintList;

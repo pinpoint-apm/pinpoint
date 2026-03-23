@@ -39,20 +39,15 @@ public class FilterHintListJsonDeserializer extends JsonDeserializer<FilterHint>
             ctxt.handleUnexpectedToken(RpcHint.class, jp);
         }
         // skip json start
-        final JsonToken jsonToken = jp.nextToken();
-        if (jsonToken == JsonToken.END_OBJECT) {
+        if (jp.nextToken() == JsonToken.END_OBJECT) {
             return new FilterHint(Collections.emptyList());
         }
 
-
         List<RpcHint> rpcHintList = new ArrayList<>();
-        while (true) {
+        do {
             final RpcHint rpcHint = jp.readValueAs(RpcHint.class);
             rpcHintList.add(rpcHint);
-            if (jp.nextToken() == JsonToken.END_OBJECT) {
-                break;
-            }
-        }
+        } while (jp.nextToken() != JsonToken.END_OBJECT);
         return new FilterHint(rpcHintList);
     }
 }
