@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.filter.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.navercorp.pinpoint.web.filter.RpcType;
@@ -34,8 +35,13 @@ public class RpcTypeJsonDeserializer extends JsonDeserializer<RpcType> {
 
     @Override
     public RpcType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        if (jp.getCurrentToken() != JsonToken.VALUE_STRING) {
+            ctxt.handleUnexpectedToken(RpcType.class, jp);
+        }
         String address = jp.getText();
-        jp.nextToken();
+        if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) {
+            ctxt.handleUnexpectedToken(RpcType.class, jp);
+        }
         int serviceCode = jp.getIntValue();
         return new RpcType(address, serviceCode);
     }

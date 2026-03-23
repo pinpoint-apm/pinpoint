@@ -44,19 +44,15 @@ public class RpcHintJsonDeserializer extends JsonDeserializer<RpcHint> {
             ctxt.handleUnexpectedToken(RpcHint.class, jp);
         }
         // skip start array
-        final JsonToken token = jp.nextToken();
         // [] empty array
-        if (token == JsonToken.END_ARRAY) {
+        if (jp.nextToken() == JsonToken.END_ARRAY) {
             return new RpcHint(applicationName, Collections.emptyList());
         }
         final List<RpcType> rpcHintList = new ArrayList<>();
-        while (true) {
-            RpcType rpcType =  jp.readValueAs(RpcType.class);
+        do {
+            RpcType rpcType = jp.readValueAs(RpcType.class);
             rpcHintList.add(rpcType);
-            if (jp.nextToken() == JsonToken.END_ARRAY) {
-                break;
-            }
-        }
+        } while (jp.nextToken() != JsonToken.END_ARRAY);
         return new RpcHint(applicationName, rpcHintList);
     }
 

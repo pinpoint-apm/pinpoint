@@ -39,7 +39,8 @@ public class FilterHintTest {
     @Test
     public void convert() throws IOException {
 
-        String json = "{ \"TO_APPLICATION\" : [\"IP1\", 1,\"IP2\", 2], \"TO_APPLICATION2\" : [\"IP3\", 3,\"IP4\", 4] }";
+        String json = """
+                { "TO_APPLICATION" : ["IP1", 1, "IP2", 2], "TO_APPLICATION2" : ["IP3", 3, "IP4", 4] }""";
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
@@ -60,7 +61,8 @@ public class FilterHintTest {
     @Test
     public void convert_duplicate_applicationName_filter() throws IOException {
 
-        String json = "{ \"TO_APPLICATION\" : [\"IP1\", 1,\"IP2\", 2], \"TO_APPLICATION\" : [\"IP3\", 3,\"IP4\", 4] }";
+        String json = """
+                { "TO_APPLICATION" : ["IP1", 1, "IP2", 2], "TO_APPLICATION" : ["IP3", 3, "IP4", 4] }""";
 
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
@@ -92,7 +94,8 @@ public class FilterHintTest {
     @Test
     public void empty_array() throws IOException {
 
-        String json = "{ \"TO_APPLICATION\" : [] }";
+        String json = """
+                { "TO_APPLICATION" : [] }""";
 
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
@@ -111,7 +114,8 @@ public class FilterHintTest {
     @Test
     public void empty_array2() throws IOException {
 
-        String json = "{ \"TO_APPLICATION\" : [], \"TO_APPLICATION2\" : [\"IP3\", 3,\"IP4\", 4] }";
+        String json = """
+                { "TO_APPLICATION" : [], "TO_APPLICATION2" : ["IP3", 3, "IP4", 4] }""";
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
