@@ -45,7 +45,7 @@ public class ApplicationFilter implements Filter<List<SpanBo>> {
 
     private final List<ServiceType> serviceDescList;
 
-    private final FilterDescriptor.SelfNode selfNode;
+    private final FilterDescriptor.Node selfNode;
 
     private final Filter<SpanBo> spanResponseConditionFilter;
 

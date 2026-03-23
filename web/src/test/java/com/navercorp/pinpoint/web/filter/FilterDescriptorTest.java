@@ -49,13 +49,13 @@ public class FilterDescriptorTest {
         FilterDescriptor descriptor = mapper.readValue(jsonString, FilterDescriptor.class);
 
         FilterDescriptor.ResponseTime responseTime = descriptor.getResponseTime();
-        FilterDescriptor.FromNode fromNode = descriptor.getFromNode();
+        FilterDescriptor.Node fromNode = descriptor.getFromNode();
         Assertions.assertEquals("FROM_APPLICATION", fromNode.getApplicationName());
         Assertions.assertEquals("FROM_SERVICE_TYPE", fromNode.getServiceType());
         Assertions.assertEquals("FROM_AGENT_ID", fromNode.getAgentId());
         Assertions.assertEquals((Long) 0L, descriptor.getResponseTime().getFromResponseTime());
 
-        FilterDescriptor.ToNode toNode = descriptor.getToNode();
+        FilterDescriptor.Node toNode = descriptor.getToNode();
         Assertions.assertEquals("TO_APPLICATION", toNode.getApplicationName());
         Assertions.assertEquals("TO_SERVICE_TYPE", toNode.getServiceType());
         Assertions.assertEquals("TO_AGENT_ID", toNode.getAgentId());
