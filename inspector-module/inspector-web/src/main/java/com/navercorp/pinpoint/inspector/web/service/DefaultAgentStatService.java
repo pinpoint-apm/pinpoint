@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.inspector.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
 import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.DoubleDataPoint;
 import com.navercorp.pinpoint.common.timeseries.point.Points;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.inspector.web.dao.model.AgentStatPoint;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
@@ -37,6 +39,7 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.util.PointCreator;
+import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,10 +47,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +60,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DefaultAgentStatService implements AgentStatService {
+
+    private static final int MAX_AGENT_IDS = 20;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -206,8 +213,78 @@ public class DefaultAgentStatService implements AgentStatService {
     }
 
 
+    @Override
+    public InspectorMetricGroupData selectAgentStatGroupedByAgentId(
+            String tenantId, String applicationName, List<String> agentIds,
+            String metricDefinitionId, TimeWindow timeWindow) {
+
+        if (agentIds.size() > MAX_AGENT_IDS) {
+            throw new IllegalArgumentException("agentIds size exceeds max limit. size: " + agentIds.size() + ", max: " + MAX_AGENT_IDS);
+        }
+
+        MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(metricDefinitionId);
+
+        // One query per field (M queries) instead of N×M queries
+        List<BatchQueryResult> batchResults = selectAllByAgentIds(tenantId, applicationName, agentIds, metricDefinition, timeWindow);
+
+        CompletableFuture<?>[] allFutures = batchResults.stream()
+                .map(BatchQueryResult::future)
+                .toArray(CompletableFuture[]::new);
+
+        try {
+            CompletableFuture.allOf(allFutures).get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
+
+        Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups = new LinkedHashMap<>();
+        for (String agentId : agentIds) {
+            List<InspectorMetricValue> metricValueList = new ArrayList<>(batchResults.size());
+
+            for (BatchQueryResult batchResult : batchResults) {
+                List<AgentStatPoint> allPoints = batchResult.future().join();
+                List<DataPoint<Double>> dataPoints = allPoints.stream()
+                        .filter(p -> agentId.equals(p.getAgentId()))
+                        .map(p -> (DataPoint<Double>) new DoubleDataPoint(p.getAvgTime(), p.getAvgValue()))
+                        .collect(Collectors.toList());
+                metricValueList.add(createInspectorMetricValue(timeWindow, batchResult.field(), dataPoints));
+            }
+
+            List<InspectorMetricValue> processedList = postprocessMetricData(metricDefinition, metricValueList);
+            metricValueGroups.put(List.of(new Tag("agentId", agentId)), processedList);
+        }
+
+        List<Long> timeStampList = timeWindow.getTimeseriesWindows();
+        return new InspectorMetricGroupData(metricDefinition.getTitle(), timeStampList, metricValueGroups);
+    }
+
+    private List<BatchQueryResult> selectAllByAgentIds(String tenantId, String applicationName, List<String> agentIds,
+                                                       MetricDefinition metricDefinition, TimeWindow timeWindow) {
+        List<BatchQueryResult> results = new ArrayList<>();
+        for (Field field : metricDefinition.getFields()) {
+            CompletableFuture<List<AgentStatPoint>> future;
+            if (AggregationFunction.AVG.equals(field.getAggregationFunction())) {
+                future = agentStatDao.selectAgentStatAvgByAgentIds(tenantId, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
+            } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
+                future = agentStatDao.selectAgentStatMaxByAgentIds(tenantId, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
+            } else if (AggregationFunction.SUM.equals(field.getAggregationFunction())) {
+                future = agentStatDao.selectAgentStatSumByAgentIds(tenantId, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
+            } else {
+                throw new IllegalArgumentException("Unknown aggregation function : " + field.getAggregationFunction());
+            }
+            results.add(new BatchQueryResult(future, field));
+        }
+        return results;
+    }
+
     //TODO : (minwoo) It seems that this can also be integrated into one with the metric side.
     private record QueryResult(CompletableFuture<List<DataPoint<Double>>> future, Field field) {
+    }
+
+    private record BatchQueryResult(CompletableFuture<List<AgentStatPoint>> future, Field field) {
     }
 
 }
