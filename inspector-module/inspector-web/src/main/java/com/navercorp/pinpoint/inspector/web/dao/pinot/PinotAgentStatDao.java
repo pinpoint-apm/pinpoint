@@ -20,8 +20,13 @@ import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimePrecision;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
+import com.navercorp.pinpoint.inspector.web.dao.model.AgentStatPoint;
+import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryGroupParameter;
 import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameter;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
@@ -34,6 +39,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -75,6 +82,36 @@ public class PinotAgentStatDao implements AgentStatDao {
     public CompletableFuture<List<DataPoint<Double>>> selectAgentStat(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorData", inspectorQueryParameter);
+    }
+
+    @Override
+    public CompletableFuture<List<AgentStatPoint>> selectAgentStatAvgByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
+        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, applicationName, agentIds, metricName, field, timeWindow);
+        return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgDataByAgentIds", param);
+    }
+
+    @Override
+    public CompletableFuture<List<AgentStatPoint>> selectAgentStatMaxByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
+        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, applicationName, agentIds, metricName, field, timeWindow);
+        return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxDataByAgentIds", param);
+    }
+
+    @Override
+    public CompletableFuture<List<AgentStatPoint>> selectAgentStatSumByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
+        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, applicationName, agentIds, metricName, field, timeWindow);
+        return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumDataByAgentIds", param);
+    }
+
+    private InspectorQueryGroupParameter buildGroupParameter(String tenantId, String applicationName, List<String> agentIds,
+                                                             String metricName, Field field, TimeWindow timeWindow) {
+        String tableName = tableNameManager.getTableName(applicationName);
+        List<String> sortKeys = agentIds.stream()
+                .map(agentId -> SortKeyUtils.generateKeyForAgentStat(applicationName, agentId, metricName))
+                .collect(Collectors.toList());
+        Range range = timeWindow.getWindowRange();
+        TimePrecision timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize());
+        long perAgentLimit = timeWindow.getWindowRangeCount();
+        return new InspectorQueryGroupParameter(tenantId, tableName, sortKeys, metricName, field.getFieldName(), field.getTags(), range, timePrecision, perAgentLimit);
     }
 
     @Override

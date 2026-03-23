@@ -16,13 +16,18 @@
 package com.navercorp.pinpoint.inspector.web.service;
 
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
+import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.web.vo.Service;
+
+import java.util.List;
 
 /**
  * @author minwoo-jung
  */
 public interface ApdexStatService {
     InspectorMetricData selectAgentStat(Service service, String applicationName, String serviceTypeName, String metricDefinitionId, String agentId, long from, long to);
+
+    InspectorMetricGroupData selectAgentStatGroupedByAgentId(Service service, String applicationName, String serviceTypeName, String metricDefinitionId, List<String> agentIds, long from, long to);
 
     InspectorMetricData selectApplicationStat(Service service, String applicationName, String serviceTypeName, String metricDefinitionId, long from, long to);
 }

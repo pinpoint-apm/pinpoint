@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.inspector.web.dao;
 
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.inspector.web.dao.model.AgentStatPoint;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -37,6 +39,12 @@ public interface AgentStatDao {
     CompletableFuture<List<DataPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
     CompletableFuture<List<DataPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+
+    CompletableFuture<List<AgentStatPoint>> selectAgentStatAvgByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
+
+    CompletableFuture<List<AgentStatPoint>> selectAgentStatMaxByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
+
+    CompletableFuture<List<AgentStatPoint>> selectAgentStatSumByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
 
     List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 

@@ -33,4 +33,6 @@ public interface AgentStatService {
     List<DataPoint<Double>> selectAgentStatUnconvertedTime(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow);
 
     InspectorMetricGroupData selectAgentStatWithGrouping(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow);
+
+    InspectorMetricGroupData selectAgentStatGroupedByAgentId(String tenantId, String applicationName, List<String> agentIds, String metricDefinitionId, TimeWindow timeWindow);
 }

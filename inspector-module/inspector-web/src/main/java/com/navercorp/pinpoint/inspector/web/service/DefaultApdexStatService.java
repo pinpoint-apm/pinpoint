@@ -28,7 +28,9 @@ import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
+import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
@@ -43,6 +45,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -89,6 +92,23 @@ public class DefaultApdexStatService implements ApdexStatService {
         AgentApdexScoreChart agentApdexScoreChart = (AgentApdexScoreChart) apdexScoreService.selectAgentChart(application, timeWindow, agentId);
 
         return convertToInspectorMetricData(metricDefinition, agentApdexScoreChart);
+    }
+
+    @Override
+    public InspectorMetricGroupData selectAgentStatGroupedByAgentId(Service service, String applicationName, String serviceTypeName, String metricDefinitionId, List<String> agentIds, long from, long to) {
+        MetricDefinition metricDefinition = agentYmlInspectorManager.findElementOfBasicGroup(metricDefinitionId);
+
+        Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups = new LinkedHashMap<>();
+        for (String agentId : agentIds) {
+            InspectorMetricData agentMetricData = selectAgentStat(service, applicationName, serviceTypeName, metricDefinitionId, agentId, from, to);
+            if (!agentMetricData.metricValues().isEmpty()) {
+                metricValueGroups.put(List.of(new Tag("agentId", agentId)), agentMetricData.metricValues());
+            }
+        }
+
+        final Range range = Range.between(from, to);
+        TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
+        return new InspectorMetricGroupData(metricDefinition.getTitle(), timeWindow.getTimeseriesWindows(), metricValueGroups);
     }
 
     @Override
