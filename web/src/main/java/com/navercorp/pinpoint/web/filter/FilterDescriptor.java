@@ -16,16 +16,13 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -40,9 +37,9 @@ import java.util.Objects;
 @JsonDeserialize(using = FilterDescriptor.FilterDescriptorDeserializer.class)
 public class FilterDescriptor {
 
-    private final FromNode fromNode;
-    private final ToNode toNode;
-    private final SelfNode selfNode;
+    private final Node fromNode;
+    private final Node toNode;
+    private final Node selfNode;
     private final ResponseTime responseTime;
     private final Option option;
 
@@ -52,22 +49,25 @@ public class FilterDescriptor {
         public FilterDescriptor deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode jsonNode = p.readValueAsTree();
 
-            FromNode fromNode = readValueAs(FromNode.class, jsonNode, p);
-            ToNode toNode = readValueAs(ToNode.class, jsonNode, p);
-            SelfNode selfNode = readValueAs(SelfNode.class, jsonNode, p);
-            ResponseTime responseTime= readValueAs(ResponseTime.class, jsonNode, p);
-            Option option = readValueAs(Option.class, jsonNode, p);
+            Node fromNode = readNode(jsonNode, Node.NodeType.FROM, "fa", "fst", "fan");
+            Node toNode = readNode(jsonNode, Node.NodeType.TO, "ta", "tst", "tan");
+            Node selfNode = readNode(jsonNode, Node.NodeType.SELF, "a", "st", "an");
+
+            ResponseTime responseTime = ResponseTime.of(JsonNodeUtils.longValue(jsonNode, "rf"), JsonNodeUtils.textValue(jsonNode, "rt"));
+
+            Option option = new Option(JsonNodeUtils.textValue(jsonNode, "url"), JsonNodeUtils.booleanValue(jsonNode, "ie"));
             return new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
         }
 
-        private <T> T readValueAs(Class<T> valueType, JsonNode jsonNode, JsonParser p) throws IOException {
-            try (JsonParser traverse = jsonNode.traverse(p.getCodec())) {
-                return traverse.readValueAs(valueType);
-            }
+        private static Node readNode(JsonNode jsonNode, Node.NodeType type, String applicationNameField, String serviceTypeField, String agentIdField) {
+            String applicationName = JsonNodeUtils.textValue(jsonNode, applicationNameField);
+            String serviceType = JsonNodeUtils.textValue(jsonNode, serviceTypeField);
+            String agentId = JsonNodeUtils.textValue(jsonNode, agentIdField);
+            return new Node(type, applicationName, serviceType, agentId);
         }
     }
 
-    public FilterDescriptor(FromNode fromNode, ToNode toNode, SelfNode selfNode, ResponseTime responseTime, Option option) {
+    public FilterDescriptor(Node fromNode, Node toNode, Node selfNode, ResponseTime responseTime, Option option) {
         this.fromNode = Objects.requireNonNull(fromNode, "fromNode");
         this.toNode = Objects.requireNonNull(toNode, "toNode");
         this.selfNode = Objects.requireNonNull(selfNode, "self");
@@ -75,22 +75,32 @@ public class FilterDescriptor {
         this.option = Objects.requireNonNull(option, "option");
     }
 
-    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class Node {
+        private final NodeType type;
+
+        enum NodeType {
+            FROM, TO, SELF
+        }
+
+        @Nullable
         private final String applicationName;
+        @Nullable
         private final String serviceType ;
         private final String agentId;
 
-        public Node(String applicationName, String serviceType, String agentId) {
+        public Node(NodeType type, String applicationName, String serviceType, String agentId) {
+            this.type = Objects.requireNonNull(type, "type");
             this.applicationName = applicationName;
             this.serviceType = serviceType;
             this.agentId = agentId;
         }
 
+        @Nullable
         public String getApplicationName() {
             return applicationName;
         }
 
+        @Nullable
         public String getServiceType() {
             return serviceType;
         }
@@ -105,7 +115,7 @@ public class FilterDescriptor {
 
         @Override
         public String toString() {
-            return this.getClass().getSimpleName()  + "{" +
+            return type  + "{" +
                     "applicationName='" + applicationName + '\'' +
                     ", serviceType='" + serviceType + '\'' +
                     ", agentId='" + agentId + '\'' +
@@ -113,47 +123,18 @@ public class FilterDescriptor {
         }
     }
 
-    public static class FromNode extends Node {
-        @JsonCreator
-        public FromNode(@JsonProperty("fa") String applicationName,
-                        @JsonProperty("fst") String serviceType,
-                        @JsonProperty("fan") String agentId) {
-            super(applicationName, serviceType, agentId);
-        }
-    }
 
-    public static class ToNode extends Node {
-        /**
-         * to application
-         */
-        @JsonCreator
-        public ToNode(@JsonProperty("ta") String applicationName,
-                      @JsonProperty("tst") String serviceType,
-                      @JsonProperty("tan") String agentId) {
-            super(applicationName, serviceType, agentId);
-        }
-    }
-
-    public static class SelfNode extends Node {
-        /**
-         * self application
-         */
-        @JsonCreator
-        public SelfNode(@JsonProperty("a") String applicationName,
-                      @JsonProperty("st") String serviceType,
-                      @JsonProperty("an") String agentId) {
-            super(applicationName, serviceType, agentId);
-        }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class ResponseTime {
 
         private final Long fromResponseTime;
-        private final String toResponseTime;
+        private final Long toResponseTime;
 
-        public ResponseTime(@JsonProperty("rf") Long fromResponseTime,
-                            @JsonProperty("rt") String toResponseTime) {
+        public static ResponseTime of(Long fromResponseTime, String rawToResponseTime) {
+            Long toResponseTime = parseLongResponseTime(rawToResponseTime);
+            return new ResponseTime(fromResponseTime, toResponseTime);
+        }
+
+        public ResponseTime(Long fromResponseTime, Long toResponseTime) {
             this.fromResponseTime = fromResponseTime;
             this.toResponseTime = toResponseTime;
         }
@@ -163,22 +144,22 @@ public class FilterDescriptor {
         }
 
         public Long getToResponseTime() {
-            if (toResponseTime == null) {
-                return null;
-            } else if ("max".equals(toResponseTime)) {
-                return Long.MAX_VALUE;
-            } else {
-                return Long.valueOf(toResponseTime);
-            }
+            return this.toResponseTime;
         }
 
-        public String getRawToResponseTime() {
-            return toResponseTime;
+        private static Long parseLongResponseTime(String responseTime) {
+            if (responseTime == null) {
+                return null;
+            } else if ("max".equals(responseTime)) {
+                return Long.MAX_VALUE;
+            } else {
+                return Long.parseLong(responseTime);
+            }
         }
 
 
         public boolean isValid() {
-            return !((fromResponseTime == null && StringUtils.hasLength(toResponseTime)) || (fromResponseTime != null && StringUtils.isEmpty(toResponseTime)));
+            return !((fromResponseTime == null && toResponseTime != null) || (fromResponseTime != null && toResponseTime == null));
         }
 
         @Override
@@ -190,21 +171,19 @@ public class FilterDescriptor {
         }
     }
 
-    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class Option {
 
         /**
          * requested url
          */
-        private String urlPattern = null;
+        private String urlPattern;
 
         /**
          * include exception
          */
-        private Boolean includeException = null;
+        private Boolean includeException;
 
-        public Option(@JsonSetter(value = "url") String urlPattern,
-                      @JsonSetter(value = "ie") Boolean includeException) {
+        public Option(String urlPattern, Boolean includeException) {
             this.urlPattern = decodeBase64(urlPattern);
             this.includeException = includeException;
         }
@@ -236,15 +215,15 @@ public class FilterDescriptor {
         return this.fromNode.isValid() || this.toNode.isValid() || this.selfNode.isValid();
     }
 
-    public FromNode getFromNode() {
+    public Node getFromNode() {
         return fromNode;
     }
 
-    public ToNode getToNode() {
+    public Node getToNode() {
         return toNode;
     }
 
-    public SelfNode getSelfNode() {
+    public Node getSelfNode() {
         return selfNode;
     }
 

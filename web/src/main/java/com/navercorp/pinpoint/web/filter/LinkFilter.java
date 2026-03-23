@@ -54,10 +54,10 @@ public class LinkFilter implements Filter<List<SpanBo>> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final List<ServiceType> fromServiceDescList;
-    private final FilterDescriptor.FromNode fromNode;
+    private final FilterDescriptor.Node fromNode;
 
     private final List<ServiceType> toServiceDescList;
-    private final FilterDescriptor.ToNode toNode;
+    private final FilterDescriptor.Node toNode;
 
     private final Filter<SpanBo> spanResponseConditionFilter;
 
