@@ -1,8 +1,23 @@
 # Git Workflow Rules
 
 ## Branching
-- **Never commit directly to master.** Always create a new branch with an appropriate name before committing.
+
+> **THIS IS NON-NEGOTIABLE. VIOLATION IS NOT ACCEPTABLE UNDER ANY CIRCUMSTANCES.**
+
+- **NEVER commit directly to master. EVER. No exceptions — not for config files, not for tiny fixes, not for anything.**
+- **ALWAYS create a new branch before making any commit.** The branch MUST be based on the latest `upstream/master`.
+
+### Mandatory branch creation workflow (follow this EVERY time):
+```bash
+git fetch upstream master
+git checkout -b <branch-name> upstream/master
+# ... make changes, stage files ...
+git commit -m "[#issue] Description"
+git push -u origin <branch-name>
+```
+
 - Branch naming: `fix/`, `feat/`, `refactor/`, etc. followed by a descriptive name (e.g., `fix/9520-preserve-timestamp-during-loading`).
+- If you are currently on master, stop immediately. Do NOT commit. Create a branch first.
 
 ## Pre-Commit Self Review (MANDATORY)
 Before every commit, perform the following checks:
