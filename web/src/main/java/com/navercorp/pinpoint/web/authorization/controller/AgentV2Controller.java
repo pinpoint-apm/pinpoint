@@ -83,17 +83,6 @@ public class AgentV2Controller {
         req.getRequestDispatcher("/api/v1/agents").forward(req, res);
     }
 
-    @PreAuthorize("hasPermission(#application, 'application', 'inspector')")
-    @GetMapping(value = "/v2/agents", params = {"application", "from", "to"})
-    public List<AgentIdView> getAgentsV2OldParam(
-            @RequestParam("application") @NotBlank String application,
-            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
-        return getAgentsV2(null, application, serviceTypeCode, serviceTypeName, from, to);
-    }
-
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/v2/agents", params = {"applicationName", "from", "to"})
     public List<AgentIdView> getAgentsV2(
@@ -113,17 +102,6 @@ public class AgentV2Controller {
         return agentListV2Service.getAgentList(serviceUid, applicationName, serviceType, range).stream()
                 .map(entry -> AgentIdView.of(entry, range.getTo()))
                 .toList();
-    }
-
-    @PreAuthorize("hasPermission(#application, 'application', 'inspector')")
-    @GetMapping(value = "/v1/agents", params = {"application", "from", "to"})
-    public List<AgentIdView> getAgentsV1OldParam(
-            @RequestParam("application") @NotBlank String application,
-            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
-        return getAgentsV1(null, application, serviceTypeCode, serviceTypeName, from, to);
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")

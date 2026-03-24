@@ -68,8 +68,16 @@ public final class AgentIdView {
         this.currentStateTimestamp = currentStateTimestamp;
     }
 
-    public Application getApplication() {
-        return application;
+    public String getApplicationName() {
+        return application.getApplicationName();
+    }
+
+    public String getServiceTypeName() {
+        return application.getServiceType().getName();
+    }
+
+    public int getServiceTypeCode() {
+        return application.getServiceType().getCode();
     }
 
     public String getAgentId() {
