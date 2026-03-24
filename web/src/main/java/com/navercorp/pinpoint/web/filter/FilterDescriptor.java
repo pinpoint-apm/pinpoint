@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -49,9 +50,9 @@ public class FilterDescriptor {
         public FilterDescriptor deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode jsonNode = p.readValueAsTree();
 
-            Node fromNode = readNode(jsonNode, Node.NodeType.FROM, "fa", "fst", "fan");
-            Node toNode = readNode(jsonNode, Node.NodeType.TO, "ta", "tst", "tan");
-            Node selfNode = readNode(jsonNode, Node.NodeType.SELF, "a", "st", "an");
+            Node fromNode = readNode(jsonNode, Node.NodeType.FROM, "fs", "fa", "fst", "fan");
+            Node toNode = readNode(jsonNode, Node.NodeType.TO, "ts", "ta", "tst", "tan");
+            Node selfNode = readNode(jsonNode, Node.NodeType.SELF, "s", "a", "st", "an");
 
             ResponseTime responseTime = ResponseTime.of(JsonNodeUtils.longValue(jsonNode, "rf"), JsonNodeUtils.textValue(jsonNode, "rt"));
 
@@ -59,11 +60,12 @@ public class FilterDescriptor {
             return new FilterDescriptor(fromNode, toNode, selfNode, responseTime, option);
         }
 
-        private static Node readNode(JsonNode jsonNode, Node.NodeType type, String applicationNameField, String serviceTypeField, String agentIdField) {
+        private static Node readNode(JsonNode jsonNode, Node.NodeType type, String serviceNameField, String applicationNameField, String serviceTypeField, String agentIdField) {
+            String serviceName = JsonNodeUtils.textValue(jsonNode, serviceNameField, Service.DEFAULT.getServiceName());
             String applicationName = JsonNodeUtils.textValue(jsonNode, applicationNameField);
             String serviceType = JsonNodeUtils.textValue(jsonNode, serviceTypeField);
             String agentId = JsonNodeUtils.textValue(jsonNode, agentIdField);
-            return new Node(type, applicationName, serviceType, agentId);
+            return new Node(type, serviceName, applicationName, serviceType, agentId);
         }
     }
 
@@ -83,16 +85,22 @@ public class FilterDescriptor {
         }
 
         @Nullable
+        private final String serviceName;
         private final String applicationName;
         @Nullable
         private final String serviceType ;
         private final String agentId;
 
-        public Node(NodeType type, String applicationName, String serviceType, String agentId) {
+        public Node(NodeType type, String serviceName, String applicationName, String serviceType, String agentId) {
             this.type = Objects.requireNonNull(type, "type");
+            this.serviceName = Objects.requireNonNullElse(serviceName, Service.DEFAULT.getServiceName());
             this.applicationName = applicationName;
             this.serviceType = serviceType;
             this.agentId = agentId;
+        }
+
+        public String getServiceName() {
+            return serviceName;
         }
 
         @Nullable
@@ -110,13 +118,14 @@ public class FilterDescriptor {
         }
 
         public boolean isValid() {
-            return StringUtils.hasLength(applicationName) && StringUtils.hasLength(serviceType);
+            return StringUtils.hasLength(serviceName) && StringUtils.hasLength(applicationName) && StringUtils.hasLength(serviceType);
         }
 
         @Override
         public String toString() {
             return type  + "{" +
-                    "applicationName='" + applicationName + '\'' +
+                    "serviceName='" + serviceName + '\'' +
+                    ", applicationName='" + applicationName + '\'' +
                     ", serviceType='" + serviceType + '\'' +
                     ", agentId='" + agentId + '\'' +
                     '}';

@@ -1,11 +1,15 @@
 package com.navercorp.pinpoint.web.applicationmap.controller.form;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
 
 public class ApplicationForm {
 
     public static final int UNDEFINED = ServiceType.UNDEFINED.getCode();
+
+
+    private String serviceName = Service.DEFAULT.getServiceName();
 
     @NotBlank
     private String applicationName;
@@ -15,6 +19,13 @@ public class ApplicationForm {
     public ApplicationForm() {
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
 
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
@@ -43,7 +54,8 @@ public class ApplicationForm {
     @Override
     public String toString() {
         return "ApplicationForm{" +
-                "applicationName='" + applicationName + '\'' +
+                "serviceName='" + serviceName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", serviceTypeCode=" + serviceTypeCode +
                 ", serviceTypeName='" + serviceTypeName + '\'' +
                 '}';
