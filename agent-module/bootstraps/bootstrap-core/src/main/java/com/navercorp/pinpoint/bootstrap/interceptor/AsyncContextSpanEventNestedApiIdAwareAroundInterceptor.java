@@ -29,7 +29,11 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
     private final String traceScopeName;
 
     public AsyncContextSpanEventNestedApiIdAwareAroundInterceptor(TraceContext traceContext, String traceScopeName) {
-        super(traceContext);
+        this(traceContext, traceScopeName, true);
+    }
+
+    public AsyncContextSpanEventNestedApiIdAwareAroundInterceptor(TraceContext traceContext, String traceScopeName, boolean asyncTraceBlock) {
+        super(traceContext, asyncTraceBlock);
         this.traceScopeName = Objects.requireNonNull(traceScopeName, "traceScopeName");
     }
 
@@ -61,10 +65,13 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
         ScopeUtils.entryAsyncTraceScope(trace);
 
         try {
-            // trace event for default & async.
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            beforeTrace(asyncContext, trace, recorder, target, apiId, args);
-            doInBeforeTrace(recorder, asyncContext, target, apiId, args);
+            if (asyncTraceBlock) {
+                // trace event for default & async.
+                final SpanEventRecorder recorder = trace.traceBlockBegin();
+                beforeTrace(asyncContext, trace, recorder, target, apiId, args);
+                doInBeforeTrace(recorder, asyncContext, target, apiId, args);
+            }
+            beforeAction(asyncContext, trace, target, apiId, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
@@ -76,6 +83,9 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
     }
 
     protected abstract void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args);
+
+    protected void beforeAction(AsyncContext asyncContext, Trace trace, Object target, int apiId, Object[] args) {
+    }
 
     @Override
     public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
@@ -111,15 +121,20 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
         }
 
         try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            afterTrace(asyncContext, trace, recorder, target, apiId, args, result, throwable);
-            doInAfterTrace(recorder, target, apiId, args, result, throwable);
+            if (asyncTraceBlock) {
+                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                afterTrace(asyncContext, trace, recorder, target, apiId, args, result, throwable);
+                doInAfterTrace(recorder, target, apiId, args, result, throwable);
+            }
+            afterAction(asyncContext, trace, target, apiId, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.traceBlockEnd();
+            if (asyncTraceBlock) {
+                trace.traceBlockEnd();
+            }
             if (ScopeUtils.isAsyncTraceEndScope(trace)) {
                 deleteAsyncContext(trace, asyncContext);
             }
@@ -130,6 +145,9 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable);
+
+    protected void afterAction(AsyncContext asyncContext, Trace trace, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+    }
 
     public boolean tryEnter(final Trace trace) {
         TraceScope scope = trace.getScope(traceScopeName);

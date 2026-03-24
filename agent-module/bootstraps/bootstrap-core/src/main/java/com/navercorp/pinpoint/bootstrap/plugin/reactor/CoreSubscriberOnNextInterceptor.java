@@ -28,7 +28,7 @@ public class CoreSubscriberOnNextInterceptor extends AsyncContextSpanEventNested
     private final ServiceType serviceType;
 
     public CoreSubscriberOnNextInterceptor(TraceContext traceContext, ServiceType serviceType) {
-        super(traceContext, REACTOR_ON_NEXT_TRACE_SCOPE);
+        super(traceContext, REACTOR_ON_NEXT_TRACE_SCOPE, false); // no async trace block
         this.serviceType = serviceType;
     }
 

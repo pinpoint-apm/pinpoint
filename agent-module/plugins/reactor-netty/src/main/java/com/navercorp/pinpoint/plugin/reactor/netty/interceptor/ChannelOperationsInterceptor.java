@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventEndPointApiAwareInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
-import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import reactor.netty.http.server.HttpServerResponse;
 
@@ -36,7 +35,7 @@ public class ChannelOperationsInterceptor extends AsyncContextSpanEventEndPointA
     private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     public ChannelOperationsInterceptor(TraceContext traceContext) {
-        super(traceContext);
+        super(traceContext, false);
         final ProfilerConfig config = traceContext.getProfilerConfig();
         this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(config.getHttpStatusCodeErrors());
     }
@@ -46,23 +45,17 @@ public class ChannelOperationsInterceptor extends AsyncContextSpanEventEndPointA
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        if (trace.canSampled()) {
-            recorder.recordApiId(apiId);
-            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
-            recorder.recordException(throwable);
-        }
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+    }
 
+    @Override
+    public void afterAction(AsyncContext asyncContext, Trace trace, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (target instanceof HttpServerResponse) {
             final HttpServerResponse httpServerResponse = (HttpServerResponse) target;
             final int statusCode = getStatusCode(httpServerResponse);
             final SpanRecorder spanRecorder = trace.getSpanRecorder();
             httpStatusCodeRecorder.record(spanRecorder, statusCode);
         }
-    }
-
-    @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 
     private int getStatusCode(final HttpServerResponse response) {
