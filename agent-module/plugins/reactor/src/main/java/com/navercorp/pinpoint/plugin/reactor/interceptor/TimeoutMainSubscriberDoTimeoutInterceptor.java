@@ -33,9 +33,8 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
     private final boolean traceTimeout;
 
     public TimeoutMainSubscriberDoTimeoutInterceptor(TraceContext traceContext) {
-        super(traceContext);
-        final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
-        this.traceTimeout = config.isTraceTimeout();
+        super(traceContext, ReactorPluginConfig.isTraceTimeout(traceContext.getProfilerConfig()));
+        this.traceTimeout = ReactorPluginConfig.isTraceTimeout(traceContext.getProfilerConfig());
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args) {

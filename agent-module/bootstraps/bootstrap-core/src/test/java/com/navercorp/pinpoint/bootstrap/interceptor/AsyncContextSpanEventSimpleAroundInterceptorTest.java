@@ -78,24 +78,24 @@ public class AsyncContextSpanEventSimpleAroundInterceptorTest {
     @Test
     public void asyncTraceCreate() {
         when(asyncContextAccessor._$PINPOINT$_getAsyncContext()).thenReturn(asyncContext);
-        when(asyncContext.continueAsyncTraceObject()).thenReturn(trace);
+        when(asyncContext.continueAsyncTraceObject(true)).thenReturn(trace);
 
         AroundInterceptor interceptor = mockSpanAsyncEventSimpleInterceptor(traceContext, methodDescriptor);
         interceptor.before(asyncContextAccessor, null);
 
-        verify(asyncContext).continueAsyncTraceObject();
+        verify(asyncContext).continueAsyncTraceObject(true);
         verify(trace).getScope(AsyncContext.ASYNC_TRACE_SCOPE);
     }
 
     @Test
     public void nestedAsyncTraceCreate() {
         when(asyncContextAccessor._$PINPOINT$_getAsyncContext()).thenReturn(asyncContext);
-//        when(asyncContext.continueAsyncTraceObject()).thenReturn(trace);
+        when(asyncContext.continueAsyncTraceObject(true)).thenReturn(trace);
 
         AroundInterceptor interceptor = mockSpanAsyncEventSimpleInterceptor(traceContext, methodDescriptor);
         interceptor.before(asyncContextAccessor, null);
 
-        verify(asyncContext).continueAsyncTraceObject();
+        verify(asyncContext).continueAsyncTraceObject(true);
         verify(spanEventRecorder, never()).recordServiceType(any(ServiceType.class));
     }
 

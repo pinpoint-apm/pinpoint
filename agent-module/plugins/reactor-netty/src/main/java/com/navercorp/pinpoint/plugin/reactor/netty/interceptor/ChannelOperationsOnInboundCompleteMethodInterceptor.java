@@ -19,18 +19,22 @@ package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import reactor.netty.channel.ChannelOperations;
 
 public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
     public ChannelOperationsOnInboundCompleteMethodInterceptor(TraceContext traceContext) {
-        super(traceContext);
+        super(traceContext, false);
     }
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+    }
+
+    @Override
+    public void beforeAction(AsyncContext asyncContext, Trace trace, Object target, int apiId, Object[] args) {
         if (((ChannelOperations) target).receiveObject() instanceof AsyncContextAccessor) {
             AsyncContextAccessor asyncContextAccessor = (AsyncContextAccessor) ((ChannelOperations) target).receiveObject();
             asyncContextAccessor._$PINPOINT$_setAsyncContext(asyncContext);
@@ -42,8 +46,5 @@ public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncCo
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApiId(apiId);
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
-        recorder.recordException(throwable);
     }
 }

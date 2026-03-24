@@ -24,6 +24,50 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class ReactorPluginConfig {
+    public static boolean isEnable(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.enable", true);
+    }
+
+    public static boolean isTraceOnError(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.onError", false);
+    }
+
+    public static boolean isMarkErrorOnError(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.mark.error.onError", false);
+    }
+
+    public static boolean isTracePublishOn(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.publishOn", true);
+    }
+
+    public static boolean isTraceSubscribeOn(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.subscribeOn", true);
+    }
+
+    public static boolean isTraceDelay(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.delay", true);
+    }
+
+    public static boolean isTraceInterval(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.interval", true);
+    }
+
+    public static boolean isTraceRetry(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.retry", true);
+    }
+
+    public static boolean isMarkErrorRetry(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.mark.error.retry", false);
+    }
+
+    public static boolean isTraceTimeout(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.timeout", true);
+    }
+
+    public static boolean isTraceSubscribe(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.subscribe", true);
+    }
+
     private final boolean enable;
 
     private final boolean traceOnError;
@@ -41,19 +85,19 @@ public class ReactorPluginConfig {
         Objects.requireNonNull(config, "config");
 
         // plugin
-        this.enable = config.readBoolean("profiler.reactor.enable", true);
-        this.traceOnError = config.readBoolean("profiler.reactor.trace.onError", false);
-        this.markErrorOnError = config.readBoolean("profiler.reactor.mark.error.onError", false);
-        this.tracePublishOn = config.readBoolean("profiler.reactor.trace.publishOn", true);
-        this.traceSubscribeOn = config.readBoolean("profiler.reactor.trace.subscribeOn", true);
-        this.traceDelay = config.readBoolean("profiler.reactor.trace.delay", true);
-        this.traceInterval = config.readBoolean("profiler.reactor.trace.interval", true);
+        this.enable = isEnable(config);
+        this.traceOnError = isTraceOnError(config);
+        this.markErrorOnError = isMarkErrorOnError(config);
+        this.tracePublishOn = isTracePublishOn(config);
+        this.traceSubscribeOn = isTraceSubscribeOn(config);
+        this.traceDelay = isTraceDelay(config);
+        this.traceInterval = isTraceInterval(config);
 
-        this.traceRetry = config.readBoolean("profiler.reactor.trace.retry", true);
-        this.markErrorRetry = config.readBoolean("profiler.reactor.mark.error.retry", false);
+        this.traceRetry = isTraceRetry(config);
+        this.markErrorRetry = isMarkErrorRetry(config);
 
-        this.traceTimeout = config.readBoolean("profiler.reactor.trace.timeout", true);
-        this.traceSubscribe = config.readBoolean("profiler.reactor.trace.subscribe", true);
+        this.traceTimeout = isTraceTimeout(config);
+        this.traceSubscribe = isTraceSubscribe(config);
     }
 
     public boolean isEnable() {

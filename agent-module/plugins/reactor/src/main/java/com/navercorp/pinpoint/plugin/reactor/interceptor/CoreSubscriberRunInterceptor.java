@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -30,7 +29,7 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventApiIdAwar
     private final ServiceType serviceType;
 
     public CoreSubscriberRunInterceptor(TraceContext traceContext, ServiceType serviceType) {
-        super(traceContext);
+        super(traceContext, false);
         this.serviceType = serviceType;
     }
 
@@ -58,8 +57,5 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventApiIdAwar
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApiId(apiId);
-        recorder.recordServiceType(serviceType);
-        recorder.recordException(throwable);
     }
 }

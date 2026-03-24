@@ -124,7 +124,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
     // internal async trace.
     @Override
-    public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
+    public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean asyncTraceBlock) {
         final SpanChunkFactory spanChunkFactory = new AsyncSpanChunkFactory(traceRoot, localAsyncId);
         final Storage storage = storageFactory.createStorage(spanChunkFactory);
         final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
@@ -132,7 +132,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final SpanRecorder spanRecorder = recorderFactory.newTraceRootSpanRecorder(traceRoot);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newChildTraceSpanEventRecorder(traceRoot);
 
-        return new ChildTrace(traceRoot, callStack, storage, spanRecorder, wrappedSpanEventRecorder, localAsyncId);
+        return new ChildTrace(traceRoot, callStack, storage, spanRecorder, wrappedSpanEventRecorder, localAsyncId, asyncTraceBlock);
     }
 
     @Override

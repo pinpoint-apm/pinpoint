@@ -26,7 +26,7 @@ public class DefaultAsyncTraceContextTest {
         BaseTraceFactory baseTraceFactory = mock(DefaultBaseTraceFactory.class);
         BaseTraceFactoryProvider baseTraceFactoryProvider = mock(BaseTraceFactoryProvider.class);
 
-        when(baseTraceFactory.continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class)))
+        when(baseTraceFactory.continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class), any(Boolean.class)))
                 .thenAnswer(new Answer<Trace>() {
                     @Override
                     public Trace answer(InvocationOnMock invocationOnMock) {

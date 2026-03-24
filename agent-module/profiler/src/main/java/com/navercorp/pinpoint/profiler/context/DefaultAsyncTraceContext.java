@@ -36,9 +36,9 @@ public class DefaultAsyncTraceContext implements AsyncTraceContext {
     }
 
     @Override
-    public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
+    public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean asyncTraceBlock) {
         final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
-        return baseTraceFactory.continueAsyncContextTraceObject(traceRoot, localAsyncId);
+        return baseTraceFactory.continueAsyncContextTraceObject(traceRoot, localAsyncId, asyncTraceBlock);
     }
 
     @Override
