@@ -21,9 +21,7 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author HyunGil Jeong
@@ -42,22 +40,17 @@ public class AgentServiceImpl implements AgentService {
     public ClusterKey getClusterKey(String applicationName, String agentId) {
         long currentTime = System.currentTimeMillis();
 
-        List<AgentInfo> agentInfos = agentInfoService.getAgentInfoByApplicationName(applicationName, currentTime);
-        for (AgentInfo agentInfo : agentInfos) {
-            if (agentInfo == null) {
-                continue;
-            }
-            if (!agentInfo.getApplicationName().equals(applicationName)) {
-                continue;
-            }
-            if (!agentInfo.getAgentId().equals(agentId)) {
-                continue;
-            }
-
-            return buildClusterKey(agentInfo);
+        AgentInfo agentInfo = agentInfoService.findAgentInfo(agentId, currentTime);
+        if (agentInfo == null) {
+            return null;
         }
-
-        return null;
+        if (!agentInfo.getApplicationName().equals(applicationName)) {
+            return null;
+        }
+        if (!agentInfo.getAgentId().equals(agentId)) {
+            return null;
+        }
+        return buildClusterKey(agentInfo);
     }
 
     @Override
@@ -68,26 +61,20 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public ClusterKey getClusterKey(String applicationName, String agentId, long startTimeStamp, boolean checkDB) {
         if (checkDB) {
-            long currentTime = System.currentTimeMillis();
-
-            List<AgentInfo> agentInfos = agentInfoService.getAgentInfoByApplicationName(applicationName, currentTime);
-            for (AgentInfo agentInfo : agentInfos) {
-                if (agentInfo == null) {
-                    continue;
-                }
-                if (!agentInfo.getApplicationName().equals(applicationName)) {
-                    continue;
-                }
-                if (!agentInfo.getAgentId().equals(agentId)) {
-                    continue;
-                }
-                if (agentInfo.getStartTimestamp() != startTimeStamp) {
-                    continue;
-                }
-
-                return buildClusterKey(agentInfo);
+            AgentInfo agentInfo = agentInfoService.getAgentInfo(agentId, startTimeStamp);
+            if (agentInfo == null) {
+                return null;
             }
-            return null;
+            if (!agentInfo.getApplicationName().equals(applicationName)) {
+                return null;
+            }
+            if (!agentInfo.getAgentId().equals(agentId)) {
+                return null;
+            }
+            if (agentInfo.getStartTimestamp() != startTimeStamp) {
+                return null;
+            }
+            return buildClusterKey(agentInfo);
         } else {
             return new ClusterKey(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName, agentId, startTimeStamp);
         }
