@@ -68,30 +68,32 @@ public class FilterDescriptorTest {
     private String writeJsonString() throws IOException {
         StringWriter writer = new StringWriter();
 
-        JsonGenerator json = mapper.getFactory().createGenerator(writer);
+        try (JsonGenerator json = mapper.getFactory().createGenerator(writer)) {
 
 //        json.writeStartArray();
-        json.writeStartObject();
-        json.writeStringField("fa", "FROM_APPLICATION");
-        json.writeStringField("fst", "FROM_SERVICE_TYPE");
-        json.writeStringField("fan", "FROM_AGENT_ID");
-        // fromResponseTime
-        json.writeNumberField("rf", 0);
+            json.writeStartObject();
+            json.writeStringField("fs", "FROM_SERVICE_NAME");
+            json.writeStringField("fa", "FROM_APPLICATION");
+            json.writeStringField("fst", "FROM_SERVICE_TYPE");
+            json.writeStringField("fan", "FROM_AGENT_ID");
+            // fromResponseTime
+            json.writeNumberField("rf", 0);
 
-        json.writeStringField("ta", "TO_APPLICATION");
-        json.writeStringField("tst", "TO_SERVICE_TYPE");
-        json.writeStringField("tan", "TO_AGENT_ID");
-        // toResponseTime
-        json.writeNumberField("rt", 1000);
+            json.writeStringField("ts", "TO_SERVICE_NAME");
+            json.writeStringField("ta", "TO_APPLICATION");
+            json.writeStringField("tst", "TO_SERVICE_TYPE");
+            json.writeStringField("tan", "TO_AGENT_ID");
+            // toResponseTime
+            json.writeNumberField("rt", 1000);
 
-        json.writeNumberField("ie", 1);
+            json.writeNumberField("ie", 1);
 
-        json.writeStringField("url", encodeBase64("/**"));
-        json.writeEndObject();
+            json.writeStringField("url", encodeBase64("/**"));
+            json.writeEndObject();
 //        json.writeEndArray();
 
-        json.flush();
-        json.close();
+            json.flush();
+        }
 
         String jsonString = writer.toString();
         logger.debug("json:{}", jsonString);

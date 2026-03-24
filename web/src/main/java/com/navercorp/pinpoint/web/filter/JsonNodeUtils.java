@@ -8,9 +8,13 @@ public final class JsonNodeUtils {
     }
 
     public static String textValue(JsonNode jsonNode, String fieldName) {
+        return textValue(jsonNode, fieldName, null);
+    }
+
+    public static String textValue(JsonNode jsonNode, String fieldName, String defaultValue) {
         JsonNode node = jsonNode.get(fieldName);
         if (isNull(node)) {
-            return null;
+            return defaultValue;
         }
         return node.asText();
     }

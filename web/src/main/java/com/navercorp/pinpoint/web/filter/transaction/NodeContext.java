@@ -30,21 +30,26 @@ public class NodeContext {
 
     private final SpanContext spanContext;
 
+    private final String serviceName;
     private final String applicationName;
     private final List<ServiceType> serviceDescList;
     private final AgentFilter agentFilter;
 
-    public NodeContext(SpanContext spanContext, String applicationName, List<ServiceType> serviceDescList, AgentFilter agentFilter){
+    public NodeContext(SpanContext spanContext, String serviceName, String applicationName, List<ServiceType> serviceDescList, AgentFilter agentFilter){
         this.spanContext = Objects.requireNonNull(spanContext, "spanContext");
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceDescList = Objects.requireNonNull(serviceDescList, "serviceDescList");
         this.agentFilter = Objects.requireNonNull(agentFilter, "agentFilter");
     }
 
     public List<SpanBo> findApplicationNode() {
-        return spanContext.findNode(applicationName, serviceDescList, agentFilter);
+        return spanContext.findNode(serviceName, applicationName, serviceDescList, agentFilter);
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
 
     public String getApplicationName() {
         return applicationName;
@@ -62,6 +67,7 @@ public class NodeContext {
     public String toString() {
         return "NodeContext{" +
                 "spanContext=" + spanContext +
+                ", serviceName='" + serviceName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", serviceDescList=" + serviceDescList +
                 ", agentFilter=" + agentFilter +

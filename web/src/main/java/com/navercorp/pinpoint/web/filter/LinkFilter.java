@@ -16,16 +16,12 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import java.util.List;
-import java.util.Objects;
-
-
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.agent.AgentFilter;
 import com.navercorp.pinpoint.web.filter.agent.AgentFilterFactory;
 import com.navercorp.pinpoint.web.filter.responsetime.DefaultExecutionTypeFilter;
@@ -42,9 +38,11 @@ import com.navercorp.pinpoint.web.filter.transaction.WasToBackendFilter;
 import com.navercorp.pinpoint.web.filter.transaction.WasToQueueFilter;
 import com.navercorp.pinpoint.web.filter.transaction.WasToUnknownFilter;
 import com.navercorp.pinpoint.web.filter.transaction.WasToWasFilter;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author netspider
@@ -96,10 +94,10 @@ public class LinkFilter implements Filter<List<SpanBo>> {
 
         this.filterHint = Objects.requireNonNull(filterHint, "filterHint");
 
-        final String fromAgentName = fromNode.getAgentId();
-        final String toAgentName = toNode.getAgentId();
+        final String fromAgentId = fromNode.getAgentId();
+        final String toAgentId = toNode.getAgentId();
 
-        this.agentFilterFactory = new AgentFilterFactory(fromAgentName, toAgentName);
+        this.agentFilterFactory = new AgentFilterFactory(fromAgentId, toAgentId);
         logger.debug("agentFilterFactory:{}", agentFilterFactory);
         this.fromAgentFilter = agentFilterFactory.createFromAgentFilter();
         this.toAgentFilter = agentFilterFactory.createToAgentFilter();
@@ -189,12 +187,15 @@ public class LinkFilter implements Filter<List<SpanBo>> {
     public boolean include(List<SpanBo> transaction) {
         SpanContext spanContext = new SpanContext(transaction, serviceTypeRegistryService);
 
+        final String fromServiceName = fromNode.getServiceName();
         final String fromApplicationName = fromNode.getApplicationName();
+
+        final String toServiceName = toNode.getServiceName();
         final String toApplicationName = toNode.getApplicationName();
 
         LinkContext linkContext = new LinkContext(spanContext,
-                fromApplicationName, fromServiceDescList, fromAgentFilter,
-                toApplicationName, toServiceDescList, toAgentFilter);
+                fromServiceName, fromApplicationName, fromServiceDescList, fromAgentFilter,
+                toServiceName, toApplicationName, toServiceDescList, toAgentFilter);
         return filter.include(linkContext);
     }
 

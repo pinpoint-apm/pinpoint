@@ -9,7 +9,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class ServiceNodeName {
-    public static final String SERVICE_DELIMITER = ":";
+    public static final String SERVICE_DELIMITER = NodeName.NODE_DELIMITER;
     public static final String NODE_DELIMITER = NodeName.NODE_DELIMITER;
 
     private final String serviceName;
@@ -32,11 +32,15 @@ public class ServiceNodeName {
     }
 
     public static String toServiceNodeName(String serviceName, String applicationName, ServiceType serviceType) {
-        return serviceName + SERVICE_DELIMITER + applicationName + NODE_DELIMITER + serviceType.getDesc();
+        return newServiceNodeKey(serviceName, applicationName, serviceType.getDesc());
     }
 
     public static String toServiceNodeKey(String serviceName, String applicationName, ServiceType serviceType) {
-        return serviceName + SERVICE_DELIMITER + applicationName + NODE_DELIMITER + serviceType.getName();
+        return newServiceNodeKey(serviceName, applicationName, serviceType.getName());
+    }
+
+    static String newServiceNodeKey(String serviceName, String applicationName, String serviceType) {
+        return serviceName + SERVICE_DELIMITER + ApplicationNameEscaper.escape(applicationName) + NODE_DELIMITER + serviceType;
     }
 
     @Override
