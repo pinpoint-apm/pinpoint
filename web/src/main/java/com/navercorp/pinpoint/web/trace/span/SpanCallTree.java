@@ -154,6 +154,7 @@ public class SpanCallTree implements CallTree {
 
     private void addLastSibling(CallTreeNode node) {
         final long startTime = node.getAlign().getStartTime();
+        CallTreeNode parent = cursor;
         CallTreeNode child = cursor.getChild();
         if (child == null) {
             return;
@@ -165,13 +166,13 @@ public class SpanCallTree implements CallTree {
             if (sibling.getAlign().getStartTime() > startTime) {
                 if (sibling == child) {
                     // change child
-                    cursor.setChild(node);
+                    parent.setChild(node);
                     node.setSibling(child);
-                    node.setParent(cursor);
+                    setAllSiblingParent(node, parent);
                 } else {
                     prevSibling.setSibling(node);
                     node.setSibling(sibling);
-                    node.setParent(cursor);
+                    setAllSiblingParent(node, parent);
                 }
                 return;
             }
@@ -180,7 +181,19 @@ public class SpanCallTree implements CallTree {
         }
         // not found
         prevSibling.setSibling(node);
-        node.setParent(cursor);
+        setAllSiblingParent(node, parent);
+    }
+
+    // set all sibling parent to node parent.
+    private void setAllSiblingParent(CallTreeNode node, CallTreeNode parent) {
+        node.setParent(parent);
+        if (node.hasSibling()) {
+            CallTreeNode sibling = node.getSibling();
+            while (sibling != null) {
+                sibling.setParent(parent);
+                sibling = sibling.getSibling();
+            }
+        }
     }
 
     // test only
