@@ -1,0 +1,2 @@
+# Ignore the local settings file which may contain sensitive information
+/settings.local.json
