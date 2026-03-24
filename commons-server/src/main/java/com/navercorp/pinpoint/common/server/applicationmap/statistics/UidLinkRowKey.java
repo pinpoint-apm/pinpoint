@@ -120,9 +120,9 @@ public class UidLinkRowKey implements UidRowKey {
 
                                                   BytesUtils.INT_BYTE_LENGTH +
                                                   BytesUtils.INT_BYTE_LENGTH +
-                                                  BytesUtils.computeVar32ByteArraySize(applicationNameBytes) +
-                                                  BytesUtils.computeVar32ByteArraySize(outApplicationNameBytes) +
-                                                  BytesUtils.computeVar32ByteArraySize(outSubLinkBytes)
+                                                  BytesUtils.computeSVar32ByteArraySize(applicationNameBytes) +
+                                                  BytesUtils.computeSVar32ByteArraySize(outApplicationNameBytes) +
+                                                  BytesUtils.computeSVar32ByteArraySize(outSubLinkBytes)
         );
         buffer.skip(saltKeySize);
         UidPrefix.writePrefix(buffer, serviceUid, applicationNameBytes, serviceType, timestamp);

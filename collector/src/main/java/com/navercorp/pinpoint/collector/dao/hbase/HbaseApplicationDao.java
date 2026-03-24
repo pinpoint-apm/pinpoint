@@ -27,7 +27,7 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void insert(int serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKey = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ApplicationRowKeyUtils.createRow(serviceUid, applicationName, serviceTypeCode);
         final Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);
 
