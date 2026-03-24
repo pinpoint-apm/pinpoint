@@ -2,16 +2,15 @@ package com.navercorp.pinpoint.common.server.scatter;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.server.util.pair.LongPair;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Predicate;
 
 public class TraceIndexRowKeyUtils {
@@ -28,10 +27,10 @@ public class TraceIndexRowKeyUtils {
                                                   long spanId, int elapsed, int errorCode, String agentId) {
         long reverseTimestamp = LongInverter.invert(timestamp);
         byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
-        Buffer buffer = new FixedBuffer(saltKeySize +
+        Buffer buffer = new AutomaticBuffer(saltKeySize +
                 4 + 4 + 4 + 8 +
                 8 + 4 +
-                BytesUtils.computeVar32ByteArraySize(applicationNameBytes)
+                BytesUtils.computeSVar32ByteArraySize(applicationNameBytes)
         );
         buffer.skip(saltKeySize);
         buffer.putInt(toApplicationNameHash(applicationName));
@@ -97,7 +96,7 @@ public class TraceIndexRowKeyUtils {
     }
 
     public static Predicate<byte[]> createApplicationNamePredicate(String applicationName) {
-        Buffer buffer = new FixedBuffer(BytesUtils.computeVar32StringSize(applicationName));
+        Buffer buffer = new AutomaticBuffer(BytesUtils.computeSVar32StringSize(applicationName));
         buffer.putPrefixedString(applicationName);
         byte[] prefixedApplicationName = buffer.getBuffer();
 

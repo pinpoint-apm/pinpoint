@@ -22,11 +22,10 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -39,18 +38,15 @@ public class AgentIdRowKeyUtils {
     }
 
     public static byte[] createPrefix(int serviceUid, String applicationName) {
-        Buffer buffer = new AutomaticBuffer(4 +
-                4
-        );
+        Buffer buffer = new AutomaticBuffer(4 + 4);
         buffer.putInt(serviceUid);
         buffer.putInt(toApplicationNameHash(applicationName));
         return buffer.getBuffer();
     }
 
     public static byte[] createPrefix(int serviceUid, String applicationName, int serviceTypeCode) {
-        Buffer buffer = new AutomaticBuffer(4 +
-                4 + 4
-        );
+        Buffer buffer = new AutomaticBuffer(4 + 4 +
+                4);
         buffer.putInt(serviceUid);
         buffer.putInt(toApplicationNameHash(applicationName));
         buffer.putInt(serviceTypeCode);
@@ -58,8 +54,7 @@ public class AgentIdRowKeyUtils {
     }
 
     public static byte[] createPrefix(int serviceUid, String applicationName, int serviceTypeCode, String agentId) {
-        Buffer buffer = new AutomaticBuffer(4 +
-                4 + 4 +
+        Buffer buffer = new AutomaticBuffer(4 + 4 + 4 +
                 PinpointConstants.AGENT_ID_MAX_LEN
         );
         buffer.putInt(serviceUid);
@@ -70,11 +65,10 @@ public class AgentIdRowKeyUtils {
     }
 
     public static byte[] createRow(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime) {
-        Buffer buffer = new AutomaticBuffer(4 +
-                4 + 4 +
+        Buffer buffer = new AutomaticBuffer(4 + 4 + 4 +
                 PinpointConstants.AGENT_ID_MAX_LEN +
                 8 +
-                BytesUtils.computeVar32StringSize(applicationName)
+                BytesUtils.computeSVar32StringSize(applicationName)
         );
         buffer.putInt(serviceUid);
         buffer.putInt(toApplicationNameHash(applicationName));
@@ -94,30 +88,27 @@ public class AgentIdRowKeyUtils {
     }
 
     public static String extractApplicationName(byte[] row) {
-        Buffer buffer = new OffsetFixedBuffer(row);
-        buffer.setOffset(applicationNameOffset);
-        return buffer.readPrefixedString();
+        int stringLength = BytesUtils.bytesToSVar32(row, applicationNameOffset);
+        int varIntSize = BytesUtils.computeSVar32Size(stringLength);
+        return new String(row, applicationNameOffset + varIntSize, stringLength, StandardCharsets.UTF_8);
     }
 
     public static int extractServiceTypeCode(byte[] row) {
-        return ByteArrayUtils.bytesToInt(row, 4 +
-                4);
+        return ByteArrayUtils.bytesToInt(row, 4 + 4);
     }
 
     public static String extractAgentId(byte[] row) {
-        return BytesUtils.toStringAndRightTrim(row, 4 +
-                4 + 4, PinpointConstants.AGENT_ID_MAX_LEN);
+        return BytesUtils.toStringAndRightTrim(row, 4 + 4 + 4, PinpointConstants.AGENT_ID_MAX_LEN);
     }
 
     public static long extractAgentStartTime(byte[] row) {
         return LongInverter.restore(
-                ByteArrayUtils.bytesToLong(row, 4 +
-                        4 + 4 + PinpointConstants.AGENT_ID_MAX_LEN)
+                ByteArrayUtils.bytesToLong(row, 4 + 4 + 4 + PinpointConstants.AGENT_ID_MAX_LEN)
         );
     }
 
     public static Predicate<byte[]> createApplicationNamePredicate(String applicationName) {
-        Buffer buffer = new FixedBuffer(BytesUtils.computeVar32StringSize(applicationName));
+        Buffer buffer = new AutomaticBuffer(BytesUtils.computeSVar32StringSize(applicationName));
         buffer.putPrefixedString(applicationName);
         byte[] prefixedApplicationName = buffer.getBuffer();
 

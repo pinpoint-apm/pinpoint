@@ -362,6 +362,21 @@ public class BytesUtilsTest {
     }
 
     @Test
+    public void testSVar32StringSize_zigzagBoundary() {
+        // putPrefixedString writes length via writeSVar32 (zigzag-encoded varint).
+        // computeSVar32StringSize must account for zigzag encoding when computing size.
+        // For length=64: zigzag(64)=128, which needs 2 bytes (not 1).
+        String str64 = "a".repeat(64);
+
+        int computedSize = BytesUtils.computeSVar32StringSize(str64);
+
+        Buffer buffer = new FixedBuffer(computedSize);
+        buffer.putPrefixedString(str64);
+
+        Assertions.assertEquals(computedSize, buffer.getOffset());
+    }
+
+    @Test
     public void testVar32_indexCheck() {
         final byte[] bytes = new byte[1];
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,

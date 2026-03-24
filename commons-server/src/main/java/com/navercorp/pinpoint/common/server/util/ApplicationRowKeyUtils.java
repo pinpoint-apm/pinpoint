@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 public class ApplicationRowKeyUtils {
@@ -12,13 +11,13 @@ public class ApplicationRowKeyUtils {
     private ApplicationRowKeyUtils() {
     }
 
-    public static byte[] createRowKey(int serviceUid) {
-        Buffer buffer = new FixedBuffer(4);
-        buffer.putInt(serviceUid);
-        return buffer.getBuffer();
+    public static byte[] createPrefix(int serviceUid) {
+        byte[] bytes = new byte[ByteArrayUtils.INT_BYTE_LENGTH];
+        ByteArrayUtils.writeInt(serviceUid, bytes, 0);
+        return bytes;
     }
 
-    public static byte[] createRowKey(int serviceUid, String applicationName) {
+    public static byte[] createPrefix(int serviceUid, String applicationName) {
         Buffer buffer = new AutomaticBuffer(4 +
                 PinpointConstants.APPLICATION_NAME_MAX_LEN_V3
         );
@@ -27,7 +26,7 @@ public class ApplicationRowKeyUtils {
         return buffer.getBuffer();
     }
 
-    public static byte[] createRowKey(int serviceUid, String applicationName, int serviceTypeCode) {
+    public static byte[] createRow(int serviceUid, String applicationName, int serviceTypeCode) {
         Buffer buffer = new AutomaticBuffer(4 +
                 PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 4
         );

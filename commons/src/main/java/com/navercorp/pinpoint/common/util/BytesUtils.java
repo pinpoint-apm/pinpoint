@@ -354,6 +354,10 @@ public final class BytesUtils {
         return 5;
     }
 
+    public static int computeSVar32Size(final int value) {
+        return computeVar32Size(intToZigZag(value));
+    }
+
 
     public static int writeSVar64(final int value, final byte[] buf, final int offset) {
         return writeVar64(longToZigZag(value), buf, offset);
@@ -395,6 +399,22 @@ public final class BytesUtils {
         }
         final int length = bytes.length;
         return BytesUtils.computeVar32Size(length) + length;
+    }
+
+    public static int computeSVar32StringSize(String str) {
+        if (str == null) {
+            throw new NullPointerException("str");
+        }
+        final int length = str.length();
+        return BytesUtils.computeSVar32Size(length) + length;
+    }
+
+    public static int computeSVar32ByteArraySize(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes");
+        }
+        final int length = bytes.length;
+        return BytesUtils.computeSVar32Size(length) + length;
     }
 
     public static void checkBounds(byte[] bytes, final int offset) {

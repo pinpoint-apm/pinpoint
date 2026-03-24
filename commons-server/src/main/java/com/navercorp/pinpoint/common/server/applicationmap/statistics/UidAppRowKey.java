@@ -91,7 +91,7 @@ public class UidAppRowKey implements UidRowKey {
 
         final Buffer buffer = new AutomaticBuffer(saltKeySize +
                                                   UidPrefix.PREFIX_SIZE +
-                                                  BytesUtils.computeVar32ByteArraySize(applicationNameBytes)
+                                                  BytesUtils.computeSVar32ByteArraySize(applicationNameBytes)
         );
         buffer.skip(saltKeySize);
 

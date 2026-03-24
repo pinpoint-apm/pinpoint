@@ -37,13 +37,13 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public List<Application> getApplications(int serviceUid) {
-        byte[] rowKeyPrefix = ApplicationRowKeyUtils.createRowKey(serviceUid);
+        byte[] rowKeyPrefix = ApplicationRowKeyUtils.createPrefix(serviceUid);
         return scanApplications(rowKeyPrefix);
     }
 
     @Override
     public List<Application> getApplications(int serviceUid, String applicationName) {
-        byte[] rowKeyPrefix = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName);
+        byte[] rowKeyPrefix = ApplicationRowKeyUtils.createPrefix(serviceUid, applicationName);
         return scanApplications(rowKeyPrefix);
     }
 
@@ -64,7 +64,7 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode, long timestamp) {
-        byte[] rowKey = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ApplicationRowKeyUtils.createRow(serviceUid, applicationName, serviceTypeCode);
         Delete delete = new Delete(rowKey);
         if (timestamp != Long.MAX_VALUE) {
             delete.setTimestamp(timestamp);
@@ -76,7 +76,7 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void insert(int serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKey = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ApplicationRowKeyUtils.createRow(serviceUid, applicationName, serviceTypeCode);
         final Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);
 

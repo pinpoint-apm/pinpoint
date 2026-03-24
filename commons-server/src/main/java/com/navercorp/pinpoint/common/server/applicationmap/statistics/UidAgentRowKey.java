@@ -104,8 +104,8 @@ public class UidAgentRowKey implements UidRowKey {
                                                   UidPrefix.PREFIX_SIZE +
 
                                                   BytesUtils.INT_BYTE_LENGTH +
-                                                  BytesUtils.computeVar32ByteArraySize(applicationNameBytes) +
-                                                  BytesUtils.computeVar32ByteArraySize(agentIdBytes)
+                                                  BytesUtils.computeSVar32ByteArraySize(applicationNameBytes) +
+                                                  BytesUtils.computeSVar32ByteArraySize(agentIdBytes)
         );
         buffer.skip(saltKeySize);
 
