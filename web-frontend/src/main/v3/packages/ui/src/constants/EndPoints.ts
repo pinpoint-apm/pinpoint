@@ -74,6 +74,7 @@ export const APDEX_SCORE = `${LOCAL_API_PATH}/getApdexScore`;
 //   '/agents/search-all',
 // export const SEARCH_APPLICATION = `${LOCAL_API_PATH}/agents/search-application`;
 export const AGENT_OVERVIEW = `${LOCAL_API_PATH}/agents/overview`;
+export const AGENT_LIST = `${LOCAL_API_PATH}/agents`;
 export const AGENT_STATISTICS = `${LOCAL_API_PATH}/agents/statistics`;
 //   '/agents/statistics',
 export const ERROR_ANALYSIS_GROUPS = `${LOCAL_API_PATH}/errors/groups`;

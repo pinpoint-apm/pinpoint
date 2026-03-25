@@ -4,10 +4,11 @@ import { RxCheck } from 'react-icons/rx';
 import {
   AGENT_LIST_SORT_BY,
   getDateRange,
-  useGetAgentOverview,
+  useGetAgentList,
   useSearchParameters,
 } from '@pinpoint-fe/ui/src/hooks';
-import { AgentOverview, colors } from '@pinpoint-fe/ui/src/constants';
+import { colors } from '@pinpoint-fe/ui/src/constants';
+import { AgentList } from '@pinpoint-fe/ui/src/constants/types/AgentList';
 import { cn } from '../../lib/utils';
 import { FaArrowAltCircleDown, FaExclamationCircle, FaTimesCircle } from 'react-icons/fa';
 import { PiHardDriveFill } from 'react-icons/pi';
@@ -20,8 +21,8 @@ export interface AgentListFetcherProps extends Pick<React.HTMLAttributes<HTMLDiv
   filterKeyword?: string;
   selectedAgentId?: string;
   emptyMessage?: React.ReactNode;
-  agentRenderer?: (agent: AgentOverview.Instance) => React.ReactNode;
-  onClickAgent?: (agent?: AgentOverview.Instance) => void;
+  agentRenderer?: (agent: AgentList.Instance) => React.ReactNode;
+  onClickAgent?: (agent?: AgentList.Instance) => void;
 }
 
 export const AgentListFetcher = ({
@@ -39,9 +40,9 @@ export const AgentListFetcher = ({
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
 
-  const { data } = useGetAgentOverview({
-    application: application?.applicationName || '',
-    serviceTypeName: application?.serviceType,
+  const { data } = useGetAgentList({
+    applicationName: application?.applicationName || '',
+    serviceTypeName: application?.serviceType || '',
     from,
     to,
   });
@@ -54,14 +55,14 @@ export const AgentListFetcher = ({
     const sortedList = [...data].sort((a, b) => {
       switch (sortBy) {
         case AGENT_LIST_SORT_BY.STARTTIME_ASC:
-          return a.startTimestamp - b.startTimestamp;
+          return a.agentStartTime - b.agentStartTime;
         case AGENT_LIST_SORT_BY.NAME_DESC:
           return (b.agentName ?? '').localeCompare(a.agentName ?? '');
         case AGENT_LIST_SORT_BY.NAME_ASC:
           return (a.agentName ?? '').localeCompare(b.agentName ?? '');
         case AGENT_LIST_SORT_BY.STARTTIME_DESC:
         default:
-          return b.startTimestamp - a.startTimestamp;
+          return b.agentStartTime - a.agentStartTime;
       }
     });
 
@@ -76,14 +77,14 @@ export const AgentListFetcher = ({
     return fuse.search(filterKeyword).map(({ item }) => item);
   }, [data, filterKeyword, sortBy]);
 
-  function renderIcon(state: number) {
-    if (state === 200 || state === 201) {
+  function renderIcon(code: number) {
+    if (code === 200 || code === 201) {
       return <FaArrowAltCircleDown color={colors?.error} size={16} />;
     }
-    if (state === 300) {
+    if (code === 300) {
       return <FaTimesCircle color={colors?.error} size={16} />;
     }
-    if (state === -1) {
+    if (code === -1) {
       return <FaExclamationCircle color={colors?.error} size={16} />;
     }
 
@@ -94,7 +95,7 @@ export const AgentListFetcher = ({
     <TooltipProvider delayDuration={0}>
       <div className={className} style={style}>
         {filteredList && filteredList.length > 0 ? (
-          filteredList?.map((instance, i) => {
+          filteredList?.map((instance) => {
             return (
               <AgentIdNameTooltip
                 key={instance?.agentId}
@@ -117,7 +118,7 @@ export const AgentListFetcher = ({
                       {selectedAgentId === instance.agentId ? <RxCheck /> : <span />}
                       <div className="truncate">
                         <span className="mr-1 align-bottom">
-                          {renderIcon(instance?.status?.state?.code)}
+                          {renderIcon(instance?.state?.code)}
                         </span>
                         {instance?.agentName || instance.agentId}
                       </div>
