@@ -25,16 +25,19 @@ import org.apache.hadoop.hbase.filter.Filter;
  */
 public class ColumnGetCount {
 
-    public static final ColumnGetCount UNLIMITED_COLUMN_GET_COUNT = new UnlimitedColumnGetCount();
+    public static final int UNLIMITED_COUNT = Integer.MAX_VALUE;
+    public static final ColumnGetCount UNLIMITED_COLUMN_GET_COUNT = new ColumnGetCount(UNLIMITED_COUNT);
 
     private final int limit;
 
     public static ColumnGetCount of(int limit) {
-        if (limit == -1 || limit == Integer.MAX_VALUE) {
+        if (limit == -1 || limit == UNLIMITED_COUNT) {
             return ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT;
-        } else {
-            return new ColumnGetCount(limit);
         }
+        if (limit <= 0) {
+            throw new IllegalArgumentException("limit must be positive or -1(unlimited): " + limit);
+        }
+        return new ColumnGetCount(limit);
     }
 
     ColumnGetCount(int limit) {
@@ -47,6 +50,9 @@ public class ColumnGetCount {
     }
 
     public boolean isReachedLimit(int resultSize) {
+        if (limit == UNLIMITED_COUNT) {
+            return false;
+        }
         return resultSize >= limit;
     }
 
@@ -54,7 +60,7 @@ public class ColumnGetCount {
         if (columnGetCount == null) {
             return null;
         }
-        if (columnGetCount.getLimit() != Integer.MAX_VALUE) {
+        if (columnGetCount.getLimit() != UNLIMITED_COUNT) {
             return new ColumnCountGetFilter(columnGetCount.getLimit());
         }
         return null;
@@ -73,19 +79,6 @@ public class ColumnGetCount {
     @Override
     public int hashCode() {
         return limit;
-    }
-
-    private static class UnlimitedColumnGetCount extends ColumnGetCount {
-
-        private UnlimitedColumnGetCount() {
-            super(Integer.MAX_VALUE);
-        }
-
-        @Override
-        public boolean isReachedLimit(int resultSize) {
-            return false;
-        }
-
     }
 
 }
