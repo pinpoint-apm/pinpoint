@@ -52,6 +52,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -146,17 +147,17 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     @Override
-    public List<List<SpanBo>> selectAllSpans(List<ServerTraceId> transactionIdList) {
+    public List<List<SpanBo>> selectAllSpans(Collection<ServerTraceId> transactionIdList) {
         return selectAllSpans(transactionIdList, selectAllSpansLimit, null);
     }
 
     @Override
-    public List<List<SpanBo>> selectAllSpans(List<ServerTraceId> transactionIdList, ColumnGetCount columnGetCount) {
+    public List<List<SpanBo>> selectAllSpans(Collection<ServerTraceId> transactionIdList, ColumnGetCount columnGetCount) {
         Filter filter = ColumnGetCount.toFilter(columnGetCount);
         return selectAllSpans(transactionIdList, selectAllSpansLimit, filter);
     }
 
-    List<List<SpanBo>> selectAllSpans(List<ServerTraceId> transactionIdList, int eachPartitionSize, Filter filter) {
+    List<List<SpanBo>> selectAllSpans(Collection<ServerTraceId> transactionIdList, int eachPartitionSize, Filter filter) {
         if (CollectionUtils.isEmpty(transactionIdList)) {
             return Collections.emptyList();
         }

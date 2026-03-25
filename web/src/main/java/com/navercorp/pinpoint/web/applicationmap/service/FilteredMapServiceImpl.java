@@ -46,7 +46,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,8 +76,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private final ApplicationMapBuilderFactory applicationMapBuilderFactory;
     private final NodeHistogramService nodeHistogramService;
-
-    private static final Object V = new Object();
 
     @Value("${web.servermap.build.timeout:600000}")
     private long buildTimeoutMillis;
@@ -170,7 +169,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private List<List<SpanBo>> selectFilteredSpan(List<ServerTraceId> transactionIdList, Filter<List<SpanBo>> filter, ColumnGetCount columnGetCount) {
         // filters out recursive calls by looking at each objects
         // do not filter here if we change to a tree-based collision check in the future.
-        final List<ServerTraceId> recursiveFilterList = recursiveCallFilter(transactionIdList);
+        final Collection<ServerTraceId> recursiveFilterList = recursiveCallFilter(transactionIdList);
 
         // FIXME might be better to simply traverse the List<Span> and create a process chain for execution
         final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList, columnGetCount);
@@ -196,21 +195,19 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return map;
     }
 
-    private List<ServerTraceId> recursiveCallFilter(List<ServerTraceId> transactionIdList) {
+    private Collection<ServerTraceId> recursiveCallFilter(Collection<ServerTraceId> transactionIdList) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
 
         List<ServerTraceId> crashKey = new ArrayList<>();
-        Map<ServerTraceId, Object> filterMap = new LinkedHashMap<>(transactionIdList.size());
+        Set<ServerTraceId> filterSet = new LinkedHashSet<>(transactionIdList.size());
         for (ServerTraceId transactionId : transactionIdList) {
-            Object old = filterMap.put(transactionId, V);
-            if (old != null) {
+            if (!filterSet.add(transactionId)) {
                 crashKey.add(transactionId);
             }
         }
         if (!crashKey.isEmpty()) {
-            Set<ServerTraceId> filteredTransactionId = filterMap.keySet();
-            logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTransactionId.size(), crashKey);
-            return new ArrayList<>(filteredTransactionId);
+            logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filterSet.size(), crashKey);
+            return filterSet;
         }
         return transactionIdList;
     }
