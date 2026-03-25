@@ -198,15 +198,15 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private Collection<ServerTraceId> recursiveCallFilter(Collection<ServerTraceId> transactionIdList) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
 
-        List<ServerTraceId> crashKey = new ArrayList<>();
+        CollisionReporter<ServerTraceId> reporter = new CollisionReporter<>(logger.isTraceEnabled());
         Set<ServerTraceId> filterSet = new LinkedHashSet<>(transactionIdList.size());
         for (ServerTraceId transactionId : transactionIdList) {
             if (!filterSet.add(transactionId)) {
-                crashKey.add(transactionId);
+                reporter.report(transactionId);
             }
         }
-        if (!crashKey.isEmpty()) {
-            logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filterSet.size(), crashKey);
+        if (reporter.hasCollision()) {
+            logger.info("transactionId crash found. original:{} filter:{} {}", transactionIdList.size(), filterSet.size(), reporter);
             return filterSet;
         }
         return transactionIdList;
