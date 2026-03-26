@@ -129,7 +129,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
 
     private ServerGroupList createServerGroupListV2(Node node, Range range) {
         Application application = node.getApplication();
-        List<AgentIdEntry> agentIdEntries = agentListV2Service.getAgentList(
+        List<AgentIdEntry> agentIdEntries = agentListV2Service.getActiveAgentList(
                 ServiceUid.DEFAULT, application.getApplicationName(), application.getServiceType(), range);
 
         if (CollectionUtils.isEmpty(agentIdEntries)) {

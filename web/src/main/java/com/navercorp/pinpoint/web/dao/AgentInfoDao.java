@@ -44,6 +44,8 @@ public interface AgentInfoDao {
 
     List<AgentInfo> getAgentInfos(List<SimpleAgentKey> simpleAgentKeyList);
 
+    List<AgentInfoBo> findAgentInfoBos(String applicationName, int serviceTypeCode, List<String> agentIds, long timestamp);
+
     // only for migration
     List<AgentInfoBo> fetchAgentInfoBo(int limit, long minStamp, @Nullable String lastAgentId, @Nullable Long lastAgentStartTime);
 }

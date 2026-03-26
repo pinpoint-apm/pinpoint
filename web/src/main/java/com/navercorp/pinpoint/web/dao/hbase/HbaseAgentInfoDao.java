@@ -37,6 +37,8 @@ import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -219,6 +221,54 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             get.addColumn(family, DESCRIPTOR.QUALIFIER_JVM);
         }
         return get;
+    }
+
+    @Override
+    public List<AgentInfoBo> findAgentInfoBos(String applicationName, int serviceTypeCode, List<String> agentIds, long timestamp) {
+        if (CollectionUtils.isEmpty(agentIds)) {
+            return Collections.emptyList();
+        }
+
+        List<Scan> scans = new ArrayList<>(agentIds.size());
+        for (String agentId : agentIds) {
+            Scan scan = createScanWithoutLimit(agentId, timestamp);
+            scans.add(scan);
+        }
+
+        ResultsExtractor<AgentInfoBo> action = createResultExtractor(applicationName, serviceTypeCode);
+        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return this.hbaseOperations.findParallel(agentInfoTableName, scans, action);
+    }
+
+    private Scan createScanWithoutLimit(String agentId, long timestamp) {
+        Scan scan = new Scan();
+        scan.setId("AgentId:" + agentId);
+        byte[] startKeyBytes = rowKeyEncoder.encodeRowKey(agentId, timestamp);
+        byte[] endKeyBytes = rowKeyEncoder.encodeRowKey(agentId, 0);
+        scan.withStartRow(startKeyBytes);
+        scan.withStopRow(endKeyBytes);
+
+        final byte[] family = DESCRIPTOR.getName();
+        scan.addColumn(family, DESCRIPTOR.QUALIFIER_IDENTIFIER);
+
+        scan.readVersions(1);
+        scan.setCaching(5);
+        return scan;
+    }
+
+    private ResultsExtractor<AgentInfoBo> createResultExtractor(String applicationName, int serviceTypeCode) {
+        return new ResultsExtractor<AgentInfoBo>() {
+            @Override
+            public AgentInfoBo extractData(ResultScanner results) throws Exception {
+                for (Result result : results) {
+                    AgentInfoBo agentInfoBo = agentInfoBoMapper.mapRow(result, 0);
+                    if (agentInfoBo != null && agentInfoBo.getApplicationName().equals(applicationName) && agentInfoBo.getServiceTypeCode() == serviceTypeCode) {
+                        return agentInfoBo;
+                    }
+                }
+                return null;
+            }
+        };
     }
 
     // only for agentList migration

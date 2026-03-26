@@ -84,11 +84,26 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public List<AgentIdEntry> getAgentIdEntryByMinStatusTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long minStatusTimestamp) {
+    public List<AgentIdEntry> getAgentIdEntryByMinStateTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long minStateTimestamp) {
         byte[] rowKeyPrefix = AgentIdRowKeyUtils.createPrefix(serviceUid, applicationName, serviceTypeCode);
         Scan scan = createScan(rowKeyPrefix);
 
-        SingleColumnValueFilter filter = new SingleColumnValueFilter(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER, CompareOperator.GREATER_OR_EQUAL, new BinaryPrefixComparator(Bytes.toBytes(minStatusTimestamp)));
+        SingleColumnValueFilter filter = new SingleColumnValueFilter(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER, CompareOperator.GREATER_OR_EQUAL, new BinaryPrefixComparator(Bytes.toBytes(minStateTimestamp)));
+        filter.setFilterIfMissing(false);
+        scan.setFilter(filter);
+
+        final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        RowMapper<List<AgentIdEntry>> agentStartTimeInfoMapper = new AgentIdEntryMapper(applicationFactory, AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName));
+        List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentStartTimeInfoMapper);
+        return ListListUtils.toList(results);
+    }
+
+    @Override
+    public List<AgentIdEntry> getAgentIdEntryByMaxStateTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long maxStateTimestamp) {
+        byte[] rowKeyPrefix = AgentIdRowKeyUtils.createPrefix(serviceUid, applicationName, serviceTypeCode);
+        Scan scan = createScan(rowKeyPrefix);
+
+        SingleColumnValueFilter filter = new SingleColumnValueFilter(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER, CompareOperator.LESS, new BinaryPrefixComparator(Bytes.toBytes(maxStateTimestamp)));
         filter.setFilterIfMissing(false);
         scan.setFilter(filter);
 
@@ -127,6 +142,8 @@ public class HbaseAgentIdDao implements AgentIdDao {
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), value);
         if (agentStatus != null && agentStatus.getEventTimestamp() > 0) {
             put.addColumn(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER, createStatusValueBytes(agentStatus.getEventTimestamp(), agentStatus.getState()));
+        } else {
+            put.addColumn(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER, createStatusValueBytes(agentStartTime, AgentLifeCycleState.UNKNOWN));
         }
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());

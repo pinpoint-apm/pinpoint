@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
 import com.navercorp.pinpoint.batch.service.BatchAgentServiceImpl;
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexServiceImpl;
+import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
@@ -38,7 +39,6 @@ import com.navercorp.pinpoint.user.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.WebServiceConfig;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
-import com.navercorp.pinpoint.web.config.AgentListProperties;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import com.navercorp.pinpoint.web.scatter.config.ScatterWebConfiguration;
 import com.navercorp.pinpoint.web.trace.TraceConfiguration;
@@ -102,8 +102,8 @@ import java.util.List;
 public class BatchModule {
 
     @Bean
-    public AgentListProperties agentListProperties() {
-        return new AgentListProperties();
+    public AgentProperties agentProperties() {
+        return new AgentProperties();
     }
 
     @Bean
