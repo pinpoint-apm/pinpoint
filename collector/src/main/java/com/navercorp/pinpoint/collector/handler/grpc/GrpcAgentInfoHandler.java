@@ -80,7 +80,7 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, 
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo, header);
             this.agentInfoService.insert(agentInfoBo);
-            this.applicationIndexV2Service.insert(header.getServiceUid(), agentInfoBo);
+            this.applicationIndexV2Service.insert(header.getServiceUid(), header.getServiceType(), agentInfoBo);
             this.agentInfoStatisticsService.insert(header.getServiceUid(), header.getApplicationName(), agentInfoBo);
             return PResults.SUCCESS;
         } catch (Exception e) {

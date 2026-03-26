@@ -28,7 +28,7 @@ public class AgentIdEntry {
     private final Application application;
     private final String agentId;
     private final long agentStartTime;
-    private final String agentName;
+    private final @Nullable String agentName;
 
     private final AgentLifeCycleState currentState;
     private final long currentStateTimestamp;
@@ -38,7 +38,7 @@ public class AgentIdEntry {
         this.application = Objects.requireNonNull(application, "application");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
-        this.agentName = Objects.requireNonNullElse(agentName, "");
+        this.agentName = agentName;
         this.currentState = Objects.requireNonNull(currentState, "currentState");
         this.currentStateTimestamp = currentStateTimestamp;
     }
@@ -71,7 +71,7 @@ public class AgentIdEntry {
         return agentStartTime;
     }
 
-    public String getAgentName() {
+    public @Nullable String getAgentName() {
         return agentName;
     }
 

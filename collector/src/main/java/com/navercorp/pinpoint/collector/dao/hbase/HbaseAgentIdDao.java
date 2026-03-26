@@ -32,7 +32,12 @@ public class HbaseAgentIdDao implements AgentIdDao {
 
     @Override
     public void insert(int serviceUid, AgentInfoBo agentInfoBo) {
-        byte[] rowKey = AgentIdRowKeyUtils.createRow(serviceUid, agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId(), agentInfoBo.getStartTime());
+        insert(serviceUid, agentInfoBo.getServiceTypeCode(), agentInfoBo);
+    }
+
+    @Override
+    public void insert(int serviceUid, int serviceTypeCode, AgentInfoBo agentInfoBo) {
+        byte[] rowKey = AgentIdRowKeyUtils.createRow(serviceUid, agentInfoBo.getApplicationName(), serviceTypeCode, agentInfoBo.getAgentId(), agentInfoBo.getStartTime());
         byte[] value = createValueBytes(agentInfoBo.getAgentName());
 
         final Put put = new Put(rowKey, true);

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.aop.AvailabilityHandlerAop;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
 import com.navercorp.pinpoint.collector.sampler.SimpleSpanSamplerFactory;
 import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
+import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
@@ -37,6 +38,11 @@ import java.util.concurrent.ExecutorService;
 
 @Configuration
 public class CollectorConfiguration {
+
+    @Bean
+    public AgentProperties agentProperties() {
+        return new AgentProperties();
+    }
 
     @Bean
     public ExecutorCustomizer<ThreadPoolExecutorFactoryBean> collectorExecutorCustomizer() {

@@ -14,7 +14,9 @@ public interface AgentIdDao {
 
     List<AgentIdEntry> getAgentIdEntry(int serviceUid, String applicationName, int serviceTypeCode, String agentId);
 
-    List<AgentIdEntry> getAgentIdEntryByMinStatusTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long minStatusTimestamp);
+    List<AgentIdEntry> getAgentIdEntryByMinStateTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long minStateTimestamp);
+
+    List<AgentIdEntry> getAgentIdEntryByMaxStateTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long maxStateTimestamp);
 
     void delete(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime);
 

@@ -99,7 +99,7 @@ public class AgentV2Controller {
         if (serviceType.equals(ServiceType.UNDEFINED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required for v2 table");
         }
-        return agentListV2Service.getAgentList(serviceUid, applicationName, serviceType, range).stream()
+        return agentListV2Service.getActiveAgentList(serviceUid, applicationName, serviceType, range).stream()
                 .map(entry -> AgentIdView.of(entry, range.getTo()))
                 .toList();
     }

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.batch.common.JobFailListener;
 import com.navercorp.pinpoint.batch.common.JobFailMessageSender;
+import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.mybatis.plugin.BindingLogPlugin;
 import com.navercorp.pinpoint.user.dao.mysql.MysqlUserGroupDao;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
@@ -32,7 +33,6 @@ import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.dao.mysql.MysqlUserDao;
 import com.navercorp.pinpoint.web.service.AgentServiceImpl;
 import com.navercorp.pinpoint.web.service.CacheServiceImpl;
-import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +41,8 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
 import org.springframework.batch.core.configuration.support.MapJobRegistry;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
@@ -72,7 +74,7 @@ import java.util.Optional;
         excludeFilters = {
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        classes = { CacheServiceImpl.class, AgentServiceImpl.class }
+                        classes = {CacheServiceImpl.class, AgentServiceImpl.class}
                 )
         }
 )
@@ -106,6 +108,17 @@ public class BatchInfrastructureConfig {
             @Qualifier("metaDataTransactionManager") PlatformTransactionManager transactionManager) throws Exception {
 
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
+        factory.setDataSource(dataSource);
+        factory.setTransactionManager(transactionManager);
+        factory.afterPropertiesSet();
+        return factory.getObject();
+    }
+
+    @Bean
+    public JobExplorer jobExplorer(
+            @Qualifier("metaDataDataSource") DataSource dataSource,
+            @Qualifier("metaDataTransactionManager") PlatformTransactionManager transactionManager) throws Exception {
+        JobExplorerFactoryBean factory = new JobExplorerFactoryBean();
         factory.setDataSource(dataSource);
         factory.setTransactionManager(transactionManager);
         factory.afterPropertiesSet();

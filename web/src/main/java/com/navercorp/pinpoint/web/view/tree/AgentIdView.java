@@ -62,7 +62,7 @@ public final class AgentIdView {
         this.application = application;
         this.agentId = agentId;
         this.agentStartTime = agentStartTime;
-        this.agentName = agentName;
+        this.agentName = StringUtils.hasText(agentName) ? agentName : agentId;
         this.state = state;
         this.currentState = currentState;
         this.currentStateTimestamp = currentStateTimestamp;

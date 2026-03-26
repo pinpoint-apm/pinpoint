@@ -145,7 +145,7 @@ public class ApplicationMapBuilderTest {
             }
         }).when(agentInfoService).getAgentStatus(any());
 
-        when(agentListV2Service.getAgentList(any(ServiceUid.class), anyString(), any(ServiceType.class), any(Range.class))).thenAnswer(invocation -> {
+        when(agentListV2Service.getActiveAgentList(any(ServiceUid.class), anyString(), any(ServiceType.class), any(Range.class))).thenAnswer(invocation -> {
             String applicationName = invocation.getArgument(1);
             ServiceType serviceType = invocation.getArgument(2);
             Range range = invocation.getArgument(3);

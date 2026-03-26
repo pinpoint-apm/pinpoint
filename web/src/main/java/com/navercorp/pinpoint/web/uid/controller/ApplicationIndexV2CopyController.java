@@ -21,16 +21,24 @@ public class ApplicationIndexV2CopyController {
         this.applicationIndexV2CopyService = Objects.requireNonNull(applicationIndexV2CopyService, "applicationUidCopyService");
     }
 
-
     @PostMapping(value = "/applications")
     public ResponseEntity<String> copyApplicationList() {
         applicationIndexV2CopyService.copyApplication();
         return ResponseEntity.ok("OK");
     }
 
+    @PostMapping(value = "/agents/all")
+    public ResponseEntity<String> copyAllAgents(
+            @RequestParam(value = "maxIterations", required = false, defaultValue = "200000") int maxIterations,
+            @RequestParam(value = "batchSize", required = false, defaultValue = "1000") int batchSize
+    ) {
+        applicationIndexV2CopyService.copyAgentId(0, maxIterations, batchSize);
+        return ResponseEntity.ok("OK");
+    }
+
     @PostMapping(value = "/agents")
-    public ResponseEntity<String> copyAgentInfoAndStatus(
-            @RequestParam(value = "durationDays", required = false, defaultValue = "0") int durationDays,
+    public ResponseEntity<String> copyRecentAgents(
+            @RequestParam(value = "durationDays", required = false, defaultValue = "30") int durationDays,
             @RequestParam(value = "maxIterations", required = false, defaultValue = "200000") int maxIterations,
             @RequestParam(value = "batchSize", required = false, defaultValue = "1000") int batchSize
     ) {
@@ -39,16 +47,16 @@ public class ApplicationIndexV2CopyController {
     }
 
     @PostMapping(value = "/agents", params = {"applicationName"})
-    public ResponseEntity<String> copyAgentId(
+    public ResponseEntity<String> copyAgentsByApplicationName(
             @RequestParam(value = "applicationName") String applicationName
     ) {
         applicationIndexV2CopyService.copyAgentId(applicationName);
         return ResponseEntity.ok("OK");
     }
 
-    // for otlp(1220), node(1400), python(1700), go(1800), envoy(1550)
+    // for OTLP(1220), node(1400), python(1700), go(1800), envoy(1550)
     @PostMapping(value = "/agents", params = {"serviceTypeCode"})
-    public ResponseEntity<String> copyAgentId(
+    public ResponseEntity<String> copyAgentsByServiceTypeCode(
             @RequestParam(value = "serviceTypeCode") int serviceTypeCode
     ) {
         applicationIndexV2CopyService.copyAgentId(serviceTypeCode);

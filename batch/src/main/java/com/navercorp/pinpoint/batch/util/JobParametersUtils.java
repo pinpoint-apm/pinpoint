@@ -18,10 +18,13 @@ package com.navercorp.pinpoint.batch.util;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class JobParametersUtils {
@@ -41,5 +44,18 @@ public class JobParametersUtils {
     public static @Nullable Date getScheduleDate(@NonNull ChunkContext chunkContext) {
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
         return stepExecution.getJobExecution().getJobParameters().getDate(SCHEDULE_DATE_KEY);
+    }
+
+    public static long getScheduleTime(JobExecution execution) {
+        Date scheduleDate = execution.getJobParameters().getDate(SCHEDULE_DATE_KEY);
+        if (scheduleDate != null) {
+            return scheduleDate.getTime();
+        }
+        return getCreateTime(execution);
+    }
+
+    public static long getCreateTime(JobExecution execution) {
+        LocalDateTime createTime = execution.getCreateTime();
+        return createTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 }
