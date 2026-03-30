@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.service.vo;
 
 import java.util.Map;
 
+@Deprecated
 public class ServiceInfo extends ServiceEntry {
 
     private Map<String, String> configuration;

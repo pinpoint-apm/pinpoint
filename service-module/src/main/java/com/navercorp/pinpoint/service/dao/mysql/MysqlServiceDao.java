@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@Deprecated
 @Repository
 @ConditionalOnProperty(name = "pinpoint.modules.service.dao.type", havingValue = "mysql")
 public class MysqlServiceDao implements ServiceDao {

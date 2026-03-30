@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@Deprecated
 @Service
 @Transactional(rollbackFor = {Exception.class})
 public class ServiceInfoServiceImpl implements ServiceInfoService {
