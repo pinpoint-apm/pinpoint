@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.applicationmap.config.ApplicationMapModu
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcReceiverProperties;
 import com.navercorp.pinpoint.collector.grpc.config.ServerServiceDefinitions;
+import com.navercorp.pinpoint.collector.heatmap.HeatmapCollectorModule;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
@@ -27,6 +28,7 @@ import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
+import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
@@ -51,6 +53,10 @@ import java.util.concurrent.Executor;
         ApplicationMapModule.class,
         TypeLoaderConfiguration.class,
 
+        HeatmapCollectorModule.class,
+        MainDataSourcePropertySource.class,
+        OtlpTraceDataSourceConfiguration.class,
+
         OtlpTraceCollectorPropertySources.class,
         OtlpTraceCollectorHbaseModule.class,
         OtlpTraceCollectorGrpcModule.class
@@ -68,7 +74,7 @@ public class OtlpTraceCollectorModule {
     }
 
     @Bean
-    public ServerServiceDefinition serverServiceDefinition(TraceService traceServiceList, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper) {
+    public ServerServiceDefinition serverServiceDefinition(TraceService[] traceServiceList, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper) {
         BindableService spanService = new GrpcOtlpTraceService(traceServiceList, agentInfoService, applicationIndexV2Service, mapper);
         return ServerInterceptors.intercept(spanService);
     }

@@ -45,15 +45,15 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @NotNull
-    private final TraceService traceService;
+    private final TraceService[] traceServiceList;
     private final HbaseOtlpAgentInfoService agentInfoService;
     private final HbaseOtlpApplicationIndexV2Service applicationIndexV2Service;
     @NotNull
     private final OtlpTraceMapper otlpTraceMapper;
     private final LRUCache<String, Boolean> agentIdCache = new LRUCache<>(10000);
 
-    public GrpcOtlpTraceService(TraceService traceService, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper) {
-        this.traceService = traceService;
+    public GrpcOtlpTraceService(TraceService[] traceServiceList, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper) {
+        this.traceServiceList = traceServiceList;
         this.agentInfoService = agentInfoService;
         this.applicationIndexV2Service = applicationIndexV2Service;
         this.otlpTraceMapper = otlpTraceMapper;
@@ -81,20 +81,24 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         final OtlpTraceMapperData otlpTraceMapperData = otlpTraceMapper.map(resourceSpanList);
         int errorCount = 0;
         for (SpanBo spanBo : otlpTraceMapperData.getSpanBoList()) {
-            try {
-                traceService.insertSpan(spanBo);
-            } catch (Exception e) {
-                errorCount++;
-                logger.warn("Failed to insert spanBo", e);
+            for (TraceService traceService : traceServiceList) {
+                try {
+                    traceService.insertSpan(spanBo);
+                } catch (Exception e) {
+                    errorCount++;
+                    logger.warn("Failed to insert spanBo", e);
+                }
             }
         }
 
         for (SpanChunkBo spanChunkBo : otlpTraceMapperData.getSpanChunkBoList()) {
-            try {
-                traceService.insertSpanChunk(spanChunkBo);
-            } catch (Exception e) {
-                errorCount++;
-                logger.warn("Failed to insert spanChunkBo", e);
+            for (TraceService traceService : traceServiceList) {
+                try {
+                    traceService.insertSpanChunk(spanChunkBo);
+                } catch (Exception e) {
+                    errorCount++;
+                    logger.warn("Failed to insert spanChunkBo", e);
+                }
             }
         }
 
