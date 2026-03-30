@@ -30,7 +30,7 @@ public class UriStatPropertiesExporter implements FrontendConfigExporter {
     private final UriStatProperties uriStatProperties;
 
     public UriStatPropertiesExporter(UriStatProperties uriStatProperties) {
-        this.uriStatProperties = Objects.requireNonNull(uriStatProperties, "uriStatProperties");;
+        this.uriStatProperties = Objects.requireNonNull(uriStatProperties, "uriStatProperties");
     }
 
     @Override
