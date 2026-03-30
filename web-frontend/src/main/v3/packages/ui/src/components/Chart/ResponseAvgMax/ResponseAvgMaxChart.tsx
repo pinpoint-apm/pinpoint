@@ -113,22 +113,19 @@ export const ResponseAvgMaxChart = ({
           },
         },
       ],
-      graphic:
-        chartData.length === 0
-          ? [
-              {
-                type: 'text',
-                left: 'center',
-                top: 'middle',
-                style: {
-                  text: emptyMessage,
-                  fontSize: 14,
-                  fill: '#999',
-                  textAlign: 'center',
-                },
-              },
-            ]
-          : [],
+      graphic: [
+        {
+          type: 'text',
+          left: 'center',
+          top: 'middle',
+          style: {
+            text: chartData.length === 0 ? emptyMessage : '',
+            fontSize: 14,
+            fill: '#999',
+            textAlign: 'center',
+          },
+        },
+      ],
     });
   }, [chartData, categories, colors, emptyMessage]);
 
