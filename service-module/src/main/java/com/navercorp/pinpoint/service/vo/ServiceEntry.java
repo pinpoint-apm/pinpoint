@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.service.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Deprecated
 public class ServiceEntry {
     private int uid;
     private String name;

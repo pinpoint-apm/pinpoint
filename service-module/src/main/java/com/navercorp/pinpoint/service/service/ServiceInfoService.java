@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.service.vo.ServiceInfo;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public interface ServiceInfoService {
 
     int insertService(String serviceName, Map<String, String> configuration);
