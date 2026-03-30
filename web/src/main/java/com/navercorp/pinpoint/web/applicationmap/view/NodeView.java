@@ -44,12 +44,14 @@ public class NodeView {
     private final ServerListNodeView serverListNodeView;
     private final AgentHistogramNodeView agentHistogramNodeView;
     private final AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView;
+    private final boolean serviceMap;
 
     public NodeView(Node node,
                     ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView,
                     ApplicationApdexScoreSlotView applicationApdexScoreSlotView, ServerListNodeView serverListNodeView,
                     AgentHistogramNodeView agentHistogramNodeView,
-                    AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView) {
+                    AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView,
+                    boolean serviceMap) {
         this.node = Objects.requireNonNull(node, "node");
 
         this.applicationTimeSeriesHistogramNodeView = Objects.requireNonNull(applicationTimeSeriesHistogramNodeView, "applicationTimeSeriesHistogramNodeView");
@@ -57,6 +59,8 @@ public class NodeView {
         this.serverListNodeView = Objects.requireNonNull(serverListNodeView, "serverListView");
         this.agentHistogramNodeView = Objects.requireNonNull(agentHistogramNodeView, "agentHistogramView");
         this.agentTimeSeriesHistogramNodeView = Objects.requireNonNull(agentTimeSeriesHistogramNodeView, "agentTimeSeriesHistogramView");
+
+        this.serviceMap = serviceMap;
     }
 
     public Node getNode() {
@@ -100,9 +104,14 @@ public class NodeView {
             Node node = nodeView.getNode();
 
             jgen.writeStartObject();
+
 //        jgen.writeStringField("id", node.getNodeName()); serverInstanceList
-//            jgen.writeObjectField("key", node.getServiceNodeName().toString()); // necessary for servermap
-            jgen.writeObjectField("key", node.getNodeName()); // necessary for servermap
+            if (nodeView.serviceMap) {
+                jgen.writeObjectField("key", node.getServiceNodeName().toString());
+            } else {
+                jgen.writeObjectField("key", node.getNodeName());
+            }
+
             jgen.writeStringField("nodeKey", node.getNodeKey());
 
             jgen.writeObjectField("serviceKey", node.getServiceNodeName().toString());

@@ -67,6 +67,10 @@ public class ApplicationMapModule {
         logger.info("Install {}", ApplicationMapModule.class.getSimpleName());
     }
 
+    @Bean
+    public MapProperties mapProperties() {
+        return new MapProperties();
+    }
 
     @Bean
     public ApplicationMapBuilderFactory applicationMapBuilderFactory(

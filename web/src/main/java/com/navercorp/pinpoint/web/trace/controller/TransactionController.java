@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.MapView;
+import com.navercorp.pinpoint.web.applicationmap.config.MapProperties;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
@@ -70,6 +71,7 @@ public class TransactionController {
     public static final String DEFAULT_FOCUS_TIMESTAMP = "0";
     public static final String DEFAULT_SPAN_ID = "-1"; // SpanId.NULL
 
+    private final MapProperties mapProperties;
     private final SpanService spanService;
     private final TransactionInfoService transactionInfoService;
     private final FilteredMapService filteredMapService;
@@ -80,11 +82,13 @@ public class TransactionController {
     private int callstackSelectSpansLimit;
 
 
-    public TransactionController(SpanService spanService,
+    public TransactionController(MapProperties mapProperties,
+                                 SpanService spanService,
                                  TransactionInfoService transactionInfoService,
                                  FilteredMapService filteredMapService,
                                  HyperLinkFactory hyperLinkFactory,
                                  LogLinkBuilder logLinkBuilder) {
+        this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.transactionInfoService = Objects.requireNonNull(transactionInfoService, "transactionInfoService");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
@@ -176,8 +180,8 @@ public class TransactionController {
 
     private MapView getApplicationMap(ApplicationMap map) {
         TimeHistogramView view = TimeHistogramView.ResponseTime;
-        NodeRender nodeRender = NodeRender.detailedRender(view, hyperLinkFactory);
-        LinkRender linkRender = LinkRender.detailedRender(view);
+        NodeRender nodeRender = NodeRender.detailedRender(view, hyperLinkFactory, mapProperties);
+        LinkRender linkRender = LinkRender.detailedRender(view, mapProperties);
 
         return new ApplicationMapView(map, nodeRender, linkRender);
     }
