@@ -58,7 +58,7 @@ public abstract class MariaDB_IT_Base {
     protected static final String PROCEDURE_NAME = "getPlaygroundByName";
     protected static final String CALLABLE_STATEMENT_QUERY = "{ CALL " + PROCEDURE_NAME + "(?, ?) }";
     protected static final String CALLABLE_STATEMENT_INPUT_PARAM = "TWO";
-    protected static final int CALLABLE_STATMENT_OUTPUT_PARAM_TYPE = Types.INTEGER;
+    protected static final int CALLABLE_STATEMENT_OUTPUT_PARAM_TYPE = Types.INTEGER;
 
     protected static DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
 
@@ -146,7 +146,7 @@ public abstract class MariaDB_IT_Base {
         try (Connection conn = getConnection();
              CallableStatement cs = conn.prepareCall(CALLABLE_STATEMENT_QUERY)) {
             cs.setString(1, CALLABLE_STATEMENT_INPUT_PARAM);
-            cs.registerOutParameter(2, CALLABLE_STATMENT_OUTPUT_PARAM_TYPE);
+            cs.registerOutParameter(2, CALLABLE_STATEMENT_OUTPUT_PARAM_TYPE);
 
             try (ResultSet rs = cs.executeQuery()) {
                 int resultCount = 0;

@@ -119,7 +119,7 @@ public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
         // AbstractCallableProcedureStatement#registerOutParameter
         final JDBCApi.CallableStatementClass callableStatement = jdbcApi.getCallableStatement();
         Method registerOutParameter = callableStatement.getRegisterOutParameter();
-        verifier.verifyTrace(event(DB_TYPE, registerOutParameter, null, URL, DATABASE_NAME, args(2, CALLABLE_STATMENT_OUTPUT_PARAM_TYPE)));
+        verifier.verifyTrace(event(DB_TYPE, registerOutParameter, null, URL, DATABASE_NAME, args(2, CALLABLE_STATEMENT_OUTPUT_PARAM_TYPE)));
 
         // MariaDbServerPreparedStatement#executeQuery
         Method executeQuery = jdbcApi.getPreparedStatement().getExecuteQuery();

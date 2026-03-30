@@ -329,7 +329,7 @@ public interface ServiceType {
 
     boolean isRpcClient();
 
-    // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
+    // FIXME record statistics of only rpc call currently. so is it all right to change into isRecordRpc()
     boolean isRecordStatistics();
 
     boolean isUnknown();

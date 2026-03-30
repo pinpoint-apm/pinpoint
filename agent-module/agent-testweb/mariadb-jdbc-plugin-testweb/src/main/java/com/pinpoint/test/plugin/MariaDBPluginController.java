@@ -46,7 +46,7 @@ public class MariaDBPluginController {
     static final String PROCEDURE_NAME = "getPlaygroundByName";
     static final String CALLABLE_STATEMENT_QUERY = "{ CALL " + PROCEDURE_NAME + "(?, ?) }";
     static final String CALLABLE_STATEMENT_INPUT_PARAM = "TWO";
-    static final int CALLABLE_STATMENT_OUTPUT_PARAM_TYPE = Types.INTEGER;
+    static final int CALLABLE_STATEMENT_OUTPUT_PARAM_TYPE = Types.INTEGER;
 
     private final RequestMappingHandlerMapping handlerMapping;
 
@@ -122,7 +122,7 @@ public class MariaDBPluginController {
         try (Connection conn = getConnection();
             CallableStatement cs = conn.prepareCall(CALLABLE_STATEMENT_QUERY)) {
             cs.setString(1, CALLABLE_STATEMENT_INPUT_PARAM);
-            cs.registerOutParameter(2, CALLABLE_STATMENT_OUTPUT_PARAM_TYPE);
+            cs.registerOutParameter(2, CALLABLE_STATEMENT_OUTPUT_PARAM_TYPE);
             try (ResultSet rs = cs.executeQuery() ) {
                 while (rs.next()) {
                     ++resultCount;

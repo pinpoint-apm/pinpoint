@@ -54,7 +54,7 @@ public class ProtobufAccessorNamingStrategy extends DefaultAccessorNamingStrateg
 
     protected static final List<String> INTERNAL_SPECIAL_METHOD_BEGINNINGS = Arrays.asList("remove", "clear", "mutable", "merge", "putAll");
 
-    protected TypeMirror protobufMesageOrBuilderType;
+    protected TypeMirror protobufMessageOrBuilderType;
 
     @Override
     public void init(MapStructProcessingEnvironment processingEnvironment) {
@@ -62,7 +62,7 @@ public class ProtobufAccessorNamingStrategy extends DefaultAccessorNamingStrateg
 
         TypeElement typeElement = elementUtils.getTypeElement(PROTOBUF_MESSAGE_OR_BUILDER);
         if (typeElement != null) {
-            protobufMesageOrBuilderType = typeElement.asType();
+            protobufMessageOrBuilderType = typeElement.asType();
         }
     }
 
@@ -311,7 +311,7 @@ public class ProtobufAccessorNamingStrategy extends DefaultAccessorNamingStrateg
 
     private boolean isMethodFromProtobufGeneratedClass(ExecutableElement method) {
         Element receiver = method.getEnclosingElement();
-        return protobufMesageOrBuilderType != null && receiver != null && typeUtils.isAssignable(receiver.asType(), protobufMesageOrBuilderType);
+        return protobufMessageOrBuilderType != null && receiver != null && typeUtils.isAssignable(receiver.asType(), protobufMessageOrBuilderType);
     }
 
     private boolean isMethodFromProtobufBuilder(ExecutableElement method) {
