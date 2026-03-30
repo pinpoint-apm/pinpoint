@@ -195,21 +195,19 @@ export const LoadChart = ({
         },
       },
       series,
-      graphic: !hasData
-        ? [
-            {
-              type: 'text',
-              left: 'center',
-              top: '30%',
-              style: {
-                text: emptyMessage,
-                fontSize: 14,
-                fill: '#999',
-                textAlign: 'center',
-              },
-            },
-          ]
-        : [],
+      graphic: [
+        {
+          type: 'text',
+          left: 'center',
+          top: '30%',
+          style: {
+            text: hasData ? '' : emptyMessage,
+            fontSize: 14,
+            fill: '#999',
+            textAlign: 'center',
+          },
+        },
+      ],
     });
   }, [chartData, chartColors, timezone, emptyMessage]);
 
