@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -32,8 +33,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.filter.visitor.SpanAcceptor;
-import com.navercorp.pinpoint.web.filter.visitor.SpanEventVisitAdaptor;
-import com.navercorp.pinpoint.web.filter.visitor.SpanEventVisitor;
 import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
 import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
@@ -281,15 +280,15 @@ public class FilteredMapBuilder {
         } else {
             for (SpanBo parentSpanCandidate : parentSpanCandidateList) {
                 SpanAcceptor acceptor = new SpanReader(Collections.singletonList(parentSpanCandidate));
-                boolean accept = acceptor.accept(new SpanEventVisitAdaptor(new SpanEventVisitor() {
+                boolean accept = acceptor.accept(new SpanVisitor() {
                     @Override
-                    public boolean visit(SpanEventBo spanEventBo) {
+                    public boolean visit(BasicSpan basicSpan, SpanEventBo spanEventBo) {
                         if (spanEventBo.getNextSpanId() == currentSpan.getSpanId()) {
                             return SpanVisitor.ACCEPT;
                         }
                         return SpanVisitor.REJECT;
                     }
-                }));
+                });
 
                 if (accept) {
                     return parentSpanCandidate;
@@ -308,13 +307,15 @@ public class FilteredMapBuilder {
         LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
 
         SpanAcceptor acceptor = new SpanReader(Collections.singletonList(span));
-        acceptor.accept(new SpanEventVisitAdaptor(new SpanEventVisitor() {
+        acceptor.accept(new SpanVisitor() {
             @Override
-            public boolean visit(SpanEventBo spanEventBo) {
-                addNode(span, transactionSpanMap, srcApplication, sourceLinkDataMap, spanEventBo);
+            public boolean visit(BasicSpan basicSpan, SpanEventBo spanEventBo) {
+                if (basicSpan instanceof SpanBo spanBo) {
+                    addNode(spanBo, transactionSpanMap, srcApplication, sourceLinkDataMap, spanEventBo);
+                }
                 return SpanVisitor.REJECT;
             }
-        }));
+        });
     }
 
     private void addNode(SpanBo span, MultiValueMap<Long, SpanBo> transactionSpanMap, Application srcApplication, LinkDataMap sourceLinkDataMap, SpanEventBo spanEvent) {

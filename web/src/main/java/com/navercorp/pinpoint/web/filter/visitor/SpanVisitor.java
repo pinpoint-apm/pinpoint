@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.filter.visitor;
 
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -28,13 +29,17 @@ public interface SpanVisitor {
     boolean ACCEPT = true;
     boolean REJECT = false;
 
-    boolean visit(SpanBo spanBo);
+    default boolean visit(SpanBo spanBo) {
+        return REJECT;
+    }
 
-    boolean visit(SpanChunkBo spanChunkBo);
+    default boolean visit(SpanChunkBo spanChunkBo) {
+        return REJECT;
+    }
 
     /**
      * visit synchronous and asynchronous SpanEventBo
      */
-    boolean visit(SpanEventBo spanEventBo);
+    boolean visit(BasicSpan basicSpan, SpanEventBo spanEventBo);
 
 }

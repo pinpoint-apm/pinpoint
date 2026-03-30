@@ -22,7 +22,5 @@ package com.navercorp.pinpoint.web.filter.visitor;
 
 public interface SpanAcceptor {
 
-    boolean accept(SpanEventVisitor spanEventVisitor);
-
     boolean accept(SpanVisitor spanVisitor);
 }

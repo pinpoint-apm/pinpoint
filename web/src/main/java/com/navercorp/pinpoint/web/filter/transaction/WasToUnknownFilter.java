@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.web.filter.transaction;
 
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.URLPatternFilter;
 import com.navercorp.pinpoint.web.filter.visitor.SpanAcceptor;
-import com.navercorp.pinpoint.web.filter.visitor.SpanEventVisitor;
 import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
 import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 
@@ -48,15 +48,15 @@ public class WasToUnknownFilter implements Filter<LinkContext> {
             return false;
         }
         SpanAcceptor acceptor = new SpanReader(fromNode);
-        return acceptor.accept(new SpanEventVisitor() {
+        return acceptor.accept(new SpanVisitor() {
             @Override
-            public boolean visit(SpanEventBo spanEventBo) {
-                return filter(spanEventBo, spanContainer);
+            public boolean visit(BasicSpan basicSpan, SpanEventBo spanEventBo) {
+                return filter(basicSpan, spanEventBo, spanContainer);
             }
         });
     }
 
-    private boolean filter(SpanEventBo spanEventBo, LinkContext linkContext) {
+    private boolean filter(BasicSpan basicSpan, SpanEventBo spanEventBo, LinkContext linkContext) {
 
         // check only whether a client exists or not.
         final ServiceType eventServiceType = linkContext.findServiceType(spanEventBo.getServiceType());
