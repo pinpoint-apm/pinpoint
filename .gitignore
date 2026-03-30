@@ -2,6 +2,14 @@
 deploy/
 target/
 
+# Gradle
+.gradle/
+build/
+
+# Gradle Wrappers
+!gradle/wrapper/gradle-wrapper.jar
+
+
 # Eclipse
 .classpath
 .project
