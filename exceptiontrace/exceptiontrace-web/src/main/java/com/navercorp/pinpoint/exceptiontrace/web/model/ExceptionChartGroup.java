@@ -33,9 +33,9 @@ public class ExceptionChartGroup implements TimeseriesValueGroupView {
     private final String groupName;
     private final List<TimeSeriesValueView> values;
 
-    public ExceptionChartGroup(String groupName, List<TimeSeriesValueView> values) {
+    public ExceptionChartGroup(String groupName, List<? extends TimeSeriesValueView> values) {
         this.groupName = groupName;
-        this.values = values;
+        this.values = List.copyOf(values);
     }
 
     @Override
