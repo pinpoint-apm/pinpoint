@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
+import com.navercorp.pinpoint.web.applicationmap.config.MapProperties;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.FilterForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.GroupForm;
@@ -70,6 +71,8 @@ import java.util.Optional;
 public class FilteredMapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final MapProperties mapProperties;
+
     private final FilteredMapService filteredMapService;
     private final TraceIndexService traceIndexService;
     private final FilterBuilder<List<SpanBo>> filterBuilder;
@@ -78,12 +81,14 @@ public class FilteredMapController {
     private final boolean defaultTraceIndexReadV2;
 
     public FilteredMapController(
+            MapProperties mapProperties,
             FilteredMapService filteredMapService,
             TraceIndexService traceIndexService,
             FilterBuilder<List<SpanBo>> filterBuilder,
             HyperLinkFactory hyperLinkFactory,
             ServiceTypeRegistryService serviceTypeRegistryService,
             @Value("${pinpoint.web.trace.index.read.v2:false}") boolean defaultTraceIndexReadV2) {
+        this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.traceIndexService = Objects.requireNonNull(traceIndexService, "traceIndexService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
@@ -141,8 +146,8 @@ public class FilteredMapController {
         TimeWindow timeWindow = new TimeWindow(scannerRange);
         TimeHistogramView timeHistogramView = TimeHistogramView.TimeseriesHistogram;
 
-        NodeRender nodeRender = NodeRender.detailedRender(timeHistogramView, hyperLinkFactory);
-        LinkRender linkRender = LinkRender.detailedRender(timeHistogramView);
+        NodeRender nodeRender = NodeRender.detailedRender(timeHistogramView, hyperLinkFactory, mapProperties);
+        LinkRender linkRender = LinkRender.detailedRender(timeHistogramView, mapProperties);
 
         ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow, nodeRender, linkRender);
         ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());

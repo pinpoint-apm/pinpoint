@@ -39,13 +39,16 @@ public class LinkView {
 
     private final ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView;
     private final AgentLinkView agentLinkView;
+    private final boolean enableServiceMap;
 
     public LinkView(Link link,
                     ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView,
-                    AgentLinkView agentLinkView) {
+                    AgentLinkView agentLinkView,
+                    boolean enableServiceMap) {
         this.link = Objects.requireNonNull(link, "link");
         this.applicationTimeSeriesHistogramLinkView = Objects.requireNonNull(applicationTimeSeriesHistogramLinkView, "applicationTimeSeriesHistogramLinkView");
         this.agentLinkView = Objects.requireNonNull(agentLinkView, "agentLinkView");
+        this.enableServiceMap = enableServiceMap;
     }
 
     public Link getLink() {
@@ -77,17 +80,19 @@ public class LinkView {
             Link link = linkView.getLink();
             jgen.writeStartObject();
 
-//            jgen.writeObjectField("key", link.getServiceLinkName().toString());  // for servermap
-            jgen.writeObjectField("key", link.getLinkName());  // for servermap
+            if (linkView.enableServiceMap) {
+                jgen.writeObjectField("key", link.getServiceLinkName().toString());  // for servermap
+                jgen.writeObjectField("from", link.getFrom().getServiceNodeName().toString());  // necessary for servermap
+                jgen.writeObjectField("to", link.getTo().getServiceNodeName().toString()); // necessary for servermap
+            } else {
+                jgen.writeObjectField("key", link.getLinkName());  // for servermap
+                jgen.writeObjectField("from", link.getFrom().getNodeName());  // necessary for servermap
+                jgen.writeObjectField("to", link.getTo().getNodeName()); // necessary for servermap
+            }
 
             jgen.writeStringField("linkKey", link.getLinkNameKey());
             jgen.writeObjectField("serviceKey", link.getServiceLinkName().toString());
 
-            jgen.writeObjectField("from", link.getFrom().getNodeName());  // necessary for servermap
-            jgen.writeObjectField("to", link.getTo().getNodeName()); // necessary for servermap
-
-//            jgen.writeObjectField("from", link.getFrom().getServiceNodeName().toString());  // necessary for servermap
-//            jgen.writeObjectField("to", link.getTo().getServiceNodeName().toString()); // necessary for servermap
 
             // for FilterWizard, to agent mapping data
             writeAgents("fromAgents", link.getFrom(), jgen);

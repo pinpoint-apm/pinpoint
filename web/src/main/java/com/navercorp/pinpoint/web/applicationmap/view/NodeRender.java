@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
+import com.navercorp.pinpoint.web.applicationmap.config.MapProperties;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 
@@ -24,29 +25,33 @@ import java.util.Objects;
 public interface NodeRender {
     NodeView render(Node node);
 
-    static NodeRender detailedRender(TimeHistogramView timeHistogramView, HyperLinkFactory hyperLinkFactory) {
+    static NodeRender detailedRender(TimeHistogramView timeHistogramView, HyperLinkFactory hyperLinkFactory, MapProperties mapProperties) {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.detailedView(timeHistogramView),
                 ApplicationApdexScoreSlotView.detailedView(),
                 ServerListNodeView.detailedView(hyperLinkFactory),
                 AgentHistogramNodeView.detailedView(),
-                AgentTimeSeriesHistogramNodeView.detailedView(timeHistogramView));
+                AgentTimeSeriesHistogramNodeView.detailedView(timeHistogramView),
+                mapProperties.isEnableServiceMap());
     }
 
-    static NodeRender forServerMap() {
+    static NodeRender forServerMap(MapProperties mapProperties) {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.detailedView(TimeHistogramView.TimeseriesHistogram),
                 ApplicationApdexScoreSlotView.detailedView(),
                 ServerListNodeView.emptyView(),
                 AgentHistogramNodeView.emptyView(),
-                AgentTimeSeriesHistogramNodeView.emptyView());
+                AgentTimeSeriesHistogramNodeView.emptyView(),
+                mapProperties.isEnableServiceMap());
     }
 
 
     record DefaultNodeRender(ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView,
                              ApplicationApdexScoreSlotView applicationApdexScoreSlotView,
-                             ServerListNodeView serverListNodeView, AgentHistogramNodeView agentHistogramNodeView,
-                             AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView) implements NodeRender {
+                             ServerListNodeView serverListNodeView,
+                             AgentHistogramNodeView agentHistogramNodeView,
+                             AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView,
+                             boolean enableServiceMap) implements NodeRender {
 
         public DefaultNodeRender {
             Objects.requireNonNull(applicationTimeSeriesHistogramNodeView, "applicationTimeSeriesHistogramNodeView");
@@ -64,7 +69,8 @@ public interface NodeRender {
                     applicationApdexScoreSlotView,
                     serverListNodeView,
                     agentHistogramNodeView,
-                    agentTimeSeriesHistogramNodeView);
+                    agentTimeSeriesHistogramNodeView,
+                    enableServiceMap);
         }
 
     }

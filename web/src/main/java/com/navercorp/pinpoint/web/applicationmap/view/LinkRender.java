@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
+import com.navercorp.pinpoint.web.applicationmap.config.MapProperties;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 
 import java.util.Objects;
@@ -24,20 +25,25 @@ public interface LinkRender {
     LinkView render(Link link);
 
 
-    static LinkRender forServerMap() {
+    static LinkRender forServerMap(MapProperties mapProperties) {
         return new DefaultLinkRender(
                 ApplicationTimeSeriesHistogramLinkView.detailedView(TimeHistogramView.TimeseriesHistogram),
-                AgentLinkView.emptyView());
+                AgentLinkView.emptyView(),
+                mapProperties.isEnableServiceMap());
     }
 
-    static LinkRender detailedRender(TimeHistogramView timeHistogramView) {
+    static LinkRender detailedRender(TimeHistogramView timeHistogramView,
+                                     MapProperties mapProperties) {
         return new DefaultLinkRender(
                 ApplicationTimeSeriesHistogramLinkView.detailedView(timeHistogramView),
-                AgentLinkView.detailedView(timeHistogramView));
+                AgentLinkView.detailedView(timeHistogramView),
+                mapProperties.isEnableServiceMap()
+        );
     }
 
     record DefaultLinkRender(ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView,
-                                    AgentLinkView agentLinkView) implements LinkRender {
+                             AgentLinkView agentLinkView,
+                             boolean enableServiceMap) implements LinkRender {
 
         public DefaultLinkRender {
             Objects.requireNonNull(applicationTimeSeriesHistogramLinkView, "applicationTimeSeriesHistogramLinkView");
@@ -46,7 +52,7 @@ public interface LinkRender {
 
         @Override
         public LinkView render(Link link) {
-            return new LinkView(link, applicationTimeSeriesHistogramLinkView, agentLinkView);
+            return new LinkView(link, applicationTimeSeriesHistogramLinkView, agentLinkView, enableServiceMap);
         }
     }
 }

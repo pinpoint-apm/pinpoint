@@ -43,11 +43,12 @@ import java.util.List;
 public class MapControllerConfiguration {
 
     @Bean
-    public MapController mapController(MapService mapService,
+    public MapController mapController(MapProperties mapProperties,
+                                       MapService mapService,
                                        ApplicationValidator applicationValidator,
                                        ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapController(mapService, applicationValidator, maxPeriod);
+        return new MapController(mapProperties, mapService, applicationValidator, maxPeriod);
     }
 
     @Bean
@@ -74,12 +75,13 @@ public class MapControllerConfiguration {
     }
 
     @Bean
-    public FilteredMapController filteredMapController(FilteredMapService filteredMapService,
+    public FilteredMapController filteredMapController(MapProperties mapProperties,
+                                                       FilteredMapService filteredMapService,
                                                        TraceIndexService traceIndexService,
                                                        FilterBuilder<List<SpanBo>> filterBuilder,
                                                        HyperLinkFactory hyperLinkFactory,
                                                        ServiceTypeRegistryService serviceTypeRegistryService,
                                                        @Value("${pinpoint.web.trace.index.read.v2:false}") boolean defaultReadTraceIndexV2) {
-        return new FilteredMapController(filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService, defaultReadTraceIndexV2);
+        return new FilteredMapController(mapProperties, filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService, defaultReadTraceIndexV2);
     }
 }

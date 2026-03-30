@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
+import com.navercorp.pinpoint.web.applicationmap.config.MapProperties;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionForm;
@@ -60,6 +61,7 @@ import java.util.Objects;
 public class MapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final MapProperties mapProperties;
     private final MapService mapService;
     private final RangeValidator rangeValidator;
     private final ApplicationValidator applicationValidator;
@@ -67,9 +69,11 @@ public class MapController {
     private static final int DEFAULT_MAX_SEARCH_DEPTH = 4;
 
     public MapController(
+            MapProperties mapProperties,
             MapService mapService,
             ApplicationValidator applicationValidator,
             Duration limitDay) {
+        this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.mapService = Objects.requireNonNull(mapService, "mapService");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationValidator");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
@@ -112,8 +116,8 @@ public class MapController {
         logger.info("Select applicationMap {}. option={}", TimeHistogramFormat.V3, option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        NodeRender nodeRender = NodeRender.forServerMap();
-        LinkRender linkRender = LinkRender.forServerMap();
+        NodeRender nodeRender = NodeRender.forServerMap(mapProperties);
+        LinkRender linkRender = LinkRender.forServerMap(mapProperties);
         ApplicationMapView applicationMapView = new ApplicationMapViewV3(map, timeWindow, nodeRender, linkRender);
 
         return new MapWrap(applicationMapView);
