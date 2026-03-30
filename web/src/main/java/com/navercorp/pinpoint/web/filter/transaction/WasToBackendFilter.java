@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.web.filter.transaction;
 
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.visitor.SpanAcceptor;
-import com.navercorp.pinpoint.web.filter.visitor.SpanEventVisitor;
 import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
 import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 
@@ -41,15 +41,15 @@ public class WasToBackendFilter implements Filter<LinkContext> {
     public boolean include(LinkContext linkContext) {
         final List<SpanBo> fromNode = linkContext.findFromNode();
         SpanAcceptor acceptor = new SpanReader(fromNode);
-        return acceptor.accept(new SpanEventVisitor() {
+        return acceptor.accept(new SpanVisitor() {
             @Override
-            public boolean visit(SpanEventBo spanEventBo) {
-                return filter(spanEventBo, linkContext);
+            public boolean visit(BasicSpan basicSpan, SpanEventBo spanEventBo) {
+                return filter(basicSpan, spanEventBo, linkContext);
             }
         });
     }
 
-    private boolean filter(SpanEventBo event, LinkContext linkContext) {
+    private boolean filter(BasicSpan basicSpan, SpanEventBo event, LinkContext linkContext) {
         final ServiceType eventServiceType = linkContext.findServiceType(event.getServiceType());
         if (linkContext.isToApplicationName(event.getDestinationId(), eventServiceType)) {
             if (spanEventResponseConditionFilter.include(event)) {

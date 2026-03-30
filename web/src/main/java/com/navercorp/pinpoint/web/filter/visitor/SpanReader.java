@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.filter.visitor;
 
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -35,12 +36,6 @@ public class SpanReader implements SpanAcceptor {
         this.spanBoList = Objects.requireNonNull(spanBoList, "spanBoList");
     }
 
-    public boolean accept(SpanEventVisitor spanEventVisitor) {
-        Objects.requireNonNull(spanEventVisitor, "spanEventVisitor");
-
-        SpanVisitor spanEventAdaptor = new SpanEventVisitAdaptor(spanEventVisitor);
-        return accept(spanEventAdaptor);
-    }
 
     public boolean accept(SpanVisitor spanVisitor) {
         Objects.requireNonNull(spanVisitor, "spanVisitor");
@@ -54,7 +49,7 @@ public class SpanReader implements SpanAcceptor {
                 return SpanVisitor.ACCEPT;
             }
             final List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
-            if (visitSpanEventList(spanVisitor, spanEventBoList)) {
+            if (visitSpanEventList(spanVisitor, spanBo, spanEventBoList)) {
                 return SpanVisitor.ACCEPT;
             }
 
@@ -66,7 +61,7 @@ public class SpanReader implements SpanAcceptor {
                     }
 
                     List<SpanEventBo> spanChunkEventBoList = spanChunkBo.getSpanEventBoList();
-                    if (visitSpanEventList(spanVisitor, spanChunkEventBoList)) {
+                    if (visitSpanEventList(spanVisitor, spanChunkBo, spanChunkEventBoList)) {
                         return SpanVisitor.ACCEPT;
                     }
                 }
@@ -75,12 +70,12 @@ public class SpanReader implements SpanAcceptor {
         return SpanVisitor.REJECT;
     }
 
-    private boolean visitSpanEventList(SpanVisitor spanVisitor, List<SpanEventBo> spanEventBoList) {
+    private boolean visitSpanEventList(SpanVisitor spanVisitor, BasicSpan basicSpan, List<SpanEventBo> spanEventBoList) {
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return SpanVisitor.REJECT;
         }
         for (SpanEventBo spanEventBo : spanEventBoList) {
-            if (spanVisitor.visit(spanEventBo)) {
+            if (spanVisitor.visit(basicSpan, spanEventBo)) {
                 return SpanVisitor.ACCEPT;
             }
         }

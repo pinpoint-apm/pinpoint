@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.web.filter.visitor;
 
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface SpanEventVisitor {
-    boolean visit(SpanEventBo spanEventBo);
+    boolean visit(BasicSpan basicSpan, SpanEventBo spanEventBo);
 }
