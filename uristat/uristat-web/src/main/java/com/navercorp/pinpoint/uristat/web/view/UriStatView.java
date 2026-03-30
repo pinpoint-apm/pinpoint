@@ -36,7 +36,7 @@ public class UriStatView implements TimeSeriesView {
         Objects.requireNonNull(uriStats, "uriStats");
         Objects.requireNonNull(chartType, "chartType");
 
-        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
+        this.timeWindow = timeWindow;
         if (uriStats.isEmpty()) {
             this.uriStats = UriStatGroup.EMPTY_URI_STAT_GROUP;
         } else {
