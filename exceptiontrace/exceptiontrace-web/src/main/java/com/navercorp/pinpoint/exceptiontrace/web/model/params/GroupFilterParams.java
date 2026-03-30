@@ -65,7 +65,7 @@ public class GroupFilterParams implements Params {
 
     @Override
     public String toString() {
-        return "RawGroupedFieldName{" +
+        return "GroupFilterParams{" +
                 "uriTemplate='" + uriTemplate + '\'' +
                 ", errorClassName='" + errorClassName + '\'' +
                 ", errorMessage_logtype='" + errorMessage_logtype + '\'' +

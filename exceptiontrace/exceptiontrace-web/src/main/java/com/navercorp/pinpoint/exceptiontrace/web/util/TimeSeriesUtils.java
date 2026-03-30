@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionChartGroup;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
-import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 
 import java.util.List;
@@ -34,8 +33,7 @@ public class TimeSeriesUtils {
             String groupName,
             List<ExceptionChartValueView> exceptionChartValueViews
     ) {
-        List<TimeSeriesValueView> list = (List<TimeSeriesValueView>) (List<? extends TimeSeriesValueView>) exceptionChartValueViews;
-        return new ExceptionChartGroup(groupName, list);
+        return new ExceptionChartGroup(groupName, exceptionChartValueViews);
     }
 
     public static ExceptionChartView newChartView(
