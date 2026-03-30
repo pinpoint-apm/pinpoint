@@ -29,7 +29,7 @@ class DefaultServiceType implements ServiceType {
     private final boolean queue;
     private final boolean alias;
 
-    // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
+    // FIXME record statistics of only rpc call currently. so is it all right to change into isRecordRpc()
     private final boolean recordStatistics;
 
     // whether or not print out api including destinationId
@@ -110,7 +110,7 @@ class DefaultServiceType implements ServiceType {
         return ServiceTypeCategory.RPC.contains(code);
     }
 
-    // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
+    // FIXME record statistics of only rpc call currently. so is it all right to change into isRecordRpc()
     @Override
     public boolean isRecordStatistics() {
         return recordStatistics;
