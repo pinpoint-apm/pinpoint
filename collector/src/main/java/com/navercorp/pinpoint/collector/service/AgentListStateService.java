@@ -17,7 +17,11 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentIdDao;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +29,9 @@ import java.util.Objects;
 
 @Service
 public class AgentListStateService {
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ThrottledLogger tLogger = ThrottledLogger.getLogger(logger, 100000);
 
     private final AgentIdDao agentIdDao;
     private final boolean v2enabled;
@@ -37,9 +44,14 @@ public class AgentListStateService {
 
     public void update(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime,
                        AgentLifeCycleState agentLifeCycleState, long eventTimestamp) {
-        if (v2enabled) {
-            agentIdDao.updateState(serviceUid, applicationName, serviceTypeCode, agentId, agentStartTime, eventTimestamp, agentLifeCycleState);
+        if (!v2enabled) {
+            return;
         }
+        if (serviceTypeCode == ServiceType.UNDEFINED.getCode()) {
+            tLogger.info("Skip updateState. undefined serviceType. serviceUid={}, applicationName={}, agentId={}, agentStartTime={}, eventTimestamp={}", serviceUid, applicationName, agentId, agentStartTime, eventTimestamp);
+            return;
+        }
+        agentIdDao.updateState(serviceUid, applicationName, serviceTypeCode, agentId, agentStartTime, eventTimestamp, agentLifeCycleState);
     }
 
 }

@@ -27,6 +27,7 @@ public class ServerContext {
     public static final Context.Key<Header> AGENT_INFO_KEY = Context.key("agentinfo");
 
     private static final Context.Key<TransportMetadata> TRANSPORT_METADATA_KEY = Context.key("transportmetadata");
+    private static final Context.Key<TransportMutableContext> TRANSPORT_SERVICE_CONTEXT_KEY = Context.key("transportServiceContext");
 
     public static Context.Key<Header> getAgentInfoKey() {
         return AGENT_INFO_KEY;
@@ -34,6 +35,10 @@ public class ServerContext {
 
     public static Context.Key<TransportMetadata> getTransportMetadataKey() {
         return TRANSPORT_METADATA_KEY;
+    }
+
+    public static Context.Key<TransportMutableContext> getTransportMutableContextKey() {
+        return TRANSPORT_SERVICE_CONTEXT_KEY;
     }
 
     public static Header getAgentInfo() {
@@ -52,5 +57,14 @@ public class ServerContext {
 
     public static TransportMetadata getTransportMetadata(Context context) {
         return TRANSPORT_METADATA_KEY.get(context);
+    }
+
+    public static TransportMutableContext getTransportMutableContext() {
+        final Context current = Context.current();
+        return getTransportMutableContext(current);
+    }
+
+    public static TransportMutableContext getTransportMutableContext(Context context) {
+        return TRANSPORT_SERVICE_CONTEXT_KEY.get(context);
     }
 }

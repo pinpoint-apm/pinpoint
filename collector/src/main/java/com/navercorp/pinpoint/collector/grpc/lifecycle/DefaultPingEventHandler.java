@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.server.TransportMutableContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,11 +43,11 @@ public class DefaultPingEventHandler implements PingEventHandler {
     }
 
     @Override
-    public PingSession newPingSession(Long id, Header header) {
+    public PingSession newPingSession(Long id, Header header, TransportMutableContext transportServiceContext) {
         Objects.requireNonNull(header, "header");
         Objects.requireNonNull(id, "transport");
 
-        PingSession pingSession = new PingSession(id, nextSessionId(), header);
+        PingSession pingSession = new PingSession(id, nextSessionId(), header, transportServiceContext);
         pingSessionRegistry.add(pingSession);
 
         return pingSession;
@@ -118,4 +119,5 @@ public class DefaultPingEventHandler implements PingEventHandler {
         }
         update(pingSession);
     }
+
 }

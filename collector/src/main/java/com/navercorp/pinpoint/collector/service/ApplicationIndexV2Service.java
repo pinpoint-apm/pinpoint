@@ -5,6 +5,8 @@ import com.navercorp.pinpoint.collector.dao.ApplicationDao;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,15 +22,18 @@ public class ApplicationIndexV2Service {
 
     private final ApplicationDao applicationDao;
     private final AgentIdDao agentIdDao;
+    private final CachedApplicationServiceTypeService cachedApplicationServiceTypeService;
     private final boolean v2enabled;
     private final Set<Integer> missingHeaderServiceTypeCodes;
 
     public ApplicationIndexV2Service(ApplicationDao applicationDao,
                                      AgentIdDao agentIdDao,
+                                     CachedApplicationServiceTypeService cachedApplicationServiceTypeService,
                                      AgentProperties agentProperties,
                                      @Value("${pinpoint.collector.application.index.v2.enabled:false}") boolean v2enabled) {
         this.applicationDao = Objects.requireNonNull(applicationDao, "ApplicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
+        this.cachedApplicationServiceTypeService = Objects.requireNonNull(cachedApplicationServiceTypeService, "applicationServiceTypeService");
         this.v2enabled = v2enabled;
         this.missingHeaderServiceTypeCodes = agentProperties.getMissingHeaderServiceTypeCodes();
     }
@@ -40,20 +45,29 @@ public class ApplicationIndexV2Service {
         }
         try {
             ServiceUid serviceUid = serviceUidSupplier.get();
-            applicationDao.insert(serviceUid.getUid(), agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
-            agentIdDao.insert(serviceUid.getUid(), headerServiceTypeCode, agentInfoBo);
-
-            if (headerServiceTypeCode != agentInfoBo.getServiceTypeCode()) {
-                if (headerServiceTypeCode == -1 && missingHeaderServiceTypeCodes.contains(agentInfoBo.getServiceTypeCode())) {
-                    logger.debug("Known missing header serviceType. agentServiceType={}, agentId={}", agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
-                } else if (headerServiceTypeCode == -1) {
-                    logger.warn("Unhandled missing header serviceType. agentServiceType={}, agentId={}", agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
-                } else {
-                    logger.warn("Header serviceType mismatch. headerServiceType={}, agentServiceType={}, agentId={}", headerServiceTypeCode, agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
-                }
+            if (headerServiceTypeCode == ServiceType.UNDEFINED.getCode()) {
+                handleMissingHeaderServiceType(serviceUid, agentInfoBo);
             }
+
+            agentIdDao.insert(serviceUid.getUid(), agentInfoBo);
+            applicationDao.insert(serviceUid.getUid(), agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
         } catch (Exception e) {
             logger.warn("Failed to insert agent. applicationName: {}, agentId: {}", agentInfoBo.getApplicationName(), agentInfoBo.getAgentId(), e);
         }
+    }
+
+    private void handleMissingHeaderServiceType(ServiceUid serviceUid, AgentInfoBo agentInfoBo) {
+        if (serviceUid.equals(ServiceUid.DEFAULT)) {
+            // Cache serviceType for ping session resolution
+            cachedApplicationServiceTypeService.put(agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
+            if (!missingHeaderServiceTypeCodes.contains(agentInfoBo.getServiceTypeCode())) {
+                logger.warn("Unhandled missing header serviceType. agentServiceType={}, agentId={}", agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
+            }
+        } else {
+            logger.warn("Missing serviceType header for non-default service. serviceUid={}, agentServiceType={}, agentId={}", serviceUid, agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
+        }
+        // Handle missing serviceType: initial pings cannot resolve serviceType,
+        // so update agent state here when agentInfo arrives with the actual serviceType
+        //agentIdDao.updateState(serviceUid.getUid(), agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId(), agentInfoBo.getStartTime(), agentInfoBo.getStartTime(), AgentLifeCycleState.RUNNING);
     }
 }

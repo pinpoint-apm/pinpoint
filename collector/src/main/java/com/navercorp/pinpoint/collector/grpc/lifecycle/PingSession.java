@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.server.TransportMutableContext;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -37,14 +39,16 @@ public class PingSession {
     private final long sessionId;
 
     private final Header header;
+    private final TransportMutableContext transportMutableContext;
 
     private boolean updated = false;
     private long lastPingTimeMillis;
 
-    public PingSession(Long transportId, long sessionId, Header header) {
+    public PingSession(Long transportId, long sessionId, Header header, TransportMutableContext transportMutableContext) {
         this.transportId = Objects.requireNonNull(transportId, "transportId");
         this.sessionId = sessionId;
         this.header = Objects.requireNonNull(header, "header");
+        this.transportMutableContext = transportMutableContext;
     }
 
     public boolean firstPing() {
@@ -65,6 +69,26 @@ public class PingSession {
 
     public Header getHeader() {
         return header;
+    }
+
+    public int getServiceType() {
+        int headerServiceType = header.getServiceType();
+        if (headerServiceType != ServiceType.UNDEFINED.getCode()) {
+            return headerServiceType;
+        }
+        if (transportMutableContext != null) {
+            int contextServiceType = transportMutableContext.getServiceType();
+            if (contextServiceType != ServiceType.UNDEFINED.getCode()) {
+                return contextServiceType;
+            }
+        }
+        return headerServiceType;
+    }
+
+    public void setServiceType(int serviceType) {
+        if (transportMutableContext != null) {
+            transportMutableContext.setServiceType(serviceType);
+        }
     }
 
     // Flag to avoid duplication.
@@ -90,6 +114,7 @@ public class PingSession {
                 "transportId=" + transportId +
                 ", sessionId=" + sessionId +
                 ", header='" + header + '\'' +
+                ", transportMutableContext=" + transportMutableContext +
                 ", eventIdAllocator=" + eventIdAllocator +
                 ", updated=" + updated +
                 ", lastPingTimeMillis=" + lastPingTimeMillis +
