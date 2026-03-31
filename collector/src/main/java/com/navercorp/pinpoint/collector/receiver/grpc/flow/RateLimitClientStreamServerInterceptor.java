@@ -26,6 +26,7 @@ import io.github.bucket4j.local.LocalBucketBuilder;
 import io.grpc.Context;
 import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
@@ -65,10 +66,17 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+        final MethodDescriptor<ReqT, RespT> methodDescriptor = call.getMethodDescriptor();
+
+        final MethodDescriptor.MethodType methodType = methodDescriptor.getType();
+        if (!isClientStream(methodType)) {
+            return next.startCall(call, headers);
+        }
+
         final ServerCallWrapper serverCall = newServerCallWrapper(call, headers);
         if (logger.isInfoEnabled()) {
             logger.info("Initialize {} interceptor. {}, headers={}, remoteAddr={} Bandwidth(capacity={}, refillTokens={})",
-                    this.name, call.getMethodDescriptor().getFullMethodName(), headers, serverCall.getRemoteAddr(), bandwidth.getCapacity(), bandwidth.getRefillTokens());
+                    this.name, methodDescriptor.getFullMethodName(), headers, serverCall.getRemoteAddr(), bandwidth.getCapacity(), bandwidth.getRefillTokens());
         }
         final ServerCall.Listener<ReqT> listener = next.startCall(call, headers);
 
@@ -99,6 +107,10 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
                 }
             }
         };
+    }
+
+    private boolean isClientStream(MethodDescriptor.MethodType methodType) {
+        return methodType == MethodDescriptor.MethodType.CLIENT_STREAMING;
     }
 
     private <ReqT, RespT> ServerCallWrapper newServerCallWrapper(ServerCall<ReqT, RespT> call, Metadata headers) {
