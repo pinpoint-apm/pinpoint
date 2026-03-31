@@ -5,7 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
-import com.navercorp.pinpoint.common.server.uid.cache.NullValueExpiry;
+import com.navercorp.pinpoint.common.server.cache.NullValueExpiry;
 import com.navercorp.pinpoint.service.dao.ServiceDao;
 import com.navercorp.pinpoint.service.vo.ServiceEntry;
 import org.apache.logging.log4j.LogManager;
@@ -62,7 +62,7 @@ public class ServiceUidMysqlCacheConfig {
             builder.recordStats();
         }
 
-        builder.expireAfter(new NullValueExpiry(properties.getExpireAfterWrite(), properties.getExpireAfterAccess(),
+        builder.expireAfter(new NullValueExpiry<>(properties.getExpireAfterWrite(), properties.getExpireAfterAccess(),
                 nullValueExpireAfterWrite));
         return builder;
     }

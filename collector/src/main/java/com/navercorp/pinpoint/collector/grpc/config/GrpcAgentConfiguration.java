@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSu
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
+import com.navercorp.pinpoint.collector.service.CachedApplicationServiceTypeService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
@@ -175,8 +176,9 @@ public class GrpcAgentConfiguration {
     @Bean
     public KeepAliveService keepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                                              AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
-                                             PingSessionRegistry pingSessionRegistry) {
-        return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry);
+                                             PingSessionRegistry pingSessionRegistry,
+                                             CachedApplicationServiceTypeService applicationServiceTypeService) {
+        return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry, applicationServiceTypeService);
     }
 
     @Bean

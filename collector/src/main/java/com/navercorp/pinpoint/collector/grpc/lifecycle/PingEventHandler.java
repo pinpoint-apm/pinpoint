@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.server.TransportMutableContext;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -24,7 +25,7 @@ import com.navercorp.pinpoint.grpc.Header;
  */
 public interface PingEventHandler {
 
-    PingSession newPingSession(Long id, Header header);
+    PingSession newPingSession(Long id, Header header, TransportMutableContext transportServiceContext);
 
     void ping(PingSession pingSession);
 

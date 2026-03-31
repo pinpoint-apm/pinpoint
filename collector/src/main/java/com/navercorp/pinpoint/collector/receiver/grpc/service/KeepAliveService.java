@@ -18,12 +18,15 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSession;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSessionRegistry;
+import com.navercorp.pinpoint.collector.service.CachedApplicationServiceTypeService;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.service.async.DefaultAgentProperty;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,13 +42,16 @@ public class KeepAliveService {
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
     private final PingSessionRegistry pingSessionRegistry;
+    private final CachedApplicationServiceTypeService applicationServiceTypeService;
 
     public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                             AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
-                            PingSessionRegistry pingSessionRegistry) {
+                            PingSessionRegistry pingSessionRegistry,
+                            CachedApplicationServiceTypeService applicationServiceTypeService) {
         this.agentEventAsyncTask = Objects.requireNonNull(agentEventAsyncTask, "agentEventAsyncTask");
         this.agentLifeCycleAsyncTask = Objects.requireNonNull(agentLifeCycleAsyncTask, "agentLifeCycleAsyncTask");
         this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
+        this.applicationServiceTypeService = Objects.requireNonNull(applicationServiceTypeService, "applicationServiceTypeService");
     }
 
     public void updateState() {
@@ -58,12 +64,31 @@ public class KeepAliveService {
         }
     }
 
-    private AgentProperty newChannelProperties(Header header) {
+    private AgentProperty newChannelProperties(PingSession pingSession) {
+        final Header header = pingSession.getHeader();
         final String applicationName = header.getApplicationName();
         final String agentId = header.getAgentId();
         final long agentStartTime = header.getAgentStartTime();
-        int serviceType = header.getServiceType();
+        int serviceType = resolveServiceType(pingSession);
         return new DefaultAgentProperty(applicationName, serviceType, agentId, agentStartTime, header.getProperties());
+    }
+
+    private int resolveServiceType(PingSession pingSession) {
+        int serviceType = pingSession.getServiceType();
+        if (serviceType != ServiceType.UNDEFINED.getCode()) {
+            return serviceType;
+        }
+        final Header header = pingSession.getHeader();
+        if (!ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(header.getServiceName())) {
+            return serviceType;
+        }
+        int resolved = applicationServiceTypeService.getServiceTypeCode(header.getApplicationName());
+        if (resolved != ServiceType.UNDEFINED.getCode()) {
+            pingSession.setServiceType(resolved);
+            return resolved;
+        }
+        // Final check: agentInfo may have updated transport context during lookup
+        return pingSession.getServiceType();
     }
 
     public void updateState(PingSession lifecycle, ManagedAgentLifeCycle managedAgentLifeCycle) {
@@ -86,8 +111,8 @@ public class KeepAliveService {
         }
 
         try {
-            final AgentProperty agentProperty = newChannelProperties(pingSession.getHeader());
-            long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier((int)socketId, (int) pingSession.nextEventIdAllocator());
+            final AgentProperty agentProperty = newChannelProperties(pingSession);
+            long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier((int) socketId, (int) pingSession.nextEventIdAllocator());
             this.agentLifeCycleAsyncTask.handleLifeCycleEvent(agentProperty, pingTimestamp, agentLifeCycleState, eventIdentifier);
             this.agentEventAsyncTask.handleEvent(agentProperty, pingTimestamp, agentEventType);
         } catch (Exception e) {
@@ -95,13 +120,13 @@ public class KeepAliveService {
         }
     }
 
-    public void updateState(Header header) {
+    public void updateState(PingSession pingSession) {
         try {
             final long pingTimestamp = System.currentTimeMillis();
-            final AgentProperty agentProperty = newChannelProperties(header);
+            final AgentProperty agentProperty = newChannelProperties(pingSession);
             this.agentLifeCycleAsyncTask.handlePingEvent(agentProperty, pingTimestamp);
         } catch (Exception e) {
-            logger.warn("Failed to update state. ping session={}", header, e);
+            logger.warn("Failed to update state. pingSession={}", pingSession, e);
         }
     }
 

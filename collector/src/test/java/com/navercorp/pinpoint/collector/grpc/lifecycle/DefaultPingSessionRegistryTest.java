@@ -10,6 +10,10 @@ import static org.mockito.Mockito.mock;
 
 class DefaultPingSessionRegistryTest {
 
+    private PingSession newPingSession(Long transportId, long sessionId) {
+        return new PingSession(transportId, sessionId, mock(Header.class), null);
+    }
+
     @Test
     void getEmpty() {
         Long transportId = 1L;
@@ -22,9 +26,9 @@ class DefaultPingSessionRegistryTest {
     void limit() {
         Long transportId = 1L;
 
-        PingSession pingSession0 = new PingSession(transportId, 0, mock(Header.class));
-        PingSession pingSession1 = new PingSession(transportId, 1, mock(Header.class));
-        PingSession pingSession2 = new PingSession(transportId, 2, mock(Header.class));
+        PingSession pingSession0 = newPingSession(transportId, 0);
+        PingSession pingSession1 = newPingSession(transportId, 1);
+        PingSession pingSession2 = newPingSession(transportId, 2);
 
         PingSessionRegistry registry = new DefaultPingSessionRegistry(2);
         registry.add(pingSession0);
@@ -45,8 +49,7 @@ class DefaultPingSessionRegistryTest {
     void add() {
         PingSessionRegistry registry = new DefaultPingSessionRegistry();
 
-        Header header = mock(Header.class);
-        PingSession pingSession = new PingSession(1L, 0, header);
+        PingSession pingSession = newPingSession(1L, 0);
 
         Long transportId = 1L;
 
@@ -66,11 +69,10 @@ class DefaultPingSessionRegistryTest {
         PingSessionRegistry registry = new DefaultPingSessionRegistry();
 
         Long transportId = 1L;
-        Header header = mock(Header.class);
-        PingSession pingSession0 = new PingSession(transportId, 0, header);
-        PingSession pingSession1 = new PingSession(transportId, 1, header);
+        PingSession pingSession0 = newPingSession(transportId, 0);
+        PingSession pingSession1 = newPingSession(transportId, 1);
 
-        PingSession pingSession2 = new PingSession(++transportId, 1, header);
+        PingSession pingSession2 = newPingSession(++transportId, 1);
 
         registry.add(pingSession0);
         registry.add(pingSession1);

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
+import com.navercorp.pinpoint.grpc.server.TransportMutableContext;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PPing;
@@ -81,7 +82,9 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             public void run() {
                 jobRunner.execute(messageType, agentInfo, responseObserver, handler::handleRequest);
 
-                // Update service type of PingSession
+                // Update service type in transport context
+                TransportMutableContext transportMutableContext = ServerContext.getTransportMutableContext();
+                transportMutableContext.setServiceType(agentInfo.getServiceType());
                 TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
                 pingEventHandler.update(transportMetadata.getTransportId());
             }
@@ -103,7 +106,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         Context context = Context.current();
         Header header = ServerContext.getAgentInfo(context);
         TransportMetadata transport = ServerContext.getTransportMetadata(context);
-        PingSession pingSession = this.pingEventHandler.newPingSession(transport.getTransportId(), header);
+        TransportMutableContext transportServiceContext = ServerContext.getTransportMutableContext(context);
+        PingSession pingSession = this.pingEventHandler.newPingSession(transport.getTransportId(), header, transportServiceContext);
 
         final ServerCallStreamObserver<PPing> responseObserver = (ServerCallStreamObserver<PPing>) response;
         return new StreamObserver<>() {

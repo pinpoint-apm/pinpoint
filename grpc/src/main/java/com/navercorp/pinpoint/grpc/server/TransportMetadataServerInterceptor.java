@@ -50,8 +50,12 @@ public class TransportMetadataServerInterceptor implements ServerInterceptor {
             };
         }
 
+        final TransportMutableContext transportServiceContext = attributes.get(MetadataServerTransportFilter.TRANSPORT_MUTABLE_CONTEXT_KEY);
+
         final Context currentContext = Context.current();
-        final Context newContext = currentContext.withValue(ServerContext.getTransportMetadataKey(), transportMetadata);
+        final Context newContext = currentContext
+                .withValue(ServerContext.getTransportMetadataKey(), transportMetadata)
+                .withValue(ServerContext.getTransportMutableContextKey(), transportServiceContext);
         if (logger.isDebugEnabled()) {
             logger.debug("bind metadata method={}, headers={}, attr={}", serverCall.getMethodDescriptor().getFullMethodName(), headers, serverCall.getAttributes());
         }
