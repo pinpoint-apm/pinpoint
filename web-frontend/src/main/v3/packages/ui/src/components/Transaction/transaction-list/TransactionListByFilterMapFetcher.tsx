@@ -48,8 +48,6 @@ export const TransactionListByFilterMapFetcher = ({
 
   React.useEffect(() => {
     if (openerScatterData) {
-      console.log(openerScatterData);
-
       const datas = openerScatterData[dragInfo?.agentId || SCATTER_DATA_TOTAL_KEY]
         ?.filter((data) => {
           return (
@@ -64,7 +62,6 @@ export const TransactionListByFilterMapFetcher = ({
       if (datas && datas?.length > 0) {
         const formData = new FormData();
         formData.append('ApplicationName', application?.applicationName || '');
-        console.log(openerScatterData);
 
         datas
           .sort((a, b) => a.x - b.x)
