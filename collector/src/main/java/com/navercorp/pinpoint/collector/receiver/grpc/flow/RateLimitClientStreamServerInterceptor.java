@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.grpc.server.flowcontrol.DefaultServerCallWrapper;
 import com.navercorp.pinpoint.grpc.server.flowcontrol.ServerCallWrapper;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.local.LocalBucketBuilder;
 import io.grpc.Context;
 import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
@@ -45,6 +46,7 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
     private final Executor executor;
 
     private final Bandwidth bandwidth;
+    private final LocalBucketBuilder bucketBuilder;
 
 
     public RateLimitClientStreamServerInterceptor(String name, final Executor executor, Bandwidth bandwidth, final long throttledLoggerRatio) {
@@ -55,6 +57,7 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
         this.executor = Context.currentContextExecutor(executor);
 
         this.bandwidth = Objects.requireNonNull(bandwidth, "bandwidth");
+        this.bucketBuilder = Bucket.builder().addLimit(bandwidth);
 
         this.rejectLogger = ThrottledLogger.getLogger(logger, throttledLoggerRatio);
         this.bandwidthLogger = ThrottledLogger.getLogger(logger, throttledLoggerRatio);
@@ -70,7 +73,7 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
         final ServerCall.Listener<ReqT> listener = next.startCall(call, headers);
 
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<>(listener) {
-            private final Bucket bucket = Bucket.builder().addLimit(bandwidth).build();
+            private final Bucket bucket = bucketBuilder.build();
 
             @Override
             public void onMessage(final ReqT message) {
