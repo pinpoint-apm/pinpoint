@@ -17,4 +17,21 @@ test.describe('Servermap UI', () => {
     await expect(selectAppButton).toBeVisible();
     await expect(selectAppButton).toBeEnabled();
   });
+
+  test('Application list popover auto-opens when no application is selected.', async ({ page }) => {
+    const popover = page.locator('role=dialog');
+    await expect(popover).toBeVisible();
+
+    const searchInput = popover.locator('input[placeholder="Input application name."]');
+    await expect(searchInput).toBeVisible();
+    await expect(searchInput).toBeEnabled();
+  });
+
+  test('Application list popover contains Favorite List and Application List sections.', async ({
+    page,
+  }) => {
+    const popover = page.locator('role=dialog');
+    await expect(popover).toContainText('Favorite List');
+    await expect(popover).toContainText('Application List');
+  });
 });

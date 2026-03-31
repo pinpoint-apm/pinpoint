@@ -12,9 +12,23 @@ test.describe('OpenTelemetryMetric UI', () => {
     await expect(mainHeader).toContainText('OpenTelemetry');
   });
 
+  test('The header shows "Beta" label.', async ({ page }) => {
+    const mainHeader = page.locator('[data-testid="MainHeader"]');
+    await expect(mainHeader).toContainText('Beta');
+  });
+
   test('Application selection button is rendered.', async ({ page }) => {
     const selectAppButton = page.locator('button >> text=Select your application.');
     await expect(selectAppButton).toBeVisible();
     await expect(selectAppButton).toBeEnabled();
+  });
+
+  test('Application list popover auto-opens when no application is selected.', async ({ page }) => {
+    const popover = page.locator('role=dialog');
+    await expect(popover).toBeVisible();
+
+    const searchInput = popover.locator('input[placeholder="Input application name."]');
+    await expect(searchInput).toBeVisible();
+    await expect(searchInput).toBeEnabled();
   });
 });
