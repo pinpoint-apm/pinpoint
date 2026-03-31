@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.flow;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
@@ -19,11 +18,8 @@ import org.mockito.Mockito;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.time.Duration;
-import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,9 +28,8 @@ class StreamRateLimitServerInterceptorTest {
     @Test
     void interceptCall() {
         Bandwidth bandwidth = bandwidth();
-        Executor executor = MoreExecutors.directExecutor();
 
-        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", executor, bandwidth, 1);
+        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", bandwidth, 1);
 
         ServiceDescriptor desc = SpanGrpc.getServiceDescriptor();
         MethodDescriptor<PSpanMessage, Empty> methodDescriptor = (MethodDescriptor<PSpanMessage, Empty>) desc.getMethods().iterator().next();
@@ -53,33 +48,6 @@ class StreamRateLimitServerInterceptorTest {
         verify(serverCallListener).onMessage(any());
     }
 
-
-
-    @Test
-    void interceptCall_reject() {
-        Bandwidth bandwidth = bandwidth();
-        Executor executor = command -> {
-            throw new RejectedExecutionException("error");
-        };
-        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", executor, bandwidth, 1);
-
-        ServiceDescriptor desc = SpanGrpc.getServiceDescriptor();
-        MethodDescriptor<PSpanMessage, Empty> methodDescriptor = (MethodDescriptor<PSpanMessage, Empty>) desc.getMethods().iterator().next();
-
-        ServerCall<PSpanMessage, Empty> call = getServerCall(methodDescriptor);
-
-        Metadata headers = getMetadata();
-
-        ServerCallHandler<PSpanMessage, Empty> handler = Mockito.mock(ServerCallHandler.class);
-        ServerCall.Listener<PSpanMessage> serverCallListener = Mockito.mock(ServerCall.Listener.class);
-
-        when(handler.startCall(call, headers)).thenReturn(serverCallListener);
-
-        ServerCall.Listener<PSpanMessage> listener = interceptor.interceptCall(call, headers, handler);
-        listener.onMessage(PSpanMessage.newBuilder().build());
-
-        verify(serverCallListener, never()).onMessage(any());
-    }
 
 
     private Bandwidth bandwidth() {
@@ -116,8 +84,7 @@ class StreamRateLimitServerInterceptorTest {
                 .capacity(1)
                 .refillGreedy(1, Duration.ofMinutes(1))
                 .build();
-        Executor executor = MoreExecutors.directExecutor();
-        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", executor, bandwidth, 1);
+        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", bandwidth, 1);
 
         ServiceDescriptor desc = SpanGrpc.getServiceDescriptor();
         MethodDescriptor<PSpanMessage, Empty> methodDescriptor = (MethodDescriptor<PSpanMessage, Empty>) desc.getMethods().iterator().next();

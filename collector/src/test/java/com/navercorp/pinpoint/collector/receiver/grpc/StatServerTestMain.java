@@ -73,7 +73,7 @@ public class StatServerTestMain {
     private ServerServiceDefinition newStatBindableService(Executor executor) {
 
         Bandwidth bandwidth = Bandwidth.builder().capacity(1000).refillGreedy(200, Duration.ofSeconds(1)).build();
-        RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-stat", executor, bandwidth, 1);
+        RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-stat", bandwidth, 1);
         SimpleHandler<PAgentStatBatch> agentStatBatch = new MockDispatchHandler<>();
         SimpleHandler<PAgentStat> agentStat = new MockDispatchHandler<>();
         SimpleHandler<PAgentUriStat> agentUriStat = new MockDispatchHandler<>();
@@ -85,7 +85,7 @@ public class StatServerTestMain {
 
 
         StatService statService = new StatService(agentStatBatch, agentStat, agentUriStat,
-                uidFetcherStreamService, serverRequestFactory, StreamCloseOnError.FALSE);
+                uidFetcherStreamService, executor, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(statService, rateLimit);
     }
 

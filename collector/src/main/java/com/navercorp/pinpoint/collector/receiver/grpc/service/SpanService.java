@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.io.MessageTypes;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -35,6 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -43,12 +46,14 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SpanService extends SpanGrpc.SpanImplBase {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+    private final ThrottledLogger bandwidthLogger = ThrottledLogger.getLogger(logger, 100);
 
     private final AtomicLong serverStreamId = new AtomicLong();
 
     private final SimpleHandler<PSpan> spanHandler;
     private final SimpleHandler<PSpanChunk> spanCheckHandler;
 
+    private final Executor executor;
     private final ServerRequestFactory serverRequestFactory;
     private final StreamCloseOnError streamCloseOnError;
     private final UidFetcherStreamService uidFetcherStreamService;
@@ -56,12 +61,14 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     public SpanService(SimpleHandler<PSpan> spanHandler,
                        SimpleHandler<PSpanChunk> spanCheckHandler,
                        UidFetcherStreamService uidFetcherStreamService,
+                       Executor executor,
                        ServerRequestFactory serverRequestFactory,
                        StreamCloseOnError streamCloseOnError) {
         this.spanHandler = Objects.requireNonNull(spanHandler, "spanHandler");
         this.spanCheckHandler = Objects.requireNonNull(spanCheckHandler, "spanCheckHandler");
 
         this.uidFetcherStreamService = Objects.requireNonNull(uidFetcherStreamService, "uidFetcherStreamService");
+        this.executor = Objects.requireNonNull(executor, "executor");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
         this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
     }
@@ -81,23 +88,28 @@ public class SpanService extends SpanGrpc.SpanImplBase {
             logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
         }
 
+        final Context current = Context.current();
+        try {
+            executor.execute(current.wrap(() -> spanDispatch(current, spanMessage, call, responseObserver)));
+        } catch (RejectedExecutionException e) {
+            logger.warn("Failed to request. Executor rejected. header:{}", ServerContext.getAgentInfo(current));
+        }
+    }
+
+    private void spanDispatch(Context context, PSpanMessage spanMessage, ServerCallStream<PSpanMessage, Empty> call, ServerCallStream<PSpanMessage, Empty> responseObserver) {
         if (spanMessage.hasSpan()) {
             PSpan span = spanMessage.getSpan();
-
-            Context current = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPAN, span);
+            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(context, fetcher, MessageTypes.SPAN, span);
             this.dispatch(this.spanHandler, request, responseObserver);
         } else if (spanMessage.hasSpanChunk()) {
             PSpanChunk spanChunk = spanMessage.getSpanChunk();
-
-            Context current = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPANCHUNK, spanChunk);
+            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(context, fetcher, MessageTypes.SPANCHUNK, spanChunk);
             this.dispatch(this.spanCheckHandler, request, responseObserver);
         } else {
             if (logger.isInfoEnabled()) {
-                logger.info("Found empty span message, header:{}", ServerContext.getAgentInfo());
+                logger.info("Found empty span message, header:{}", ServerContext.getAgentInfo(context));
             }
         }
     }

@@ -37,6 +37,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -51,6 +53,7 @@ public class StatService extends StatGrpc.StatImplBase {
 
     private final UidFetcherStreamService uidFetcherStreamService;
 
+    private final Executor executor;
     private final ServerRequestFactory serverRequestFactory;
     private final StreamCloseOnError streamCloseOnError;
 
@@ -62,12 +65,14 @@ public class StatService extends StatGrpc.StatImplBase {
                        SimpleHandler<PAgentStat> statHandler,
                        SimpleHandler<PAgentUriStat> uriStatHandler,
                        UidFetcherStreamService uidFetcherStreamService,
+                       Executor executor,
                        ServerRequestFactory serverRequestFactory,
                        StreamCloseOnError streamCloseOnError) {
         this.statBatchHandler = Objects.requireNonNull(statBatchHandler, "statBatchHandler");
         this.statHandler = Objects.requireNonNull(statHandler, "statHandler");
         this.uriStatHandler = Objects.requireNonNull(uriStatHandler, "uriStatHandler");
         this.uidFetcherStreamService = Objects.requireNonNull(uidFetcherStreamService, "uidFetcherStreamService");
+        this.executor = Objects.requireNonNull(executor, "executor");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
         this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
     }
@@ -85,18 +90,28 @@ public class StatService extends StatGrpc.StatImplBase {
         if (isTrace) {
             logger.trace("Send PAgentStat={}", MessageFormatUtils.debugLog(statMessage));
         }
+
+        final Context current = Context.current();
+        try {
+            executor.execute(current.wrap(() -> statDispatch(current, statMessage, call, response)));
+        } catch (RejectedExecutionException e) {
+            logger.warn("Failed to request. Executor rejected. header:{}", ServerContext.getAgentInfo(current));
+        }
+    }
+
+    private void statDispatch(Context context, PStatMessage statMessage, ServerCallStream<PStatMessage, Empty> call, ServerCallStream<PStatMessage, Empty> response) {
         if (statMessage.hasAgentStat()) {
             PAgentStat agentStat = statMessage.getAgentStat();
-            this.dispatch(agentStat, MessageTypes.AGENT_STAT, statHandler, call.getUidFetcher(), response);
+            this.dispatch(agentStat, MessageTypes.AGENT_STAT, statHandler, call.getUidFetcher(), context, response);
         } else if (statMessage.hasAgentStatBatch()) {
             PAgentStatBatch agentStatBatch = statMessage.getAgentStatBatch();
-            this.dispatch(agentStatBatch, MessageTypes.AGENT_STAT_BATCH, statBatchHandler, call.getUidFetcher(), response);
+            this.dispatch(agentStatBatch, MessageTypes.AGENT_STAT_BATCH, statBatchHandler, call.getUidFetcher(), context, response);
         } else if (statMessage.hasAgentUriStat()) {
             PAgentUriStat agentUriStat = statMessage.getAgentUriStat();
-            this.dispatch(agentUriStat, MessageTypes.AGENT_URI_STAT, uriStatHandler, call.getUidFetcher(), response);
+            this.dispatch(agentUriStat, MessageTypes.AGENT_URI_STAT, uriStatHandler, call.getUidFetcher(), context, response);
         } else {
             if (logger.isInfoEnabled()) {
-                logger.info("Found empty stat message header:{}", ServerContext.getAgentInfo());
+                logger.info("Found empty stat message header:{}", ServerContext.getAgentInfo(context));
             }
         }
     }
@@ -105,8 +120,8 @@ public class StatService extends StatGrpc.StatImplBase {
                               MessageType messageType,
                               SimpleHandler<T> handler,
                               UidFetcher fetcher,
+                              Context context,
                               ServerCallStream<PStatMessage, Empty> responseObserver) {
-        final Context context = Context.current();
         final ServerRequest<T> request = this.serverRequestFactory.newServerRequest(context, fetcher, messageType, data);
         try {
             handler.handleSimple(request);
