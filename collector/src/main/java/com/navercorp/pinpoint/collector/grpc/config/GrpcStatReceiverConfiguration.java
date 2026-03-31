@@ -69,8 +69,8 @@ public class GrpcStatReceiverConfiguration {
         }
 
         @Bean
-        public ServerInterceptor statStreamExecutorInterceptor(@Qualifier("grpcStatWorkerExecutor") Executor executor, @Qualifier("statBandwidth") Bandwidth bandwidth, @Qualifier("grpcStatStreamProperties") GrpcStreamProperties properties) {
-            return new RateLimitClientStreamServerInterceptor("StatStream", executor, bandwidth, properties.getThrottledLoggerRatio());
+        public ServerInterceptor statStreamExecutorInterceptor(@Qualifier("statBandwidth") Bandwidth bandwidth, @Qualifier("grpcStatStreamProperties") GrpcStreamProperties properties) {
+            return new RateLimitClientStreamServerInterceptor("StatStream", bandwidth, properties.getThrottledLoggerRatio());
         }
     }
 
@@ -79,12 +79,13 @@ public class GrpcStatReceiverConfiguration {
                                                                SimpleHandler<PAgentStat> statHandler,
                                                                SimpleHandler<PAgentUriStat> uriStatHandler,
                                                                UidFetcherStreamService uidFetcherStreamService,
+                                                               @Qualifier("grpcStatWorkerExecutor") Executor executor,
                                                                @Qualifier("statStreamExecutorInterceptor") ServerInterceptor serverInterceptor,
                                                                ServerRequestFactory serverRequestFactory,
                                                                StreamCloseOnError streamCloseOnError) {
 
-        BindableService spanService = new StatService(statBatchHandler, statHandler, uriStatHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
-        return ServerInterceptors.intercept(spanService, serverInterceptor);
+        BindableService statService = new StatService(statBatchHandler, statHandler, uriStatHandler, uidFetcherStreamService, executor, serverRequestFactory, streamCloseOnError);
+        return ServerInterceptors.intercept(statService, serverInterceptor);
     }
 
     @Bean

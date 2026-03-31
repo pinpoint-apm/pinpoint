@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.grpc.server.flowcontrol.ServerCallWrapper;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.local.LocalBucketBuilder;
-import io.grpc.Context;
 import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
@@ -34,33 +33,26 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
-import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author jaehong.kim
  */
 public class RateLimitClientStreamServerInterceptor implements ServerInterceptor {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger rejectLogger;
     private final ThrottledLogger bandwidthLogger;
     private final String name;
-    private final Executor executor;
 
     private final Bandwidth bandwidth;
     private final LocalBucketBuilder bucketBuilder;
 
 
-    public RateLimitClientStreamServerInterceptor(String name, final Executor executor, Bandwidth bandwidth, final long throttledLoggerRatio) {
+    public RateLimitClientStreamServerInterceptor(String name, Bandwidth bandwidth, final long throttledLoggerRatio) {
         this.name = Objects.requireNonNull(name, "name");
-
-        Objects.requireNonNull(executor, "executor");
-        // Context wrapper
-        this.executor = Context.currentContextExecutor(executor);
 
         this.bandwidth = Objects.requireNonNull(bandwidth, "bandwidth");
         this.bucketBuilder = Bucket.builder().addLimit(bandwidth);
 
-        this.rejectLogger = ThrottledLogger.getLogger(logger, throttledLoggerRatio);
         this.bandwidthLogger = ThrottledLogger.getLogger(logger, throttledLoggerRatio);
     }
 
@@ -82,27 +74,17 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
 
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<>(listener) {
             private final Bucket bucket = bucketBuilder.build();
+            private final AtomicLong dropCount = new AtomicLong();
 
             @Override
             public void onMessage(final ReqT message) {
                 if (bucket.tryConsume(1)) {
-                    try {
-                        executor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                delegate().onMessage(message);
-                            }
-                        });
-                    } catch (Throwable th) {
-                        if (rejectLogger.isInfoEnabled()) {
-                            rejectLogger.info("Failed to request. ThreadPool is exhausted. {} {}/{} {} count={}",
-                                    name, serverCall.getApplicationName(), serverCall.getAgentId(), serverCall.getRemoteAddr(), rejectLogger.getCounter());
-                        }
-                    }
+                    delegate().onMessage(message);
                 } else {
+                    long count = dropCount.incrementAndGet();
                     if (bandwidthLogger.isInfoEnabled()) {
-                        bandwidthLogger.info("Too many requests. Bandwidth exceeded. {} {}/{} {}",
-                                name, serverCall.getApplicationName(), serverCall.getAgentId(), serverCall.getRemoteAddr());
+                        bandwidthLogger.info("Too many requests. Bandwidth exceeded. {} {}/{} {} drop={}",
+                                name, serverCall.getApplicationName(), serverCall.getAgentId(), serverCall.getRemoteAddr(), count);
                     }
                 }
             }

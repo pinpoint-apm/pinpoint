@@ -105,7 +105,7 @@ public class SpanServerTestMain {
     private ServerServiceDefinition newSpanBindableService(Executor executor) {
 
         Bandwidth bandwidth = Bandwidth.builder().capacity(1000).refillGreedy(200, Duration.ofSeconds(1)).build();
-        RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-span", executor, bandwidth, 1);
+        RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-span", bandwidth, 1);
 
         SimpleHandler<PSpan> handler1 = new MockSimpleHandler<>();
         SimpleHandler<PSpanChunk> handler2 = new MockSimpleHandler<>();
@@ -115,7 +115,7 @@ public class SpanServerTestMain {
         UidFetcher uidFetcher = mock(UidFetcher.class);
         when(uidFetcherStreamService.newUidFetcher()).thenReturn(uidFetcher);
 
-        SpanService spanService = new SpanService(handler1, handler2, uidFetcherStreamService, serverRequestFactory, StreamCloseOnError.FALSE);
+        SpanService spanService = new SpanService(handler1, handler2, uidFetcherStreamService, executor, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(spanService, rateLimit);
     }
 

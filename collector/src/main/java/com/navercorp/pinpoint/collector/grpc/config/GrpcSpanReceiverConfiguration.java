@@ -71,13 +71,11 @@ public class GrpcSpanReceiverConfiguration {
         }
 
         @Bean
-        public ServerInterceptor spanStreamExecutorInterceptor(@Qualifier("grpcSpanWorkerExecutor")
-                                                               Executor executor,
-                                                               @Qualifier("spanBandwidth")
+        public ServerInterceptor spanStreamExecutorInterceptor(@Qualifier("spanBandwidth")
                                                                Bandwidth bandwidth,
                                                                @Qualifier("grpcSpanStreamProperties")
                                                                GrpcStreamProperties properties) {
-            return new RateLimitClientStreamServerInterceptor("SpanStream", executor, bandwidth, properties.getThrottledLoggerRatio());
+            return new RateLimitClientStreamServerInterceptor("SpanStream", bandwidth, properties.getThrottledLoggerRatio());
         }
     }
 
@@ -85,11 +83,13 @@ public class GrpcSpanReceiverConfiguration {
     public ServerServiceDefinition spanServerServiceDefinition(SimpleHandler<PSpan> spanHandler,
                                                                SimpleHandler<PSpanChunk> spanCheckHandler,
                                                                UidFetcherStreamService uidFetcherStreamService,
+                                                               @Qualifier("grpcSpanWorkerExecutor")
+                                                               Executor executor,
                                                                @Qualifier("spanStreamExecutorInterceptor")
                                                                ServerInterceptor serverInterceptor,
                                                                ServerRequestFactory serverRequestFactory,
                                                                StreamCloseOnError streamCloseOnError) {
-        BindableService spanService = new SpanService(spanHandler, spanCheckHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
+        BindableService spanService = new SpanService(spanHandler, spanCheckHandler, uidFetcherStreamService, executor, serverRequestFactory, streamCloseOnError);
         return ServerInterceptors.intercept(spanService, serverInterceptor);
     }
 
