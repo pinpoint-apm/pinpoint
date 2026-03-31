@@ -96,7 +96,6 @@ export const OpenTelemetryDashboardFetcher = () => {
     currentLayout: ReactGridLayout.Layout[],
     allLayouts: ReactGridLayout.Layouts,
   ) => {
-    console.log('layouts', currentLayout, allLayouts);
     setState((prev) => ({
       ...prev,
       layouts: allLayouts,
