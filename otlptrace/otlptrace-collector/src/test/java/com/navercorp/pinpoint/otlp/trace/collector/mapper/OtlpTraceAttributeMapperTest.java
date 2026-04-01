@@ -4,22 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import io.opentelemetry.proto.common.v1.AnyValue;
-import io.opentelemetry.proto.common.v1.ArrayValue;
-import io.opentelemetry.proto.common.v1.KeyValue;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.boolVal;
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.doubleVal;
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.intVal;
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.kv;
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.strVal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OtlpTraceAttributeMapperTest {
@@ -36,12 +28,12 @@ class OtlpTraceAttributeMapperTest {
     }
 
     // -----------------------------------------------------------------------
-    // empty list -> skip
+    // empty map -> skip
     // -----------------------------------------------------------------------
 
     @Test
-    void emptyList_skipsWrite() {
-        mapper.addAttributesToAnnotation(List.of(), writer);
+    void emptyMap_skipsWrite() {
+        mapper.addAttributesToAnnotation(Map.of(), writer);
 
         assertThat(annotations).isEmpty();
     }
@@ -52,14 +44,14 @@ class OtlpTraceAttributeMapperTest {
 
     @Test
     void onlyFilteredKeys_skipsWrite() {
-        List<KeyValue> attrs = List.of(
-                kv(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, strVal("200")),
-                kv(OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, strVal("/api/hello"))
+        Map<String, Object> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, "200",
+                OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, "/api/hello"
         );
 
         mapper.addAttributesToAnnotation(attrs, writer);
 
-        Assertions.assertThat(annotations).isEmpty();
+        assertThat(annotations).isEmpty();
     }
 
     // -----------------------------------------------------------------------
@@ -68,8 +60,8 @@ class OtlpTraceAttributeMapperTest {
 
     @Test
     void withStringAttribute_writesJson() {
-        List<KeyValue> attrs = List.of(
-                kv("http.method", strVal("GET"))
+        Map<String, Object> attrs = Map.of(
+                "http.method", "GET"
         );
 
         mapper.addAttributesToAnnotation(attrs, writer);
@@ -88,10 +80,10 @@ class OtlpTraceAttributeMapperTest {
 
     @Test
     void withMultipleAttributeTypes_writesCorrectJson() throws Exception {
-        List<KeyValue> attrs = List.of(
-                kv("count", intVal(42L)),
-                kv("flag", boolVal(true)),
-                kv("ratio", doubleVal(0.5))
+        Map<String, Object> attrs = Map.of(
+                "count", 42L,
+                "flag", true,
+                "ratio", 0.5
         );
 
         mapper.addAttributesToAnnotation(attrs, writer);
@@ -109,29 +101,25 @@ class OtlpTraceAttributeMapperTest {
     }
 
     // -----------------------------------------------------------------------
-    // array attribute
+    // array attribute (already converted by getAttributeToMap)
     // -----------------------------------------------------------------------
 
     @Test
     void withArrayAttribute_writesArray() throws Exception {
-        ArrayValue arrayValue = ArrayValue.newBuilder()
-                .addValues(strVal("x"))
-                .addValues(strVal("y"))
-                .build();
-        List<KeyValue> attrs = List.of(
-                kv("tags", AnyValue.newBuilder().setArrayValue(arrayValue).build())
+        Map<String, Object> attrs = Map.of(
+                "tags", List.of("x", "y")
         );
 
         mapper.addAttributesToAnnotation(attrs, writer);
 
         assertThat(annotations).hasSize(1);
-        String json2 = (String) annotations.get(0).getValue();
+        String json = (String) annotations.get(0).getValue();
 
-        ObjectMapper om2 = new ObjectMapper();
+        ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
-        Map<String, Object> map2 = om2.readValue(json2, Map.class);
+        Map<String, Object> map = om.readValue(json, Map.class);
 
-        assertThat(map2.get("tags")).isInstanceOf(List.class)
+        assertThat(map.get("tags")).isInstanceOf(List.class)
                 .asList().containsExactly("x", "y");
     }
 
@@ -141,10 +129,10 @@ class OtlpTraceAttributeMapperTest {
 
     @Test
     void mixedKeys_filteredKeysAreRemoved() throws Exception {
-        List<KeyValue> attrs = List.of(
-                kv("http.method", strVal("POST")),
-                kv(OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, strVal("/api/save")),
-                kv(OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, strVal("SELECT 1"))
+        Map<String, Object> attrs = Map.of(
+                "http.method", "POST",
+                OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, "/api/save",
+                OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, "SELECT 1"
         );
 
         mapper.addAttributesToAnnotation(attrs, writer);
@@ -161,16 +149,61 @@ class OtlpTraceAttributeMapperTest {
     }
 
     // -----------------------------------------------------------------------
+    // all filtered keys in FILTERED_ATTRIBUTE_KEY_SET are removed
+    // -----------------------------------------------------------------------
+
+    @Test
+    void allFilteredKeys_areRemoved() {
+        Map<String, Object> attrs = new HashMap<>();
+        for (String key : OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY_SET) {
+            attrs.put(key, "value");
+        }
+        attrs.put("custom.key", "keep");
+
+        mapper.addAttributesToAnnotation(attrs, writer);
+
+        assertThat(annotations).hasSize(1);
+        String json = (String) annotations.get(0).getValue();
+        assertThat(json).contains("custom.key");
+        for (String key : OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY_SET) {
+            assertThat(json).doesNotContain(key);
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // nested map attribute
+    // -----------------------------------------------------------------------
+
+    @Test
+    void withNestedMapAttribute_writesNestedJson() throws Exception {
+        Map<String, Object> nested = Map.of("inner_key", "inner_value");
+        Map<String, Object> attrs = Map.of("nested", nested);
+
+        mapper.addAttributesToAnnotation(attrs, writer);
+
+        assertThat(annotations).hasSize(1);
+        String json = (String) annotations.get(0).getValue();
+
+        ObjectMapper om = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> map = om.readValue(json, Map.class);
+
+        assertThat(map.get("nested")).isInstanceOf(Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> innerMap = (Map<String, Object>) map.get("nested");
+        assertThat(innerMap).containsEntry("inner_key", "inner_value");
+    }
+
+    // -----------------------------------------------------------------------
     // verify annotation key code
     // -----------------------------------------------------------------------
 
     @Test
     void annotationKey_isOpentelemetryAttribute() {
-        mapper.addAttributesToAnnotation(List.of(kv("k", strVal("v"))), writer);
+        mapper.addAttributesToAnnotation(Map.of("k", "v"), writer);
 
         assertThat(annotations.get(0).getKey())
                 .isEqualTo(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode());
     }
 
 }
-

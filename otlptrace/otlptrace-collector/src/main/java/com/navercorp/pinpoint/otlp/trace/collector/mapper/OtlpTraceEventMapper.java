@@ -7,13 +7,16 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Objects;
 
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils.getAttributeToMap;
 
+@Component
 public class OtlpTraceEventMapper {
 
     private final ObjectWriter mapWriter;
@@ -24,10 +27,10 @@ public class OtlpTraceEventMapper {
     }
 
     public void addEventToAnnotation(Span.Event event, AnnotationWriter annotationWriter) {
-        // empty event name??
-//        if (StringUtils.isEmpty(event.getName())) {
-//            return;
-//        }
+        if (StringUtils.isEmpty(event.getName())) {
+            return;
+        }
+
         try {
             Map<String, Object> map;
             if (event.getAttributesCount() > 0) {

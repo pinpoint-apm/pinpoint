@@ -7,14 +7,14 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import io.opentelemetry.proto.common.v1.KeyValue;
 
-import java.util.List;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils.getAttributeToMap;
-
+@Component
 public class OtlpTraceAttributeMapper {
 
     private final ObjectWriter mapWriter;
@@ -24,9 +24,14 @@ public class OtlpTraceAttributeMapper {
         this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
     }
 
-    public void addAttributesToAnnotation(List<KeyValue> keyValueList, AnnotationWriter annotationWriter) {
+    public void addAttributesToAnnotation(Map<String, Object> attributes, AnnotationWriter annotationWriter) {
         try {
-            Map<String, Object> map = getAttributeToMap(keyValueList, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
+            Map<String, Object> map = new HashMap<>(attributes.size());
+            for(Map.Entry<String, Object> entry : attributes.entrySet()) {
+                if(!OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY.test(entry.getKey())) {
+                    map.put(entry.getKey(), entry.getValue());
+                }
+            }
             if (!map.isEmpty()) {
                 final String value = mapWriter.writeValueAsString(map);
                 annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), value));
@@ -35,5 +40,4 @@ public class OtlpTraceAttributeMapper {
             annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), "json processing error"));
         }
     }
-
 }

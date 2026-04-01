@@ -10,12 +10,15 @@ import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import io.opentelemetry.proto.trace.v1.Span;
 
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils.getAttributeToMap;
 
+@Component
 public class OtlpTraceLinkMapper {
 
     private final ObjectWriter mapWriter;
@@ -24,7 +27,6 @@ public class OtlpTraceLinkMapper {
         Objects.requireNonNull(objectMapper, "objectMapper");
         this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
     }
-
 
     public void addLinkToAnnotation(Span.Link link, AnnotationWriter annotationWriter) {
         try {

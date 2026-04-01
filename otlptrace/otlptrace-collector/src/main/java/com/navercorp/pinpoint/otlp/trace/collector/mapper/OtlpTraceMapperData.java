@@ -26,10 +26,10 @@ import java.util.List;
 
 public class OtlpTraceMapperData {
 
-    List<SpanBo> spanBoList = new ArrayList<>();
-    List<SpanChunkBo> spanChunkBoList = new ArrayList<>();
-    List<AgentInfoBo> agentInfoBoList = new ArrayList<>();
-    OtlpTraceCollectorRejectedSpan rejectedSpan = new OtlpTraceCollectorRejectedSpan();
+    private final List<SpanBo> spanBoList = new ArrayList<>();
+    private final List<SpanChunkBo> spanChunkBoList = new ArrayList<>();
+    private final List<AgentInfoBo> agentInfoBoList = new ArrayList<>();
+    private final OtlpTraceCollectorRejectedSpan rejectedSpan = new OtlpTraceCollectorRejectedSpan();
 
     public List<SpanBo> getSpanBoList() {
         return spanBoList;
