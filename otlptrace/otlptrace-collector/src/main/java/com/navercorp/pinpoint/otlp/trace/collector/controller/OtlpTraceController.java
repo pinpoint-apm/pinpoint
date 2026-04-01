@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,53 +14,53 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.trace.collector.service;
+package com.navercorp.pinpoint.otlp.trace.collector.controller;
 
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.cache.LRUCache;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
-import io.grpc.Status;
-import io.grpc.stub.StreamObserver;
+import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpAgentInfoService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpApplicationIndexV2Service;
 import io.opentelemetry.proto.collector.trace.v1.ExportTracePartialSuccess;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
-import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
-import io.opentelemetry.proto.collector.trace.v1.TraceServiceGrpc;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.function.Supplier;
 
-public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase {
-    public static final Supplier<ServiceUid> DEFAULT_SERVICE_UID = () -> ServiceUid.DEFAULT;
-
+@RestController
+public class OtlpTraceController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @NotNull
-    private final TraceService[] traceServiceList;
+    private final TraceService[] traceService;
     private final HbaseOtlpAgentInfoService agentInfoService;
     private final HbaseOtlpApplicationIndexV2Service applicationIndexV2Service;
     @NotNull
     private final OtlpTraceMapper otlpTraceMapper;
     private final LRUCache<String, Boolean> agentIdCache = new LRUCache<>(10000);
 
-    public GrpcOtlpTraceService(TraceService[] traceServiceList, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper) {
-        this.traceServiceList = traceServiceList;
+    public OtlpTraceController(TraceService[] traceServiceList, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper) {
+        this.traceService = traceServiceList;
         this.agentInfoService = agentInfoService;
         this.applicationIndexV2Service = applicationIndexV2Service;
         this.otlpTraceMapper = otlpTraceMapper;
     }
 
-    @Override
-    public void export(ExportTraceServiceRequest request, StreamObserver<ExportTraceServiceResponse> responseObserver) {
+    @PostMapping(value = "/v1/traces", consumes = "application/x-protobuf")
+    public ResponseEntity<Void> saveOtlpMetric(@RequestBody ExportTraceServiceRequest request) {
         final List<ResourceSpans> resourceSpanList = request.getResourceSpansList();
         final OtlpTraceCollectorRejectedSpan rejectedSpan = export(resourceSpanList);
 
@@ -68,19 +68,16 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
             final ExportTracePartialSuccess.Builder builder = ExportTracePartialSuccess.newBuilder();
             builder.setErrorMessage(rejectedSpan.getMessage());
             builder.setRejectedSpans(rejectedSpan.count());
-            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(rejectedSpan.getMessage()).asRuntimeException());
-        } else {
-            // success
-            responseObserver.onNext(ExportTraceServiceResponse.getDefaultInstance());
-            responseObserver.onCompleted();
         }
+
+        return ResponseEntity.ok().build();
     }
 
     private OtlpTraceCollectorRejectedSpan export(List<ResourceSpans> resourceSpanList) {
         final OtlpTraceMapperData otlpTraceMapperData = otlpTraceMapper.map(resourceSpanList);
         int errorCount = 0;
         for (SpanBo spanBo : otlpTraceMapperData.getSpanBoList()) {
-            for (TraceService traceService : traceServiceList) {
+            for (TraceService traceService : traceService) {
                 try {
                     traceService.insertSpan(spanBo);
                 } catch (Exception e) {
@@ -91,7 +88,7 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         }
 
         for (SpanChunkBo spanChunkBo : otlpTraceMapperData.getSpanChunkBoList()) {
-            for (TraceService traceService : traceServiceList) {
+            for (TraceService traceService : traceService) {
                 try {
                     traceService.insertSpanChunk(spanChunkBo);
                 } catch (Exception e) {
@@ -112,7 +109,7 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
             if (agentIdCache.get(agentInfoBo.getAgentId()) == null) {
                 try {
                     agentInfoService.insert(agentInfoBo);
-                    applicationIndexV2Service.insert(DEFAULT_SERVICE_UID, agentInfoBo);
+                    applicationIndexV2Service.insert(GrpcOtlpTraceService.DEFAULT_SERVICE_UID, agentInfoBo);
                     agentIdCache.put(agentInfoBo.getAgentId(), true);
                 } catch (Exception e) {
                     agentInfoErrorCount++;

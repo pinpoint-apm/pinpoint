@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
-import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
@@ -33,6 +32,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,13 +68,13 @@ public class OtlpTraceMapper {
         final OtlpTraceMapperData mapperData = new OtlpTraceMapperData();
         int errorCount = 0;
         for (ResourceSpans resourceSpan : resourceSpanList) {
-            final IdAndName idAndName = getId(mapperData, resourceSpan);
+            final Map<String, Object> resourceAttributeMap = OtlpTraceMapperUtils.getAttributeToMap(resourceSpan.getResource().getAttributesList());
+            final IdAndName idAndName = getId(mapperData, resourceSpan, resourceAttributeMap);
             if (idAndName == null) {
                 // skip
                 continue;
             }
 
-            final List<KeyValue> attributesList = resourceSpan.getResource().getAttributesList();
             final List<ScopeSpans> scopeSpanList = resourceSpan.getScopeSpansList();
             final Map<ByteString, List<Span>> spanMap = getSpanMap(scopeSpanList);
 
@@ -90,7 +90,7 @@ public class OtlpTraceMapper {
                         final List<SpanEventBo> spanEventList = findLinkSpan(spanBo.getStartTime(), childSpanList, rootSpan.getSpanId(), 1);
                         spanBo.addSpanEventBoList(spanEventList);
                         mapperData.addSpanBo(spanBo);
-                        final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
+                        final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, resourceAttributeMap);
                         mapperData.addAgentInfoBo(agentInfoBo);
                     } catch (Exception e) {
                         errorCount++;
@@ -117,7 +117,6 @@ public class OtlpTraceMapper {
             }
         }
 
-
         if (errorCount > 0) {
             OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
             rejectedSpan.putMessage("mapping error (" + errorCount + ")");
@@ -126,9 +125,9 @@ public class OtlpTraceMapper {
         return mapperData;
     }
 
-    IdAndName getId(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan) {
+    IdAndName getId(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, Map<String, Object> resourceAttributeMap) {
         try {
-            return OtlpTraceMapperUtils.getId(resourceSpan.getResource().getAttributesList());
+            return OtlpTraceMapperUtils.getId(resourceAttributeMap);
         } catch (Exception e) {
             logger.warn("Failed to auth", e);
             OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
@@ -175,13 +174,17 @@ public class OtlpTraceMapper {
             return spanEventList;
         }
 
+        // Collect matching spans and remove them from childSpanList in a single O(n) pass,
+        // avoiding the O(n*m) cost of a separate removeAll call.
         List<Span> linkSpanList = new ArrayList<>();
-        for (Span span : childSpanList) {
+        Iterator<Span> iterator = childSpanList.iterator();
+        while (iterator.hasNext()) {
+            Span span = iterator.next();
             if (parentSpanId.equals(span.getParentSpanId())) {
                 linkSpanList.add(span);
+                iterator.remove();
             }
         }
-        childSpanList.removeAll(linkSpanList);
 
         for (Span span : linkSpanList) {
             final SpanEventBo spanEventBo = spanEventMapper.map(startTime, span, depth);
@@ -211,9 +214,11 @@ public class OtlpTraceMapper {
         if (localRootSpanList.isEmpty()) {
             localRootSpanList.addAll(childSpanList);
         }
+        // Remove all local roots at once in O(n) using Set, instead of O(n*k) repeated remove calls.
+        Set<Span> localRootSet = new HashSet<>(localRootSpanList);
+        childSpanList.removeIf(localRootSet::contains);
+
         for (Span localRootSpan : localRootSpanList) {
-            // Remove root from remaining list so it's not processed again
-            childSpanList.remove(localRootSpan);
             // Map root as SpanChunk (attached to its parentSpanId if present)
             SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, localRootSpan);
             long rootStartTime = TimeUnit.NANOSECONDS.toMillis(localRootSpan.getStartTimeUnixNano());

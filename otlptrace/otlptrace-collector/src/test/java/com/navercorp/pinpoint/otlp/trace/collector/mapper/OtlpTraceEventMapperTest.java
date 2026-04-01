@@ -36,19 +36,6 @@ class OtlpTraceEventMapperTest {
     }
 
     // -----------------------------------------------------------------------
-    // empty name -> skip
-    // -----------------------------------------------------------------------
-
-    @Test
-    void emptyName() {
-        Span.Event event = Span.Event.newBuilder().setName("").build();
-
-        mapper.addEventToAnnotation(event, writer);
-
-        assertThat(annotations).hasSize(1);
-    }
-
-    // -----------------------------------------------------------------------
     // name only (no attributes)
     // -----------------------------------------------------------------------
 

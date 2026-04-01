@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -30,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -39,10 +39,10 @@ public class OtlpTraceSpanEventMapper {
     private final OtlpTraceAttributeMapper attributeMapper;
     private final OtlpTraceEventMapper eventMapper;
 
-    public OtlpTraceSpanEventMapper(ObjectMapper objectMapper) {
-        Objects.requireNonNull(objectMapper, "objectMapper");
-        this.attributeMapper = new OtlpTraceAttributeMapper(objectMapper);
-        this.eventMapper = new OtlpTraceEventMapper(objectMapper);
+    public OtlpTraceSpanEventMapper(OtlpTraceAttributeMapper attributeMapper,
+                                    OtlpTraceEventMapper eventMapper) {
+        this.attributeMapper = Objects.requireNonNull(attributeMapper, "attributeMapper");
+        this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
     }
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
@@ -64,16 +64,17 @@ public class OtlpTraceSpanEventMapper {
         final int endElapsed = (int) (eventEndTime - eventStartTime);
         spanEventBo.setEndElapsed(endElapsed); // TODO ?
 
-        spanEventBo.setEndPoint(getClientSpanToEndPoint(span));
-        spanEventBo.setDestinationId(getClientSpanToDestinationId(span));
+        final Map<String, Object> attributes = OtlpTraceMapperUtils.getAttributeToMap(span.getAttributesList());
+        spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes));
+        spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes));
 
         // Keep the order
-        if (isDatabase(span)) {
+        if (isDatabase(attributes)) {
             spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_DB.getCode());
-            if (isDatabaseExecuteQuery(span)) {
+            if (isDatabaseExecuteQuery(attributes)) {
                 spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode());
                 // TODO bind ?
-                spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.SQL.getCode(), getClientSpanDbStatement(span)));
+                spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.SQL.getCode(), getClientSpanDbStatement(attributes)));
             }
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.CLIENT_METHOD_NAME));
         } else if (isClient(span)) {
@@ -94,7 +95,7 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
         // attributes
         if (span.getAttributesCount() > 0) {
-            attributeMapper.addAttributesToAnnotation(span.getAttributesList(), spanEventBo::addAnnotation);
+            attributeMapper.addAttributesToAnnotation(attributes, spanEventBo::addAnnotation);
         }
         // argument
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.ARGS0.getCode(), span.getName()));
@@ -121,49 +122,49 @@ public class OtlpTraceSpanEventMapper {
         return span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE;
     }
 
-    boolean isDatabase(Span span) {
-        return AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM) || AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM_NAME);
+    boolean isDatabase(Map<String, Object> attributes) {
+        return attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM) || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM_NAME);
     }
 
-    boolean isDatabaseExecuteQuery(Span span) {
-        return AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT) || AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT);
+    boolean isDatabaseExecuteQuery(Map<String, Object> attributes) {
+        return attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT) || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT);
     }
 
-    String getClientSpanDbStatement(Span span) {
-        String statement = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
+    String getClientSpanDbStatement(Map<String, Object> attributes) {
+        String statement = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
         if (statement == null) {
-            statement = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT, null);
+            statement = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT, null);
         }
         return statement;
     }
 
-    String getClientSpanToEndPoint(Span span) {
-        final String serverAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
+    String getClientSpanToEndPoint(Map<String, Object> attributes) {
+        final String serverAddress = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
-            final long serverPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+            final long serverPort = AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
         // proxy
-        return AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+        return AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
     }
 
-    String getClientSpanToDestinationId(Span span) {
-        final String dbName = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
+    String getClientSpanToDestinationId(Map<String, Object> attributes) {
+        final String dbName = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
         if (dbName != null) {
             return dbName;
         }
-        final String upstreamClusterName = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
+        final String upstreamClusterName = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
         if (upstreamClusterName != null) {
             return upstreamClusterName;
         }
 
-        final String serverAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
+        final String serverAddress = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
-            final long serverPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+            final long serverPort = AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
 
         // proxy
-        return AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+        return AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
     }
 }

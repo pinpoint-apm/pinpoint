@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
+import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -38,20 +40,20 @@ public class OtlpTraceMapperUtils {
     private static final String KEY_SERVICE_INSTANCE_ID = "service.instance.id";
     private static final String KEY_SERVICE_NAME = "service.name";
 
-    public static IdAndName getId(List<KeyValue> attributesList) {
-        final String agentId = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_AGENT_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+    public static IdAndName getId(Map<String, Object> attributes) {
+        final String agentId = AttributeUtils.getStringValue(attributes, KEY_AGENT_ID, null);
         if (agentId == null) {
-            final String serviceInstanceId = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_SERVICE_INSTANCE_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            final String serviceInstanceId = AttributeUtils.getStringValue(attributes, KEY_SERVICE_INSTANCE_ID, null);
             if (serviceInstanceId == null) {
-                final String hostName = attributesList.stream().filter(kv -> kv.getKey().equals("host.name")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+                final String hostName = AttributeUtils.getStringValue(attributes, "host.name", null);
                 if (hostName != null) {
                     if (!IdValidateUtils.validateId(hostName, PinpointConstants.AGENT_ID_MAX_LEN)) {
                         throw new IllegalArgumentException("invalid host.name=" + hostName);
                     }
-                    return new IdAndName(hostName, null, getApplicationName(attributesList));
+                    return new IdAndName(hostName, null, getApplicationName(attributes));
                 }
                 // TODO
-                final String applicationName = getApplicationName(attributesList);
+                final String applicationName = getApplicationName(attributes);
                 if (!IdValidateUtils.validateId(applicationName, PinpointConstants.AGENT_ID_MAX_LEN)) {
                     throw new IllegalArgumentException("invalid agentId(derived from applicationName)=" + applicationName);
                 }
@@ -62,7 +64,7 @@ public class OtlpTraceMapperUtils {
                     try {
                         final UUID uuid = UUID.fromString(serviceInstanceId);
                         final String encoded = Base64Utils.encode(uuid);
-                        return new IdAndName(encoded, serviceInstanceId, getApplicationName(attributesList));
+                        return new IdAndName(encoded, serviceInstanceId, getApplicationName(attributes));
                     } catch (IllegalArgumentException ignore) {
                         // not a valid UUID string, fall through to treat as plain agentId
                     }
@@ -72,20 +74,20 @@ public class OtlpTraceMapperUtils {
                     throw new IllegalArgumentException("invalid service.instance.id=" + serviceInstanceId);
                 }
             }
-            return new IdAndName(serviceInstanceId, null, getApplicationName(attributesList));
+            return new IdAndName(serviceInstanceId, null, getApplicationName(attributes));
         }
 
         if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
             throw new IllegalArgumentException("invalid pinpoint.agentId=" + agentId);
         }
 
-        return new IdAndName(agentId, null, getApplicationName(attributesList));
+        return new IdAndName(agentId, null, getApplicationName(attributes));
     }
 
-    public static String getApplicationName(List<KeyValue> attributesList) {
-        String applicationName = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_APPLICATION_NAME)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+    public static String getApplicationName(Map<String, Object> attributes) {
+        String applicationName = AttributeUtils.getStringValue(attributes, KEY_APPLICATION_NAME, null);
         if (applicationName == null) {
-            applicationName = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_SERVICE_NAME)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            applicationName = AttributeUtils.getStringValue(attributes, KEY_SERVICE_NAME, null);
             if (applicationName == null) {
                 throw new IllegalArgumentException("not found applicationName");
             }
@@ -165,7 +167,11 @@ public class OtlpTraceMapperUtils {
         } else if (anyValue.hasArrayValue()) {
             return getArrayValueToList(anyValue.getArrayValue());
         } else if (anyValue.hasBytesValue()) {
-            return anyValue.getBytesValue();
+            final ByteString byteString = anyValue.getBytesValue();
+            if (!byteString.isEmpty()) {
+                return Base16Utils.encodeToString(byteString.toByteArray());
+            }
+            return null;
         } else if (anyValue.hasKvlistValue()) {
             return getAttributeToMap(anyValue.getKvlistValue().getValuesList());
         } else {
@@ -173,5 +179,4 @@ public class OtlpTraceMapperUtils {
             return null;
         }
     }
-
 }

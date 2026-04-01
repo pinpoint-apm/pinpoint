@@ -59,11 +59,13 @@ import java.util.concurrent.Executor;
 
         OtlpTraceCollectorPropertySources.class,
         OtlpTraceCollectorHbaseModule.class,
-        OtlpTraceCollectorGrpcModule.class
+        OtlpTraceCollectorGrpcModule.class,
+        OtlpTraceCollectorHttpModule.class
 })
 @ComponentScan({
         "com.navercorp.pinpoint.otlp.trace.collector.mapper",
-        "com.navercorp.pinpoint.otlp.trace.collector.service"
+        "com.navercorp.pinpoint.otlp.trace.collector.service",
+        "com.navercorp.pinpoint.otlp.trace.collector.controller"
 })
 @ConditionalOnProperty(name = "pinpoint.modules.collector.otlptrace.enabled", havingValue = "true")
 public class OtlpTraceCollectorModule {

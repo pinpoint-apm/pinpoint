@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -31,8 +29,7 @@ import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -42,12 +39,12 @@ public class OtlpTraceSpanMapper {
     private final OtlpTraceEventMapper eventMapper;
     private final OtlpTraceLinkMapper linkMapper;
 
-
-    public OtlpTraceSpanMapper(ObjectMapper objectMapper) {
-        Objects.requireNonNull(objectMapper, "objectMapper");
-        this.attributeMapper = new OtlpTraceAttributeMapper(objectMapper);
-        this.eventMapper = new OtlpTraceEventMapper(objectMapper);
-        this.linkMapper = new OtlpTraceLinkMapper(objectMapper);
+    public OtlpTraceSpanMapper(OtlpTraceAttributeMapper attributeMapper,
+                               OtlpTraceEventMapper eventMapper,
+                               OtlpTraceLinkMapper linkMapper) {
+        this.attributeMapper = Objects.requireNonNull(attributeMapper, "attributeMapper");
+        this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
+        this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
     }
 
     SpanBo map(IdAndName idAndName, Span span) {
@@ -61,10 +58,11 @@ public class OtlpTraceSpanMapper {
 
         spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
 
+        final Map<String, Object> attributes = OtlpTraceMapperUtils.getAttributeToMap(span.getAttributesList());
         // record request
-        spanBo.setRpc(getServerSpanToRpc(span));
-        spanBo.setEndPoint(getServerSpanToEndPoint(span));
-        spanBo.setRemoteAddr(getServerSpanToRemoteAddress(span));
+        spanBo.setRpc(getServerSpanToRpc(span, attributes));
+        spanBo.setEndPoint(getServerSpanToEndPoint(span, attributes));
+        spanBo.setRemoteAddr(getServerSpanToRemoteAddress(span, attributes));
 
         spanBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getSpanId()));
         spanBo.setParentSpanId(OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId()));
@@ -76,7 +74,7 @@ public class OtlpTraceSpanMapper {
         final long endTime = TimeUnit.NANOSECONDS.toMillis(span.getEndTimeUnixNano());
         // TODO save nano ?
         spanBo.setStartTime(startTime);
-        int elapsed = (int) (endTime - startTime);
+        int elapsed = Math.max((int)(endTime - startTime), 0);
         spanBo.setElapsed(elapsed);
         spanBo.setAgentStartTime(startTime);
         spanBo.setServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
@@ -100,13 +98,13 @@ public class OtlpTraceSpanMapper {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.SERVER_METHOD_NAME));
         }
         // response
-        final int responseStatusCode = (int) getServerSpanToResponseStatusCode(span);
+        final int responseStatusCode = (int) getServerSpanToResponseStatusCode(attributes);
         if (responseStatusCode != -1) {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatusCode));
         }
         // attributes
         if (span.getAttributesCount() > 0) {
-            attributeMapper.addAttributesToAnnotation(span.getAttributesList(), spanBo::addAnnotation);
+            attributeMapper.addAttributesToAnnotation(attributes, spanBo::addAnnotation);
         }
 
         // event
@@ -118,30 +116,28 @@ public class OtlpTraceSpanMapper {
             linkMapper.addLinkToAnnotation(link, spanBo::addAnnotation);
         }
 
-        final List<SpanEventBo> spanEventBoList = new ArrayList<>();
-        spanBo.addSpanEventBoList(spanEventBoList);
         return spanBo;
     }
 
-    String getServerSpanToEndPoint(Span span) {
+    String getServerSpanToEndPoint(Span span, Map<String, Object> attributes) {
         String endPoint = null;
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             // HTTP Server
-            final String serverAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
+            final String serverAddress = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
             if (serverAddress != null) {
-                final long serverPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+                final long serverPort = AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
                 return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
             }
-            final String httpUrl = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
+            final String httpUrl = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
             if (httpUrl != null) {
                 return extractHostAndPort(httpUrl);
             }
-            final String rpcService = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SERVICE, null);
+            final String rpcService = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SERVICE, null);
             if (rpcService != null) {
                 return rpcService;
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            final String clientId = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
+            final String clientId = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
             if (clientId != null) {
                 endPoint = clientId;
             }
@@ -174,35 +170,35 @@ public class OtlpTraceSpanMapper {
         return url.substring(start, end); // "host" or "host:port"
     }
 
-    String getServerSpanToRpc(Span span) {
+    String getServerSpanToRpc(Span span, Map<String, Object> attributes) {
         String rpc = span.getName();
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
-            final String urlPath = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
+            final String urlPath = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
                 return urlPath;
             }
-            final String httpUrl = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
+            final String httpUrl = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
             if (httpUrl != null) {
                 return extractPath(httpUrl);
             }
-            final String httpTaret = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_TARGET, null);
-            if (httpTaret != null) {
-                return httpTaret;
+            final String httpTarget = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_TARGET, null);
+            if (httpTarget != null) {
+                return httpTarget;
             }
-            final String rpcMethod = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD, null);
+            final String rpcMethod = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD, null);
             if (rpcMethod != null) {
                 return rpcMethod;
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            final String destinationName = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME, null);
+            final String destinationName = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME, null);
             if (destinationName != null) {
                 rpc = "destination=" + destinationName;
             }
-            final String partitionId = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID, null);
+            final String partitionId = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID, null);
             if (partitionId != null) {
                 rpc = rpc + ", partition=" + partitionId;
             }
-            final long offset = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET, 0L);
+            final long offset = AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET, 0L);
 
             if (offset != 0) {
                 rpc = rpc + ",offset=" + offset;
@@ -240,23 +236,23 @@ public class OtlpTraceSpanMapper {
         return url.substring(pathStart, pathEnd);
     }
 
-    String getServerSpanToRemoteAddress(Span span) {
+    String getServerSpanToRemoteAddress(Span span, Map<String, Object> attributes) {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
-            String remoteAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_CLIENT_ADDRESS, null);
+            String remoteAddress = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_CLIENT_ADDRESS, null);
             if (remoteAddress != null) {
                 return remoteAddress;
             }
-            remoteAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_PEER_ADDRESS, null);
+            remoteAddress = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_PEER_ADDRESS, null);
             if (remoteAddress != null) {
                 return remoteAddress;
             }
-            remoteAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_IP, null);
+            remoteAddress = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_IP, null);
             if (remoteAddress != null) {
                 return remoteAddress;
             }
-            final String networkPeerIp = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, null);
+            final String networkPeerIp = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, null);
             if (networkPeerIp != null) {
-                final long networkPeerPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, 0L);
+                final long networkPeerPort = AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, 0L);
                 return HostAndPort.toHostAndPortString(networkPeerIp, (int) networkPeerPort, 0);
             }
             return null;
@@ -266,11 +262,11 @@ public class OtlpTraceSpanMapper {
         return null;
     }
 
-    long getServerSpanToResponseStatusCode(Span span) {
-        long httpStatusCode = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, -1L);
+    long getServerSpanToResponseStatusCode(Map<String, Object> attributes) {
+        long httpStatusCode = AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, -1L);
         if (httpStatusCode != -1) {
             return httpStatusCode;
         }
-        return AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_STATUS_CODE, -1L);
+        return AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_STATUS_CODE, -1L);
     }
 }
