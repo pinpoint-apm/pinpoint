@@ -18,7 +18,7 @@ import com.navercorp.pinpoint.inspector.collector.InspectorCollectorConfig;
 import com.navercorp.pinpoint.log.collector.LogCollectorModule;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
 import com.navercorp.pinpoint.otlp.collector.OtlpMetricCollectorConfig;
-import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorModule;
+import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorApp;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
@@ -96,7 +96,7 @@ public class PinpointCollectorStarter {
         // gRPC 9998 port is used for OTLP Trace.
         if (types.hasType(CollectorType.METRIC)) {
             logger.info(String.format("Start OTLP trace collector"));
-            SpringApplicationBuilder logAppBuilder = createAppBuilder(builder, 9999, OtlpTraceCollectorModule.class);
+            SpringApplicationBuilder logAppBuilder = createAppBuilder(builder, 9999, OtlpTraceCollectorApp.class);
             logAppBuilder.build().run(args);
         }
 
