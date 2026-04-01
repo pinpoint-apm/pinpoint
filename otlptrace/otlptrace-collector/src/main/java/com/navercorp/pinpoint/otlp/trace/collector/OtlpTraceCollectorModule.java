@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
-import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
@@ -54,8 +53,6 @@ import java.util.concurrent.Executor;
         TypeLoaderConfiguration.class,
 
         HeatmapCollectorModule.class,
-        MainDataSourcePropertySource.class,
-        OtlpTraceDataSourceConfiguration.class,
 
         OtlpTraceCollectorPropertySources.class,
         OtlpTraceCollectorHbaseModule.class,
