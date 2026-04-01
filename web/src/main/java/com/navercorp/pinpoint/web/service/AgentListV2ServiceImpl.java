@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -31,16 +30,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 @Service
 public class AgentListV2ServiceImpl implements AgentListV2Service {
-    private static final int UNDEFINED_SERVICE_TYPE_CODE = -1;
-
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentProperties agentProperties;
@@ -56,7 +51,7 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
 
     @Override
     public List<AgentIdEntry> getAllAgentList(ServiceUid serviceUid, String applicationName, ServiceType serviceType) {
-        List<AgentIdEntry> agentIdEntryList = queryAllEntries(serviceUid.getUid(), applicationName, serviceType.getCode());
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid.getUid(), applicationName, serviceType.getCode());
         return dedupeConsecutiveAgentId(agentIdEntryList);
     }
 
@@ -72,7 +67,7 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
      * For service types that may not send steady pings — fetch all entries, then filter by span statistics.
      */
     private List<AgentIdEntry> getActiveAgentListByStatistics(ServiceUid serviceUid, String applicationName, ServiceType serviceType, Range range) {
-        List<AgentIdEntry> agentIdEntryList = queryAllEntries(serviceUid.getUid(), applicationName, serviceType.getCode());
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid.getUid(), applicationName, serviceType.getCode());
         agentIdEntryList = filterByAgentStartTime(agentIdEntryList, range);
         agentIdEntryList = dedupeConsecutiveAgentId(agentIdEntryList);
 
@@ -80,7 +75,7 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
         Application searchApplication = new Application(applicationName, serviceType);
         Set<String> statisticsAgentIds = mapAgentResponseDao.selectAgentIds(searchApplication, new TimeWindow(range));
         return agentIdEntryList.stream()
-                .filter(entry -> !isInactiveCandidate(entry, range) || statisticsAgentIds.contains(entry.getAgentId()))
+                .filter(entry -> !isInactiveCandidate(entry, range.getFrom()) || statisticsAgentIds.contains(entry.getAgentId()))
                 .toList();
     }
 
@@ -88,28 +83,10 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
      * For service types that send pings — filter by status timestamp.
      */
     private List<AgentIdEntry> getActiveAgentListByStatus(ServiceUid serviceUid, String applicationName, ServiceType serviceType, Range range) {
-        List<AgentIdEntry> agentIdEntryList = queryByMinStateTimestamp(serviceUid.getUid(), applicationName, serviceType.getCode(), range);
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntryByMinStateTimestamp(serviceUid.getUid(), applicationName, serviceType.getCode(), range.getFrom());
         agentIdEntryList = filterByAgentStartTime(agentIdEntryList, range);
         agentIdEntryList = dedupeConsecutiveAgentId(agentIdEntryList);
         return agentIdEntryList;
-    }
-
-    private List<AgentIdEntry> queryAllEntries(int serviceUid, String applicationName, int serviceTypeCode) {
-        List<AgentIdEntry> entries = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
-        if (!agentProperties.getMissingHeaderServiceTypeCodes().contains(serviceTypeCode)) {
-            return entries;
-        }
-        List<AgentIdEntry> undefinedEntries = agentIdDao.getAgentIdEntry(serviceUid, applicationName, UNDEFINED_SERVICE_TYPE_CODE);
-        return dedupeByKey(entries, undefinedEntries);
-    }
-
-    private List<AgentIdEntry> queryByMinStateTimestamp(int serviceUid, String applicationName, int serviceTypeCode, Range range) {
-        List<AgentIdEntry> entries = agentIdDao.getAgentIdEntryByMinStateTimestamp(serviceUid, applicationName, serviceTypeCode, range.getFrom());
-        if (!agentProperties.getMissingHeaderServiceTypeCodes().contains(serviceTypeCode)) {
-            return entries;
-        }
-        List<AgentIdEntry> undefinedEntries = agentIdDao.getAgentIdEntryByMinStateTimestamp(serviceUid, applicationName, UNDEFINED_SERVICE_TYPE_CODE, range.getFrom());
-        return dedupeByKey(entries, undefinedEntries);
     }
 
     private List<AgentIdEntry> filterByAgentStartTime(List<AgentIdEntry> entries, Range range) {
@@ -118,77 +95,9 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
                 .toList();
     }
 
-    @Override
-    public List<AgentIdEntry> getInactiveAgentList(ServiceUid serviceUid, String applicationName, ServiceType serviceType, Range activeRange) {
-        List<AgentIdEntry> agentIdEntryList = queryByMaxStateTimestamp(serviceUid.getUid(), applicationName, serviceType.getCode(), activeRange.getFrom());
-        // TODO use serviceUid to create Application
-        Application application = new Application(applicationName, serviceType);
-        return getInactiveAgentList(application, agentIdEntryList, activeRange);
-    }
-
-    private List<AgentIdEntry> queryByMaxStateTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long maxStateTimestamp) {
-        List<AgentIdEntry> entries = agentIdDao.getAgentIdEntryByMaxStateTimestamp(serviceUid, applicationName, serviceTypeCode, maxStateTimestamp);
-        if (!agentProperties.getMissingHeaderServiceTypeCodes().contains(serviceTypeCode)) {
-            return entries;
-        }
-        List<AgentIdEntry> undefinedEntries = agentIdDao.getAgentIdEntryByMaxStateTimestamp(serviceUid, applicationName, UNDEFINED_SERVICE_TYPE_CODE, maxStateTimestamp);
-        // No dedup — duplicates are acceptable for inactive agent cleanup
-        List<AgentIdEntry> combined = new ArrayList<>(entries.size() + undefinedEntries.size());
-        combined.addAll(entries);
-        combined.addAll(undefinedEntries);
-        return combined;
-    }
-
-    @Override
-    public List<AgentIdEntry> getInactiveAgentList(Application application, List<AgentIdEntry> agentIdEntries, Range activeRange) {
-        if (agentProperties.getStatisticsCheckServiceTypeCodes().contains(application.getServiceTypeCode())) {
-            return getInactiveByStatistics(application, agentIdEntries, activeRange);
-        }
-        return agentIdEntries.stream()
-                .filter(entry -> isInactiveCandidate(entry, activeRange))
-                .toList();
-    }
-
-    private List<AgentIdEntry> getInactiveByStatistics(Application application, List<AgentIdEntry> agentIdEntries, Range activeRange) {
-        Set<String> activeAgentIds = mapAgentResponseDao.selectAgentIds(application, new TimeWindow(activeRange));
-        // Entries are ordered by agentId — keep the first (most recent startTime) per agentId found in statistics
-        String lastKeptAgentId = null;
-        List<AgentIdEntry> inactiveEntries = new ArrayList<>();
-        for (AgentIdEntry entry : agentIdEntries) {
-            if (!isInactiveCandidate(entry, activeRange)) {
-                continue;
-            }
-            if (activeAgentIds.contains(entry.getAgentId()) && !entry.getAgentId().equals(lastKeptAgentId)) {
-                lastKeptAgentId = entry.getAgentId();
-                continue;
-            }
-            inactiveEntries.add(entry);
-        }
-        return inactiveEntries;
-    }
-
-    private static boolean isInactiveCandidate(AgentIdEntry entry, Range range) {
-        return entry.getAgentStartTime() < range.getFrom()
-                && entry.getCurrentStateTimestamp() < range.getFrom();
-    }
-
-    /**
-     * Dedup by agentId + startTime, keeping the entry with the most recent state.
-     */
-    private static List<AgentIdEntry> dedupeByKey(List<AgentIdEntry> entries, List<AgentIdEntry> undefinedEntries) {
-        Map<SimpleAgentKey, AgentIdEntry> deduped = new LinkedHashMap<>();
-        for (AgentIdEntry entry : entries) {
-            deduped.put(toAgentKey(entry), entry);
-        }
-        for (AgentIdEntry entry : undefinedEntries) {
-            deduped.merge(toAgentKey(entry), entry, (existing, incoming) ->
-                    incoming.getCurrentStateTimestamp() > existing.getCurrentStateTimestamp() ? incoming : existing);
-        }
-        return new ArrayList<>(deduped.values());
-    }
-
-    private static SimpleAgentKey toAgentKey(AgentIdEntry entry) {
-        return new SimpleAgentKey(entry.getAgentId(), entry.getAgentStartTime());
+    private boolean isInactiveCandidate(AgentIdEntry entry, long from) {
+        return entry.getAgentStartTime() < from
+                && entry.getCurrentStateTimestamp() < from;
     }
 
     private List<AgentIdEntry> dedupeConsecutiveAgentId(List<AgentIdEntry> orderedAgentIdEntryList) {

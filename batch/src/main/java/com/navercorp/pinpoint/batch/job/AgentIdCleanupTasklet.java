@@ -32,19 +32,14 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public class AgentIdCleanupTasklet implements Tasklet {
-
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final int UNDEFINED_SERVICE_TYPE_CODE = -1;
-
     private final AgentIdDao agentIdDao;
-    private final ApplicationDao applicationDao;
     private final MapAgentResponseDao mapAgentResponseDao;
 
     private final boolean dryRun;
@@ -57,7 +52,6 @@ public class AgentIdCleanupTasklet implements Tasklet {
 
     public AgentIdCleanupTasklet(
             AgentIdDao agentIdDao,
-            ApplicationDao applicationDao,
             MapAgentResponseDao mapAgentResponseDao,
             boolean dryRun,
             long baseTimestamp,
@@ -67,7 +61,6 @@ public class AgentIdCleanupTasklet implements Tasklet {
             Set<Integer> statisticsCheckServiceTypeCodes
     ) {
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
-        this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
         this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
         this.dryRun = dryRun;
         this.baseTimestamp = baseTimestamp;
@@ -113,20 +106,18 @@ public class AgentIdCleanupTasklet implements Tasklet {
             return false;
         }
 
-        if (entry.getServiceTypeCode() == UNDEFINED_SERVICE_TYPE_CODE || statisticsCheckServiceTypeCodes.contains(entry.getServiceTypeCode())) {
+        if (statisticsCheckServiceTypeCodes.contains(entry.getServiceTypeCode())) {
             Set<String> activeAgentIds = loadStatisticsAgentIds(entry, statisticsContext, activeTimeWindow);
-            if (activeAgentIds != null) {
-                if (activeAgentIds.contains(entry.getAgentId())) {
-                    if (statisticsContext.isDuplicateAgentId(entry.getAgentId())) {
-                        logger.debug("older instance. delete, {}", entry);
-                        return true;
-                    }
-                    logger.debug("found in statistics. keep, {}", entry);
-                    return false;
+            if (activeAgentIds.contains(entry.getAgentId())) {
+                if (statisticsContext.isDuplicateAgentId(entry.getAgentId())) {
+                    logger.debug("older instance. delete, {}", entry);
+                    return true;
                 }
-                logger.debug("not in statistics. delete, {}", entry);
-                return true;
+                logger.debug("found in statistics. keep, {}", entry);
+                return false;
             }
+            logger.debug("not in statistics. delete, {}", entry);
+            return true;
         }
 
         long stateTimestamp = entry.getCurrentStateTimestamp();
@@ -139,42 +130,15 @@ public class AgentIdCleanupTasklet implements Tasklet {
 
     /**
      * Returns cached statistics agentIds for the entry's application.
-     * Returns null if the entry's serviceType is not a statistics-check type.
      */
     private Set<String> loadStatisticsAgentIds(AgentIdEntry entry, StatisticsContext statisticsContext, TimeWindow activeTimeWindow) {
         Application application = entry.getApplication();
         if (statisticsContext.isSameApplication(application)) {
             return statisticsContext.activeAgentIds;
         }
-        Set<String> agentIds = selectStatisticsAgentIds(entry, activeTimeWindow);
-        if (agentIds != null) {
-            logger.debug("statistics update. application={}, activeAgentIds={}", application, agentIds.size());
-        } else {
-            logger.debug("no statistics check for application={}", application);
-        }
+        Set<String> agentIds = mapAgentResponseDao.selectAgentIds(entry.getApplication(), activeTimeWindow);
         statisticsContext.update(application, agentIds);
         return statisticsContext.activeAgentIds;
-    }
-
-    private Set<String> selectStatisticsAgentIds(AgentIdEntry entry, TimeWindow activeTimeWindow) {
-        int serviceTypeCode = entry.getServiceTypeCode();
-        if (statisticsCheckServiceTypeCodes.contains(serviceTypeCode)) {
-            return mapAgentResponseDao.selectAgentIds(entry.getApplication(), activeTimeWindow);
-        }
-        if (serviceTypeCode != UNDEFINED_SERVICE_TYPE_CODE) {
-            return null;
-        }
-        List<Application> statisticsApps = applicationDao.getApplications(entry.getService().getUid(), entry.getApplicationName()).stream()
-                .filter(app -> statisticsCheckServiceTypeCodes.contains(app.getServiceTypeCode()))
-                .toList();
-        if (statisticsApps.isEmpty()) {
-            return null;
-        }
-        Set<String> merged = new HashSet<>();
-        for (Application app : statisticsApps) {
-            merged.addAll(mapAgentResponseDao.selectAgentIds(app, activeTimeWindow));
-        }
-        return merged;
     }
 
     private void deleteAgentEntries(List<AgentIdEntry> deleteTargets) {
