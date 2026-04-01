@@ -16,18 +16,21 @@
 
 package com.navercorp.pinpoint.web.frontend.config;
 
-import org.springframework.core.env.AbstractEnvironment;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class ExperimentalProperties {
+    private static final Logger logger = LogManager.getLogger(ExperimentalProperties.class);
+
     public static final String PREFIX = "experimental.";
 
     private final Map<String, Object> properties;
@@ -39,27 +42,30 @@ public class ExperimentalProperties {
 
     public static ExperimentalProperties of(Environment environment) {
 
-        MutablePropertySources propertySources = ((AbstractEnvironment) environment).getPropertySources();
-        Map<String, Object> collect = propertySources.stream()
-                .filter(ps -> ps instanceof EnumerablePropertySource)
-                .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
-                .flatMap(Arrays::stream)
-                .filter(propName -> propName.startsWith(PREFIX))
-                .collect(Collectors.toMap(Function.identity(), toValue(environment)));
-        
-        return new ExperimentalProperties(collect);
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (PropertySource<?> ps : ((ConfigurableEnvironment) environment).getPropertySources()) {
+            if (ps instanceof EnumerablePropertySource<?> source) {
+                for (String name : source.getPropertyNames()) {
+                    if (name.startsWith(PREFIX)) {
+                        Object value = getValue(environment, name);
+                        map.putIfAbsent(name, value);
+                    }
+                }
+            }
+        }
+        return new ExperimentalProperties(map);
     }
 
-    private static Function<String, Object> toValue(Environment environment) {
-        return key -> {
-            final String value = environment.getProperty(key);
-            final Boolean boolValue = parseBoolean(value);
-            if (boolValue != null) {
-                return boolValue;
-            }
-
+    private static Object getValue(Environment environment, String key) {
+        final String value = environment.getProperty(key);
+        if (StringUtils.isEmpty(value)) {
             return value;
-        };
+        }
+        final Boolean boolValue = parseBoolean(value);
+        if (boolValue != null) {
+            return boolValue;
+        }
+        return value;
     }
 
     private static Boolean parseBoolean(String value) {
