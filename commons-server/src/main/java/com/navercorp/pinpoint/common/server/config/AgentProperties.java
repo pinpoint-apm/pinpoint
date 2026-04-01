@@ -23,8 +23,8 @@ import java.util.Set;
 public class AgentProperties {
 
     // Service types that require span statistics check instead of ping-based status filtering
-    @Value("${pinpoint.agent.statistics-check-service-types:1220,1400,1700}")
-    private Set<Integer> statisticsCheckServiceTypeCodes; // OTLP(1220), Node(1400), Python(1700)
+    @Value("${pinpoint.agent.statistics-check-service-types:1220,1400}")
+    private Set<Integer> statisticsCheckServiceTypeCodes; // OTLP(1220), Node(1400)
 
     // Service types whose agents do not send serviceType in the gRPC header (handled as serviceTypeCode -1)
     @Value("${pinpoint.agent.missing-header-service-types:1400,1700,1800,1550}")

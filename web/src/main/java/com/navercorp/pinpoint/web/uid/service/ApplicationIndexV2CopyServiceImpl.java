@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.web.uid.service;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
-import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
@@ -21,7 +20,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2CopyService {
@@ -34,22 +32,17 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
     private final AgentIdDao agentIdDao;
 
     private final AgentLifeCycleDao agentLifeCycleDao;
-    private final Set<Integer> missingHeaderServiceTypeCodes;
-
-    private static final int UNDEFINED_SERVICE_TYPE_CODE = -1;
 
     public ApplicationIndexV2CopyServiceImpl(ApplicationIndexDao applicationIndexDao,
                                              AgentInfoDao agentInfoDao,
                                              ApplicationDao applicationDao,
                                              AgentIdDao agentIdDao,
-                                             AgentLifeCycleDao agentLifeCycleDao,
-                                             AgentProperties agentListProperties) {
+                                             AgentLifeCycleDao agentLifeCycleDao) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
-        this.missingHeaderServiceTypeCodes = agentListProperties.getMissingHeaderServiceTypeCodes();
     }
 
     @Override
@@ -64,7 +57,7 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
             if (application.getServiceType().equals(ServiceType.UNDEFINED)) {
                 continue;
             }
-            applicationDao.insert(ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getApplicationName(), application.getServiceTypeCode());
+            applicationDao.insert(application.getService().getUid(), application.getApplicationName(), application.getServiceTypeCode());
         }
         stopWatch.stop();
         logger.info(stopWatch.prettyPrint());
@@ -164,12 +157,11 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
             for (int i = 0; i < agentInfoBoList.size(); i++) {
                 AgentInfoBo agentInfoBo = agentInfoBoList.get(i);
                 AgentStatus agentStatus = currentAgentStatus.get(i).orElse(null);
+                if (agentStatus == null || agentStatus.getEventTimestamp() <= 0) {
+                    logger.debug("agent with no status. agentInfoBo={}, agentStatus={}", agentInfoBo, agentStatus);
+                }
                 agentIdDao.insert(ServiceUid.DEFAULT_SERVICE_UID_CODE, agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId(),
                         agentInfoBo.getStartTime(), agentInfoBo.getAgentName(), agentStatus);
-                if (missingHeaderServiceTypeCodes.contains(agentInfoBo.getServiceTypeCode())) {
-                    agentIdDao.insert(ServiceUid.DEFAULT_SERVICE_UID_CODE, agentInfoBo.getApplicationName(), UNDEFINED_SERVICE_TYPE_CODE, agentInfoBo.getAgentId(),
-                            agentInfoBo.getStartTime(), agentInfoBo.getAgentName(), agentStatus);
-                }
             }
         } catch (Exception e) {
             logger.error("Failed to insert agentInfoBo batch. batchSize={}", agentInfoBoList.size(), e);

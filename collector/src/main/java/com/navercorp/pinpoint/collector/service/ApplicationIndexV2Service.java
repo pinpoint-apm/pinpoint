@@ -2,10 +2,10 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentIdDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationDao;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 @Service
 public class ApplicationIndexV2Service {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ThrottledLogger tLogger = ThrottledLogger.getLogger(logger, 100);
 
     private final ApplicationDao applicationDao;
     private final AgentIdDao agentIdDao;
@@ -61,13 +62,10 @@ public class ApplicationIndexV2Service {
             // Cache serviceType for ping session resolution
             cachedApplicationServiceTypeService.put(agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
             if (!missingHeaderServiceTypeCodes.contains(agentInfoBo.getServiceTypeCode())) {
-                logger.warn("Unhandled missing header serviceType. agentServiceType={}, agentId={}", agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
+                tLogger.warn("Unhandled missing header serviceType. applicationName={}, serviceType={}, agentId={}", agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
             }
         } else {
             logger.warn("Missing serviceType header for non-default service. serviceUid={}, agentServiceType={}, agentId={}", serviceUid, agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
         }
-        // Handle missing serviceType: initial pings cannot resolve serviceType,
-        // so update agent state here when agentInfo arrives with the actual serviceType
-        //agentIdDao.updateState(serviceUid.getUid(), agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId(), agentInfoBo.getStartTime(), agentInfoBo.getStartTime(), AgentLifeCycleState.RUNNING);
     }
 }

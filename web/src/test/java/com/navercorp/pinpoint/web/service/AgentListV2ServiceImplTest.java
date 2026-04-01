@@ -40,7 +40,6 @@ import static com.navercorp.pinpoint.common.server.util.AgentLifeCycleState.UNKN
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,7 +61,6 @@ public class AgentListV2ServiceImplTest {
     @BeforeEach
     public void setup() {
         when(agentProperties.getStatisticsCheckServiceTypeCodes()).thenReturn(Set.of());
-        when(agentProperties.getMissingHeaderServiceTypeCodes()).thenReturn(Set.of());
         agentListV2Service = new AgentListV2ServiceImpl(agentProperties, agentIdDao, mapAgentResponseDao);
     }
 
@@ -155,59 +153,5 @@ public class AgentListV2ServiceImplTest {
 
         Assertions.assertThat(agentList).hasSize(1);
         Assertions.assertThat(agentList.get(0).getAgentId()).isEqualTo(agentId);
-    }
-
-    @Test
-    public void missingHeaderServiceTypeTest() {
-        long currentTime = System.currentTimeMillis();
-        long from = currentTime - Duration.ofMinutes(25).toMillis();
-        long to = currentTime - Duration.ofMinutes(5).toMillis();
-        Range range = Range.between(from, to);
-        Application actualApp = new Application("testApp", ServiceType.JAVA);
-        Application undefinedApp = new Application("testApp", ServiceType.UNDEFINED);
-
-        String agentId = "testAgent";
-        long agentStartTime = currentTime - Duration.ofHours(1).toMillis();
-
-        when(agentProperties.getMissingHeaderServiceTypeCodes()).thenReturn(Set.of((int) ServiceType.JAVA.getCode()));
-        when(agentIdDao.getAgentIdEntryByMinStateTimestamp(anyInt(), any(), eq((int) ServiceType.JAVA.getCode()), anyLong()))
-                .thenReturn(List.of(new AgentIdEntry(actualApp, agentId, agentStartTime, null, RUNNING, currentTime - 1))); // active but with older timestamp
-        when(agentIdDao.getAgentIdEntryByMinStateTimestamp(anyInt(), any(), eq(-1), anyLong()))
-                .thenReturn(List.of(new AgentIdEntry(undefinedApp, agentId, agentStartTime, null, RUNNING, currentTime))); // duplicate with newer timestamp
-
-        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(ServiceUid.DEFAULT, actualApp.getApplicationName(), actualApp.getServiceType(), range);
-
-        Assertions.assertThat(agentList).hasSize(1);
-        Assertions.assertThat(agentList.get(0).getCurrentStateTimestamp()).isEqualTo(currentTime);
-    }
-
-    @Test
-    public void missingHeaderServiceTypeStatisticsTest() {
-        long currentTime = System.currentTimeMillis();
-        long from = currentTime - Duration.ofMinutes(25).toMillis();
-        long to = currentTime - Duration.ofMinutes(5).toMillis();
-        Range range = Range.between(from, to);
-        Application actualApp = new Application("testApp", ServiceType.JAVA);
-        Application undefinedApp = new Application("testApp", ServiceType.UNDEFINED);
-
-        String agentId = "testAgent";
-        String agentId2 = "undefinedOnly";
-        long agentStartTime = currentTime - Duration.ofHours(1).toMillis();
-
-        when(agentProperties.getStatisticsCheckServiceTypeCodes()).thenReturn(Set.of((int) ServiceType.JAVA.getCode()));
-        when(agentProperties.getMissingHeaderServiceTypeCodes()).thenReturn(Set.of((int) ServiceType.JAVA.getCode()));
-        when(agentIdDao.getAgentIdEntry(anyInt(), any(), eq((int) ServiceType.JAVA.getCode())))
-                .thenReturn(List.of(new AgentIdEntry(actualApp, agentId, agentStartTime, null, RUNNING, currentTime))); // active
-        when(agentIdDao.getAgentIdEntry(anyInt(), any(), eq(-1)))
-                .thenReturn(List.of(
-                        new AgentIdEntry(undefinedApp, agentId, agentStartTime, null, RUNNING, 0),
-                        new AgentIdEntry(undefinedApp, agentId2, agentStartTime, null, RUNNING, 0)
-                ));
-        when(mapAgentResponseDao.selectAgentIds(any(), any())).thenReturn(Set.of(agentId2)); // agentId2 has statistics
-
-        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(ServiceUid.DEFAULT, actualApp.getApplicationName(), actualApp.getServiceType(), range);
-
-        Assertions.assertThat(agentList).hasSize(2);
-        Assertions.assertThat(agentList).extracting(AgentIdEntry::getAgentId).containsExactlyInAnyOrder(agentId, agentId2);
     }
 }

@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.batch.job.ApplicationCleanupTasklet;
 import com.navercorp.pinpoint.batch.util.JobParametersUtils;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
-import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
+import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
@@ -157,13 +157,11 @@ public class CleanupAgentAndApplicationJobConfig {
             @Value("${job.cleanup.inactive.agent.fetch-size:2000}") int fetchSize,
             @Value("${job.cleanup.inactive.agent.max-iteration:100000}") int maxIteration,
             AgentIdDao agentIdDao,
-            ApplicationDao applicationDao,
             MapAgentResponseDao mapAgentResponseDao
     ) {
         int inactiveDays = Math.max(batchProperties.getCleanupAgentInactiveThresholdDays(), batchProperties.getCleanupAgentAndApplicationGraceDays());
         return new AgentIdCleanupTasklet(
                 agentIdDao,
-                applicationDao,
                 mapAgentResponseDao,
                 dryRun,
                 baseTimestamp,
@@ -184,21 +182,22 @@ public class CleanupAgentAndApplicationJobConfig {
             @Value("${job.cleanup.inactive.application.agent-count-threshold:2147483647}") int agentCountThreshold,
             ApplicationDao applicationDao,
             AgentIdDao agentIdDao,
-            AgentListV2Service agentListV2Service
+            TraceIndexDao traceIndexDao,
+            MapAgentResponseDao mapAgentResponseDao
     ) {
         long cleanupWindowMillis = calculateCleanupWindowMillis(baseTimestamp, lastCompletedJobTime);
         logger.info("applicationCleanupTasklet: cleanupWindowMillis={}", cleanupWindowMillis);
         return new ApplicationCleanupTasklet(
                 applicationDao,
                 agentIdDao,
-                agentListV2Service,
+                traceIndexDao,
+                mapAgentResponseDao,
                 dryRun,
                 baseTimestamp,
                 serviceUidList,
                 agentCountThreshold,
                 batchProperties.getCleanupAgentInactiveThresholdDays(),
                 batchProperties.getCleanupAgentAndApplicationGraceDays(),
-                agentProperties.getMissingHeaderServiceTypeCodes(),
                 agentProperties.getStatisticsCheckServiceTypeCodes(),
                 cleanupWindowMillis
         );
@@ -236,5 +235,4 @@ public class CleanupAgentAndApplicationJobConfig {
         logger.info("No previous completed job found for job={}, searchLimit={}", JOB_NAME, searchLimit);
         return null;
     }
-
 }
