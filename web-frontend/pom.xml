@@ -55,6 +55,21 @@
                             <skipAssembly>${build.frontend.skip}</skipAssembly>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>build-claude-source</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/assembly/claude.xml</descriptor>
+                            </descriptors>
+                            <attach>true</attach>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
