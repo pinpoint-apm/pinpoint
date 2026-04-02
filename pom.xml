@@ -2043,6 +2043,7 @@
                         <exclude>**/Abstract*</exclude>
                         <exclude>**/*Helper</exclude>
                         <exclude>**/*$*</exclude>
+                        <exclude>**/*IntegrationTest.java</exclude>
                     </excludes>
                     <!-- Add  @{argLine} for jacoco -->
                     <argLine>@{argLine}</argLine>
