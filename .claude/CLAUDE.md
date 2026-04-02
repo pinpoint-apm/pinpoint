@@ -28,7 +28,7 @@ Core components:
 Format: `[#issue_number] Description` or `[#noissue] Description`
 
 - Issue numbers are numeric only, or `noissue` (lowercase).
-- Examples: `[#2314] Fix agent nbase-t plugin unknown db`, `[#noissue] Refactor AgentInfoService`
+- Examples: `[#2314] Fix agent tomcat plugin bug`, `[#noissue] Refactor collector SpanService`
 
 
 ## Key Tech Stack
@@ -39,7 +39,3 @@ Format: `[#issue_number] Description` or `[#noissue] Description`
 - **Storage:** HBase 2.5.x, Apache Pinot 1.3.x
 - **Frontend:** React/TypeScript, Node 22.x, Yarn 1.22.x
 - **DTO Mapping:** MapStruct 1.6.x
-
-## Frontend
-
-Located at `web-frontend/src/main/v3/`. Built via Maven frontend plugin using Yarn. Can be skipped with `-Dbuild.frontend.skip=true`.
