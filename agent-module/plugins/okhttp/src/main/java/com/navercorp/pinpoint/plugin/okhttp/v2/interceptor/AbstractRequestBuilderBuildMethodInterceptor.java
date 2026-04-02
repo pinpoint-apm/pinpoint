@@ -70,6 +70,9 @@ public abstract class AbstractRequestBuilderBuildMethodInterceptor implements Ar
                 return;
             }
             final Request.Builder builder = ((Request.Builder) target);
+            if (requestTraceWriter.isNested(builder)) {
+                return;
+            }
 
             if (trace.canSampled()) {
                 final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
