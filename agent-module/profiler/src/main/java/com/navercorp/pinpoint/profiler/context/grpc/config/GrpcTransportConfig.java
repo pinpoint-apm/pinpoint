@@ -75,6 +75,11 @@ public class GrpcTransportConfig {
 
     public static final boolean DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE = true;
 
+    private static final boolean DEFAULT_SPAN_SENDER_BATCH_ENABLE = false;
+    private static final int DEFAULT_SPAN_SENDER_BATCH_SIZE = 50;
+    private static final long DEFAULT_SPAN_SENDER_BATCH_FLUSH_INTERVAL_MILLIS = 1000;
+    private static final long DEFAULT_SPAN_SENDER_BATCH_COLLECT_DEADLINE_TIME_MILLIS = 500;
+
     private static final boolean DEFAULT_ENABLE_SPAN_STATS_LOGGING = false;
 
     private ClientOption agentClientOption = new ClientOption();
@@ -154,6 +159,15 @@ public class GrpcTransportConfig {
     private int spanChannelExecutorQueueSize = DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE;
     @Value("${profiler.transport.grpc.span.stats.logging.enable}")
     private boolean spanEnableStatLogging = DEFAULT_ENABLE_SPAN_STATS_LOGGING;
+
+    @Value("${profiler.transport.grpc.span.sender.batch.enable}")
+    private boolean spanSenderBatchEnable = DEFAULT_SPAN_SENDER_BATCH_ENABLE;
+    @Value("${profiler.transport.grpc.span.sender.batch.size}")
+    private int spanSenderBatchSize = DEFAULT_SPAN_SENDER_BATCH_SIZE;
+    @Value("${profiler.transport.grpc.span.sender.batch.flush.interval.millis}")
+    private long spanSenderBatchFlushIntervalMillis = DEFAULT_SPAN_SENDER_BATCH_FLUSH_INTERVAL_MILLIS;
+    @Value("${profiler.transport.grpc.span.sender.batch.collect.deadline.time.millis}")
+    private long spanSenderBatchCollectDeadLineTimeMillis = DEFAULT_SPAN_SENDER_BATCH_COLLECT_DEADLINE_TIME_MILLIS;
 
     @Value("${profiler.transport.grpc.span.sender.discardpolicy.logger.discard.ratelimit}")
     private int spanDiscardLogRateLimit = DEFAULT_DISCARD_LOG_RATE_LIMIT;
@@ -411,6 +425,22 @@ public class GrpcTransportConfig {
 
     public boolean isSpanEnableStatLogging() {
         return spanEnableStatLogging;
+    }
+
+    public boolean isSpanSenderBatchEnable() {
+        return spanSenderBatchEnable;
+    }
+
+    public int getSpanSenderBatchSize() {
+        return spanSenderBatchSize;
+    }
+
+    public long getSpanSenderBatchFlushIntervalMillis() {
+        return spanSenderBatchFlushIntervalMillis;
+    }
+
+    public long getSpanSenderBatchCollectDeadLineTimeMillis() {
+        return spanSenderBatchCollectDeadLineTimeMillis;
     }
 
     public boolean isNettySystemPropertyTryReflectiveSetAccessible() {
