@@ -27,7 +27,7 @@ Core components:
 
 Format: `[#issue_number] Description` or `[#noissue] Description`
 
-- Issue numbers are numeric only, or `noissue` (lowercase).
+- Issue numbers are numeric only, or `#noissue` (lowercase).
 - Examples: `[#2314] Fix agent tomcat plugin bug`, `[#noissue] Refactor collector SpanService`
 
 
