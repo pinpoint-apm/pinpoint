@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.controller;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionFor
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
+import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMapViewBuilder;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
@@ -39,6 +41,7 @@ import com.navercorp.pinpoint.web.vo.SearchOption;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -47,7 +50,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author emeroad
@@ -121,6 +127,50 @@ public class MapController {
         ApplicationMapView applicationMapView = new ApplicationMapViewV3(map, timeWindow, nodeRender, linkRender);
 
         return new MapWrap(applicationMapView);
+    }
+
+    @GetMapping(value = "/serviceMap")
+    public MapWrap getServiceMapData(
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
+            @Valid @ModelAttribute
+            SearchOptionForm searchForm,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "keepServiceNames", required = false)
+            List<String> keepServiceNames
+    ) {
+        final TimeWindow timeWindow = newTimeWindow(rangeForm);
+
+        final SearchOption searchOption = searchOptionBuilder()
+                .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
+
+        final Application application = getApplication(appForm);
+
+        final MapServiceOption option = new MapServiceOption
+                .Builder(application, timeWindow, searchOption)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        logger.info("Select serviceMap {}. option={}", TimeHistogramFormat.V3, option);
+        final ApplicationMap map = this.mapService.selectApplicationMap(option);
+
+        final Set<String> keepServices = getKeepServices(keepServiceNames);
+
+        NodeRender nodeRender = NodeRender.forServiceMap(mapProperties);
+        LinkRender linkRender = LinkRender.forServiceMap(mapProperties);
+        ServiceMapViewBuilder builder = new ServiceMapViewBuilder(map, timeWindow, nodeRender, linkRender, keepServices);
+
+        return new MapWrap(builder.build());
+    }
+
+    private @NonNull Set<String> getKeepServices(List<String> keepServiceNames) {
+        if (keepServiceNames == null) {
+            return Set.of(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+        }
+        return new HashSet<>(keepServiceNames);
     }
 
     private Application getApplication(ApplicationForm appForm) {
