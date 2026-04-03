@@ -1,5 +1,5 @@
 package com.navercorp.pinpoint.bootstrap.interceptor.holder;
 
-@InterceptorHolderBootstrap(100)
+@InterceptorHolderBootstrap(1000)
 public class InterceptorHolderGenerator {
 }
