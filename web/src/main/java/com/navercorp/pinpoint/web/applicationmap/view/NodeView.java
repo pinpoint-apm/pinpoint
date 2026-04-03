@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWrite
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
+import com.navercorp.pinpoint.web.applicationmap.servicemap.NodeViewEntry;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import org.springframework.boot.jackson.JsonComponent;
@@ -35,7 +36,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
-public class NodeView {
+public class NodeView implements NodeViewEntry {
     private final Node node;
 
     private final ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView;
@@ -108,6 +109,7 @@ public class NodeView {
 //        jgen.writeStringField("id", node.getNodeName()); serverInstanceList
             if (nodeView.serviceMap) {
                 jgen.writeObjectField("key", node.getServiceNodeName().toString());
+                jgen.writeStringField("type", "app");
             } else {
                 jgen.writeObjectField("key", node.getNodeName());
             }

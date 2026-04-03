@@ -32,6 +32,13 @@ public interface LinkRender {
                 mapProperties.isEnableServiceMap());
     }
 
+    static LinkRender forServiceMap(MapProperties mapProperties) {
+        return new DefaultLinkRender(
+                ApplicationTimeSeriesHistogramLinkView.detailedView(TimeHistogramView.TimeseriesHistogram),
+                AgentLinkView.emptyView(),
+                true);
+    }
+
     static LinkRender detailedRender(TimeHistogramView timeHistogramView,
                                      MapProperties mapProperties) {
         return new DefaultLinkRender(
