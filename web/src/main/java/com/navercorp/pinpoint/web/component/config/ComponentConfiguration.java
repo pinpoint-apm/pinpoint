@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.component.DefaultAnnotationKeyMatcherService;
@@ -38,8 +39,8 @@ import org.springframework.context.annotation.Import;
 public class ComponentConfiguration {
 
     @Bean
-    public ApplicationFactory applicationFactory(ServiceTypeRegistryService registry) {
-        return new DefaultApplicationFactory(registry);
+    public ApplicationFactory applicationFactory(ServiceTypeRegistryService registry, ServiceResolver serviceResolver) {
+        return new DefaultApplicationFactory(registry, serviceResolver);
     }
 
     @Bean
