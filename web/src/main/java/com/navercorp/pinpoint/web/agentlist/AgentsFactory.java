@@ -27,7 +27,8 @@ import com.navercorp.pinpoint.web.vo.agent.AgentNameGroupView;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 
-import java.util.ArrayList;
+import org.springframework.util.StringUtils;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -56,33 +57,32 @@ public class AgentsFactory {
     }
 
     public static List<AgentStatusAndLink> extractVirtualNode(NodeHistogramSummary nodeHistogramSummary, HyperLinkFactory hyperLinkFactory) {
-        List<AgentStatusAndLink> agentStatusAndLinks = new ArrayList<>();
-        for (ServerGroup group : nodeHistogramSummary.getServerGroupList().getServerGroupList()) {
-            for (ServerInstance instance : group.getInstanceList()) {
-                AgentInfo agentInfo = new AgentInfo();
-                agentInfo.setAgentId(instance.getName());
-                agentInfo.setAgentName(instance.getAgentName(), instance.getName());
-                agentInfo.setHostName(instance.getHostName());
-                agentInfo.setIp(instance.getIp());
-                agentInfo.setServiceType(instance.getServiceType());
+        return nodeHistogramSummary.getServerGroupList().getServerGroupList().stream()
+                .flatMap(group -> group.getInstanceList().stream())
+                .map(instance -> {
+                    AgentInfo agentInfo = new AgentInfo();
+                    agentInfo.setAgentId(instance.getName());
+                    agentInfo.setAgentName(instance.getAgentName(), instance.getName());
+                    agentInfo.setHostName(instance.getHostName());
+                    agentInfo.setIp(instance.getIp());
+                    agentInfo.setServiceType(instance.getServiceType());
 
-                AgentStatus agentStatus = new AgentStatus(instance.getName(), instance.getStatus(), 0);
+                    AgentStatus agentStatus = new AgentStatus(instance.getName(), instance.getStatus(), 0);
 
-                agentStatusAndLinks.add(new AgentStatusAndLink(
-                        agentInfo,
-                        agentStatus,
-                        newHyperLink(hyperLinkFactory, instance)
-                ));
-            }
-        }
-        return agentStatusAndLinks;
+                    return new AgentStatusAndLink(
+                            agentInfo,
+                            agentStatus,
+                            newHyperLink(hyperLinkFactory, instance)
+                    );
+                })
+                .toList();
     }
 
     public static List<AgentNameGroupView> groupByAgentName(List<AgentStatusAndLink> agents) {
         return agents.stream()
                 .collect(Collectors.groupingBy(a -> {
                     String agentName = a.getAgentInfo().getAgentName();
-                    return (agentName != null && !agentName.isEmpty()) ? agentName : a.getAgentInfo().getAgentId();
+                    return StringUtils.hasText(agentName) ? agentName : a.getAgentInfo().getAgentId();
                 }))
                 .values().stream()
                 .map(group -> {
