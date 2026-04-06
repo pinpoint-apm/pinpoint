@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWriter;
@@ -63,32 +62,8 @@ public class LinkViewTest {
 
 
     @Test
-    public void testSerializeV1() throws JsonProcessingException {
-        TimeHistogramFormat version = TimeHistogramFormat.V3;
-        LinkView linkView = newLinkView(version);
-
-        ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
-        String s = objectWriter.writeValueAsString(linkView);
-
-        logger.debug("{}", s);
-    }
-
-    @Test
-    public void testSerializeV2() throws JsonProcessingException {
-        TimeHistogramFormat version = TimeHistogramFormat.V3;
-        LinkView linkView = newLinkView(version);
-
-        ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
-        String s = objectWriter.writeValueAsString(linkView);
-
-        logger.debug("{}", s);
-    }
-
-
-    @Test
     public void testSerializeV3() throws JsonProcessingException {
-        TimeHistogramFormat version = TimeHistogramFormat.V3;
-        LinkView linkView = newLinkView(version);
+        LinkView linkView = newLinkView();
 
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
         String s = objectWriter.writeValueAsString(linkView);
@@ -96,7 +71,7 @@ public class LinkViewTest {
         logger.debug("{}", s);
     }
 
-    private LinkView newLinkView(TimeHistogramFormat version) {
+    private LinkView newLinkView() {
         Node node1 = new Node(new Application("test1", ServiceType.STAND_ALONE));
         Node node2 = new Node(new Application("test1", ServiceType.STAND_ALONE));
 

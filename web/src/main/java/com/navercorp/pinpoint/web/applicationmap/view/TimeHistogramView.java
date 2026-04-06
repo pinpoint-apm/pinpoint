@@ -20,13 +20,11 @@ import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
-import java.util.Objects;
 
 public interface TimeHistogramView {
 
@@ -48,8 +46,9 @@ public interface TimeHistogramView {
         return build(histogram.getApplication(), histogram.getHistogramList());
     }
 
+    // V1: key is slot("1s", "3s", "5s", "Slow", "Error"), value is {timestamp : count}
     TimeHistogramView ResponseTime = new ResponseTimeTimeHistogramBuilder();
-
+    // V3: key is slot("1s", "3s", "5s", "Slow", "Error"), value is {count}, timestamp is in root
     TimeHistogramView TimeseriesHistogram = new TimeseriesHistogramBuilder();
 
 
@@ -63,14 +62,5 @@ public interface TimeHistogramView {
         public List<TimeHistogramViewModel> build(Application application, List<TimeHistogram> histogramList) {
             return new TimeseriesHistogramViewBuilder(application, histogramList).build();
         }
-    }
-
-    static TimeHistogramView format(TimeHistogramFormat format) {
-        Objects.requireNonNull(format, "format");
-        return switch (format) {
-            case V1 -> ResponseTime;
-            case V2 -> throw new UnsupportedOperationException("Unsupported V2 model");
-            case V3 -> TimeseriesHistogram;
-        };
     }
 }

@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.web.applicationmap.config.MapProperties;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionForm;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
@@ -113,7 +112,7 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        logger.info("Select applicationMap {}. option={}", TimeHistogramFormat.V3, option);
+        logger.info("Select applicationMap option={}", option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
         NodeRender nodeRender = NodeRender.forServerMap(mapProperties);
