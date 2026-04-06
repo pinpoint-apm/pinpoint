@@ -31,6 +31,36 @@ export function useServerMapOnClickMenuItem<
 }) {
   const serverMapData = useAtomValue(serverMapDataAtom);
 
+  // Extracts correct applicationName/serviceType from atom data, overriding
+  // values parsed from node/edge IDs. This is necessary because serviceMap uses
+  // "serviceName^applicationName^serviceType" key format which getDefaultFilters
+  // cannot parse correctly.
+  const getAtomApplicationInfo = (data: Node | Edge): Partial<FilteredMap.FilterState> => {
+    if ('source' in data) {
+      const edgeData = data as Edge;
+      const link = (serverMapData?.applicationMapData?.linkDataArray as R[])?.find(
+        (l) => l?.key === edgeData.id,
+      );
+      if (link?.sourceInfo && link?.targetInfo) {
+        return {
+          fromApplication: link.sourceInfo.applicationName,
+          fromServiceType: link.sourceInfo.serviceType,
+          toApplication: link.targetInfo.applicationName,
+          toServiceType: link.targetInfo.serviceType,
+        };
+      }
+    } else if ('type' in data) {
+      const nodeData = data as Node;
+      const node = (serverMapData?.applicationMapData?.nodeDataArray as T[])?.find(
+        (n) => n?.key === nodeData.id,
+      );
+      if (node) {
+        return { applicationName: node.applicationName, serviceType: node.serviceType };
+      }
+    }
+    return {};
+  };
+
   return (type: SERVERMAP_MENU_FUNCTION_TYPE, data: Node | Edge) => {
     if (type === SERVERMAP_MENU_FUNCTION_TYPE.FILTER_WIZARD) {
       let serverInfos: Parameters<typeof getDefaultFilters>[1];
@@ -53,11 +83,17 @@ export function useServerMapOnClickMenuItem<
         };
       }
 
-      setFilter?.(getDefaultFilters(data, serverInfos));
+      setFilter?.({
+        ...getDefaultFilters(data, serverInfos),
+        ...getAtomApplicationInfo(data),
+      } as FilteredMap.FilterState);
       setShowFilter?.(true);
       setShowFilterConfig?.(true);
     } else if (type === SERVERMAP_MENU_FUNCTION_TYPE.FILTER_TRANSACTION) {
-      const defaultFilterState = getDefaultFilters(data);
+      const defaultFilterState = {
+        ...getDefaultFilters(data),
+        ...getAtomApplicationInfo(data),
+      } as FilteredMap.FilterState;
       const link = (serverMapData?.applicationMapData?.linkDataArray as R[])?.find(
         (l) => l?.key === data?.id,
       );
