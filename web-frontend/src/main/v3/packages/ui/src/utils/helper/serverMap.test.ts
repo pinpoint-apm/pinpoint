@@ -206,7 +206,7 @@ describe('Test serverMap helper utils', () => {
         expect(result).toBe('default^my\\^app^TOMCAT');
       });
 
-      test('Return UNAUTHORIZED key when node does not exist', () => {
+      test('Return empty string when no matching node exists (avoids non-existent 2-part key)', () => {
         const application: ApplicationType = {
           applicationName: 'test-app',
           serviceType: 'TOMCAT',
@@ -225,7 +225,7 @@ describe('Test serverMap helper utils', () => {
         };
 
         const result = getBaseNodeId({ application, applicationMapData, enableServiceMap: true });
-        expect(result).toBe('test-app^UNAUTHORIZED');
+        expect(result).toBe('');
       });
 
       test('Return UNAUTHORIZED node key when UNAUTHORIZED node exists', () => {

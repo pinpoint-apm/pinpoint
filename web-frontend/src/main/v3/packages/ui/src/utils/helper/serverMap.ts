@@ -128,7 +128,9 @@ export const getBaseNodeId = ({
       if (unauthorizedNode) {
         return (unauthorizedNode as { key: string }).key;
       }
-      return `${applicationName}^UNAUTHORIZED`;
+      // No matching node found — return empty string to avoid passing a non-existent
+      // 2-part key as baseNodeId in enableServiceMap mode (all keys are 3-part).
+      return '';
     }
 
     const baseNodeId = `${applicationName}^${serviceType}`;
