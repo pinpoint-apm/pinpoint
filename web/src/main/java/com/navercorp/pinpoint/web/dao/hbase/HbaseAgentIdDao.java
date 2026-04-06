@@ -99,21 +99,6 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public List<AgentIdEntry> getAgentIdEntryByMaxStateTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long maxStateTimestamp) {
-        byte[] rowKeyPrefix = AgentIdRowKeyUtils.createPrefix(serviceUid, applicationName, serviceTypeCode);
-        Scan scan = createScan(rowKeyPrefix);
-
-        SingleColumnValueFilter filter = new SingleColumnValueFilter(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER, CompareOperator.LESS, new BinaryPrefixComparator(Bytes.toBytes(maxStateTimestamp)));
-        filter.setFilterIfMissing(false);
-        scan.setFilter(filter);
-
-        final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        RowMapper<List<AgentIdEntry>> agentStartTimeInfoMapper = new AgentIdEntryMapper(applicationFactory, AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName));
-        List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentStartTimeInfoMapper);
-        return ListListUtils.toList(results);
-    }
-
-    @Override
     public void delete(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime) {
         byte[] rowKey = AgentIdRowKeyUtils.createRow(serviceUid, applicationName, serviceTypeCode, agentId, agentStartTime);
         Delete delete = new Delete(rowKey);

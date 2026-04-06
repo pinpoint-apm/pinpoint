@@ -18,11 +18,14 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.agentlist.service.AgentsService;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidService;
@@ -47,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,17 +64,20 @@ public class AgentV2Controller {
 
     private final AgentListV2Service agentListV2Service;
     private final AgentsService agentsService;
+    private final RangeValidator rangeValidator;
     private final boolean agentReadV2;
 
     public AgentV2Controller(@Autowired(required = false) ServiceUidService serviceUidService,
                              ServiceTypeRegistryService serviceTypeRegistryService,
                              AgentListV2Service agentListV2Service,
                              AgentsService agentsService,
+                             ConfigProperties configProperties,
                              @Value("${pinpoint.web.agent.read.v2:false}") boolean readAgentV2) {
         this.serviceUidService = serviceUidService;
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentListV2Service = Objects.requireNonNull(agentListV2Service, "agentListV2Service");
         this.agentsService = Objects.requireNonNull(agentsService, "agentsService");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
         this.agentReadV2 = readAgentV2;
     }
 
@@ -95,6 +102,7 @@ public class AgentV2Controller {
         ServiceUid serviceUid = handleServiceUid(serviceName);
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
+        rangeValidator.validate(range);
 
         if (serviceType.equals(ServiceType.UNDEFINED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required for v2 table");
@@ -116,6 +124,7 @@ public class AgentV2Controller {
         ServiceUid serviceUid = handleServiceUid(serviceName);
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
+        rangeValidator.validate(range);
 
         if (!ServiceUid.DEFAULT.equals(serviceUid)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "v1 table only supports 'default' service");
