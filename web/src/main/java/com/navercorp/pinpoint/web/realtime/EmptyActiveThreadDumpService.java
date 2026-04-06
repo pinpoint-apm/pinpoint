@@ -28,12 +28,12 @@ public class EmptyActiveThreadDumpService implements ActiveThreadDumpService {
 
     @Override
     public ATDSupply getLightDump(ClusterKey clusterKey, List<String> threadNames, List<Long> localTraceIds, int limit) {
-        throw new RuntimeException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public ATDSupply getDetailedDump(ClusterKey clusterKey, List<String> threadNames, List<Long> localTraceIds, int limit) {
-        throw new RuntimeException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented");
     }
 
 }
