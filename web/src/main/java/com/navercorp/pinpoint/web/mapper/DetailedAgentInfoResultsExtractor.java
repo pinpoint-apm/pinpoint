@@ -53,6 +53,9 @@ public class DetailedAgentInfoResultsExtractor implements ResultsExtractor<Detai
             return null;
         }
         AgentInfoBo agentInfoBo = agentInfoMapper.mapRow(first, 0);
+        if (agentInfoBo == null) {
+            return null;
+        }
         AgentInfo agentInfo = factory.build(agentInfoBo);
         return new DetailedAgentInfo(agentInfo, agentInfoBo.getServerMetaData(), agentInfoBo.getJvmInfo());
     }

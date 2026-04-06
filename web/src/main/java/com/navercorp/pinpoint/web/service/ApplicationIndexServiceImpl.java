@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
@@ -28,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -46,18 +44,14 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     private final ApplicationIndexDao applicationIndexDao;
     private final ApplicationDao applicationDao;
     private final AgentIdDao agentIdDao;
-    private final Set<Integer> missingHeaderServiceTypeCodes;
     private final boolean v1TableEnabled;
     private final boolean v2TableEnabled;
     private final boolean applicationReadV2;
     private final boolean agentReadV2;
 
-    private static final int UNDEFINED_SERVICE_TYPE_CODE = -1;
-
     public ApplicationIndexServiceImpl(ApplicationIndexDao applicationIndexDao,
                                        ApplicationDao applicationDao,
                                        AgentIdDao agentIdDao,
-                                       AgentProperties agentProperties,
                                        @Value("${pinpoint.web.application.index.v1.enabled:true}") boolean v1TableEnabled,
                                        @Value("${pinpoint.web.application.index.v2.enabled:false}") boolean v2TableEnabled,
                                        @Value("${pinpoint.web.application.read.v2:false}") boolean readApplicationV2,
@@ -65,7 +59,6 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
-        this.missingHeaderServiceTypeCodes = agentProperties.getMissingHeaderServiceTypeCodes();
         this.v1TableEnabled = v1TableEnabled;
         this.v2TableEnabled = v2TableEnabled;
         this.applicationReadV2 = readApplicationV2;
@@ -115,8 +108,6 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     private void deleteApplicationV2(String applicationName, int serviceTypeCode) {
         this.applicationDao.deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
-//        List<AgentIdEntry> entries = queryAgentIdEntries(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
-//        batchDeleteEntries(entries);
     }
 
     @Override
@@ -151,9 +142,10 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
         if (agentReadV2) {
-            return queryAgentIdEntries(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode).stream()
+            return agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode).stream()
                     .map(AgentIdEntry::getAgentId)
                     .distinct()
+                    .sorted()
                     .toList();
         }
         return applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
@@ -196,17 +188,8 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         deleteAgentIds(applicationName, serviceTypeCode, List.of(agentId));
     }
 
-    private List<AgentIdEntry> queryAgentIdEntries(int serviceUid, String applicationName, int serviceTypeCode) {
-        List<AgentIdEntry> entries = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
-        if (missingHeaderServiceTypeCodes.contains(serviceTypeCode)) {
-            entries = new ArrayList<>(entries);
-            entries.addAll(agentIdDao.getAgentIdEntry(serviceUid, applicationName, UNDEFINED_SERVICE_TYPE_CODE));
-        }
-        return entries;
-    }
-
     private void batchDeleteAgentIdsV2(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIds) {
-        List<AgentIdEntry> entries = queryAgentIdEntries(serviceUid, applicationName, serviceTypeCode);
+        List<AgentIdEntry> entries = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
         Set<String> agentIdsSet = new HashSet<>(agentIds);
         List<AgentIdEntry> targets = entries.stream()
                 .filter(e -> agentIdsSet.contains(e.getAgentId()))

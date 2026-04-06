@@ -52,6 +52,9 @@ public class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfo> {
             return null;
         }
         AgentInfoBo agentInfoBo = agentInfoMapper.mapRow(first, 0);
+        if (agentInfoBo == null) {
+            return null;
+        }
         return factory.build(agentInfoBo);
     }
 }

@@ -41,6 +41,9 @@ public class AgentInfoBoMapper implements RowMapper<AgentInfoBo> {
 
     @Override
     public AgentInfoBo mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return null;
+        }
         byte[] rowKey = result.getRow();
         String agentId = BytesUtils.toStringAndRightTrim(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN);
         long reverseStartTime = ByteArrayUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_ID_MAX_LEN);

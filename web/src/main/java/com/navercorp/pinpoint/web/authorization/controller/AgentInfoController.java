@@ -74,21 +74,33 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     public AgentAndStatus getAgentInfo(
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        return this.agentInfoService.findAgentInfoAndStatus(agentId, timestamp);
+        AgentAndStatus result = this.agentInfoService.findAgentInfoAndStatus(agentId, timestamp);
+        if (result == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "agent info not found");
+        }
+        return result;
     }
 
     @GetMapping(value = "/getDetailedAgentInfo")
     public DetailedAgentAndStatus getDetailedAgentInfo(
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        return this.agentInfoService.findDetailedAgentInfoAndStatus(agentId, timestamp);
+        DetailedAgentAndStatus result = this.agentInfoService.findDetailedAgentInfoAndStatus(agentId, timestamp);
+        if (result == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "detailed agent info not found");
+        }
+        return result;
     }
 
     @GetMapping(value = "/getAgentStatus")
     public AgentStatus getAgentStatus(
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        return this.agentInfoService.findAgentStatus(agentId, timestamp);
+        AgentStatus result = this.agentInfoService.findAgentStatus(agentId, timestamp);
+        if (result == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "agent status not found");
+        }
+        return result;
     }
 
     @GetMapping(value = "/getAgentEvent")
@@ -102,7 +114,11 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
             throw new IllegalArgumentException("invalid eventTypeCode [" + eventTypeCode + "]");
         }
 
-        return this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventType);
+        AgentEvent result = this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventType);
+        if (result == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "agent event not found");
+        }
+        return result;
     }
 
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
