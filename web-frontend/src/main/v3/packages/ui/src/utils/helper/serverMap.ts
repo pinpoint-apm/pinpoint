@@ -2,6 +2,7 @@ import {
   ApplicationType,
   FilteredMapType as FilteredMap,
   GetServerMap,
+  GetServiceMap,
 } from '@pinpoint-fe/ui/src/constants';
 import { Edge as ServerMapEdge, Node as ServerMapNode } from '@pinpoint-fe/server-map';
 
@@ -22,6 +23,40 @@ export const getBaseNodeId = ({
     return nodeList.length === 0 || nodeList.some(({ key }: { key: string }) => key === baseNodeId)
       ? baseNodeId
       : baseNodeId.replace(/(.*)\^(.*)/i, '$1^UNAUTHORIZED');
+  }
+  return '';
+};
+
+/**
+ * Returns the base node key for a serviceMap response.
+ * ServiceMap node keys use the format "serviceName^applicationName^serviceType",
+ * so we find the node by matching applicationName and serviceType fields.
+ */
+export const getServiceMapBaseNodeId = ({
+  application,
+  applicationMapData,
+}: {
+  application: ApplicationType | null;
+  applicationMapData?: GetServiceMap.ApplicationMapData;
+}): string => {
+  if (application && applicationMapData) {
+    const nodeList = applicationMapData.nodeDataArray;
+
+    const matchingNode = nodeList.find(
+      (node): node is GetServiceMap.NodeData =>
+        !GetServiceMap.isServiceGroupNode(node) &&
+        node.applicationName === application.applicationName &&
+        node.serviceType === application.serviceType,
+    );
+    if (matchingNode) return matchingNode.key;
+
+    const unauthorizedNode = nodeList.find(
+      (node): node is GetServiceMap.NodeData =>
+        !GetServiceMap.isServiceGroupNode(node) &&
+        node.applicationName === application.applicationName &&
+        node.serviceType === 'UNAUTHORIZED',
+    );
+    if (unauthorizedNode) return unauthorizedNode.key;
   }
   return '';
 };
