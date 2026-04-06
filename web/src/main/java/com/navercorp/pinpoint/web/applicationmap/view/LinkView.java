@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWrite
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
+import com.navercorp.pinpoint.web.applicationmap.servicemap.LinkViewEntry;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import org.springframework.boot.jackson.JsonComponent;
@@ -34,7 +35,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Objects;
 
-public class LinkView {
+public class LinkView implements LinkViewEntry {
     private final Link link;
 
     private final ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView;
@@ -81,13 +82,14 @@ public class LinkView {
             jgen.writeStartObject();
 
             if (linkView.enableServiceMap) {
-                jgen.writeObjectField("key", link.getServiceLinkName().toString());  // for servermap
-                jgen.writeObjectField("from", link.getFrom().getServiceNodeName().toString());  // necessary for servermap
-                jgen.writeObjectField("to", link.getTo().getServiceNodeName().toString()); // necessary for servermap
+                jgen.writeObjectField("key", link.getServiceLinkName().toString());
+                jgen.writeObjectField("from", link.getFrom().getServiceNodeName().toString());
+                jgen.writeObjectField("to", link.getTo().getServiceNodeName().toString());
+                jgen.writeStringField("type", "app");
             } else {
-                jgen.writeObjectField("key", link.getLinkName());  // for servermap
-                jgen.writeObjectField("from", link.getFrom().getNodeName());  // necessary for servermap
-                jgen.writeObjectField("to", link.getTo().getNodeName()); // necessary for servermap
+                jgen.writeObjectField("key", link.getLinkName());
+                jgen.writeObjectField("from", link.getFrom().getNodeName());
+                jgen.writeObjectField("to", link.getTo().getNodeName());
             }
 
             jgen.writeStringField("linkKey", link.getLinkNameKey());
@@ -104,7 +106,7 @@ public class LinkView {
             writerFilterHint(link, jgen);
 
             Histogram histogram = link.getHistogram();
-            jgen.writeNumberField("totalCount", histogram.getTotalCount()); // for go.js
+            jgen.writeNumberField("totalCount", histogram.getTotalCount());
             jgen.writeNumberField("errorCount", histogram.getTotalErrorCount());
             jgen.writeNumberField("slowCount", histogram.getSlowCount());
 
@@ -122,9 +124,9 @@ public class LinkView {
             agentLinkView.writeAgentLink(linkView, jgen);
 
 //        String state = link.getLinkState();
-//        jgen.writeStringField("state", state); // for go.js
+//        jgen.writeStringField("state", state);
             boolean alert = alertViewService.hasAlert(link.getHistogram());
-            jgen.writeBooleanField("hasAlert", alert); // for go.js
+            jgen.writeBooleanField("hasAlert", alert);
 
             jgen.writeEndObject();
         }

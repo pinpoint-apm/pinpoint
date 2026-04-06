@@ -19,26 +19,40 @@ package com.navercorp.pinpoint.web.component;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Service;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 /**
  * @author emeroad
  */
-@Component
 public class DefaultApplicationFactory implements ApplicationFactory {
 
     private final ServiceTypeRegistryService registry;
+    private final ServiceResolver serviceResolver;
 
     public DefaultApplicationFactory(ServiceTypeRegistryService registry) {
-        this.registry = Objects.requireNonNull(registry, "registry");
+        this(registry, ServiceResolver.emptyResolver());
     }
 
-    static Application newApplication(Service service, String applicationName, ServiceType serviceType) {
-        return new Application(service, applicationName, serviceType);
+    public DefaultApplicationFactory(ServiceTypeRegistryService registry,
+                                     ServiceResolver serviceResolver) {
+        this.registry = Objects.requireNonNull(registry, "registry");
+        this.serviceResolver = Objects.requireNonNull(serviceResolver, "serviceResolver");
+    }
+
+    private Application newApplication(Service service, String applicationName, ServiceType serviceType) {
+        Service resolved = resolveService(applicationName, service);
+        return new Application(resolved, applicationName, serviceType);
+    }
+
+    private Service resolveService(String applicationName, Service service) {
+        if (!Service.DEFAULT.equals(service)) {
+            return service;
+        }
+        return serviceResolver.resolve(applicationName, service);
     }
 
     static Service requireDefaultService(int serviceUid) {

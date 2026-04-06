@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWrite
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
+import com.navercorp.pinpoint.web.applicationmap.servicemap.NodeViewEntry;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import org.springframework.boot.jackson.JsonComponent;
@@ -35,7 +36,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
-public class NodeView {
+public class NodeView implements NodeViewEntry {
     private final Node node;
 
     private final ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView;
@@ -105,9 +106,9 @@ public class NodeView {
 
             jgen.writeStartObject();
 
-//        jgen.writeStringField("id", node.getNodeName()); serverInstanceList
             if (nodeView.serviceMap) {
                 jgen.writeObjectField("key", node.getServiceNodeName().toString());
+                jgen.writeStringField("type", "app");
             } else {
                 jgen.writeObjectField("key", node.getNodeName());
             }
@@ -118,7 +119,7 @@ public class NodeView {
 
             Application application = node.getApplication();
             jgen.writeStringField("serviceName", application.getService().getServiceName());
-            jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
+            jgen.writeStringField("applicationName", node.getApplicationTextName());
 
             final ServiceType serviceType = node.getServiceType();
 
@@ -193,13 +194,13 @@ public class NodeView {
             if (nodeServiceType) {
                 Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
                 if (applicationHistogram == null) {
-                    jgen.writeBooleanField("hasAlert", false);  // for go.js
+                    jgen.writeBooleanField("hasAlert", false);
                 } else {
-                    jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount()); // for go.js
+                    jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount());
                     jgen.writeNumberField("errorCount", applicationHistogram.getTotalErrorCount());
                     jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
 
-                    jgen.writeBooleanField("hasAlert", alertViewService.hasAlert(applicationHistogram));  // for go.js
+                    jgen.writeBooleanField("hasAlert", alertViewService.hasAlert(applicationHistogram));
                 }
 
                 ResponseTimeStatics responseTimeStatics = ResponseTimeStatics.fromHistogram(applicationHistogram);
@@ -214,7 +215,7 @@ public class NodeView {
                 AgentHistogramNodeView agentHistogramNodeView = nodeView.getAgentHistogramView();
                 agentHistogramNodeView.writeAgentHistogram(nodeView, jgen);
             } else {
-                jgen.writeBooleanField("hasAlert", false);  // for go.js
+                jgen.writeBooleanField("hasAlert", false);
             }
 
             // time histogram

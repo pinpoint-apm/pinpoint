@@ -45,6 +45,16 @@ public interface NodeRender {
                 mapProperties.isEnableServiceMap());
     }
 
+    static NodeRender forServiceMap() {
+        return new DefaultNodeRender(
+                ApplicationTimeSeriesHistogramNodeView.detailedView(TimeHistogramView.TimeseriesHistogram),
+                ApplicationApdexScoreSlotView.detailedView(),
+                ServerListNodeView.emptyView(),
+                AgentHistogramNodeView.emptyView(),
+                AgentTimeSeriesHistogramNodeView.emptyView(),
+                true);
+    }
+
 
     record DefaultNodeRender(ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView,
                              ApplicationApdexScoreSlotView applicationApdexScoreSlotView,
