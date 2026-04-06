@@ -51,10 +51,10 @@ public class EchoController {
             @RequestParam("startTimeStamp") @PositiveOrZero long startTimeStamp,
             @RequestParam("message") @NotBlank String message
     ) {
-        final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId, startTimeStamp);
+        final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId, startTimeStamp, true);
         if (clusterKey == null) {
             throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    HttpStatus.NOT_FOUND,
                     String.format("Can't find suitable PinpointServer(%s/%s/%d).",
                             applicationName, agentId, startTimeStamp)
             );
