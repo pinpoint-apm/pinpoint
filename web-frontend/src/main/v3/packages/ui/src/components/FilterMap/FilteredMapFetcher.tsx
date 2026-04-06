@@ -1,5 +1,5 @@
 import React from 'react';
-import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
+import { FilteredMapType as FilteredMap, Configuration } from '@pinpoint-fe/ui/src/constants';
 import { useAtom, useSetAtom } from 'jotai';
 import {
   serverMapDataAtom,
@@ -12,6 +12,7 @@ import {
   mergeFilteredMapLinkData,
   getServerImagePath,
   getBaseNodeId,
+  parseNodeKey,
 } from '@pinpoint-fe/ui/src/utils';
 import { MergedNode, MergedEdge, Node, Edge } from '@pinpoint-fe/server-map';
 import { useFilteredMapParameters, useGetFilteredServerMapData } from '@pinpoint-fe/ui/src/hooks';
@@ -21,17 +22,20 @@ import { SERVERMAP_MENU_FUNCTION_TYPE, ServerMapCore, ServerMapCoreProps } from 
 export interface FilteredMapFetcherProps {
   isPaused?: boolean;
   onClickMenuItem?: ServerMapCoreProps['onClickMenuItem'];
+  configuration?: Configuration;
 }
 
 export const FilteredMapFetcher = ({
   isPaused = false,
   onClickMenuItem,
+  configuration,
 }: FilteredMapFetcherProps) => {
   const [serverMapData, setServerMapData] = useAtom(serverMapDataAtom);
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setScatterDataByApplicationKey = useSetAtom(scatterDataByApplicationKeyAtom);
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const { dateRange, application } = useFilteredMapParameters();
+  const enableServiceMap = configuration?.['experimental.enableServiceMap.value'] ?? false;
   const from = dateRange.from.getTime();
   const { data, error, isLoading, setQueryParams } = useGetFilteredServerMapData(isPaused);
   const { t } = useTranslation();
@@ -155,12 +159,15 @@ export const FilteredMapFetcher = ({
   };
 
   const handleMergeStateChange = () => {
-    const [applicationName, serviceType] = getBaseNodeId({
+    const nodeKey = getBaseNodeId({
       application,
-      applicationMapData: data?.applicationMapData,
-    }).split('^');
+      applicationMapData: serverMapData?.applicationMapData,
+      enableServiceMap,
+    });
+    const { applicationName, serviceType } = parseNodeKey(nodeKey);
 
     setServerMapCurrentTarget({
+      id: nodeKey,
       applicationName,
       serviceType,
       imgPath: getServerImagePath({ applicationName, serviceType }),
@@ -178,7 +185,10 @@ export const FilteredMapFetcher = ({
       onMergeStateChange={handleMergeStateChange}
       baseNodeId={getBaseNodeId({
         application,
-        applicationMapData: data?.applicationMapData,
+        // serverMapData와 동일한 누적 데이터 기준으로 baseNodeId를 계산해야
+        // ServerMapCore 렌더 데이터와 일치하여 그래프 위치가 안정적으로 유지됨
+        applicationMapData: serverMapData?.applicationMapData,
+        enableServiceMap,
       })}
       inputPlaceHolder={t('COMMON.SEARCH_INPUT')}
     />

@@ -8,17 +8,130 @@ import { Edge as ServerMapEdge, Node as ServerMapNode } from '@pinpoint-fe/serve
 export type Edge = ServerMapEdge;
 export type Node = ServerMapNode;
 
+/**
+ * Unescapes application name from backend format.
+ * Backend escapes '^' as '\^' and '\' as '\\'
+ * e.g. "my\^app" → "my^app"
+ */
+export const unescapeApplicationName = (escaped: string): string => {
+  let result = '';
+  let i = 0;
+  while (i < escaped.length) {
+    if (escaped[i] === '\\' && i + 1 < escaped.length) {
+      result += escaped[i + 1];
+      i += 2;
+    } else {
+      result += escaped[i];
+      i++;
+    }
+  }
+  return result;
+};
+
+const findLastUnescapedCaret = (str: string): number => {
+  for (let i = str.length - 1; i >= 0; i--) {
+    if (str[i] === '^') {
+      let backslashes = 0;
+      let j = i - 1;
+      while (j >= 0 && str[j] === '\\') {
+        backslashes++;
+        j--;
+      }
+      if (backslashes % 2 === 0) return i;
+    }
+  }
+  return -1;
+};
+
+const findFirstUnescapedCaret = (str: string): number => {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === '^') {
+      let backslashes = 0;
+      let j = i - 1;
+      while (j >= 0 && str[j] === '\\') {
+        backslashes++;
+        j--;
+      }
+      if (backslashes % 2 === 0) return i;
+    }
+  }
+  return -1;
+};
+
+/**
+ * Parses a node key into its components.
+ * - enableServiceMap=false: "applicationName^serviceType"
+ * - enableServiceMap=true:  "serviceName^applicationName(escaped)^serviceType"
+ *   where applicationName may contain escaped carets (\^) that display as ^
+ */
+export const parseNodeKey = (
+  key: string,
+): { serviceName?: string; applicationName: string; serviceType: string } => {
+  const lastCaretPos = findLastUnescapedCaret(key);
+
+  if (lastCaretPos === -1) {
+    return { applicationName: key, serviceType: '' };
+  }
+
+  const serviceType = key.substring(lastCaretPos + 1);
+  const rest = key.substring(0, lastCaretPos);
+  const firstCaretPos = findFirstUnescapedCaret(rest);
+
+  if (firstCaretPos === -1) {
+    // 2-part format: rest is applicationName (no escaping in this format)
+    return { applicationName: rest, serviceType };
+  }
+
+  // 3-part format: serviceName^escapedApplicationName^serviceType
+  const serviceName = rest.substring(0, firstCaretPos);
+  const escapedApplicationName = rest.substring(firstCaretPos + 1);
+  return {
+    serviceName,
+    applicationName: unescapeApplicationName(escapedApplicationName),
+    serviceType,
+  };
+};
+
 export const getBaseNodeId = ({
   application,
   applicationMapData,
+  enableServiceMap = false,
 }: {
   application: ApplicationType | null;
   applicationMapData?: GetServerMap.ApplicationMapData | FilteredMap.ApplicationMapData;
+  enableServiceMap?: boolean;
 }) => {
   if (application && applicationMapData) {
     const nodeList = applicationMapData.nodeDataArray;
-    const baseNodeId = `${application?.applicationName}^${application?.serviceType}`;
+    const { applicationName, serviceType } = application;
 
+    if (enableServiceMap) {
+      if (nodeList.length === 0) {
+        // 아직 데이터가 없는 경우 빈 문자열 반환.
+        // 2-part 폴백(applicationName^serviceType)을 반환하면 이후 실제 노드가 로드될 때
+        // 3-part 키(serviceName^applicationName^serviceType)로 바뀌면서 그래프가 재배치됨.
+        return '';
+      }
+      // NodeData.applicationName is already unescaped, use it directly for matching
+      const matchingNode = nodeList.find(
+        (node: { applicationName: string; serviceType: string }) =>
+          node.applicationName === applicationName && node.serviceType === serviceType,
+      );
+      if (matchingNode) {
+        return (matchingNode as { key: string }).key;
+      }
+      // Not found — look for UNAUTHORIZED node with same applicationName
+      const unauthorizedNode = nodeList.find(
+        (node: { applicationName: string; serviceType: string }) =>
+          node.applicationName === applicationName && node.serviceType === 'UNAUTHORIZED',
+      );
+      if (unauthorizedNode) {
+        return (unauthorizedNode as { key: string }).key;
+      }
+      return `${applicationName}^UNAUTHORIZED`;
+    }
+
+    const baseNodeId = `${applicationName}^${serviceType}`;
     return nodeList.length === 0 || nodeList.some(({ key }: { key: string }) => key === baseNodeId)
       ? baseNodeId
       : baseNodeId.replace(/(.*)\^(.*)/i, '$1^UNAUTHORIZED');

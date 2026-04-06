@@ -17,6 +17,8 @@ export interface Configuration {
   version: string;
   'experimental.enableHeatmap.value': boolean;
   'experimental.enableHeatmap.description': string;
+  'experimental.enableServiceMap.value': boolean;
+  'experimental.enableServiceMap.description': string;
   'experimental.enableServerMapRealTime.value': boolean;
   'experimental.enableServerSideScanForScatter.description': string;
   'experimental.useStatisticsAgentState.value': boolean;

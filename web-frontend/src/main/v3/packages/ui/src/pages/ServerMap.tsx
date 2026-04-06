@@ -216,6 +216,7 @@ export const ServerMapPage = ({
                     </div>
                   )}
                   <ServerMap
+                    configuration={configuration}
                     queryOption={queryOption}
                     onApplyChangedOption={(option) => {
                       navigate(

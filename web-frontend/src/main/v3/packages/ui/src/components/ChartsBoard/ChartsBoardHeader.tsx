@@ -1,5 +1,5 @@
 import { HiOutlineArrowRight } from 'react-icons/hi';
-import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
+import { parseNodeKey } from '@pinpoint-fe/ui/src/utils';
 import { Edge } from '@pinpoint-fe/server-map';
 import { ServerIcon } from '../Application/ServerIcon';
 
@@ -25,14 +25,13 @@ export const ChartsBoardHeader = ({ currentTarget }: ChartsBoardHeaderProps) => 
           </>
         ) : (
           (() => {
-            const sourceApp = getApplicationTypeAndName(currentTarget?.source)!;
+            const sourceApp = parseNodeKey(currentTarget?.source ?? '');
             const targetApp = currentTarget.edges
               ? {
                   applicationName: `total: ${currentTarget.edges.length}`,
-                  serviceType: getApplicationTypeAndName(currentTarget.edges[0].target)!
-                    .serviceType,
+                  serviceType: parseNodeKey(currentTarget.edges[0].target).serviceType,
                 }
-              : getApplicationTypeAndName(currentTarget?.target)!;
+              : parseNodeKey(currentTarget?.target ?? '');
 
             return (
               <div className="flex items-center justify-between w-full">

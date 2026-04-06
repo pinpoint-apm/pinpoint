@@ -5,7 +5,6 @@ import {
   convertParamsToQueryString,
   getServerImagePath,
   getFilteredMapPath,
-  getApplicationKey,
   getServerMapPath,
 } from '@pinpoint-fe/ui/src/utils';
 import { useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
@@ -87,7 +86,7 @@ export const FilteredMapPage = ({
           return {
             ...prevFilter,
             agents: (serverMapData?.applicationMapData.nodeDataArray as FilteredMap.NodeData[])
-              ?.find((n) => n.key === `${prevFilter.applicationName}^${prevFilter.serviceType}`)
+              ?.find((n) => n.applicationName === prevFilter.applicationName && n.serviceType === prevFilter.serviceType)
               ?.agents?.map((agent) => agent.id),
           };
         } else if (
@@ -137,7 +136,8 @@ export const FilteredMapPage = ({
           serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[]
         ).find((node) => {
           return (
-            getApplicationKey(application!) === node.key ||
+            (node.applicationName === application?.applicationName &&
+              node.serviceType === application?.serviceType) ||
             (node.applicationName === application?.applicationName &&
               node.serviceType === 'UNAUTHORIZED')
           );
@@ -261,6 +261,7 @@ export const FilteredMapPage = ({
                     onClickResume={() => setPauseFilteredMapFetcher(false)}
                   />
                   <FilteredMapComponent
+                    configuration={configuration}
                     isPaused={pauseFilteredMapFetcher}
                     onClickMenuItem={handleClickMenuItem}
                   />

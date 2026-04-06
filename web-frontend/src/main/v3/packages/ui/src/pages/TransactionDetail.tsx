@@ -6,14 +6,18 @@ import { useAtomValue } from 'jotai';
 import { FaChevronRight } from 'react-icons/fa6';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { transactionInfoDatasAtom } from '@pinpoint-fe/ui/src/atoms';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
 import { TransactionCharts } from '../components/Transaction/charts/TransactionCharts';
 
 export interface TransactionDetailPageProps {
   transactionInfoProps?: TransactionInfoProps;
+  configuration?: Configuration;
 }
 
-export const TransactionDetailPage = ({ transactionInfoProps }: TransactionDetailPageProps) => {
+export const TransactionDetailPage = ({
+  transactionInfoProps,
+  configuration,
+}: TransactionDetailPageProps) => {
   const { application } = useTransactionSearchParameters();
   const transactionInfoData = useAtomValue(transactionInfoDatasAtom);
 
@@ -49,7 +53,7 @@ export const TransactionDetailPage = ({ transactionInfoProps }: TransactionDetai
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel minSize={60} maxSize={80}>
-          <TransactionInfo disableHeader {...transactionInfoProps} />
+          <TransactionInfo disableHeader {...transactionInfoProps} configuration={configuration} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

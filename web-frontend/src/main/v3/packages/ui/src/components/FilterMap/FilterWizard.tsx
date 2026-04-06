@@ -19,7 +19,7 @@ import { PiDotOutlineLight } from 'react-icons/pi';
 import { GoDot } from 'react-icons/go';
 import { FilterStatus } from './FilterStatus';
 import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
-import { addCommas, getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
+import { addCommas, parseNodeKey } from '@pinpoint-fe/ui/src/utils';
 import { Edge, Node } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
 import { PopoverArrow } from '@radix-ui/react-popover';
 
@@ -56,9 +56,9 @@ export const getDefaultFilters = (
 ) => {
   if ('source' in data) {
     const edgeData = data as Edge;
-    // edge
-    const from = getApplicationTypeAndName(edgeData.source);
-    const to = getApplicationTypeAndName(edgeData.target);
+    // edge — parseNodeKey handles both 2-part (appName^type) and 3-part (svcName^appName^type) formats
+    const from = parseNodeKey(edgeData.source);
+    const to = parseNodeKey(edgeData.target);
     return {
       fromApplication: from?.applicationName,
       fromServiceType: from?.serviceType,
@@ -79,9 +79,9 @@ export const getDefaultFilters = (
       hint,
     };
   } else if ('type' in data) {
-    // node
+    // node — parseNodeKey handles both 2-part (appName^type) and 3-part (svcName^appName^type) formats
     const nodeData = data as Node;
-    const app = getApplicationTypeAndName(nodeData.id);
+    const app = parseNodeKey(nodeData.id);
     return {
       fromApplication: '',
       fromServiceType: '',

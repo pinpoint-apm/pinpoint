@@ -1,5 +1,5 @@
 import React from 'react';
-import { BASE_PATH } from '@pinpoint-fe/ui/src/constants';
+import { BASE_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
 import { useGetTransactionInfo } from '@pinpoint-fe/ui/src/hooks';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,7 @@ import { TraceServerMap } from '../traceServerMap/traceServerMap';
 
 export interface TransactionInfoFetcherProps {
   disableHeader?: boolean;
+  configuration?: Configuration;
 }
 
 const tabList = [
@@ -30,7 +31,10 @@ const tabList = [
   { id: 'flameGraph', display: 'Flame Graph' },
 ];
 
-export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcherProps) => {
+export const TransactionInfoFetcher = ({
+  disableHeader,
+  configuration,
+}: TransactionInfoFetcherProps) => {
   const navigate = useNavigate();
   const { application, transactionInfo } = useTransactionSearchParameters();
   const { data, tableData, mapData } = useGetTransactionInfo();
@@ -144,7 +148,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
         if (tab.id === 'callTree') {
           Content = <CallTree data={tableData} metaData={data} mapData={mapData || []} />;
         } else if (tab.id === 'serverMap' && data) {
-          Content = <TraceServerMap />;
+          Content = <TraceServerMap configuration={configuration} />;
         } else if (tab.id === 'flameGraph') {
           Content = <Timeline transactionInfo={data} />;
         }

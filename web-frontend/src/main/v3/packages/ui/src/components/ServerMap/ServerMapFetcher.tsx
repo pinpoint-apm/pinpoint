@@ -12,7 +12,8 @@ import {
   useServerMapSearchParameters,
 } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
-import { getBaseNodeId, getServerImagePath } from '@pinpoint-fe/ui/src/utils';
+import { getBaseNodeId, getServerImagePath, parseNodeKey } from '@pinpoint-fe/ui/src/utils';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { ServerMapCore, ServerMapCoreProps } from './ServerMapCore';
 
 export interface ServerMapFetcherProps extends Pick<
@@ -20,15 +21,21 @@ export interface ServerMapFetcherProps extends Pick<
   'onClickMenuItem' | 'onApplyChangedOption' | 'queryOption'
 > {
   shouldPoll?: boolean;
+  configuration?: Configuration;
 }
 
-export const ServerMapFetcher = ({ shouldPoll, ...props }: ServerMapFetcherProps) => {
+export const ServerMapFetcher = ({
+  shouldPoll,
+  configuration,
+  ...props
+}: ServerMapFetcherProps) => {
   const setDataAtom = useSetAtom(serverMapDataAtom);
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const { application } = useServerMapSearchParameters();
   const experimentalOption = useExperimentals();
   const useStatisticsAgentState = experimentalOption.statisticsAgentState.value || true;
+  const enableServiceMap = configuration?.['experimental.enableServiceMap.value'] ?? false;
 
   const { data, isLoading, error } = useGetServerMapDataV2({
     shouldPoll: !!shouldPoll,
@@ -71,12 +78,15 @@ export const ServerMapFetcher = ({ shouldPoll, ...props }: ServerMapFetcherProps
 
   const handleMergeStateChange = () => {
     if (data) {
-      const [applicationName, serviceType] = getBaseNodeId({
+      const nodeKey = getBaseNodeId({
         application,
         applicationMapData: data?.applicationMapData,
-      }).split('^');
+        enableServiceMap,
+      });
+      const { applicationName, serviceType } = parseNodeKey(nodeKey);
 
       setServerMapCurrentTarget({
+        id: nodeKey,
         applicationName,
         serviceType,
         imgPath: getServerImagePath({ applicationName, serviceType }),
@@ -97,6 +107,7 @@ export const ServerMapFetcher = ({ shouldPoll, ...props }: ServerMapFetcherProps
       baseNodeId={getBaseNodeId({
         application,
         applicationMapData: data?.applicationMapData,
+        enableServiceMap,
       })}
       inputPlaceHolder={t('COMMON.SEARCH_INPUT')}
       {...props}

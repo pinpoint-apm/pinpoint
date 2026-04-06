@@ -44,9 +44,10 @@ export const serverMapCurrentTargetDataAtom = atom((get) => {
     );
   } else if (currentTarget?.type === 'node') {
     return (serverMapData?.applicationMapData?.nodeDataArray as ServerMapNodeDataArray)?.find(
-      ({ key }) =>
+      ({ key, applicationName, serviceType }) =>
         key === currentTarget?.id ||
-        key === `${currentTarget?.applicationName}^${currentTarget?.serviceType}`,
+        (applicationName === currentTarget?.applicationName &&
+          serviceType === currentTarget?.serviceType),
     );
   } else if (currentTarget?.type === 'edge') {
     return (serverMapData?.applicationMapData?.linkDataArray as ServerMapNodeLinkArray)?.find(
