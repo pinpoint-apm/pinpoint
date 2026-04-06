@@ -11,18 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({
-        ServiceModule.class,
-        ServiceUidMysqlCacheConfig.class,
-})
-@ComponentScan({
-        "com.navercorp.pinpoint.collector.uid.service",
-})
+@Deprecated
 public class CollectorUidConfiguration {
-
-    @Bean("serviceUidCache")
-    @ConditionalOnMissingBean(name = "serviceUidCache")
-    public CacheManager defaultServiceUidCache() {
-        return new NoOpCacheManager();
-    }
 }
