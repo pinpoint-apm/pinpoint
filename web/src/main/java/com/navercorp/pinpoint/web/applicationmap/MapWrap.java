@@ -25,16 +25,16 @@ import java.util.Objects;
  * @author emeroad
  */
 @JsonInclude(content = JsonInclude.Include.NON_NULL)
-public class MapWrap {
-    private final MapView mapView;
+public class MapWrap<T extends MapView> {
+    private final T  mapView;
 
-    public MapWrap(MapView mapView) {
+    public MapWrap(T mapView) {
         this.mapView = Objects.requireNonNull(mapView, "mapView");
 
     }
 
     @JsonProperty("applicationMapData")
-    public MapView getApplicationMap() {
+    public T getApplicationMap() {
         return mapView;
     }
 
