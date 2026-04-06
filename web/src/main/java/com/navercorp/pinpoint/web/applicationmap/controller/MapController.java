@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionForm;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
+import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMapView;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMapViewBuilder;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
@@ -96,7 +97,7 @@ public class MapController {
      * @return MapWrap
      */
     @GetMapping(value = "/serverMap")
-    public MapWrap getServerMapData(
+    public MapWrap<ApplicationMapView> getServerMapData(
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -125,11 +126,11 @@ public class MapController {
         LinkRender linkRender = LinkRender.forServerMap(mapProperties);
         ApplicationMapView applicationMapView = new ApplicationMapViewV3(map, timeWindow, nodeRender, linkRender);
 
-        return new MapWrap(applicationMapView);
+        return new MapWrap<>(applicationMapView);
     }
 
     @GetMapping(value = "/serviceMap")
-    public MapWrap getServiceMapData(
+    public MapWrap<ServiceMapView> getServiceMapData(
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -166,7 +167,8 @@ public class MapController {
         LinkRender linkRender = LinkRender.forServiceMap();
         ServiceMapViewBuilder builder = new ServiceMapViewBuilder(map, timeWindow, nodeRender, linkRender, keepServices);
 
-        return new MapWrap(builder.build());
+        ServiceMapView build = builder.build();
+        return new MapWrap<>(build);
     }
 
     private @NonNull Set<String> getKeepServices(List<String> keepServiceNames) {
