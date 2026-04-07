@@ -12,42 +12,14 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
 public class ValueAnnotationProcessor {
-    private final static Map<Class<?>, ParameterParser> parameterMap = newFieldInjectorMap();
 
     private final PropertyPlaceholderHelper placeHolderParser =
         new PropertyPlaceholderHelper(PlaceHolder.START, PlaceHolder.END, PlaceHolder.DELIMITER, false);
-
-    private static Map<Class<?>, ParameterParser> newFieldInjectorMap() {
-        Map<Class<?>, ParameterParser> map = new IdentityHashMap<>();
-//        put(map, new EnumParameterParser());
-
-        put(map, new StringParameterParser());
-
-        put(map, new IntegerParameterParser());
-        put(map, new LongParameterParser());
-        put(map, new BooleanParameterParser());
-        put(map, new DoubleParameterParser());
-        put(map, new FloatParameterParser());
-        put(map, new ShortParameterParser());
-        put(map, new ByteParameterParser());
-        put(map, new CharParameterParser());
-
-        return map;
-    }
-
-    private static void put(Map<Class<?>, ParameterParser> map, ParameterParser parameterParser) {
-        Class<?>[] fieldTypes = parameterParser.getTypes();
-        for (Class<?> fieldType : fieldTypes) {
-            map.put(fieldType, parameterParser);
-        }
-    }
 
     public ValueAnnotationProcessor() {
     }
@@ -170,16 +142,39 @@ public class ValueAnnotationProcessor {
         }
     }
 
-    private Object parse(Class<?> parameterType, String value) {
-        if (parameterType.isEnum()) {
-            return parseEnum((Class<Enum>) parameterType, value);
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Object parse(Class<?> type, String value) {
+        if (type.isEnum()) {
+            return Enum.valueOf((Class<Enum>) type, value);
         }
 
-        final ParameterParser parameterParser = parameterMap.get(parameterType);
-        if (parameterParser == null) {
-            throw new ConfigurationException("Unsupported type:" + parameterType);
+        if (type == String.class) {
+            return value;
+        } else if (type == int.class || type == Integer.class) {
+            return Integer.parseInt(value);
+        } else if (type == long.class || type == Long.class) {
+            return Long.parseLong(value);
+        } else if (type == boolean.class || type == Boolean.class) {
+            return Boolean.parseBoolean(value);
+        } else if (type == double.class || type == Double.class) {
+            return Double.parseDouble(value);
+        } else if (type == float.class || type == Float.class) {
+            return Float.parseFloat(value);
+        } else if (type == short.class || type == Short.class) {
+            return Short.parseShort(value);
+        } else if (type == byte.class || type == Byte.class) {
+            return Byte.parseByte(value);
+        } else if (type == char.class || type == Character.class) {
+            return parseChar(value);
         }
-        return parameterParser.parse(value);
+        throw new ConfigurationException("Unsupported type:" + type.getName());
+    }
+
+    private char parseChar(String value) {
+        if (value.length() != 1) {
+            throw new IllegalArgumentException("Invalid value:" + value);
+        }
+        return value.charAt(0);
     }
 
     private void injectField(Field field, Object target, String value) {
@@ -203,143 +198,5 @@ public class ValueAnnotationProcessor {
     private String getFieldName(Object instance, Member field) {
         return instance.getClass().getSimpleName() + "." + field.getName();
     }
-
-    private Object parseEnum(Class<Enum> type, String value) {
-        return Enum.valueOf(type, value);
-    }
-
-
-    public interface ParameterParser {
-        Class<?>[] getTypes();
-
-        Object parse(String value);
-    }
-
-
-    private static class StringParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{String.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return value;
-        }
-
-    }
-
-
-    private static class IntegerParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{int.class, Integer.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return Integer.parseInt(value);
-        }
-
-    }
-
-    private static class LongParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{long.class, Long.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return Long.parseLong(value);
-        }
-
-    }
-
-    private static class BooleanParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{boolean.class, Boolean.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return Boolean.parseBoolean(value);
-        }
-
-    }
-
-    private static class DoubleParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{double.class, Double.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return Double.parseDouble(value);
-        }
-
-    }
-
-    private static class FloatParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{float.class, Float.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return Float.parseFloat(value);
-        }
-
-    }
-
-    private static class ShortParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{short.class, Short.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return Short.parseShort(value);
-        }
-
-    }
-
-    private static class ByteParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{byte.class, Byte.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return Byte.parseByte(value);
-        }
-
-    }
-
-    private static class CharParameterParser implements ParameterParser {
-        @Override
-        public Class<?>[] getTypes() {
-            return new Class[]{char.class, Character.class};
-        }
-
-        @Override
-        public Object parse(String value) {
-            return parseChar(value);
-        }
-
-        private char parseChar(String value) {
-            if (value.length() != 1) {
-                throw new IllegalArgumentException("Invalid value:" + value);
-            }
-            return value.charAt(0);
-        }
-
-    }
-
 
 }
