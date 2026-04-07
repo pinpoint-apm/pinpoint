@@ -40,6 +40,7 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_SERVER_ADDRESS = "server.address";
     public static final String ATTRIBUTE_KEY_UPSTREAM_ADDRESS = "upstream_address";
     public static final String ATTRIBUTE_KEY_DB_NAME = "db.name";
+    public static final String ATTRIBUTE_KEY_DB_NAMESPACE = "db.namespace";
     public static final String ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME = "upstream_cluster.name";
     public static final String ATTRIBUTE_KEY_DB_STATEMENT = "db.statement";
     public static final String ATTRIBUTE_KEY_DB_QUERY_TEXT = "db.query.text";
@@ -62,6 +63,7 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_SERVER_PORT,
             ATTRIBUTE_KEY_SERVER_ADDRESS,
             ATTRIBUTE_KEY_DB_NAME,
+            ATTRIBUTE_KEY_DB_NAMESPACE,
             ATTRIBUTE_KEY_DB_STATEMENT,
             ATTRIBUTE_KEY_DB_SYSTEM
     );
