@@ -297,7 +297,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
                 delayMethod.addInterceptor(FluxAndMonoDelayInterceptor.class);
             }
             final InstrumentMethod delayElementMethod = target.getDeclaredMethod("delayElement", "java.time.Duration", "reactor.core.scheduler.Scheduler");
-            if (delayMethod != null) {
+            if (delayElementMethod != null) {
                 delayElementMethod.addInterceptor(FluxAndMonoDelayInterceptor.class);
             }
 
