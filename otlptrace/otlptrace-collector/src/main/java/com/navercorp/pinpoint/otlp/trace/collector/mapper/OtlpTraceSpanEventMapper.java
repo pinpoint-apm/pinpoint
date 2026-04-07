@@ -149,10 +149,17 @@ public class OtlpTraceSpanEventMapper {
     }
 
     String getClientSpanToDestinationId(Map<String, Object> attributes) {
+        // 1.x
         final String dbName = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
         if (dbName != null) {
             return dbName;
         }
+        // 2.x
+        final String dbNamespace = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAMESPACE, null);
+        if (dbNamespace != null) {
+            return dbNamespace;
+        }
+
         final String upstreamClusterName = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
         if (upstreamClusterName != null) {
             return upstreamClusterName;
