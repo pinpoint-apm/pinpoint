@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.service.dao.ServiceRegistryDao">
+
+    <insert id="insertService" parameterType="ServiceParam" useGeneratedKeys="true" keyProperty="uid">
+        INSERT INTO service (uid, name)
+        VALUES (#{uid}, #{name})
+    </insert>
+
+    <select id="selectServiceNames" resultType="string">
+        SELECT name
+        FROM service
+    </select>
+
+    <select id="selectServiceList" parameterType="int" resultType="ServiceEntity">
+        SELECT uid, name
+        FROM service
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectServiceByName" parameterType="string" resultType="ServiceEntity">
+        SELECT uid, name
+        FROM service
+        WHERE name = #{name}
+    </select>
+
+    <select id="selectServiceByUid" parameterType="int" resultType="ServiceEntity">
+        SELECT uid, name
+        FROM service
+        WHERE uid = #{uid}
+    </select>
+
+    <delete id="deleteService" parameterType="int">
+        DELETE FROM service
+        WHERE uid = #{uid}
+    </delete>
+
+</mapper>
