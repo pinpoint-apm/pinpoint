@@ -54,10 +54,6 @@ public class HbaseTables {
         }
     }
 
-    public static final HbaseColumnFamily APPLICATION_UID = new HbaseColumnFamily(HbaseTableV3.APPLICATION_UID, Bytes.toBytes("U"));
-
-    public static final HbaseColumnFamily APPLICATION_UID_ATTR = new HbaseColumnFamily(HbaseTableV3.APPLICATION_UID_ATTR, Bytes.toBytes("A"));
-
     public static final HbaseColumnFamily APPLICATION = new HbaseColumnFamily(HbaseTableV3.APPLICATION, Bytes.toBytes("A"));
     public static final HbaseColumnFamily AGENT_ID = new HbaseColumnFamily(HbaseTableV3.AGENT_ID, Bytes.toBytes("A"));
     public static final byte[] AGENT_ID_STATE_QUALIFIER = Bytes.toBytes("s");

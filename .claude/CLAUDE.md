@@ -17,7 +17,7 @@ Core components:
 - **web-frontend/** — React/TypeScript frontend (v3, built with Yarn)
 - **batch/** / **batch-alarmsender/** — Spring Batch scheduled jobs for aggregation, cleanup, alarms
 - **hbase/** — HBase schema management
-- **hbase-uid-module/** / **service-module/** — Service layer implementations
+- **service-module/** — Service layer implementations
 - **pinot/** — Apache Pinot analytics integration
 - **grpc/** — Protocol Buffers definitions and gRPC infrastructure
 - **metric-module/**, **uristat/**, **realtime/**, **otlpmetric/**, **otlptrace/**, **exceptiontrace/**, **inspector-module/** — Feature modules

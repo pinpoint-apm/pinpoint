@@ -12,17 +12,15 @@ public class ArrayCache<K, V> {
     public ArrayCache(int capacity) {
         this.capacity = capacity;
         this.entries = new Entry[capacity];
-        for (int i = 0; i < capacity; i++) {
-            entries[i] = new Entry<>();
-        }
     }
 
     public V get(K key) {
         if (key == null) {
             return null;
         }
-        for (Entry<K, V> e : entries) {
-            if (key.equals(e.key)) {
+        for (int i = 0; i < capacity; i++) {
+            Entry<K, V> e = entries[i];
+            if (e != null && key.equals(e.key)) {
                 return e.value;
             }
         }
@@ -33,21 +31,22 @@ public class ArrayCache<K, V> {
         if (key == null) {
             return;
         }
+        int emptySlot = -1;
         for (int i = 0; i < capacity; i++) {
             Entry<K, V> e = entries[i];
-            if (e.key == null) {
-                synchronized (e) {
-                    if (e.key == null) {
-                        e.key = key;
-                        e.value = value;
-                        return;
-                    }
+            if (e == null) {
+                if (emptySlot == -1) {
+                    emptySlot = i;
                 }
+                continue;
             }
-            if (e.key.equals(key)) {
-                e.value = value;
+            if (key.equals(e.key)) {
+                entries[i] = new Entry<>(key, value);
                 return;
             }
+        }
+        if (emptySlot != -1) {
+            entries[emptySlot] = new Entry<>(key, value);
         }
     }
 
@@ -57,21 +56,19 @@ public class ArrayCache<K, V> {
         }
         for (int i = 0; i < capacity; i++) {
             Entry<K, V> e = entries[i];
-            if (key.equals(e.key)) {
-                synchronized (e) {
-                    if (key.equals(e.key)) {
-                        e.key = null;
-                        e.value = null;
-                        return;
-                    }
-                }
+            if (e != null && key.equals(e.key)) {
+                entries[i] = null;
             }
         }
     }
 
-
     private static class Entry<K, V> {
-        K key;
-        V value;
+        private final K key;
+        private final V value;
+
+        Entry(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
     }
 }

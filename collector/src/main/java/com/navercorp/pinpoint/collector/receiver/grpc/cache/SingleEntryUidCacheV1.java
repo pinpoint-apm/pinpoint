@@ -1,67 +1,44 @@
+/*
+ * Copyright 2026 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.collector.receiver.grpc.cache;
 
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-
-import java.util.Objects;
 
 public class SingleEntryUidCacheV1 implements UidCache {
 
-    //    private volatile ServiceUid lastServiceUid;
     private volatile Entry lastEntry;
 
     @Override
     public ServiceUid getServiceUid(String serviceName) {
-        return ServiceUid.DEFAULT;
-    }
-
-    @Override
-    public void put(String serviceName, ServiceUid serviceUid) {
-        // empty
-    }
-
-    @Override
-    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         final Entry lastEntry = this.lastEntry;
         if (lastEntry == null) {
             return null;
         }
-        if (lastEntry.equals(serviceUid, applicationName, serviceTypeCode)) {
-            return lastEntry.getApplicationUid();
+        if (lastEntry.serviceName().equals(serviceName)) {
+            return lastEntry.serviceUid();
         }
         return null;
     }
 
     @Override
-    public void put(ServiceUid serviceUid, String applicationName, int serviceTypeCode, ApplicationUid applicationUid) {
-        this.lastEntry = new Entry(serviceUid, applicationName, serviceTypeCode, applicationUid);
+    public void put(String serviceName, ServiceUid serviceUid) {
+        this.lastEntry = new Entry(serviceName, serviceUid);
     }
 
-    static class Entry {
-        private final ServiceUid serviceUid;
-        private final String applicationName;
-        private final int serviceTypeCode;
-        private final ApplicationUid applicationUid;
-
-        public Entry(ServiceUid serviceUid, String applicationName, int serviceTypeCode, ApplicationUid applicationUid) {
-            this.serviceUid = Objects.requireNonNull(serviceUid, "serviceUid");
-
-            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-            this.serviceTypeCode = serviceTypeCode;
-            this.applicationUid = Objects.requireNonNull(applicationUid, "applicationUid");
-        }
-
-        public boolean equals(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
-            if (this.serviceUid.equals(serviceUid) &&
-                    this.applicationName.equals(applicationName) &&
-                    this.serviceTypeCode == serviceTypeCode) {
-                return true;
-            }
-            return false;
-        }
-
-        public ApplicationUid getApplicationUid() {
-            return applicationUid;
-        }
+    private record Entry(String serviceName, ServiceUid serviceUid) {
     }
 }
