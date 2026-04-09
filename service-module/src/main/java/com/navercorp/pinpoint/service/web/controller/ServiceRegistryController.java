@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,6 +64,7 @@ public class ServiceRegistryController {
         return ResponseEntity.ok(service);
     }
 
+    @PreAuthorize("hasPermission(#serviceName, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_SERVICEAUTHORIZATION_EDIT_AUTHOR_ONLY_MANAGER)")
     @DeleteMapping("/service")
     public Response deleteService(@RequestParam("serviceName") @NotBlank String serviceName) {
         if (reservedServiceRegistry.contains(serviceName)) {
