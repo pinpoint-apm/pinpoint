@@ -242,7 +242,9 @@ public class ASMInterceptorHolder {
                 holder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
                 // load and initialize
                 clazz = holder.loadClass(Boolean.TRUE, classLoader);
-                interceptor = interceptorFactory.newInterceptor(interceptorClass, providedArguments, scopeInfo, methodDescriptor);
+                if (interceptor == null && interceptorFactory != null) {
+                    interceptor = interceptorFactory.newInterceptor(interceptorClass, providedArguments, scopeInfo, methodDescriptor);
+                }
             } else {
                 try {
                     interceptorId = interceptorHolderIdGenerator.getId();
