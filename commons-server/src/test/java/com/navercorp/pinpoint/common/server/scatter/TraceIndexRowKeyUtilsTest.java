@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.common.server.scatter;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Result;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +43,8 @@ public class TraceIndexRowKeyUtilsTest {
         Assertions.assertThat(TraceIndexRowKeyUtils.extractSpanId(rowKey, 0)).isEqualTo(spanId);
         Assertions.assertThat(TraceIndexRowKeyUtils.extractApplicationName(rowKey, 0)).isEqualTo(applicationName);
 
-        Predicate<byte[]> applicationNamePredicate = TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName);
-        Assertions.assertThat(applicationNamePredicate.test(rowKey)).isEqualTo(true);
+        Result result = Result.create(new Cell[]{new KeyValue(rowKey, new byte[0], new byte[0], new byte[0])});
+        Predicate<Result> applicationNamePredicate = TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName);
+        Assertions.assertThat(applicationNamePredicate.test(result)).isEqualTo(true);
     }
 }

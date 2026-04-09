@@ -28,6 +28,7 @@ import org.apache.hadoop.hbase.client.Result;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 // TraceIndexMetaScatterMapper version 2
@@ -36,16 +37,16 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
     private final HbaseColumnFamily index = HbaseTables.TRACE_INDEX;
     private final HbaseColumnFamily meta = HbaseTables.TRACE_INDEX_META;
 
-    private final Predicate<byte[]> rowPredicate;
+    private final Predicate<Result> rowPredicate;
     private final Predicate<Integer> exceptionCodeFilter;
     private final Predicate<String> agentIdFilter;
     private final Predicate<Integer> elapsedTimeFilter;
 
-    public TraceIndexMetaMapper(Predicate<byte[]> rowPredicate,
+    public TraceIndexMetaMapper(Predicate<Result> rowPredicate,
                                 Predicate<Integer> exceptionCodeFilter,
                                 Predicate<String> agentIdFilter,
                                 Predicate<Integer> elapsedTimeFilter) {
-        this.rowPredicate = rowPredicate;
+        this.rowPredicate = Objects.requireNonNull(rowPredicate, "rowPredicate");
         this.exceptionCodeFilter = exceptionCodeFilter;
         this.agentIdFilter = agentIdFilter;
         this.elapsedTimeFilter = elapsedTimeFilter;
@@ -56,7 +57,7 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        if (!test(rowPredicate, result.getRow())) {
+        if (!rowPredicate.test(result)) {
             return Collections.emptyList();
         }
 

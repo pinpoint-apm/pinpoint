@@ -22,4 +22,9 @@ flush 'MapAppOut'
 flush 'MapAppIn'
 flush 'MapAppHost'
 
+flush 'TraceIndex'
+
+flush 'Application'
+flush 'AgentId'
+
 exit

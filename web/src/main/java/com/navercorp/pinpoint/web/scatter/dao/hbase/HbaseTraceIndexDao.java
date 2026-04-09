@@ -187,18 +187,19 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     private TraceIndexMetaMapper createDotMetaMapper(String applicationName) {
-        Predicate<byte[]> applicationNamePredicate = TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName);
-        return new TraceIndexMetaMapper(applicationNamePredicate, null, null, null);
+        return new TraceIndexMetaMapper(TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName),
+                null, null, null);
     }
 
     private TraceIndexMetaMapper createDotMetaMapper(String applicationName, DragAreaQuery dragAreaQuery) {
-        Predicate<byte[]> applicationNamePredicate = TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName);
         Predicate<String> agentIdPredicate = buildAgentIdPredicate(dragAreaQuery);
         Predicate<Integer> exceptionCodePredicate = buildExceptionCodePredicate(dragAreaQuery);
         if (!scatterChartProperties.isEnableHbaseValueFilter()) {
-            return new TraceIndexMetaMapper(applicationNamePredicate, exceptionCodePredicate, agentIdPredicate, buildElapsedTimePredicate(dragAreaQuery));
+            return new TraceIndexMetaMapper(TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName),
+                    exceptionCodePredicate, agentIdPredicate, buildElapsedTimePredicate(dragAreaQuery));
         }
-        return new TraceIndexMetaMapper(applicationNamePredicate, exceptionCodePredicate, agentIdPredicate, null);
+        return new TraceIndexMetaMapper(TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName),
+                exceptionCodePredicate, agentIdPredicate, null);
     }
 
     private Predicate<Integer> buildElapsedTimePredicate(DragAreaQuery dragAreaQuery) {

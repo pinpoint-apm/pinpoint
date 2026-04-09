@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
 import com.navercorp.pinpoint.user.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.WebServiceConfig;
+import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import com.navercorp.pinpoint.web.scatter.config.ScatterWebConfiguration;
@@ -45,6 +46,7 @@ import com.navercorp.pinpoint.web.trace.TraceConfiguration;
 import com.navercorp.pinpoint.web.uid.WebUidConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -100,6 +102,12 @@ import java.util.List;
         }
 )
 public class BatchModule {
+
+    @Bean
+    @ConditionalOnMissingBean(ServiceResolver.class)
+    public ServiceResolver serviceResolver() {
+        return ServiceResolver.emptyResolver();
+    }
 
     @Bean
     public AgentProperties agentProperties() {

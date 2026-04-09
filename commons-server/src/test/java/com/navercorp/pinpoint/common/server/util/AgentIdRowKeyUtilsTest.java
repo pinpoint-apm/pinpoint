@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Result;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -60,8 +63,9 @@ public class AgentIdRowKeyUtilsTest {
         long agentStartTime = System.currentTimeMillis();
 
         byte[] row = AgentIdRowKeyUtils.createRow(serviceUid, applicationName, serviceTypeCode, agentId, agentStartTime);
+        Result result = Result.create(new Cell[]{new KeyValue(row, new byte[0], new byte[0], new byte[0])});
 
-        Assertions.assertTrue(AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName).test(row));
-        Assertions.assertFalse(AgentIdRowKeyUtils.createApplicationNamePredicate("otherApp").test(row));
+        Assertions.assertTrue(AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName).test(result));
+        Assertions.assertFalse(AgentIdRowKeyUtils.createApplicationNamePredicate("otherApp").test(result));
     }
 }

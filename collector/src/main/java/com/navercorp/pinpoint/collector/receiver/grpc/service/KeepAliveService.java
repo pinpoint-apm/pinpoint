@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSession;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSessionRegistry;
-import com.navercorp.pinpoint.collector.service.CachedApplicationServiceTypeService;
+import com.navercorp.pinpoint.collector.service.ApplicationServiceTypeService;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentProperty;
@@ -42,16 +42,19 @@ public class KeepAliveService {
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
     private final PingSessionRegistry pingSessionRegistry;
-    private final CachedApplicationServiceTypeService applicationServiceTypeService;
+    private final ApplicationServiceTypeService applicationServiceTypeService;
+    private final boolean v2enabled;
 
     public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                             AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
                             PingSessionRegistry pingSessionRegistry,
-                            CachedApplicationServiceTypeService applicationServiceTypeService) {
+                            ApplicationServiceTypeService applicationServiceTypeService,
+                            boolean v2enabled) {
         this.agentEventAsyncTask = Objects.requireNonNull(agentEventAsyncTask, "agentEventAsyncTask");
         this.agentLifeCycleAsyncTask = Objects.requireNonNull(agentLifeCycleAsyncTask, "agentLifeCycleAsyncTask");
         this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
         this.applicationServiceTypeService = Objects.requireNonNull(applicationServiceTypeService, "applicationServiceTypeService");
+        this.v2enabled = v2enabled;
     }
 
     public void updateState() {
@@ -75,6 +78,9 @@ public class KeepAliveService {
 
     private int resolveServiceType(PingSession pingSession) {
         int serviceType = pingSession.getServiceType();
+        if (!v2enabled) {
+            return serviceType;
+        }
         if (serviceType != ServiceType.UNDEFINED.getCode()) {
             return serviceType;
         }

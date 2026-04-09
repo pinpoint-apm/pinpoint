@@ -62,6 +62,7 @@ public class ApplicationCleanupTasklet implements Tasklet {
     private final long baseTimestamp;
     private final long cleanupWindowMillis;
     private final Set<Integer> statisticsCheckServiceTypeCodes;
+    private boolean traceIndexAvailable = true;
 
     public ApplicationCleanupTasklet(
             ApplicationDao applicationDao,
@@ -107,20 +108,19 @@ public class ApplicationCleanupTasklet implements Tasklet {
         int serviceUid = application.getService().getUid();
         String applicationName = application.getApplicationName();
         int serviceTypeCode = application.getServiceTypeCode();
+        int agentCount = agentIdDao.countAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
 
-        List<AgentIdEntry> agentIdEntries = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
-        if (agentIdEntries.isEmpty()) {
-            Dot dot = getTraceIndexData(application, baseTimestamp);
-            if (dot == null) {
+        logger.info("application={}, agentCount={}", application, agentCount);
+        if (agentCount == 0) {
+            if (!hasActiveTraceData(application, baseTimestamp)) {
                 deleteApplication(application, baseTimestamp);
-            } else {
-                logger.info("Skip deleting application with no agentId but has trace data. application={}, dot={}", application, dot);
             }
             return;
         }
 
         // delete agentIds
-        if (agentIdEntries.size() > agentCountThreshold) {
+        if (agentCount > agentCountThreshold) {
+            List<AgentIdEntry> agentIdEntries = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
             if (statisticsCheckServiceTypeCodes.contains(application.getServiceTypeCode())) {
                 List<AgentIdEntry> deleteTargets = getDeleteTargetsUsingStatisticsCheck(application, baseTimestamp, agentIdEntries);
                 deleteAgentEntries(application, deleteTargets);
@@ -207,18 +207,33 @@ public class ApplicationCleanupTasklet implements Tasklet {
         }
     }
 
-    private Dot getTraceIndexData(Application application, long baseTimestamp) {
-        Range range = Range.between(baseTimestamp - Duration.ofDays(inactiveDays).toMillis(), baseTimestamp);
+    private boolean hasActiveTraceData(Application application, long baseTimestamp) {
+        if (!traceIndexAvailable) {
+            return false;
+        }
         try {
-            LimitedScanResult<List<Dot>> result = traceIndexDao.scanTraceScatterData(application.getService().getUid(), application.getApplicationName(), application.getServiceTypeCode(), range, 1);
-            if (!result.scanData().isEmpty()) {
-                return result.scanData().get(0);
+            Dot dot = getTraceIndexData(application, baseTimestamp);
+            if (dot != null) {
+                logger.info("Skip deleting application with no agentId but has trace data. application={}, dot={}", application, dot);
+                return true;
             }
+            return false;
         } catch (Exception e) {
             if (ExceptionUtils.indexOfThrowable(e, TableNotFoundException.class) >= 0) {
-                logger.info("Table not found. application={} message={}", application, e.getMessage());
+                logger.info("TraceIndex table not found. Disabling trace check for remaining applications. message={}", e.getMessage());
+                traceIndexAvailable = false;
+                return false;
             }
-            logger.warn("Failed to find dot data. application={}", application, e);
+            logger.warn("Failed to check trace data. Skip deleting application. application={}", application, e);
+            return true;
+        }
+    }
+
+    private Dot getTraceIndexData(Application application, long baseTimestamp) {
+        Range range = Range.between(baseTimestamp - Duration.ofDays(inactiveDays).toMillis(), baseTimestamp);
+        LimitedScanResult<List<Dot>> result = traceIndexDao.scanTraceScatterData(application.getService().getUid(), application.getApplicationName(), application.getServiceTypeCode(), range, 1);
+        if (!result.scanData().isEmpty()) {
+            return result.scanData().get(0);
         }
         return null;
     }

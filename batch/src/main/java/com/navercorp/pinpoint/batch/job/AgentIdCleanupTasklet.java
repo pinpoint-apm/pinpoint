@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
-import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
 import org.apache.logging.log4j.LogManager;
@@ -120,10 +119,8 @@ public class AgentIdCleanupTasklet implements Tasklet {
             return true;
         }
 
-        long stateTimestamp = entry.getCurrentStateTimestamp();
-        if (stateTimestamp == 0 || stateTimestamp > cleanThreshold) {
-            logger.warn("Entry with invalid Timestamp, {}", entry);
-            return false;
+        if (entry.getCurrentStateTimestamp() <= 0) {
+            logger.info("Entry with invalid Timestamp. delete, {}", entry);
         }
         return true;
     }

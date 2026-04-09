@@ -9,6 +9,8 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.client.Result;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
@@ -95,16 +97,20 @@ public class TraceIndexRowKeyUtils {
         return buffer.readPrefixedString();
     }
 
-    public static Predicate<byte[]> createApplicationNamePredicate(String applicationName) {
+    public static Predicate<Result> createApplicationNamePredicate(String applicationName) {
         Buffer buffer = new AutomaticBuffer(BytesUtils.computeSVar32StringSize(applicationName));
         buffer.putPrefixedString(applicationName);
         byte[] prefixedApplicationName = buffer.getBuffer();
 
-        return row -> {
-            if (row.length < APPLICATION_NAME_OFFSET) {
+        return result -> {
+            if (result.isEmpty()) {
+                return false;
+            }
+            Cell first = result.rawCells()[0];
+            if (first.getRowLength() < APPLICATION_NAME_OFFSET) {
                 return false;
             } else {
-                return Arrays.equals(row, APPLICATION_NAME_OFFSET, row.length,
+                return Arrays.equals(first.getRowArray(), first.getRowOffset() + APPLICATION_NAME_OFFSET, first.getRowOffset() + first.getRowLength(),
                         prefixedApplicationName, 0, prefixedApplicationName.length);
             }
         };

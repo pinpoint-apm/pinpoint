@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.AgentIdRowKeyUtils;
@@ -20,8 +21,12 @@ import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
+import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.jspecify.annotations.Nullable;
@@ -30,6 +35,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 @Repository
 public class HbaseAgentIdDao implements AgentIdDao {
@@ -153,6 +159,31 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
+    public int countAgentIdEntry(int serviceUid, String applicationName, int serviceTypeCode) {
+        Scan scan = new Scan();
+        scan.setStartStopRowForPrefixScan(AgentIdRowKeyUtils.createPrefix(serviceUid, applicationName, serviceTypeCode));
+        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
+        scan.addColumn(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER);
+        scan.setFilter(new FilterList(new FirstKeyOnlyFilter(), new KeyOnlyFilter()));
+
+        final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return hbaseTemplate.find(applicationIndexTableName, scan, createRowCountExtractor(applicationName));
+    }
+
+    private ResultsExtractor<Integer> createRowCountExtractor(String applicationName) {
+        Predicate<Result> rowFilter = AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName);
+        return results -> {
+            int count = 0;
+            for (Result result : results) {
+                if (rowFilter.test(result)) {
+                    count += 1;
+                }
+            }
+            return count;
+        };
+    }
+
+    @Override
     public List<AgentIdEntry> getInactiveAgentIdEntry(long maxStatusTimestamp, int limit, @Nullable AgentIdEntry lastAgentIdEntry) {
         Scan scan = new Scan();
         if (lastAgentIdEntry != null) {
@@ -178,7 +209,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
         scan.setFilter(filter);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        RowMapper<List<AgentIdEntry>> mapper = new AgentIdEntryMapper(applicationFactory, null);
+        RowMapper<List<AgentIdEntry>> mapper = new AgentIdEntryMapper(applicationFactory, result -> true);
         List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, mapper);
         return ListListUtils.toList(results);
     }
