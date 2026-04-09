@@ -53,14 +53,12 @@ public class OtlpTraceMapper {
     private final OtlpTraceSpanEventMapper spanEventMapper;
     private final OtlpTraceSpanChunkMapper spanChunkMapper;
     private final OtlpAgentInfoMapper agentInfoMapper;
-    private final OtlpTraceExceptionMapper exceptionMapper;
 
-    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpTraceExceptionMapper exceptionMapper) {
+    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper) {
         this.spanMapper = spanMapper;
         this.spanEventMapper = spanEventMapper;
         this.spanChunkMapper = spanChunkMapper;
         this.agentInfoMapper = agentInfoMapper;
-        this.exceptionMapper = exceptionMapper;
     }
 
     // sort by traceId
@@ -82,20 +80,9 @@ public class OtlpTraceMapper {
 
             // find root span, server type, no parentSpanId
             for (Map.Entry<ByteString, List<Span>> entry : spanMap.entrySet()) {
-                List<Span> allSpans = entry.getValue();
                 List<Span> rootSpanList = new ArrayList<>();
                 List<Span> childSpanList = new ArrayList<>();
-                initRootAndChild(allSpans, rootSpanList, childSpanList);
-
-                // Extract exceptions from all spans (root + child) before tree building
-                for (Span span : allSpans) {
-                    try {
-                        exceptionMapper.map(idAndName, span)
-                                .ifPresent(mapperData::addExceptionMetaDataBo);
-                    } catch (Exception e) {
-                        logger.warn("Failed to map exception from span", e);
-                    }
-                }
+                initRootAndChild(entry.getValue(), rootSpanList, childSpanList);
 
                 for (Span rootSpan : rootSpanList) {
                     try {
