@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.controller;
 
+import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.cache.LRUCache;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
@@ -50,13 +52,15 @@ public class OtlpTraceController {
     private final HbaseOtlpApplicationIndexV2Service applicationIndexV2Service;
     @NotNull
     private final OtlpTraceMapper otlpTraceMapper;
+    private final ExceptionMetaDataService exceptionMetaDataService;
     private final LRUCache<String, Boolean> agentIdCache = new LRUCache<>(10000);
 
-    public OtlpTraceController(TraceService[] traceServiceList, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper) {
+    public OtlpTraceController(TraceService[] traceServiceList, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper, ExceptionMetaDataService exceptionMetaDataService) {
         this.traceService = traceServiceList;
         this.agentInfoService = agentInfoService;
         this.applicationIndexV2Service = applicationIndexV2Service;
         this.otlpTraceMapper = otlpTraceMapper;
+        this.exceptionMetaDataService = exceptionMetaDataService;
     }
 
     @PostMapping(value = "/v1/traces", consumes = "application/x-protobuf")
@@ -122,6 +126,14 @@ public class OtlpTraceController {
             OtlpTraceCollectorRejectedSpan rejectedSpan = otlpTraceMapperData.getRejectedSpan();
             rejectedSpan.putMessage("agentInfo error (" + agentInfoErrorCount + ")");
             rejectedSpan.addCount(agentInfoErrorCount);
+        }
+
+        for (ExceptionMetaDataBo exceptionMetaDataBo : otlpTraceMapperData.getExceptionMetaDataBoList()) {
+            try {
+                exceptionMetaDataService.save(exceptionMetaDataBo);
+            } catch (Exception e) {
+                logger.warn("Failed to save exceptionMetaData", e);
+            }
         }
 
         return otlpTraceMapperData.getRejectedSpan();
