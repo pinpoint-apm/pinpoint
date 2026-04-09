@@ -27,14 +27,14 @@ import java.util.List;
 
 class ExceptionChartGroupTest {
 
-//    @Test
-//    void newGroupFromValueViews_casting() {
-//        List<ExceptionChartValueView> view = List.of(
-//                new ExceptionChartValueView(List.of(1, 2, 3)),
-//                new ExceptionChartValueView(List.of(4, 5, 6))
-//        );
-//        ExceptionChartGroup group = TimeSeriesUtils.newGroupFromValueViews("test", view);
-//        @SuppressWarnings("unused")
-//        List<TimeSeriesValueView> metricValues = group.getMetricValues();
-//    }
+    @Test
+    void newGroupFromValueViews_casting() {
+        List<ExceptionChartValueView> view = List.of(
+                new ExceptionChartValueView(List.of(1, 2, 3)),
+                new ExceptionChartValueView(List.of(4, 5, 6))
+        );
+        ExceptionChartGroup group = TimeSeriesUtils.newGroupFromValueViews("test", view);
+        @SuppressWarnings("unused")
+        List<TimeSeriesValueView> metricValues = group.getMetricValues();
+    }
 }

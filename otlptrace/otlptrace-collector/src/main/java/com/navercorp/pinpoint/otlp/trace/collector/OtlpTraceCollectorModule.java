@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.collector.heatmap.HeatmapCollectorModule;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
-import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
@@ -74,8 +73,8 @@ public class OtlpTraceCollectorModule {
     }
 
     @Bean
-    public ServerServiceDefinition serverServiceDefinition(TraceService[] traceServiceList, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper, ExceptionMetaDataService exceptionMetaDataService) {
-        BindableService spanService = new GrpcOtlpTraceService(traceServiceList, agentInfoService, applicationIndexV2Service, mapper, exceptionMetaDataService);
+    public ServerServiceDefinition serverServiceDefinition(TraceService[] traceServiceList, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper) {
+        BindableService spanService = new GrpcOtlpTraceService(traceServiceList, agentInfoService, applicationIndexV2Service, mapper);
         return ServerInterceptors.intercept(spanService);
     }
 
