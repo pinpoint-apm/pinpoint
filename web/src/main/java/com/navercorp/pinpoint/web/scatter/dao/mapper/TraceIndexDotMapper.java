@@ -31,6 +31,7 @@ import org.apache.hadoop.hbase.client.Result;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 // TraceIndexScatterMapper version 2
@@ -39,10 +40,10 @@ public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
     private static final ServerTraceId EMPTY = new PinpointServerTraceId("EMPTY", 0, 0);
 
     private final HbaseColumnFamily index = HbaseTables.TRACE_INDEX;
-    private final Predicate<byte[]> rowPredicate;
+    private final Predicate<Result> rowPredicate;
 
-    public TraceIndexDotMapper(Predicate<byte[]> rowPredicate) {
-        this.rowPredicate = rowPredicate;
+    public TraceIndexDotMapper(Predicate<Result> rowPredicate) {
+        this.rowPredicate = Objects.requireNonNull(rowPredicate, "rowPredicate");
     }
 
     @Override
@@ -50,7 +51,7 @@ public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        if (rowPredicate != null && !rowPredicate.test(result.getRow())) {
+        if (!rowPredicate.test(result)) {
             return Collections.emptyList();
         }
 

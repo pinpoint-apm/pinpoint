@@ -46,4 +46,8 @@ drop 'MapAppOut'
 drop 'MapAppIn'
 drop 'MapAppHost'
 
+drop 'TraceIndex'
+drop 'Application'
+drop 'AgentId'
+
 exit

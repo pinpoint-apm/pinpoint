@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.client.Result;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -107,16 +109,20 @@ public class AgentIdRowKeyUtils {
         );
     }
 
-    public static Predicate<byte[]> createApplicationNamePredicate(String applicationName) {
+    public static Predicate<Result> createApplicationNamePredicate(String applicationName) {
         Buffer buffer = new AutomaticBuffer(BytesUtils.computeSVar32StringSize(applicationName));
         buffer.putPrefixedString(applicationName);
         byte[] prefixedApplicationName = buffer.getBuffer();
 
-        return row -> {
-            if (row.length < applicationNameOffset) {
+        return result -> {
+            if (result.isEmpty()) {
+                return false;
+            }
+            Cell first = result.rawCells()[0];
+            if (first.getRowLength() < applicationNameOffset) {
                 return false;
             } else {
-                return Arrays.equals(row, applicationNameOffset, row.length,
+                return Arrays.equals(first.getRowArray(), first.getRowOffset() + applicationNameOffset, first.getRowOffset() + first.getRowLength(),
                         prefixedApplicationName, 0, prefixedApplicationName.length);
             }
         };

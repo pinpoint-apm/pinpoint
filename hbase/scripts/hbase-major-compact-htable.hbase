@@ -25,4 +25,9 @@ major_compact 'MapAppOut'
 major_compact 'MapAppIn'
 major_compact 'MapAppHost'
 
+major_compact 'TraceIndex'
+
+major_compact 'Application'
+major_compact 'AgentId'
+
 exit

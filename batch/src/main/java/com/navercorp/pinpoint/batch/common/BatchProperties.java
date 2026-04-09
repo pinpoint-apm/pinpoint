@@ -178,6 +178,10 @@ public class BatchProperties {
         return agentInspectorStatTablePaddingLength;
     }
 
+    public int getCleanupAgentAndApplicationGraceDays() {
+        return cleanupAgentAndApplicationGraceDays;
+    }
+
     @Override
     public String toString() {
         return "BatchProperties{" +
@@ -195,9 +199,5 @@ public class BatchProperties {
                 ", cleanupInactiveApplicationsJobEnable=" + cleanupInactiveApplicationsJobEnable +
                 ", cleanupInactiveApplicationsJobCron='" + cleanupInactiveApplicationsJobCron + '\'' +
                 '}';
-    }
-
-    public int getCleanupAgentAndApplicationGraceDays() {
-        return cleanupAgentAndApplicationGraceDays;
     }
 }

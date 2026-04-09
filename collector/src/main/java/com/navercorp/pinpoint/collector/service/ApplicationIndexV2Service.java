@@ -23,18 +23,18 @@ public class ApplicationIndexV2Service {
 
     private final ApplicationDao applicationDao;
     private final AgentIdDao agentIdDao;
-    private final CachedApplicationServiceTypeService cachedApplicationServiceTypeService;
+    private final ApplicationServiceTypeService applicationServiceTypeService;
     private final boolean v2enabled;
     private final Set<Integer> missingHeaderServiceTypeCodes;
 
     public ApplicationIndexV2Service(ApplicationDao applicationDao,
                                      AgentIdDao agentIdDao,
-                                     CachedApplicationServiceTypeService cachedApplicationServiceTypeService,
+                                     ApplicationServiceTypeService applicationServiceTypeService,
                                      AgentProperties agentProperties,
                                      @Value("${pinpoint.collector.application.index.v2.enabled:false}") boolean v2enabled) {
         this.applicationDao = Objects.requireNonNull(applicationDao, "ApplicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
-        this.cachedApplicationServiceTypeService = Objects.requireNonNull(cachedApplicationServiceTypeService, "applicationServiceTypeService");
+        this.applicationServiceTypeService = Objects.requireNonNull(applicationServiceTypeService, "applicationServiceTypeService");
         this.v2enabled = v2enabled;
         this.missingHeaderServiceTypeCodes = agentProperties.getMissingHeaderServiceTypeCodes();
     }
@@ -60,7 +60,7 @@ public class ApplicationIndexV2Service {
     private void handleMissingHeaderServiceType(ServiceUid serviceUid, AgentInfoBo agentInfoBo) {
         if (serviceUid.equals(ServiceUid.DEFAULT)) {
             // Cache serviceType for ping session resolution
-            cachedApplicationServiceTypeService.put(agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
+            applicationServiceTypeService.put(agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
             if (!missingHeaderServiceTypeCodes.contains(agentInfoBo.getServiceTypeCode())) {
                 tLogger.warn("Unhandled missing header serviceType. applicationName={}, serviceType={}, agentId={}", agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode(), agentInfoBo.getAgentId());
             }

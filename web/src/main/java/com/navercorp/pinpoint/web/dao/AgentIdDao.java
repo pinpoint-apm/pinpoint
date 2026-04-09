@@ -23,5 +23,7 @@ public interface AgentIdDao {
     void insert(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime,
                 String agentName, @Nullable AgentStatus agentStatus);
 
+    int countAgentIdEntry(int serviceUid, String applicationName, int serviceTypeCode);
+
     List<AgentIdEntry> getInactiveAgentIdEntry(long maxStatusTimestamp, int limit, @Nullable AgentIdEntry lastAgentIdEntry);
 }

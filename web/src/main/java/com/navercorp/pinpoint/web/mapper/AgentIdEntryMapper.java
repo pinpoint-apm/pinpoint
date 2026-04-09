@@ -36,11 +36,11 @@ import java.util.function.Predicate;
 public class AgentIdEntryMapper implements RowMapper<List<AgentIdEntry>> {
 
     private final ApplicationFactory applicationFactory;
-    private final Predicate<byte[]> rowFilter;
+    private final Predicate<Result> rowFilter;
 
-    public AgentIdEntryMapper(ApplicationFactory applicationFactory, Predicate<byte[]> rowFilter) {
+    public AgentIdEntryMapper(ApplicationFactory applicationFactory, Predicate<Result> rowFilter) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
-        this.rowFilter = rowFilter;
+        this.rowFilter = Objects.requireNonNull(rowFilter, "rowFilter");
     }
 
     @Override
@@ -48,12 +48,12 @@ public class AgentIdEntryMapper implements RowMapper<List<AgentIdEntry>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        byte[] row = result.getRow();
-        if (rowFilter != null && !rowFilter.test(row)) {
+        if (!rowFilter.test(result)) {
             return Collections.emptyList();
         }
 
         // parse row
+        byte[] row = result.getRow();
         int serviceUid = AgentIdRowKeyUtils.extractServiceUid(row);
         String applicationName = AgentIdRowKeyUtils.extractApplicationName(row);
         int serviceTypeCode = AgentIdRowKeyUtils.extractServiceTypeCode(row);

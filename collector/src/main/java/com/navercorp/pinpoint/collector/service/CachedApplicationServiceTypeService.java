@@ -10,6 +10,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -25,7 +26,8 @@ import java.util.concurrent.TimeUnit;
  * Only handles default serviceUid (0).
  */
 @Service
-public class CachedApplicationServiceTypeService {
+@ConditionalOnProperty(name = "pinpoint.collector.application.index.v2.enabled", havingValue = "true")
+public class CachedApplicationServiceTypeService implements ApplicationServiceTypeService {
 
     private static final int NOT_FOUND = ServiceType.UNDEFINED.getCode();
     private static final Duration NOT_FOUND_EXPIRY = Duration.ofMinutes(1); // 1 min
@@ -52,10 +54,12 @@ public class CachedApplicationServiceTypeService {
                 .buildAsync();
     }
 
+    @Override
     public void put(String applicationName, int serviceTypeCode) {
         serviceTypeCache.put(applicationName, CompletableFuture.completedFuture(serviceTypeCode));
     }
 
+    @Override
     public int getServiceTypeCode(String applicationName) {
         try {
             CompletableFuture<Integer> future = serviceTypeCache.get(applicationName, this::readFromDao);

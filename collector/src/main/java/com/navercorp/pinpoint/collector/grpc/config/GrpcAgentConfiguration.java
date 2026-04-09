@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.SimpleServerCallExecutorSu
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
-import com.navercorp.pinpoint.collector.service.CachedApplicationServiceTypeService;
+import com.navercorp.pinpoint.collector.service.ApplicationServiceTypeService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
@@ -50,6 +50,7 @@ import io.netty.buffer.ByteBufAllocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -177,8 +178,9 @@ public class GrpcAgentConfiguration {
     public KeepAliveService keepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                                              AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
                                              PingSessionRegistry pingSessionRegistry,
-                                             CachedApplicationServiceTypeService applicationServiceTypeService) {
-        return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry, applicationServiceTypeService);
+                                             ApplicationServiceTypeService applicationServiceTypeService,
+                                             @Value("${pinpoint.collector.application.index.v2.enabled:false}") boolean v2enabled) {
+        return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry, applicationServiceTypeService, v2enabled);
     }
 
     @Bean
