@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.EchoService;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,15 +48,15 @@ public class EchoController {
     public String echo(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("startTimeStamp") @PositiveOrZero long startTimeStamp,
+            @RequestParam("startTimeStamp") Timestamp startTimeStamp,
             @RequestParam("message") @NotBlank String message
     ) {
-        final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId, startTimeStamp, true);
+        final ClusterKey clusterKey = agentService.getClusterKey(applicationName, agentId, startTimeStamp.getEpochMillis(), true);
         if (clusterKey == null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     String.format("Can't find suitable PinpointServer(%s/%s/%d).",
-                            applicationName, agentId, startTimeStamp)
+                            applicationName, agentId, startTimeStamp.getEpochMillis())
             );
         }
 

@@ -40,8 +40,8 @@ import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -88,8 +88,8 @@ public class ResponseTimeController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
@@ -110,8 +110,8 @@ public class ResponseTimeController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
@@ -132,8 +132,8 @@ public class ResponseTimeController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to
     ) {
         Histogram histogram = getWasHistogram(applicationName, serviceTypeCode, serviceTypeName, from, to);
         return ResponseTimeStatics.fromHistogram(histogram);
@@ -145,8 +145,8 @@ public class ResponseTimeController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @PathVariable("type") String type
     ) {
         final Range range = Range.between(from, to);
@@ -170,8 +170,8 @@ public class ResponseTimeController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
@@ -199,8 +199,8 @@ public class ResponseTimeController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestBody ApplicationPairs applicationPairs
     ) {
         final Range range = Range.between(from, to);
@@ -222,8 +222,8 @@ public class ResponseTimeController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestBody ApplicationPairs applicationPairs
     ) {
         final Range range = Range.between(from, to);
@@ -246,8 +246,8 @@ public class ResponseTimeController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @PathVariable("type") String type,
             @RequestBody ApplicationPairs applicationPairs
     ) {
@@ -282,8 +282,8 @@ public class ResponseTimeController {
             @RequestParam("toApplicationName") String toApplicationName,
             @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode,
             @RequestParam(value = "toServiceTypeName", required = false) @NotBlank String toServiceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
@@ -314,8 +314,8 @@ public class ResponseTimeController {
             @RequestParam("toApplicationName") String toApplicationName,
             @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode,
             @RequestParam(value = "toServiceTypeName", required = false) @NotBlank String toServiceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @PathVariable("type") String type
     ) {
         final Range range = Range.between(from, to);

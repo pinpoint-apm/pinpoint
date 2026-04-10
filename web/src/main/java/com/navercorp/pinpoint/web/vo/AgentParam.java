@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 
 import java.io.Serializable;
 
@@ -12,6 +13,10 @@ public class AgentParam implements Serializable {
     public AgentParam(String agentId, long timeStamp) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.timeStamp = timeStamp;
+    }
+
+    public AgentParam(String agentId, Timestamp timestamp) {
+        this(agentId, timestamp.getEpochMillis());
     }
 
     public String getAgentId() {

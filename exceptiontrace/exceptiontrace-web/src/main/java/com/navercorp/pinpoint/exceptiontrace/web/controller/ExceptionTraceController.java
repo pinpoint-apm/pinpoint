@@ -36,8 +36,8 @@ import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionGroupSummaryView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -119,8 +119,8 @@ public class ExceptionTraceController {
     public List<ExceptionDetailView> getListOfExceptionMetaDataByGivenRange(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
 
             @RequestParam(value = "filters", required = false) List<String> filters,
             @RequestParam("orderBy") String orderBy,
@@ -150,8 +150,8 @@ public class ExceptionTraceController {
     public List<ExceptionGroupSummaryView> getListOfExceptionMetaDataWithDynamicGroupBy(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
 
             @RequestParam("groupBy") List<String> groupByList
     ) {
@@ -178,8 +178,8 @@ public class ExceptionTraceController {
     public ExceptionChartView getCollectedExceptionMetaDataByGivenRange(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
 
             @RequestParam(value = "groupBy", required = false) List<String> groupByList
     ) {

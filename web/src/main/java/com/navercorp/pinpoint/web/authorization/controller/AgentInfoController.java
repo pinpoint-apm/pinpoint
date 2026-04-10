@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.response.CodeResult;
@@ -33,7 +34,6 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -73,8 +73,8 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     @GetMapping(value = "/getAgentInfo")
     public AgentAndStatus getAgentInfo(
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        AgentAndStatus result = this.agentInfoService.findAgentInfoAndStatus(agentId, timestamp);
+            @RequestParam("timestamp") Timestamp timestamp) {
+        AgentAndStatus result = this.agentInfoService.findAgentInfoAndStatus(agentId, timestamp.getEpochMillis());
         if (result == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "agent info not found");
         }
@@ -84,8 +84,8 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     @GetMapping(value = "/getDetailedAgentInfo")
     public DetailedAgentAndStatus getDetailedAgentInfo(
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        DetailedAgentAndStatus result = this.agentInfoService.findDetailedAgentInfoAndStatus(agentId, timestamp);
+            @RequestParam("timestamp") Timestamp timestamp) {
+        DetailedAgentAndStatus result = this.agentInfoService.findDetailedAgentInfoAndStatus(agentId, timestamp.getEpochMillis());
         if (result == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "detailed agent info not found");
         }
@@ -95,8 +95,8 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     @GetMapping(value = "/getAgentStatus")
     public AgentStatus getAgentStatus(
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("timestamp") @PositiveOrZero long timestamp) {
-        AgentStatus result = this.agentInfoService.findAgentStatus(agentId, timestamp);
+            @RequestParam("timestamp") Timestamp timestamp) {
+        AgentStatus result = this.agentInfoService.findAgentStatus(agentId, timestamp.getEpochMillis());
         if (result == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "agent status not found");
         }
@@ -106,7 +106,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     @GetMapping(value = "/getAgentEvent")
     public AgentEvent getAgentEvent(
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("eventTimestamp") @PositiveOrZero long eventTimestamp,
+            @RequestParam("eventTimestamp") Timestamp eventTimestamp,
             @RequestParam("eventTypeCode") int eventTypeCode
     ) {
         final AgentEventType eventType = AgentEventType.getTypeByCode(eventTypeCode);
@@ -114,7 +114,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
             throw new IllegalArgumentException("invalid eventTypeCode [" + eventTypeCode + "]");
         }
 
-        AgentEvent result = this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventType);
+        AgentEvent result = this.agentEventService.getAgentEvent(agentId, eventTimestamp.getEpochMillis(), eventType);
         if (result == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "agent event not found");
         }
@@ -125,8 +125,8 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     @GetMapping(value = "/getAgentEvents")
     public List<AgentEvent> getAgentEvents(
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         final Range range = Range.between(from, to);
         final Set<AgentEventType> excludeEventTypes = getAgentEventTypes(excludeEventTypeCodes);
@@ -150,8 +150,8 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     public InspectorTimeline getAgentStatusTimeline(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range);
     }
@@ -161,8 +161,8 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     public InspectorTimeline getAgentStatusTimeline(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         final Range range = Range.between(from, to);
         rangeValidator.validate(range);

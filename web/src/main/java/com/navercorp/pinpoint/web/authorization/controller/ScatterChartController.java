@@ -30,9 +30,9 @@ import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.GetTraceInfoParser;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,8 +108,8 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
             @RequestParam("limit") int limitParam,

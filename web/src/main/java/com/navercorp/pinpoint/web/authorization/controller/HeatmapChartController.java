@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.heatmap.service.EmptyHeatmapService;
 import com.navercorp.pinpoint.web.heatmap.service.HeatmapChartService;
 import com.navercorp.pinpoint.web.heatmap.view.HeatMapDataView;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -59,8 +60,8 @@ public class HeatmapChartController {
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/applicationData")
     public HeatMapDataView getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
-                                  @RequestParam("from") @PositiveOrZero long from,
-                                  @RequestParam("to") @PositiveOrZero long to,
+                                  @RequestParam("from") Timestamp from,
+                                  @RequestParam("to") Timestamp to,
                                   @RequestParam("minElapsedTime") @PositiveOrZero int minElapsedTime,
                                   @RequestParam("maxElapsedTime") @Positive int maxElapsedTime) {
         Range range = Range.between(from, to);
