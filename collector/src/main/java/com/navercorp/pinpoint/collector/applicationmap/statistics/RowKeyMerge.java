@@ -20,10 +20,12 @@ import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -106,5 +108,17 @@ public class RowKeyMerge {
 
 
     record ColumnCallCount(byte[] columnName, long callCount) {
+
+        public ColumnCallCount {
+            Objects.requireNonNull(columnName, "columnName");
+        }
+
+        @Override
+        public String toString() {
+            return "ColumnCallCount{" +
+                    "columnName=" + Bytes.toStringBinary(columnName) +
+                    ", callCount=" + callCount +
+                    '}';
+        }
     }
 }
