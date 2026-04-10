@@ -65,6 +65,8 @@ export const getHostGroupPath =
 
 /** /serverMap */
 export const getServerMapPath = getApplicationPath(APP_PATH.SERVER_MAP);
+/** /serviceMap */
+export const getServiceMapPath = getApplicationPath(APP_PATH.SERVICE_MAP);
 /** /realtime */
 export const getRealtimePath = getApplicationPath(APP_PATH.SERVER_MAP_REALTIME);
 /** /scatterFullScreenMode */
