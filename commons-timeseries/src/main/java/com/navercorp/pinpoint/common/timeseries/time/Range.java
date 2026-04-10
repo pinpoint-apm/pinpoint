@@ -51,12 +51,24 @@ public final class Range {
         return between(from.toEpochMilli(), to.toEpochMilli());
     }
 
+    public static Range between(Timestamp from, Timestamp to) {
+        Objects.requireNonNull(from, "from");
+        Objects.requireNonNull(to, "to");
+        return between(from.getEpochMillis(), to.getEpochMillis());
+    }
+
     public static Range unchecked(long from, long to) {
         return unchecked(ofEpochMilli(from), ofEpochMilli(to));
     }
 
     public static Range unchecked(Instant from, Instant to) {
         return new Range(from.toEpochMilli(), to.toEpochMilli());
+    }
+
+    public static Range unchecked(Timestamp from, Timestamp to) {
+        Objects.requireNonNull(from, "from");
+        Objects.requireNonNull(to, "to");
+        return new Range(from.getEpochMillis(), to.getEpochMillis());
     }
 
     public long getFrom() {
