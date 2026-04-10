@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.web.service.AgentStatisticsService;
 import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
@@ -32,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,16 +52,16 @@ public class AgentStatisticsController {
 
     @GetMapping(value = "/insertAgentCount", params = {"agentCount"})
     public Response insertAgentCount(@RequestParam("agentCount") @PositiveOrZero int agentCount) {
-        return insertAgentCount(agentCount, new Date().getTime());
+        return insertAgentCount(agentCount, Timestamp.ofEpochMilli(System.currentTimeMillis()));
     }
 
     @GetMapping(value = "/insertAgentCount", params = {"agentCount", "timestamp"})
     public Response insertAgentCount(
             @RequestParam("agentCount") @PositiveOrZero int agentCount,
-            @RequestParam("timestamp") @PositiveOrZero long timestamp
+            @RequestParam("timestamp") Timestamp timestamp
     ) {
         AgentCountStatistics agentCountStatistics =
-                new AgentCountStatistics(agentCount, DateTimeUtils.timestampToStartOfDay(timestamp));
+                new AgentCountStatistics(agentCount, DateTimeUtils.timestampToStartOfDay(timestamp.getEpochMillis()));
         boolean success = agentStatisticsService.insertAgentCount(agentCountStatistics);
 
         if (success) {
@@ -73,20 +73,20 @@ public class AgentStatisticsController {
 
     @GetMapping(value = "/selectAgentCount")
     public List<AgentCountStatistics> selectAgentCount() {
-        return selectAgentCount(0L, System.currentTimeMillis());
+        return selectAgentCount(Timestamp.ofEpochMilli(0L), Timestamp.ofEpochMilli(System.currentTimeMillis()));
     }
 
     @GetMapping(value = "/selectAgentCount", params = {"to"})
-    public List<AgentCountStatistics> selectAgentCount(@RequestParam("to") @PositiveOrZero long to) {
-        return selectAgentCount(0L, to);
+    public List<AgentCountStatistics> selectAgentCount(@RequestParam("to") Timestamp to) {
+        return selectAgentCount(Timestamp.ofEpochMilli(0L), to);
     }
 
     @GetMapping(value = "/selectAgentCount", params = {"from", "to"})
     public List<AgentCountStatistics> selectAgentCount(
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to")  @PositiveOrZero long to
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to
     ) {
-        Range range = Range.between(DateTimeUtils.timestampToStartOfDay(from), DateTimeUtils.timestampToStartOfDay(to));
+        Range range = Range.between(DateTimeUtils.timestampToStartOfDay(from.getEpochMillis()), DateTimeUtils.timestampToStartOfDay(to.getEpochMillis()));
         List<AgentCountStatistics> agentCountStatisticsList = agentStatisticsService.selectAgentCount(range);
 
         agentCountStatisticsList.sort(Comparator.comparingLong(AgentCountStatistics::getTimestamp).reversed());

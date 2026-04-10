@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricHostInfoService;
 import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
 import com.navercorp.pinpoint.metric.web.view.SystemMetricView;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -98,8 +99,8 @@ public class SystemMetricController {
     public SystemMetricView getCollectedMetricData(@RequestParam("hostGroupName") String hostGroupName,
                                                    @RequestParam("hostName") String hostName,
                                                    @RequestParam("metricDefinitionId") String metricDefinitionId,
-                                                   @RequestParam("from") long from,
-                                                   @RequestParam("to") long to,
+                                                   @RequestParam("from") Timestamp from,
+                                                   @RequestParam("to") Timestamp to,
                                                    @RequestParam(value = "tags", required = false) String tags) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());

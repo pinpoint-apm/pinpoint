@@ -10,8 +10,8 @@ import com.navercorp.pinpoint.web.service.ApdexScoreService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,8 +38,8 @@ public class ApdexScoreController {
     public ApdexScore getApdexScore(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range);
 
@@ -52,8 +52,8 @@ public class ApdexScoreController {
     public ApdexScore getApdexScore(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range);
 
@@ -67,8 +67,8 @@ public class ApdexScoreController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range);
 
@@ -82,8 +82,8 @@ public class ApdexScoreController {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range);
 
@@ -96,8 +96,8 @@ public class ApdexScoreController {
     public StatChart<?> getApplicationApdexScoreChart(
             @RequestParam("applicationId") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
 
@@ -110,8 +110,8 @@ public class ApdexScoreController {
     public StatChart<?> getApplicationApdexScoreChart(
             @RequestParam("applicationId") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
 
@@ -125,8 +125,8 @@ public class ApdexScoreController {
             @RequestParam("applicationId") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
 
@@ -140,8 +140,8 @@ public class ApdexScoreController {
             @RequestParam("applicationId") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("agentId") @NotBlank String agentId,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
 

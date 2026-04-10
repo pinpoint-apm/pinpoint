@@ -14,6 +14,7 @@ import com.navercorp.pinpoint.inspector.web.service.ApdexStatService;
 import com.navercorp.pinpoint.inspector.web.service.ApplicationStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
@@ -48,8 +49,8 @@ public class ApplicationInspectorStatController {
     public InspectorMetricView getApplicationStatChart(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
@@ -67,12 +68,12 @@ public class ApplicationInspectorStatController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
-        InspectorMetricData inspectorMetricData = apdexStatService.selectApplicationStat(Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, from, to);
+        InspectorMetricData inspectorMetricData = apdexStatService.selectApplicationStat(Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, from.getEpochMillis(), to.getEpochMillis());
         return new InspectorMetricView(inspectorMetricData);
     }
 
@@ -81,8 +82,8 @@ public class ApplicationInspectorStatController {
     public InspectorMetricGroupDataView getApplicationStatChartList(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 

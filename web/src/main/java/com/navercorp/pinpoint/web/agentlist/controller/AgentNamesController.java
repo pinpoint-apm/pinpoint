@@ -37,8 +37,8 @@ import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentNameGroupView;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -109,8 +109,8 @@ public class AgentNamesController {
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestParam(value = "query", required = false) String query) {
         final ApplicationAgentListQueryRule rule = ApplicationAgentListQueryRule
                 .getByValue(query, ApplicationAgentListQueryRule.ACTIVE_STATUS);
@@ -130,8 +130,8 @@ public class AgentNamesController {
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "applicationPairs", required = false) ApplicationPairs applicationPairs) {
         ServiceType serviceType = registry.findServiceType(serviceTypeCode);

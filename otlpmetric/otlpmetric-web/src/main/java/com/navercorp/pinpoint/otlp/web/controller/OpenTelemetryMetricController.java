@@ -32,9 +32,9 @@ import com.navercorp.pinpoint.otlp.common.web.vo.view.MetricDataView;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartView;
 import com.navercorp.pinpoint.otlp.common.web.vo.MetricData;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -95,9 +95,9 @@ public class OpenTelemetryMetricController {
                                        @RequestParam("metricGroupName") @NotBlank String metricGroupName,
                                        @RequestParam("metricName") @NotBlank String metricName,
                                        @RequestParam("tag") String tag,
-                                       @RequestParam("from") @PositiveOrZero long from,
-                                       @RequestParam("to") @PositiveOrZero long to) {
-        return otlpMetricWebService.getMetricChartData(tenantId, DEFAULT_SERVICE_NAME, applicationName, agentId, metricGroupName, metricName, tag, from, to);
+                                       @RequestParam("from") Timestamp from,
+                                       @RequestParam("to") Timestamp to) {
+        return otlpMetricWebService.getMetricChartData(tenantId, DEFAULT_SERVICE_NAME, applicationName, agentId, metricGroupName, metricName, tag, from.getEpochMillis(), to.getEpochMillis());
     }
 
     @PostMapping("/metricData")

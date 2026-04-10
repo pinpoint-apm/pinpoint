@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.inspector.web.service.AgentStatService;
 import com.navercorp.pinpoint.inspector.web.service.ApdexStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
@@ -72,8 +73,8 @@ public class AgentInspectorStatController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
@@ -92,12 +93,12 @@ public class AgentInspectorStatController {
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
-        InspectorMetricData inspectorMetricData = apdexStatService.selectAgentStat(Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, agentId, from, to);
+        InspectorMetricData inspectorMetricData = apdexStatService.selectAgentStat(Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, agentId, from.getEpochMillis(), to.getEpochMillis());
         return new InspectorMetricView(inspectorMetricData);
     }
 
@@ -107,8 +108,8 @@ public class AgentInspectorStatController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
@@ -127,13 +128,13 @@ public class AgentInspectorStatController {
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("agentIds") @NotEmpty List<String> agentIds,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
         InspectorMetricGroupData inspectorMetricGroupData = apdexStatService.selectAgentStatGroupedByAgentId(
-                Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, agentIds, from, to
+                Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, agentIds, from.getEpochMillis(), to.getEpochMillis()
         );
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }
@@ -144,8 +145,8 @@ public class AgentInspectorStatController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentIds") @NotEmpty List<String> agentIds,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
@@ -164,8 +165,8 @@ public class AgentInspectorStatController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentIds") @NotEmpty List<String> agentIds,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 

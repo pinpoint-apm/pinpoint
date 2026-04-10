@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimePrecision;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartTypeFactory;
@@ -76,7 +77,7 @@ public class UriStatController {
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(uriStatProperties.getUriStatPeriodMax()));
     }
 
-    private Range checkTimeRange(long from, long to) {
+    private Range checkTimeRange(Timestamp from, Timestamp to) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
         return range;
@@ -86,8 +87,8 @@ public class UriStatController {
     public List<UriStatSummaryView> getUriStatPagedSummary(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestParam("orderby") String column,
             @RequestParam("isDesc") boolean isDesc,
             @RequestParam("count") int count,
@@ -123,8 +124,8 @@ public class UriStatController {
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("uri") String uri,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to,
             @RequestParam(value = "type", required = false) String type
     ) {
         Range range = checkTimeRange(from, to);

@@ -132,7 +132,7 @@ public class FilteredMapController {
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
-        final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
+        final Range originalRange = Range.between(rangeForm.getFrom().getEpochMillis(), originTo);
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, range.getTo());
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);

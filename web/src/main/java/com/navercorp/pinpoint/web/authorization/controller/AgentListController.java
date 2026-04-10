@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
-import jakarta.validation.constraints.PositiveOrZero;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,8 +48,8 @@ public class AgentListController implements AccessDeniedExceptionHandler {
     @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/statistics", params = {"from", "to"})
     public List<DetailedAgentAndStatus> getAllAgentStatistics(
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to
     ) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range);

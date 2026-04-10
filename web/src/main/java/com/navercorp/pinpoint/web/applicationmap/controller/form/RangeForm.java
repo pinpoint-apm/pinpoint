@@ -1,27 +1,22 @@
 package com.navercorp.pinpoint.web.applicationmap.controller.form;
 
-import jakarta.validation.constraints.PositiveOrZero;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 
 public class RangeForm {
 
-    @PositiveOrZero
-    private long from;
-    @PositiveOrZero
-    private long to;
+    private final Timestamp from;
+    private final Timestamp to;
 
-    public long getFrom() {
+    public RangeForm(Timestamp from, Timestamp to) {
+        this.from = from;
+        this.to = to;
+    }
+
+    public Timestamp getFrom() {
         return from;
     }
 
-    public void setFrom(long from) {
-        this.from = from;
-    }
-
-    public long getTo() {
+    public Timestamp getTo() {
         return to;
-    }
-
-    public void setTo(long to) {
-        this.to = to;
     }
 }

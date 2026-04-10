@@ -37,8 +37,8 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -97,8 +97,8 @@ public class AgentV2Controller {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
@@ -119,8 +119,8 @@ public class AgentV2Controller {
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
+            @RequestParam("from") Timestamp from,
+            @RequestParam("to") Timestamp to) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
