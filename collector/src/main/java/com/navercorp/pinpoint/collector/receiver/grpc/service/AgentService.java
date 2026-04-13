@@ -110,6 +110,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         PingSession pingSession = this.pingEventHandler.newPingSession(transport.getTransportId(), header, transportServiceContext);
 
         final ServerCallStreamObserver<PPing> responseObserver = (ServerCallStreamObserver<PPing>) response;
+        responseObserver.setOnCancelHandler(() -> disconnect(pingSession));
+
         return new StreamObserver<>() {
             private final ThrottledLogger thLogger = ThrottledLogger.getLogger(AgentService.this.logger, 100);
 
@@ -150,12 +152,11 @@ public class AgentService extends AgentGrpc.AgentImplBase {
                 responseObserver.onCompleted();
                 disconnect(pingSession);
             }
-
-            private void disconnect(PingSession pingSession) {
-                AgentService.this.pingEventHandler.close(pingSession);
-            }
-
         };
+    }
+
+    private void disconnect(PingSession pingSession) {
+        pingEventHandler.close(pingSession);
     }
 
 }
