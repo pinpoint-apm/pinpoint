@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.common.server.scatter;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.unsafe.HBasePlatformDependent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +19,9 @@ public class FuzzyRowKeyBuilderTest {
 
     @Test
     public void build_include() throws IOException {
+        boolean unaligned = HBasePlatformDependent.unaligned();
+        logger.info("unaligned:{}", unaligned);
+
         final long high = 100;
         final long low = 0;
         Byte slotNumber = fuzzyRowKeyFactory.getKey(high);
