@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -103,7 +104,7 @@ public class FilteredMapController {
                     ApplicationForm appForm,
             @Valid @ModelAttribute
                     RangeForm rangeForm,
-            @RequestParam("originTo") long originTo,
+            @RequestParam("originTo") Timestamp originTo,
             @Valid @ModelAttribute
                     GroupForm groupForm,
             @Valid @ModelAttribute
@@ -132,7 +133,7 @@ public class FilteredMapController {
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
-        final Range originalRange = Range.between(rangeForm.getFrom().getEpochMillis(), originTo);
+        final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, range.getTo());
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
