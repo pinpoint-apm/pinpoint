@@ -26,6 +26,7 @@ import java.util.Objects;
  * @author emeroad
  */
 public final class Timestamp {
+    private static final Timestamp ZERO = new Timestamp(0);
 
     private final long epochMillis;
 
@@ -34,6 +35,14 @@ public final class Timestamp {
             throw new IllegalArgumentException("epochMillis must not be negative: " + epochMillis);
         }
         this.epochMillis = epochMillis;
+    }
+
+    public static Timestamp zero() {
+        return ZERO;
+    }
+
+    public static Timestamp now() {
+        return ofEpochMilli(System.currentTimeMillis());
     }
 
     public static Timestamp ofEpochMilli(long epochMillis) {

@@ -52,7 +52,7 @@ public class AgentStatisticsController {
 
     @GetMapping(value = "/insertAgentCount", params = {"agentCount"})
     public Response insertAgentCount(@RequestParam("agentCount") @PositiveOrZero int agentCount) {
-        return insertAgentCount(agentCount, Timestamp.ofEpochMilli(System.currentTimeMillis()));
+        return insertAgentCount(agentCount, Timestamp.now());
     }
 
     @GetMapping(value = "/insertAgentCount", params = {"agentCount", "timestamp"})
@@ -73,12 +73,12 @@ public class AgentStatisticsController {
 
     @GetMapping(value = "/selectAgentCount")
     public List<AgentCountStatistics> selectAgentCount() {
-        return selectAgentCount(Timestamp.ofEpochMilli(0L), Timestamp.ofEpochMilli(System.currentTimeMillis()));
+        return selectAgentCount(Timestamp.zero(), Timestamp.now());
     }
 
     @GetMapping(value = "/selectAgentCount", params = {"to"})
     public List<AgentCountStatistics> selectAgentCount(@RequestParam("to") Timestamp to) {
-        return selectAgentCount(Timestamp.ofEpochMilli(0L), to);
+        return selectAgentCount(Timestamp.zero(), to);
     }
 
     @GetMapping(value = "/selectAgentCount", params = {"from", "to"})
