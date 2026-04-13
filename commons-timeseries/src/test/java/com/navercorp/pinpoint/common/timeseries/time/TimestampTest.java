@@ -50,6 +50,34 @@ class TimestampTest {
     }
 
     @Test
+    void parseBasicIso8601Utc() {
+        String basic = "20250723T014203Z";
+        Timestamp timestamp = Timestamp.valueOf(basic);
+
+        Instant expected = Instant.parse("2025-07-23T01:42:03Z");
+        assertThat(timestamp.getEpochMillis()).isEqualTo(expected.toEpochMilli());
+    }
+
+    @Test
+    void parseBasicIso8601WithMillis() {
+        String basic = "20250723T014203.123Z";
+        Timestamp timestamp = Timestamp.valueOf(basic);
+
+        Instant expected = Instant.parse("2025-07-23T01:42:03.123Z");
+        assertThat(timestamp.getEpochMillis()).isEqualTo(expected.toEpochMilli());
+    }
+
+    @Test
+    void parseBasicIso8601WithOffset() {
+        String basic = "20250723T104203+0900";
+        Timestamp timestamp = Timestamp.valueOf(basic);
+
+        // Seoul 10:42:03 = UTC 01:42:03
+        Instant expected = Instant.parse("2025-07-23T01:42:03Z");
+        assertThat(timestamp.getEpochMillis()).isEqualTo(expected.toEpochMilli());
+    }
+
+    @Test
     void parseIso8601Utc() {
         String iso = "2025-07-23T01:42:03Z";
         Timestamp timestamp = Timestamp.valueOf(iso);
