@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.trace.callstacks.RecordSet;
 import com.navercorp.pinpoint.web.trace.model.TraceViewerData;
 import com.navercorp.pinpoint.web.trace.service.SpanResult;
@@ -43,6 +44,8 @@ import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.LogLinkBuilder;
 import com.navercorp.pinpoint.web.view.LogLinkView;
 import com.navercorp.pinpoint.web.view.TransactionServerMapViewModel;
+import com.navercorp.pinpoint.web.view.transactionlist.DotMetaDataView;
+import com.navercorp.pinpoint.web.view.transactionlist.TransactionMetaDataViewModel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
@@ -54,6 +57,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -77,6 +81,7 @@ public class TransactionController {
     private final FilteredMapService filteredMapService;
     private final HyperLinkFactory hyperLinkFactory;
     private final LogLinkBuilder logLinkBuilder;
+    private final ScatterChartService scatterChartService;
 
     @Value("${web.callstack.selectSpans.limit:-1}")
     private int callstackSelectSpansLimit;
@@ -87,13 +92,15 @@ public class TransactionController {
                                  TransactionInfoService transactionInfoService,
                                  FilteredMapService filteredMapService,
                                  HyperLinkFactory hyperLinkFactory,
-                                 LogLinkBuilder logLinkBuilder) {
+                                 LogLinkBuilder logLinkBuilder,
+                                 ScatterChartService scatterChartService) {
         this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.transactionInfoService = Objects.requireNonNull(transactionInfoService, "transactionInfoService");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.logLinkBuilder = Objects.requireNonNull(logLinkBuilder, "logLinkBuilder");
+        this.scatterChartService = Objects.requireNonNull(scatterChartService, "scatterChartService");
     }
 
     @GetMapping(value = "/trace")
@@ -176,6 +183,32 @@ public class TransactionController {
         MapView mapView = getApplicationMap(map);
 
         return new TransactionServerMapViewModel(serverTraceId.toString(), spanId, mapView);
+    }
+
+    @GetMapping(value = "/transaction/metadata")
+    public MetadataView getTransactionMetadata(
+            @RequestParam("traceId") @NotBlank String traceId,
+            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId
+    ) {
+        logger.debug("GET /transaction/metadata params {traceId={}, spanId={}}", traceId, spanId);
+
+        final ServerTraceId serverTraceId = ServerTraceId.of(traceId);
+        List<SpanBo> spans = scatterChartService.selectTransactionMetadata(serverTraceId);
+
+        if (spanId != Long.parseLong(DEFAULT_SPAN_ID)) {
+            spans = spans.stream()
+                    .filter(span -> span.getSpanId() == spanId)
+                    .toList();
+        }
+
+        final TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel(spans);
+        return new MetadataView(viewModel.getMetadata());
+    }
+
+    public record MetadataView(List<? extends DotMetaDataView> metadata, boolean complete, long resultFrom) {
+        public MetadataView(List<? extends DotMetaDataView> metadata) {
+            this(metadata, true, 0);
+        }
     }
 
     private MapView getApplicationMap(ApplicationMap map) {
