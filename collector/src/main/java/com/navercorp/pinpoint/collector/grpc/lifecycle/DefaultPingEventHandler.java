@@ -87,10 +87,11 @@ public class DefaultPingEventHandler implements PingEventHandler {
     public void close(PingSession pingSession) {
         Objects.requireNonNull(pingSession, "pingSession");
 
-        pingSessionRegistry.remove(pingSession);
-
-        if (logger.isDebugEnabled()) {
+        boolean isRemoved = pingSessionRegistry.remove(pingSession);
+        if (isRemoved) {
             logger.debug("Remove ping session. pingSession={}", pingSession);
+        } else {
+            logger.info("ping session is already removed. pingSession={}", pingSession);
         }
         lifecycleListener.close(pingSession);
     }
