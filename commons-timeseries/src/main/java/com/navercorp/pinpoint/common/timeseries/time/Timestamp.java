@@ -20,6 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.Objects;
 
 /**
@@ -27,6 +30,15 @@ import java.util.Objects;
  */
 public final class Timestamp {
     private static final Timestamp ZERO = new Timestamp(0);
+
+    // ISO 8601 Basic format: 20260413T053000Z or 20260413T053000.999Z
+    public static final DateTimeFormatter BASIC_ISO_FORMAT = new DateTimeFormatterBuilder()
+            .appendPattern("yyyyMMdd'T'HHmmss")
+            .optionalStart()
+            .appendFraction(ChronoField.MILLI_OF_SECOND, 3, 3, true)
+            .optionalEnd()
+            .appendPattern("X")
+            .toFormatter();
 
     private final long epochMillis;
 
@@ -55,8 +67,18 @@ public final class Timestamp {
         if (StringUtils.isNumeric(dateTime)) {
             return new Timestamp(Long.parseLong(dateTime));
         }
-        long epochMillis = OffsetDateTime.parse(dateTime).toInstant().toEpochMilli();
+        long epochMillis = parseDateTime(dateTime);
         return new Timestamp(epochMillis);
+    }
+
+    private static long parseDateTime(String dateTime) {
+        int tIndex = dateTime.indexOf('T');
+        if (tIndex == 8) {
+            // ISO 8601 Basic: 20260413T053000Z or 20260413T053000.999Z
+            return OffsetDateTime.parse(dateTime, BASIC_ISO_FORMAT).toInstant().toEpochMilli();
+        }
+        // ISO 8601 Extended: 2026-04-13T05:30:00Z
+        return OffsetDateTime.parse(dateTime).toInstant().toEpochMilli();
     }
 
     public long getEpochMillis() {
