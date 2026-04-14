@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.otlp.web.view;
 
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.List;
@@ -43,11 +45,11 @@ public class MetricDataRequestParameter {
 
     private List<String> fieldNameList;
 
-    @PositiveOrZero
-    private long from;
+    @NotNull
+    private Timestamp from;
 
-    @PositiveOrZero
-    private long to;
+    @NotNull
+    private Timestamp to;
 
     @NotBlank
     private String chartType;
@@ -115,19 +117,19 @@ public class MetricDataRequestParameter {
         this.fieldNameList = fieldNameList;
     }
 
-    public long getFrom() {
+    public Timestamp getFrom() {
         return from;
     }
 
-    public void setFrom(long from) {
+    public void setFrom(Timestamp from) {
         this.from = from;
     }
 
-    public long getTo() {
+    public Timestamp getTo() {
         return to;
     }
 
-    public void setTo(long to) {
+    public void setTo(Timestamp to) {
         this.to = to;
     }
 
