@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Properties;
 
 public class FuzzyRowKeyBuilderTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -19,6 +20,12 @@ public class FuzzyRowKeyBuilderTest {
 
     @Test
     public void build_include() throws IOException {
+        Properties properties = System.getProperties();
+        properties.forEach((k, v) -> logger.info("{}:{}", k, v));
+
+
+        String property = System.getProperty("os.arch");
+        logger.info("os.arch:{}", property);
         boolean unaligned = HBasePlatformDependent.unaligned();
         logger.info("unaligned:{}", unaligned);
 
