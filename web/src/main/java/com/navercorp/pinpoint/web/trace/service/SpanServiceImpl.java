@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
@@ -423,7 +424,7 @@ public class SpanServiceImpl implements SpanService {
                     // annotation base api
                     if (apiString != null) {
                         ApiMetaDataBo apiMetaDataBo;
-                        if (align.isOpenTelemetry()) {
+                        if (OpenTelemetryServiceTypeCategory.isServer(align.getServiceType())) {
                             apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.WEB_REQUEST, apiString);
                         } else {
                             apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.DEFAULT, apiString);
@@ -461,9 +462,7 @@ public class SpanServiceImpl implements SpanService {
                     AnnotationBo apiAnnotation = AnnotationBo.of(AnnotationKey.ERROR_API_METADATA_DID_COLLSION.getCode(), collisionMessage);
                     annotationBoList.add(apiAnnotation);
                 }
-
             }
-
         };
     }
 
