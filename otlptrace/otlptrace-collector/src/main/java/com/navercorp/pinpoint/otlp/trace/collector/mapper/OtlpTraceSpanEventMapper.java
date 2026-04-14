@@ -76,17 +76,17 @@ public class OtlpTraceSpanEventMapper {
                 // TODO bind ?
                 spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.SQL.getCode(), getClientSpanDbStatement(attributes)));
             }
-            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.CLIENT_METHOD_NAME));
+            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
         } else if (isClient(span)) {
             spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_CLIENT.getCode());
-            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.CLIENT_METHOD_NAME));
+            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
         } else if (isProducer(span)) {
             spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_CLIENT.getCode());
-            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.PRODUCER_METHOD_NAME));
+            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.PRODUCER_METHOD_NAME)));
         } else {
             // TODO move span
             spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_INTERNAL.getCode());
-            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.INTERNAL_METHOD_NAME));
+            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.INTERNAL_METHOD_NAME)));
         }
         // api
         spanEventBo.setApiId(0);
@@ -97,8 +97,6 @@ public class OtlpTraceSpanEventMapper {
         if (span.getAttributesCount() > 0) {
             attributeMapper.addAttributesToAnnotation(attributes, spanEventBo::addAnnotation);
         }
-        // argument
-        spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.ARGS0.getCode(), span.getName()));
         // event
         for (Span.Event event : span.getEventsList()) {
             eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation);
@@ -173,5 +171,12 @@ public class OtlpTraceSpanEventMapper {
 
         // proxy
         return AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+    }
+
+    String getSpanNameOrDefault(Span span, String defaultName) {
+        if (span.getName().isEmpty()) {
+            return defaultName;
+        }
+        return span.getName();
     }
 }
