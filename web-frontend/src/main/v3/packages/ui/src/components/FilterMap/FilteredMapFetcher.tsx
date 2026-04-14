@@ -1,22 +1,23 @@
 import React from 'react';
-import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
-import { useAtom, useSetAtom } from 'jotai';
+import {FilteredMapType as FilteredMap} from '@pinpoint-fe/ui/src/constants';
+import {useAtom, useSetAtom} from 'jotai';
 import {
-  serverMapDataAtom,
   currentServerAtom,
-  serverMapCurrentTargetAtom,
   scatterDataByApplicationKeyAtom,
+  serverMapCurrentTargetAtom,
+  serverMapDataAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import {
-  mergeFilteredMapNodeData,
-  mergeFilteredMapLinkData,
-  getServerImagePath,
   getBaseNodeId,
+  getServerImagePath,
+  mergeFilteredMapLinkData,
+  mergeFilteredMapNodeData,
+  toBasicISOStringMs,
 } from '@pinpoint-fe/ui/src/utils';
-import { MergedNode, MergedEdge, Node, Edge } from '@pinpoint-fe/server-map';
-import { useFilteredMapParameters, useGetFilteredServerMapData } from '@pinpoint-fe/ui/src/hooks';
-import { useTranslation } from 'react-i18next';
-import { SERVERMAP_MENU_FUNCTION_TYPE, ServerMapCore, ServerMapCoreProps } from '..';
+import {Edge, MergedEdge, MergedNode, Node} from '@pinpoint-fe/server-map';
+import {useFilteredMapParameters, useGetFilteredServerMapData} from '@pinpoint-fe/ui/src/hooks';
+import {useTranslation} from 'react-i18next';
+import {SERVERMAP_MENU_FUNCTION_TYPE, ServerMapCore, ServerMapCoreProps} from '..';
 
 export interface FilteredMapFetcherProps {
   isPaused?: boolean;
@@ -114,7 +115,7 @@ export const FilteredMapFetcher = ({
       if (data?.lastFetchedTimestamp > from) {
         setQueryParams((prev) => ({
           ...prev,
-          to: data.lastFetchedTimestamp - 1,
+          to: toBasicISOStringMs(new Date(data.lastFetchedTimestamp - 1)),
         }));
       }
     }

@@ -2,8 +2,8 @@ import { Chart } from './common/Chart';
 export namespace UrlStatSummary {
   export interface Parameters {
     applicationName: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     orderBy: string;
     isDesc: boolean;
     count: number;

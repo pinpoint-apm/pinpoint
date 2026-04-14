@@ -3,8 +3,8 @@ export namespace AgentList {
 
   type BaseParameters = {
     applicationName: string;
-    from?: number;
-    to?: number;
+    from?: number | string;
+    to?: number | string;
   };
 
   export type Parameters = BaseParameters &

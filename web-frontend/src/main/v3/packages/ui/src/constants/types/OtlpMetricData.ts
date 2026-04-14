@@ -5,8 +5,8 @@ export namespace OtlpMetricData {
     agentId?: string;
     metricName: string;
     tagGroupList: string[];
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     chartType?: string;
     aggregationFunction?: string;
     fieldNameList: string[];
@@ -17,8 +17,8 @@ export namespace OtlpMetricData {
     applicationName: string;
     metricGroupName: string;
     metricName: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     tags?: string;
     chartType?: string;
     aggregationFunction?: string;

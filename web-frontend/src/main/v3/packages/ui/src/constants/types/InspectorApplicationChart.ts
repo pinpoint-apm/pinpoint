@@ -1,8 +1,8 @@
 export namespace InspectorApplicationChart {
   export interface Parameters {
     applicationName: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     metricDefinitionId: string;
   }
 

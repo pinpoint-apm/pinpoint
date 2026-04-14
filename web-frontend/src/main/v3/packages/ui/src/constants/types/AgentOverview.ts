@@ -6,8 +6,8 @@ export namespace AgentOverview {
     serviceTypeName?: string;
     serviceTypeCode?: number;
     applicationPairs?: string;
-    from?: number;
-    to?: number;
+    from?: number | string;
+    to?: number | string;
   }
 
   export interface Instance {

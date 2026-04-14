@@ -8,7 +8,7 @@ import {
   serverMapCurrentTargetAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { GetServerMap, BASE_PATH, GetHistogramStatistics } from '@pinpoint-fe/ui/src/constants';
-import { getParsedDate, getInspectorPath } from '@pinpoint-fe/ui/src/utils';
+import { getParsedDate, getInspectorPath, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import {
   useGetAgentOverview,
   useSearchParameters,
@@ -48,8 +48,8 @@ export const ServerListFetcher = ({ nodeStatistics }: ServerListFetcherProps) =>
     serviceTypeName: currentTargetData?.serviceType,
     serviceTypeCode: currentTargetData?.serviceTypeCode,
     applicationPairs: JSON.stringify(applicationPairs),
-    from: getParsedDate(searchParameters.from).getTime(),
-    to: getParsedDate(searchParameters.to).getTime(),
+    from: toBasicISOString(getParsedDate(searchParameters.from)),
+    to: toBasicISOString(getParsedDate(searchParameters.to)),
   });
 
   React.useEffect(() => {

@@ -8,8 +8,8 @@ export namespace GetServerMap {
   export interface Parameters {
     applicationName: string;
     serviceTypeName: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     calleeRange: number;
     callerRange: number;
     wasOnly: boolean;

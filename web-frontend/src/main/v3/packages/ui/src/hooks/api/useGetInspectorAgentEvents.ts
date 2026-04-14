@@ -1,8 +1,8 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { END_POINTS, InspectorAgentEvents } from '@pinpoint-fe/ui/src/constants';
-import { queryFn } from './reactQueryHelper';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { useInspectorSearchParameters } from '../searchParameters';
+import {useSuspenseQuery} from '@tanstack/react-query';
+import {END_POINTS, InspectorAgentEvents} from '@pinpoint-fe/ui/src/constants';
+import {queryFn} from './reactQueryHelper';
+import {convertParamsToQueryString, toBasicISOString} from '@pinpoint-fe/ui/src/utils';
+import {useInspectorSearchParameters} from '../searchParameters';
 
 const getQueryString = (queryParams: Partial<InspectorAgentEvents.Parameters>) => {
   if (queryParams.agentId && queryParams.from && queryParams.to) {
@@ -15,8 +15,8 @@ export const useGetInspectorAgentEvents = ({ range: [from, to] }: { range: numbe
   const { agentId } = useInspectorSearchParameters();
   const queryParams = {
     agentId,
-    from,
-    to,
+    from: toBasicISOString(new Date(from)),
+    to: toBasicISOString(new Date(to)),
     exclude: '10199', // it's derived from the legacy
   };
   const queryString = getQueryString(queryParams);

@@ -4,7 +4,7 @@ import {
   InspectorAgentInfoType as InspectorAgentInfo,
 } from '@pinpoint-fe/ui/src/constants';
 import { queryFn } from './reactQueryHelper';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
 
 const getQueryString = (queryParams: Partial<InspectorAgentInfo.Parameters>) => {
@@ -16,7 +16,7 @@ const getQueryString = (queryParams: Partial<InspectorAgentInfo.Parameters>) => 
 
 export const useGetInspectorAgentInfoData = () => {
   const { dateRange, agentId } = useInspectorSearchParameters();
-  const to = dateRange.to.getTime();
+  const to = toBasicISOString(dateRange.to);
   const queryParams = {
     agentId,
     timestamp: to,

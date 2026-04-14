@@ -1,6 +1,6 @@
 import React from 'react';
 import { GetApdexScore, END_POINTS, GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { keepPreviousData, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useServerMapSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
@@ -27,8 +27,8 @@ export type UseGetApdexScoreProps = {
 
 export const useGetApdexScore = ({ nodeData, shouldPoll, agentId }: UseGetApdexScoreProps) => {
   const { dateRange } = useServerMapSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
   const [queryParams, setQueryParams] = React.useState<Partial<GetApdexScore.Parameters>>({
     from,
     to,

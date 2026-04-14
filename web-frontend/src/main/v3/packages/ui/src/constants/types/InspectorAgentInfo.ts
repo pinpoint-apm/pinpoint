@@ -1,7 +1,7 @@
 export namespace InspectorAgentInfoType {
   export interface Parameters {
     agentId: string;
-    timestamp: number;
+    timestamp: number | string;
   }
 
   export interface Response {

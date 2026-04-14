@@ -128,6 +128,31 @@ export const convertTimeStringToTime = (timeString: string) => {
   }
 };
 
+/**
+ * Format a Date as ISO 8601 Basic UTC string: yyyyMMddTHHmmssZ
+ * e.g. 20260413T053000Z
+ */
+export const toBasicISOString = (date: Date): string => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return (
+    `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}` +
+    `T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`
+  );
+};
+
+/**
+ * Format a Date as ISO 8601 Basic UTC string with milliseconds: yyyyMMddTHHmmss.SSSZ
+ * e.g. 20260413T053000.999Z
+ */
+export const toBasicISOStringMs = (date: Date): string => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const ms = String(date.getUTCMilliseconds()).padStart(3, '0');
+  return (
+    `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}` +
+    `T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}.${ms}Z`
+  );
+};
+
 export const isValidTimezone = (tz: string): boolean => {
   try {
     Intl.DateTimeFormat(undefined, { timeZone: tz });

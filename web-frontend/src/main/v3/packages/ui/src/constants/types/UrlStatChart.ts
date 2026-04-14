@@ -2,8 +2,8 @@
 export namespace UrlStatChartType {
   export interface Parameters {
     applicationName: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     uri: string;
     type: string;
     agentId?: string;
