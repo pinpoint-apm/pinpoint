@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, InspectorAgentChart } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
 
@@ -30,8 +30,8 @@ export const useGetInspectorAgentChartData = ({
   } = useInspectorSearchParameters();
   const applicationName = application?.applicationName;
   const serviceTypeName = application?.serviceType;
-  const from = fromDate?.getTime() || dateRange.from.getTime();
-  const to = toDate?.getTime() || dateRange.to.getTime();
+  const from = toBasicISOString(fromDate || dateRange.from);
+  const to = toBasicISOString(toDate || dateRange.to);
   const queryParams = {
     applicationName,
     serviceTypeName,

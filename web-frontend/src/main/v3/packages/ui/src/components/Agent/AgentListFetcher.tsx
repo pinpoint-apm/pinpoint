@@ -8,6 +8,7 @@ import {
   useSearchParameters,
 } from '@pinpoint-fe/ui/src/hooks';
 import { colors } from '@pinpoint-fe/ui/src/constants';
+import { toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { AgentList } from '@pinpoint-fe/ui/src/constants/types/AgentList';
 import { cn } from '../../lib/utils';
 import { FaArrowAltCircleDown, FaExclamationCircle, FaTimesCircle } from 'react-icons/fa';
@@ -37,8 +38,8 @@ export const AgentListFetcher = ({
 }: AgentListFetcherProps) => {
   const { search, application } = useSearchParameters();
   const dateRange = getDateRange(search, false);
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
 
   const { data } = useGetAgentList({
     applicationName: application?.applicationName || '',

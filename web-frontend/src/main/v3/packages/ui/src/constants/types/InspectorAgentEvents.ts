@@ -1,8 +1,8 @@
 export namespace InspectorAgentEvents {
   export interface Parameters {
     agentId: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     exclude: string;
   }
 

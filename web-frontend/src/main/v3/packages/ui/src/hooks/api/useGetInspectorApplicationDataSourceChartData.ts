@@ -1,8 +1,8 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { END_POINTS, InspectorApplicationDataSourceChart } from '@pinpoint-fe/ui/src/constants';
-import { queryFn } from './reactQueryHelper';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { useInspectorSearchParameters } from '../searchParameters';
+import {useSuspenseQuery} from '@tanstack/react-query';
+import {END_POINTS, InspectorApplicationDataSourceChart} from '@pinpoint-fe/ui/src/constants';
+import {queryFn} from './reactQueryHelper';
+import {convertParamsToQueryString, toBasicISOString} from '@pinpoint-fe/ui/src/utils';
+import {useInspectorSearchParameters} from '../searchParameters';
 
 const getQueryString = (queryParams: Partial<InspectorApplicationDataSourceChart.Parameters>) => {
   if (
@@ -24,8 +24,8 @@ export const useGetInspectorApplicationDataSourceChartData = ({
   metricDefinitionId: DataSourceMetricDefinitionId;
 }) => {
   const { dateRange, application, version } = useInspectorSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
   const applicationName = application?.applicationName;
   const serviceTypeName = application?.serviceType;
   const queryParams = {

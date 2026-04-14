@@ -4,8 +4,8 @@ export namespace SystemMetricChart {
     hostGroupName: string;
     hostName: string;
     metricDefinitionId: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     tags?: string;
   }
 

@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, UrlStatSummary } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useUrlStatSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
 
@@ -23,8 +23,8 @@ export const useGetUrlStatSummaryData = ({
   type?: UrlStatSummary.Parameters['type'];
 }) => {
   const { application, dateRange, agentId } = useUrlStatSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
   const applicationName = application?.applicationName;
   const queryParams = {
     applicationName,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { GetServerMap, END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useServerMapSearchParameters } from '../searchParameters';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
@@ -27,8 +27,8 @@ export const useGetServerMapDataV2 = ({
   useStatisticsAgentState?: boolean;
 }) => {
   const { dateRange, search, application, queryOption } = useServerMapSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
 
   const [queryParams, setQueryParams] = React.useState<Partial<GetServerMap.Parameters>>({
     from,

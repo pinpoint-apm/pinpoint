@@ -2,8 +2,8 @@
 export namespace ErrorAnalysisChartType {
   export interface Parameters {
     applicationName: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     agentId?: string;
     groupBy?: string;
   }

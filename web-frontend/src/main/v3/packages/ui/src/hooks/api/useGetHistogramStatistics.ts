@@ -1,6 +1,6 @@
 import React from 'react';
 import { END_POINTS, GetHistogramStatistics } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useServerMapSearchParameters } from '../searchParameters';
 import { useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
@@ -30,8 +30,8 @@ export const useGetHistogramStatistics = ({
   linkKey?: string;
 }) => {
   const { dateRange, search, application, queryOption } = useServerMapSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
 
   const [queryParams, setQueryParams] = React.useState<Partial<GetHistogramStatistics.Parameters>>({
     from,

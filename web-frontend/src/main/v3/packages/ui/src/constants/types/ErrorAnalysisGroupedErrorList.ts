@@ -1,10 +1,10 @@
-import { Chart } from './common/Chart';
+import {Chart} from './common/Chart';
 
 export namespace ErrorAnalysisGroupedErrorList {
   export interface Parameters {
     applicationName: string;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     groupBy: string;
     agentId?: string;
   }

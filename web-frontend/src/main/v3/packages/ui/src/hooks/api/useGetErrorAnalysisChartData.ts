@@ -3,7 +3,7 @@ import {
   END_POINTS,
   ErrorAnalysisChartType as ErrorAnalysisChart,
 } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useErrorAnalysisSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
 
@@ -16,8 +16,8 @@ const getQueryString = (queryParams: Partial<ErrorAnalysisChart.Parameters>) => 
 
 export const useGetErrorAnalysisChartData = () => {
   const { application, dateRange, agentId, groupBy } = useErrorAnalysisSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
   const applicationName = application?.applicationName;
   const queryParams = {
     applicationName,

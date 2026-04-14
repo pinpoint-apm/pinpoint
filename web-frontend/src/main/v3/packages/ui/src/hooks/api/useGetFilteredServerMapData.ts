@@ -1,10 +1,10 @@
 import React from 'react';
-import { useUpdateEffect } from 'usehooks-ts';
-import { FilteredMapType as FilteredMap, END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { useFilteredMapParameters } from '../searchParameters';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { queryFn } from './reactQueryHelper';
+import {useUpdateEffect} from 'usehooks-ts';
+import {END_POINTS, FilteredMapType as FilteredMap} from '@pinpoint-fe/ui/src/constants';
+import {convertParamsToQueryString, toBasicISOStringMs} from '@pinpoint-fe/ui/src/utils';
+import {useFilteredMapParameters} from '../searchParameters';
+import {keepPreviousData, useQuery} from '@tanstack/react-query';
+import {queryFn} from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<FilteredMap.Parameters>) => {
   if (
@@ -21,8 +21,8 @@ const getQueryString = (queryParams: Partial<FilteredMap.Parameters>) => {
 
 export const useGetFilteredServerMapData = (isPaused: boolean) => {
   const { dateRange, application, search, searchParameters } = useFilteredMapParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOStringMs(dateRange.from);
+  const to = toBasicISOStringMs(dateRange.to);
   const defaultPartialOptions = {
     applicationName: application?.applicationName,
     serviceTypeName: application?.serviceType,

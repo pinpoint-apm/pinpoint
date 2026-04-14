@@ -3,8 +3,8 @@ export namespace GetApdexScore {
     applicationName: string;
     serviceTypeName?: string;
     serviceTypeCode?: number;
-    from: number;
-    to: number;
+    from: number | string;
+    to: number | string;
     agentId?: string;
   }
 

@@ -1,5 +1,5 @@
 import { END_POINTS, SystemMetricChart } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useSystemMetricSearchParameters } from '../searchParameters';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
@@ -25,8 +25,8 @@ export const useGetSystemMetricChartData = ({
   tags?: string;
 }) => {
   const { hostGroupName, hostName, dateRange } = useSystemMetricSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
   const queryParams = {
     hostGroupName,
     hostName,

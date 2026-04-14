@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { colors, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/src/constants';
 import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/src/hooks';
+import { toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import React from 'react';
 import { assign } from 'lodash';
 import { ReChart } from '../../../components/ReChart';
@@ -61,8 +62,8 @@ export const OpenTelemetryMetricFetcher = ({
           fieldNameList,
           primaryForFieldAndTagRelation,
           samplingInterval,
-          from: dateRange?.from.getTime(),
-          to: dateRange?.to.getTime(),
+          from: toBasicISOString(dateRange?.from),
+          to: toBasicISOString(dateRange?.to),
         },
         agentId ? { agentId } : {},
       ),

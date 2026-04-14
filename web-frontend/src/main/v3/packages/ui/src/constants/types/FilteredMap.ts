@@ -51,9 +51,9 @@ export namespace FilteredMapType {
   export interface Parameters {
     applicationName: string;
     serviceTypeName: string;
-    from: number;
-    to: number;
-    originTo: number;
+    from: number | string;
+    to: number | string;
+    originTo: number | string;
     calleeRange: number;
     callerRange: number;
     filter: string;

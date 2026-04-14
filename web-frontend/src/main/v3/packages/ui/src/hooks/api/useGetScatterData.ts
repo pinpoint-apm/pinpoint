@@ -1,6 +1,6 @@
 import React from 'react';
 import { END_POINTS, GetScatter, ApplicationType } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOStringMs } from '@pinpoint-fe/ui/src/utils';
 import { useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
@@ -13,7 +13,14 @@ const getQueryString = (queryParams: GetScatter.Parameters & { timestamp?: numbe
     queryParams?.application &&
     queryParams?.serviceTypeName
   ) {
-    return '?' + convertParamsToQueryString(queryParams);
+    return (
+      '?' +
+      convertParamsToQueryString({
+        ...queryParams,
+        from: toBasicISOStringMs(new Date(queryParams.from)),
+        to: toBasicISOStringMs(new Date(queryParams.to)),
+      })
+    );
   }
 
   return '';

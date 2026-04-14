@@ -3,7 +3,7 @@ import {
   OtlpMetricData,
   OtlpMetricDefUserDefined,
 } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 import { useOpenTelemetrySearchParameters } from '../searchParameters';
@@ -28,8 +28,8 @@ export const useGetOtlpMetricData = ({
   const { application, dateRange } = useOpenTelemetrySearchParameters();
   const queryParams = {
     applicationName: application?.applicationName,
-    from: dateRange.from.getTime(),
-    to: dateRange.to.getTime(),
+    from: toBasicISOString(dateRange.from),
+    to: toBasicISOString(dateRange.to),
     metricGroupName,
     metricName,
     chartType,

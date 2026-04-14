@@ -8,6 +8,7 @@ import {
   GetServerMap,
 } from '@pinpoint-fe/ui/src/constants';
 import { subMinutes, subSeconds, addSeconds } from 'date-fns';
+import { toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 
 const DefaultAxisY = [0, 10000];
 
@@ -70,8 +71,8 @@ export const HeatmapRealtimeFetcher = ({
   const [parameters, setParameters] = React.useState<GetHeatmapAppData.Parameters>({
     applicationName: nodeData?.applicationName,
     serviceTypeName: nodeData?.serviceType,
-    from: realtimeDateRange.from.getTime(),
-    to: realtimeDateRange.to.getTime(),
+    from: toBasicISOString(realtimeDateRange.from),
+    to: toBasicISOString(realtimeDateRange.to),
     minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],
     maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
     agentId: agentId,
@@ -84,9 +85,9 @@ export const HeatmapRealtimeFetcher = ({
       serviceTypeName: nodeData?.serviceType,
       from:
         !!lastToTimestamp?.current && lastToTimestamp?.current < realtimeDateRange.from.getTime()
-          ? lastToTimestamp?.current
-          : realtimeDateRange.from.getTime(),
-      to: realtimeDateRange.to.getTime(),
+          ? toBasicISOString(new Date(lastToTimestamp?.current))
+          : toBasicISOString(realtimeDateRange.from),
+      to: toBasicISOString(realtimeDateRange.to),
       minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],
       maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
       agentId: agentId,

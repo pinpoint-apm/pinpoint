@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, ErrorAnalysisErrorList } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useErrorAnalysisSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
 
@@ -21,8 +21,8 @@ export const useGetErrorAnalysisErrorListData = ({
   count?: number;
 }) => {
   const { application, dateRange, agentId } = useErrorAnalysisSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
   const applicationName = application?.applicationName;
   const queryParams = {
     applicationName,

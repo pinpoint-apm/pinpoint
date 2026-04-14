@@ -1,9 +1,9 @@
 import React from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { END_POINTS, ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/src/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { useErrorAnalysisSearchParameters } from '../searchParameters';
-import { queryFn } from './reactQueryHelper';
+import {useSuspenseQuery} from '@tanstack/react-query';
+import {END_POINTS, ErrorAnalysisGroupedErrorList} from '@pinpoint-fe/ui/src/constants';
+import {convertParamsToQueryString, toBasicISOString} from '@pinpoint-fe/ui/src/utils';
+import {useErrorAnalysisSearchParameters} from '../searchParameters';
+import {queryFn} from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ErrorAnalysisGroupedErrorList.Parameters>) => {
   if (queryParams.applicationName && queryParams.from && queryParams.to && queryParams.groupBy) {
@@ -14,8 +14,8 @@ const getQueryString = (queryParams: Partial<ErrorAnalysisGroupedErrorList.Param
 
 export const useGetErrorAnalysisGroupedErrorListData = () => {
   const { application, dateRange, agentId, groupBy } = useErrorAnalysisSearchParameters();
-  const from = dateRange.from.getTime();
-  const to = dateRange.to.getTime();
+  const from = toBasicISOString(dateRange.from);
+  const to = toBasicISOString(dateRange.to);
   const applicationName = application?.applicationName;
   const [queryParams, setQueryParams] = React.useState<
     Partial<ErrorAnalysisGroupedErrorList.Parameters>
