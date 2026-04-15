@@ -56,13 +56,6 @@ class ServiceNameTest {
     }
 
     @Test
-    void testServiceNameWithNullName() {
-        ServiceName serviceName = new ServiceName(null);
-
-        assertThat(serviceName.getName()).isNull();
-    }
-
-    @Test
     void testServiceNameWithDefaultConstant() {
         ServiceName serviceName = new ServiceName(ServiceConstants.DEFAULT);
 

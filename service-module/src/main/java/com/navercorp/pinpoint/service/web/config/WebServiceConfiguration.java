@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({
         ServiceMysqlConfiguration.class,
+        ServiceParamConfiguration.class,
 })
 @ComponentScan({
         "com.navercorp.pinpoint.service.service",
