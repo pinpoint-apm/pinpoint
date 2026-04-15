@@ -90,10 +90,10 @@ public class DefaultPingEventHandler implements PingEventHandler {
         boolean isRemoved = pingSessionRegistry.remove(pingSession);
         if (isRemoved) {
             logger.debug("Remove ping session. pingSession={}", pingSession);
+            lifecycleListener.close(pingSession);
         } else {
-            logger.info("ping session is already removed. pingSession={}", pingSession);
+            logger.debug("ping session is already removed. pingSession={}", pingSession);
         }
-        lifecycleListener.close(pingSession);
     }
 
     @Override
