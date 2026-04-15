@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.service.web.vo;
+package com.navercorp.pinpoint.service.web.resolver;
 
-import java.util.Objects;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author minwoo.jung
  */
-public class ServiceName {
+public interface ServiceNameExtractor {
 
-    private final String name;
-
-    public ServiceName(String name) {
-        this.name = Objects.requireNonNull(name, "name");
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return "ServiceName{serviceName='" + name + "'}";
-    }
+    String extract(HttpServletRequest request);
 }
