@@ -145,7 +145,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         return excludeEventTypes;
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getAgentStatusTimeline")
     public InspectorTimeline getAgentStatusTimeline(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -156,7 +156,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range);
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getAgentStatusTimeline", params = {"exclude"})
     public InspectorTimeline getAgentStatusTimeline(
             @RequestParam("applicationName") @NotBlank String applicationName,
