@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.uid;
 
-import com.navercorp.pinpoint.service.ServiceModule;
 import com.navercorp.pinpoint.web.uid.config.ServiceUidMysqlCacheConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
@@ -12,7 +11,6 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({
-        ServiceModule.class,
         ServiceUidMysqlCacheConfig.class,
 })
 @ComponentScan({
