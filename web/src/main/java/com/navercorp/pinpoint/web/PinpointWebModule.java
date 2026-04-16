@@ -41,6 +41,7 @@ import com.navercorp.pinpoint.web.servertime.ServerTimeConfiguration;
 import com.navercorp.pinpoint.web.trace.TraceConfiguration;
 import com.navercorp.pinpoint.web.uid.WebUidConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookFacadeModule;
+import com.navercorp.pinpoint.service.ServiceModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -78,6 +79,7 @@ import org.springframework.core.env.StandardEnvironment;
         QueryServiceConfiguration.class,
 
         TraceConfiguration.class,
+        ServiceModule.class,
         WebUidConfiguration.class,
         HeatmapWebModule.class,
         ScatterWebConfiguration.class,
