@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
-import io.opentelemetry.proto.trace.v1.Status;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -111,17 +109,6 @@ public class OtlpTraceSpanEventMapper {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE) {
             final long nextSpanId = ByteStringUtils.parseLong(span.getSpanId());
             spanEventBo.setNextSpanId(nextSpanId);
-        }
-
-        if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
-            final String exceptionClass = OtlpTraceSpanMapper.resolveExceptionClass(span, attributes);
-            if (exceptionClass != null) {
-                spanEventBo.setExceptionClass(exceptionClass);
-            }
-            final String exceptionMessage = OtlpTraceSpanMapper.resolveExceptionMessage(span, exceptionClass);
-            if (exceptionMessage != null) {
-                spanEventBo.setExceptionInfo(new ExceptionInfo(0, exceptionMessage));
-            }
         }
 
         return spanEventBo;
