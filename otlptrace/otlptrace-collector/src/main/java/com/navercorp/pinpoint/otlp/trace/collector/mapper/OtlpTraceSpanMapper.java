@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -82,13 +83,16 @@ public class OtlpTraceSpanMapper {
         spanBo.setFlag((short) 0); // TODO ?
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
             spanBo.setErrCode(1);
-            if (StringUtils.hasLength(span.getStatus().getMessage())) {
-//                ExceptionInfo exceptionInfo = new ExceptionInfo(1, span.getStatus().getMessage());
-//                spanBo.setExceptionInfo(exceptionInfo);
+            final String exceptionClass = resolveExceptionClass(span, attributes);
+            if (exceptionClass != null) {
+                spanBo.setExceptionClass(exceptionClass);
+            }
+            final String exceptionMessage = resolveExceptionMessage(span, exceptionClass);
+            if (exceptionMessage != null) {
+                spanBo.setExceptionInfo(new ExceptionInfo(0, exceptionMessage));
             }
         }
         spanBo.setCollectorAcceptTime(System.currentTimeMillis());
-        spanBo.setExceptionClass(null); // TODO ?
 
         // api
         spanBo.setApiId(0);
@@ -268,5 +272,37 @@ public class OtlpTraceSpanMapper {
             return httpStatusCode;
         }
         return AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_STATUS_CODE, -1L);
+    }
+
+    static String resolveExceptionClass(Span span, Map<String, Object> attributes) {
+        for (Span.Event event : span.getEventsList()) {
+            if (OtlpTraceExceptionMapper.EVENT_NAME_EXCEPTION.equals(event.getName())) {
+                Map<String, Object> eventAttrs = OtlpTraceMapperUtils.getAttributeToMap(event.getAttributesList());
+                String type = AttributeUtils.getStringValue(eventAttrs, OtlpTraceExceptionMapper.ATTR_EXCEPTION_TYPE, null);
+                if (StringUtils.hasLength(type)) {
+                    return type;
+                }
+                break;
+            }
+        }
+        return AttributeUtils.getStringValue(attributes, OtlpTraceExceptionMapper.ATTR_ERROR_TYPE, null);
+    }
+
+    static String resolveExceptionMessage(Span span, String exceptionClass) {
+        for (Span.Event event : span.getEventsList()) {
+            if (OtlpTraceExceptionMapper.EVENT_NAME_EXCEPTION.equals(event.getName())) {
+                Map<String, Object> eventAttrs = OtlpTraceMapperUtils.getAttributeToMap(event.getAttributesList());
+                String msg = AttributeUtils.getStringValue(eventAttrs, OtlpTraceExceptionMapper.ATTR_EXCEPTION_MESSAGE, null);
+                if (StringUtils.hasLength(msg)) {
+                    return msg;
+                }
+                break;
+            }
+        }
+        final String statusMsg = span.getStatus().getMessage();
+        if (StringUtils.hasLength(statusMsg)) {
+            return statusMsg;
+        }
+        return exceptionClass;
     }
 }
