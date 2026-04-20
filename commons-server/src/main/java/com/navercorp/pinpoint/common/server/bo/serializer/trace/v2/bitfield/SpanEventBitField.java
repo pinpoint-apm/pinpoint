@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.BitFieldUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,14 +39,13 @@ public class SpanEventBitField {
     public static final int SET_NEXT_SPANID = 4;
     public static final int SET_ENDPOINT = 5;
     public static final int SET_DESTINATIONID = 6;
-    @Deprecated
-    public static final int SET_RPC = 7;
+    // bit 7 must stay in the low byte so firstSpanEvent (byte-only) preserves it
+    public static final int SET_ATTRIBUTE = 7;
 //  firstSpan bitField -----------------------------------------------
     public static final int START_ELAPSED_ENCODING_STRATEGY = 8;
     public static final int SERVICE_TYPE_ENCODING_STRATEGY = 9;
     public static final int SEQUENCE_ENCODING_STRATEGY = 10;
     public static final int DEPTH_ENCODING_STRATEGY = 11;
-
     public static final int API_ENCODING_STRATEGY = 13;
 
 
@@ -80,6 +80,11 @@ public class SpanEventBitField {
 
         if (spanEventBo.getNextAsyncId() != -1)  {
             bitField.setNextAsyncId(true);
+        }
+
+        final List<AttributeBo> attributeBoList = spanEventBo.getAttributeBoList();
+        if (CollectionUtils.isNotEmpty(attributeBoList)) {
+            bitField.setAttribute(true);
         }
 
         return bitField;
@@ -202,6 +207,13 @@ public class SpanEventBitField {
         setBit(SET_DESTINATIONID, destinationId);
     }
 
+    public boolean isSetAttribute() {
+        return testBit(SET_ATTRIBUTE);
+    }
+
+    void setAttribute(boolean attribute) {
+        setBit(SET_ATTRIBUTE, attribute);
+    }
 
     public StartElapsedTimeEncodingStrategy getStartElapsedEncodingStrategy() {
         final int set = getBit(START_ELAPSED_ENCODING_STRATEGY);

@@ -16,10 +16,15 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PAttribute;
+import com.navercorp.pinpoint.grpc.trace.PAttributeArrayValue;
+import com.navercorp.pinpoint.grpc.trace.PAttributeKeyValueList;
+import com.navercorp.pinpoint.grpc.trace.PAttributeValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
 import com.navercorp.pinpoint.grpc.trace.PNextEvent;
@@ -71,6 +76,10 @@ public class RandomTSpan {
         List<PAnnotation> tAnnotationList = randomTAnnotationList();
         if (CollectionUtils.isNotEmpty(tAnnotationList)) {
             tAnnotationList.addAll(span.getAnnotationList());
+        }
+        List<PAttribute> pAttributeList = randomPAttributeList();
+        if (CollectionUtils.isNotEmpty(pAttributeList)) {
+            span.addAllAttribute(pAttributeList);
         }
         span.setFlag((short) random.nextInt(0, 4));
         span.setErr((short) random.nextInt(0, 2));
@@ -140,6 +149,10 @@ public class RandomTSpan {
         if (CollectionUtils.isNotEmpty(tAnnotationList)) {
             spanEvent.addAllAnnotation(tAnnotationList);
         }
+        List<PAttribute> pAttributeList = randomPAttributeList();
+        if (CollectionUtils.isNotEmpty(pAttributeList)) {
+            spanEvent.addAllAttribute(pAttributeList);
+        }
         spanEvent.setDepth(random.nextInt(1, 256));
         PMessageEvent messageEvent = PMessageEvent.newBuilder()
                 .setNextSpanId(random.nextLong())
@@ -187,5 +200,54 @@ public class RandomTSpan {
 
     private String randomAlphanumeric(int count) {
         return RandomStringUtils.insecure().nextAlphabetic(count);
+    }
+
+    public List<PAttribute> randomPAttributeList() {
+        int size = random.nextInt(0, 4);
+        List<PAttribute> result = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            result.add(randomPAttribute("attr-" + i, 0));
+        }
+        return result;
+    }
+
+    private PAttribute randomPAttribute(String key, int depth) {
+        return PAttribute.newBuilder()
+                .setKey(key)
+                .setValue(randomPAttributeValue(depth))
+                .build();
+    }
+
+    private PAttributeValue randomPAttributeValue(int depth) {
+        PAttributeValue.Builder builder = PAttributeValue.newBuilder();
+        int pick = depth >= 2 ? random.nextInt(0, 5) : random.nextInt(0, 7);
+        switch (pick) {
+            case 0 -> builder.setStringValue(randomAlphanumeric(10));
+            case 1 -> builder.setBoolValue(random.nextBoolean());
+            case 2 -> builder.setLongValue(random.nextLong());
+            case 3 -> builder.setDoubleValue(random.nextDouble());
+            case 4 -> {
+                byte[] bytes = new byte[random.nextInt(0, 8)];
+                random.nextBytes(bytes);
+                builder.setBinaryValue(ByteString.copyFrom(bytes));
+            }
+            case 5 -> {
+                PAttributeArrayValue.Builder arrayBuilder = PAttributeArrayValue.newBuilder();
+                int arraySize = random.nextInt(0, 3);
+                for (int i = 0; i < arraySize; i++) {
+                    arrayBuilder.addValues(randomPAttributeValue(depth + 1));
+                }
+                builder.setArrayValue(arrayBuilder.build());
+            }
+            case 6 -> {
+                PAttributeKeyValueList.Builder kvBuilder = PAttributeKeyValueList.newBuilder();
+                int kvSize = random.nextInt(0, 3);
+                for (int i = 0; i < kvSize; i++) {
+                    kvBuilder.addValues(randomPAttribute("k-" + i, depth + 1));
+                }
+                builder.setKvlistValue(kvBuilder.build());
+            }
+        }
+        return builder.build();
     }
 }

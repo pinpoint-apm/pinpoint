@@ -1,6 +1,10 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.google.protobuf.ByteString;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -12,10 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.arrayVal;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.boolVal;
+import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.bytesVal;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.doubleVal;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.intVal;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.kv;
+import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.kvlistVal;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.strVal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -149,14 +156,14 @@ class OtlpTraceMapperUtilsTest {
     }
 
     // =======================================================================
-    // getId(Map<String, Object>)
+    // getId(Map<String, AttributeValue>)
     // =======================================================================
 
     @Test
     void getId_withPinpointAgentId() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.agentId", "test-agent",
-                "pinpoint.applicationName", "test-app"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("test-agent"),
+                "pinpoint.applicationName", AttributeValue.of("test-app")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -168,9 +175,9 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_withServiceInstanceId_plainString() {
-        Map<String, Object> attrs = Map.of(
-                "service.instance.id", "my-instance",
-                "service.name", "my-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.instance.id", AttributeValue.of("my-instance"),
+                "service.name", AttributeValue.of("my-service")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -181,9 +188,9 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_withServiceInstanceId_uuid() {
-        Map<String, Object> attrs = Map.of(
-                "service.instance.id", "550e8400-e29b-41d4-a716-446655440000",
-                "service.name", "uuid-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.instance.id", AttributeValue.of("550e8400-e29b-41d4-a716-446655440000"),
+                "service.name", AttributeValue.of("uuid-service")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -196,9 +203,9 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_withHostName() {
-        Map<String, Object> attrs = Map.of(
-                "host.name", "my-host",
-                "service.name", "host-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "host.name", AttributeValue.of("my-host"),
+                "service.name", AttributeValue.of("host-service")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -209,8 +216,8 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_fallbackToApplicationName() {
-        Map<String, Object> attrs = Map.of(
-                "service.name", "fallback-app"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.name", AttributeValue.of("fallback-app")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -221,8 +228,8 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_noApplicationName_throws() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.agentId", "agent1"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1")
         );
 
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
@@ -232,9 +239,9 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_invalidAgentId_throws() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.agentId", "invalid agent id with spaces!!!",
-                "pinpoint.applicationName", "test-app"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("invalid agent id with spaces!!!"),
+                "pinpoint.applicationName", AttributeValue.of("test-app")
         );
 
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
@@ -244,10 +251,10 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_pinpointApplicationName_hasPriority() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.agentId", "agent1",
-                "pinpoint.applicationName", "pinpoint-app",
-                "service.name", "otel-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.applicationName", AttributeValue.of("pinpoint-app"),
+                "service.name", AttributeValue.of("otel-service")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -256,13 +263,13 @@ class OtlpTraceMapperUtilsTest {
     }
 
     // =======================================================================
-    // getApplicationName(Map<String, Object>)
+    // getApplicationName(Map<String, AttributeValue>)
     // =======================================================================
 
     @Test
     void getApplicationName_pinpointApplicationName() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.applicationName", "my-app"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.applicationName", AttributeValue.of("my-app")
         );
 
         String result = OtlpTraceMapperUtils.getApplicationName(attrs);
@@ -272,8 +279,8 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getApplicationName_fallbackToServiceName() {
-        Map<String, Object> attrs = Map.of(
-                "service.name", "otel-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.name", AttributeValue.of("otel-service")
         );
 
         String result = OtlpTraceMapperUtils.getApplicationName(attrs);
@@ -283,7 +290,7 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getApplicationName_notFound_throws() {
-        Map<String, Object> attrs = Map.of();
+        Map<String, AttributeValue> attrs = Map.of();
 
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getApplicationName(attrs))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -292,8 +299,8 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getApplicationName_invalidName_throws() {
-        Map<String, Object> attrs = Map.of(
-                "service.name", "invalid name with spaces!!!"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.name", AttributeValue.of("invalid name with spaces!!!")
         );
 
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getApplicationName(attrs))
@@ -384,6 +391,226 @@ class OtlpTraceMapperUtilsTest {
 
         assertThat(OtlpTraceMapperUtils.getSpanId(bytes))
                 .isEqualTo(OtlpTraceMapperUtils.getParentSpanId(bytes));
+    }
+
+    // =======================================================================
+    // toAttributeValue(AnyValue)
+    // =======================================================================
+
+    @Test
+    void toAttributeValue_stringValue_returnsStringType() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(strVal("hello"));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.STRING);
+        assertThat(result.getValue()).isEqualTo("hello");
+    }
+
+    @Test
+    void toAttributeValue_boolValue_returnsBooleanType() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(boolVal(true));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.BOOLEAN);
+        assertThat(result.getValue()).isEqualTo(true);
+    }
+
+    @Test
+    void toAttributeValue_intValue_returnsLongType() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(intVal(42L));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.LONG);
+        assertThat(result.getValue()).isEqualTo(42L);
+    }
+
+    @Test
+    void toAttributeValue_doubleValue_returnsDoubleType() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(doubleVal(2.718));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.DOUBLE);
+        assertThat(result.getValue()).isEqualTo(2.718);
+    }
+
+    @Test
+    void toAttributeValue_nonEmptyBytes_returnsBytesType() {
+        byte[] payload = new byte[]{1, 2, 3};
+
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(bytesVal(payload));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.BYTES);
+        assertThat((byte[]) result.getValue()).containsExactly(1, 2, 3);
+    }
+
+    @Test
+    void toAttributeValue_emptyBytes_returnsBytesType() {
+        // regression: empty ByteString must stay BYTES (was previously STRING)
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(bytesVal(new byte[0]));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.BYTES);
+        assertThat((byte[]) result.getValue()).isEmpty();
+    }
+
+    @Test
+    void toAttributeValue_arrayValue_returnsArrayType() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(
+                arrayVal(strVal("a"), intVal(1L), boolVal(false)));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.ARRAY);
+        @SuppressWarnings("unchecked")
+        List<AttributeValue> list = (List<AttributeValue>) result.getValue();
+        assertThat(list).hasSize(3);
+        assertThat(list.get(0).getType()).isEqualTo(AttributeValueType.STRING);
+        assertThat(list.get(0).getValue()).isEqualTo("a");
+        assertThat(list.get(1).getType()).isEqualTo(AttributeValueType.LONG);
+        assertThat(list.get(1).getValue()).isEqualTo(1L);
+        assertThat(list.get(2).getType()).isEqualTo(AttributeValueType.BOOLEAN);
+        assertThat(list.get(2).getValue()).isEqualTo(false);
+    }
+
+    @Test
+    void toAttributeValue_nestedArray_preservesStructure() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(
+                arrayVal(arrayVal(strVal("x"), strVal("y")), intVal(9L)));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.ARRAY);
+        @SuppressWarnings("unchecked")
+        List<AttributeValue> outer = (List<AttributeValue>) result.getValue();
+        assertThat(outer).hasSize(2);
+        assertThat(outer.get(0).getType()).isEqualTo(AttributeValueType.ARRAY);
+        @SuppressWarnings("unchecked")
+        List<AttributeValue> inner = (List<AttributeValue>) outer.get(0).getValue();
+        assertThat(inner).extracting(AttributeValue::getValue).containsExactly("x", "y");
+    }
+
+    @Test
+    void toAttributeValue_kvlistValue_returnsKeyValueListType() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(
+                kvlistVal(kv("name", strVal("bob")), kv("age", intVal(30L))));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.KEY_VALUE_LIST);
+        @SuppressWarnings("unchecked")
+        List<AttributeKeyValue> kvList = (List<AttributeKeyValue>) result.getValue();
+        assertThat(kvList).hasSize(2);
+        assertThat(kvList.get(0).getKey()).isEqualTo("name");
+        assertThat(kvList.get(0).getValue().getValue()).isEqualTo("bob");
+        assertThat(kvList.get(1).getKey()).isEqualTo("age");
+        assertThat(kvList.get(1).getValue().getValue()).isEqualTo(30L);
+    }
+
+    @Test
+    void toAttributeValue_kvlistContainingArray_preservesStructure() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(
+                kvlistVal(kv("tags", arrayVal(strVal("t1"), strVal("t2")))));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.KEY_VALUE_LIST);
+        @SuppressWarnings("unchecked")
+        List<AttributeKeyValue> kvList = (List<AttributeKeyValue>) result.getValue();
+        assertThat(kvList).hasSize(1);
+        AttributeValue nested = kvList.get(0).getValue();
+        assertThat(nested.getType()).isEqualTo(AttributeValueType.ARRAY);
+        @SuppressWarnings("unchecked")
+        List<AttributeValue> innerList = (List<AttributeValue>) nested.getValue();
+        assertThat(innerList).extracting(AttributeValue::getValue).containsExactly("t1", "t2");
+    }
+
+    @Test
+    void toAttributeValue_unsetField_returnsNull() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(AnyValue.getDefaultInstance());
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void toAttributeValue_arrayWithUnsetItem_skipsNull() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(
+                arrayVal(strVal("keep"), AnyValue.getDefaultInstance(), intVal(1L)));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.ARRAY);
+        @SuppressWarnings("unchecked")
+        List<AttributeValue> list = (List<AttributeValue>) result.getValue();
+        assertThat(list).hasSize(2);
+        assertThat(list).extracting(AttributeValue::getValue).containsExactly("keep", 1L);
+    }
+
+    @Test
+    void toAttributeValue_kvlistWithUnsetValue_skipsEntry() {
+        AttributeValue result = OtlpTraceMapperUtils.toAttributeValue(
+                kvlistVal(
+                        kv("keep", strVal("ok")),
+                        kv("drop", AnyValue.getDefaultInstance())));
+
+        assertThat(result.getType()).isEqualTo(AttributeValueType.KEY_VALUE_LIST);
+        @SuppressWarnings("unchecked")
+        List<AttributeKeyValue> kvList = (List<AttributeKeyValue>) result.getValue();
+        assertThat(kvList).hasSize(1);
+        assertThat(kvList.get(0).getKey()).isEqualTo("keep");
+    }
+
+    // =======================================================================
+    // getAttributeValueMap(List<KeyValue>)
+    // =======================================================================
+
+    @Test
+    void getAttributeValueMap_emptyList_returnsEmptyMap() {
+        Map<String, AttributeValue> result = OtlpTraceMapperUtils.getAttributeValueMap(List.of());
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getAttributeValueMap_mixedTypes_preservesTypes() {
+        List<KeyValue> attrs = List.of(
+                kv("s", strVal("v")),
+                kv("i", intVal(5L)),
+                kv("b", boolVal(true)),
+                kv("d", doubleVal(1.5)),
+                kv("bytes", bytesVal(new byte[]{9, 8, 7}))
+        );
+
+        Map<String, AttributeValue> result = OtlpTraceMapperUtils.getAttributeValueMap(attrs);
+
+        assertThat(result).containsOnlyKeys("s", "i", "b", "d", "bytes");
+        assertThat(result.get("s").getType()).isEqualTo(AttributeValueType.STRING);
+        assertThat(result.get("i").getType()).isEqualTo(AttributeValueType.LONG);
+        assertThat(result.get("b").getType()).isEqualTo(AttributeValueType.BOOLEAN);
+        assertThat(result.get("d").getType()).isEqualTo(AttributeValueType.DOUBLE);
+        assertThat(result.get("bytes").getType()).isEqualTo(AttributeValueType.BYTES);
+        assertThat((byte[]) result.get("bytes").getValue()).containsExactly(9, 8, 7);
+    }
+
+    // =======================================================================
+    // toAttributeBoList(Map<String, AttributeValue>, Predicate)
+    // =======================================================================
+
+    @Test
+    void toAttributeBoList_emptyMap_returnsEmptyList() {
+        List<AttributeBo> result = OtlpTraceMapperUtils.toAttributeBoList(Map.of(), key -> false);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void toAttributeBoList_noFilter_returnsAllEntries() {
+        Map<String, AttributeValue> attrs = new HashMap<>();
+        attrs.put("k1", AttributeValue.of("v1"));
+        attrs.put("k2", AttributeValue.of(42L));
+
+        List<AttributeBo> result = OtlpTraceMapperUtils.toAttributeBoList(attrs, key -> false);
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(AttributeBo::getKey).containsExactlyInAnyOrder("k1", "k2");
+    }
+
+    @Test
+    void toAttributeBoList_excludeFilter_removesKeys() {
+        Map<String, AttributeValue> attrs = new HashMap<>();
+        attrs.put("keep", AttributeValue.of("ok"));
+        attrs.put("drop", AttributeValue.of("bye"));
+
+        List<AttributeBo> result = OtlpTraceMapperUtils.toAttributeBoList(
+                attrs, key -> key.equals("drop"));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getKey()).isEqualTo("keep");
+        assertThat(result.get(0).getValue().getValue()).isEqualTo("ok");
     }
 
 }

@@ -25,10 +25,13 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.DataType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class DefaultTraceBlock implements TraceBlock {
@@ -214,6 +217,46 @@ public class DefaultTraceBlock implements TraceBlock {
     @Override
     public void recordAttribute(AnnotationKey key, Object value) {
         getSpanEventRecorder().recordAttribute(key, value);
+    }
+
+    @Override
+    public void recordAttribute(String key, String value) {
+        getSpanEventRecorder().recordAttribute(key, value);
+    }
+
+    @Override
+    public void recordAttribute(String key, long value) {
+        getSpanEventRecorder().recordAttribute(key, value);
+    }
+
+    @Override
+    public void recordAttribute(String key, double value) {
+        getSpanEventRecorder().recordAttribute(key, value);
+    }
+
+    @Override
+    public void recordAttribute(String key, boolean value) {
+        getSpanEventRecorder().recordAttribute(key, value);
+    }
+
+    @Override
+    public void recordAttribute(String key, byte[] value) {
+        getSpanEventRecorder().recordAttribute(key, value);
+    }
+
+    @Override
+    public void recordAttribute(String key, AttributeValue value) {
+        getSpanEventRecorder().recordAttribute(key, value);
+    }
+
+    @Override
+    public void recordAttribute(String key, List<AttributeValue> values) {
+        getSpanEventRecorder().recordAttribute(key, values);
+    }
+
+    @Override
+    public void recordAttribute(String key, Map<String, AttributeValue> values) {
+        getSpanEventRecorder().recordAttribute(key, values);
     }
 
     @Override

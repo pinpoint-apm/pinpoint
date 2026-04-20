@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.AttributeRecorder;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -23,6 +24,7 @@ import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
@@ -30,6 +32,8 @@ import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -202,6 +206,48 @@ public abstract class AbstractRecorder implements AttributeRecorder, ErrorRecord
     }
 
     abstract void addAnnotation(Annotation<?> annotation);
+
+    abstract void addAttribute(AttributeKeyValue attribute);
+
+    @Override
+    public void recordAttribute(String key, String value) {
+        addAttribute(AttributeKeyValue.of(key, AttributeValue.of(value)));
+    }
+
+    @Override
+    public void recordAttribute(String key, long value) {
+        addAttribute(AttributeKeyValue.of(key, AttributeValue.of(value)));
+    }
+
+    @Override
+    public void recordAttribute(String key, double value) {
+        addAttribute(AttributeKeyValue.of(key, AttributeValue.of(value)));
+    }
+
+    @Override
+    public void recordAttribute(String key, boolean value) {
+        addAttribute(AttributeKeyValue.of(key, AttributeValue.of(value)));
+    }
+
+    @Override
+    public void recordAttribute(String key, byte[] value) {
+        addAttribute(AttributeKeyValue.of(key, AttributeValue.of(value)));
+    }
+
+    @Override
+    public void recordAttribute(String key, AttributeValue value) {
+        addAttribute(AttributeKeyValue.of(key, value));
+    }
+
+    @Override
+    public void recordAttribute(String key, List<AttributeValue> values) {
+        addAttribute(AttributeKeyValue.of(key, AttributeValue.of(values)));
+    }
+
+    @Override
+    public void recordAttribute(String key, Map<String, AttributeValue> values) {
+        addAttribute(AttributeKeyValue.of(key, AttributeValue.ofAttributeKeyValueList(values)));
+    }
 
     @Override
     public void recordError(ErrorCategory errorCategory) {

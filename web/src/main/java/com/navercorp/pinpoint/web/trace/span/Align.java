@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -104,6 +105,8 @@ public interface Align {
     List<AnnotationBo> getAnnotationBoList();
 
     void setAnnotationBoList(List<AnnotationBo> annotationBoList);
+
+    List<AttributeBo> getAttributeBoList();
 
     String getDestinationId();
 
