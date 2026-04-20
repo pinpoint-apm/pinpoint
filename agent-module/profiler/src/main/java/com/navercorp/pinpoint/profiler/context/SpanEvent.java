@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public class SpanEvent extends DefaultFrameAttachment {
 
     private boolean executeQueryType;
 
+    private List<AttributeKeyValue> attributes; // optional
+
     public SpanEvent() {
     }
 
@@ -62,6 +65,17 @@ public class SpanEvent extends DefaultFrameAttachment {
             this.annotations = new ArrayList<>();
         }
         this.annotations.add(annotation);
+    }
+
+    public List<AttributeKeyValue> getAttributes() {
+        return attributes;
+    }
+
+    public void addAttribute(AttributeKeyValue attribute) {
+        if (this.attributes == null) {
+            this.attributes = new ArrayList<>();
+        }
+        this.attributes.add(attribute);
     }
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {

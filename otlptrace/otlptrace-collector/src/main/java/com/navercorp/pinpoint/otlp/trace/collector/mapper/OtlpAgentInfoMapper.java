@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ import java.util.Map;
 @Component
 public class OtlpAgentInfoMapper {
 
-    public AgentInfoBo map(SpanBo spanBo, Map<String, Object> resourceAttributeMap) {
+    public AgentInfoBo map(SpanBo spanBo, Map<String, AttributeValue> resourceAttributeMap) {
         final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
         builder.setAgentId(spanBo.getAgentId());
         if (spanBo.getAgentName() != null) {
@@ -36,15 +37,15 @@ public class OtlpAgentInfoMapper {
         builder.setServiceTypeCode(spanBo.getServiceType());
         builder.setStartTime(spanBo.getAgentStartTime());
 
-        final String hostName = AttributeUtils.getStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_HOST_NAME, null);
+        final String hostName = AttributeUtils.getAttributeStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_HOST_NAME, null);
         if (hostName != null) {
             builder.setHostName(hostName);
         }
-        final long pid = AttributeUtils.getIntValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_PROCESS_PID, 0L);
+        final long pid = AttributeUtils.getAttributeIntValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_PROCESS_PID, 0L);
         builder.setPid((int) pid);
-        final String vmVersion = AttributeUtils.getStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_PROCESS_RUNTIME_DESCRIPTION, null);
+        final String vmVersion = AttributeUtils.getAttributeStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_PROCESS_RUNTIME_DESCRIPTION, null);
         builder.setVmVersion(vmVersion);
-        final String agentVersion = AttributeUtils.getStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_TELEMETRY_SDK_VERSION, null);
+        final String agentVersion = AttributeUtils.getAttributeStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_TELEMETRY_SDK_VERSION, null);
         if (agentVersion != null) {
             builder.setAgentVersion(agentVersion);
         }

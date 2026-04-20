@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
+import com.navercorp.pinpoint.common.server.bo.AttributeTranscoder;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
@@ -37,6 +39,8 @@ import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -47,6 +51,7 @@ public class SpanDecoderV0 implements SpanDecoder {
     private static final SequenceSpanEventFilter SEQUENCE_SPAN_EVENT_FILTER = new SequenceSpanEventFilter(SequenceSpanEventFilter.MAX_SEQUENCE);
 
     private static final AnnotationDecoder annotationDecoder = new AnnotationDecoder();
+    private static final AttributeTranscoder attributeTranscoder = new AttributeTranscoder();
 
     @Override
     public BasicSpan decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
@@ -167,6 +172,11 @@ public class SpanDecoderV0 implements SpanDecoder {
             annotationDecoder.readAnnotationList(span::addAnnotation, buffer, decodingContext);
         }
 
+        if (bitField.isSetAttribute()) {
+            List<AttributeBo> attributeBoList = attributeTranscoder.readAttributeList(buffer);
+            span.setAttributeBoList(attributeBoList);
+        }
+
         readSpanEvent(span::addSpanEvent, buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
     }
 
@@ -275,6 +285,11 @@ public class SpanDecoderV0 implements SpanDecoder {
             spanEventBo.setNextAsyncId(buffer.readSVInt());
         }
 
+        if (bitField.isSetAttribute()) {
+            List<AttributeBo> attributeBoList = attributeTranscoder.readAttributeList(buffer);
+            spanEventBo.setAttributeBoList(attributeBoList);
+        }
+
         return spanEventBo;
     }
 
@@ -315,6 +330,11 @@ public class SpanDecoderV0 implements SpanDecoder {
 
         if (bitField.isSetNextAsyncId()) {
             firstSpanEvent.setNextAsyncId(buffer.readSVInt());
+        }
+
+        if (bitField.isSetAttribute()) {
+            List<AttributeBo> attributeBoList = attributeTranscoder.readAttributeList(buffer);
+            firstSpanEvent.setAttributeBoList(attributeBoList);
         }
 
         return firstSpanEvent;

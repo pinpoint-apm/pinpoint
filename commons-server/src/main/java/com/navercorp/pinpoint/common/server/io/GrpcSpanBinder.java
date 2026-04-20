@@ -21,7 +21,10 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -34,6 +37,10 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
+import com.navercorp.pinpoint.grpc.trace.PAttribute;
+import com.navercorp.pinpoint.grpc.trace.PAttributeArrayValue;
+import com.navercorp.pinpoint.grpc.trace.PAttributeKeyValueList;
+import com.navercorp.pinpoint.grpc.trace.PAttributeValue;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
 import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
@@ -166,6 +173,9 @@ public class GrpcSpanBinder {
         List<AnnotationBo> annotationBoList = buildAnnotationList(pSpan.getAnnotationList());
         spanBo.setAnnotationBoList(annotationBoList);
 
+        List<AttributeBo> attributeBoList = buildAttributeList(pSpan.getAttributeList());
+        spanBo.setAttributeBoList(attributeBoList);
+
         return spanBo;
     }
 
@@ -220,6 +230,9 @@ public class GrpcSpanBinder {
 
         List<AnnotationBo> annotationList = buildAnnotationList(pSpanEvent.getAnnotationList());
         spanEvent.setAnnotationBoList(annotationList);
+
+        List<AttributeBo> attributeList = buildAttributeList(pSpanEvent.getAttributeList());
+        spanEvent.setAttributeBoList(attributeList);
 
         if (pSpanEvent.hasExceptionInfo()) {
             final PIntStringValue pException = pSpanEvent.getExceptionInfo();
@@ -347,5 +360,78 @@ public class GrpcSpanBinder {
         return annotationFactory.buildAnnotation(pAnnotation);
     }
 
+    private List<AttributeBo> buildAttributeList(List<PAttribute> pAttributeList) {
+        if (CollectionUtils.isEmpty(pAttributeList)) {
+            return Collections.emptyList();
+        }
+        List<AttributeBo> boList = new ArrayList<>(pAttributeList.size());
+        for (PAttribute pAttribute : pAttributeList) {
+            final AttributeBo attributeBo = newAttributeBo(pAttribute);
+            if (attributeBo != null) {
+                boList.add(attributeBo);
+            }
+        }
+        return boList;
+    }
 
+    private AttributeBo newAttributeBo(PAttribute pAttribute) {
+        final String key = pAttribute.getKey();
+        if (!StringUtils.hasLength(key)) {
+            return null;
+        }
+        final AttributeValue value = convertAttributeValue(pAttribute.getValue());
+        if (value == null) {
+            return null;
+        }
+        return new AttributeBo(key, value);
+    }
+
+    private AttributeValue convertAttributeValue(PAttributeValue pValue) {
+        if (pValue == null) {
+            return null;
+        }
+        final PAttributeValue.FieldCase fieldCase = pValue.getFieldCase();
+        switch (fieldCase) {
+            case STRINGVALUE:
+                return AttributeValue.of(pValue.getStringValue());
+            case BOOLVALUE:
+                return AttributeValue.of(pValue.getBoolValue());
+            case LONGVALUE:
+                return AttributeValue.of(pValue.getLongValue());
+            case DOUBLEVALUE:
+                return AttributeValue.of(pValue.getDoubleValue());
+            case BINARYVALUE:
+                return AttributeValue.of(pValue.getBinaryValue().toByteArray());
+            case ARRAYVALUE:
+                return convertValueArray(pValue.getArrayValue());
+            case KVLISTVALUE:
+                return convertKeyValueList(pValue.getKvlistValue());
+            case FIELD_NOT_SET:
+            default:
+                return null;
+        }
+    }
+
+    private AttributeValue convertValueArray(PAttributeArrayValue arrayValue) {
+        List<PAttributeValue> valuesList = arrayValue.getValuesList();
+        List<AttributeValue> result = new ArrayList<>(valuesList.size());
+        for (PAttributeValue pValue : valuesList) {
+            AttributeValue av = convertAttributeValue(pValue);
+            if (av != null) {
+                result.add(av);
+            }
+        }
+        return AttributeValue.of(result);
+    }
+
+    private AttributeValue convertKeyValueList(PAttributeKeyValueList kvlistValue) {
+        List<PAttribute> valuesList = kvlistValue.getValuesList();
+        AttributeKeyValue[] kvArray = new AttributeKeyValue[valuesList.size()];
+        for (int i = 0; i < valuesList.size(); i++) {
+            PAttribute pAttr = valuesList.get(i);
+            AttributeValue av = convertAttributeValue(pAttr.getValue());
+            kvArray[i] = AttributeKeyValue.of(pAttr.getKey(), av != null ? av : AttributeValue.of(""));
+        }
+        return AttributeValue.ofAttributeKeyValueList(kvArray);
+    }
 }
