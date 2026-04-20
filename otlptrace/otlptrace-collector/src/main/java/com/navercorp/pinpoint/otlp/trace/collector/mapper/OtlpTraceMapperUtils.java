@@ -156,27 +156,27 @@ public class OtlpTraceMapperUtils {
     }
 
     public static Object getAttributeValueToValue(AnyValue anyValue) {
-        if (anyValue.hasIntValue()) {
-            return anyValue.getIntValue();
-        } else if (anyValue.hasDoubleValue()) {
-            return anyValue.getDoubleValue();
-        } else if (anyValue.hasBoolValue()) {
-            return anyValue.getBoolValue();
-        } else if (anyValue.hasStringValue()) {
-            return anyValue.getStringValue();
-        } else if (anyValue.hasArrayValue()) {
-            return getArrayValueToList(anyValue.getArrayValue());
-        } else if (anyValue.hasBytesValue()) {
-            final ByteString byteString = anyValue.getBytesValue();
-            if (!byteString.isEmpty()) {
-                return Base16Utils.encodeToString(byteString.toByteArray());
-            }
-            return null;
-        } else if (anyValue.hasKvlistValue()) {
-            return getAttributeToMap(anyValue.getKvlistValue().getValuesList());
-        } else {
-            // unknown field
-            return null;
+        switch (anyValue.getValueCase()) {
+            case INT_VALUE:
+                return anyValue.getIntValue();
+            case DOUBLE_VALUE:
+                return anyValue.getDoubleValue();
+            case BOOL_VALUE:
+                return anyValue.getBoolValue();
+            case STRING_VALUE:
+                return anyValue.getStringValue();
+            case ARRAY_VALUE:
+                return getArrayValueToList(anyValue.getArrayValue());
+            case BYTES_VALUE:
+                final ByteString byteString = anyValue.getBytesValue();
+                if (!byteString.isEmpty()) {
+                    return Base16Utils.encodeToString(byteString.toByteArray());
+                }
+                return null;
+            case KVLIST_VALUE:
+                return getAttributeToMap(anyValue.getKvlistValue().getValuesList());
+            default:
+                return null;
         }
     }
 }
