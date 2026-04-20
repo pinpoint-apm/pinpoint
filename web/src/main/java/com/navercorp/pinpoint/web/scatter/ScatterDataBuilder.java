@@ -17,10 +17,10 @@ package com.navercorp.pinpoint.web.scatter;
 
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotAgentInfo;
+import org.eclipse.collections.api.factory.primitive.LongObjectMaps;
+import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Taejin Koo
@@ -33,7 +33,7 @@ public class ScatterDataBuilder {
     private final int yGroupUnitMillis;
 
     private ScatterAgentMetadataRepository scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();
-    private Map<Long, DotGroups> scatterData = new HashMap<>();
+    private MutableLongObjectMap<DotGroups> scatterData;
 
     private long oldestAcceptedTime = Long.MAX_VALUE;
     private long latestAcceptedTime = Long.MIN_VALUE;
@@ -50,6 +50,8 @@ public class ScatterDataBuilder {
         this.to = to;
         this.xGroupUnitMillis = xGroupUnitMillis;
         this.yGroupUnitMillis = yGroupUnitMillis;
+
+        this.scatterData = LongObjectMaps.mutable.withInitialCapacity(16);
     }
 
     public void addDot(List<Dot> dotList) {
@@ -63,7 +65,8 @@ public class ScatterDataBuilder {
             return;
         }
 
-        long acceptedTimeDiff = dot.getAcceptedTime() - from;
+        final long acceptedTime = dot.getAcceptedTime();
+        long acceptedTimeDiff = acceptedTime - from;
         long x = acceptedTimeDiff - (acceptedTimeDiff  % xGroupUnitMillis);
         if (x < 0) {
             x = 0L;
@@ -73,13 +76,13 @@ public class ScatterDataBuilder {
         Coordinates coordinates = new Coordinates(x, y);
         addDot(coordinates, new Dot(dot.getTransactionId(), acceptedTimeDiff, dot.getElapsedTime(), dot.getExceptionCode(), dot.getAgentId()));
 
-        oldestAcceptedTime = Math.min(oldestAcceptedTime, dot.getAcceptedTime());
-        latestAcceptedTime = Math.max(latestAcceptedTime, dot.getAcceptedTime());
+        oldestAcceptedTime = Math.min(oldestAcceptedTime, acceptedTime);
+        latestAcceptedTime = Math.max(latestAcceptedTime, acceptedTime);
     }
 
     private void addDot(Coordinates coordinates, Dot dot) {
-        final Long x = coordinates.x();
-        DotGroups dotGroups = this.scatterData.computeIfAbsent(x, DotGroups::new);
+        final long x = coordinates.x();
+        DotGroups dotGroups = this.scatterData.getIfAbsentPut(x, () -> new DotGroups(x));
 
         dotGroups.addDot(coordinates, dot);
 
@@ -96,8 +99,8 @@ public class ScatterDataBuilder {
     }
 
     public ScatterData build() {
-        Map<Long, DotGroups> copyScatterData = this.scatterData;
-        this.scatterData = new HashMap<>();
+        MutableLongObjectMap<DotGroups> copyScatterData = this.scatterData;
+        this.scatterData = LongObjectMaps.mutable.of();
 
         ScatterAgentMetadataRepository copyRepo = new ScatterAgentMetadataRepository(this.scatterAgentMetadataRepository.getDotAgentInfoSet());
         this.scatterAgentMetadataRepository = new ScatterAgentMetadataRepository();

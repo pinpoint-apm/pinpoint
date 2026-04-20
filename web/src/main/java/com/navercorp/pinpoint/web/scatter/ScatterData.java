@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.web.scatter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Ordering;
 import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
+import org.eclipse.collections.api.map.primitive.LongObjectMap;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -35,7 +35,7 @@ public class ScatterData {
     private final long to;
 
     private final ScatterAgentMetadataRepository scatterAgentMetadataRepository;
-    private final Map<Long, DotGroups> scatterData;
+    private final LongObjectMap<DotGroups> scatterData;
 
     private final long oldestAcceptedTime;
     private final long latestAcceptedTime;
@@ -47,7 +47,7 @@ public class ScatterData {
                        long to,
                        long oldestAcceptedTime,
                        long latestAcceptedTime,
-                       Map<Long, DotGroups> scatterData,
+                       LongObjectMap<DotGroups> scatterData,
                        ScatterAgentMetadataRepository scatterAgentMetadataRepository) {
         if (from <= 0) {
             throw new IllegalArgumentException("from value must be higher than 0");
@@ -72,7 +72,7 @@ public class ScatterData {
         return new ScatterAgentMetaData(scatterAgentMetadataRepository.getDotAgentInfoSet());
     }
 
-    public Map<Long, DotGroups> getScatterDataMap() {
+    public LongObjectMap<DotGroups> getScatterDataMap() {
         return scatterData;
     }
 
