@@ -20,6 +20,8 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.Result;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.response.AlarmResponse;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
@@ -52,7 +54,7 @@ public class WebhookAlarmController {
 
     @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PostMapping(value = "/includeWebhooks")
-    public AlarmResponse insertRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
+    public AlarmResponse insertRuleWithWebhooks(@ServiceParam ServiceName serviceName, @RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
         if (Rule.isRuleInvalidForPost(rule)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
@@ -64,7 +66,7 @@ public class WebhookAlarmController {
 
     @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PutMapping(value = "/includeWebhooks")
-    public Response updateRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
+    public Response updateRuleWithWebhooks(@ServiceParam ServiceName serviceName, @RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
         if (Rule.isRuleInvalid(rule)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not ruleId/userGroupId/applicationid/checkerName to update alarm rule");

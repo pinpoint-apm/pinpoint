@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.Result;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.response.AlarmResponse;
@@ -60,7 +62,7 @@ public class AlarmController {
 
     @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PostMapping
-    public AlarmResponse insertRule(@RequestBody Rule rule) {
+    public AlarmResponse insertRule(@ServiceParam ServiceName serviceName, @RequestBody Rule rule) {
         if (Rule.isRuleInvalidForPost(rule)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
         }
@@ -70,7 +72,7 @@ public class AlarmController {
 
     @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @DeleteMapping
-    public Response deleteRule(@RequestBody Rule rule) {
+    public Response deleteRule(@ServiceParam ServiceName serviceName, @RequestBody Rule rule) {
         if (StringUtils.isEmpty(rule.getRuleId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not ruleId to delete alarm rule");
         }
@@ -79,18 +81,18 @@ public class AlarmController {
     }
 
     @GetMapping(params = USER_GROUP_ID_PARAMS)
-    public List<Rule> getRulesByUserGroup(@RequestParam(value = USER_GROUP_ID_PARAMS) @NotBlank String userGroupId) {
+    public List<Rule> getRulesByUserGroup(@ServiceParam ServiceName serviceName, @RequestParam(value = USER_GROUP_ID_PARAMS) @NotBlank String userGroupId) {
         return alarmService.selectRuleByUserGroupId(userGroupId);
     }
 
     @GetMapping(params = APPLICATION_ID_PARAMS)
-    public List<Rule> getRulesByApplication(@RequestParam(value = APPLICATION_ID_PARAMS) @NotBlank String applicationName) {
+    public List<Rule> getRulesByApplication(@ServiceParam ServiceName serviceName, @RequestParam(value = APPLICATION_ID_PARAMS) @NotBlank String applicationName) {
         return alarmService.selectRuleByApplicationName(applicationName);
     }
 
     @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PutMapping
-    public Response updateRule(@RequestBody Rule rule) {
+    public Response updateRule(@ServiceParam ServiceName serviceName, @RequestBody Rule rule) {
         if (Rule.isRuleInvalid(rule)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -102,7 +104,7 @@ public class AlarmController {
     }
 
     @GetMapping(value = "/checker")
-    public List<String> getCheckerName() {
+    public List<String> getCheckerName(@ServiceParam ServiceName serviceName) {
         return CheckerCategory.getNames();
     }
 
