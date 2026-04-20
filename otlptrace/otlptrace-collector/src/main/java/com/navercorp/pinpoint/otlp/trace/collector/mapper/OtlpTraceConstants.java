@@ -47,6 +47,13 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_DB_SYSTEM = "db.system";
     public static final String ATTRIBUTE_KEY_DB_SYSTEM_NAME = "db.system.name";
 
+    public static final String ATTRIBUTE_KEY_ERROR_TYPE = "error.type";
+
+    public static final String EVENT_NAME_EXCEPTION = "exception";
+    public static final String ATTRIBUTE_KEY_EXCEPTION_TYPE = "exception.type";
+    public static final String ATTRIBUTE_KEY_EXCEPTION_MESSAGE = "exception.message";
+    public static final String ATTRIBUTE_KEY_EXCEPTION_STACKTRACE = "exception.stacktrace";
+
     public static final String ATTRIBUTE_KEY_HOST_NAME = "host.name";
     public static final String ATTRIBUTE_KEY_PROCESS_PID = "process.pid";
     public static final String ATTRIBUTE_KEY_PROCESS_RUNTIME_DESCRIPTION = "process.runtime.description";

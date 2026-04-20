@@ -17,8 +17,9 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionWrapperBo;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
@@ -93,7 +94,7 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<PExc
             ServerHeader agentInfo, PExceptionMetaData exceptionMetaData
     ) {
         final String agentId = agentInfo.getAgentId();
-        final TransactionId transactionId = newTransactionId(exceptionMetaData.getTransactionId(), agentId);
+        final ServerTraceId transactionId = newTransactionId(exceptionMetaData.getTransactionId(), agentId);
 
         return new ExceptionMetaDataBo(
                 transactionId, exceptionMetaData.getSpanId(),
@@ -146,12 +147,12 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<PExc
         return list;
     }
 
-    private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
+    private ServerTraceId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
         final String transactionAgentId = pTransactionId.getAgentId();
         if (StringUtils.hasLength(transactionAgentId)) {
-            return TransactionId.of(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
+            return new PinpointServerTraceId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
         } else {
-            return TransactionId.of(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
+            return new PinpointServerTraceId(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
         }
     }
 }

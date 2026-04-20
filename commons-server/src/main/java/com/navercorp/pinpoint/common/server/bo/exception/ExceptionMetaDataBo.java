@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.common.server.bo.exception;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class ExceptionMetaDataBo {
 
-    private final TransactionId transactionId;
+    private final ServerTraceId transactionId;
     private final long spanId;
 
     private final short serviceType;
@@ -41,7 +41,7 @@ public class ExceptionMetaDataBo {
 
 
     public ExceptionMetaDataBo(
-            TransactionId transactionId, long spanId,
+            ServerTraceId transactionId, long spanId,
             short serviceType, String applicationName, String agentId,
             String uriTemplate
     ) {
@@ -53,7 +53,7 @@ public class ExceptionMetaDataBo {
         this.uriTemplate = uriTemplate;
     }
 
-    public TransactionId getTransactionId() {
+    public ServerTraceId getTransactionId() {
         return transactionId;
     }
 
