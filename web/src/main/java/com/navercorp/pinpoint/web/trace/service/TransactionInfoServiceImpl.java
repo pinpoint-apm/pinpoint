@@ -346,6 +346,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     recordList.addAll(annotations);
                 }
 
+                // add attribute record.
+                final Record attribute = factory.getAttribute(record.getTab() + 1, record.getId(), align);
+                if (attribute != null) {
+                    recordList.add(attribute);
+                }
+
                 // add remote record.(span only)
                 if (align.getRemoteAddr() != null) {
                     final Record remoteAddressRecord = factory.getParameter(record.getTab() + 1, record.getId(), "REMOTE_ADDRESS", align.getRemoteAddr());

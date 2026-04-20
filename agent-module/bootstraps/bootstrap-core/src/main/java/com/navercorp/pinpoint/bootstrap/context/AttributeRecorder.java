@@ -17,7 +17,11 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.DataType;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author yjqg6666
@@ -46,5 +50,22 @@ public interface AttributeRecorder {
     void recordAttribute(AnnotationKey key, DataType value);
 
     void recordAttribute(AnnotationKey key, Object value);
+
+    // String-keyed user attributes
+    void recordAttribute(String key, String value);
+
+    void recordAttribute(String key, long value);
+
+    void recordAttribute(String key, double value);
+
+    void recordAttribute(String key, boolean value);
+
+    void recordAttribute(String key, byte[] value);
+
+    void recordAttribute(String key, AttributeValue value);
+
+    void recordAttribute(String key, List<AttributeValue> values);
+
+    void recordAttribute(String key, Map<String, AttributeValue> values);
 
 }

@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.navercorp.pinpoint.grpc.trace.*;
 import com.navercorp.pinpoint.io.SpanVersion;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
@@ -71,6 +74,7 @@ public interface SpanMessageMapper {
     @Mapping(source = "span.exceptionInfo", target = "exceptionInfo")
     @Mapping(source = "span.traceRoot.shared.loggingInfo", target = "loggingTransactionInfo")
     @Mapping(source = "span.annotations", target = "annotation")
+    @Mapping(source = "span.attributes", target = "attribute")
     @Mapping(source = "span.spanEventList", target = "spanEvent")
     void map(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
 
@@ -110,6 +114,7 @@ public interface SpanMessageMapper {
     @Mapping(source = ".", target = "nextEvent")
     @Mapping(source = "asyncIdObject.asyncId", target = "asyncEvent")
     @Mapping(source = "annotations", target = "annotation")
+    @Mapping(source = "attributes", target = "attribute")
     @Mapping(target = "startElapsed", ignore = true)
     PSpanEvent map(SpanEvent spanEvent);
 
@@ -130,6 +135,64 @@ public interface SpanMessageMapper {
         }
         builder.setKey(annotation.getKey());
         return builder.build();
+    }
+
+    default PAttribute map(AttributeKeyValue attribute) {
+        if (attribute == null) {
+            return null;
+        }
+        PAttribute.Builder builder = PAttribute.newBuilder();
+        builder.setKey(attribute.getKey());
+        AttributeValue value = attribute.getValue();
+        if (value != null) {
+            builder.setValue(mapAttributeValue(value));
+        }
+        return builder.build();
+    }
+
+    @SuppressWarnings("unchecked")
+    default PAttributeValue mapAttributeValue(AttributeValue attributeValue) {
+        PAttributeValue.Builder valueBuilder = PAttributeValue.newBuilder();
+        AttributeValueType type = attributeValue.getType();
+        switch (type) {
+            case STRING:
+                valueBuilder.setStringValue((String) attributeValue.getValue());
+                break;
+            case BOOLEAN:
+                valueBuilder.setBoolValue((Boolean) attributeValue.getValue());
+                break;
+            case LONG:
+                valueBuilder.setLongValue((Long) attributeValue.getValue());
+                break;
+            case DOUBLE:
+                valueBuilder.setDoubleValue((Double) attributeValue.getValue());
+                break;
+            case BYTES:
+                valueBuilder.setBinaryValue(com.google.protobuf.ByteString.copyFrom((byte[]) attributeValue.getValue()));
+                break;
+            case ARRAY:
+                PAttributeArrayValue.Builder arrayBuilder = PAttributeArrayValue.newBuilder();
+                for (AttributeValue item : (java.util.List<AttributeValue>) attributeValue.getValue()) {
+                    if (item != null) {
+                        arrayBuilder.addValues(mapAttributeValue(item));
+                    }
+                }
+                valueBuilder.setArrayValue(arrayBuilder.build());
+                break;
+            case KEY_VALUE_LIST:
+                PAttributeKeyValueList.Builder kvBuilder = PAttributeKeyValueList.newBuilder();
+                for (AttributeKeyValue kv : (java.util.List<AttributeKeyValue>) attributeValue.getValue()) {
+                    PAttribute.Builder attrBuilder = PAttribute.newBuilder();
+                    attrBuilder.setKey(kv.getKey());
+                    if (kv.getValue() != null) {
+                        attrBuilder.setValue(mapAttributeValue(kv.getValue()));
+                    }
+                    kvBuilder.addValues(attrBuilder.build());
+                }
+                valueBuilder.setKvlistValue(kvBuilder.build());
+                break;
+        }
+        return valueBuilder.build();
     }
 
     @Named("toAcceptEvent")

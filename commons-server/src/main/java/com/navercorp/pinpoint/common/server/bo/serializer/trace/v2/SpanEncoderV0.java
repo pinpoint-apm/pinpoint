@@ -4,6 +4,8 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
+import com.navercorp.pinpoint.common.server.bo.AttributeTranscoder;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
@@ -29,6 +31,7 @@ import java.util.List;
 public class SpanEncoderV0 implements SpanEncoder {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
+    private static final AttributeTranscoder attributeTranscoder = new AttributeTranscoder();
 
     @Override
     public ByteBuffer encodeSpanQualifier(SpanEncodingContext<SpanBo> encodingContext) {
@@ -205,6 +208,11 @@ public class SpanEncoderV0 implements SpanEncoder {
             writeAnnotationList(buffer, annotationBoList, encodingContext);
         }
 
+        if (bitField.isSetAttribute()) {
+            List<AttributeBo> attributeBoList = span.getAttributeBoList();
+            attributeTranscoder.writeAttributeList(buffer, attributeBoList);
+        }
+
         final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         writeSpanEventList(buffer, spanEventBoList, encodingContext);
 
@@ -253,6 +261,11 @@ public class SpanEncoderV0 implements SpanEncoder {
 
         if (bitField.isSetNextAsyncId()) {
             buffer.putSVInt(spanEventBo.getNextAsyncId());
+        }
+
+        if (bitField.isSetAttribute()) {
+            List<AttributeBo> attributeBoList = spanEventBo.getAttributeBoList();
+            attributeTranscoder.writeAttributeList(buffer, attributeBoList);
         }
 
 //        if (bitField.isSetAsyncId()) {
@@ -343,6 +356,11 @@ public class SpanEncoderV0 implements SpanEncoder {
 
         if (bitField.isSetNextAsyncId()) {
             buffer.putSVInt(spanEventBo.getNextAsyncId());
+        }
+
+        if (bitField.isSetAttribute()) {
+            List<AttributeBo> attributeBoList = spanEventBo.getAttributeBoList();
+            attributeTranscoder.writeAttributeList(buffer, attributeBoList);
         }
     }
 

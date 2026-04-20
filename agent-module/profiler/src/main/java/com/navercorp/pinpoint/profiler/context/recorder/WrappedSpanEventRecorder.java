@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
@@ -180,6 +181,11 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     void addAnnotation(Annotation<?> annotation) {
         spanEvent.addAnnotation(annotation);
+    }
+
+    @Override
+    void addAttribute(AttributeKeyValue attribute) {
+        spanEvent.addAttribute(attribute);
     }
 
     @Override

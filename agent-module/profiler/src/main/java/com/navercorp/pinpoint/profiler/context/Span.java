@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.annotation.Annotations;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
@@ -54,6 +55,8 @@ public class Span extends DefaultFrameAttachment implements SpanType {
 
     private IntStringValue exceptionInfo; // optional
     private String parentServiceName;
+
+    private List<AttributeKeyValue> attributes; // optional
 
     public Span(final TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -176,6 +179,17 @@ public class Span extends DefaultFrameAttachment implements SpanType {
             this.annotations = new ArrayList<>();
         }
         this.annotations.add(annotation);
+    }
+
+    public List<AttributeKeyValue> getAttributes() {
+        return attributes;
+    }
+
+    public void addAttribute(AttributeKeyValue attribute) {
+        if (this.attributes == null) {
+            this.attributes = new ArrayList<>();
+        }
+        this.attributes.add(attribute);
     }
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
