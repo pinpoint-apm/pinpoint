@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.google.protobuf.ByteString;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -149,14 +150,14 @@ class OtlpTraceMapperUtilsTest {
     }
 
     // =======================================================================
-    // getId(Map<String, Object>)
+    // getId(Map<String, AttributeValue>)
     // =======================================================================
 
     @Test
     void getId_withPinpointAgentId() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.agentId", "test-agent",
-                "pinpoint.applicationName", "test-app"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("test-agent"),
+                "pinpoint.applicationName", AttributeValue.of("test-app")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -168,9 +169,9 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_withServiceInstanceId_plainString() {
-        Map<String, Object> attrs = Map.of(
-                "service.instance.id", "my-instance",
-                "service.name", "my-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.instance.id", AttributeValue.of("my-instance"),
+                "service.name", AttributeValue.of("my-service")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -181,9 +182,9 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_withServiceInstanceId_uuid() {
-        Map<String, Object> attrs = Map.of(
-                "service.instance.id", "550e8400-e29b-41d4-a716-446655440000",
-                "service.name", "uuid-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.instance.id", AttributeValue.of("550e8400-e29b-41d4-a716-446655440000"),
+                "service.name", AttributeValue.of("uuid-service")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -196,9 +197,9 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_withHostName() {
-        Map<String, Object> attrs = Map.of(
-                "host.name", "my-host",
-                "service.name", "host-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "host.name", AttributeValue.of("my-host"),
+                "service.name", AttributeValue.of("host-service")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -209,8 +210,8 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_fallbackToApplicationName() {
-        Map<String, Object> attrs = Map.of(
-                "service.name", "fallback-app"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.name", AttributeValue.of("fallback-app")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -221,8 +222,8 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_noApplicationName_throws() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.agentId", "agent1"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1")
         );
 
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
@@ -232,9 +233,9 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_invalidAgentId_throws() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.agentId", "invalid agent id with spaces!!!",
-                "pinpoint.applicationName", "test-app"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("invalid agent id with spaces!!!"),
+                "pinpoint.applicationName", AttributeValue.of("test-app")
         );
 
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
@@ -244,10 +245,10 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getId_pinpointApplicationName_hasPriority() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.agentId", "agent1",
-                "pinpoint.applicationName", "pinpoint-app",
-                "service.name", "otel-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.applicationName", AttributeValue.of("pinpoint-app"),
+                "service.name", AttributeValue.of("otel-service")
         );
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
@@ -256,13 +257,13 @@ class OtlpTraceMapperUtilsTest {
     }
 
     // =======================================================================
-    // getApplicationName(Map<String, Object>)
+    // getApplicationName(Map<String, AttributeValue>)
     // =======================================================================
 
     @Test
     void getApplicationName_pinpointApplicationName() {
-        Map<String, Object> attrs = Map.of(
-                "pinpoint.applicationName", "my-app"
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.applicationName", AttributeValue.of("my-app")
         );
 
         String result = OtlpTraceMapperUtils.getApplicationName(attrs);
@@ -272,8 +273,8 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getApplicationName_fallbackToServiceName() {
-        Map<String, Object> attrs = Map.of(
-                "service.name", "otel-service"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.name", AttributeValue.of("otel-service")
         );
 
         String result = OtlpTraceMapperUtils.getApplicationName(attrs);
@@ -283,7 +284,7 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getApplicationName_notFound_throws() {
-        Map<String, Object> attrs = Map.of();
+        Map<String, AttributeValue> attrs = Map.of();
 
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getApplicationName(attrs))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -292,8 +293,8 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void getApplicationName_invalidName_throws() {
-        Map<String, Object> attrs = Map.of(
-                "service.name", "invalid name with spaces!!!"
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.name", AttributeValue.of("invalid name with spaces!!!")
         );
 
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getApplicationName(attrs))

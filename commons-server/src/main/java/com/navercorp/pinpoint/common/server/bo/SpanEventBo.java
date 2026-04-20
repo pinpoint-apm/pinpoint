@@ -53,6 +53,7 @@ public class SpanEventBo {
 
     private int nextAsyncId = -1;
 
+    private List<AttributeBo> attributeBoList;
 
     public SpanEventBo() {
     }
@@ -190,6 +191,26 @@ public class SpanEventBo {
         this.nextAsyncId = nextAsyncId;
     }
 
+    public List<AttributeBo> getAttributeBoList() {
+        return attributeBoList;
+    }
+
+    public void setAttributeBoList(List<AttributeBo> attributeBoList) {
+        if (attributeBoList == null) {
+            return;
+        }
+        this.attributeBoList = attributeBoList;
+    }
+
+    public void addAttribute(AttributeBo attributeBo) {
+        if (attributeBo == null) {
+            return;
+        }
+        if (this.attributeBoList == null) {
+            this.attributeBoList = new ArrayList<>();
+        }
+        this.attributeBoList.add(attributeBo);
+    }
 
     @Override
     public String toString() {
@@ -208,6 +229,7 @@ public class SpanEventBo {
                 ", exceptionInfo=" + exceptionInfo +
                 ", exceptionClass='" + exceptionClass + '\'' +
                 ", nextAsyncId=" + nextAsyncId +
+                ", attributeBoList=" + attributeBoList +
                 '}';
     }
 
@@ -236,6 +258,8 @@ public class SpanEventBo {
         private long nextSpanId = -1;
 
         private int nextAsyncId = -1;
+
+        private List<AttributeBo> attributeBoList;
 
         Builder() {
         }
@@ -300,6 +324,14 @@ public class SpanEventBo {
             return this;
         }
 
+        public Builder addAttributeBo(AttributeBo e) {
+            if (this.attributeBoList == null) {
+                this.attributeBoList = new ArrayList<>();
+            }
+            this.attributeBoList.add(e);
+            return this;
+        }
+
         public SpanEventBo build() {
             SpanEventBo result = new SpanEventBo();
             result.setVersion((byte) this.version);
@@ -314,6 +346,7 @@ public class SpanEventBo {
             result.setDepth(this.depth);
             result.setNextSpanId(this.nextSpanId);
             result.setNextAsyncId(this.nextAsyncId);
+            result.setAttributeBoList(this.attributeBoList);
             return result;
         }
 

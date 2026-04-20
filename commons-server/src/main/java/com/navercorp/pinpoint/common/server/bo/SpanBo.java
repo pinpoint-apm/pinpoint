@@ -90,6 +90,8 @@ public class SpanBo implements BasicSpan {
 
     private String parentServiceName;
 
+    private List<AttributeBo> attributeBoList;
+
     public SpanBo() {
     }
 
@@ -416,6 +418,27 @@ public class SpanBo implements BasicSpan {
         this.parentServiceName = parentServiceName;
     }
 
+    public List<AttributeBo> getAttributeBoList() {
+        return attributeBoList;
+    }
+
+    public void setAttributeBoList(List<AttributeBo> attributeBoList) {
+        if (attributeBoList == null) {
+            return;
+        }
+        this.attributeBoList = attributeBoList;
+    }
+
+    public void addAttribute(AttributeBo attributeBo) {
+        if (attributeBo == null) {
+            return;
+        }
+        if (this.attributeBoList == null) {
+            this.attributeBoList = new ArrayList<>();
+        }
+        this.attributeBoList.add(attributeBo);
+    }
+
     @Override
     public String toString() {
         return "SpanBo{" +
@@ -449,6 +472,7 @@ public class SpanBo implements BasicSpan {
                 ", remoteAddr='" + remoteAddr + '\'' +
                 ", loggingTransactionInfo=" + loggingTransactionInfo +
                 ", parentServiceName='" + parentServiceName + '\'' +
+                ", attributeBoList=" + attributeBoList +
                 '}';
     }
 
@@ -504,6 +528,8 @@ public class SpanBo implements BasicSpan {
         private byte loggingTransactionInfo; //optional
 
         private String parentServiceName;
+
+        private List<AttributeBo> attributeBoList;
 
         Builder(long spanId) {
             this.spanId = spanId;
@@ -654,6 +680,22 @@ public class SpanBo implements BasicSpan {
             return this;
         }
 
+        public Builder addAttributeBo(AttributeBo e) {
+            if (this.attributeBoList == null) {
+                this.attributeBoList = new ArrayList<>();
+            }
+            this.attributeBoList.add(e);
+            return this;
+        }
+
+        public Builder addAllAttributeBo(Collection<AttributeBo> attributeBos) {
+            if (this.attributeBoList == null) {
+                this.attributeBoList = new ArrayList<>();
+            }
+            this.attributeBoList.addAll(attributeBos);
+            return this;
+        }
+
         public SpanBo build() {
             SpanBo result = new SpanBo();
             result.setVersion(this.version);
@@ -693,6 +735,7 @@ public class SpanBo implements BasicSpan {
             result.setLoggingTransactionInfo(this.loggingTransactionInfo);
             result.setAnnotationBoList(this.annotationBoList);
             result.addSpanEventBoList(this.spanEventBoList);
+            result.setAttributeBoList(this.attributeBoList);
             return result;
         }
     }

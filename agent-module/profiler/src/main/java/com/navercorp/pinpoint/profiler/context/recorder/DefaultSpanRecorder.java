@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
@@ -78,6 +79,11 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     void addAnnotation(Annotation<?> annotation) {
         span.addAnnotation(annotation);
+    }
+
+    @Override
+    void addAttribute(AttributeKeyValue attribute) {
+        span.addAttribute(attribute);
     }
 
     @Override

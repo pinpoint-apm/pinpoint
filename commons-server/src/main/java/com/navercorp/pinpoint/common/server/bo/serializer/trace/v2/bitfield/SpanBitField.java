@@ -36,11 +36,10 @@ public class SpanBitField {
     public static final int SET_FLAG = 4;
     public static final int SET_LOGGING_TRANSACTION_INFO = 5;
     public static final int SET_ANNOTATION = 6;
-
+    public static final int SET_ATTRIBUTE = 7;
 
     private static final long ROOT_PARENT_SPAN_ID = -1;
-    // used : 7bit
-    // reserved : 1 bit
+    // used : 8bit
     private byte bitField = 0;
 
     public static SpanBitField build(SpanBo spanBo) {
@@ -75,6 +74,9 @@ public class SpanBitField {
         }
         if (CollectionUtils.isNotEmpty(spanBo.getAnnotationBoList())) {
             spanBitField.setAnnotation(true);
+        }
+        if (CollectionUtils.isNotEmpty(spanBo.getAttributeBoList())) {
+            spanBitField.setAttribute(true);
         }
 
         return spanBitField;
@@ -191,5 +193,13 @@ public class SpanBitField {
 
     public void setAnnotation(boolean annotation) {
         setBit(SET_ANNOTATION, annotation);
+    }
+
+    public boolean isSetAttribute() {
+        return testBit(SET_ATTRIBUTE);
+    }
+
+    public void setAttribute(boolean attribute) {
+        setBit(SET_ATTRIBUTE, attribute);
     }
 }

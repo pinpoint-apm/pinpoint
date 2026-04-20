@@ -23,12 +23,15 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.recorder.uri.UriTemplateFilter;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -166,6 +169,46 @@ public class DisableSpanRecorder implements SpanRecorder {
 
     @Override
     public void recordAttribute(AnnotationKey key, DataType value) {
+
+    }
+
+    @Override
+    public void recordAttribute(String key, String value) {
+
+    }
+
+    @Override
+    public void recordAttribute(String key, long value) {
+
+    }
+
+    @Override
+    public void recordAttribute(String key, double value) {
+
+    }
+
+    @Override
+    public void recordAttribute(String key, boolean value) {
+
+    }
+
+    @Override
+    public void recordAttribute(String key, byte[] value) {
+
+    }
+
+    @Override
+    public void recordAttribute(String key, AttributeValue value) {
+
+    }
+
+    @Override
+    public void recordAttribute(String key, List<AttributeValue> values) {
+
+    }
+
+    @Override
+    public void recordAttribute(String key, Map<String, AttributeValue> values) {
 
     }
 

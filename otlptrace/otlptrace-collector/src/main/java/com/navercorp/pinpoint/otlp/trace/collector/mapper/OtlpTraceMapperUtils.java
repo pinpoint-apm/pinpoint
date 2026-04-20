@@ -19,8 +19,11 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
@@ -40,12 +43,12 @@ public class OtlpTraceMapperUtils {
     private static final String KEY_SERVICE_INSTANCE_ID = "service.instance.id";
     private static final String KEY_SERVICE_NAME = "service.name";
 
-    public static IdAndName getId(Map<String, Object> attributes) {
-        final String agentId = AttributeUtils.getStringValue(attributes, KEY_AGENT_ID, null);
+    public static IdAndName getId(Map<String, AttributeValue> attributes) {
+        final String agentId = AttributeUtils.getAttributeStringValue(attributes, KEY_AGENT_ID, null);
         if (agentId == null) {
-            final String serviceInstanceId = AttributeUtils.getStringValue(attributes, KEY_SERVICE_INSTANCE_ID, null);
+            final String serviceInstanceId = AttributeUtils.getAttributeStringValue(attributes, KEY_SERVICE_INSTANCE_ID, null);
             if (serviceInstanceId == null) {
-                final String hostName = AttributeUtils.getStringValue(attributes, "host.name", null);
+                final String hostName = AttributeUtils.getAttributeStringValue(attributes, "host.name", null);
                 if (hostName != null) {
                     if (!IdValidateUtils.validateId(hostName, PinpointConstants.AGENT_ID_MAX_LEN)) {
                         throw new IllegalArgumentException("invalid host.name=" + hostName);
@@ -84,10 +87,10 @@ public class OtlpTraceMapperUtils {
         return new IdAndName(agentId, null, getApplicationName(attributes));
     }
 
-    public static String getApplicationName(Map<String, Object> attributes) {
-        String applicationName = AttributeUtils.getStringValue(attributes, KEY_APPLICATION_NAME, null);
+    public static String getApplicationName(Map<String, AttributeValue> attributes) {
+        String applicationName = AttributeUtils.getAttributeStringValue(attributes, KEY_APPLICATION_NAME, null);
         if (applicationName == null) {
-            applicationName = AttributeUtils.getStringValue(attributes, KEY_SERVICE_NAME, null);
+            applicationName = AttributeUtils.getAttributeStringValue(attributes, KEY_SERVICE_NAME, null);
             if (applicationName == null) {
                 throw new IllegalArgumentException("not found applicationName");
             }
@@ -112,6 +115,18 @@ public class OtlpTraceMapperUtils {
             return -1;
         }
         return ByteStringUtils.parseLong(bytes);
+    }
+
+    public static Map<String, AttributeValue> getAttributeValueMap(List<KeyValue> keyValueList) {
+        final int size = keyValueList.size();
+        if (size == 0) {
+            return Map.of();
+        }
+        Map<String, AttributeValue> map = new HashMap<>(size);
+        for (KeyValue kv : keyValueList) {
+            map.put(kv.getKey(), toAttributeValue(kv.getValue()));
+        }
+        return map;
     }
 
     public static Map<String, Object> getAttributeToMap(List<KeyValue> keyValueList) {
@@ -178,5 +193,53 @@ public class OtlpTraceMapperUtils {
             // unknown field
             return null;
         }
+    }
+
+    public static AttributeValue toAttributeValue(AnyValue anyValue) {
+        if (anyValue.hasStringValue()) {
+            return AttributeValue.of(anyValue.getStringValue());
+        } else if (anyValue.hasBoolValue()) {
+            return AttributeValue.of(anyValue.getBoolValue());
+        } else if (anyValue.hasIntValue()) {
+            return AttributeValue.of(anyValue.getIntValue());
+        } else if (anyValue.hasDoubleValue()) {
+            return AttributeValue.of(anyValue.getDoubleValue());
+        } else if (anyValue.hasBytesValue()) {
+            final ByteString byteString = anyValue.getBytesValue();
+            if (!byteString.isEmpty()) {
+                return AttributeValue.of(byteString.toByteArray());
+            }
+            return AttributeValue.of("");
+        } else if (anyValue.hasArrayValue()) {
+            List<AttributeValue> list = new ArrayList<>();
+            for (AnyValue item : anyValue.getArrayValue().getValuesList()) {
+                list.add(toAttributeValue(item));
+            }
+            return AttributeValue.of(list);
+        } else if (anyValue.hasKvlistValue()) {
+            List<KeyValue> kvList = anyValue.getKvlistValue().getValuesList();
+            AttributeKeyValue[] kvArray = new AttributeKeyValue[kvList.size()];
+            for (int i = 0; i < kvList.size(); i++) {
+                KeyValue kv = kvList.get(i);
+                kvArray[i] = AttributeKeyValue.of(kv.getKey(), toAttributeValue(kv.getValue()));
+            }
+            return AttributeValue.ofAttributeKeyValueList(kvArray);
+        } else {
+            return AttributeValue.of("");
+        }
+    }
+
+    public static List<AttributeBo> toAttributeBoList(Map<String, AttributeValue> attributes, Predicate<String> excludeFilter) {
+        if (attributes.isEmpty()) {
+            return List.of();
+        }
+        List<AttributeBo> result = new ArrayList<>();
+        for (Map.Entry<String, AttributeValue> entry : attributes.entrySet()) {
+            if (excludeFilter.test(entry.getKey())) {
+                continue;
+            }
+            result.add(new AttributeBo(entry.getKey(), entry.getValue()));
+        }
+        return result;
     }
 }

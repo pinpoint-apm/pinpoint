@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
@@ -70,7 +71,7 @@ public class OtlpTraceMapper {
         final OtlpTraceMapperData mapperData = new OtlpTraceMapperData();
         int errorCount = 0;
         for (ResourceSpans resourceSpan : resourceSpanList) {
-            final Map<String, Object> resourceAttributeMap = OtlpTraceMapperUtils.getAttributeToMap(resourceSpan.getResource().getAttributesList());
+            final Map<String, AttributeValue> resourceAttributeMap = OtlpTraceMapperUtils.getAttributeValueMap(resourceSpan.getResource().getAttributesList());
             final IdAndName idAndName = getId(mapperData, resourceSpan, resourceAttributeMap);
             if (idAndName == null) {
                 // skip
@@ -131,7 +132,7 @@ public class OtlpTraceMapper {
         return mapperData;
     }
 
-    IdAndName getId(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, Map<String, Object> resourceAttributeMap) {
+    IdAndName getId(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, Map<String, AttributeValue> resourceAttributeMap) {
         try {
             return OtlpTraceMapperUtils.getId(resourceAttributeMap);
         } catch (Exception e) {

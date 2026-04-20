@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
@@ -36,12 +38,9 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class OtlpTraceSpanEventMapper {
 
-    private final OtlpTraceAttributeMapper attributeMapper;
     private final OtlpTraceEventMapper eventMapper;
 
-    public OtlpTraceSpanEventMapper(OtlpTraceAttributeMapper attributeMapper,
-                                    OtlpTraceEventMapper eventMapper) {
-        this.attributeMapper = Objects.requireNonNull(attributeMapper, "attributeMapper");
+    public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
     }
 
@@ -64,7 +63,7 @@ public class OtlpTraceSpanEventMapper {
         final int endElapsed = (int) (eventEndTime - eventStartTime);
         spanEventBo.setEndElapsed(endElapsed); // TODO ?
 
-        final Map<String, Object> attributes = OtlpTraceMapperUtils.getAttributeToMap(span.getAttributesList());
+        final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
         spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes));
         spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes));
 
@@ -94,8 +93,10 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode(), OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
         // attributes
-        if (span.getAttributesCount() > 0) {
-            attributeMapper.addAttributesToAnnotation(attributes, spanEventBo::addAnnotation);
+        if (!attributes.isEmpty()) {
+            List<AttributeBo> attributeBoList = OtlpTraceMapperUtils.toAttributeBoList(
+                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
+            spanEventBo.setAttributeBoList(attributeBoList);
         }
         // event
         for (Span.Event event : span.getEventsList()) {
@@ -120,57 +121,57 @@ public class OtlpTraceSpanEventMapper {
         return span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE;
     }
 
-    boolean isDatabase(Map<String, Object> attributes) {
+    boolean isDatabase(Map<String, AttributeValue> attributes) {
         return attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM) || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM_NAME);
     }
 
-    boolean isDatabaseExecuteQuery(Map<String, Object> attributes) {
+    boolean isDatabaseExecuteQuery(Map<String, AttributeValue> attributes) {
         return attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT) || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT);
     }
 
-    String getClientSpanDbStatement(Map<String, Object> attributes) {
-        String statement = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
+    String getClientSpanDbStatement(Map<String, AttributeValue> attributes) {
+        String statement = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
         if (statement == null) {
-            statement = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT, null);
+            statement = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT, null);
         }
         return statement;
     }
 
-    String getClientSpanToEndPoint(Map<String, Object> attributes) {
-        final String serverAddress = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
+    String getClientSpanToEndPoint(Map<String, AttributeValue> attributes) {
+        final String serverAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
-            final long serverPort = AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+            final long serverPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
         // proxy
-        return AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+        return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
     }
 
-    String getClientSpanToDestinationId(Map<String, Object> attributes) {
+    String getClientSpanToDestinationId(Map<String, AttributeValue> attributes) {
         // 1.x
-        final String dbName = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
+        final String dbName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
         if (dbName != null) {
             return dbName;
         }
         // 2.x
-        final String dbNamespace = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAMESPACE, null);
+        final String dbNamespace = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAMESPACE, null);
         if (dbNamespace != null) {
             return dbNamespace;
         }
 
-        final String upstreamClusterName = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
+        final String upstreamClusterName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
         if (upstreamClusterName != null) {
             return upstreamClusterName;
         }
 
-        final String serverAddress = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
+        final String serverAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
-            final long serverPort = AttributeUtils.getIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+            final long serverPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
 
         // proxy
-        return AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+        return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
     }
 
     String getSpanNameOrDefault(Span span, String defaultName) {

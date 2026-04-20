@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -273,6 +274,11 @@ public class SpanAlign implements Align {
     @Override
     public void setAnnotationBoList(List<AnnotationBo> annotationBoList) {
         spanBo.setAnnotationBoList(annotationBoList);
+    }
+
+    @Override
+    public List<AttributeBo> getAttributeBoList() {
+        return spanBo.getAttributeBoList();
     }
 
     @Override
