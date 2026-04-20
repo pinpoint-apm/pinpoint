@@ -1,10 +1,8 @@
 package com.navercorp.pinpoint.web.uid.controller;
 
 import com.navercorp.pinpoint.web.uid.service.ApplicationIndexV2CopyService;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,7 +13,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/admin/copy")
 @ConditionalOnProperty(name = "pinpoint.web.application.index.v2.enabled", havingValue = "true")
-@Validated
 public class ApplicationIndexV2CopyController {
 
     private final ApplicationIndexV2CopyService applicationIndexV2CopyService;
@@ -51,7 +48,7 @@ public class ApplicationIndexV2CopyController {
 
     @PostMapping(value = "/agents", params = {"applicationName"})
     public ResponseEntity<String> copyAgentsByApplicationName(
-            @RequestParam(value = "applicationName") @NotBlank String applicationName
+            @RequestParam(value = "applicationName") String applicationName
     ) {
         applicationIndexV2CopyService.copyAgentId(applicationName);
         return ResponseEntity.ok("OK");
