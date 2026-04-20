@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -82,9 +83,11 @@ public class OtlpTraceSpanMapper {
         spanBo.setFlag((short) 0); // TODO ?
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
             spanBo.setErrCode(1);
-            if (StringUtils.hasLength(span.getStatus().getMessage())) {
-//                ExceptionInfo exceptionInfo = new ExceptionInfo(1, span.getStatus().getMessage());
-//                spanBo.setExceptionInfo(exceptionInfo);
+            final String errorType = AttributeUtils.getStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_ERROR_TYPE, null);
+            if (StringUtils.hasLength(errorType)) {
+                spanBo.setExceptionInfo(new ExceptionInfo(1, errorType));
+            } else if (StringUtils.hasLength(span.getStatus().getMessage())) {
+                spanBo.setExceptionInfo(new ExceptionInfo(1, span.getStatus().getMessage()));
             }
         }
         spanBo.setCollectorAcceptTime(System.currentTimeMillis());

@@ -53,12 +53,14 @@ public class OtlpTraceMapper {
     private final OtlpTraceSpanEventMapper spanEventMapper;
     private final OtlpTraceSpanChunkMapper spanChunkMapper;
     private final OtlpAgentInfoMapper agentInfoMapper;
+    private final OtlpExceptionMapper exceptionMapper;
 
-    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper) {
+    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpExceptionMapper exceptionMapper) {
         this.spanMapper = spanMapper;
         this.spanEventMapper = spanEventMapper;
         this.spanChunkMapper = spanChunkMapper;
         this.agentInfoMapper = agentInfoMapper;
+        this.exceptionMapper = exceptionMapper;
     }
 
     // sort by traceId
@@ -83,6 +85,10 @@ public class OtlpTraceMapper {
                 List<Span> rootSpanList = new ArrayList<>();
                 List<Span> childSpanList = new ArrayList<>();
                 initRootAndChild(entry.getValue(), rootSpanList, childSpanList);
+
+                for (Span span : entry.getValue()) {
+                    exceptionMapper.map(idAndName, span).ifPresent(mapperData::addExceptionMetaDataBo);
+                }
 
                 for (Span rootSpan : rootSpanList) {
                     try {
