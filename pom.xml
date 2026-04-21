@@ -283,7 +283,6 @@
         <plugin.build-helper.version>3.4.0</plugin.build-helper.version>
         <plugin.javadoc.version>3.6.3</plugin.javadoc.version>
         <plugin.protobuf.version>0.6.1</plugin.protobuf.version>
-        <plugin.os-maven.version>1.7.1</plugin.os-maven.version>
 
         <plugin.spotbugs.version>4.7.3.6</plugin.spotbugs.version>
         <plugin.pmd.version>3.21.2</plugin.pmd.version>
@@ -2232,6 +2231,12 @@
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>false</autoPublish>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>kr.motd.maven</groupId>
+                        <artifactId>os-maven-plugin</artifactId>
+                        <version>1.7.1</version>
+                        <extensions>true</extensions>
                     </plugin>
                 </plugins>
             </build>

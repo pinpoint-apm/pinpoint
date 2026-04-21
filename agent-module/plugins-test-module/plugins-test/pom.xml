@@ -16,6 +16,8 @@
         <maven-resolver>1.6.3</maven-resolver>
         <maven-core>3.8.8</maven-core>
         <tinylog.version>2.7.0</tinylog.version>
+        <pinpoint.agent.dir>${project.basedir}/../../agent/target/pinpoint-agent-${project.version}</pinpoint.agent.dir>
+        <pinpoint.agent.bootjar>${pinpoint.agent.dir}/pinpoint-bootstrap-${project.version}.jar</pinpoint.agent.bootjar>
     </properties>
 
     <dependencies>
@@ -190,6 +192,15 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>templating-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -javaagent:${pinpoint.agent.bootjar}=AGENT_TYPE=PLUGIN_TEST</argLine>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                </configuration>
             </plugin>
         </plugins>
     </build>
