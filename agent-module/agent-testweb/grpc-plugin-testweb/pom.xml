@@ -78,7 +78,7 @@
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.5.0.Final</version>
+                <version>${plugin.os-maven.version}</version>
             </extension>
         </extensions>
 
