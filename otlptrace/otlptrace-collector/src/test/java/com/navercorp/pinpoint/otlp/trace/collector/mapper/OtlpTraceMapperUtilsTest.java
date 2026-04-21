@@ -1,10 +1,12 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.google.protobuf.ByteString;
+
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -202,6 +204,103 @@ class OtlpTraceMapperUtilsTest {
     }
 
     @Test
+    void getId_withK8sPodUid_uuid() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "k8s.pod.uid", AttributeValue.of("550e8400-e29b-41d4-a716-446655440000"),
+                "service.name", AttributeValue.of("pod-service")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentId()).isNotEqualTo("550e8400-e29b-41d4-a716-446655440000");
+        assertThat(result.agentName()).isEqualTo("550e8400-e29b-41d4-a716-446655440000");
+        assertThat(result.applicationName()).isEqualTo("pod-service");
+    }
+
+    @Test
+    void getId_withK8sPodUid_afterServiceInstanceId_isIgnored() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.instance.id", AttributeValue.of("instance-1"),
+                "k8s.pod.uid", AttributeValue.of("550e8400-e29b-41d4-a716-446655440000"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentId()).isEqualTo("instance-1");
+    }
+
+    @Test
+    void getId_invalidK8sPodUid_throws() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "k8s.pod.uid", AttributeValue.of("bad uid!!"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid k8s.pod.uid");
+    }
+
+    @Test
+    void getId_withContainerId_fullHex() {
+        String fullId = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+        Map<String, AttributeValue> attrs = Map.of(
+                "container.id", AttributeValue.of(fullId),
+                "service.name", AttributeValue.of("container-service")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        // agentId: 22-char URL-safe Base64 (first 16 bytes encoded)
+        assertThat(result.agentId()).hasSize(22);
+        assertThat(result.agentId()).matches("[A-Za-z0-9_\\-]+");
+        // agentName preserves full 64-hex original
+        assertThat(result.agentName()).isEqualTo(fullId);
+        assertThat(result.applicationName()).isEqualTo("container-service");
+    }
+
+    @Test
+    void getId_withContainerId_shortHex() {
+        // 12 hex (Docker short ID) already fits AGENT_ID_MAX_LEN=24
+        Map<String, AttributeValue> attrs = Map.of(
+                "container.id", AttributeValue.of("abcdef012345"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentId()).isEqualTo("abcdef012345");
+        assertThat(result.agentName()).isNull();
+    }
+
+    @Test
+    void getId_withContainerId_afterK8sPodUid_isIgnored() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "k8s.pod.uid", AttributeValue.of("550e8400-e29b-41d4-a716-446655440000"),
+                "container.id", AttributeValue.of("abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        // pod uid takes priority
+        assertThat(result.agentName()).isEqualTo("550e8400-e29b-41d4-a716-446655440000");
+    }
+
+    @Test
+    void getId_invalidContainerId_throws() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "container.id", AttributeValue.of("bad id!!"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid container.id");
+    }
+
+    @Test
     void getId_withHostName() {
         Map<String, AttributeValue> attrs = Map.of(
                 "host.name", AttributeValue.of("my-host"),
@@ -260,6 +359,109 @@ class OtlpTraceMapperUtilsTest {
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
 
         assertThat(result.applicationName()).isEqualTo("pinpoint-app");
+    }
+
+    @Test
+    void getId_serviceName_absent_returnsDefault() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+    }
+
+    @Test
+    void getId_serviceName_fromPinpointServiceName() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.applicationName", AttributeValue.of("app"),
+                "pinpoint.serviceName", AttributeValue.of("my-service")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.serviceName()).isEqualTo("my-service");
+    }
+
+    @Test
+    void getId_serviceName_fromServiceNamespace() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.applicationName", AttributeValue.of("app"),
+                "service.namespace", AttributeValue.of("otel-ns")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.serviceName()).isEqualTo("otel-ns");
+    }
+
+    @Test
+    void getId_serviceName_pinpointHasPriorityOverNamespace() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.applicationName", AttributeValue.of("app"),
+                "pinpoint.serviceName", AttributeValue.of("pinpoint-service"),
+                "service.namespace", AttributeValue.of("otel-ns")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.serviceName()).isEqualTo("pinpoint-service");
+    }
+
+    @Test
+    void getId_invalidHostName_throws() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "host.name", AttributeValue.of("host with spaces!!!"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid host.name");
+    }
+
+    @Test
+    void getId_invalidServiceInstanceId_throws() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.instance.id", AttributeValue.of("bad id!!"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid service.instance.id");
+    }
+
+    @Test
+    void getId_serviceInstanceId_uuidLengthButInvalid_throws() {
+        // 36 chars, fails UUID.fromString, falls through to plain agentId validation
+        // (which fails because length > AGENT_ID_MAX_LEN=24)
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.instance.id", AttributeValue.of("gggggggg-gggg-gggg-gggg-gggggggggggg"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid service.instance.id");
+    }
+
+    @Test
+    void getId_applicationNameFallback_exceedsAgentIdLength_throws() {
+        // applicationName is valid for V3 (<=254) but exceeds AGENT_ID_MAX_LEN (24)
+        // — when no agentId/serviceInstanceId/hostName present, fallback rejects it.
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.name", AttributeValue.of("application-name-that-is-longer-than-24-chars")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid agentId(derived from applicationName)");
     }
 
     // =======================================================================

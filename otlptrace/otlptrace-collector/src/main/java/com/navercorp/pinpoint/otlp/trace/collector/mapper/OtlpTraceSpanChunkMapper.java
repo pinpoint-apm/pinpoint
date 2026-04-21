@@ -50,6 +50,7 @@ public class OtlpTraceSpanChunkMapper {
             spanChunkBo.setAgentName(idAndName.agentName());
         }
         spanChunkBo.setApplicationName(idAndName.applicationName());
+        spanChunkBo.setServiceName(idAndName.serviceName());
 
         final long startTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
         // The sequence value is 0, so make a difference with the agentStartTime value.

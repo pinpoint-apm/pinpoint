@@ -56,6 +56,7 @@ public class OtlpTraceSpanMapper {
             spanBo.setAgentName(idAndName.agentName());
         }
         spanBo.setApplicationName(idAndName.applicationName());
+        spanBo.setServiceName(idAndName.serviceName());
 
         spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
 
