@@ -16,5 +16,5 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-public record IdAndName(String agentId, String agentName, String applicationName) {
+public record IdAndName(String agentId, String agentName, String applicationName, String serviceName) {
 }
