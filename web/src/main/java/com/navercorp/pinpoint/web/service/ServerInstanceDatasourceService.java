@@ -32,7 +32,7 @@ public class ServerInstanceDatasourceService {
 
     public ServerInstanceDatasourceService(AgentInfoService agentInfoService,
                                            AgentListV2Service agentListV2Service,
-                                           @Value("${pinpoint.web.agent.read.v2:false}") boolean agentReadV2) {
+                                           @Value("${pinpoint.web.application.index.read.v2:false}") boolean agentReadV2) {
         Objects.requireNonNull(agentInfoService, "agentInfoService");
         Objects.requireNonNull(agentListV2Service, "agentListV2Service");
         this.datasource = new AgentInfoServerGroupListDataSource(agentInfoService, agentListV2Service, agentReadV2);

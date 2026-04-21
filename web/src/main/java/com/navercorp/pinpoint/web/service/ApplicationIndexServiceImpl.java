@@ -46,28 +46,25 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     private final AgentIdDao agentIdDao;
     private final boolean v1TableEnabled;
     private final boolean v2TableEnabled;
-    private final boolean applicationReadV2;
-    private final boolean agentReadV2;
+    private final boolean readV2;
 
     public ApplicationIndexServiceImpl(ApplicationIndexDao applicationIndexDao,
                                        ApplicationDao applicationDao,
                                        AgentIdDao agentIdDao,
                                        @Value("${pinpoint.web.application.index.v1.enabled:true}") boolean v1TableEnabled,
                                        @Value("${pinpoint.web.application.index.v2.enabled:false}") boolean v2TableEnabled,
-                                       @Value("${pinpoint.web.application.read.v2:false}") boolean readApplicationV2,
-                                       @Value("${pinpoint.web.agent.read.v2:false}") boolean readAgentV2) {
+                                       @Value("${pinpoint.web.application.index.read.v2:false}") boolean readV2) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
         this.v1TableEnabled = v1TableEnabled;
         this.v2TableEnabled = v2TableEnabled;
-        this.applicationReadV2 = readApplicationV2;
-        this.agentReadV2 = readAgentV2;
+        this.readV2 = readV2;
     }
 
     @Override
     public List<Application> selectAllApplications() {
-        if (applicationReadV2) {
+        if (readV2) {
             return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE);
         }
         return this.applicationIndexDao.selectAllApplicationNames();
@@ -75,7 +72,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<Application> selectApplication(String applicationName) {
-        if (applicationReadV2) {
+        if (readV2) {
             return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
         }
         return this.applicationIndexDao.selectApplicationName(applicationName);
@@ -115,7 +112,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         if (applicationName == null) {
             return false;
         }
-        if (applicationReadV2) {
+        if (readV2) {
             return !applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName).isEmpty();
         }
         List<Application> applications = applicationIndexDao.selectApplicationName(applicationName);
@@ -129,7 +126,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<String> selectAgentIds(String applicationName) {
-        if (agentReadV2) {
+        if (readV2) {
             return this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName).stream()
                     .map(AgentIdEntry::getAgentId)
                     .distinct()
@@ -141,7 +138,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
-        if (agentReadV2) {
+        if (readV2) {
             return agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode).stream()
                     .map(AgentIdEntry::getAgentId)
                     .distinct()
