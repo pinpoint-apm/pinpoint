@@ -17,11 +17,13 @@ public interface Header {
     Metadata.Key<String> PROTOCOL_VERSION_NAME_KEY = newStringKey("protocol.version");
     Metadata.Key<String> SERVICE_NAME_KEY = newStringKey("servicename");
     Metadata.Key<String> API_KEY = newStringKey("apikey");
+
+    // NOTE: Starting from v4, `servicetype` is required (was optional in previous versions)
+    Metadata.Key<String> SERVICE_TYPE_KEY = newStringKey("servicetype");
     // v4 header
 
     // optional header
     Metadata.Key<String> SOCKET_ID = newStringKey("socketid");
-    Metadata.Key<String> SERVICE_TYPE_KEY = newStringKey("servicetype");
     Metadata.Key<String> SUPPORT_COMMAND_CODE = newStringKey("supportCommandCode");
     Metadata.Key<String> GRPC_BUILT_IN_RETRY = newStringKey("grpc.built-in.retry");
 

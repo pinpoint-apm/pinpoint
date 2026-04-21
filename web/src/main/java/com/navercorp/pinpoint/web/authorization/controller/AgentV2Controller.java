@@ -72,7 +72,7 @@ public class AgentV2Controller {
                              AgentListV2Service agentListV2Service,
                              AgentsService agentsService,
                              ConfigProperties configProperties,
-                             @Value("${pinpoint.web.agent.read.v2:false}") boolean readAgentV2) {
+                             @Value("${pinpoint.web.application.index.read.v2:false}") boolean readAgentV2) {
         this.serviceUidService = serviceUidService;
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentListV2Service = Objects.requireNonNull(agentListV2Service, "agentListV2Service");
@@ -129,7 +129,7 @@ public class AgentV2Controller {
         if (!ServiceUid.DEFAULT.equals(serviceUid)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "v1 table only supports 'default' service");
         }
-        // Note: AgentsService internally uses v2 agentIds when 'pinpoint.web.agent.read.v2' is true
+        // Note: AgentsService internally uses v2 agentIds when 'pinpoint.web.application.index.read.v2' is true
         return agentsService.getAgentsByApplicationName(new Application(applicationName, serviceType), new TimeWindow(range),
                         ApplicationAgentListQueryRule.ACTIVE_STATUS, AgentInfoFilters.acceptAll()).stream()
                 .map(agentStatusAndLink -> v1ToV2Format(agentStatusAndLink, range))
