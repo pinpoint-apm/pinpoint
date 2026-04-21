@@ -155,6 +155,11 @@ public class GrpcTransportConfig {
     @Value("${profiler.transport.grpc.span.stats.logging.enable}")
     private boolean spanEnableStatLogging = DEFAULT_ENABLE_SPAN_STATS_LOGGING;
 
+    @Value("${profiler.transport.grpc.span.sender.type}")
+    private String spanSenderType;
+
+    private SpanBatchSenderConfig spanBatchSenderConfig = new SpanBatchSenderConfig();
+
     @Value("${profiler.transport.grpc.span.sender.discardpolicy.logger.discard.ratelimit}")
     private int spanDiscardLogRateLimit = DEFAULT_DISCARD_LOG_RATE_LIMIT;
     @Value("${profiler.transport.grpc.span.sender.discardpolicy.maxpendingthreshold}")
@@ -189,6 +194,9 @@ public class GrpcTransportConfig {
         // Span
         this.spanClientOption = readSpanClientOption(properties);
 
+        // Span batch sender
+        this.spanBatchSenderConfig = readSpanBatchSenderConfig(properties);
+
         // Ssl
         this.sslOption = readSslOption(properties);
     }
@@ -207,6 +215,13 @@ public class GrpcTransportConfig {
 
     private ClientOption readSpanClientOption(final Function<String, String> properties) {
         return readClientOption(properties, "profiler.transport.grpc.span.sender.");
+    }
+
+    private SpanBatchSenderConfig readSpanBatchSenderConfig(final Function<String, String> properties) {
+        SpanBatchSenderConfig config = new SpanBatchSenderConfig();
+        ValueAnnotationProcessor reader = new ValueAnnotationProcessor();
+        reader.process(config, properties);
+        return config;
     }
 
     private ClientOption readClientOption(final Function<String, String> properties, final String transportName) {
@@ -413,6 +428,14 @@ public class GrpcTransportConfig {
         return spanEnableStatLogging;
     }
 
+    public SpanBatchSenderConfig getSpanBatchSenderConfig() {
+        return spanBatchSenderConfig;
+    }
+
+    public SpanSenderType getSpanSenderType() {
+        return SpanSenderType.fromValue(spanSenderType);
+    }
+
     public boolean isNettySystemPropertyTryReflectiveSetAccessible() {
         return nettySystemPropertyTryReflectiveSetAccessible;
     }
@@ -451,6 +474,8 @@ public class GrpcTransportConfig {
                 ", metadataRetryMaxCount=" + metadataRetryMaxCount +
                 ", metadataRetryDelayMillis=" + metadataRetryDelayMillis +
                 ", nettySystemPropertyTryReflectiveSetAccessible=" + nettySystemPropertyTryReflectiveSetAccessible +
+                ", spanSenderType=" + getSpanSenderType() +
+                ", spanBatchSenderConfig=" + spanBatchSenderConfig +
                 ", spanDiscardLogRateLimit=" + spanDiscardLogRateLimit +
                 ", spanDiscardMaxPendingThreshold=" + spanDiscardMaxPendingThreshold +
                 '}';

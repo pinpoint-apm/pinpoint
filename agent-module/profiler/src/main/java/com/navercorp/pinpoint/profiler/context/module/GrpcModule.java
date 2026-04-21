@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverter
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
+import com.navercorp.pinpoint.profiler.context.grpc.config.SpanSenderType;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.AgentInfoMapper;
@@ -57,6 +58,7 @@ import com.navercorp.pinpoint.profiler.context.provider.grpc.MetadataGrpcDataSen
 import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectExecutorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectSchedulerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SSLContextProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanBatchGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.StatGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
@@ -124,7 +126,7 @@ public class GrpcModule extends PrivateModule {
 
         bindAgentDataSender();
 
-        bindSpanDataSender();
+        bindSpanDataSender(grpcTransportConfig);
 
         bindStatDataSender();
 
@@ -194,7 +196,7 @@ public class GrpcModule extends PrivateModule {
         expose(statDataSender);
     }
 
-    private void bindSpanDataSender() {
+    private void bindSpanDataSender(GrpcTransportConfig grpcTransportConfig) {
         // Span
         TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {
         };
@@ -209,7 +211,19 @@ public class GrpcModule extends PrivateModule {
         TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {
         };
         Key<DataSender<SpanType>> spanDataSender = Key.get(spanDataSenderType, SpanDataSender.class);
-        bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+
+        SpanSenderType spanSenderType = grpcTransportConfig.getSpanSenderType();
+        logger.info("SpanSenderType: {}", spanSenderType);
+        switch (spanSenderType) {
+            case BATCH:
+                bind(spanDataSender).toProvider(SpanBatchGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+                break;
+            case STREAM:
+                bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+                break;
+            default:
+                throw new IllegalStateException("Unknown SpanSenderType: " + spanSenderType);
+        }
         expose(spanDataSender);
     }
 
