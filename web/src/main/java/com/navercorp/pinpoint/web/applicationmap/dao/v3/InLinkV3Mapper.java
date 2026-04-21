@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -42,11 +43,14 @@ import java.util.function.Predicate;
  *
  * @author emeroad
  * @author netspider
- * 
+ *
  */
 public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
 
     static final String MERGE_AGENT = OutLinkV3Mapper.MERGE_AGENT;
+    static final String QUEUE_DEFAULT_HOST = "_QUEUE";
+    static final String TERMINAL_DEFAULT_HOST = "_TERMINAL";
+    static final String DEFAULT_HOST = "_UNKNOWN";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -110,8 +114,8 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
             // There may be no outHost for virtual queue nodes from user-defined entry points.
             // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
-            if (inApplication.getServiceType().isQueue()) {
-                selfHost = Objects.toString(selfHost, "");
+            if (!StringPrecondition.hasLength(selfHost)) {
+                selfHost = fallbackHost(self, inApplication);
             }
 
             if (logger.isDebugEnabled()) {
@@ -129,6 +133,19 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
+
+    private String fallbackHost(Application self, Application inApplication) {
+        logger.debug("    Empty outHost for IN_LINK {} -> {}", self, inApplication);
+        ServiceType inServiceType = inApplication.getServiceType();
+        if (inServiceType.isQueue()) {
+            return QUEUE_DEFAULT_HOST;
+        }
+        if (inServiceType.isTerminal()) {
+            return TERMINAL_DEFAULT_HOST;
+        }
+        logger.warn("    Empty outHost for IN_LINK {} -> {}. Set to default host.", self, inApplication);
+        return DEFAULT_HOST;
+    }
 
     private String outHost(String outHost) {
         if (MERGE_AGENT.equals(outHost)) {
