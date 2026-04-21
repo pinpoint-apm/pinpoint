@@ -60,7 +60,7 @@ public class AlarmController {
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
     }
 
-    @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmPermission(#serviceName.getName(), #rule.getApplicationName(), T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PostMapping
     public AlarmResponse insertRule(@ServiceParam ServiceName serviceName, @RequestBody Rule rule) {
         if (Rule.isRuleInvalidForPost(rule)) {
@@ -70,7 +70,7 @@ public class AlarmController {
         return new AlarmResponse(Result.SUCCESS, ruleId);
     }
 
-    @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmPermission(#serviceName.getName(), #rule.getApplicationName(), T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @DeleteMapping
     public Response deleteRule(@ServiceParam ServiceName serviceName, @RequestBody Rule rule) {
         if (StringUtils.isEmpty(rule.getRuleId())) {
@@ -90,7 +90,7 @@ public class AlarmController {
         return alarmService.selectRuleByApplicationName(applicationName);
     }
 
-    @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmPermission(#serviceName.getName(), #rule.getApplicationName(), T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PutMapping
     public Response updateRule(@ServiceParam ServiceName serviceName, @RequestBody Rule rule) {
         if (Rule.isRuleInvalid(rule)) {

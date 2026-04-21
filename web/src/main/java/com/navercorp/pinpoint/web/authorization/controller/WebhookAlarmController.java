@@ -52,7 +52,7 @@ public class WebhookAlarmController {
         this.webhookAlarmServiceFacade = Objects.requireNonNull(webhookAlarmServiceFacade, "webhookAlarmAdaptor");
     }
 
-    @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmPermission(#serviceName.getName(), #ruleWithWebhooks.getRule().getApplicationName(), T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PostMapping(value = "/includeWebhooks")
     public AlarmResponse insertRuleWithWebhooks(@ServiceParam ServiceName serviceName, @RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
@@ -64,7 +64,7 @@ public class WebhookAlarmController {
         return new AlarmResponse(Result.SUCCESS, ruleId);
     }
 
-    @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmPermission(#serviceName.getName(), #ruleWithWebhooks.getRule().getApplicationName(), T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PutMapping(value = "/includeWebhooks")
     public Response updateRuleWithWebhooks(@ServiceParam ServiceName serviceName, @RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
