@@ -44,7 +44,7 @@ public class OtlpExceptionMapper {
 
     private static final String EMPTY = "";
 
-    public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span span) {
+    public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span span, String uriTemplate) {
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() != span.getStatus().getCodeValue()) {
             return Optional.empty();
         }
@@ -57,7 +57,6 @@ public class OtlpExceptionMapper {
         final Map<String, Object> eventAttrs = OtlpTraceMapperUtils.getAttributeToMap(exceptionEvent.getAttributesList());
         String exceptionType = AttributeUtils.getStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_TYPE, null);
         if (exceptionType == null) {
-            // fallback: span attribute의 error.type
             final Map<String, Object> spanAttrs = OtlpTraceMapperUtils.getAttributeToMap(span.getAttributesList());
             exceptionType = AttributeUtils.getStringValue(spanAttrs, ATTRIBUTE_KEY_ERROR_TYPE, null);
         }
@@ -91,7 +90,7 @@ public class OtlpExceptionMapper {
                 ServiceType.OPENTELEMETRY_SERVER.getCode(),
                 idAndName.applicationName(),
                 idAndName.agentId(),
-                span.getName()
+                uriTemplate
         );
         bo.setExceptionWrapperBos(List.of(wrapper));
         return Optional.of(bo);
