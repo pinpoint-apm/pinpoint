@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -72,8 +71,7 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler({
-            org.apache.catalina.connector.ClientAbortException.class,
-            AsyncRequestNotUsableException.class
+            org.apache.catalina.connector.ClientAbortException.class
     })
     public ResponseEntity<Void> handleClientAbort(Exception ex) {
         logger.debug("Client disconnected: {}", ex.getMessage());
