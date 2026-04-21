@@ -89,7 +89,7 @@ public class OtlpTraceMapper {
 
                 final String rootUriTemplate = rootSpanList.isEmpty() ? null
                         : spanMapper.getServerSpanToRpc(rootSpanList.get(0),
-                            OtlpTraceMapperUtils.getAttributeToMap(rootSpanList.get(0).getAttributesList()));
+                            OtlpTraceMapperUtils.getAttributeValueMap(rootSpanList.get(0).getAttributesList()));
                 for (Span span : entry.getValue()) {
                     exceptionMapper.map(idAndName, span, rootUriTemplate).ifPresent(mapperData::addExceptionMetaDataBo);
                 }
