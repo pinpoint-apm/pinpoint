@@ -172,7 +172,7 @@ class OtlpTraceMapperUtilsTest {
 
         assertThat(result.agentId()).isEqualTo("test-agent");
         assertThat(result.applicationName()).isEqualTo("test-app");
-        assertThat(result.agentName()).isNull();
+        assertThat(result.agentName()).isEqualTo("test-agent");
     }
 
     @Test
@@ -271,7 +271,7 @@ class OtlpTraceMapperUtilsTest {
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
 
         assertThat(result.agentId()).isEqualTo("abcdef012345");
-        assertThat(result.agentName()).isNull();
+        assertThat(result.agentName()).isEqualTo("abcdef012345");
     }
 
     @Test
