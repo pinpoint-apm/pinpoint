@@ -84,7 +84,7 @@ public class OtlpTraceMapperUtils {
             if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
                 throw new IllegalArgumentException("invalid pinpoint.agentId=" + agentId);
             }
-            return new AgentAuth(agentId, null);
+            return new AgentAuth(agentId, agentId);
         }
 
         final String serviceInstanceId = AttributeUtils.getAttributeStringValue(attributes, KEY_SERVICE_INSTANCE_ID, null);
@@ -107,13 +107,13 @@ public class OtlpTraceMapperUtils {
             if (!IdValidateUtils.validateId(hostName, PinpointConstants.AGENT_ID_MAX_LEN)) {
                 throw new IllegalArgumentException("invalid host.name=" + hostName);
             }
-            return new AgentAuth(hostName, null);
+            return new AgentAuth(hostName, hostName);
         }
         // otel demo agentId is derived from applicationName
         if (!IdValidateUtils.validateId(applicationName, PinpointConstants.AGENT_ID_MAX_LEN)) {
             throw new IllegalArgumentException("invalid agentId(derived from applicationName)=" + applicationName);
         }
-        return new AgentAuth(applicationName, null);
+        return new AgentAuth(applicationName, applicationName);
     }
 
     private static AgentAuth toAgentAuth(String id, String sourceKey) {
@@ -128,7 +128,7 @@ public class OtlpTraceMapperUtils {
         if (!IdValidateUtils.validateId(id, PinpointConstants.AGENT_ID_MAX_LEN)) {
             throw new IllegalArgumentException("invalid " + sourceKey + "=" + id);
         }
-        return new AgentAuth(id, null);
+        return new AgentAuth(id, id);
     }
 
     private static AgentAuth toContainerAgentAuth(String containerId) {
@@ -146,7 +146,7 @@ public class OtlpTraceMapperUtils {
         if (!IdValidateUtils.validateId(containerId, PinpointConstants.AGENT_ID_MAX_LEN)) {
             throw new IllegalArgumentException("invalid " + KEY_CONTAINER_ID + "=" + containerId);
         }
-        return new AgentAuth(containerId, null);
+        return new AgentAuth(containerId, containerId);
     }
 
     public static String getServiceName(Map<String, AttributeValue> attributes) {
