@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -148,6 +149,10 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
             @NonNull HttpStatusCode statusCode,
             @NonNull WebRequest request
     ) {
+        if (ex instanceof AsyncRequestNotUsableException) {
+            logger.debug("Client disconnected: {}", ex.getMessage());
+            return null;
+        }
         ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
         if (response == null) {
             nullResponseLog(ex, request);
