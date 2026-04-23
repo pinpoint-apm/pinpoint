@@ -6,7 +6,6 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins</artifactId>
-<!--        <relativePath>../../pom.xml</relativePath>-->
         <version>3.1.0-SNAPSHOT</version>
     </parent>
 
@@ -20,12 +19,6 @@
             <artifactId>pinpoint-agentsdk-async-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>com.navercorp.pinpoint</groupId>-->
-<!--            <artifactId>pinpoint-common-servlet</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-external-plugins</artifactId>
@@ -442,10 +435,10 @@
             <artifactId>pinpoint-aws-sdk-s3-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.navercorp.pinpoint</groupId>-->
-<!--            <artifactId>pinpoint-spring-stub</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-db2-jdbc-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -1,0 +1,13 @@
+serviceTypes:
+  - code: 2160
+    name: 'DB2'
+    property:
+      terminal: true
+      includeDestinationId: true
+  - code: 2161
+    name: 'DB2_EXECUTE_QUERY'
+    desc: 'DB2_EXECUTE_QUERY'
+    property:
+      terminal: true
+      includeDestinationId: true
+      recordStatistics: true

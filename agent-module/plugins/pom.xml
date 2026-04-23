@@ -119,6 +119,7 @@
         <module>ktor</module>
         <module>pulsar</module>
         <module>aws-sdk-s3</module>
+        <module>db2-jdbc</module>
     </modules>
 
 
