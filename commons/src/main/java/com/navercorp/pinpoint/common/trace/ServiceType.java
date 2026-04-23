@@ -118,6 +118,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>2151</td><td>MARIADB_EXECUTE_QUERY</td></tr>
  * <tr><td>2152</td><td>R2DBC_MARIADB</td></tr>
  * <tr><td>2153</td><td>R2DBC_MARIADB_EXECUTE_QUERY</td></tr>
+ * <tr><td>2160</td><td>DB2</td></tr>
+ * <tr><td>2161</td><td>DB2_EXECUTE_QUERY</td></tr>
  * <tr><td>2200</td><td>MSSQL</td></tr>
  * <tr><td>2201</td><td>MSSQL_EXECUTE_QUERY</td></tr>
  * <tr><td>2250</td><td>MSSQL_JDBC</td></tr>
