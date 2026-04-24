@@ -8,68 +8,12 @@
         <Property name="simple_message_pattern">%d{MM-dd HH:mm:ss.SSS} [%15.15t] %-5level %-40.40logger{1.} -- %msg%n</Property>
         <Property name="console_message_pattern">${simple_message_pattern}</Property>
         <Property name="file_message_pattern">${simple_message_pattern}</Property>
-        <Select>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.size" propertyValue="25m">
-                <Property name="backupsize">25m</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.size" propertyValue="50m">
-                <Property name="backupsize">50m</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.size" propertyValue="100m">
-                <Property name="backupsize">100m</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.size" propertyValue="500m">
-                <Property name="backupsize">500m</Property>
-            </SystemPropertyArbiter>
-            <DefaultArbiter>
-                <Property name="backupsize">100m</Property>
-            </DefaultArbiter>
-        </Select>
-        <Select>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.lastmodified" propertyValue="3d">
-                <Property name="lastmodified">3d</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.lastmodified" propertyValue="7d">
-                <Property name="lastmodified">7d</Property>
-            </SystemPropertyArbiter>
-            <DefaultArbiter>
-                <Property name="lastmodified">7d</Property>
-            </DefaultArbiter>
-        </Select>
-        <Select>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.rollover-strategy-max" propertyValue="1">
-                <Property name="default-rollover-strategy-max">1</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.rollover-strategy-max" propertyValue="5">
-                <Property name="default-rollover-strategy-max">5</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.file.rollover-strategy-max" propertyValue="10">
-                <Property name="default-rollover-strategy-max">10</Property>
-            </SystemPropertyArbiter>
-            <DefaultArbiter>
-                <Property name="default-rollover-strategy-max">5</Property>
-            </DefaultArbiter>
-        </Select>
-        <Select>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="DEBUG">
-                <Property name="logger.com.navercorp.pinpoint.level">DEBUG</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="INFO">
-                <Property name="logger.com.navercorp.pinpoint.level">INFO</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="WARN">
-                <Property name="logger.com.navercorp.pinpoint.level">WARN</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="ERROR">
-                <Property name="logger.com.navercorp.pinpoint.level">ERROR</Property>
-            </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="FATAL">
-                <Property name="logger.com.navercorp.pinpoint.level">FATAL</Property>
-            </SystemPropertyArbiter>
-            <DefaultArbiter>
-                <Property name="logger.com.navercorp.pinpoint.level">INFO</Property>
-            </DefaultArbiter>
-        </Select>
+
+        <Property name="backupsize">${sys:pinpoint.logging.file.size:-100m}</Property>
+        <Property name="lastmodified">${sys:pinpoint.logging.file.lastmodified:-7d}</Property>
+        <Property name="default-rollover-strategy-max">${sys:pinpoint.logging.file.rollover-strategy-max:-5}</Property>
+
+        <Property name="logger.com.navercorp.pinpoint.level">${sys:pinpoint.logging.level:-INFO}</Property>
     </Properties>
     <Appenders>
         <Console name="console" target="system_out">
@@ -128,7 +72,7 @@
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>
-        <Logger name="io.grpc" level="INFO" additivity="false">
+        <Logger name="io.grpc" level="${logger.com.navercorp.pinpoint.level}" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>

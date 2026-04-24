@@ -14,97 +14,14 @@ Configuration:
         value: "${simple_message_pattern}"
       - name: "file_message_pattern"
         value: "${simple_message_pattern}"
-    Select:
-      - SystemPropertyArbiter:
-          - propertyName: "pinpoint.logging.file.size"
-            propertyValue: "25m"
-            Property:
-              name: "backupsize"
-              value: "25m"
-          - propertyName: "pinpoint.logging.file.size"
-            propertyValue: "50m"
-            Property:
-              name: "backupsize"
-              value: "50m"
-          - propertyName: "pinpoint.logging.file.size"
-            propertyValue: "100m"
-            Property:
-              name: "backupsize"
-              value: "100m"
-          - propertyName: "pinpoint.logging.file.size"
-            propertyValue: "500m"
-            Property:
-              name: "backupsize"
-              value: "500m"
-        DefaultArbiter:
-          Property:
-            name: "backupsize"
-            value: "100m"
-      - SystemPropertyArbiter:
-          - propertyName: "pinpoint.logging.file.lastmodified"
-            propertyValue: "3d"
-            Property:
-              name: "lastmodified"
-              value: "3d"
-          - propertyName: "pinpoint.logging.file.lastmodified"
-            propertyValue: "7d"
-            Property:
-              name: "lastmodified"
-              value: "7d"
-        DefaultArbiter:
-          Property:
-            name: "lastmodified"
-            value: "7d"
-      - SystemPropertyArbiter:
-          - propertyName: "pinpoint.logging.file.rollover-strategy-max"
-            propertyValue: "1"
-            Property:
-              name: "default-rollover-strategy-max"
-              value: "1"
-          - propertyName: "pinpoint.logging.file.rollover-strategy-max"
-            propertyValue: "5"
-            Property:
-              name: "default-rollover-strategy-max"
-              value: "5"
-          - propertyName: "pinpoint.logging.file.rollover-strategy-max"
-            propertyValue: "10"
-            Property:
-              name: "default-rollover-strategy-max"
-              value: "10"
-        DefaultArbiter:
-          Property:
-            name: "default-rollover-strategy-max"
-            value: "5"
-      - SystemPropertyArbiter:
-          - propertyName: "pinpoint.logging.level"
-            propertyValue: "DEBUG"
-            Property:
-              name: "logger.com.navercorp.pinpoint.level"
-              value: "DEBUG"
-          - propertyName: "pinpoint.logging.level"
-            propertyValue: "INFO"
-            Property:
-              name: "logger.com.navercorp.pinpoint.level"
-              value: "INFO"
-          - propertyName: "pinpoint.logging.level"
-            propertyValue: "WARN"
-            Property:
-              name: "logger.com.navercorp.pinpoint.level"
-              value: "WARN"
-          - propertyName: "pinpoint.logging.level"
-            propertyValue: "ERROR"
-            Property:
-              name: "logger.com.navercorp.pinpoint.level"
-              value: "ERROR"
-          - propertyName: "pinpoint.logging.level"
-            propertyValue: "FATAL"
-            Property:
-              name: "logger.com.navercorp.pinpoint.level"
-              value: "FATAL"
-        DefaultArbiter:
-          Property:
-            name: "logger.com.navercorp.pinpoint.level"
-            value: "INFO"
+      - name: "backupsize"
+        value: "${sys:pinpoint.logging.file.size:-100m}"
+      - name: "lastmodified"
+        value: "${sys:pinpoint.logging.file.lastmodified:-7d}"
+      - name: "default-rollover-strategy-max"
+        value: "${sys:pinpoint.logging.file.rollover-strategy-max:-5}"
+      - name: "logger.com.navercorp.pinpoint.level"
+        value: "${sys:pinpoint.logging.level:-INFO}"
   Appenders:
     Console:
       name: console
