@@ -51,64 +51,65 @@ import org.apache.logging.log4j.Logger;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ThriftStatsModule extends AbstractModule{
-    private final Logger logger=LogManager.getLogger(this.getClass());
+public class StatsCollectModule extends AbstractModule {
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     @Override
-    protected void configure(){
-        logger.info("configure {}",this.getClass().getSimpleName());
+    protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
 
         binder().requireExplicitBindings();
         binder().requireAtInjectOnConstructors();
         binder().disableCircularProxies();
 
         // gc
-        TypeLiteral<AgentStatMetricCollector<JvmGcMetricSnapshot>>jvmGcCollector=new TypeLiteral<AgentStatMetricCollector<JvmGcMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<JvmGcMetricSnapshot>> jvmGcCollector = new TypeLiteral<AgentStatMetricCollector<JvmGcMetricSnapshot>>() {};
         bind(jvmGcCollector).toProvider(JvmGcMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // cpu
-        TypeLiteral<AgentStatMetricCollector<CpuLoadMetricSnapshot>>cpuLoadCollector=new TypeLiteral<AgentStatMetricCollector<CpuLoadMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<CpuLoadMetricSnapshot>> cpuLoadCollector = new TypeLiteral<AgentStatMetricCollector<CpuLoadMetricSnapshot>>() {};
         bind(cpuLoadCollector).toProvider(CpuLoadMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // FD
-        TypeLiteral<AgentStatMetricCollector<FileDescriptorMetricSnapshot>>fdCollector=new TypeLiteral<AgentStatMetricCollector<FileDescriptorMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<FileDescriptorMetricSnapshot>> fdCollector = new TypeLiteral<AgentStatMetricCollector<FileDescriptorMetricSnapshot>>() {};
         bind(fdCollector).toProvider(FileDescriptorMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // buffer
-        TypeLiteral<AgentStatMetricCollector<BufferMetricSnapshot>>bufferCollector=new TypeLiteral<AgentStatMetricCollector<BufferMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<BufferMetricSnapshot>> bufferCollector = new TypeLiteral<AgentStatMetricCollector<BufferMetricSnapshot>>() {};
         bind(bufferCollector).toProvider(BufferMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // transaction
-        TypeLiteral<AgentStatMetricCollector<TransactionMetricSnapshot>>transactionCollector=new TypeLiteral<AgentStatMetricCollector<TransactionMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<TransactionMetricSnapshot>> transactionCollector = new TypeLiteral<AgentStatMetricCollector<TransactionMetricSnapshot>>() {};
         bind(transactionCollector).toProvider(TransactionMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // activeTrace
-        TypeLiteral<AgentStatMetricCollector<ActiveTraceHistogram>>activeTraceCollector=new TypeLiteral<AgentStatMetricCollector<ActiveTraceHistogram>>(){};
+        TypeLiteral<AgentStatMetricCollector<ActiveTraceHistogram>> activeTraceCollector = new TypeLiteral<AgentStatMetricCollector<ActiveTraceHistogram>>() {};
         bind(activeTraceCollector).toProvider(ActiveTraceMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // responseTime
-        TypeLiteral<AgentStatMetricCollector<ResponseTimeValue>>responseTimeCollector=new TypeLiteral<AgentStatMetricCollector<ResponseTimeValue>>(){};
+        TypeLiteral<AgentStatMetricCollector<ResponseTimeValue>> responseTimeCollector = new TypeLiteral<AgentStatMetricCollector<ResponseTimeValue>>() {};
         bind(responseTimeCollector).toProvider(ResponseTimeMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // datasource
-        TypeLiteral<AgentStatMetricCollector<DataSourceMetricSnapshot>>datasourceCollector=new TypeLiteral<AgentStatMetricCollector<DataSourceMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<DataSourceMetricSnapshot>> datasourceCollector = new TypeLiteral<AgentStatMetricCollector<DataSourceMetricSnapshot>>() {};
         bind(datasourceCollector).toProvider(DataSourceMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // deadlock
-        TypeLiteral<AgentStatMetricCollector<DeadlockMetricSnapshot>>deadlockCollector=new TypeLiteral<AgentStatMetricCollector<DeadlockMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<DeadlockMetricSnapshot>> deadlockCollector = new TypeLiteral<AgentStatMetricCollector<DeadlockMetricSnapshot>>() {};
         bind(deadlockCollector).toProvider(DeadlockMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // totalThread
-        TypeLiteral<AgentStatMetricCollector<TotalThreadMetricSnapshot>>totalThreadCountCollector=new TypeLiteral<AgentStatMetricCollector<TotalThreadMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<TotalThreadMetricSnapshot>> totalThreadCountCollector = new TypeLiteral<AgentStatMetricCollector<TotalThreadMetricSnapshot>>() {};
         bind(totalThreadCountCollector).toProvider(TotalThreadMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // loadedClass
-        TypeLiteral<AgentStatMetricCollector<LoadedClassMetricSnapshot>>loadedClassCollector=new TypeLiteral<AgentStatMetricCollector<LoadedClassMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<LoadedClassMetricSnapshot>> loadedClassCollector = new TypeLiteral<AgentStatMetricCollector<LoadedClassMetricSnapshot>>() {};
         bind(loadedClassCollector).toProvider(LoadedClassMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // stat
-        TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>>statMetric=new TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>>(){};
+        TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>> statMetric = new TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>>() {};
         bind(statMetric).annotatedWith(Names.named("AgentStatCollector"))
-        .to(AgentStatCollector.class).in(Scopes.SINGLETON);
+                .to(AgentStatCollector.class).in(Scopes.SINGLETON);
     }
 
 }

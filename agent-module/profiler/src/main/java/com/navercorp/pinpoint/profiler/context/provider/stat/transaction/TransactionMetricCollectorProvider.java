@@ -41,7 +41,7 @@ public class TransactionMetricCollectorProvider implements Provider<AgentStatMet
     @Override
     public AgentStatMetricCollector<TransactionMetricSnapshot> get() {
         if (transactionMetric == TransactionMetric.UNSUPPORTED_TRANSACTION_METRIC) {
-            return new UnsupportedMetricCollector<TransactionMetricSnapshot>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultTransactionMetricCollector(transactionMetric);
     }

@@ -41,7 +41,7 @@ public class DeadlockMetricCollectorProvider implements Provider<AgentStatMetric
     @Override
     public AgentStatMetricCollector<DeadlockMetricSnapshot> get() {
         if (deadlockMetric == DeadlockMetric.UNSUPPORTED_DEADLOCK_SOURCE_METRIC) {
-            return new UnsupportedMetricCollector<DeadlockMetricSnapshot>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultDeadlockMetricCollector(deadlockMetric);
     }

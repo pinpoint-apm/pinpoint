@@ -41,7 +41,7 @@ public class ActiveTraceMetricCollectorProvider implements Provider<AgentStatMet
     @Override
     public AgentStatMetricCollector<ActiveTraceHistogram> get() {
         if (activeTraceMetric == ActiveTraceMetric.UNSUPPORTED_ACTIVE_TRACE_METRIC) {
-            return new UnsupportedMetricCollector<ActiveTraceHistogram>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultActiveTraceMetricCollector(activeTraceMetric);
     }

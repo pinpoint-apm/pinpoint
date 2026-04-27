@@ -41,7 +41,7 @@ public class CpuLoadMetricCollectorProvider implements Provider<AgentStatMetricC
     @Override
     public AgentStatMetricCollector<CpuLoadMetricSnapshot> get() {
         if (cpuLoadMetric == CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC) {
-            return new UnsupportedMetricCollector<CpuLoadMetricSnapshot>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultCpuLoadMetricCollector(cpuLoadMetric);
     }

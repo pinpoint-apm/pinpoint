@@ -37,7 +37,7 @@ public class TotalThreadMetricCollectorProvider implements Provider<AgentStatMet
     @Override
     public AgentStatMetricCollector<TotalThreadMetricSnapshot> get() {
         if(totalThreadMetric == TotalThreadMetric.UNSUPPORTED_TOTAL_THREAD_METRIC) {
-            return new UnsupportedMetricCollector<TotalThreadMetricSnapshot>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultTotalThreadMetricCollector(totalThreadMetric);
     }
