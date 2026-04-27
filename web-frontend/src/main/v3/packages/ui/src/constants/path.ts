@@ -23,6 +23,7 @@ export const APP_PATH = {
   HEATMAP_FULL_SCREEN: '/heatmapFullScreenMode',
   SERVER_MAP_REALTIME: '/serverMap/realtime',
   SERVER_MAP: '/serverMap',
+  SERVICE_MAP: '/serviceMap',
   SYSTEM_METRIC: '/systemMetric',
   THREAD_DUMP: '/threadDump',
   TRANSACTION_DETAIL: '/transactionDetail',

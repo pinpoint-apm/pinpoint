@@ -22,6 +22,7 @@ import { ConfigurationOutlet } from '@pinpoint-fe/web/src/components/Layout/Conf
 import { RouteErrorFallback } from '@pinpoint-fe/ui/src/components/Error';
 
 import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
+const ServiceMap = lazy(() => import('@pinpoint-fe/web/src/pages/ServiceMap'));
 const Realtime = lazy(() => import('@pinpoint-fe/web/src/pages/ServerMap/Realtime'));
 const ScatterOrHeatmapFullScreen = lazy(
   () => import('@pinpoint-fe/web/src/pages/ScatterOrHeatmapFullScreen'),
@@ -88,6 +89,11 @@ const router = createBrowserRouter(
                 {
                   path: `${APP_PATH.SERVER_MAP}/:application?`,
                   element: <ServerMap />,
+                  loader: serverMapRouteLoader,
+                },
+                {
+                  path: `${APP_PATH.SERVICE_MAP}/:application?`,
+                  element: <ServiceMap />,
                   loader: serverMapRouteLoader,
                 },
                 {
