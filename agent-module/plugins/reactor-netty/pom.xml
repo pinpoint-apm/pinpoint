@@ -29,6 +29,7 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- reactor-netty 1.0.x: classes are in reactor-netty -->
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
@@ -39,6 +40,13 @@
                 </exclusion>
             </exclusions>
             <scope>provided</scope>
+        </dependency>
+        <!-- reactor-netty 1.1.x+: HTTP client classes are in reactor-netty-http -->
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-http</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>
