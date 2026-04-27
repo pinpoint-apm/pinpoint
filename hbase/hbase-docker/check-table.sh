@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if echo -e "exists 'HostApplicationMap_Ver2'" | ${HBASE_HOME}/bin/hbase shell 2>&1 | grep -q "does exist" 2>/dev/null
+if echo -e "exists 'AgentId'" | ${HBASE_HOME}/bin/hbase shell 2>&1 | grep -q "does exist" 2>/dev/null
 then
     echo "Tables already exist"
     #sleep 15
