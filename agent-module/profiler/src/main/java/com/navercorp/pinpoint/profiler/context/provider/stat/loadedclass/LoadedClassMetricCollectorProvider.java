@@ -37,7 +37,7 @@ public class LoadedClassMetricCollectorProvider implements Provider<AgentStatMet
     @Override
     public AgentStatMetricCollector<LoadedClassMetricSnapshot> get() {
         if (loadedClassMetric == LoadedClassMetric.UNSUPPORED_LOADED_CLASS_METRIC) {
-            return new UnsupportedMetricCollector<LoadedClassMetricSnapshot>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultLoadedClassMetricCollector(loadedClassMetric);
     }

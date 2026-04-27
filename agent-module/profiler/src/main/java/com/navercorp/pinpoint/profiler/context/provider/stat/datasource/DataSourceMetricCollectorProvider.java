@@ -42,7 +42,7 @@ public class DataSourceMetricCollectorProvider implements Provider<AgentStatMetr
     @Override
     public AgentStatMetricCollector<DataSourceMetricSnapshot> get() {
         if (dataSourceMetric == DataSourceMetric.UNSUPPORTED_DATA_SOURCE_METRIC) {
-            return new UnsupportedMetricCollector<DataSourceMetricSnapshot>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultDataSourceMetricCollector(dataSourceMetric);
     }

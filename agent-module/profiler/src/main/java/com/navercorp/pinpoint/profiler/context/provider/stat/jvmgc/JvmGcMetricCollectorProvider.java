@@ -37,7 +37,7 @@ import java.util.Objects;
 public class JvmGcMetricCollectorProvider implements Provider<AgentStatMetricCollector<JvmGcMetricSnapshot>> {
 
     private final boolean collectDetailedMetrics;
-    private final Provider<MemoryMetric> memoryMetricProivider;
+    private final Provider<MemoryMetric> memoryMetricProvider;
     private final Provider<DetailedMemoryMetric> detailedMemoryMetricProvider;
     private final Provider<GarbageCollectorMetric> garbageCollectorMetricProvider;
     private final Provider<DetailedGarbageCollectorMetric> detailedGarbageCollectorMetricProvider;
@@ -45,14 +45,14 @@ public class JvmGcMetricCollectorProvider implements Provider<AgentStatMetricCol
     @Inject
     public JvmGcMetricCollectorProvider(
             MonitorConfig monitorConfig,
-            Provider<MemoryMetric> memoryMetricProivider,
+            Provider<MemoryMetric> memoryMetricProvider,
             Provider<DetailedMemoryMetric> detailedMemoryMetricProvider,
             Provider<GarbageCollectorMetric> garbageCollectorMetricProvider,
             Provider<DetailedGarbageCollectorMetric> detailedGarbageCollectorMetricProvider) {
         Objects.requireNonNull(monitorConfig, "profilerConfig");
         this.collectDetailedMetrics = monitorConfig.isProfilerJvmStatCollectDetailedMetrics();
 
-        this.memoryMetricProivider = Objects.requireNonNull(memoryMetricProivider, "memoryMetricProivider");
+        this.memoryMetricProvider = Objects.requireNonNull(memoryMetricProvider, "memoryMetricProvider");
         this.detailedMemoryMetricProvider = Objects.requireNonNull(detailedMemoryMetricProvider, "detailedMemoryMetricProvider");
         this.garbageCollectorMetricProvider = Objects.requireNonNull(garbageCollectorMetricProvider, "garbageCollectorMetricProvider");
         this.detailedGarbageCollectorMetricProvider = Objects.requireNonNull(detailedGarbageCollectorMetricProvider, "detailedGarbageCollectorMetricProvider");
@@ -60,7 +60,7 @@ public class JvmGcMetricCollectorProvider implements Provider<AgentStatMetricCol
 
     @Override
     public AgentStatMetricCollector<JvmGcMetricSnapshot> get() {
-        MemoryMetric memoryMetric = memoryMetricProivider.get();
+        MemoryMetric memoryMetric = memoryMetricProvider.get();
         GarbageCollectorMetric garbageCollectorMetric = garbageCollectorMetricProvider.get();
         BasicJvmGcMetricCollector jvmGcMetricCollector = new BasicJvmGcMetricCollector(memoryMetric, garbageCollectorMetric);
         if (collectDetailedMetrics) {

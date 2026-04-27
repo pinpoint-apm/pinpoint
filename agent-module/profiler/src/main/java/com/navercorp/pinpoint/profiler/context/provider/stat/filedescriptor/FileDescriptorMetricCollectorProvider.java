@@ -41,7 +41,7 @@ public class FileDescriptorMetricCollectorProvider implements Provider<AgentStat
     @Override
     public AgentStatMetricCollector<FileDescriptorMetricSnapshot> get() {
         if (fileDescriptorMetric == FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC) {
-            return new UnsupportedMetricCollector<FileDescriptorMetricSnapshot>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultFileDescriptorMetricCollector(fileDescriptorMetric);
     }

@@ -41,7 +41,7 @@ public class BufferMetricCollectorProvider implements Provider<AgentStatMetricCo
     @Override
     public AgentStatMetricCollector<BufferMetricSnapshot> get() {
         if (bufferMetric == BufferMetric.UNSUPPORTED_BUFFER_METRIC) {
-            return new UnsupportedMetricCollector<BufferMetricSnapshot>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultBufferMetricCollector(bufferMetric);
     }

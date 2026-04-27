@@ -44,7 +44,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         final Module applicationContextModule = new ApplicationContextModule();
         final Module rpcModule = newRpcModule(agentOption);
         final Module statsModule = new StatsModule();
-        final Module thriftStatsModule = new ThriftStatsModule();
+        final Module statsCollectModule = new StatsCollectModule();
 
         final ProfilerConfig properties = agentOption.getProfilerConfig();
         final Module micrometerModule = new MicrometerModule(properties::readString);
@@ -57,7 +57,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
                 applicationContextModule,
                 rpcModule,
                 statsModule,
-                thriftStatsModule,
+                statsCollectModule,
                 exceptionTraceModule,
                 errorRecorderModule,
                 micrometerModule);

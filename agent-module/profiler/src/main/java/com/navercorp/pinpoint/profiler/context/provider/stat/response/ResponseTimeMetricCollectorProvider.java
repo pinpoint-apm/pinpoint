@@ -41,7 +41,7 @@ public class ResponseTimeMetricCollectorProvider implements Provider<AgentStatMe
     @Override
     public AgentStatMetricCollector<ResponseTimeValue> get() {
         if (responseTimeMetric == ResponseTimeMetric.UNSUPPORTED_RESPONSE_TIME_METRIC) {
-            return new UnsupportedMetricCollector<ResponseTimeValue>();
+            return new UnsupportedMetricCollector<>();
         }
         return new DefaultResponseTimeMetricCollector(responseTimeMetric);
     }
