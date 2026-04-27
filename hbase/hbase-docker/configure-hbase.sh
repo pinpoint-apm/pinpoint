@@ -32,6 +32,14 @@ sed -i "/ApplicationMapStatisticsCaller_Ver2/s/TTL => .[[:digit:]]*/TTL => ${APP
 sed -i "/ApplicationMapStatisticsCallee_Ver2/s/TTL => .[[:digit:]]*/TTL => ${APPMAPSTATCALLEV2_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
 sed -i "/ApplicationMapStatisticsSelf_Ver2/s/TTL => .[[:digit:]]*/TTL => ${APPMAPSTATSELFV2_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
 sed -i "/HostApplicationMap_Ver2/s/TTL => .[[:digit:]]*/TTL => ${HOSTAPPMAPV2_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
+sed -i "/MapAppSelf/s/TTL => .[[:digit:]]*/TTL => ${MAPAPPSELF_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
+sed -i "/MapAgentSelf/s/TTL => .[[:digit:]]*/TTL => ${MAPAGENTSELF_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
+sed -i "/MapAppOut/s/TTL => .[[:digit:]]*/TTL => ${MAPAPPOUT_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
+sed -i "/MapAppIn/s/TTL => .[[:digit:]]*/TTL => ${MAPAPPIN_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
+sed -i "/MapAppHost/s/TTL => .[[:digit:]]*/TTL => ${MAPAPPHOST_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
+sed -i "/'TraceIndex'/s/TTL => .[[:digit:]]*/TTL => ${TRACEINDEX_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
+sed -i "/'Application'/s/TTL => .[[:digit:]]*/TTL => ${APPLICATION_TTL:-31536000}/g" ${BASE_DIR}/hbase-create.hbase
+sed -i "/'AgentId'/s/TTL => .[[:digit:]]*/TTL => ${AGENTID_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
 
 sed -i "s/create/alter/g" ${BASE_DIR}/hbase-update-ttl.hbase
 sed -i "/AgentInfo/s/TTL => .[[:digit:]]*/TTL => ${AGENTINFO_TTL:-31536000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
@@ -47,5 +55,13 @@ sed -i "/ApplicationMapStatisticsCaller_Ver2/s/TTL => .[[:digit:]]*/TTL => ${APP
 sed -i "/ApplicationMapStatisticsCallee_Ver2/s/TTL => .[[:digit:]]*/TTL => ${APPMAPSTATCALLEV2_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
 sed -i "/ApplicationMapStatisticsSelf_Ver2/s/TTL => .[[:digit:]]*/TTL => ${APPMAPSTATSELFV2_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
 sed -i "/HostApplicationMap_Ver2/s/TTL => .[[:digit:]]*/TTL => ${HOSTAPPMAPV2_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
+sed -i "/MapAppSelf/s/TTL => .[[:digit:]]*/TTL => ${MAPAPPSELF_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
+sed -i "/MapAgentSelf/s/TTL => .[[:digit:]]*/TTL => ${MAPAGENTSELF_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
+sed -i "/MapAppOut/s/TTL => .[[:digit:]]*/TTL => ${MAPAPPOUT_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
+sed -i "/MapAppIn/s/TTL => .[[:digit:]]*/TTL => ${MAPAPPIN_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
+sed -i "/MapAppHost/s/TTL => .[[:digit:]]*/TTL => ${MAPAPPHOST_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
+sed -i "/'TraceIndex'/s/TTL => .[[:digit:]]*/TTL => ${TRACEINDEX_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
+sed -i "/'Application'/s/TTL => .[[:digit:]]*/TTL => ${APPLICATION_TTL:-31536000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
+sed -i "/'AgentId'/s/TTL => .[[:digit:]]*/TTL => ${AGENTID_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
 
 exec "$@"
