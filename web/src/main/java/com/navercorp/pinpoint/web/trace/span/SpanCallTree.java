@@ -144,8 +144,8 @@ public class SpanCallTree implements CallTree {
         }
 
         if (!cursor.hasChild()) {
-            node.setParent(cursor);
             cursor.setChild(node);
+            setAllSiblingParent(node, cursor);
             return;
         }
 
