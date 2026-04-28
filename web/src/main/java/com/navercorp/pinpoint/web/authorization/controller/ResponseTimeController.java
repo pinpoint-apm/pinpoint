@@ -40,6 +40,8 @@ import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
@@ -82,9 +84,10 @@ public class ResponseTimeController {
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/getWas/serverHistogramData")
     public ServerHistogramView getWasServerHistogramData(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -104,9 +107,10 @@ public class ResponseTimeController {
         return ServerHistogramView.view(nodeHistogramSummary, hyperLinkFactory);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/getWas/histogram")
     public Histogram getWasHistogram(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -126,22 +130,24 @@ public class ResponseTimeController {
         return nodeHistogramSummary.getHistogram();
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/getWas/responseStatistics")
     public ResponseTimeStatics getWasResponseTimeStatistics(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to
     ) {
-        Histogram histogram = getWasHistogram(applicationName, serviceTypeCode, serviceTypeName, from, to);
+        Histogram histogram = getWasHistogram(serviceName, applicationName, serviceTypeCode, serviceTypeName, from, to);
         return ResponseTimeStatics.fromHistogram(histogram);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/getWas/{type}/chart")
     public TimeHistogramChart getWasTimeHistogramChart(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -167,6 +173,7 @@ public class ResponseTimeController {
 
     @GetMapping(value = "/getWas/histogramData")
     public HistogramView getWasHistogramData(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -193,9 +200,10 @@ public class ResponseTimeController {
         return new ResponseTimeHistogramServiceOption.Builder(application, timeWindow, Collections.emptyList(), Collections.emptyList());
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @PostMapping(value = "/getNode/serverHistogramData")
     public ServerHistogramView postNodeServerHistogramData(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -216,9 +224,10 @@ public class ResponseTimeController {
         return ServerHistogramView.view(nodeHistogramSummary, hyperLinkFactory);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @PostMapping(value = "/getNode/histogramData")
     public HistogramView postNodeHistogramData(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -240,9 +249,10 @@ public class ResponseTimeController {
         return HistogramView.view(nodeHistogramSummary);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @PostMapping(value = "/getNode/{type}/chart")
     public TimeHistogramChart postNodeTimeHistogramChart(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) @NotBlank String serviceTypeName,
@@ -273,9 +283,10 @@ public class ResponseTimeController {
                 .build(timeHistogramType);
     }
 
-    @PreAuthorize("hasPermission(#fromApplicationName, 'application', 'inspector') or hasPermission(#toApplicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #fromApplicationName) or @naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #toApplicationName)")
     @GetMapping(value = "/getLink/histogramData")
     public HistogramView getLinkHistogramData(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("fromApplicationName") @NotBlank String fromApplicationName,
             @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
             @RequestParam(value = "fromServiceTypeName", required = false) @NotBlank String fromServiceTypeName,
@@ -305,9 +316,10 @@ public class ResponseTimeController {
         return new HistogramView(linkName, histogram, appHistogram);
     }
 
-    @PreAuthorize("hasPermission(#fromApplicationName, 'application', 'inspector') or hasPermission(#toApplicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #fromApplicationName) or @naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #toApplicationName)")
     @GetMapping(value = "/getLink/{type}/chart")
     public TimeHistogramChart getLinkTimeHistogramChart(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("fromApplicationName") @NotBlank String fromApplicationName,
             @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
             @RequestParam(value = "fromServiceTypeName", required = false) @NotBlank String fromServiceTypeName,

@@ -37,6 +37,8 @@ import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentNameGroupView;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -85,9 +87,10 @@ public class AgentNamesController {
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/overview", params = {"application"})
     public List<AgentNameGroupView> getAgentsListGroupedByName(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
@@ -103,9 +106,10 @@ public class AgentNamesController {
         return AgentsFactory.groupByAgentName(agents);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/overview", params = {"application", "from", "to"})
     public List<AgentNameGroupView> getAgentsListGroupedByName(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
@@ -124,9 +128,10 @@ public class AgentNamesController {
     }
 
     //use only for server map list
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/overview", params = {"application", "from", "to", "applicationPairs"})
     public List<AgentNameGroupView> getAgentsListGroupedByNameWithVirtualNodes(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
@@ -138,7 +143,7 @@ public class AgentNamesController {
         if (serviceType.isWas()) {
             final ApplicationAgentListQueryRule serverMapAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ACTIVE_STATISTICS);
             return getAgentsListGroupedByName(
-                    applicationName, serviceTypeCode, serviceTypeName, from, to, String.valueOf(serverMapAgentListQueryRule)
+                    serviceName, applicationName, serviceTypeCode, serviceTypeName, from, to, String.valueOf(serverMapAgentListQueryRule)
             );
         }
         Range range = Range.between(from, to);

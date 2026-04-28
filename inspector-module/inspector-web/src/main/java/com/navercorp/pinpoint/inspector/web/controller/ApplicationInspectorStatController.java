@@ -16,6 +16,8 @@ import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,9 +46,10 @@ public class ApplicationInspectorStatController {
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(inspectorWebProperties.getInspectorPeriodMax()));
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chart")
     public InspectorMetricView getApplicationStatChart(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") Timestamp from,
@@ -62,9 +65,10 @@ public class ApplicationInspectorStatController {
         return new InspectorMetricView(inspectorMetricData);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chart", params = "metricDefinitionId=apdex")
     public InspectorMetricView getApdexStatChart(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
@@ -77,9 +81,10 @@ public class ApplicationInspectorStatController {
         return new InspectorMetricView(inspectorMetricData);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chartList")
     public InspectorMetricGroupDataView getApplicationStatChartList(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
             @RequestParam("from") Timestamp from,

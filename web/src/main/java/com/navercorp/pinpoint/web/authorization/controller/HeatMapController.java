@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.transactionlist.DotMetaDataView;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionDotMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import jakarta.validation.constraints.NotBlank;
@@ -64,9 +66,10 @@ public class HeatMapController {
         this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/drag")
     public ResultView dragScatterArea(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,

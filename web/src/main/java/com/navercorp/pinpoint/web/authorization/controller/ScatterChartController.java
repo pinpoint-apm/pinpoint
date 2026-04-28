@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.GetTraceInfoParser;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -83,7 +85,7 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
      * @return TransactionMetaDataViewModel
      */
     @PostMapping(value = "/transactionmetadata")
-    public TransactionMetaDataViewModel postTransactionMetadata(@RequestParam Map<String, String> requestParam) {
+    public TransactionMetaDataViewModel postTransactionMetadata(@ServiceParam ServiceName serviceName, @RequestParam Map<String, String> requestParam) {
         final List<GetTraceInfo> selectTraceInfoList = this.getTraceInfoParser.parse(requestParam);
 
         if (CollectionUtils.isEmpty(selectTraceInfoList)) {
@@ -102,9 +104,10 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
      *                        additional calls to fetch the rest of the data
      * @return ScatterView.ResultView
      */
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/getScatterData")
     public ScatterView.ResultView getScatterData(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("application") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,

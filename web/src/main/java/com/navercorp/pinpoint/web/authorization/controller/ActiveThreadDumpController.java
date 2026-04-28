@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpFactory;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
 import com.navercorp.pinpoint.web.vo.activethread.ThreadDumpResult;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -59,9 +61,10 @@ public class ActiveThreadDumpController implements AccessDeniedExceptionHandler 
         this.activeThreadDumpService = Objects.requireNonNull(activeThreadDumpService, "activeThreadDumpService");
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/activeThreadDump")
     public CodeResult<ThreadDumpResult> getActiveThreadDump(
+            @ServiceParam ServiceName serviceName,
             @RequestParam(value = "applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId") @NotBlank String agentId,
             @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,
@@ -84,9 +87,10 @@ public class ActiveThreadDumpController implements AccessDeniedExceptionHandler 
         ));
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/activeThreadLightDump")
     public CodeResult<ThreadDumpResult> getActiveThreadLightDump(
+            @ServiceParam ServiceName serviceName,
             @RequestParam(value = "applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId") @NotBlank String agentId,
             @RequestParam(value = "limit", required = false, defaultValue = "-1") int limit,

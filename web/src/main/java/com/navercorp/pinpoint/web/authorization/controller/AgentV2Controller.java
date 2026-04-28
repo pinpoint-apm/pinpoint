@@ -37,6 +37,8 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +84,7 @@ public class AgentV2Controller {
     }
 
     @GetMapping("/agents")
-    public void forwardAgentsRequest(ServletRequest req, HttpServletResponse res) throws Exception {
+    public void forwardAgentsRequest(@ServiceParam ServiceName serviceName, ServletRequest req, HttpServletResponse res) throws Exception {
         if (agentReadV2) {
             req.getRequestDispatcher("/api/v2/agents").forward(req, res);
             return;
@@ -90,16 +92,16 @@ public class AgentV2Controller {
         req.getRequestDispatcher("/api/v1/agents").forward(req, res);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/v2/agents", params = {"applicationName", "from", "to"})
     public List<AgentIdView> getAgentsV2(
-            @RequestParam(value = "serviceName", required = false) String serviceName,
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to) {
-        ServiceUid serviceUid = handleServiceUid(serviceName);
+        ServiceUid serviceUid = handleServiceUid(serviceName.getName());
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
@@ -112,16 +114,16 @@ public class AgentV2Controller {
                 .toList();
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/v1/agents", params = {"applicationName", "from", "to"})
     public List<AgentIdView> getAgentsV1(
-            @RequestParam(value = "serviceName", required = false) String serviceName,
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to) {
-        ServiceUid serviceUid = handleServiceUid(serviceName);
+        ServiceUid serviceUid = handleServiceUid(serviceName.getName());
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
