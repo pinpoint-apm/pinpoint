@@ -75,7 +75,9 @@ public class SpanAligner {
         // select root
         final CallTree callTree = root();
         // pruning non productive node
-        callTree.pruning(callTreeNodeNonProductiveFilter);
+        if(traceState.getState() == TraceState.State.COMPLETE) {
+            callTree.pruning(callTreeNodeNonProductiveFilter);
+        }
 
         return callTree;
     }
