@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.web.heatmap.service.EmptyHeatmapService;
 import com.navercorp.pinpoint.web.heatmap.service.HeatmapChartService;
 import com.navercorp.pinpoint.web.heatmap.view.HeatMapDataView;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -57,9 +59,10 @@ public class HeatmapChartController {
         //TODO : (minwoo) need to set rangeValidator
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/applicationData")
-    public HeatMapDataView getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
+    public HeatMapDataView getHeatmapAppData(@ServiceParam ServiceName serviceName,
+                                  @RequestParam("applicationName") @NotBlank String applicationName,
                                   @RequestParam("from") Timestamp from,
                                   @RequestParam("to") Timestamp to,
                                   @RequestParam("minElapsedTime") @PositiveOrZero int minElapsedTime,

@@ -33,6 +33,8 @@ import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,9 +71,10 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #timestamp), 'agentParam', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #timestamp))")
     @GetMapping(value = "/getAgentInfo")
     public AgentAndStatus getAgentInfo(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") Timestamp timestamp) {
         AgentAndStatus result = this.agentInfoService.findAgentInfoAndStatus(agentId, timestamp.getEpochMillis());
@@ -83,6 +86,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
 
     @GetMapping(value = "/getDetailedAgentInfo")
     public DetailedAgentAndStatus getDetailedAgentInfo(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") Timestamp timestamp) {
         DetailedAgentAndStatus result = this.agentInfoService.findDetailedAgentInfoAndStatus(agentId, timestamp.getEpochMillis());
@@ -94,6 +98,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
 
     @GetMapping(value = "/getAgentStatus")
     public AgentStatus getAgentStatus(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("timestamp") Timestamp timestamp) {
         AgentStatus result = this.agentInfoService.findAgentStatus(agentId, timestamp.getEpochMillis());
@@ -105,6 +110,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
 
     @GetMapping(value = "/getAgentEvent")
     public AgentEvent getAgentEvent(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("eventTimestamp") Timestamp eventTimestamp,
             @RequestParam("eventTypeCode") int eventTypeCode
@@ -121,9 +127,10 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         return result;
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to))")
     @GetMapping(value = "/getAgentEvents")
     public List<AgentEvent> getAgentEvents(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to,
@@ -145,9 +152,10 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         return excludeEventTypes;
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to))")
     @GetMapping(value = "/getAgentStatusTimeline")
     public InspectorTimeline getAgentStatusTimeline(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("from") Timestamp from,
@@ -156,9 +164,10 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range);
     }
 
-    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to))")
     @GetMapping(value = "/getAgentStatusTimeline", params = {"exclude"})
     public InspectorTimeline getAgentStatusTimeline(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("from") Timestamp from,
@@ -170,7 +179,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
     }
 
     @RequestMapping(value = "/isAvailableAgentId")
-    public CodeResult<String> isAvailableAgentId(@RequestParam("agentId") @NotBlank String agentId) {
+    public CodeResult<String> isAvailableAgentId(@ServiceParam ServiceName serviceName, @RequestParam("agentId") @NotBlank String agentId) {
         final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(agentId, PinpointConstants.AGENT_ID_MAX_LEN);
         if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "length range is 1 ~ 24");

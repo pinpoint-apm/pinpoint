@@ -32,6 +32,8 @@ import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -67,9 +69,10 @@ public class AgentInspectorStatController {
     }
 
     // TODO : (minwoo) tenantId should be considered. The collector side should also be considered.
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chart")
     public InspectorMetricView getAgentStatChart(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
@@ -86,9 +89,10 @@ public class AgentInspectorStatController {
         return new InspectorMetricView(inspectorMetricData);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chart", params = "metricDefinitionId=apdex")
     public InspectorMetricView getApdexStatChart(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("agentId") String agentId,
@@ -102,9 +106,10 @@ public class AgentInspectorStatController {
         return new InspectorMetricView(inspectorMetricData);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chartList")
     public InspectorMetricGroupDataView getAgentStatChartList(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
@@ -121,9 +126,10 @@ public class AgentInspectorStatController {
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chart", params = {"agentIds", "metricDefinitionId=apdex"})
     public InspectorMetricGroupDataView getApdexStatChartGroupedByAgentId(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("agentIds") @NotEmpty List<String> agentIds,
@@ -139,9 +145,10 @@ public class AgentInspectorStatController {
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chart", params = {"agentIds"})
     public InspectorMetricGroupDataView getAgentStatChartGroupedByAgentId(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentIds") @NotEmpty List<String> agentIds,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
@@ -159,9 +166,10 @@ public class AgentInspectorStatController {
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/chartList", params = {"agentIds"})
     public InspectorMetricGroupDataView getAgentStatChartListGroupedByAgentId(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentIds") @NotEmpty List<String> agentIds,
             @RequestParam("metricDefinitionId") String metricDefinitionId,
