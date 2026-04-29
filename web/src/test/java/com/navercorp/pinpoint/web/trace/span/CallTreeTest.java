@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -216,6 +218,61 @@ public class CallTreeTest {
         } catch (Exception ignored) {
         }
         assertDepth("missing-case-3", callTree, expectResult);
+    }
+
+    @Test
+    public void insertSortedByStartTime_greaterDepthAfterAsyncMerge() {
+        // Branch: depth > cursor.getDepth() with cursor.hasChild() (line 287-296)
+        // Scenario: cursor's children chain has out-of-order startTimes from prior subtree merges.
+        // A new sync child should be inserted at its startTime position, not appended at end.
+        SpanBo span = new SpanBo();
+
+        callTree.add(1, makeSpanAlign(span, SYNC, (short) 0, -1, -1, 10, -1));
+        // cursor at depth=1, startTime=10
+
+        // Pre-populate cursor's children with two subtrees at startTime 100 and 300.
+        // First merge attaches as cursor's child (no-child path).
+        // Second merge goes through addLastSibling -> insertSiblingSorted.
+        callTree.add(new SpanCallTree(makeSpanAlign(span, SYNC, (short) 0, -1, -1, 100, -1)));
+        callTree.add(new SpanCallTree(makeSpanAlign(span, SYNC, (short) 0, -1, -1, 300, -1)));
+
+        // Add a new sync child at depth=2, startTime=200.
+        callTree.add(2, makeSpanAlign(span, SYNC, (short) 1, -1, -1, 200, -1));
+
+        CallTreeNode parent = callTree.getRoot().getChild();
+        CallTreeNode first = parent.getChild();
+        assertEquals(100L, first.getAlign().getStartTime());
+        CallTreeNode second = first.getSibling();
+        assertEquals(200L, second.getAlign().getStartTime());
+        CallTreeNode third = second.getSibling();
+        assertEquals(300L, third.getAlign().getStartTime());
+        assertNull(third.getSibling());
+    }
+
+    @Test
+    public void insertSortedByStartTime_sameDepthAfterAsyncMerge() {
+        // Branch: depth == cursor.getDepth() (line 268-278)
+        // After cursor sits in the middle of its sibling chain (due to prior sorted insertion),
+        // a new sync sibling at the same depth should also be placed by startTime.
+        SpanBo span = new SpanBo();
+
+        callTree.add(1, makeSpanAlign(span, SYNC, (short) 0, -1, -1, 10, -1));
+        // pre-populate two children of cursor with startTime 100 and 300
+        callTree.add(new SpanCallTree(makeSpanAlign(span, SYNC, (short) 0, -1, -1, 100, -1)));
+        callTree.add(new SpanCallTree(makeSpanAlign(span, SYNC, (short) 0, -1, -1, 300, -1)));
+
+        // sync child C at depth=2, startTime=200 -> goes between 100 and 300, cursor=C
+        callTree.add(2, makeSpanAlign(span, SYNC, (short) 1, -1, -1, 200, -1));
+        // sync sibling D at the same depth=2, startTime=250 -> branch A
+        callTree.add(-1, makeSpanAlign(span, SYNC, (short) 2, -1, -1, 250, -1));
+
+        CallTreeNode parent = callTree.getRoot().getChild();
+        CallTreeNode first = parent.getChild();
+        assertEquals(100L, first.getAlign().getStartTime());
+        assertEquals(200L, first.getSibling().getAlign().getStartTime());
+        assertEquals(250L, first.getSibling().getSibling().getAlign().getStartTime());
+        assertEquals(300L, first.getSibling().getSibling().getSibling().getAlign().getStartTime());
+        assertNull(first.getSibling().getSibling().getSibling().getSibling());
     }
 
     @Test
