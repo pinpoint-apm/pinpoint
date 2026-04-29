@@ -153,9 +153,12 @@ public class SpanCallTree implements CallTree {
     }
 
     private void addLastSibling(CallTreeNode node) {
+        insertSiblingSorted(cursor, node);
+    }
+
+    private void insertSiblingSorted(CallTreeNode parent, CallTreeNode node) {
         final long startTime = node.getAlign().getStartTime();
-        CallTreeNode parent = cursor;
-        CallTreeNode child = cursor.getChild();
+        CallTreeNode child = parent.getChild();
         if (child == null) {
             return;
         }
@@ -268,9 +271,9 @@ public class SpanCallTree implements CallTree {
                 throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + align);
             }
 
-            CallTreeNode sibling = findLastSibling(cursor);
-            sibling.setSibling(align);
-            cursor = sibling.getSibling();
+            final CallTreeNode newNode = new CallTreeNode(null, align);
+            insertSiblingSorted(cursor.getParent(), newNode);
+            cursor = newNode;
             return;
         }
 
@@ -287,9 +290,9 @@ public class SpanCallTree implements CallTree {
                 return;
             }
 
-            CallTreeNode sibling = findLastSibling(cursor.getChild());
-            sibling.setSibling(align);
-            cursor = sibling.getSibling();
+            final CallTreeNode newNode = new CallTreeNode(null, align);
+            insertSiblingSorted(cursor, newNode);
+            cursor = newNode;
             return;
         }
 
@@ -298,9 +301,10 @@ public class SpanCallTree implements CallTree {
             throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + align);
         }
 
-        final CallTreeNode node = findUpperLevelLastSibling(depth, cursor);
-        node.setSibling(align);
-        cursor = node.getSibling();
+        final CallTreeNode ancestor = findUpperLevel(depth, cursor);
+        final CallTreeNode newNode = new CallTreeNode(null, align);
+        insertSiblingSorted(ancestor.getParent(), newNode);
+        cursor = newNode;
     }
 
     boolean hasCorrupted(final Align align) {
