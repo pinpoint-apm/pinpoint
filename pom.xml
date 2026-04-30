@@ -105,6 +105,7 @@
         <module>commons-config</module>
         <module>commons-profiler</module>
         <module>commons-hbase</module>
+        <module>hbase-testcluster</module>
         <module>commons-timeseries</module>
         <module>commons-server</module>
         <module>commons-mybatis</module>
@@ -392,6 +393,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-hbase</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-hbase-testcluster</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1001,6 +1007,17 @@
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-shaded-client</artifactId>
+                <version>${hbase.shaded.client.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-shaded-testing-util</artifactId>
                 <version>${hbase.shaded.client.version}</version>
                 <exclusions>
                     <exclusion>
