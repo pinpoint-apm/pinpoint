@@ -64,6 +64,15 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
             }
         }
 
+        if (className.startsWith("jdk")) {
+            if (className.startsWith("/", 3)) {
+                if (allowJdkClassName(className)) {
+                    return CONTINUE;
+                }
+                return SKIP;
+            }
+        }
+
         return CONTINUE;
     }
 
