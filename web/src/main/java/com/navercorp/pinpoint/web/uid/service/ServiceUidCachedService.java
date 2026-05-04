@@ -3,6 +3,8 @@ package com.navercorp.pinpoint.web.uid.service;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.service.component.StaticServiceRegistry;
 //import com.navercorp.pinpoint.service.service.ServiceInfoService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,6 +20,7 @@ import static com.navercorp.pinpoint.web.uid.config.ServiceUidMysqlCacheConfig.S
 @CacheConfig(cacheManager = "serviceUidCache")
 public class ServiceUidCachedService implements ServiceUidService {
 
+    private final Logger logger = LogManager.getLogger(this.getClass());
 //    private final StaticServiceRegistry registry;
 //    private final ServiceInfoService serviceInfoService;
 //
@@ -29,7 +32,7 @@ public class ServiceUidCachedService implements ServiceUidService {
 
 
     @Override
-    @Cacheable(cacheNames = SERVICE_UID_CACHE_NAME, unless = "#result == null")
+//    @Cacheable(cacheNames = SERVICE_UID_CACHE_NAME, unless = "#result == null")
     public ServiceUid getServiceUid(String serviceName) {
 //        Objects.requireNonNull(serviceName, "serviceName");
 //        ServiceUid staticServiceUid = registry.getServiceUid(serviceName);
@@ -38,11 +41,13 @@ public class ServiceUidCachedService implements ServiceUidService {
 //        }
 //
 //        return serviceInfoService.getServiceUid(serviceName);
-        throw new UnsupportedOperationException("Not implemented yet");
+        //Not implemented yet
+        logger.warn("getServiceUid is not implemented yet. Returning default value. serviceName={}", serviceName);
+        return ServiceUid.DEFAULT;
     }
 
     @Override
-    @Cacheable(cacheNames = SERVICE_NAME_CACHE_NAME, unless = "#result == null")
+//    @Cacheable(cacheNames = SERVICE_NAME_CACHE_NAME, unless = "#result == null")
     public String getServiceName(ServiceUid serviceUid) {
 //        Objects.requireNonNull(serviceUid, "serviceUid");
 //        String staticServiceName = registry.getServiceName(serviceUid);
@@ -50,17 +55,18 @@ public class ServiceUidCachedService implements ServiceUidService {
 //            return staticServiceName;
 //        }
 //
-//        return serviceInfoService.getServiceName(serviceUid);
-        throw new UnsupportedOperationException("Not implemented yet");
+        //Not implemented yet
+        logger.warn("getServiceUid is not implemented yet. Returning default value. serviceUid={}", serviceUid);
+        return ServiceUid.DEFAULT_SERVICE_UID_NAME;
     }
 
-    @CacheEvict(cacheNames = SERVICE_UID_CACHE_NAME)
+//    @CacheEvict(cacheNames = SERVICE_UID_CACHE_NAME)
     public void serviceUidCacheEvict(String serviceName) {
 //        Objects.requireNonNull(serviceName, "serviceName");
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    @CacheEvict(cacheNames = SERVICE_NAME_CACHE_NAME)
+//    @CacheEvict(cacheNames = SERVICE_NAME_CACHE_NAME)
     public void serviceNameCacheEvict(ServiceUid serviceUid) {
 //        Objects.requireNonNull(serviceUid, "serviceUid");
         throw new UnsupportedOperationException("Not implemented yet");
