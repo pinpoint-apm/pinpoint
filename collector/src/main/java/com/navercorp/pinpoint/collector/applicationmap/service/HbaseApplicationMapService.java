@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -148,7 +149,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
 
         int bugCheck = 0;
-        if (span.getParentSpanId() == -1) {
+        if (span.getParentSpanId() == SpanId.NULL) {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
                 String applicationName = span.getAcceptorHost();

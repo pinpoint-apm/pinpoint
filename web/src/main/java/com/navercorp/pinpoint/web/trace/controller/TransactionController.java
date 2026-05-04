@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.trace.controller;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
@@ -57,6 +58,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -73,7 +75,6 @@ public class TransactionController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     public static final String DEFAULT_FOCUS_TIMESTAMP = "0";
-    public static final String DEFAULT_SPAN_ID = "-1"; // SpanId.NULL
 
     private final MapProperties mapProperties;
     private final SpanService spanService;
@@ -111,7 +112,7 @@ public class TransactionController {
             long focusTimestamp,
             @RequestParam(value = "agentId", required = false)
             String agentId,
-            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID)
+            @RequestParam(value = "spanId", required = false, defaultValue = SpanId.NULL_STRING)
             long spanId
     ) {
         logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
@@ -166,7 +167,7 @@ public class TransactionController {
             @PositiveOrZero
             long focusTimestamp,
             @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
+            @RequestParam(value = "spanId", required = false, defaultValue = SpanId.NULL_STRING) long spanId,
             @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
             boolean useStatisticsAgentState
     ) {
@@ -188,21 +189,29 @@ public class TransactionController {
     @GetMapping(value = "/transaction/metadata")
     public MetadataView getTransactionMetadata(
             @RequestParam("traceId") @NotBlank String traceId,
-            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId
+            @RequestParam(value = "spanId", required = false, defaultValue = SpanId.NULL_STRING) long spanId
     ) {
         logger.debug("GET /transaction/metadata params {traceId={}, spanId={}}", traceId, spanId);
 
         final ServerTraceId serverTraceId = ServerTraceId.of(traceId);
         List<SpanBo> spans = scatterChartService.selectTransactionMetadata(serverTraceId);
 
-        if (spanId != Long.parseLong(DEFAULT_SPAN_ID)) {
-            spans = spans.stream()
-                    .filter(span -> span.getSpanId() == spanId)
-                    .toList();
+        if (spanId != SpanId.NULL) {
+            spans = filterSpanId(spans, spanId);
         }
 
         final TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel(spans);
         return new MetadataView(viewModel.getMetadata());
+    }
+
+    private List<SpanBo> filterSpanId(List<SpanBo> spans, long spanId) {
+        List<SpanBo> list = new ArrayList<>();
+        for (SpanBo span : spans) {
+            if (span.getSpanId() == spanId) {
+                list.add(span);
+            }
+        }
+        return list;
     }
 
     public record MetadataView(List<? extends DotMetaDataView> metadata, boolean complete, long resultFrom) {
