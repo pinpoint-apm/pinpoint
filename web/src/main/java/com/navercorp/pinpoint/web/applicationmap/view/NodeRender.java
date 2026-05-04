@@ -25,6 +25,13 @@ import java.util.Objects;
 public interface NodeRender {
     NodeView render(Node node);
 
+    /**
+     * Creates a detailed node render with the given time histogram view, hyper link factory, and map properties.
+     * @param timeHistogramView the time histogram view
+     * @param hyperLinkFactory the hyper link factory
+     * @param mapProperties the map properties
+     * @return a detailed node render
+     */
     static NodeRender detailedRender(TimeHistogramView timeHistogramView, HyperLinkFactory hyperLinkFactory, MapProperties mapProperties) {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.detailedView(timeHistogramView),
@@ -37,7 +44,7 @@ public interface NodeRender {
 
     static NodeRender forServerMap(MapProperties mapProperties) {
         return new DefaultNodeRender(
-                ApplicationTimeSeriesHistogramNodeView.detailedView(TimeHistogramView.TimeseriesHistogram),
+                ApplicationTimeSeriesHistogramNodeView.emptyView(),
                 ApplicationApdexScoreSlotView.detailedView(),
                 ServerListNodeView.emptyView(),
                 AgentHistogramNodeView.emptyView(),
@@ -47,7 +54,7 @@ public interface NodeRender {
 
     static NodeRender forServiceMap() {
         return new DefaultNodeRender(
-                ApplicationTimeSeriesHistogramNodeView.detailedView(TimeHistogramView.TimeseriesHistogram),
+                ApplicationTimeSeriesHistogramNodeView.emptyView(),
                 ApplicationApdexScoreSlotView.detailedView(),
                 ServerListNodeView.emptyView(),
                 AgentHistogramNodeView.emptyView(),

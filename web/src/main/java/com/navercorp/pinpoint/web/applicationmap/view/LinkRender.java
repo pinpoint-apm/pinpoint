@@ -27,14 +27,14 @@ public interface LinkRender {
 
     static LinkRender forServerMap(MapProperties mapProperties) {
         return new DefaultLinkRender(
-                ApplicationTimeSeriesHistogramLinkView.detailedView(TimeHistogramView.TimeseriesHistogram),
+                ApplicationTimeSeriesHistogramLinkView.emptyView(),
                 AgentLinkView.emptyView(),
                 mapProperties.isEnableServiceMap());
     }
 
     static LinkRender forServiceMap() {
         return new DefaultLinkRender(
-                ApplicationTimeSeriesHistogramLinkView.detailedView(TimeHistogramView.TimeseriesHistogram),
+                ApplicationTimeSeriesHistogramLinkView.emptyView(),
                 AgentLinkView.emptyView(),
                 true);
     }
