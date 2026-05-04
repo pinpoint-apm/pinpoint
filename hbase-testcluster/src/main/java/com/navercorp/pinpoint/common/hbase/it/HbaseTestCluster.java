@@ -16,13 +16,17 @@
 
 package com.navercorp.pinpoint.common.hbase.it;
 
+import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.PostConstruct;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.NamespaceDescriptor;
+import org.apache.hadoop.hbase.NamespaceNotFoundException;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.testing.TestingHBaseCluster;
 import org.apache.hadoop.hbase.testing.TestingHBaseClusterOption;
@@ -67,8 +71,7 @@ public class HbaseTestCluster implements AutoCloseable {
 //        builder.numDataNodes(1);
 //        builder.numRegionServers(1);
 //        builder.numZkServers(1);
-        return builder
-                .build();
+        return builder.build();
     }
 
     @PostConstruct
@@ -115,6 +118,19 @@ public class HbaseTestCluster implements AutoCloseable {
     }
 
     public void createTable(TableName tableName, byte[] family) throws Exception {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(family, "family");
+
+        TableDescriptor descriptor = TableDescriptorBuilder.newBuilder(tableName)
+                .setColumnFamily(ColumnFamilyDescriptorBuilder.of(family))
+                .build();
+        createTable(descriptor);
+    }
+
+    public void createTable(TableDescriptor descriptor) throws Exception {
+        Objects.requireNonNull(descriptor, "descriptor");
+
+        TableName tableName = descriptor.getTableName();
         try (Connection connection = ConnectionFactory.createConnection(cluster.getConf());
              Admin admin = connection.getAdmin()) {
             if (admin.tableExists(tableName)) {
@@ -123,9 +139,23 @@ public class HbaseTestCluster implements AutoCloseable {
                 }
                 admin.deleteTable(tableName);
             }
-            TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(tableName)
-                    .setColumnFamily(ColumnFamilyDescriptorBuilder.of(family));
-            admin.createTable(builder.build());
+            admin.createTable(descriptor);
+        }
+    }
+
+
+    public void createNamespaceIfMissing(String namespace) throws Exception {
+        if (!StringUtils.isEmpty(namespace)) {
+            throw new IllegalArgumentException("namespace must not be empty");
+        }
+        try (Connection connection = ConnectionFactory.createConnection(cluster.getConf());
+             Admin admin = connection.getAdmin()) {
+            try {
+                admin.getNamespaceDescriptor(namespace);
+                return;
+            } catch (NamespaceNotFoundException ignore) {
+            }
+            admin.createNamespace(NamespaceDescriptor.create(namespace).build());
         }
     }
 }
