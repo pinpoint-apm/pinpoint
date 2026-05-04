@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.trace.controller.TransactionController;
@@ -29,13 +30,12 @@ import java.util.function.Predicate;
 
 public class SpanFilters {
     private static final long DEFAULT_FOCUS_TIMESTAMP = Long.parseLong(TransactionController.DEFAULT_FOCUS_TIMESTAMP);
-    private static final long DEFAULT_SPAN_ID = Long.parseLong(TransactionController.DEFAULT_SPAN_ID);
 
 
     public static Predicate<SpanBo> spanFilter(long spanId, String agentId, long focusTimestamp) {
         FilterBuilder builder = newBuilder();
 
-        if (spanId != DEFAULT_SPAN_ID) {
+        if (spanId != SpanId.NULL) {
             Predicate<SpanBo> filter = SpanFilters.spanIdFilter(spanId);
             builder.addFilter(filter);
         }
