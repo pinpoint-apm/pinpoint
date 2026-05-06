@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author HyunGil Jeong
  */
-public class WasOnlyProcessor implements LinkDataMapProcessor {
+public class ApplicationNodeFilter implements LinkDataMapProcessor {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 

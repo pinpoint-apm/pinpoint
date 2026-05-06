@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.DestinationApplicationFilter;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.SourceApplicationFilter;
-import com.navercorp.pinpoint.web.applicationmap.map.processor.WasOnlyProcessor;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
@@ -76,10 +75,7 @@ public class HistogramServiceImpl implements HistogramService {
         int outSearchDepth = searchOption.getOutSearchDepth();
         int inSearchDepth = searchOption.getInSearchDepth();
 
-        LinkDataMapProcessor outLinkProcessor = LinkDataMapProcessor.NO_OP;
-        if (searchOption.isWasOnly()) {
-            outLinkProcessor = new WasOnlyProcessor();
-        }
+        LinkDataMapProcessor outLinkProcessor = LinkDataMapProcessor.applicationNodeFilter(searchOption.isWasOnly());
         LinkDataMapProcessor inLinkProcessor = LinkDataMapProcessor.NO_OP;
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, outLinkProcessor, inLinkProcessor);
 
@@ -91,7 +87,6 @@ public class HistogramServiceImpl implements HistogramService {
                 watch.getTotalTimeMillis(), option.getSourceApplication(), outSearchDepth, inSearchDepth, linkDataDuplexMap.size());
         return linkDataDuplexMap;
     }
-
 
     @Override
     public LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, TimeWindow timeWindow) {

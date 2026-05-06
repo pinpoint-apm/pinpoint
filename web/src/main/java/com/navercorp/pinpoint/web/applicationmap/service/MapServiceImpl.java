@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
-import com.navercorp.pinpoint.web.applicationmap.map.processor.WasOnlyProcessor;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
@@ -95,10 +94,7 @@ public class MapServiceImpl implements MapService {
         int outSearchDepth = searchOption.getOutSearchDepth();
         int inSearchDepth = searchOption.getInSearchDepth();
 
-        LinkDataMapProcessor outLinkProcessor = LinkDataMapProcessor.NO_OP;
-        if (searchOption.isWasOnly()) {
-            outLinkProcessor = new WasOnlyProcessor();
-        }
+        LinkDataMapProcessor outLinkProcessor = LinkDataMapProcessor.applicationNodeFilter(searchOption.isWasOnly());
         LinkDataMapProcessor inLinkProcessor = LinkDataMapProcessor.NO_OP;
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, outLinkProcessor, inLinkProcessor);
 

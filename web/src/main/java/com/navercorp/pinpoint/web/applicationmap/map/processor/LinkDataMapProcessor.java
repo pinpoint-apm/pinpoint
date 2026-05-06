@@ -34,4 +34,8 @@ public interface LinkDataMapProcessor {
             return linkDataMap;
         }
     };
+
+    static LinkDataMapProcessor applicationNodeFilter(boolean enabled) {
+        return enabled ? new ApplicationNodeFilter() : NO_OP;
+    }
 }
