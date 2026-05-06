@@ -27,7 +27,8 @@ import org.apache.thrift.transport.TTransportException;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author HyunGil Jeong
@@ -50,9 +51,24 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     @Override
     public String echo(String message) throws TException {
-        final AwaitableCallback<String> callback = new AwaitableCallback<>();
+        final FutureCallback<String> callback = new FutureCallback<>();
         this.asyncClient.echo(message, callback);
-        return callback.await();
+        return await(callback.future());
+    }
+
+    private static <T> T await(CompletableFuture<T> future) throws TException {
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TException("Interrupted while waiting for response", e);
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof TException) {
+                throw (TException) cause;
+            }
+            throw new TException(cause);
+        }
     }
 
     @Override
@@ -65,38 +81,23 @@ public class AsyncEchoTestClient implements EchoTestClient {
         }
     }
 
-    private static class AwaitableCallback<T> implements AsyncMethodCallback<T> {
+    private static class FutureCallback<T> implements AsyncMethodCallback<T> {
 
-        private final CountDownLatch completeLatch = new CountDownLatch(1);
-
-        private volatile T result;
-        private volatile Exception error;
+        private final CompletableFuture<T> future = new CompletableFuture<>();
 
         @Override
         public void onComplete(T response) {
-            this.result = response;
-            this.completeLatch.countDown();
+            this.future.complete(response);
         }
 
         @Override
         public void onError(Exception exception) {
-            this.error = exception;
-            this.completeLatch.countDown();
+            this.future.completeExceptionally(exception);
         }
 
-        public T await() throws TException {
-            try {
-                this.completeLatch.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new TException("Interrupted while waiting for response", e);
-            }
-            if (this.error != null) {
-                throw new TException(this.error);
-            }
-            return this.result;
+        public CompletableFuture<T> future() {
+            return this.future;
         }
-
     }
 
     public static class Client extends AsyncEchoTestClient {
