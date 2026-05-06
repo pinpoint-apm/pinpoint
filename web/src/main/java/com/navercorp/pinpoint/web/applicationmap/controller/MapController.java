@@ -122,8 +122,8 @@ public class MapController {
         logger.info("Select applicationMap option={}", option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        NodeRender nodeRender = NodeRender.forServerMap(mapProperties);
-        LinkRender linkRender = LinkRender.forServerMap(mapProperties);
+        NodeRender nodeRender = NodeRender.forServerMap();
+        LinkRender linkRender = LinkRender.forServerMap();
         ApplicationMapView applicationMapView = new ApplicationMapViewV3(map, timeWindow, nodeRender, linkRender);
 
         return new MapWrap<>(applicationMapView);

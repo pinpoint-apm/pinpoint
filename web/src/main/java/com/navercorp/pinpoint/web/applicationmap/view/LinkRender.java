@@ -25,18 +25,20 @@ public interface LinkRender {
     LinkView render(Link link);
 
 
-    static LinkRender forServerMap(MapProperties mapProperties) {
+    static LinkRender forServerMap() {
         return new DefaultLinkRender(
                 ApplicationTimeSeriesHistogramLinkView.emptyView(),
                 AgentLinkView.emptyView(),
-                mapProperties.isEnableServiceMap());
+                false
+        );
     }
 
     static LinkRender forServiceMap() {
         return new DefaultLinkRender(
                 ApplicationTimeSeriesHistogramLinkView.emptyView(),
                 AgentLinkView.emptyView(),
-                true);
+                true
+        );
     }
 
     static LinkRender detailedRender(TimeHistogramView timeHistogramView,

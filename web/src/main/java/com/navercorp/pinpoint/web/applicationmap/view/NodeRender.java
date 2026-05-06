@@ -32,7 +32,9 @@ public interface NodeRender {
      * @param mapProperties the map properties
      * @return a detailed node render
      */
-    static NodeRender detailedRender(TimeHistogramView timeHistogramView, HyperLinkFactory hyperLinkFactory, MapProperties mapProperties) {
+    static NodeRender detailedRender(TimeHistogramView timeHistogramView,
+                                     HyperLinkFactory hyperLinkFactory,
+                                     MapProperties mapProperties) {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.detailedView(timeHistogramView),
                 ApplicationApdexScoreSlotView.detailedView(),
@@ -42,14 +44,14 @@ public interface NodeRender {
                 mapProperties.isEnableServiceMap());
     }
 
-    static NodeRender forServerMap(MapProperties mapProperties) {
+    static NodeRender forServerMap() {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.emptyView(),
                 ApplicationApdexScoreSlotView.detailedView(),
                 ServerListNodeView.emptyView(),
                 AgentHistogramNodeView.emptyView(),
                 AgentTimeSeriesHistogramNodeView.emptyView(),
-                mapProperties.isEnableServiceMap());
+                false);
     }
 
     static NodeRender forServiceMap() {
