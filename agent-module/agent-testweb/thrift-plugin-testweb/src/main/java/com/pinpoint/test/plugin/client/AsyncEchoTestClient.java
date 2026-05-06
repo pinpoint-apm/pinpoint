@@ -23,8 +23,10 @@ import org.apache.thrift.async.AsyncMethodCallback;
 import org.apache.thrift.async.TAsyncClientManager;
 import org.apache.thrift.transport.TNonblockingSocket;
 import org.apache.thrift.transport.TNonblockingTransport;
+import org.apache.thrift.transport.TTransportException;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -32,48 +34,25 @@ import java.util.concurrent.CountDownLatch;
  */
 public class AsyncEchoTestClient implements EchoTestClient {
 
-    private final TestEnvironment environment;
     private final TNonblockingTransport transport;
     private final EchoService.AsyncClient asyncClient;
     private final TAsyncClientManager asyncClientManager = new TAsyncClientManager();
 
     private AsyncEchoTestClient(TestEnvironment environment) throws IOException {
-        this.environment = environment;
-        this.transport = new TNonblockingSocket(this.environment.getServerIp(), this.environment.getPort());
-        this.asyncClient = new EchoService.AsyncClient(this.environment.getProtocolFactory(), this.asyncClientManager, this.transport);
+        Objects.requireNonNull(environment, "environment");
+        try {
+            this.transport = new TNonblockingSocket(environment.getServerIp(), environment.getPort());
+        } catch (TTransportException e) {
+            throw new IOException("Failed to create non-blocking transport", e);
+        }
+        this.asyncClient = new EchoService.AsyncClient(environment.getProtocolFactory(), this.asyncClientManager, this.transport);
     }
 
     @Override
     public String echo(String message) throws TException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        final AsyncEchoResultHolder resultHolder = new AsyncEchoResultHolder();
-        final AsyncMethodCallback<String> callback = new EchoMethodCallback(latch, resultHolder);
+        final AwaitableCallback<String> callback = new AwaitableCallback<>();
         this.asyncClient.echo(message, callback);
-        boolean isInterrupted = false;
-        while (true) {
-            try {
-                latch.await();
-                return resultHolder.getResult();
-            } catch (InterruptedException e) {
-                isInterrupted = true;
-            } finally {
-                if (isInterrupted) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-    }
-
-    private static class AsyncEchoResultHolder {
-        private volatile String result;
-
-        public void setResult(String result) {
-            this.result = result;
-        }
-
-        public String getResult() {
-            return this.result;
-        }
+        return callback.await();
     }
 
     @Override
@@ -86,29 +65,36 @@ public class AsyncEchoTestClient implements EchoTestClient {
         }
     }
 
-    private static class EchoMethodCallback implements AsyncMethodCallback<String> {
+    private static class AwaitableCallback<T> implements AsyncMethodCallback<T> {
 
-        private final CountDownLatch completeLatch;
-        private final AsyncEchoResultHolder resultHolder;
+        private final CountDownLatch completeLatch = new CountDownLatch(1);
 
-        private EchoMethodCallback(final CountDownLatch completeLatch, final AsyncEchoResultHolder resultHolder) {
-            this.completeLatch = completeLatch;
-            this.resultHolder = resultHolder;
-        }
+        private volatile T result;
+        private volatile Exception error;
 
         @Override
-        public void onComplete(String response) {
-            this.resultHolder.setResult(response);
+        public void onComplete(T response) {
+            this.result = response;
             this.completeLatch.countDown();
         }
 
         @Override
         public void onError(Exception exception) {
+            this.error = exception;
+            this.completeLatch.countDown();
+        }
+
+        public T await() throws TException {
             try {
-                this.resultHolder.setResult(exception.toString());
-            } finally {
-                this.completeLatch.countDown();
+                this.completeLatch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new TException("Interrupted while waiting for response", e);
             }
+            if (this.error != null) {
+                throw new TException(this.error);
+            }
+            return this.result;
         }
 
     }
