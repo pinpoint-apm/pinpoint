@@ -29,11 +29,15 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author HyunGil Jeong
  */
 public class AsyncEchoTestClient implements EchoTestClient {
+
+    private static final long AWAIT_TIMEOUT_SECONDS = 5L;
 
     private final TNonblockingTransport transport;
     private final EchoService.AsyncClient asyncClient;
@@ -58,7 +62,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     private static <T> T await(CompletableFuture<T> future) throws TException {
         try {
-            return future.get();
+            return future.get(AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new TException("Interrupted while waiting for response", e);
@@ -68,6 +72,9 @@ public class AsyncEchoTestClient implements EchoTestClient {
                 throw (TException) cause;
             }
             throw new TException(cause);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new TException("Timed out waiting for response after " + AWAIT_TIMEOUT_SECONDS + "s", e);
         }
     }
 

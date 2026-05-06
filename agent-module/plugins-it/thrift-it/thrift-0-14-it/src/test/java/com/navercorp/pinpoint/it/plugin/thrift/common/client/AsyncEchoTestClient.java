@@ -36,7 +36,10 @@ import org.apache.thrift.transport.TNonblockingTransport;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.async;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -45,6 +48,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  * @author HyunGil Jeong
  */
 public class AsyncEchoTestClient implements EchoTestClient {
+
+    private static final long AWAIT_TIMEOUT_SECONDS = 5L;
 
     private final TestEnvironment environment;
     private final TNonblockingTransport transport;
@@ -60,22 +65,26 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     @Override
     public String echo(String message) throws TException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        final AsyncEchoResultHolder resultHolder = new AsyncEchoResultHolder();
-        final AsyncMethodCallback<String> callback = new EchoMethodCallback(latch, resultHolder);
+        final FutureCallback<String> callback = new FutureCallback<>();
         this.asyncClient.echo(message, callback);
-        boolean isInterrupted = false;
-        while (true) {
-            try {
-                latch.await();
-                return resultHolder.getResult();
-            } catch (InterruptedException e) {
-                isInterrupted = true;
-            } finally {
-                if (isInterrupted) {
-                    Thread.currentThread().interrupt();
-                }
+        return await(callback.future());
+    }
+
+    private static <T> T await(CompletableFuture<T> future) throws TException {
+        try {
+            return future.get(AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TException("Interrupted while waiting for response", e);
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof TException) {
+                throw (TException) cause;
             }
+            throw new TException(cause);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new TException("Timed out waiting for response after " + AWAIT_TIMEOUT_SECONDS + "s", e);
         }
     }
 
@@ -118,18 +127,6 @@ public class AsyncEchoTestClient implements EchoTestClient {
         verifier.verifyTrace(async(callTrace, asyncInvocationTrace, cleanUpAndFireCallbackTrace, receiveBaseTrace));
     }
 
-    private static class AsyncEchoResultHolder {
-        private volatile String result;
-
-        public void setResult(String result) {
-            this.result = result;
-        }
-
-        public String getResult() {
-            return this.result;
-        }
-    }
-
     @Override
     public void close() {
         if (this.asyncClientManager.isRunning()) {
@@ -140,31 +137,23 @@ public class AsyncEchoTestClient implements EchoTestClient {
         }
     }
 
-    private static class EchoMethodCallback implements AsyncMethodCallback<String> {
+    private static class FutureCallback<T> implements AsyncMethodCallback<T> {
 
-        private final CountDownLatch completeLatch;
-        private final AsyncEchoResultHolder resultHolder;
-
-        private EchoMethodCallback(final CountDownLatch completeLatch, final AsyncEchoResultHolder resultHolder) {
-            this.completeLatch = completeLatch;
-            this.resultHolder = resultHolder;
-        }
+        private final CompletableFuture<T> future = new CompletableFuture<>();
 
         @Override
-        public void onComplete(String response) {
-            this.resultHolder.setResult(response);
-            this.completeLatch.countDown();
+        public void onComplete(T response) {
+            this.future.complete(response);
         }
 
         @Override
         public void onError(Exception exception) {
-            try {
-                this.resultHolder.setResult(exception.toString());
-            } finally {
-                this.completeLatch.countDown();
-            }
+            this.future.completeExceptionally(exception);
         }
 
+        public CompletableFuture<T> future() {
+            return this.future;
+        }
     }
 
     public static class Client extends AsyncEchoTestClient {
