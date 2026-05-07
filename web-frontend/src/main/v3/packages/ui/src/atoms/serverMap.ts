@@ -43,14 +43,29 @@ export const serverMapCurrentTargetDataAtom = atom((get) => {
       ({ serviceType }) => serviceType === currentTarget.serviceType,
     );
   } else if (currentTarget?.type === 'node') {
-    return (serverMapData?.applicationMapData?.nodeDataArray as ServerMapNodeDataArray)?.find(
-      ({ key }) =>
-        key === currentTarget?.id ||
-        key === `${currentTarget?.applicationName}^${currentTarget?.serviceType}`,
-    );
+    const fallbackKey = `${currentTarget?.applicationName}^${currentTarget?.serviceType}`;
+    const allNodes =
+      (serverMapData?.applicationMapData?.nodeDataArray as ServerMapNodeDataArray) || [];
+    // service group 노드는 그래프상 단일 노드로 그리지만, 팝업에서 자식(subNodes)을 클릭하면
+    // currentTarget이 자식 노드 key를 가리키므로 lookup 대상에 자식까지 포함한다.
+    const flattenedNodes = allNodes.flatMap((node) => {
+      const subNodes = (node as GetServerMap.NodeData).subNodes;
+      return Array.isArray(subNodes) ? [node, ...subNodes] : [node];
+    });
+    return flattenedNodes.find((node) => {
+      const nodeKey = (node as GetServerMap.NodeData).nodeKey;
+      return (
+        node.key === currentTarget?.id ||
+        node.key === fallbackKey ||
+        nodeKey === currentTarget?.id ||
+        nodeKey === fallbackKey
+      );
+    });
   } else if (currentTarget?.type === 'edge') {
     return (serverMapData?.applicationMapData?.linkDataArray as ServerMapNodeLinkArray)?.find(
-      ({ key }) => key === currentTarget?.id,
+      (link) =>
+        link.key === currentTarget?.id ||
+        (link as GetServerMap.LinkData).linkKey === currentTarget?.id,
     );
   } else {
     return undefined;

@@ -17,7 +17,7 @@ import {
   ServerMapMenuItem,
 } from './ServerMapMenu';
 import { useOnClickOutside, useUpdateEffect } from 'usehooks-ts';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaSearch } from 'react-icons/fa';
 import { FaLocationCrosshairs, FaRotate } from 'react-icons/fa6';
 import { FaGear } from 'react-icons/fa6';
 import {
@@ -35,6 +35,8 @@ import {
   ServerMapSkeleton,
 } from '..';
 import cytoscape from 'cytoscape';
+import { cn } from '../../lib';
+import { Input } from '../ui/input';
 
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
@@ -42,6 +44,8 @@ export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'
   error?: Error | null;
   onClickMenuItem?: (type: SERVERMAP_MENU_FUNCTION_TYPE, data: Node | Edge) => void;
   onMergeStateChange?: () => void;
+  onClickSubNode?: (subNode: GetServerMap.NodeData) => void;
+  selectedSubNodeId?: string;
   inputPlaceHolder?: string;
   queryOption?: ServerMapQueryOptionProps['queryOption'];
   onApplyChangedOption?: ServerMapQueryOptionProps['onApply'];
@@ -58,6 +62,8 @@ export const ServerMapCore = ({
   onClickEdge,
   onClickMenuItem,
   onMergeStateChange,
+  onClickSubNode,
+  selectedSubNodeId,
   onApplyChangedOption,
   queryOption,
   inputPlaceHolder,
@@ -93,6 +99,38 @@ export const ServerMapCore = ({
     nodes: [],
     edges: [],
   });
+  const serviceGroupTargetRef = React.useRef<GetServerMap.NodeData | undefined>(undefined);
+  const [serviceGroupSearch, setServiceGroupSearch] = React.useState('');
+  // cytoscape 이벤트 핸들러는 한 번 등록되어 popperContentType의 최신값을 stale closure로 놓친다.
+  // 가드는 ref를 통해 항상 최신 상태를 본다.
+  const popperContentTypeRef = React.useRef<SERVERMAP_MENU_CONTENT_TYPE | undefined>(undefined);
+  React.useEffect(() => {
+    popperContentTypeRef.current = popperContentType;
+    if (popperContentType !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST) {
+      setServiceGroupSearch('');
+    }
+  }, [popperContentType]);
+
+  // service group 팝업이 열려 있는 동안 그래프 pan/zoom 시 팝업도 노드를 따라가도록 위치를 갱신한다.
+  React.useEffect(() => {
+    const cy = cyRef.current;
+    if (popperContentType !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST || !cy) return;
+    const targetId = serviceGroupTargetRef.current?.key;
+    if (!targetId) return;
+
+    const updatePosition = () => {
+      const node = cy.getElementById(targetId);
+      if (!node || node.empty()) return;
+      const pos = node.renderedPosition();
+      if (pos) setPopperPosition({ x: pos.x, y: pos.y });
+    };
+
+    updatePosition();
+    cy.on('pan zoom layoutstop', updatePosition);
+    return () => {
+      cy.off('pan zoom layoutstop', updatePosition);
+    };
+  }, [popperContentType]);
 
   useOnClickOutside(popperContentRef as React.RefObject<HTMLDivElement>, () => {
     setPopperContentType(undefined);
@@ -105,7 +143,8 @@ export const ServerMapCore = ({
 
     allServiceTypes.current = Array.from(nodeTypes);
 
-    const nodes = nodeDataArray.map((node) => {
+    const nodes: Node[] = nodeDataArray.map((node) => {
+      const hasSubNodes = Array.isArray((node as GetServerMap.NodeData).subNodes);
       return {
         id: node.key,
         label: node.applicationName,
@@ -117,9 +156,11 @@ export const ServerMapCore = ({
           ? undefined // filtered map에서는 시간 시리즈 Apdex 정보를 사용하지 않는다.
           : getTimeSeriesApdexInfo(node, data?.applicationMapData?.timestamp),
         shouldNotMerge: () => {
+          // service group 노드(subNodes 보유)는 cytoscape의 자동 merge에 휘말리지 않도록 단독 표시한다.
           return (
             node.nodeCategory === GetServerMap.NodeCategory.SERVER ||
             node.serviceType === 'USER' ||
+            hasSubNodes ||
             unCheckedServiceTypes.some((t) => t === node.serviceType)
           );
         },
@@ -174,6 +215,11 @@ export const ServerMapCore = ({
 
   const handleHoverNode: ServerMapCoreProps['onHoverNode'] = (params) => {
     const { eventType, position, data, isLeftNode, target } = params;
+    // service group 팝업이 열려 있는 동안에는 hover/unhover로 인해 팝업이 닫히거나 위치가 바뀌지 않도록 위임만 한다.
+    if (popperContentTypeRef.current === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST) {
+      onHoverNode?.(params);
+      return;
+    }
     if (eventType === 'hover') {
       if (data && data?.apdex) {
         if (target) {
@@ -203,11 +249,24 @@ export const ServerMapCore = ({
   };
 
   const handleClickNode: ServerMapCoreProps['onClickNode'] = (params) => {
-    const { eventType, position } = params;
-    if (eventType === 'right' && params.data?.transactionInfo) {
+    const { eventType, position, data: clickedData } = params;
+    if (eventType === 'right' && clickedData?.transactionInfo) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.NODE);
-      rightClickTargetRef.current = params.data;
+      rightClickTargetRef.current = clickedData;
+    } else if (eventType === 'left' && clickedData) {
+      const serviceGroup = (data?.applicationMapData?.nodeDataArray as
+        | GetServerMap.NodeData[]
+        | undefined)?.find(
+        (n) => n.key === clickedData.id && Array.isArray(n.subNodes) && n.subNodes.length > 0,
+      );
+      if (serviceGroup) {
+        setPopperPosition(position);
+        setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST);
+        serviceGroupTargetRef.current = serviceGroup;
+      } else if (popperContentTypeRef.current !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST) {
+        setPopperContentType(undefined);
+      }
     }
     onClickNode?.(params);
   };
@@ -439,6 +498,55 @@ export const ServerMapCore = ({
                     {renderApdexScore()}
                   </ServerMapMenuContent>
                 )}
+                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST &&
+                  (() => {
+                    const search = serviceGroupSearch.trim().toLowerCase();
+                    const subNodes = serviceGroupTargetRef.current?.subNodes ?? [];
+                    const filteredSubNodes = search
+                      ? subNodes.filter((n) => n.applicationName?.toLowerCase().includes(search))
+                      : subNodes;
+                    return (
+                      <ServerMapMenuContent
+                        title={serviceGroupTargetRef.current?.applicationName ?? 'Service Group'}
+                        onClose={() => setPopperContentType(undefined)}
+                        className="w-64"
+                      >
+                        <div className="px-3 pb-2">
+                          <div className="relative">
+                            <FaSearch className="absolute -translate-y-1/2 pointer-events-none left-2 top-1/2 text-muted-foreground" />
+                            <Input
+                              autoFocus
+                              placeholder={t('COMMON.SEARCH_INPUT')}
+                              value={serviceGroupSearch}
+                              onChange={(e) => setServiceGroupSearch(e.target.value)}
+                              className="h-8 pl-7"
+                            />
+                          </div>
+                        </div>
+                        <div className="max-h-72 overflow-y-auto">
+                          {filteredSubNodes.length === 0 ? (
+                            <div className="px-3 py-2 text-muted-foreground">
+                              {t('COMMON.EMPTY_ON_SEARCH')}
+                            </div>
+                          ) : (
+                            filteredSubNodes.map((subNode) => {
+                              const isSelected = subNode.key === selectedSubNodeId;
+                              return (
+                                <ServerMapMenuItem
+                                  key={subNode.key}
+                                  className={cn(isSelected && 'bg-accent font-semibold')}
+                                  onClick={() => onClickSubNode?.(subNode)}
+                                >
+                                  <img src={getServerImagePath(subNode)} width={28} />
+                                  <div className="truncate">{subNode.applicationName}</div>
+                                </ServerMapMenuItem>
+                              );
+                            })
+                          )}
+                        </div>
+                      </ServerMapMenuContent>
+                    );
+                  })()}
               </div>
             </ServerMapMenu>
           )}

@@ -39,6 +39,7 @@ export * from './ServerList';
 export * from './ServerMap';
 export * from './ServerMapQueryOptions';
 export * from './ServerMapSearchList';
+export * from './ServiceMap';
 export * from './Sidebar';
 export * from './Slider';
 export * from './Toast';

@@ -12,6 +12,7 @@ import {
   getServerImagePath,
   mergeFilteredMapLinkData,
   mergeFilteredMapNodeData,
+  parseBaseNodeId,
   toBasicISOStringMs,
 } from '@pinpoint-fe/ui/src/utils';
 import {Edge, MergedEdge, MergedNode, Node} from '@pinpoint-fe/server-map';
@@ -156,10 +157,12 @@ export const FilteredMapFetcher = ({
   };
 
   const handleMergeStateChange = () => {
-    const [applicationName, serviceType] = getBaseNodeId({
-      application,
-      applicationMapData: data?.applicationMapData,
-    }).split('^');
+    const { applicationName, serviceType } = parseBaseNodeId(
+      getBaseNodeId({
+        application,
+        applicationMapData: data?.applicationMapData,
+      }),
+    );
 
     setServerMapCurrentTarget({
       applicationName,

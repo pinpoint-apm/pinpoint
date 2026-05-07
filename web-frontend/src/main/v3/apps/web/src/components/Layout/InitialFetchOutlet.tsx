@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useExperimentals, useGetConfiguration } from '@pinpoint-fe/ui/src/hooks';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { configurationAtom, searchParametersAtom } from '@pinpoint-fe/ui/src/atoms';
 import { APP_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
 import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
@@ -10,6 +10,7 @@ export const InitialFetchOutlet = () => {
   const navigate = useNavigate();
   const { data, error } = useGetConfiguration<Configuration>();
   const setConfiguration = useSetAtom(configurationAtom);
+  const configuration = useAtomValue(configurationAtom);
   const { pathname, search } = useLocation();
   const application = getApplicationTypeAndName(pathname);
   const searchParameters = Object.fromEntries(new URLSearchParams(search));
@@ -39,6 +40,10 @@ export const InitialFetchOutlet = () => {
   }, [error, navigate]);
 
   if (error) {
+    return null;
+  }
+
+  if (!data || !configuration) {
     return null;
   }
 

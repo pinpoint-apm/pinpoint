@@ -44,6 +44,8 @@ export interface ServermapPageProps {
   authorizationGuideUrl?: string;
   configuration?: Configuration & Record<string, string>;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
+  MapView?: typeof ServerMap;
+  title?: 'Servermap' | 'Servicemap';
 }
 
 const SERVERMAP_CONTAINER_ID = 'server-map-main-container';
@@ -52,6 +54,8 @@ export const ServerMapPage = ({
   authorizationGuideUrl,
   configuration,
   ApplicationList = ApplicationCombinedList,
+  MapView = ServerMap,
+  title = 'Servermap',
 }: ServermapPageProps) => {
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.[`periodInterval.serverMap`];
@@ -81,21 +85,27 @@ export const ServerMapPage = ({
       const isTargetIncluded =
         serverMapCurrentTarget &&
         ((serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[]).some(
-          ({ key }) => key === serverMapCurrentTarget.id,
+          (node) =>
+            node.key === serverMapCurrentTarget.id ||
+            node.nodeKey === serverMapCurrentTarget.id,
         ) ||
           (serverMapData.applicationMapData.linkDataArray as GetServerMap.LinkData[]).some(
-            ({ key }) => key === serverMapCurrentTarget.id,
+            (link) =>
+              link.key === serverMapCurrentTarget.id ||
+              link.linkKey === serverMapCurrentTarget.id,
           ));
 
       if (isTargetIncluded || serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges) {
         currentTarget = serverMapCurrentTarget;
         setServerMapCurrentTarget(currentTarget);
       } else {
+        const applicationKey = getApplicationKey(application!);
         const applicationInfo = (
           serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[]
         ).find((node) => {
           return (
-            getApplicationKey(application!) === node.key ||
+            applicationKey === node.key ||
+            applicationKey === node.nodeKey ||
             (node.applicationName === application?.applicationName &&
               node.serviceType === 'UNAUTHORIZED')
           );
@@ -161,7 +171,7 @@ export const ServerMapPage = ({
           <div className="flex items-center gap-2">
             <PiTreeStructureDuotone />
             <div className="flex items-center gap-1">
-              Servermap
+              {title}
               <HelpPopover helpKey="HELP_VIEWER.SERVER_MAP" />
             </div>
           </div>
@@ -215,7 +225,7 @@ export const ServerMapPage = ({
                       />
                     </div>
                   )}
-                  <ServerMap
+                  <MapView
                     queryOption={queryOption}
                     onApplyChangedOption={(option) => {
                       navigate(

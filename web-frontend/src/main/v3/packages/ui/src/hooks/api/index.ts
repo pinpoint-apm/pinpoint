@@ -37,6 +37,7 @@ export * from './useGetOtlpMetricDefUserDefined';
 export * from './useGetScatterData';
 export * from './useGetScatterRealtimeData';
 export * from './useGetServerMapDataV2';
+export * from './useGetServiceMap';
 export * from './useGetSeverTime';
 export * from './useGetSystemMetricChartData';
 export * from './useGetSystemMetricHostData';

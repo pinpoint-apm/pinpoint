@@ -134,6 +134,7 @@ export namespace GetServerMap {
     topCountNodes?: any[];
     mergedSourceNodes?: any[];
     nodeCategory: NodeCategory;
+    subNodes?: NodeData[];
   }
 
   export interface ApdexFormula {
