@@ -1,11 +1,11 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.LastRowHandler;
+import com.navercorp.pinpoint.common.hbase.LastRowWithTiesResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
@@ -84,11 +85,11 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     @Override
-    public LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, final String applicationName, int serviceTypeCode, Range range, int limit) {
+    public LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, final String applicationName, int serviceTypeCode, Range range, int limitWithTies) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
-        if (limit < 0) {
-            throw new IllegalArgumentException("negative limit:" + limit);
+        if (limitWithTies < 0) {
+            throw new IllegalArgumentException("negative limitWithTies:" + limitWithTies);
         }
         logger.debug("scanTraceIndex {}", range);
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
@@ -96,64 +97,72 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
         RowMapper<List<DotMetaData>> dotMetaMapper = createDotMetaMapper(applicationName);
         LastRowHandler<List<DotMetaData>> lastRowAccessor = new DefaultLastRowHandler<>();
-        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<DotMetaData>> scanResult = hbaseOperations.findParallel(applicationTraceIndexTableName,
-                scan, traceIndexDistributor, limit, dotMetaMapper, lastRowAccessor, TRACE_INDEX_NUM_PARTITIONS);
+        LastRowWithTiesResultsExtractor<List<DotMetaData>> extractor = newLastRowWithTiesResultsExtractor(dotMetaMapper, limitWithTies, lastRowAccessor);
+        TableName traceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
+        List<List<DotMetaData>> scanResult = hbaseOperations.findParallel(traceIndexTableName, scan,
+                traceIndexDistributor, extractor, TRACE_INDEX_NUM_PARTITIONS);
         List<DotMetaData> transactionIdSum = ListListUtils.toList(scanResult);
 
-        boolean overflow = LastTimeListExtractor.isOverflow(transactionIdSum, limit);
+        boolean overflow = LastTimeListExtractor.isOverflow(transactionIdSum, limitWithTies);
         final long lastTime = LastTimeListExtractor.getLastTime(overflow, lastRowAccessor, value -> value.getDot().getAcceptedTime(), range.getFrom());
 
         return new LimitedScanResult<>(lastTime, transactionIdSum);
     }
 
     @Override
-    public LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit) {
+    public LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limitWithTies) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
-        if (limit < 0) {
-            throw new IllegalArgumentException("negative limit:" + limit);
+        if (limitWithTies < 0) {
+            throw new IllegalArgumentException("negative limitWithTies:" + limitWithTies);
         }
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
-        LastRowHandler<List<Dot>> lastRowAccessor = new DefaultLastRowHandler<>();
-
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
 
         RowMapper<List<Dot>> dotMapper = new TraceIndexDotMapper(TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName));
-        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<Dot>> scanResult = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
-                traceIndexDistributor, limit, dotMapper, TRACE_INDEX_NUM_PARTITIONS);
+        LastRowHandler<List<Dot>> lastRowAccessor = new DefaultLastRowHandler<>();
+        LastRowWithTiesResultsExtractor<List<Dot>> extractor = newLastRowWithTiesResultsExtractor(dotMapper, limitWithTies, lastRowAccessor);
+        TableName traceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
+        List<List<Dot>> scanResult = hbaseOperations.findParallel(traceIndexTableName, scan,
+                traceIndexDistributor, extractor, TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(scanResult);
 
-        boolean overflow = LastTimeListExtractor.isOverflow(dots, limit);
+        boolean overflow = LastTimeListExtractor.isOverflow(dots, limitWithTies);
         final long lastTime = LastTimeListExtractor.getLastTime(overflow, lastRowAccessor, Dot::getAcceptedTime, range.getFrom());
         return new LimitedScanResult<>(lastTime, dots);
     }
 
     @Override
     public LimitedScanResult<List<DotMetaData>> scanScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode,
-                                                                  DragAreaQuery dragAreaQuery, String rpcRegex, int limit) {
+                                                                  DragAreaQuery dragAreaQuery, String rpcRegex, int limitWithTies) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
         DragArea dragArea = dragAreaQuery.getDragArea();
         Range range = Range.unchecked(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceScatterData-range:{}", range);
-
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
         setHbaseFilter(scan, dragAreaQuery, rpcRegex);
         scan.addFamily(META.getName());
 
         RowMapper<List<DotMetaData>> mapper = createDotMetaMapper(applicationName, dragAreaQuery);
         LastRowHandler<List<DotMetaData>> lastRowAccessor = new DefaultLastRowHandler<>();
-
-        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<DotMetaData>> scanResult = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
-                traceIndexDistributor, limit, mapper, lastRowAccessor, TRACE_INDEX_NUM_PARTITIONS);
+        LastRowWithTiesResultsExtractor<List<DotMetaData>> extractor = newLastRowWithTiesResultsExtractor(mapper, limitWithTies, lastRowAccessor);
+        TableName traceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
+        List<List<DotMetaData>> scanResult = hbaseOperations.findParallel(traceIndexTableName, scan,
+                traceIndexDistributor, extractor, TRACE_INDEX_NUM_PARTITIONS);
         List<DotMetaData> dotMetaDataList = ListListUtils.toList(scanResult);
 
-        boolean overflow = LastTimeListExtractor.isOverflow(dotMetaDataList, limit);
+        boolean overflow = LastTimeListExtractor.isOverflow(dotMetaDataList, limitWithTies);
         final long lastTime = LastTimeListExtractor.getLastTime(overflow, lastRowAccessor, value -> value.getDot().getAcceptedTime(), range.getFrom());
         return new LimitedScanResult<>(lastTime, dotMetaDataList);
+    }
+
+    private <T> LastRowWithTiesResultsExtractor<T> newLastRowWithTiesResultsExtractor(
+            RowMapper<T> rowMapper, int limitWithTies, LastRowHandler<T> lastRowHandler) {
+        return new LastRowWithTiesResultsExtractor<>(
+                rowMapper, limitWithTies,
+                TraceIndexRowKeyUtils.SALTED_ROW_TIMESTAMP_OFFSET, Long.BYTES,
+                lastRowHandler);
     }
 
     private Scan createScan(int serviceUid, String applicationName, int serviceTypeCode, Range range) {

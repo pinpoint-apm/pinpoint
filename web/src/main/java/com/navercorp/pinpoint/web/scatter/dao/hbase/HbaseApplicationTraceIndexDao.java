@@ -237,7 +237,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
         List<List<Dot>> listList = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
-                traceIdRowKeyDistributor, limit, this.traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
+                traceIdRowKeyDistributor, limit, this.traceIndexScatterMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(listList);
 
         boolean overflow = LastTimeListExtractor.isOverflow(dots, limit);

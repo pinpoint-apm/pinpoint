@@ -18,8 +18,7 @@ package com.navercorp.pinpoint.web.scatter.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
-import com.navercorp.pinpoint.common.hbase.LastRowHandler;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
@@ -94,7 +93,7 @@ public class HbaseTraceIndexDaoTest {
     public void scanTraceIndexMetaTest() {
         final List<List<DotMetaData>> scannedList = Collections.nCopies(10, List.of(testDotMetaData));
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
-                anyInt(), any(RowMapper.class), any(LastRowHandler.class), anyInt())).thenReturn(scannedList);
+                any(ResultsExtractor.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<DotMetaData>> result =
                 this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 20);
         Assertions.assertEquals(1000L, result.limitedTime());
@@ -114,7 +113,7 @@ public class HbaseTraceIndexDaoTest {
     public void scanTraceIndexEmptyTest() {
 
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
-                anyInt(), any(RowMapper.class), any(LastRowHandler.class), anyInt())).thenReturn(List.of());
+                any(ResultsExtractor.class), anyInt())).thenReturn(List.of());
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
                 = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10);
@@ -131,7 +130,7 @@ public class HbaseTraceIndexDaoTest {
     public void scanTraceIndexDotTest() {
         List<List<Dot>> scanResult = createScatterDotList();
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
-                anyInt(), any(RowMapper.class), anyInt())).thenReturn(scanResult);
+                any(ResultsExtractor.class), anyInt())).thenReturn(scanResult);
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> limitedScanResult
                 = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10);
