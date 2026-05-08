@@ -39,9 +39,12 @@ import java.util.concurrent.TimeUnit;
 public class OtlpTraceSpanEventMapper {
 
     private final OtlpTraceEventMapper eventMapper;
+    private final OtlpTraceLinkMapper linkMapper;
 
-    public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper) {
+    public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper,
+                                    OtlpTraceLinkMapper linkMapper) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
+        this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
     }
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
@@ -101,6 +104,10 @@ public class OtlpTraceSpanEventMapper {
         // event
         for (Span.Event event : span.getEventsList()) {
             eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation);
+        }
+        // link
+        for (Span.Link link : span.getLinksList()) {
+            linkMapper.addLinkToAnnotation(link, spanEventBo::addAnnotation);
         }
 
         spanEventBo.setDepth(depth);

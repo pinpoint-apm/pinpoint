@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.boolVal;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.doubleVal;
@@ -35,12 +36,8 @@ class OtlpTraceEventMapperTest {
         writer = annotations::add;
     }
 
-    // -----------------------------------------------------------------------
-    // name only (no attributes)
-    // -----------------------------------------------------------------------
-
     @Test
-    void nameOnly_writesEmptyStringValue() {
+    void nameOnly_writesEmptyAttributesObject() {
         Span.Event event = Span.Event.newBuilder()
                 .setName("exception")
                 .build();
@@ -50,12 +47,8 @@ class OtlpTraceEventMapperTest {
         assertThat(annotations).hasSize(1);
         AnnotationBo bo = annotations.get(0);
         assertThat(bo.getKey()).isEqualTo(AnnotationKey.OPENTELEMETRY_EVENT.getCode());
-        assertThat(bo.getValue()).isEqualTo("{\"exception\":\"\"}");
+        assertThat(bo.getValue()).isEqualTo("{\"name\":\"exception\",\"attributes\":{}}");
     }
-
-    // -----------------------------------------------------------------------
-    // name + string attribute
-    // -----------------------------------------------------------------------
 
     @Test
     void withStringAttribute_writesAttributeMap() {
@@ -71,12 +64,83 @@ class OtlpTraceEventMapperTest {
 
         assertThat(annotations).hasSize(1);
         assertThat(annotations.get(0).getValue())
-                .isEqualTo("{\"exception\":{\"exception.type\":\"java.lang.RuntimeException\"}}");
+                .isEqualTo("{\"name\":\"exception\",\"attributes\":{\"exception.type\":\"java.lang.RuntimeException\"}}");
     }
 
-    // -----------------------------------------------------------------------
-    // name + multiple attribute types (int, bool, double)
-    // -----------------------------------------------------------------------
+    @Test
+    void withTimestamp_emitsTimeUnixNano() throws Exception {
+        long epochNanos = TimeUnit.MILLISECONDS.toNanos(1_700_000_000_123L);
+        Span.Event event = Span.Event.newBuilder()
+                .setName("checkpoint")
+                .setTimeUnixNano(epochNanos)
+                .build();
+
+        mapper.addEventToAnnotation(event, writer);
+
+        ObjectMapper om = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
+        assertThat(root).containsEntry("name", "checkpoint");
+        assertThat(root).containsEntry("timeUnixNano", epochNanos);
+        assertThat(root.get("attributes")).isEqualTo(Map.of());
+    }
+
+    @Test
+    void withoutTimestamp_omitsTimeUnixNanoField() throws Exception {
+        Span.Event event = Span.Event.newBuilder().setName("notime").build();
+
+        mapper.addEventToAnnotation(event, writer);
+
+        ObjectMapper om = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
+        assertThat(root).doesNotContainKey("timeUnixNano");
+    }
+
+    @Test
+    void exceptionEvent_stripsStacktraceAttribute() throws Exception {
+        List<KeyValue> attrs = List.of(
+                kv("exception.type", strVal("java.lang.RuntimeException")),
+                kv("exception.message", strVal("boom")),
+                kv("exception.stacktrace", strVal("java.lang.RuntimeException: boom\n\tat ..."))
+        );
+        Span.Event event = Span.Event.newBuilder()
+                .setName("exception")
+                .addAllAttributes(attrs)
+                .build();
+
+        mapper.addEventToAnnotation(event, writer);
+
+        ObjectMapper om = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> attributes = (Map<String, Object>) root.get("attributes");
+        assertThat(attributes)
+                .containsEntry("exception.type", "java.lang.RuntimeException")
+                .containsEntry("exception.message", "boom")
+                .doesNotContainKey("exception.stacktrace");
+    }
+
+    @Test
+    void nonExceptionEvent_keepsAllAttributes() throws Exception {
+        List<KeyValue> attrs = List.of(
+                kv("exception.stacktrace", strVal("not an exception event"))
+        );
+        Span.Event event = Span.Event.newBuilder()
+                .setName("custom")
+                .addAllAttributes(attrs)
+                .build();
+
+        mapper.addEventToAnnotation(event, writer);
+
+        ObjectMapper om = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> attributes = (Map<String, Object>) root.get("attributes");
+        assertThat(attributes).containsKey("exception.stacktrace");
+    }
 
     @Test
     void withMultipleAttributeTypes_writesCorrectJson() throws Exception {
@@ -98,18 +162,14 @@ class OtlpTraceEventMapperTest {
         ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue(json, Map.class);
-        assertThat(root).containsKey("my-event");
+        assertThat(root).containsEntry("name", "my-event");
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> inner = (Map<String, Object>) root.get("my-event");
+        Map<String, Object> inner = (Map<String, Object>) root.get("attributes");
         assertThat(inner).containsEntry("count", 42);
         assertThat(inner).containsEntry("flag", true);
         assertThat(inner).containsEntry("ratio", 0.5);
     }
-
-    // -----------------------------------------------------------------------
-    // name + array attribute
-    // -----------------------------------------------------------------------
 
     @Test
     void withArrayAttribute_writesArray() throws Exception {
@@ -130,17 +190,13 @@ class OtlpTraceEventMapperTest {
         ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue(json, Map.class);
+        assertThat(root).containsEntry("name", "tagged");
 
-        assertThat(root.get("tagged")).isInstanceOf(Map.class);
         @SuppressWarnings("unchecked")
-        Map<String, Object> inner = (Map<String, Object>) root.get("tagged");
+        Map<String, Object> inner = (Map<String, Object>) root.get("attributes");
         assertThat(inner.get("tags")).isInstanceOf(List.class)
                 .asList().containsExactly("a", "b");
     }
-
-    // -----------------------------------------------------------------------
-    // verify annotation key code
-    // -----------------------------------------------------------------------
 
     @Test
     void annotationKey_isOpentelemetryEvent() {
@@ -153,4 +209,3 @@ class OtlpTraceEventMapperTest {
     }
 
 }
-
