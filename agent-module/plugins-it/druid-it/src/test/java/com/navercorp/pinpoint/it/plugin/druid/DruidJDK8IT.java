@@ -7,7 +7,7 @@ import com.navercorp.pinpoint.test.plugin.PluginTest;
 
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.alibaba:druid:[1.1.21,)", "com.h2database:h2:1.4.191"})
+@Dependency({"com.alibaba:druid:[1.1.21,)", "com.h2database:h2:1.4.200"})
 public class DruidJDK8IT extends DruidIT {
 
 }
