@@ -4,7 +4,16 @@ import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useTransactionSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
 
+const hasLinkParams = (queryParams: Partial<TransactionInfo.Parameters>) =>
+  !!queryParams.linkTraceId && !!queryParams.linkSpanId;
+
 const getQueryString = (queryParams: Partial<TransactionInfo.Parameters>) => {
+  if (hasLinkParams(queryParams)) {
+    if (queryParams.spanId && queryParams.traceId) {
+      return '?' + convertParamsToQueryString(queryParams);
+    }
+    return '';
+  }
   if (queryParams?.agentId && queryParams?.spanId && queryParams?.traceId) {
     return '?' + convertParamsToQueryString(queryParams);
   }
@@ -19,15 +28,18 @@ export const useGetTransactionInfo = () => {
     spanId: transactionInfo?.spanId,
     traceId: transactionInfo?.traceId,
     focusTimestamp: transactionInfo?.focusTimestamp,
+    linkTraceId: transactionInfo?.linkTraceId,
+    linkSpanId: transactionInfo?.linkSpanId,
   };
 
   const queryString = getQueryString(queryParams);
+  const endpoint = hasLinkParams(queryParams)
+    ? END_POINTS.TRANSACTION_INFO_LINK
+    : END_POINTS.TRANSACTION_INFO;
 
   const { data, isLoading, isFetching } = useSuspenseQuery<TransactionInfo.Response | null>({
-    queryKey: [END_POINTS.TRANSACTION_INFO, queryString],
-    queryFn: queryString
-      ? queryFn(`${END_POINTS.TRANSACTION_INFO}${queryString}`)
-      : async () => null,
+    queryKey: [endpoint, queryString],
+    queryFn: queryString ? queryFn(`${endpoint}${queryString}`) : async () => null,
   });
   const mapData = getMapData(data);
   const tableData = convertToTree(mapData, null);

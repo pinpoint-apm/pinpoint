@@ -7,6 +7,8 @@ export namespace TransactionTraceServerMap {
     traceId: string;
     focusTimestamp: number;
     useStatisticsAgentState?: boolean;
+    linkTraceId?: string;
+    linkSpanId?: string;
   }
 
   export interface Response {

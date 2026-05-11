@@ -51,7 +51,9 @@ import com.navercorp.pinpoint.web.trace.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.trace.span.Align;
 import com.navercorp.pinpoint.web.trace.span.CallTree;
 import com.navercorp.pinpoint.web.trace.span.CallTreeIterator;
+import com.navercorp.pinpoint.web.trace.span.CallTreeNode;
 import com.navercorp.pinpoint.web.trace.span.SpanAligner;
+import com.navercorp.pinpoint.web.trace.span.SpanCallTree;
 import com.navercorp.pinpoint.web.trace.span.TraceState;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.apache.commons.collections4.CollectionUtils;
@@ -163,6 +165,109 @@ public class SpanServiceImpl implements SpanService {
 
         // TODO need to at least show the row data when root span is not found.
         return result;
+    }
+
+    @Override
+    public SpanResult selectSpanAndLink(ServerTraceId transactionId, Predicate<SpanBo> filter,
+                                        long graftSpanId, ServerTraceId linkServerTraceId,
+                                        ColumnGetCount columnGetCount) {
+        Objects.requireNonNull(transactionId, "transactionId");
+        Objects.requireNonNull(filter, "filter");
+        Objects.requireNonNull(linkServerTraceId, "linkServerTraceId");
+        Objects.requireNonNull(columnGetCount, "columnGetCount");
+
+        final FetchResult<List<SpanBo>> fetchResult = traceDao.selectSpan(transactionId, columnGetCount);
+        final List<SpanBo> spans = fetchResult.data();
+        logger.debug("selectSpanAndLink spans:{}", spans.size());
+
+        populateAgentName(spans);
+        if (CollectionUtils.isEmpty(spans)) {
+            return new SpanResult(TraceState.State.ERROR, new CallTreeIterator(null));
+        }
+
+        final boolean isReachedLimit = columnGetCount.isReachedLimit(fetchResult.fetchCount());
+
+        final SpanAligner mainAligner = new SpanAligner(spans, filter, serviceTypeRegistryService);
+        final CallTree mainTree = mainAligner.align();
+
+        TraceState.State matchType = mainAligner.getMatchType();
+        if (matchType == TraceState.State.PROGRESS && isReachedLimit) {
+            matchType = TraceState.State.OVERFLOW;
+        }
+
+        // Skip graft when link target equals main transaction; grafting would duplicate the tree under itself.
+        if (transactionId.equals(linkServerTraceId)) {
+            logger.warn("Skip OTel link graft: link target equals main transaction. transactionId={}", transactionId);
+        } else if (mainTree instanceof SpanCallTree mainSpanTree) {
+            final boolean grafted = graftLinkedTree(mainSpanTree, filter, graftSpanId, linkServerTraceId, columnGetCount);
+            if (!grafted && matchType == TraceState.State.COMPLETE) {
+                // Surface a partial result so the caller can signal the link could not be fully resolved.
+                matchType = TraceState.State.PROGRESS;
+            }
+        }
+
+        final CallTreeIterator callTreeIterator = mainTree.iterator();
+        final List<Align> values = callTreeIterator.values();
+        annotationCallback.replacement(values);
+
+        return new SpanResult(matchType, callTreeIterator);
+    }
+
+    private boolean graftLinkedTree(SpanCallTree mainSpanTree, Predicate<SpanBo> filter,
+                                    long graftSpanId, ServerTraceId linkServerTraceId,
+                                    ColumnGetCount columnGetCount) {
+        // Main tree is the OTel Link target (upstream); upstream has no Link annotation pointing back,
+        // so we locate the graft point by matching the upstream span's spanId directly.
+        final CallTreeNode targetNode = findSpanNode(mainSpanTree.getRoot(), graftSpanId);
+        if (targetNode == null) {
+            logger.warn("Upstream span not found for graft. spanId:{}", graftSpanId);
+            return false;
+        }
+
+        final FetchResult<List<SpanBo>> linkedFetch = traceDao.selectSpan(linkServerTraceId, columnGetCount);
+        final List<SpanBo> linkedSpans = linkedFetch.data();
+        if (CollectionUtils.isEmpty(linkedSpans)) {
+            logger.warn("Linked spans not found. linkServerTraceId:{}", linkServerTraceId);
+            return false;
+        }
+        populateAgentName(linkedSpans);
+
+        final CallTree linkedTree = new SpanAligner(linkedSpans, filter, serviceTypeRegistryService).align();
+        if (linkedTree.isEmpty()) {
+            logger.warn("Linked tree empty after alignment. linkServerTraceId:{}", linkServerTraceId);
+            return false;
+        }
+
+        mainSpanTree.setCursor(targetNode);
+        mainSpanTree.add(linkedTree);
+        return true;
+    }
+
+    private CallTreeNode findSpanNode(CallTreeNode start, long expectedSpanId) {
+        CallTreeNode node = start;
+        while (node != null) {
+            final Align align = node.getAlign();
+            if (align != null && !align.isMeta() && matchesSpanId(align, expectedSpanId)) {
+                return node;
+            }
+            if (node.hasChild()) {
+                final CallTreeNode result = findSpanNode(node.getChild(), expectedSpanId);
+                if (result != null) {
+                    return result;
+                }
+            }
+            node = node.getSibling();
+        }
+        return null;
+    }
+
+    private static boolean matchesSpanId(Align align, long expectedSpanId) {
+        if (align.isSpan()) {
+            return align.getSpanId() == expectedSpanId;
+        }
+        // SpanEvent: only meaningful when this event represents an OTel sub-span,
+        // since legacy Pinpoint span events do not carry a distinct span id.
+        return align.isOpenTelemetry() && align.getOpenTelemetrySpanId() == expectedSpanId;
     }
 
     public static class AnnotationCallbackExecutor {
@@ -278,9 +383,9 @@ public class SpanServiceImpl implements SpanService {
                 } else {
                     // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
                     String collisionSqlIdCodeMessage = "Collision Sql sqlId:" + sqlId + "\n" +
-                                                       sqlMetaDataList.stream()
-                                                               .map(SqlMetaDataBo::getSql)
-                                                               .collect(Collectors.joining("or\n"));
+                            sqlMetaDataList.stream()
+                                    .map(SqlMetaDataBo::getSql)
+                                    .collect(Collectors.joining("or\n"));
                     AnnotationBo api = AnnotationBo.of(AnnotationKey.SQL.getCode(), collisionSqlIdCodeMessage);
                     annotationBoList.add(api);
                 }
@@ -345,9 +450,9 @@ public class SpanServiceImpl implements SpanService {
                 } else {
                     // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
                     String collisionSqlUidCodeMessage = "Collision Sql sqlUid:" + Arrays.toString(sqlUid) + "\n" +
-                                                        sqlUidMetaDataList.stream()
-                                                                .map(SqlUidMetaDataBo::getSql)
-                                                                .collect(Collectors.joining("or\n"));
+                            sqlUidMetaDataList.stream()
+                                    .map(SqlUidMetaDataBo::getSql)
+                                    .collect(Collectors.joining("or\n"));
                     AnnotationBo api = AnnotationBo.of(AnnotationKey.SQL.getCode(), collisionSqlUidCodeMessage);
                     annotationBoList.add(api);
                 }

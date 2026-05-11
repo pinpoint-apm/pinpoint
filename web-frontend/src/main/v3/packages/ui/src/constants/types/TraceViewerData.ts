@@ -4,6 +4,8 @@ export namespace TraceViewerData {
     focusTimestamp?: string;
     agentId?: string;
     spanId?: string;
+    linkTraceId?: string;
+    linkSpanId?: string;
   }
 
   export interface Response {

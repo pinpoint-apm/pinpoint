@@ -32,6 +32,10 @@ public interface SpanService {
 
     SpanResult selectSpan(ServerTraceId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount);
 
+    SpanResult selectSpanAndLink(ServerTraceId transactionId, Predicate<SpanBo> filter,
+                                 long graftSpanId, ServerTraceId linkServerTraceId,
+                                 ColumnGetCount columnGetCount);
+
     void populateAgentName(List<SpanBo> spanBoList);
 
 }

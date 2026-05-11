@@ -42,6 +42,8 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
     spanId: `${transactionInfo?.spanId}`,
     agentId: transactionInfo?.agentId,
     focusTimestamp: transactionSearchParams?.focusTimestamp,
+    linkTraceId: transactionSearchParams?.linkTraceId,
+    linkSpanId: transactionSearchParams?.linkSpanId,
   });
   const flameGraphData = genFlameGraphData(data);
 

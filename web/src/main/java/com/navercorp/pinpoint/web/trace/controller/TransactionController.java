@@ -113,16 +113,56 @@ public class TransactionController {
             @RequestParam(value = "agentId", required = false)
             String agentId,
             @RequestParam(value = "spanId", required = false, defaultValue = SpanId.NULL_STRING)
-            long spanId
+            long spanId,
+            @RequestParam(value = "linkTraceId", required = false) @NullOrNotBlank
+            String linkTraceId,
+            @RequestParam(value = "linkSpanId", required = false, defaultValue = SpanId.NULL_STRING)
+            long linkSpanId
     ) {
-        logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
-                traceId, focusTimestamp, agentId, spanId);
+        logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, linkTraceId={}, linkSpanId={}}",
+                traceId, focusTimestamp, agentId, spanId, linkTraceId, linkSpanId);
         ServerTraceId serverTraceId = ServerTraceId.of(traceId);
+        final long focusSpanId = focusSpanId(spanId, linkTraceId, linkSpanId);
+        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(focusSpanId, agentId, focusTimestamp);
+        return getTransactionCallTree(serverTraceId, spanMatchFilter, spanId, linkTraceId, linkSpanId);
+    }
 
+    @GetMapping(value = "/trace/link")
+    public TransactionCallTreeViewModel getTraceLink(
+            @RequestParam("traceId") @NotBlank String traceId,
+            @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
+            @PositiveOrZero
+            long focusTimestamp,
+            @RequestParam(value = "spanId", required = false, defaultValue = SpanId.NULL_STRING)
+            long spanId,
+            @RequestParam(value = "linkTraceId", required = false) @NullOrNotBlank
+            String linkTraceId,
+            @RequestParam(value = "linkSpanId", required = false, defaultValue = SpanId.NULL_STRING)
+            long linkSpanId
+    ) {
+        logger.debug("GET /trace/link params {traceId={}, focusTimestamp={}, spanId={}, linkTraceId={}, linkSpanId={}}",
+                traceId, focusTimestamp, spanId, linkTraceId, linkSpanId);
+        ServerTraceId serverTraceId = ServerTraceId.of(traceId);
+        final long focusSpanId = focusSpanId(spanId, linkTraceId, linkSpanId);
+        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(focusSpanId, null, focusTimestamp);
+        return getTransactionCallTree(serverTraceId, spanMatchFilter, spanId, linkTraceId, linkSpanId);
+    }
+
+    private TransactionCallTreeViewModel getTransactionCallTree(
+            ServerTraceId serverTraceId,
+            Predicate<SpanBo> spanMatchFilter,
+            long spanId,
+            String linkTraceId,
+            long linkSpanId
+    ) {
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
-        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
-        // select spans
-        final SpanResult spanResult = this.spanService.selectSpan(serverTraceId, spanMatchFilter, columnGetCount);
+        final SpanResult spanResult;
+        if (linkTraceId != null && linkSpanId != SpanId.NULL) {
+            final ServerTraceId linkServerTraceId = ServerTraceId.of(linkTraceId);
+            spanResult = this.spanService.selectSpanAndLink(serverTraceId, spanMatchFilter, spanId, linkServerTraceId, columnGetCount);
+        } else {
+            spanResult = this.spanService.selectSpan(serverTraceId, spanMatchFilter, columnGetCount);
+        }
         final CallTreeIterator callTreeIterator = spanResult.callTree();
         final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
 
@@ -141,18 +181,58 @@ public class TransactionController {
             @RequestParam(value = "agentId", required = false) @NullOrNotBlank
             String agentId,
             @RequestParam(value = "spanId", required = false, defaultValue = "-1")
-            long spanId
+            long spanId,
+            @RequestParam(value = "linkTraceId", required = false) @NullOrNotBlank
+            String linkTraceId,
+            @RequestParam(value = "linkSpanId", required = false, defaultValue = SpanId.NULL_STRING)
+            long linkSpanId
     ) {
-        logger.debug("GET /traceViewerData params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
-                traceIdParam, focusTimestamp, agentId, spanId);
+        logger.debug("GET /traceViewerData params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, linkTraceId={}, linkSpanId={}}",
+                traceIdParam, focusTimestamp, agentId, spanId, linkTraceId, linkSpanId);
 
         ServerTraceId serverTraceId = ServerTraceId.of(traceIdParam);
+        final long focusSpanId = focusSpanId(spanId, linkTraceId, linkSpanId);
+        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(focusSpanId, agentId, focusTimestamp);
+        return buildTraceViewerData(serverTraceId, spanMatchFilter, spanId, linkTraceId, linkSpanId);
+    }
 
+    @GetMapping(value = "/traceViewerData/link")
+    public TraceViewerDataView traceViewerDataLink(
+            @RequestParam("traceId") @NotBlank
+            String traceIdParam,
+            @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") @PositiveOrZero
+            long focusTimestamp,
+            @RequestParam(value = "spanId", required = false, defaultValue = "-1")
+            long spanId,
+            @RequestParam(value = "linkTraceId", required = false) @NullOrNotBlank
+            String linkTraceId,
+            @RequestParam(value = "linkSpanId", required = false, defaultValue = SpanId.NULL_STRING)
+            long linkSpanId
+    ) {
+        logger.debug("GET /traceViewerData/link params {traceId={}, focusTimestamp={}, spanId={}, linkTraceId={}, linkSpanId={}}",
+                traceIdParam, focusTimestamp, spanId, linkTraceId, linkSpanId);
+
+        ServerTraceId serverTraceId = ServerTraceId.of(traceIdParam);
+        final long focusSpanId = focusSpanId(spanId, linkTraceId, linkSpanId);
+        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(focusSpanId, null, focusTimestamp);
+        return buildTraceViewerData(serverTraceId, spanMatchFilter, spanId, linkTraceId, linkSpanId);
+    }
+
+    private TraceViewerDataView buildTraceViewerData(
+            ServerTraceId serverTraceId,
+            Predicate<SpanBo> spanMatchFilter,
+            long spanId,
+            String linkTraceId,
+            long linkSpanId
+    ) {
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
-
-        // select spans
-        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
-        final SpanResult spanResult = this.spanService.selectSpan(serverTraceId, spanMatchFilter, columnGetCount);
+        final SpanResult spanResult;
+        if (linkTraceId != null && linkSpanId != SpanId.NULL) {
+            final ServerTraceId linkServerTraceId = ServerTraceId.of(linkTraceId);
+            spanResult = this.spanService.selectSpanAndLink(serverTraceId, spanMatchFilter, spanId, linkServerTraceId, columnGetCount);
+        } else {
+            spanResult = this.spanService.selectSpan(serverTraceId, spanMatchFilter, columnGetCount);
+        }
         final CallTreeIterator callTreeIterator = spanResult.callTree();
 
         final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
@@ -169,20 +249,60 @@ public class TransactionController {
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam(value = "spanId", required = false, defaultValue = SpanId.NULL_STRING) long spanId,
             @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
-            boolean useStatisticsAgentState
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "linkTraceId", required = false) @NullOrNotBlank
+            String linkTraceId,
+            @RequestParam(value = "linkSpanId", required = false, defaultValue = SpanId.NULL_STRING)
+            long linkSpanId
     ) {
         ServerTraceId serverTraceId = ServerTraceId.of(traceId);
-
-        final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
-
         Range scanRange = Range.between(focusTimestamp, focusTimestamp + 1);
-        // application map
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(serverTraceId, scanRange, columnGetCount)
+        return buildTransactionServerMap(serverTraceId, scanRange, spanId, useStatisticsAgentState, linkTraceId, linkSpanId);
+    }
+
+    @GetMapping(value = "/transaction/traceServerMap/link")
+    public TransactionServerMapViewModel transactionServerMapLink(
+            @RequestParam("traceId") @NotBlank String traceId,
+            @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
+            @PositiveOrZero
+            long focusTimestamp,
+            @RequestParam(value = "spanId", required = false, defaultValue = SpanId.NULL_STRING) long spanId,
+            @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "linkTraceId", required = false) @NullOrNotBlank
+            String linkTraceId,
+            @RequestParam(value = "linkSpanId", required = false, defaultValue = SpanId.NULL_STRING)
+            long linkSpanId
+    ) {
+        logger.debug("GET /transaction/traceServerMap/link params {traceId={}, focusTimestamp={}, spanId={}, useStatisticsAgentState={}, linkTraceId={}, linkSpanId={}}",
+                traceId, focusTimestamp, spanId, useStatisticsAgentState, linkTraceId, linkSpanId);
+        ServerTraceId serverTraceId = ServerTraceId.of(traceId);
+        Range scanRange = Range.between(focusTimestamp, focusTimestamp + 1);
+        return buildTransactionServerMap(serverTraceId, scanRange, spanId, useStatisticsAgentState, linkTraceId, linkSpanId);
+    }
+
+    private TransactionServerMapViewModel buildTransactionServerMap(
+            ServerTraceId serverTraceId,
+            Range scanRange,
+            long spanId,
+            boolean useStatisticsAgentState,
+            String linkTraceId,
+            long linkSpanId
+    ) {
+        final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
+        final FilteredMapServiceOption.Builder builder;
+        if (linkTraceId != null && linkSpanId != SpanId.NULL) {
+            final ServerTraceId linkServerTraceId = ServerTraceId.of(linkTraceId);
+            builder = new FilteredMapServiceOption.Builder(
+                    List.of(serverTraceId, linkServerTraceId), scanRange, columnGetCount);
+        } else {
+            builder = new FilteredMapServiceOption.Builder(serverTraceId, scanRange, columnGetCount);
+        }
+        final FilteredMapServiceOption option = builder
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);
         MapView mapView = getApplicationMap(map);
-
         return new TransactionServerMapViewModel(serverTraceId.toString(), spanId, mapView);
     }
 
@@ -218,6 +338,16 @@ public class TransactionController {
         public MetadataView(List<? extends DotMetaDataView> metadata) {
             this(metadata, true, 0);
         }
+    }
+
+    private static long focusSpanId(long spanId, String linkTraceId, long linkSpanId) {
+        // When the OTel link is followed, the merged tree's main is the upstream trace
+        // but the user originated from the downstream side (where the Link annotation lives).
+        // Focus on linkSpanId so the highlighted row lands on the originating downstream span.
+        if (linkTraceId != null && linkSpanId != SpanId.NULL) {
+            return linkSpanId;
+        }
+        return spanId;
     }
 
     private MapView getApplicationMap(ApplicationMap map) {

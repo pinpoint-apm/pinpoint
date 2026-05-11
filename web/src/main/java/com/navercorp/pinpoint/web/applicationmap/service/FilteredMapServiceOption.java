@@ -107,6 +107,13 @@ public class FilteredMapServiceOption {
             this.filter = Filter.acceptAllFilter();
         }
 
+        public Builder(List<ServerTraceId> transactionIdList, Range range, ColumnGetCount columnGetCount) {
+            this.transactionIdList = Objects.requireNonNull(transactionIdList, "transactionIdList");
+            this.range = Objects.requireNonNull(range, "scanRange");
+            this.columnGetCount = columnGetCount;
+            this.filter = Filter.acceptAllFilter();
+        }
+
         public Builder(List<ServerTraceId> transactionIdList, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
             this.transactionIdList = Objects.requireNonNull(transactionIdList, "transactionIdList");
             this.filter = Objects.requireNonNull(filter, "filter");

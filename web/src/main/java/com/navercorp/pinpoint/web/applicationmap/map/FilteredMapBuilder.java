@@ -17,12 +17,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
@@ -39,6 +42,7 @@ import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.DotExtractor;
 import com.navercorp.pinpoint.web.util.OpenTelemetryAnnotationValueUtils;
+import com.navercorp.pinpoint.web.util.OtelLinkValue;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.Service;
@@ -93,10 +97,103 @@ public class FilteredMapBuilder {
     }
 
     public FilteredMapBuilder addTransactions(List<List<SpanBo>> transactionList) {
+        final MultiValueMap<TraceSpanKey, SpanBo> otelLinkIndex = buildOtelLinkIndex(transactionList);
         for (List<SpanBo> transaction : transactionList) {
             addTransaction(transaction);
+            addOtelLinksByUpstream(transaction, otelLinkIndex);
         }
         return this;
+    }
+
+    private MultiValueMap<TraceSpanKey, SpanBo> buildOtelLinkIndex(List<List<SpanBo>> transactionList) {
+        final MultiValueMap<TraceSpanKey, SpanBo> index = new LinkedMultiValueMap<>();
+        for (List<SpanBo> transaction : transactionList) {
+            for (SpanBo host : transaction) {
+                if (!OpenTelemetryServiceTypeCategory.contains(host.getServiceType())) {
+                    continue;
+                }
+                final List<AnnotationBo> annotationBoList = host.getAnnotationBoList();
+                if (annotationBoList == null || annotationBoList.isEmpty()) {
+                    continue;
+                }
+                for (AnnotationBo annotation : annotationBoList) {
+                    if (annotation.getKey() != AnnotationKey.OPENTELEMETRY_LINK.getCode()) {
+                        continue;
+                    }
+                    final OtelLinkValue value = OtelLinkValue.parse(annotation.getValue());
+                    if (value == null || value.traceId() == null || value.spanId() == null) {
+                        continue;
+                    }
+                    index.add(new TraceSpanKey(value.traceId(), value.spanId()), host);
+                }
+            }
+        }
+        return index;
+    }
+
+    private void addOtelLinksByUpstream(List<SpanBo> transaction, MultiValueMap<TraceSpanKey, SpanBo> otelLinkIndex) {
+        if (otelLinkIndex.isEmpty()) {
+            return;
+        }
+        for (SpanBo upstream : transaction) {
+            if (!OpenTelemetryServiceTypeCategory.contains(upstream.getServiceType())) {
+                continue;
+            }
+            // 1) Top-level OTel span: compare SpanBo's spanId
+            matchAndAddLink(upstream, upstream.getSpanId(), otelLinkIndex);
+
+            // 2) OTel sub-span(s) inside SpanEvents: compare each event's OPENTELEMETRY_SPAN_ID
+            matchSpanEvents(upstream, upstream.getSpanEventBoList(), otelLinkIndex);
+            for (SpanChunkBo chunk : upstream.getSpanChunkBoList()) {
+                matchSpanEvents(upstream, chunk.getSpanEventBoList(), otelLinkIndex);
+            }
+        }
+    }
+
+    private void matchSpanEvents(SpanBo host, List<SpanEventBo> events, MultiValueMap<TraceSpanKey, SpanBo> otelLinkIndex) {
+        if (events == null || events.isEmpty()) {
+            return;
+        }
+        for (SpanEventBo event : events) {
+            final long otelSpanId = OpenTelemetryAnnotationValueUtils.getSpanId(event.getAnnotationBoList());
+            if (otelSpanId == OpenTelemetryAnnotationValueUtils.DEFAULT_SPAN_ID) {
+                continue;
+            }
+            matchAndAddLink(host, otelSpanId, otelLinkIndex);
+        }
+    }
+
+    private void matchAndAddLink(SpanBo upstream, long candidateSpanId, MultiValueMap<TraceSpanKey, SpanBo> otelLinkIndex) {
+        final List<SpanBo> downstreams = otelLinkIndex.get(
+                new TraceSpanKey(upstream.getTransactionId(), candidateSpanId));
+        if (downstreams == null || downstreams.isEmpty()) {
+            return;
+        }
+        for (SpanBo downstream : downstreams) {
+            if (downstream == upstream) {
+                continue;
+            }
+            addOtelLinkData(upstream, downstream);
+        }
+    }
+
+    private void addOtelLinkData(SpanBo upstream, SpanBo downstream) {
+        final Application src = applicationFactory.createApplication(
+                upstream.getApplicationName(), upstream.getApplicationServiceType());
+        final Application dst = applicationFactory.createApplication(
+                downstream.getApplicationName(), downstream.getApplicationServiceType());
+        final long timestamp = timeWindow.refineTimestamp(downstream.getCollectorAcceptTime());
+        final short slotTime = getHistogramSlotTime(downstream, dst.getServiceType());
+
+        final LinkDataMap source = linkDataDuplexMap.getSourceLinkDataMap();
+        source.addLinkData(src, upstream.getAgentId(), dst, downstream.getAgentId(),
+                timestamp, slotTime, 1);
+        final LinkDataMap target = linkDataDuplexMap.getTargetLinkDataMap();
+        target.addLinkData(src, upstream.getAgentId(), dst, downstream.getAgentId(),
+                timestamp, slotTime, 1);
+    }
+
+    private record TraceSpanKey(ServerTraceId traceId, long spanId) {
     }
 
     public FilteredMapBuilder addTransaction(List<SpanBo> transaction) {

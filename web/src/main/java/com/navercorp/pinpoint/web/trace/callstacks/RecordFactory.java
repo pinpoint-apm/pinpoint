@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.trace.Api;
 import com.navercorp.pinpoint.common.server.trace.ApiParser;
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
@@ -36,6 +37,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.trace.span.Align;
 import com.navercorp.pinpoint.web.trace.span.CallTreeNode;
+import com.navercorp.pinpoint.web.util.OtelLinkValue;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -203,7 +205,10 @@ public class RecordFactory {
             final AnnotationKey key = findAnnotationKey(annotation.getKey());
             if (key.isViewInRecordSet()) {
                 final String title = this.annotationRecordFormatter.formatTitle(key, annotation, align);
-                final String arguments = this.annotationRecordFormatter.formatArguments(key, annotation, align);
+                String arguments = this.annotationRecordFormatter.formatArguments(key, annotation, align);
+                if (annotation.getKey() == AnnotationKey.OPENTELEMETRY_LINK.getCode()) {
+                    arguments = augmentOtelLink(arguments, align);
+                }
                 final Record record = new AnnotationRecord(
                         depth, getNextId(), parentId, title, arguments, annotation.isAuthorized()
                 );
@@ -212,6 +217,23 @@ public class RecordFactory {
         }
 
         return list;
+    }
+
+    private String augmentOtelLink(String arguments, Align align) {
+        // traceId/spanId in the raw annotation point to the OTel Link target (upstream).
+        // Augment with linkTraceId/linkSpanId of the current (downstream) span where the Link annotation lives.
+        final OtelLinkValue value = OtelLinkValue.parse(arguments);
+        if (value == null) {
+            return arguments;
+        }
+        final ServerTraceId linkTraceId;
+        try {
+            linkTraceId = ServerTraceId.of(align.getTransactionId());
+        } catch (RuntimeException e) {
+            return arguments;
+        }
+        return value.withDownstream(linkTraceId, align.getSpanId(), align.getCollectorAcceptTime())
+                .toJson();
     }
 
     public Record getAttribute(final int depth, final int parentId, Align align) {

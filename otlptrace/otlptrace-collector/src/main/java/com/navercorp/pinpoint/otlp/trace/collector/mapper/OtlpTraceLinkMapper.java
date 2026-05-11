@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
+import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import io.opentelemetry.proto.trace.v1.Span;
 
@@ -35,7 +36,10 @@ public class OtlpTraceLinkMapper {
                 map.put("traceId", Base16Utils.encodeToString(link.getTraceId().toByteArray()));
             }
             if (!link.getSpanId().isEmpty()) {
-                map.put("spanId", Base16Utils.encodeToString(link.getSpanId().toByteArray()));
+                // Stored as decimal String to avoid JS Number precision loss for any consumer that
+                // reads the raw annotation JSON directly. Java readers (OtelLinkValue.readLong)
+                // accept both number and decimal-string forms, preserving backward compatibility.
+                map.put("spanId", String.valueOf(ByteStringUtils.parseLong(link.getSpanId())));
             }
             if (link.getAttributesCount() > 0) {
                 map.put("attributes", getAttributeToMap(link.getAttributesList()));

@@ -1,10 +1,12 @@
 import {
+  APP_PATH,
   BASE_PATH,
   SEARCH_PARAMETER_DATE_FORMAT,
   TransactionInfoType as TransactionInfo,
 } from '@pinpoint-fe/ui/src/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatInTimeZone } from 'date-fns-tz';
+import { Link } from 'react-router-dom';
 import {
   FaFire,
   FaDatabase,
@@ -12,6 +14,7 @@ import {
   FaPaperPlane,
   FaExchangeAlt,
   FaExclamationTriangle,
+  FaLink,
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { Button, ProgressBar } from '../..';
@@ -20,8 +23,13 @@ import {
   convertParamsToQueryString,
   getErrorAnalysisPath,
   getTimezone,
+  getTransactionDetailPath,
+  getTransactionDetailQueryString,
+  getTransactionListPath,
 } from '@pinpoint-fe/ui/src/utils';
 import { useTimezone, useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
+import { useSetAtom } from 'jotai';
 import React from 'react';
 
 export interface CallTreeTableColumnsProps {
@@ -298,7 +306,9 @@ const MethodCell = (props: {
   rowData: TransactionInfo.CallStackKeyValueMap;
   onClickDetailView: CallTreeTableColumnsProps['onClickDetailView'];
 }) => {
-  const { application, transactionInfo } = useTransactionSearchParameters();
+  const { application, transactionInfo, pathname, searchParameters } =
+    useTransactionSearchParameters();
+  const setCallTreeFocusId = useSetAtom(transactionInfoCallTreeFocusId);
   const { metaData, rowData, onClickDetailView } = props;
   let Icon;
   const text = rowData.title;
@@ -353,6 +363,21 @@ const MethodCell = (props: {
           <FaDatabase /> {text}
         </Button>
       );
+    } else if (text === 'Link') {
+      const linkPath = buildOtelLinkPath(rowData.arguments, application, {
+        pathname,
+        searchParameters,
+      });
+      if (linkPath) {
+        return (
+          <Button asChild className="text-xs h-[1rem] gap-0.5 p-1">
+            <Link to={linkPath} onClick={() => setCallTreeFocusId('')}>
+              <FaLink /> {text}
+            </Link>
+          </Button>
+        );
+      }
+      Icon = <FaLink />;
     } else {
       Icon = <FaInfoCircle />;
     }
@@ -383,4 +408,47 @@ export const getExecPercentage = (
 ) => {
   const totalExcuteTime = metaData.callStackEnd - metaData.callStackStart;
   return ((rowData.end - rowData.begin) / totalExcuteTime) * 100;
+};
+
+const buildOtelLinkPath = (
+  argumentsJson: string,
+  application: Parameters<typeof getTransactionDetailPath>[0],
+  context: {
+    pathname: string;
+    searchParameters: Record<string, string>;
+  },
+): string | null => {
+  if (!argumentsJson) return null;
+  try {
+    const parsed = JSON.parse(argumentsJson);
+    const { traceId, spanId, linkTraceId, linkSpanId, focusTimestamp } = parsed ?? {};
+    if (!traceId || spanId == null || !linkTraceId || linkSpanId == null) return null;
+
+    const transactionInfoParams = {
+      agentId: '',
+      spanId: String(spanId),
+      traceId: String(traceId),
+      focusTimestamp: typeof focusTimestamp === 'number' ? focusTimestamp : 0,
+      linkTraceId: String(linkTraceId),
+      linkSpanId: String(linkSpanId),
+    };
+
+    // Stay on /transactionList when the user opened the link from the list page,
+    // so the upper transaction-list panel (heatmap drag results) is preserved.
+    const onTransactionListPage =
+      context.pathname === APP_PATH.TRANSACTION_LIST ||
+      context.pathname.startsWith(`${APP_PATH.TRANSACTION_LIST}/`);
+    if (onTransactionListPage) {
+      return `${getTransactionListPath(application)}?${convertParamsToQueryString({
+        ...context.searchParameters,
+        transactionInfo: JSON.stringify(transactionInfoParams),
+      })}`;
+    }
+
+    return `${getTransactionDetailPath(application)}?${getTransactionDetailQueryString(
+      transactionInfoParams,
+    )}`;
+  } catch {
+    return null;
+  }
 };

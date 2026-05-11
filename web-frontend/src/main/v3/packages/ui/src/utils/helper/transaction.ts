@@ -30,6 +30,8 @@ export const getTransactionDetailQueryString = (queryParam: TransactionInfo.Para
       spanId: queryParam.spanId,
       traceId: queryParam.traceId,
       focusTimestamp: queryParam.focusTimestamp,
+      ...(queryParam.linkTraceId ? { linkTraceId: queryParam.linkTraceId } : {}),
+      ...(queryParam.linkSpanId ? { linkSpanId: queryParam.linkSpanId } : {}),
     }),
   )}`;
 };

@@ -5,6 +5,8 @@ export namespace TransactionInfoType {
     spanId: string;
     traceId: string;
     focusTimestamp: number;
+    linkTraceId?: string;
+    linkSpanId?: string;
   }
 
   export interface Response {
