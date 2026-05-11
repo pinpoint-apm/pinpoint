@@ -108,3 +108,28 @@ pinpoint.web.websocket:
   max-session-idle-timeout: 10800000 # 3 hours
   max-binary-message-buffer-size:
   max-text-message-buffer-size:
+
+
+# Service map application-to-service mock mapping rules
+web:
+  servicemap:
+    mock-enabled: false
+    mock-mappings:
+      - prefix: "PAPAGO"
+        serviceName: "PAPAGO"
+        serviceUid: 100
+      - prefix: "BOOKING"
+        serviceName: "BOOKING"
+        serviceUid: 200
+      - prefix: "booking"
+        serviceName: "BOOKING"
+        serviceUid: 200
+      - prefix: "VOD"
+        serviceName: "VOD"
+        serviceUid: 300
+      - prefix: "MAP"
+        serviceName: "MAP"
+        serviceUid: 400
+      - prefix: "LIKE"
+        serviceName: "LIKE"
+        serviceUid: 500
