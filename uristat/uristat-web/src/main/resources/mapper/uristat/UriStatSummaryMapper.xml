@@ -19,7 +19,7 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         GROUP BY uri, version
         ORDER BY ${orderBy} ${isDesc}
         LIMIT #{limit}
@@ -65,7 +65,7 @@
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
-        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         GROUP BY "timestamp", uri, version
         ORDER BY ${orderBy.optional} ${isDesc}
         LIMIT #{tenTimesLimit}

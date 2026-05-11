@@ -31,7 +31,7 @@
             AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
@@ -50,7 +50,7 @@
                   AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
@@ -69,7 +69,7 @@
                   AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
@@ -88,7 +88,7 @@
               AND serviceName = #{serviceName} -->
         sortKey = #{sortKey}
         AND fieldName = #{fieldName}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
@@ -114,7 +114,7 @@
             sortKey IN
             <foreach collection="sortKeys" item="sortKey" open="(" separator="," close=")">#{sortKey}</foreach>
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
@@ -133,7 +133,7 @@
             sortKey IN
             <foreach collection="sortKeys" item="sortKey" open="(" separator="," close=")">#{sortKey}</foreach>
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
@@ -152,7 +152,7 @@
             sortKey IN
             <foreach collection="sortKeys" item="sortKey" open="(" separator="," close=")">#{sortKey}</foreach>
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
@@ -167,7 +167,7 @@
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
     </select>
 
     <select id="selectTagInfoContainedSpecificTag" parameterType="inspectorQueryParameter" resultMap="tagInfoMap">
@@ -176,7 +176,7 @@
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
