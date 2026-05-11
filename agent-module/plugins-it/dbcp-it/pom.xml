@@ -46,28 +46,8 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugin-it-utils-jdbc</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-dbcp-plugin</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-mysql-jdbc-driver-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>mysql</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.4.0</version>
         </dependency>
     </dependencies>
 

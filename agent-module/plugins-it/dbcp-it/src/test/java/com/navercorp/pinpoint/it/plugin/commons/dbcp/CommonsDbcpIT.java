@@ -19,16 +19,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
-import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
-import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
-import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
-import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.jupiter.api.Test;
 
@@ -39,35 +33,31 @@ import java.sql.Connection;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@ImportPlugin({"com.navercorp.pinpoint:pinpoint-commons-dbcp-plugin", "com.navercorp.pinpoint:pinpoint-mysql-jdbc-driver-plugin", JDBCTestConstants.VERSION})
-@Dependency({"commons-dbcp:commons-dbcp:[1.2,)", "com.mysql:mysql-connector-j:8.4.0", JDBCTestConstants.VERSION})
-@SharedDependency({"mysql:mysql-connector-java:8.0.28", JDBCTestConstants.VERSION, TestcontainersOption.MYSQLDB})
-@SharedTestLifeCycleClass(MySqlServer8.class)
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-commons-dbcp-plugin"})
+@Dependency({"commons-dbcp:commons-dbcp:[1.2,)", "com.h2database:h2:1.4.200"})
 public class CommonsDbcpIT {
     private static final String DBCP = "DBCP";
+    private static final String JDBC_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1";
 
 
     @Test
     public void test() throws Exception {
-        DriverProperties properties = DatabaseContainers.readSystemProperties();
-
         BasicDataSource source = new BasicDataSource();
-        source.setDriverClassName(System.getProperty("mysql.driverClassName"));
-        source.setUrl(properties.getUrl());
-        source.setUsername(properties.getUser());
-        source.setPassword(properties.getPassword());
-        
+        source.setDriverClassName("org.h2.Driver");
+        source.setUrl(JDBC_URL);
+        source.setUsername("test");
+        source.setPassword("test");
+
         Connection connection = source.getConnection();
         connection.close();
-        
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        
+
         verifier.printCache();
-        verifier.ignoreServiceType("MYSQL", "MYSQL_EXECUTE_QUERY");
-        
+
         verifier.verifyTrace(Expectations.event(DBCP, BasicDataSource.class.getMethod("getConnection")));
         verifier.verifyTrace(Expectations.event(DBCP, connection.getClass().getMethod("close")));
-        
+
         verifier.verifyTraceCount(0);
     }
 }
