@@ -244,21 +244,67 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private CallTreeNode findSpanNode(CallTreeNode start, long expectedSpanId) {
-        CallTreeNode node = start;
-        while (node != null) {
-            final Align align = node.getAlign();
-            if (align != null && !align.isMeta() && matchesSpanId(align, expectedSpanId)) {
+        FindSpanNodeTraversal traversal = new FindSpanNodeTraversal(expectedSpanId);
+        return traversal.travel(start);
+    }
+
+    private static class FindSpanNodeTraversal {
+        private static final int MAX_OVERFLOW_COUNT = 1024;
+        private final long expectedSpanId;
+
+        // Defence cycle ref
+        // Weak validate
+        private int overflowCounter;
+
+        FindSpanNodeTraversal(long expectedSpanId) {
+            this.expectedSpanId = expectedSpanId;
+        }
+
+        CallTreeNode travel(CallTreeNode node) {
+            if (checkOverFlow()) {
+                return null;
+            }
+            if (matches(node)) {
                 return node;
             }
             if (node.hasChild()) {
-                final CallTreeNode result = findSpanNode(node.getChild(), expectedSpanId);
-                if (result != null) {
-                    return result;
+                final CallTreeNode hit = travel(node.getChild());
+                if (hit != null) {
+                    return hit;
                 }
             }
-            node = node.getSibling();
+
+            // change logic from recursive to loop, because of avoid call-stack-overflow.
+            CallTreeNode sibling = node.getSibling();
+            while (sibling != null) {
+                if (matches(sibling)) {
+                    return sibling;
+                }
+                if (sibling.hasChild()) {
+                    final CallTreeNode hit = travel(sibling.getChild());
+                    if (hit != null) {
+                        return hit;
+                    }
+                }
+                sibling = sibling.getSibling();
+            }
+            return null;
         }
-        return null;
+
+        private boolean checkOverFlow() {
+            if (overflowCounter++ > MAX_OVERFLOW_COUNT) {
+                return true;
+            }
+            return false;
+        }
+
+        boolean matches(CallTreeNode node) {
+            final Align align = node.getAlign();
+            if (align == null || align.isMeta()) {
+                return false;
+            }
+            return matchesSpanId(align, expectedSpanId);
+        }
     }
 
     private static boolean matchesSpanId(Align align, long expectedSpanId) {
