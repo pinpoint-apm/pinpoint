@@ -38,6 +38,15 @@ import cytoscape from 'cytoscape';
 import { cn } from '../../lib';
 import { Input } from '../ui/input';
 
+const XML_ESCAPE_MAP: Record<string, string> = {
+  '<': '&lt;',
+  '>': '&gt;',
+  '&': '&amp;',
+  '"': '&quot;',
+  "'": '&apos;',
+};
+const escapeXmlText = (s: string) => s.replace(/[<>&"']/g, (c) => XML_ESCAPE_MAP[c] ?? c);
+
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
   isLoading?: boolean;
@@ -144,13 +153,15 @@ export const ServerMapCore = ({
     allServiceTypes.current = Array.from(nodeTypes);
 
     const nodes: Node[] = nodeDataArray.map((node) => {
-      const hasSubNodes = Array.isArray((node as GetServerMap.NodeData).subNodes);
+      const subNodes = (node as GetServerMap.NodeData).subNodes;
+      const hasSubNodes = Array.isArray(subNodes);
       return {
         id: node.key,
         label: node.applicationName,
         type: node.serviceType,
         apdex: node.apdex,
-        imgPath: getServerImagePath(node),
+        imgPath: hasSubNodes ? '' : getServerImagePath(node),
+        subNodesCount: hasSubNodes ? subNodes!.length : undefined,
         transactionInfo: getTransactionInfo(node),
         timeSeriesApdexInfo: isFilteredMap
           ? undefined // filtered map에서는 시간 시리즈 Apdex 정보를 사용하지 않는다.
@@ -559,11 +570,19 @@ export const ServerMapCore = ({
                   baseNodeId={baseNodeId}
                   data={serverMapData}
                   renderNode={(node, transactionStatusSVGString) => {
+                    if (node?.subNodesCount !== undefined) {
+                      const serviceName = escapeXmlText(node.label ?? '');
+                      return `
+                  <text x="50" y="44" font-size="16" font-weight="bold" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif">${serviceName}</text>
+                  <line x1="35" y1="58" x2="65" y2="58" stroke="#999" stroke-width="1" />
+                  <text x="50" y="74" font-size="18" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif">${node.subNodesCount}</text>
+                `;
+                    }
                     return `
                   ${transactionStatusSVGString}
                   ${
                     node?.apdex?.apdexScore !== undefined &&
-                    `<text 
+                    `<text
                       x="50" y="80"
                       font-size="smaller"
                       dominant-baseline="middle"
@@ -572,6 +591,12 @@ export const ServerMapCore = ({
                     >${(Math.floor(node?.apdex?.apdexScore * 100) / 100).toFixed(2)}</text>`
                   }
                 `;
+                  }}
+                  renderNodeLabel={(node) => {
+                    if (node?.subNodesCount !== undefined) {
+                      return '';
+                    }
+                    return node?.label ?? '';
                   }}
                   renderEdgeLabel={(edge: MergedEdge) => {
                     if (edge?.transactionInfo?.totalCount) {

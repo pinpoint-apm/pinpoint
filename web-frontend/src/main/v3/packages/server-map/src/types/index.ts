@@ -18,6 +18,7 @@ export interface Node {
     [key: string]: any;
   };
   timeSeriesApdexInfo?: number[];
+  subNodesCount?: number;
   shouldNotMerge?: () => boolean;
 }
 

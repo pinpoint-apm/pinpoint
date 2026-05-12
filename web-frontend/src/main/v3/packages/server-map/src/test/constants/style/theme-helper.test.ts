@@ -70,8 +70,8 @@ describe('getServerMapStyle', () => {
 
     const nodeStyle = styles.find((s) => s.selector === 'node');
     expect(nodeStyle).toBeDefined();
-    expect(nodeStyle?.style?.width).toBe(100);
-    expect(nodeStyle?.style?.height).toBe(100);
+    expect(typeof nodeStyle?.style?.width).toBe('function');
+    expect(typeof nodeStyle?.style?.height).toBe('function');
   });
 
   it('엣지 스타일을 반환해야 함', () => {

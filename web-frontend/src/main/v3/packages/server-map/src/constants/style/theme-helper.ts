@@ -23,11 +23,22 @@ export const getServerMapStyle = ({
       selector: 'node',
       style: {
         ...theme.node?.default,
-        width: GraphStyle.NODE_WIDTH,
-        height: GraphStyle.NODE_HEIGHT,
+        width: (el: cytoscape.NodeCollection) => {
+          const nodeData = cy.data(el.data()?.id)?.data;
+          return nodeData?.subNodesCount !== undefined
+            ? GraphStyle.NODE_WIDTH * 1.3
+            : GraphStyle.NODE_WIDTH;
+        },
+        height: (el: cytoscape.NodeCollection) => {
+          const nodeData = cy.data(el.data()?.id)?.data;
+          return nodeData?.subNodesCount !== undefined
+            ? GraphStyle.NODE_HEIGHT * 1.3
+            : GraphStyle.NODE_HEIGHT;
+        },
         label: (el: cytoscape.NodeCollection) => {
           const nodeData = cy.data(el.data()?.id)?.data;
-          return nodeLabelRenderer?.(nodeData) || nodeData?.label || '';
+          const customLabel = nodeLabelRenderer?.(nodeData);
+          return customLabel ?? nodeData?.label ?? '';
         },
         'background-image': (el: cytoscape.NodeCollection) => {
           const nodeData = cy.data(el.data()?.id)?.data;
