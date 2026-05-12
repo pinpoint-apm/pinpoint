@@ -48,7 +48,7 @@ export const getBaseNodeId = ({
         n.subNodes.some((inner) => inner.key === baseNodeId || inner.nodeKey === baseNodeId),
     );
     if (groupContaining) return groupContaining.key;
-    return baseNodeId.replace(/(.*)\^(.*)/i, '$1^UNAUTHORIZED');
+    return baseNodeId.replace(/\^[^^]*$/, '^UNAUTHORIZED');
   }
   return '';
 };
