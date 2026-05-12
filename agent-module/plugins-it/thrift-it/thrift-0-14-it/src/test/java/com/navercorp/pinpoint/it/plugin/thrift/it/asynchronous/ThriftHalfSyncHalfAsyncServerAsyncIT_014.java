@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({ ThriftVersion.VERSION_14_16,
+@Dependency({ ThriftVersion.VERSION_14_22,
         "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-thrift-plugin"})
 public class ThriftHalfSyncHalfAsyncServerAsyncIT_014 extends EchoTestRunner<ThriftEchoTestServer<THsHaServer>> {
