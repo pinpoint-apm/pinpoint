@@ -67,6 +67,7 @@
         <module>google-httpclient</module>
         <module>grpc</module>
         <module>jetty</module>
+        <module>jetty12</module>
         <module>websphere</module>
         <module>kotlin-coroutines</module>
         <module>spring</module>

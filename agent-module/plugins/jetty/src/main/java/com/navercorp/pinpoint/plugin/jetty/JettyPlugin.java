@@ -51,8 +51,8 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
         logger.info("{} config:{} ", this.getClass().getSimpleName(), config);
-        // 8.0 <= x <= 9.4
-        logger.info("version range=[8.0, 9.4]");
+        // 8.0 <= x <= 11.x. Jetty 12 is handled by pinpoint-jetty12-plugin.
+        logger.info("version range=[8.0, 11.x]");
 
         if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
             JettyDetector jettyDetector = new JettyDetector(config.getBootstrapMains());
@@ -86,6 +86,10 @@ public class JettyPlugin implements ProfilerPlugin, TransformTemplateAware {
             JettyConfiguration config = new JettyConfiguration(instrumentor.getProfilerConfig());
 
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Jetty 12 changed org.eclipse.jetty.server.Request to an interface; skip weave and method hooks.
+            if (target.isInterface()) {
+                return target.toBytecode();
+            }
             if (config.isHidePinpointHeader()) {
                 // Hide pinpoint header
                 target.weave("com.navercorp.pinpoint.plugin.jetty.aspect.RequestAspect");
