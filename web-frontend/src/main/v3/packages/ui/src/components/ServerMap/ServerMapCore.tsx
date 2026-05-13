@@ -574,7 +574,7 @@ export const ServerMapCore = ({
                       const serviceName = escapeXmlText(node.label ?? '');
                       return `
                   <text x="50" y="44" font-size="16" font-weight="bold" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif">${serviceName}</text>
-                  <line x1="35" y1="58" x2="65" y2="58" stroke="#999" stroke-width="1" />
+                  <line x1="4" y1="58" x2="96" y2="58" stroke="#999" stroke-width="1" />
                   <text x="50" y="74" font-size="18" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif">${node.subNodesCount}</text>
                 `;
                     }
