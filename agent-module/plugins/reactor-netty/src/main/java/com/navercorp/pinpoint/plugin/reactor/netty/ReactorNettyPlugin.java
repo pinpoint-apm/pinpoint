@@ -248,9 +248,17 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
 
+            // reactor-netty 1.0.x: followRedirectPredicate is called during request setup in requestWithBody
             final InstrumentMethod sendMethod = target.getDeclaredMethod("followRedirectPredicate", "java.util.function.BiPredicate");
             if (sendMethod != null) {
                 sendMethod.addInterceptor(HttpClientOperationsSendInterceptor.class);
+            }
+            // reactor-netty 1.1.x+: beforeMarkSentHeaders is called just before headers are sent,
+            // providing a stable alternative interception point across all versions.
+            // The isNested check in the interceptor prevents duplicate trace header injection.
+            final InstrumentMethod beforeMarkSentHeadersMethod = target.getDeclaredMethod("beforeMarkSentHeaders");
+            if (beforeMarkSentHeadersMethod != null) {
+                beforeMarkSentHeadersMethod.addInterceptor(HttpClientOperationsSendInterceptor.class);
             }
             final InstrumentMethod onOutboundCompleteMethod = target.getDeclaredMethod("onOutboundComplete");
             if (onOutboundCompleteMethod != null) {
