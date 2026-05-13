@@ -44,15 +44,15 @@ public class ServiceMappingProperties {
     }
 
     public static class ServiceMappingRule {
-        private String prefix;
+        private List<String> prefix;
         private String serviceName;
         private int serviceUid;
 
-        public String getPrefix() {
+        public List<String> getPrefix() {
             return prefix;
         }
 
-        public void setPrefix(String prefix) {
+        public void setPrefix(List<String> prefix) {
             this.prefix = prefix;
         }
 

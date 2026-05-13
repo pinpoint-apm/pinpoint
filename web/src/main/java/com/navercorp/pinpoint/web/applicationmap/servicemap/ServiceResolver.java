@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.servicemap;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMappingProperties.ServiceMappingRule;
 import com.navercorp.pinpoint.web.vo.Service;
 
@@ -40,8 +41,14 @@ public class ServiceResolver {
 
     public Service resolve(String applicationName, Service defaultService) {
         for (ServiceMappingRule rule : rules) {
-            if (applicationName.startsWith(rule.getPrefix())) {
-                return new Service(rule.getServiceName(), rule.getServiceUid());
+            List<String> prefixes = rule.getPrefix();
+            if (CollectionUtils.isEmpty(prefixes)) {
+                continue;
+            }
+            for (String prefix : prefixes) {
+                if (applicationName.startsWith(prefix)) {
+                    return new Service(rule.getServiceName(), rule.getServiceUid());
+                }
             }
         }
         return defaultService;
