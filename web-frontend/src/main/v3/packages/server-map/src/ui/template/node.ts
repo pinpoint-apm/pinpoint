@@ -76,11 +76,25 @@ const getTimeSeriesApdexStatusSVGCircle = (timeSeriesApdexInfo: TimeSeriesApdexI
   }
 
   const segmentCount = timeSeriesApdexInfo.length;
-  const segmentAngle = 360 / segmentCount;
   const cx = 50;
   const cy = 50;
   const r = RADIUS;
   const strokeWidth = 8;
+
+  // 슬롯이 1개면 SVG arc는 시작점==끝점이 되어 그려지지 않으므로 풀 원을 직접 그린다.
+  if (segmentCount === 1) {
+    const grade = getApdexGrade(timeSeriesApdexInfo[0]);
+    const color = colorMap[grade] || '#cccccc';
+    return `
+      <circle cx="${cx}" cy="${cy}" r="${r}"
+        stroke="${color}"
+        stroke-width="${strokeWidth}"
+        fill="none"
+      />
+    `;
+  }
+
+  const segmentAngle = 360 / segmentCount;
   let svgString = '';
 
   // 12시 방향부터 반시계방향으로 slot을 채운다. (12~1시가 가장 최신 데이터)

@@ -222,7 +222,6 @@ export const ServerMapChartsBoardFetcher = ({
           <>
             {serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges ? (
               <MergedServerSearchList
-                timestamp={timestamp}
                 list={getClickedMergedNodeList(serverMapCurrentTarget)}
                 onClickItem={handleClickMergedItem}
               />

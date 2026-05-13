@@ -165,7 +165,7 @@ export const ServerMapCore = ({
         transactionInfo: getTransactionInfo(node),
         timeSeriesApdexInfo: isFilteredMap
           ? undefined // filtered map에서는 시간 시리즈 Apdex 정보를 사용하지 않는다.
-          : getTimeSeriesApdexInfo(node, data?.applicationMapData?.timestamp),
+          : getTimeSeriesApdexInfo(node),
         shouldNotMerge: () => {
           // service group 노드(subNodes 보유)는 cytoscape의 자동 merge에 휘말리지 않도록 단독 표시한다.
           return (
@@ -266,9 +266,9 @@ export const ServerMapCore = ({
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.NODE);
       rightClickTargetRef.current = clickedData;
     } else if (eventType === 'left' && clickedData) {
-      const serviceGroup = (data?.applicationMapData?.nodeDataArray as
-        | GetServerMap.NodeData[]
-        | undefined)?.find(
+      const serviceGroup = (
+        data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined
+      )?.find(
         (n) => n.key === clickedData.id && Array.isArray(n.subNodes) && n.subNodes.length > 0,
       );
       if (serviceGroup) {
@@ -534,7 +534,7 @@ export const ServerMapCore = ({
                             />
                           </div>
                         </div>
-                        <div className="max-h-72 overflow-y-auto">
+                        <div className="overflow-y-auto max-h-72">
                           {filteredSubNodes.length === 0 ? (
                             <div className="px-3 py-2 text-muted-foreground">
                               {t('COMMON.EMPTY_ON_SEARCH')}

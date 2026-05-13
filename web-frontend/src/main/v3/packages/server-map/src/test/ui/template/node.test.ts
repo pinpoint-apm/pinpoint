@@ -152,6 +152,20 @@ describe('timeSeriesApdexInfo 처리', () => {
     expect(pathMatches?.length).toBe(6);
   });
 
+  it('슬롯이 1개면 풀 <circle>로 렌더링해야 함 (degenerate arc 회피)', () => {
+    const node: Node = {
+      id: 'n1',
+      label: 'Node 1',
+      timeSeriesApdexInfo: [0.95],
+    };
+
+    const result = getNodeSVGString(node);
+    const decoded = decodeURIComponent(result.split(',')[1] || '');
+    // 단일 슬롯은 arc(<path>)가 아니라 <circle>로 그려져야 함
+    expect(decoded).not.toMatch(/<path[^>]*A\s/);
+    expect(decoded).toMatch(/<circle[^>]*r="47"[^>]*stroke="#41c464"/);
+  });
+
   it('다양한 Apdex 등급을 올바르게 처리해야 함', () => {
     const node: Node = {
       id: 'n1',

@@ -5,16 +5,11 @@ import { colorMap, getApdexGrade } from '@pinpoint-fe/server-map/src/ui/template
 import { RankColorClassNameMap, getRank } from '../ApdexScore/ApdexScoreFetcher';
 
 export interface MergedServerSearchListProps {
-  timestamp?: number[];
   list?: (GetServerMap.NodeData | FilteredMap.NodeData)[];
   onClickItem?: (nodeData: GetServerMap.NodeData | FilteredMap.NodeData) => void;
 }
 
-export const MergedServerSearchList = ({
-  timestamp,
-  list = [],
-  onClickItem,
-}: MergedServerSearchListProps) => {
+export const MergedServerSearchList = ({ list = [], onClickItem }: MergedServerSearchListProps) => {
   const handleClickItem: MergedServerSearchListProps['onClickItem'] = (nodeData) => {
     onClickItem?.(nodeData);
   };
@@ -37,7 +32,7 @@ export const MergedServerSearchList = ({
                 onClickItem={(item) => handleClickItem(item)}
                 itemChild={(item) => {
                   const MAX_CHART_WIDTH = 96;
-                  const timeSeriesApdexInfo = getTimeSeriesApdexInfo(item, timestamp);
+                  const timeSeriesApdexInfo = getTimeSeriesApdexInfo(item);
                   return (
                     <>
                       <div className="flex items-center justify-between text-xs">

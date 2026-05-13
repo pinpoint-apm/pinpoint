@@ -125,6 +125,7 @@ export namespace GetServerMap {
       apdexScore: number;
       apdexFormula: ApdexFormula;
     };
+    apdexSlot?: number[];
     timeSeriesHistogram: TimeSeriesHistogram[];
     instanceCount: number;
     instanceErrorCount: number;
