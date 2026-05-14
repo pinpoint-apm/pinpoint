@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { GoDotFill } from 'react-icons/go';
 import { FaChartLine } from 'react-icons/fa';
 import { GetHistogramStatistics, AgentOverview } from '@pinpoint-fe/ui/src/constants';
@@ -24,6 +25,18 @@ export const ServerList = ({
   onClickInspectorLink,
   itemRenderer,
 }: ServerListProps) => {
+  const { t } = useTranslation();
+
+  if (!data?.length) {
+    return (
+      <div className={cn('h-full', className)}>
+        <div className="flex items-center justify-center p-3 opacity-50 h-[calc(100%-45px)]">
+          {t('COMMON.NO_DATA')}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn('h-full', className)}>
       <div className="p-3 flex gap-2 flex-col h-[calc(100%-45px)] overflow-y-auto">

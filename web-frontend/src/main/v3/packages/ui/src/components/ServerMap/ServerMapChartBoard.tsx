@@ -231,7 +231,8 @@ export const ServerMapChartsBoardFetcher = ({
             ) : (
               <>
                 {(serverMapCurrentTarget?.type === 'node' || !serverMapCurrentTarget) &&
-                (currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
+                (currentTargetData as GetServerMap.NodeData)?.serviceType !== 'USER' &&
+                (currentTargetData as GetServerMap.NodeData)?.serviceType !== 'UNKNOWN' ? (
                   <div className="flex items-center h-12 py-2.5 px-4 gap-2">
                     <Button
                       className="px-2 py-1 text-xs"
@@ -350,6 +351,11 @@ export const ServerMapChartsBoardFetcher = ({
                 </div>
                 <Separator />
               </>
+            )}
+            {!isLoading && data && Object.keys(data.agentHistogram || {}).length === 0 && (
+              <div className="flex items-center justify-center h-full opacity-50">
+                {t('COMMON.NO_DATA')}
+              </div>
             )}
           </ChartsBoard>
         </div>
