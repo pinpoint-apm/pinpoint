@@ -62,7 +62,15 @@ export const serverMapCurrentTargetDataAtom = atom((get) => {
       );
     });
   } else if (currentTarget?.type === 'edge') {
-    return (serverMapData?.applicationMapData?.linkDataArray as ServerMapNodeLinkArray)?.find(
+    const allLinks =
+      (serverMapData?.applicationMapData?.linkDataArray as ServerMapNodeLinkArray) || [];
+    // service group 링크는 그래프상 단일 엣지로 그리지만, 팝업에서 자식(subLinks)을 클릭하면
+    // currentTarget이 자식 링크 key를 가리키므로 lookup 대상에 자식까지 포함한다.
+    const flattenedLinks = allLinks.flatMap((link) => {
+      const subLinks = (link as GetServerMap.LinkData).subLinks;
+      return Array.isArray(subLinks) ? [link, ...subLinks] : [link];
+    });
+    return flattenedLinks.find(
       (link) =>
         link.key === currentTarget?.id ||
         (link as GetServerMap.LinkData).linkKey === currentTarget?.id,

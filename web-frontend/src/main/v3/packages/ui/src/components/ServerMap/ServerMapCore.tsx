@@ -55,6 +55,8 @@ export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'
   onMergeStateChange?: () => void;
   onClickSubNode?: (subNode: GetServerMap.NodeData) => void;
   selectedSubNodeId?: string;
+  onClickSubLink?: (subLink: GetServerMap.LinkData) => void;
+  selectedSubLinkId?: string;
   inputPlaceHolder?: string;
   queryOption?: ServerMapQueryOptionProps['queryOption'];
   onApplyChangedOption?: ServerMapQueryOptionProps['onApply'];
@@ -73,6 +75,8 @@ export const ServerMapCore = ({
   onMergeStateChange,
   onClickSubNode,
   selectedSubNodeId,
+  onClickSubLink,
+  selectedSubLinkId,
   onApplyChangedOption,
   queryOption,
   inputPlaceHolder,
@@ -109,29 +113,44 @@ export const ServerMapCore = ({
     edges: [],
   });
   const serviceGroupTargetRef = React.useRef<GetServerMap.NodeData | undefined>(undefined);
+  const serviceGroupLinkTargetRef = React.useRef<GetServerMap.LinkData | undefined>(undefined);
   const [serviceGroupSearch, setServiceGroupSearch] = React.useState('');
   // cytoscape 이벤트 핸들러는 한 번 등록되어 popperContentType의 최신값을 stale closure로 놓친다.
   // 가드는 ref를 통해 항상 최신 상태를 본다.
   const popperContentTypeRef = React.useRef<SERVERMAP_MENU_CONTENT_TYPE | undefined>(undefined);
   React.useEffect(() => {
     popperContentTypeRef.current = popperContentType;
-    if (popperContentType !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST) {
+    if (
+      popperContentType !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST &&
+      popperContentType !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST
+    ) {
       setServiceGroupSearch('');
     }
   }, [popperContentType]);
 
-  // service group 팝업이 열려 있는 동안 그래프 pan/zoom 시 팝업도 노드를 따라가도록 위치를 갱신한다.
+  // service group 팝업이 열려 있는 동안 그래프 pan/zoom 시 팝업도 노드/엣지를 따라가도록 위치를 갱신한다.
   React.useEffect(() => {
     const cy = cyRef.current;
-    if (popperContentType !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST || !cy) return;
-    const targetId = serviceGroupTargetRef.current?.key;
+    if (!cy) return;
+    const isNodePopup = popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST;
+    const isLinkPopup = popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST;
+    if (!isNodePopup && !isLinkPopup) return;
+    const targetId = isNodePopup
+      ? serviceGroupTargetRef.current?.key
+      : serviceGroupLinkTargetRef.current?.key;
     if (!targetId) return;
 
     const updatePosition = () => {
-      const node = cy.getElementById(targetId);
-      if (!node || node.empty()) return;
-      const pos = node.renderedPosition();
-      if (pos) setPopperPosition({ x: pos.x, y: pos.y });
+      const target = cy.getElementById(targetId);
+      if (!target || target.empty()) return;
+      if (isNodePopup) {
+        const pos = target.renderedPosition();
+        if (pos) setPopperPosition({ x: pos.x, y: pos.y });
+      } else {
+        // 엣지는 renderedPosition()이 없어 renderedBoundingBox의 중점을 사용한다.
+        const bb = target.renderedBoundingBox();
+        if (bb) setPopperPosition({ x: (bb.x1 + bb.x2) / 2, y: (bb.y1 + bb.y2) / 2 });
+      }
     };
 
     updatePosition();
@@ -227,7 +246,10 @@ export const ServerMapCore = ({
   const handleHoverNode: ServerMapCoreProps['onHoverNode'] = (params) => {
     const { eventType, position, data, isLeftNode, target } = params;
     // service group 팝업이 열려 있는 동안에는 hover/unhover로 인해 팝업이 닫히거나 위치가 바뀌지 않도록 위임만 한다.
-    if (popperContentTypeRef.current === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST) {
+    if (
+      popperContentTypeRef.current === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST ||
+      popperContentTypeRef.current === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST
+    ) {
       onHoverNode?.(params);
       return;
     }
@@ -275,7 +297,10 @@ export const ServerMapCore = ({
         setPopperPosition(position);
         setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST);
         serviceGroupTargetRef.current = serviceGroup;
-      } else if (popperContentTypeRef.current !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST) {
+      } else if (
+        popperContentTypeRef.current !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST &&
+        popperContentTypeRef.current !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST
+      ) {
         setPopperContentType(undefined);
       }
     }
@@ -283,11 +308,27 @@ export const ServerMapCore = ({
   };
 
   const handleClickEdge: ServerMapCoreProps['onClickEdge'] = (params) => {
-    const { eventType, position } = params;
-    if (eventType === 'right' && params.data?.transactionInfo) {
+    const { eventType, position, data: clickedData } = params;
+    if (eventType === 'right' && clickedData?.transactionInfo) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.EDGE);
-      rightClickTargetRef.current = params.data;
+      rightClickTargetRef.current = clickedData;
+    } else if (eventType === 'left' && clickedData) {
+      const serviceGroupLink = (
+        data?.applicationMapData?.linkDataArray as GetServerMap.LinkData[] | undefined
+      )?.find(
+        (l) => l.key === clickedData.id && Array.isArray(l.subLinks) && l.subLinks.length > 0,
+      );
+      if (serviceGroupLink) {
+        setPopperPosition(position);
+        setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST);
+        serviceGroupLinkTargetRef.current = serviceGroupLink;
+      } else if (
+        popperContentTypeRef.current !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST &&
+        popperContentTypeRef.current !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST
+      ) {
+        setPopperContentType(undefined);
+      }
     }
     onClickEdge?.(params);
   };
@@ -520,7 +561,7 @@ export const ServerMapCore = ({
                       <ServerMapMenuContent
                         title={serviceGroupTargetRef.current?.applicationName ?? 'Service Group'}
                         onClose={() => setPopperContentType(undefined)}
-                        className="w-64"
+                        className="w-max min-w-72"
                       >
                         <div className="px-3 pb-2">
                           <div className="relative">
@@ -549,7 +590,81 @@ export const ServerMapCore = ({
                                   onClick={() => onClickSubNode?.(subNode)}
                                 >
                                   <img src={getServerImagePath(subNode)} width={28} />
-                                  <div className="truncate">{subNode.applicationName}</div>
+                                  <div className="whitespace-nowrap">{subNode.applicationName}</div>
+                                </ServerMapMenuItem>
+                              );
+                            })
+                          )}
+                        </div>
+                      </ServerMapMenuContent>
+                    );
+                  })()}
+                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST &&
+                  (() => {
+                    const search = serviceGroupSearch.trim().toLowerCase();
+                    const subLinks = serviceGroupLinkTargetRef.current?.subLinks ?? [];
+                    const filteredSubLinks = search
+                      ? subLinks.filter(
+                          (l) =>
+                            l.sourceInfo?.applicationName?.toLowerCase().includes(search) ||
+                            l.targetInfo?.applicationName?.toLowerCase().includes(search),
+                        )
+                      : subLinks;
+                    // 서비스 그룹 링크의 from/to는 ServiceGroupNode key를 가리키므로,
+                    // flatten된 nodeDataArray에서 노드를 찾아 applicationName(=serviceName)을 제목에 사용한다.
+                    const linkFromKey = serviceGroupLinkTargetRef.current?.from;
+                    const linkToKey = serviceGroupLinkTargetRef.current?.to;
+                    const nodes =
+                      (data?.applicationMapData?.nodeDataArray as
+                        | GetServerMap.NodeData[]
+                        | undefined) ?? [];
+                    const fromNode = nodes.find((n) => n.key === linkFromKey);
+                    const toNode = nodes.find((n) => n.key === linkToKey);
+                    const linkTitle = serviceGroupLinkTargetRef.current
+                      ? `${fromNode?.applicationName ?? linkFromKey} → ${toNode?.applicationName ?? linkToKey}`
+                      : 'Service Group';
+                    return (
+                      <ServerMapMenuContent
+                        title={linkTitle}
+                        onClose={() => setPopperContentType(undefined)}
+                        className="w-max min-w-80"
+                      >
+                        <div className="px-3 pb-2">
+                          <div className="relative">
+                            <FaSearch className="absolute -translate-y-1/2 pointer-events-none left-2 top-1/2 text-muted-foreground" />
+                            <Input
+                              autoFocus
+                              placeholder={t('COMMON.SEARCH_INPUT')}
+                              value={serviceGroupSearch}
+                              onChange={(e) => setServiceGroupSearch(e.target.value)}
+                              className="h-8 pl-7"
+                            />
+                          </div>
+                        </div>
+                        <div className="overflow-y-auto max-h-72">
+                          {filteredSubLinks.length === 0 ? (
+                            <div className="px-3 py-2 text-muted-foreground">
+                              {t('COMMON.EMPTY_ON_SEARCH')}
+                            </div>
+                          ) : (
+                            filteredSubLinks.map((subLink) => {
+                              const isSelected = subLink.key === selectedSubLinkId;
+                              const fromName = subLink.sourceInfo?.applicationName ?? subLink.from;
+                              const toName = subLink.targetInfo?.applicationName ?? subLink.to;
+                              return (
+                                <ServerMapMenuItem
+                                  key={subLink.key}
+                                  className={cn(isSelected && 'bg-accent font-semibold')}
+                                  onClick={() => onClickSubLink?.(subLink)}
+                                >
+                                  <div className="flex items-center flex-1 gap-1 whitespace-nowrap">
+                                    <span>{fromName}</span>
+                                    <span className="text-muted-foreground">→</span>
+                                    <span>{toName}</span>
+                                  </div>
+                                  <div className="ml-2 text-muted-foreground shrink-0">
+                                    {addCommas(subLink.totalCount ?? 0)}
+                                  </div>
                                 </ServerMapMenuItem>
                               );
                             })

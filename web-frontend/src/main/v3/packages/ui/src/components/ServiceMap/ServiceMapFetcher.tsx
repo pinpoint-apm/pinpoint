@@ -104,6 +104,7 @@ const flattenServiceMapResponse = (
         errorCount: innerLinks.reduce((acc, l) => acc + (l.errorCount ?? 0), 0),
         slowCount: innerLinks.reduce((acc, l) => acc + (l.slowCount ?? 0), 0),
         hasAlert: innerLinks.some((l) => l.hasAlert),
+        subLinks: innerLinks,
       } as GetServerMap.LinkData);
     } else {
       linkDataArray.push(entry);
@@ -189,6 +190,17 @@ export const ServiceMapFetcher = ({ shouldPoll: _shouldPoll, ...props }: Service
     setCurrentServer(undefined);
   };
 
+  // service group 링크 팝업에서 자식 링크를 클릭하면 사이드의 ChartsBoard만 해당 링크로 갱신한다.
+  const handleClickSubLink: ServerMapCoreProps['onClickSubLink'] = (subLink) => {
+    setServerMapCurrentTarget({
+      id: subLink.key,
+      source: subLink.from,
+      target: subLink.to,
+      type: 'edge',
+    });
+    setCurrentServer(undefined);
+  };
+
   const handleMergeStateChange = () => {
     if (data) {
       const { applicationName, serviceType } = parseBaseNodeId(
@@ -216,7 +228,9 @@ export const ServiceMapFetcher = ({ shouldPoll: _shouldPoll, ...props }: Service
       onClickNode={handleClickNode}
       onClickEdge={handleClickEdge}
       onClickSubNode={handleClickSubNode}
+      onClickSubLink={handleClickSubLink}
       selectedSubNodeId={serverMapCurrentTarget?.id}
+      selectedSubLinkId={serverMapCurrentTarget?.id}
       onMergeStateChange={handleMergeStateChange}
       baseNodeId={getBaseNodeId({
         application,

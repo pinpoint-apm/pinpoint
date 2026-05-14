@@ -183,9 +183,12 @@ export const ServerMapChartsBoardFetcher = ({
     return;
   }, [isLoading, data, currentServer?.agentId]);
 
-  // service group 노드가 선택된 경우(subNodes 보유) ChartsBoard를 그리지 않는다.
-  // 팝업에서 자식 노드를 선택하면 currentTarget이 자식 key로 바뀌어 다시 렌더된다.
-  if (((currentTargetData as GetServerMap.NodeData)?.subNodes?.length ?? 0) > 0) {
+  // service group 노드/링크가 선택된 경우(subNodes/subLinks 보유) ChartsBoard를 그리지 않는다.
+  // 팝업에서 자식 노드/링크를 선택하면 currentTarget이 자식 key로 바뀌어 다시 렌더된다.
+  if (
+    ((currentTargetData as GetServerMap.NodeData)?.subNodes?.length ?? 0) > 0 ||
+    ((currentTargetData as GetServerMap.LinkData)?.subLinks?.length ?? 0) > 0
+  ) {
     return null;
   }
 

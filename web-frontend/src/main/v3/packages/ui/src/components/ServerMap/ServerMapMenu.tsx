@@ -15,6 +15,7 @@ export enum SERVERMAP_MENU_CONTENT_TYPE {
   BACKGROUND,
   HOVER_NODE,
   SERVICE_GROUP_LIST,
+  SERVICE_GROUP_LINK_LIST,
 }
 
 export enum SERVERMAP_MENU_FUNCTION_TYPE {
@@ -63,7 +64,7 @@ export const ServerMapMenuContent = ({
   return (
     <div className={cn('w-52', className)}>
       <div className="flex items-center h-8 gap-1 px-3 text-sm font-semibold">
-        <span className="flex-1 truncate">{title}</span>
+        <span className="flex-1 whitespace-nowrap">{title}</span>
         {onClose && (
           <button
             type="button"

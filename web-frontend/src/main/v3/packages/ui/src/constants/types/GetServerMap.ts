@@ -58,6 +58,7 @@ export namespace GetServerMap {
     histogram: Histogram;
     timeSeriesHistogram: TimeSeriesHistogram[];
     hasAlert: boolean;
+    subLinks?: LinkData[];
   }
 
   export interface FromAgentIdNameMap {
