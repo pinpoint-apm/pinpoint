@@ -21,14 +21,16 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.agentlist.service.AgentsService;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
-import com.navercorp.pinpoint.web.uid.service.ServiceUidService;
 import com.navercorp.pinpoint.web.view.tree.AgentIdView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -37,11 +39,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
-import com.navercorp.pinpoint.service.web.vo.ServiceName;
-import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,7 +59,6 @@ import java.util.Objects;
 @Validated
 public class AgentV2Controller {
 
-    private final ServiceUidService serviceUidService;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     private final AgentListV2Service agentListV2Service;
@@ -69,13 +66,11 @@ public class AgentV2Controller {
     private final RangeValidator rangeValidator;
     private final boolean agentReadV2;
 
-    public AgentV2Controller(@Autowired(required = false) ServiceUidService serviceUidService,
-                             ServiceTypeRegistryService serviceTypeRegistryService,
+    public AgentV2Controller(ServiceTypeRegistryService serviceTypeRegistryService,
                              AgentListV2Service agentListV2Service,
                              AgentsService agentsService,
                              ConfigProperties configProperties,
                              @Value("${pinpoint.web.application.index.read.v2:false}") boolean readAgentV2) {
-        this.serviceUidService = serviceUidService;
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentListV2Service = Objects.requireNonNull(agentListV2Service, "agentListV2Service");
         this.agentsService = Objects.requireNonNull(agentsService, "agentsService");
@@ -101,7 +96,7 @@ public class AgentV2Controller {
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to) {
-        ServiceUid serviceUid = handleServiceUid(serviceName.getName());
+        ServiceUid serviceUid = ServiceUid.DEFAULT;
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
@@ -123,7 +118,7 @@ public class AgentV2Controller {
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to) {
-        ServiceUid serviceUid = handleServiceUid(serviceName.getName());
+        ServiceUid serviceUid = ServiceUid.DEFAULT;
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
@@ -147,17 +142,6 @@ public class AgentV2Controller {
                 status != null ? status.getEventTimestamp() : 0,
                 range.getTo()
         );
-    }
-
-    private ServiceUid handleServiceUid(String serviceName) {
-        if (serviceUidService == null || com.navercorp.pinpoint.common.util.StringUtils.isEmpty(serviceName)) {
-            return ServiceUid.DEFAULT;
-        }
-        ServiceUid serviceUid = serviceUidService.getServiceUid(serviceName);
-        if (serviceUid == null) {
-            throw new IllegalArgumentException("service not found. name: " + serviceName);
-        }
-        return serviceUid;
     }
 
     private ServiceType findServiceType(Short serviceTypeCode, String serviceTypeName) {
