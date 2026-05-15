@@ -19,30 +19,40 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
 public class MapServiceOption {
-    private final Application sourceApplication;
+    private final List<Application> sourceApplications;
     private final TimeWindow timeWindow;
     private final SearchOption searchOption;
 
     private final boolean useStatisticsAgentState;
 
     private MapServiceOption(Builder builder) {
-        this.sourceApplication = builder.sourceApplication;
+        this.sourceApplications = builder.sourceApplications;
         this.timeWindow = builder.timeWindow;
         this.searchOption = builder.searchOption;
         this.useStatisticsAgentState = builder.useStatisticsAgentState;
     }
 
     public Application getSourceApplication() {
-        return sourceApplication;
+        return sourceApplications.get(0);
+    }
+
+    public List<Application> getSourceApplications() {
+        return sourceApplications;
+    }
+
+    public int getSourceApplicationCount() {
+        return sourceApplications.size();
     }
 
     public Range getRange() {
@@ -64,7 +74,7 @@ public class MapServiceOption {
     @Override
     public String toString() {
         return "MapServiceOption{" +
-                "sourceApplication=" + sourceApplication +
+                "sourceApplications=" + sourceApplications +
                 ", timeWindow=" + timeWindow +
                 ", searchOption=" + searchOption +
                 ", useStatisticsAgentState=" + useStatisticsAgentState +
@@ -72,7 +82,7 @@ public class MapServiceOption {
     }
 
     public static class Builder {
-        private final Application sourceApplication;
+        private final List<Application> sourceApplications;
         private final TimeWindow timeWindow;
         private final SearchOption searchOption;
 
@@ -80,7 +90,15 @@ public class MapServiceOption {
         private boolean useStatisticsAgentState;
 
         public Builder(Application sourceApplication, TimeWindow timeWindow, SearchOption searchOption) {
-            this.sourceApplication = Objects.requireNonNull(sourceApplication, "sourceApplication");
+            this(List.of(Objects.requireNonNull(sourceApplication, "sourceApplication")), timeWindow, searchOption);
+        }
+
+        public Builder(List<Application> sourceApplications, TimeWindow timeWindow, SearchOption searchOption) {
+            Objects.requireNonNull(sourceApplications, "sourceApplications");
+            if (CollectionUtils.isEmpty(sourceApplications)) {
+                throw new IllegalArgumentException("sourceApplications must not be empty");
+            }
+            this.sourceApplications = List.copyOf(sourceApplications);
             this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
             this.searchOption = Objects.requireNonNull(searchOption, "searchOption");
         }

@@ -65,7 +65,7 @@ public class HistogramServiceImpl implements HistogramService {
     @Override
     public LinkDataDuplexMap selectLinkDataDuplexMap(MapServiceOption option) {
 
-        logger.debug("Selecting LinkDataDuplexMap for {}", option.getSourceApplication());
+        logger.debug("Selecting LinkDataDuplexMap for {}", option.getSourceApplications());
 
         StopWatch watch = new StopWatch("HistogramServiceImpl.selectLinkDataDuplexMap");
         watch.start("selectLinkDataDuplexMap");
@@ -81,7 +81,7 @@ public class HistogramServiceImpl implements HistogramService {
 
         TimeWindow timeWindow = option.getTimeWindow();
         LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(
-                List.of(option.getSourceApplication()), timeWindow, outSearchDepth, inSearchDepth);
+                option.getSourceApplications(), timeWindow, outSearchDepth, inSearchDepth);
         watch.stop();
         logger.debug("LinkDataDuplexMap selected in {} ms. node={}, outDepth={}, inDepth={}, count={}",
                 watch.getTotalTimeMillis(), option.getSourceApplication(), outSearchDepth, inSearchDepth, linkDataDuplexMap.size());

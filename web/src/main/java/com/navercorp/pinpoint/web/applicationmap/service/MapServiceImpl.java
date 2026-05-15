@@ -37,7 +37,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -99,7 +98,7 @@ public class MapServiceImpl implements MapService {
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, outLinkProcessor, inLinkProcessor);
 
         TimeWindow timeWindow = option.getTimeWindow();
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(List.of(option.getSourceApplication()), timeWindow, outSearchDepth, inSearchDepth);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(option.getSourceApplications(), timeWindow, outSearchDepth, inSearchDepth);
         watch.stop();
 
         if (linkDataLimiter.excess(linkDataDuplexMap.getTotalCount())) {
