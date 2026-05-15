@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMapView;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMapViewBuilder;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
+import com.navercorp.pinpoint.web.applicationmap.virtualapplication.VirtualApplicationResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
@@ -71,6 +72,7 @@ public class MapController {
     private final MapService mapService;
     private final RangeValidator rangeValidator;
     private final ApplicationValidator applicationValidator;
+    private final VirtualApplicationResolver virtualApplicationResolver;
 
     private static final int DEFAULT_MAX_SEARCH_DEPTH = 4;
 
@@ -78,10 +80,12 @@ public class MapController {
             MapProperties mapProperties,
             MapService mapService,
             ApplicationValidator applicationValidator,
+            VirtualApplicationResolver virtualApplicationResolver,
             Duration limitDay) {
         this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.mapService = Objects.requireNonNull(mapService, "mapService");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationValidator");
+        this.virtualApplicationResolver = Objects.requireNonNull(virtualApplicationResolver, "virtualApplicationResolver");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
     }
 
@@ -113,9 +117,10 @@ public class MapController {
                 .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
 
         final Application application = getApplication(appForm);
+        final List<Application> applications = virtualApplicationResolver.resolve(application);
 
         final MapServiceOption option = new MapServiceOption
-                .Builder(application, timeWindow, searchOption)
+                .Builder(applications, timeWindow, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
@@ -154,9 +159,10 @@ public class MapController {
         final Set<String> keepServices = getKeepServices(keepServiceNames);
 
         final Application application = getApplication(appForm);
+        final List<Application> applications = virtualApplicationResolver.resolve(application);
 
         final MapServiceOption option = new MapServiceOption
-                .Builder(application, timeWindow, searchOption)
+                .Builder(applications, timeWindow, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 

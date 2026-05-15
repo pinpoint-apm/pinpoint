@@ -111,6 +111,29 @@ pinpoint.web.websocket:
   max-binary-message-buffer-size:
   max-text-message-buffer-size:
 
+# Service map application-to-service mock mapping rules
+#web.servicemap:
+#  mock-enabled: false
+#  mock-mappings:
+#    - prefix:
+#        - "BLOG-API"
+#        - "BLOG-MAIN"
+#      serviceName: "BLOG"
+#      serviceUid: 100
+#    - prefix:
+#        - "CAFE-NOTICE"
+#        - "CAFE-MANAGE-API"
+#      serviceName: "CAFE"
+#      serviceUid: 200
+
+## Service map virtual-service mock mapping rules
+#web.virtual-service:
+#  mock-enabled: true
+#  mappings:
+#    - virtual-service-name: CAFE-SERVICE
+#      members:
+#        - { name: CAFE.MAIN,       service-type: SPRING_BOOT }
+#        - { name: CAFE.API,        service-type: SPRING_BOOT }
 
 ---
 spring.config.activate.on-profile: local
