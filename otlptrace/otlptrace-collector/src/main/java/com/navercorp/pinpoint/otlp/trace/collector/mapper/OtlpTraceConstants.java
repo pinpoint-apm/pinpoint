@@ -46,6 +46,9 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_DB_QUERY_TEXT = "db.query.text";
     public static final String ATTRIBUTE_KEY_DB_SYSTEM = "db.system";
     public static final String ATTRIBUTE_KEY_DB_SYSTEM_NAME = "db.system.name";
+    public static final String ATTRIBUTE_KEY_DB_OPERATION_NAME = "db.operation.name";
+    public static final String ATTRIBUTE_KEY_DB_COLLECTION_NAME = "db.collection.name";
+    public static final String ATTRIBUTE_KEY_DB_RESPONSE_STATUS_CODE = "db.response.status_code";
 
     public static final String ATTRIBUTE_KEY_ERROR_TYPE = "error.type";
 
@@ -72,7 +75,14 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_DB_NAME,
             ATTRIBUTE_KEY_DB_NAMESPACE,
             ATTRIBUTE_KEY_DB_STATEMENT,
-            ATTRIBUTE_KEY_DB_SYSTEM
+            ATTRIBUTE_KEY_DB_QUERY_TEXT,
+            ATTRIBUTE_KEY_DB_SYSTEM,
+            ATTRIBUTE_KEY_DB_SYSTEM_NAME,
+            ATTRIBUTE_KEY_DB_OPERATION_NAME,
+            ATTRIBUTE_KEY_DB_COLLECTION_NAME,
+            ATTRIBUTE_KEY_DB_RESPONSE_STATUS_CODE,
+            ATTRIBUTE_KEY_ERROR_TYPE,
+            ATTRIBUTE_KEY_NETWORK_PEER_IP
     );
 
     public static final Predicate<String> FILTERED_ATTRIBUTE_KEY = FILTERED_ATTRIBUTE_KEY_SET::contains;

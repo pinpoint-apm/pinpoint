@@ -39,9 +39,11 @@ import java.util.concurrent.TimeUnit;
 public class OtlpTraceSpanEventMapper {
 
     private final OtlpTraceEventMapper eventMapper;
+    private final OtlpDbSystemTypeResolver dbSystemTypeResolver;
 
     public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
+        this.dbSystemTypeResolver = new OtlpDbSystemTypeResolver();
     }
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
@@ -69,9 +71,10 @@ public class OtlpTraceSpanEventMapper {
 
         // Keep the order
         if (isDatabase(attributes)) {
-            spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_DB.getCode());
+            final String dbSystem = getDbSystem(attributes);
+            spanEventBo.setServiceType(dbSystemTypeResolver.resolveBaseCode(dbSystem));
             if (isDatabaseExecuteQuery(attributes)) {
-                spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode());
+                spanEventBo.setServiceType(dbSystemTypeResolver.resolveExecuteQueryCode(dbSystem));
                 // TODO bind ?
                 spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.SQL.getCode(), getClientSpanDbStatement(attributes)));
             }
@@ -125,14 +128,23 @@ public class OtlpTraceSpanEventMapper {
         return attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM) || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM_NAME);
     }
 
+    String getDbSystem(Map<String, AttributeValue> attributes) {
+        // db.system.name (2.x) preferred over db.system (1.x)
+        String dbSystemName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM_NAME, null);
+        if (dbSystemName != null) {
+            return dbSystemName;
+        }
+        return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM, null);
+    }
+
     boolean isDatabaseExecuteQuery(Map<String, AttributeValue> attributes) {
         return attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT) || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT);
     }
 
     String getClientSpanDbStatement(Map<String, AttributeValue> attributes) {
-        String statement = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
+        String statement = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT, null);
         if (statement == null) {
-            statement = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_QUERY_TEXT, null);
+            statement = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
         }
         return statement;
     }
@@ -148,15 +160,15 @@ public class OtlpTraceSpanEventMapper {
     }
 
     String getClientSpanToDestinationId(Map<String, AttributeValue> attributes) {
-        // 1.x
-        final String dbName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
-        if (dbName != null) {
-            return dbName;
-        }
         // 2.x
         final String dbNamespace = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAMESPACE, null);
         if (dbNamespace != null) {
             return dbNamespace;
+        }
+        // 1.x
+        final String dbName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
+        if (dbName != null) {
+            return dbName;
         }
 
         final String upstreamClusterName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
