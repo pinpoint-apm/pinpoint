@@ -38,6 +38,8 @@ import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
 import com.navercorp.pinpoint.uristat.web.view.UriStatSummaryView;
 import com.navercorp.pinpoint.uristat.web.view.UriStatView;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -85,6 +87,7 @@ public class UriStatController {
 
     @GetMapping("/summary")
     public List<UriStatSummaryView> getUriStatPagedSummary(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") Timestamp from,
@@ -121,6 +124,7 @@ public class UriStatController {
 
     @GetMapping("/chart")
     public UriStatView getCollectedUriStat(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("uri") String uri,
