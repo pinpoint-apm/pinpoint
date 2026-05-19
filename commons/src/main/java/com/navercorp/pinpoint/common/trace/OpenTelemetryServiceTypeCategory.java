@@ -20,20 +20,4 @@ public class OpenTelemetryServiceTypeCategory {
     public static boolean isServer(int code) {
         return ServiceType.OPENTELEMETRY_SERVER.getCode() == code;
     }
-
-    public static boolean isClient(int code) {
-        return ServiceType.OPENTELEMETRY_CLIENT.getCode() == code;
-    }
-
-    public static boolean isInternal(int code) {
-        return ServiceType.OPENTELEMETRY_INTERNAL.getCode() == code;
-    }
-
-    public static boolean contains(int code) {
-        return isServer(code) || isClient(code) || isInternal(code);
-    }
-
-    public static boolean contains(ServiceType type) {
-        return contains(type.getCode());
-    }
 }

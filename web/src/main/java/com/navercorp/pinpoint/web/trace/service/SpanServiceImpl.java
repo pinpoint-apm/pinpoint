@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
+import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
@@ -574,8 +575,19 @@ public class SpanServiceImpl implements SpanService {
                     String apiString = AnnotationUtils.findApiAnnotation(annotationBoList);
                     // annotation base api
                     if (apiString != null) {
+                        // Treat the apiString as a WEB_REQUEST-style entry point label (rendered
+                        // as-is on the Call Tree, no method-descriptor parsing) for:
+                        //   - OTel SERVER spans (OPENTELEMETRY_SERVER ServiceType), and
+                        //   - OTel CONSUMER root Spans on a messaging system (ServiceType in the
+                        //     MESSAGE_BROKER category, 8300-8799). The same queue ServiceType
+                        //     (KAFKA_CLIENT etc.) is also emitted on producer SpanEvents, so the
+                        //     align.isSpan() guard prevents producer events from being
+                        //     mis-classified.
+                        final int serviceType = align.getServiceType();
+                        final boolean isEntryPoint = OpenTelemetryServiceTypeCategory.isServer(serviceType)
+                                || (align.isSpan() && ServiceTypeCategory.MESSAGE_BROKER.contains(serviceType));
                         ApiMetaDataBo apiMetaDataBo;
-                        if (OpenTelemetryServiceTypeCategory.isServer(align.getServiceType())) {
+                        if (isEntryPoint) {
                             apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.WEB_REQUEST, apiString);
                         } else {
                             apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.DEFAULT, apiString);

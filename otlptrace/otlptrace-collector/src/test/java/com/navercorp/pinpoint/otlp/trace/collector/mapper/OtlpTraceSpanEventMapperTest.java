@@ -1,22 +1,47 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OtlpTraceSpanEventMapperTest {
 
+    // None of the tests below exercise DB type resolution, so the registry can be empty —
+    // resolver gracefully falls back to OPENTELEMETRY_DB.
+    private static final ServiceTypeRegistryService EMPTY_REGISTRY = new ServiceTypeRegistryService() {
+        @Override
+        public ServiceType findServiceType(int serviceType) {
+            return ServiceType.UNDEFINED;
+        }
+
+        @Override
+        public ServiceType findServiceTypeByName(String typeName) {
+            return ServiceType.UNDEFINED;
+        }
+
+        @Override
+        public List<ServiceType> findDesc(String desc) {
+            return List.of();
+        }
+    };
+
     private OtlpTraceSpanEventMapper mapper;
 
     @BeforeEach
     void setUp() {
-        mapper = new OtlpTraceSpanEventMapper(new OtlpTraceEventMapper(new ObjectMapper()));
+        mapper = new OtlpTraceSpanEventMapper(
+                new OtlpTraceEventMapper(new ObjectMapper()),
+                EMPTY_REGISTRY,
+                new OtlpMessagingTypeResolver(EMPTY_REGISTRY));
     }
 
     // =======================================================================

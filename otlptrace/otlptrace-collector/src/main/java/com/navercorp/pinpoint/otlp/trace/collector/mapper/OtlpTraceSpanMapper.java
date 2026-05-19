@@ -36,16 +36,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 @Component
 public class OtlpTraceSpanMapper {
     private final OtlpTraceEventMapper eventMapper;
     private final OtlpTraceLinkMapper linkMapper;
+    private final OtlpMessagingTypeResolver messagingTypeResolver;
 
     public OtlpTraceSpanMapper(OtlpTraceEventMapper eventMapper,
-                               OtlpTraceLinkMapper linkMapper) {
+                               OtlpTraceLinkMapper linkMapper,
+                               OtlpMessagingTypeResolver messagingTypeResolver) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
         this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
+        this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
     }
 
     SpanBo map(IdAndName idAndName, Span span) {
@@ -59,29 +63,28 @@ public class OtlpTraceSpanMapper {
         spanBo.setServiceName(idAndName.serviceName());
 
         spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
-
-        final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
-        // record request
-        spanBo.setRpc(getServerSpanToRpc(span, attributes));
-        spanBo.setEndPoint(getServerSpanToEndPoint(span, attributes));
-        spanBo.setRemoteAddr(getServerSpanToRemoteAddress(span, attributes));
-
         spanBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getSpanId()));
         spanBo.setParentSpanId(OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId()));
-        if (spanBo.getParentSpanId() != -1) {
-            spanBo.setAcceptorHost(spanBo.getEndPoint());
-        }
-
         final long startTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
         final long endTime = TimeUnit.NANOSECONDS.toMillis(span.getEndTimeUnixNano());
-        // TODO save nano ?
         spanBo.setStartTime(startTime);
         int elapsed = Math.max((int) (endTime - startTime), 0);
         spanBo.setElapsed(elapsed);
         spanBo.setAgentStartTime(startTime);
-        spanBo.setServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
+        spanBo.setCollectorAcceptTime(System.currentTimeMillis());
+        spanBo.setFlag((short) 0);
+        spanBo.setExceptionClass(null);
+        spanBo.setApiId(0);
 
-        spanBo.setFlag((short) 0); // TODO ?
+        final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
+        final String messagingSystem = isConsumer(span) ? MessagingAttributeUtils.getSystem(attributes) : null;
+        final boolean isMessagingConsumer = isSupportedMessagingSystem(messagingSystem);
+        if (isMessagingConsumer) {
+            recordMessagingConsumer(spanBo, attributes, messagingSystem);
+        } else {
+            recordServer(spanBo, span, attributes);
+        }
+
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
             spanBo.setErrCode(1);
             final String errorType = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_ERROR_TYPE, null);
@@ -90,16 +93,6 @@ public class OtlpTraceSpanMapper {
             } else if (StringUtils.hasLength(span.getStatus().getMessage())) {
                 spanBo.setExceptionInfo(new ExceptionInfo(1, span.getStatus().getMessage()));
             }
-        }
-        spanBo.setCollectorAcceptTime(System.currentTimeMillis());
-        spanBo.setExceptionClass(null); // TODO ?
-
-        // api
-        spanBo.setApiId(0);
-        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.CONSUMER_METHOD_NAME));
-        } else {
-            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.SERVER_METHOD_NAME));
         }
         // response
         final int responseStatusCode = (int) getServerSpanToResponseStatusCode(attributes);
@@ -125,8 +118,52 @@ public class OtlpTraceSpanMapper {
         return spanBo;
     }
 
+    /**
+     * Records request-side fields and annotations for a CONSUMER span whose
+     * {@code messaging.system} maps to a Pinpoint ServiceType. Mirrors the agent's
+     * {@code ConsumerRecordEntryPointInterceptor.recordRootSpan}: acceptorHost is set
+     * even when the span is a trace root, because every consumer has an upstream broker.
+     */
+    private void recordMessagingConsumer(SpanBo spanBo,
+                                         Map<String, AttributeValue> attributes,
+                                         String messagingSystem) {
+        final String broker = MessagingAttributeUtils.getBrokerAddress(attributes);
+        spanBo.setRpc(buildMessagingConsumerRpc(messagingSystem, attributes));
+        spanBo.setEndPoint(broker != null ? broker : AttributeUtils.getAttributeStringValue(attributes,
+                OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null));
+        spanBo.setRemoteAddr(broker);
+
+        final String acceptor = spanBo.getRemoteAddr() != null ? spanBo.getRemoteAddr() : spanBo.getEndPoint();
+        if (acceptor != null) {
+            spanBo.setAcceptorHost(acceptor);
+        }
+
+        spanBo.setServiceType(messagingTypeResolver.resolveClientServiceType(messagingSystem));
+        spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), resolveMessagingConsumerEntryPointName(messagingSystem)));
+        addMessagingConsumerAnnotations(messagingSystem, attributes, spanBo::addAnnotation);
+    }
+
+    /**
+     * Records request-side fields and annotations for SERVER / INTERNAL spans and for
+     * CONSUMER spans whose {@code messaging.system} is unsupported (those fall through
+     * to the server-style mapping). acceptorHost is only set when the span has a parent
+     * (i.e. is not a trace root), since a root server span has no upstream caller.
+     */
+    private void recordServer(SpanBo spanBo, Span span, Map<String, AttributeValue> attributes) {
+        spanBo.setRpc(getServerSpanToRpc(span, attributes));
+        spanBo.setEndPoint(getServerSpanToEndPoint(span, attributes));
+        spanBo.setRemoteAddr(getServerSpanToRemoteAddress(span, attributes));
+
+        if (spanBo.getParentSpanId() != -1) {
+            spanBo.setAcceptorHost(spanBo.getEndPoint());
+        }
+
+        spanBo.setServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
+        final String apiName = isConsumer(span) ? OtlpTraceMapper.CONSUMER_METHOD_NAME : OtlpTraceMapper.SERVER_METHOD_NAME;
+        spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), apiName));
+    }
+
     String getServerSpanToEndPoint(Span span, Map<String, AttributeValue> attributes) {
-        String endPoint = null;
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             // HTTP Server
             final String serverAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
@@ -143,13 +180,11 @@ public class OtlpTraceSpanMapper {
                 return rpcService;
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            final String clientId = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
-            if (clientId != null) {
-                endPoint = clientId;
-            }
+            // Consumer for an unsupported messaging.system: fall back to client_id.
+            // Known systems (kafka, rabbitmq) are handled in map() via the messaging dispatch.
+            return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
         }
-
-        return endPoint;
+        return null;
     }
 
     public static String extractHostAndPort(String url) {
@@ -177,7 +212,6 @@ public class OtlpTraceSpanMapper {
     }
 
     String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes) {
-        String rpc = span.getName();
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             final String urlPath = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
@@ -195,23 +229,10 @@ public class OtlpTraceSpanMapper {
             if (rpcMethod != null) {
                 return rpcMethod;
             }
-        } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            final String destinationName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME, null);
-            if (destinationName != null) {
-                rpc = "destination=" + destinationName;
-            }
-            final String partitionId = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID, null);
-            if (partitionId != null) {
-                rpc = rpc + ", partition=" + partitionId;
-            }
-            final long offset = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET, 0L);
-
-            if (offset != 0) {
-                rpc = rpc + ",offset=" + offset;
-            }
         }
-
-        return rpc;
+        // Known messaging consumer rpc is built in map() via buildMessagingConsumerRpc.
+        // Consumer for unsupported messaging.system / unknown kind: fall back to the OTel span name.
+        return span.getName();
     }
 
     public static String extractPath(String url) {
@@ -240,6 +261,90 @@ public class OtlpTraceSpanMapper {
         }
 
         return url.substring(pathStart, pathEnd);
+    }
+
+    static boolean isConsumer(Span span) {
+        return span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE;
+    }
+
+    /** True when the consumer span belongs to a messaging system Pinpoint has a ServiceType for. */
+    static boolean isSupportedMessagingSystem(String messagingSystem) {
+        return OtlpTraceConstants.MESSAGING_SYSTEM_KAFKA.equalsIgnoreCase(messagingSystem)
+                || OtlpTraceConstants.MESSAGING_SYSTEM_RABBITMQ.equalsIgnoreCase(messagingSystem)
+                || OtlpTraceConstants.MESSAGING_SYSTEM_PULSAR.equalsIgnoreCase(messagingSystem)
+                || OtlpTraceConstants.MESSAGING_SYSTEM_ROCKETMQ.equalsIgnoreCase(messagingSystem)
+                || OtlpTraceConstants.MESSAGING_SYSTEM_ACTIVEMQ.equalsIgnoreCase(messagingSystem);
+    }
+
+    /** Dispatch {@code messaging.system} → system-specific consumer rpc string. */
+    static String buildMessagingConsumerRpc(String messagingSystem, Map<String, AttributeValue> attributes) {
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_KAFKA.equalsIgnoreCase(messagingSystem)) {
+            return KafkaAttributeUtils.buildConsumerRpc(attributes);
+        }
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_RABBITMQ.equalsIgnoreCase(messagingSystem)) {
+            return RabbitMQAttributeUtils.buildConsumerRpc(attributes);
+        }
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_PULSAR.equalsIgnoreCase(messagingSystem)) {
+            return PulsarAttributeUtils.buildConsumerRpc(attributes);
+        }
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_ROCKETMQ.equalsIgnoreCase(messagingSystem)) {
+            return RocketMQAttributeUtils.buildConsumerRpc(attributes);
+        }
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_ACTIVEMQ.equalsIgnoreCase(messagingSystem)) {
+            return ActiveMQAttributeUtils.buildConsumerRpc(attributes);
+        }
+        return null;
+    }
+
+    /**
+     * Dispatch {@code messaging.system} → entry-point display name shown on the Call Tree.
+     * Strings mirror the agent-side {@code *EntryMethodDescriptor.getApiDescriptor()} values
+     * ("Kafka Consumer Invocation", "RabbitMQ Consumer Invocation", ...), so OTel-sourced
+     * consumer spans render identically to agent-instrumented ones once the web side classifies
+     * the span's ServiceType as a messaging consumer (via {@code ServiceTypeCategory.MESSAGE_BROKER}).
+     * Falls back to the generic "Consumer" label for unknown systems.
+     */
+    static String resolveMessagingConsumerEntryPointName(String messagingSystem) {
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_KAFKA.equalsIgnoreCase(messagingSystem)) {
+            return "Kafka Consumer Invocation";
+        }
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_RABBITMQ.equalsIgnoreCase(messagingSystem)) {
+            return "RabbitMQ Consumer Invocation";
+        }
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_PULSAR.equalsIgnoreCase(messagingSystem)) {
+            return "Pulsar Consumer Invocation";
+        }
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_ROCKETMQ.equalsIgnoreCase(messagingSystem)) {
+            return "RocketMQ Consumer Invocation";
+        }
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_ACTIVEMQ.equalsIgnoreCase(messagingSystem)) {
+            return "ActiveMQ Consumer Invocation";
+        }
+        return OtlpTraceMapper.CONSUMER_METHOD_NAME;
+    }
+
+    /**
+     * Dispatch {@code messaging.system} → system-specific annotation emitter for consumer spans.
+     * Kafka additionally emits its consumer-group annotation; the others have no analogue.
+     */
+    static void addMessagingConsumerAnnotations(String messagingSystem,
+                                                Map<String, AttributeValue> attributes,
+                                                Consumer<AnnotationBo> sink) {
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_KAFKA.equalsIgnoreCase(messagingSystem)) {
+            KafkaAttributeUtils.recordTopicPartitionOffset(attributes, sink);
+            final String group = MessagingAttributeUtils.getConsumerGroup(attributes);
+            if (group != null) {
+                sink.accept(AnnotationBo.of(OtlpTraceConstants.ANNOTATION_KEY_KAFKA_CONSUMER_GROUP, group));
+            }
+        } else if (OtlpTraceConstants.MESSAGING_SYSTEM_RABBITMQ.equalsIgnoreCase(messagingSystem)) {
+            RabbitMQAttributeUtils.recordExchangeRoutingKey(attributes, sink);
+        } else if (OtlpTraceConstants.MESSAGING_SYSTEM_PULSAR.equalsIgnoreCase(messagingSystem)) {
+            PulsarAttributeUtils.recordTopicPartitionMessage(attributes, sink);
+        } else if (OtlpTraceConstants.MESSAGING_SYSTEM_ROCKETMQ.equalsIgnoreCase(messagingSystem)) {
+            RocketMQAttributeUtils.recordTopicQueueBroker(attributes, sink);
+        } else if (OtlpTraceConstants.MESSAGING_SYSTEM_ACTIVEMQ.equalsIgnoreCase(messagingSystem)) {
+            ActiveMQAttributeUtils.recordQueueBroker(attributes, sink);
+        }
     }
 
     String getServerSpanToRemoteAddress(Span span, Map<String, AttributeValue> attributes) {
