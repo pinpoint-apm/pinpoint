@@ -1,13 +1,59 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OtlpDbSystemTypeResolverTest {
 
-    private final OtlpDbSystemTypeResolver resolver = new OtlpDbSystemTypeResolver();
+    // Stubbed registry pre-populated with every ServiceType name OtlpDbSystemTypeResolver
+    // looks up. Codes mirror the agent plugin definitions / commons ServiceType doc table.
+    private static final ServiceTypeRegistryService REGISTRY = mockRegistry();
+
+    private final OtlpDbSystemTypeResolver resolver = new OtlpDbSystemTypeResolver(REGISTRY);
+
+    private static ServiceTypeRegistryService mockRegistry() {
+        Map<String, ServiceType> byName = new HashMap<>();
+        addType(byName, (short) 2100, "MYSQL");
+        addType(byName, (short) 2101, "MYSQL_EXECUTE_QUERY");
+        addType(byName, (short) 2150, "MARIADB");
+        addType(byName, (short) 2151, "MARIADB_EXECUTE_QUERY");
+        addType(byName, (short) 2250, "MSSQL_JDBC");
+        addType(byName, (short) 2251, "MSSQL_JDBC_QUERY");
+        addType(byName, (short) 2300, "ORACLE");
+        addType(byName, (short) 2301, "ORACLE_EXECUTE_QUERY");
+        addType(byName, (short) 2500, "POSTGRESQL");
+        addType(byName, (short) 2501, "POSTGRESQL_EXECUTE_QUERY");
+        addType(byName, (short) 2160, "DB2");
+        addType(byName, (short) 2161, "DB2_EXECUTE_QUERY");
+        addType(byName, (short) 2450, "INFORMIX");
+        addType(byName, (short) 2451, "INFORMIX_EXECUTE_QUERY");
+        addType(byName, (short) 2750, "H2");
+        addType(byName, (short) 2751, "H2_EXECUTE_QUERY");
+        addType(byName, (short) 2800, "CLICK_HOUSE");
+        addType(byName, (short) 2801, "CLICK_HOUSE_EXECUTE_QUERY");
+        addType(byName, (short) 2602, "CASSANDRA4");
+        addType(byName, (short) 2603, "CASSANDRA4_EXECUTE_QUERY");
+        addType(byName, (short) 2650, "MONGO");
+        addType(byName, (short) 2651, "MONGO_EXECUTE_QUERY");
+        addType(byName, (short) 2700, "COUCHDB");
+        addType(byName, (short) 2701, "COUCHDB_EXECUTE_QUERY");
+        addType(byName, (short) 8200, "REDIS");
+        addType(byName, (short) 9203, "ELASTICSEARCH");
+        addType(byName, (short) 8800, "HBASE_CLIENT");
+        return new MapBackedRegistry(byName);
+    }
+
+    private static void addType(Map<String, ServiceType> map, short code, String name) {
+        map.put(name, ServiceTypeFactory.of(code, name, name));
+    }
 
     // =======================================================================
     // resolveBaseCode — db.system.name (2.x)
@@ -121,5 +167,51 @@ class OtlpDbSystemTypeResolverTest {
     void resolveExecuteQueryCode_unknown_returnsOtlpDefault() {
         assertThat(resolver.resolveExecuteQueryCode("some_unknown_db"))
                 .isEqualTo(ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode());
+    }
+
+    // =======================================================================
+    // Plugin missing from registry → graceful fallback (new behavior)
+    // =======================================================================
+
+    @Test
+    void resolveBaseCode_unregisteredPlugin_fallsBackToOtlpDefault() {
+        // Build an empty registry — no plugin types registered. Every dbSystem key should
+        // resolve to the OPENTELEMETRY_DB fallback rather than returning a stale code.
+        OtlpDbSystemTypeResolver bareResolver = new OtlpDbSystemTypeResolver(new MapBackedRegistry(Map.of()));
+        assertThat(bareResolver.resolveBaseCode("mysql"))
+                .isEqualTo(ServiceType.OPENTELEMETRY_DB.getCode());
+        assertThat(bareResolver.resolveExecuteQueryCode("mysql"))
+                .isEqualTo(ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode());
+    }
+
+    /**
+     * Minimal {@link ServiceTypeRegistryService} stub backed by a name → ServiceType map.
+     * Matches the real {@link com.navercorp.pinpoint.common.profiler.trace.ServiceTypeRegistry}
+     * contract: unknown names return {@link ServiceType#UNDEFINED} rather than throwing.
+     */
+    private static final class MapBackedRegistry implements ServiceTypeRegistryService {
+        private final Map<String, ServiceType> byName;
+
+        MapBackedRegistry(Map<String, ServiceType> byName) {
+            this.byName = byName;
+        }
+
+        @Override
+        public ServiceType findServiceType(int serviceType) {
+            return byName.values().stream()
+                    .filter(t -> t.getCode() == serviceType)
+                    .findFirst()
+                    .orElse(ServiceType.UNDEFINED);
+        }
+
+        @Override
+        public ServiceType findServiceTypeByName(String typeName) {
+            return byName.getOrDefault(typeName, ServiceType.UNDEFINED);
+        }
+
+        @Override
+        public List<ServiceType> findDesc(String desc) {
+            return List.of();
+        }
     }
 }

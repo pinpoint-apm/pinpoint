@@ -17,61 +17,94 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Maps OTel db.system / db.system.name attribute values to Pinpoint ServiceType codes.
  * Prefers db.system.name (semconv 2.x) keys; db.system (1.x deprecated) keys are aliases.
+ *
+ * <p>Codes are resolved from {@link ServiceTypeRegistryService} by ServiceType <em>name</em>
+ * (e.g. {@code "MYSQL"}, {@code "MSSQL_JDBC"}), so a plugin re-mapping its code does not
+ * desync this resolver. If a plugin is not deployed, its name is absent from the registry and
+ * the resolver gracefully falls back to {@link ServiceType#OPENTELEMETRY_DB} /
+ * {@link ServiceType#OPENTELEMETRY_DB_EXECUTE_QUERY}. Resolution happens eagerly at
+ * construction so per-span lookups stay {@code O(1)}.</p>
  */
 public class OtlpDbSystemTypeResolver {
 
-    // {baseCode, executeQueryCode}
-    private static final Map<String, short[]> DB_SYSTEM_MAP;
+    // OTel db.system / db.system.name key → {baseTypeName, executeQueryTypeName}.
+    // baseTypeName == executeQueryTypeName when the plugin has no separate execute-query
+    // ServiceType (redis, elasticsearch, hbase).
+    private static final Map<String, String[]> NAME_MAP;
 
     static {
-        Map<String, short[]> map = new HashMap<>();
+        Map<String, String[]> map = new HashMap<>();
 
         // SQL
-        put(map, (short) 2100, (short) 2101, "mysql");
-        put(map, (short) 2150, (short) 2151, "mariadb");
-        put(map, (short) 2250, (short) 2251, "microsoft.sql_server", "mssql");
-        put(map, (short) 2300, (short) 2301, "oracle.db", "oracle");
-        put(map, (short) 2500, (short) 2501, "postgresql");
-        put(map, (short) 2160, (short) 2161, "ibm.db2", "db2");
-        put(map, (short) 2450, (short) 2451, "ibm.informix", "informix");
-        put(map, (short) 2750, (short) 2751, "h2database", "h2");
-        put(map, (short) 2800, (short) 2801, "clickhouse");
+        put(map, "MYSQL", "MYSQL_EXECUTE_QUERY", "mysql");
+        put(map, "MARIADB", "MARIADB_EXECUTE_QUERY", "mariadb");
+        put(map, "MSSQL_JDBC", "MSSQL_JDBC_QUERY", "microsoft.sql_server", "mssql");
+        put(map, "ORACLE", "ORACLE_EXECUTE_QUERY", "oracle.db", "oracle");
+        put(map, "POSTGRESQL", "POSTGRESQL_EXECUTE_QUERY", "postgresql");
+        put(map, "DB2", "DB2_EXECUTE_QUERY", "ibm.db2", "db2");
+        put(map, "INFORMIX", "INFORMIX_EXECUTE_QUERY", "ibm.informix", "informix");
+        put(map, "H2", "H2_EXECUTE_QUERY", "h2database", "h2");
+        put(map, "CLICK_HOUSE", "CLICK_HOUSE_EXECUTE_QUERY", "clickhouse");
 
         // NoSQL
-        put(map, (short) 2602, (short) 2603, "cassandra");
-        put(map, (short) 2650, (short) 2651, "mongodb");
-        put(map, (short) 2700, (short) 2701, "couchdb");
+        put(map, "CASSANDRA4", "CASSANDRA4_EXECUTE_QUERY", "cassandra");
+        put(map, "MONGO", "MONGO_EXECUTE_QUERY", "mongodb");
+        put(map, "COUCHDB", "COUCHDB_EXECUTE_QUERY", "couchdb");
 
-        // Cache / Search (no separate execute-query type in existing plugins)
-        put(map, (short) 8200, (short) 8200, "redis");
-        put(map, (short) 9203, (short) 9203, "elasticsearch", "opensearch");
-        put(map, (short) 8800, (short) 8800, "hbase");
+        // Cache / Search — no separate execute-query type in existing plugins.
+        put(map, "REDIS", "REDIS", "redis");
+        put(map, "ELASTICSEARCH", "ELASTICSEARCH", "elasticsearch", "opensearch");
+        put(map, "HBASE_CLIENT", "HBASE_CLIENT", "hbase");
 
-        DB_SYSTEM_MAP = Map.copyOf(map);
+        NAME_MAP = Map.copyOf(map);
     }
 
-    private static void put(Map<String, short[]> map, short base, short executeQuery, String... keys) {
-        short[] codes = {base, executeQuery};
-        for (String key : keys) {
-            map.put(key, codes);
+    private static void put(Map<String, String[]> map, String baseName, String executeQueryName, String... dbSystemKeys) {
+        String[] names = {baseName, executeQueryName};
+        for (String key : dbSystemKeys) {
+            map.put(key, names);
         }
     }
 
     private static final short DEFAULT_BASE = ServiceType.OPENTELEMETRY_DB.getCode();
     private static final short DEFAULT_EXECUTE_QUERY = ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode();
 
+    // dbSystem key → {baseCode, executeQueryCode}, eagerly resolved at construction.
+    private final Map<String, short[]> codeMap;
+
+    public OtlpDbSystemTypeResolver(ServiceTypeRegistryService registry) {
+        Objects.requireNonNull(registry, "registry");
+        Map<String, short[]> resolved = new HashMap<>();
+        NAME_MAP.forEach((dbSystem, names) -> {
+            short base = resolveCode(registry, names[0], DEFAULT_BASE);
+            short executeQuery = resolveCode(registry, names[1], DEFAULT_EXECUTE_QUERY);
+            resolved.put(dbSystem, new short[]{base, executeQuery});
+        });
+        this.codeMap = Map.copyOf(resolved);
+    }
+
+    private static short resolveCode(ServiceTypeRegistryService registry, String typeName, short fallback) {
+        ServiceType type = registry.findServiceTypeByName(typeName);
+        if (type == null || type == ServiceType.UNDEFINED) {
+            return fallback;
+        }
+        return type.getCode();
+    }
+
     short resolveBaseCode(String dbSystem) {
         if (dbSystem == null) {
             return DEFAULT_BASE;
         }
-        short[] codes = DB_SYSTEM_MAP.get(dbSystem);
+        short[] codes = codeMap.get(dbSystem);
         return codes != null ? codes[0] : DEFAULT_BASE;
     }
 
@@ -79,7 +112,7 @@ public class OtlpDbSystemTypeResolver {
         if (dbSystem == null) {
             return DEFAULT_EXECUTE_QUERY;
         }
-        short[] codes = DB_SYSTEM_MAP.get(dbSystem);
+        short[] codes = codeMap.get(dbSystem);
         return codes != null ? codes[1] : DEFAULT_EXECUTE_QUERY;
     }
 }

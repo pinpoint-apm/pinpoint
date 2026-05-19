@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.io.SpanVersion;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.springframework.stereotype.Component;
@@ -34,16 +35,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 @Component
 public class OtlpTraceSpanEventMapper {
 
     private final OtlpTraceEventMapper eventMapper;
     private final OtlpDbSystemTypeResolver dbSystemTypeResolver;
+    private final OtlpMessagingTypeResolver messagingTypeResolver;
 
-    public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper) {
+    public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper,
+                                    ServiceTypeRegistryService serviceTypeRegistryService,
+                                    OtlpMessagingTypeResolver messagingTypeResolver) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
-        this.dbSystemTypeResolver = new OtlpDbSystemTypeResolver();
+        this.dbSystemTypeResolver = new OtlpDbSystemTypeResolver(
+                Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService"));
+        this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
     }
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
@@ -55,7 +62,7 @@ public class OtlpTraceSpanEventMapper {
 
     SpanEventBo map(long spanStartTime, Span span, int depth) {
         SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setVersion(SpanVersion.TRACE_V2); // TODO
+        spanEventBo.setVersion(SpanVersion.TRACE_V2);
         spanEventBo.setSequence((short) 0);
         final long eventStartTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
         final long eventEndTime = TimeUnit.NANOSECONDS.toMillis(span.getEndTimeUnixNano());
@@ -63,7 +70,7 @@ public class OtlpTraceSpanEventMapper {
         final int startElapsed = (int) (eventStartTime - spanStartTime);
         spanEventBo.setStartElapsed(startElapsed);
         final int endElapsed = (int) (eventEndTime - eventStartTime);
-        spanEventBo.setEndElapsed(endElapsed); // TODO ?
+        spanEventBo.setEndElapsed(endElapsed);
 
         final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
         spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes));
@@ -75,7 +82,6 @@ public class OtlpTraceSpanEventMapper {
             spanEventBo.setServiceType(dbSystemTypeResolver.resolveBaseCode(dbSystem));
             if (isDatabaseExecuteQuery(attributes)) {
                 spanEventBo.setServiceType(dbSystemTypeResolver.resolveExecuteQueryCode(dbSystem));
-                // TODO bind ?
                 spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.SQL.getCode(), getClientSpanDbStatement(attributes)));
             }
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
@@ -83,10 +89,11 @@ public class OtlpTraceSpanEventMapper {
             spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_CLIENT.getCode());
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
         } else if (isProducer(span)) {
-            spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+            final String messagingSystem = MessagingAttributeUtils.getSystem(attributes);
+            spanEventBo.setServiceType(messagingTypeResolver.resolveClientServiceType(messagingSystem));
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.PRODUCER_METHOD_NAME)));
+            recordMessagingProducerAnnotations(messagingSystem, attributes, spanEventBo::addAnnotation);
         } else {
-            // TODO move span
             spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_INTERNAL.getCode());
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.INTERNAL_METHOD_NAME)));
         }
@@ -191,5 +198,26 @@ public class OtlpTraceSpanEventMapper {
             return defaultName;
         }
         return span.getName();
+    }
+
+
+    /**
+     * Dispatch {@code messaging.system} → system-specific annotation emitter.
+     * No-op when the system is unrecognized.
+     */
+    static void recordMessagingProducerAnnotations(String messagingSystem,
+                                                   Map<String, AttributeValue> attributes,
+                                                   Consumer<AnnotationBo> sink) {
+        if (OtlpTraceConstants.MESSAGING_SYSTEM_KAFKA.equalsIgnoreCase(messagingSystem)) {
+            KafkaAttributeUtils.recordTopicPartitionOffset(attributes, sink);
+        } else if (OtlpTraceConstants.MESSAGING_SYSTEM_RABBITMQ.equalsIgnoreCase(messagingSystem)) {
+            RabbitMQAttributeUtils.recordExchangeRoutingKey(attributes, sink);
+        } else if (OtlpTraceConstants.MESSAGING_SYSTEM_PULSAR.equalsIgnoreCase(messagingSystem)) {
+            PulsarAttributeUtils.recordTopicPartitionMessage(attributes, sink);
+        } else if (OtlpTraceConstants.MESSAGING_SYSTEM_ROCKETMQ.equalsIgnoreCase(messagingSystem)) {
+            RocketMQAttributeUtils.recordTopicQueueBroker(attributes, sink);
+        } else if (OtlpTraceConstants.MESSAGING_SYSTEM_ACTIVEMQ.equalsIgnoreCase(messagingSystem)) {
+            ActiveMQAttributeUtils.recordQueueBroker(attributes, sink);
+        }
     }
 }

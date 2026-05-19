@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
-import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -211,7 +210,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     }
 
     private boolean isChildSpanChunk(SpanBo spanBo, SpanChunkBo spanChunkBo) {
-        if (OpenTelemetryServiceTypeCategory.contains(spanBo.getServiceType())) {
+        if (ServerTraceId.isOpenTelemetry(spanBo.getTransactionId())) {
             if (!isOpenTelemetryChildSpanChunk(spanBo, spanChunkBo)) {
                 return false;
             }

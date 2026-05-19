@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -109,7 +108,7 @@ public class FilteredMapBuilder {
         final MultiValueMap<TraceSpanKey, SpanBo> index = new LinkedMultiValueMap<>();
         for (List<SpanBo> transaction : transactionList) {
             for (SpanBo host : transaction) {
-                if (!OpenTelemetryServiceTypeCategory.contains(host.getServiceType())) {
+                if (!ServerTraceId.isOpenTelemetry(host.getTransactionId())) {
                     continue;
                 }
                 final List<AnnotationBo> annotationBoList = host.getAnnotationBoList();
@@ -136,7 +135,7 @@ public class FilteredMapBuilder {
             return;
         }
         for (SpanBo upstream : transaction) {
-            if (!OpenTelemetryServiceTypeCategory.contains(upstream.getServiceType())) {
+            if (!ServerTraceId.isOpenTelemetry(upstream.getTransactionId())) {
                 continue;
             }
             // 1) Top-level OTel span: compare SpanBo's spanId
@@ -277,7 +276,7 @@ public class FilteredMapBuilder {
     private MultiValueMap<Long, SpanBo> createTransactionSpanMap(List<SpanBo> transaction) {
         final MultiValueMap<Long, SpanBo> transactionSpanMap = new LinkedMultiValueMap<>(transaction.size());
         for (SpanBo span : transaction) {
-            if (OpenTelemetryServiceTypeCategory.contains(span.getServiceType())) {
+            if (ServerTraceId.isOpenTelemetry(span.getTransactionId())) {
                 if (isParentSpanId(span.getSpanId(), transaction)) {
                     transactionSpanMap.add(span.getSpanId(), span);
                 }

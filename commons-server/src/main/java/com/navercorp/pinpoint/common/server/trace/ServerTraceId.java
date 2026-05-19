@@ -13,6 +13,18 @@ import java.util.Objects;
 public interface ServerTraceId {
     byte[] getId();
 
+    /**
+     * Identifies whether a span originated from the OpenTelemetry collector path.
+     * <p>
+     * OTel spans always carry an {@link OtelServerTraceId} (16-byte W3C trace_id), while
+     * agent-instrumented spans carry a {@link PinpointServerTraceId}. Detecting OTel via
+     * traceId type is independent of ServiceType, so it stays correct as new OTel-side
+     * ServiceTypes (e.g. queue/messaging kinds) are added without updating any allowlist.
+     */
+    static boolean isOpenTelemetry(ServerTraceId traceId) {
+        return traceId instanceof OtelServerTraceId;
+    }
+
     static byte[] encodeTraceRowKey(int saltKeySize, ServerTraceId serverTraceId) {
         if (serverTraceId instanceof PinpointServerTraceId pinpointServerTraceId) {
             final String agentId = pinpointServerTraceId.getAgentId();
