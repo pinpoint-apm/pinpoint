@@ -179,7 +179,7 @@ public class GrpcAgentConfiguration {
                                              AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
                                              PingSessionRegistry pingSessionRegistry,
                                              ApplicationServiceTypeService applicationServiceTypeService,
-                                             @Value("${pinpoint.collector.application.index.v2.enabled:false}") boolean v2enabled) {
+                                             @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
         return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry, applicationServiceTypeService, v2enabled);
     }
 

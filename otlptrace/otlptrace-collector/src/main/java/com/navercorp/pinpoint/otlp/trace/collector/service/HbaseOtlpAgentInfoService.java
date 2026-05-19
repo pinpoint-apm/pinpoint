@@ -34,7 +34,7 @@ public class HbaseOtlpAgentInfoService {
     private final ApplicationIndexDao applicationIndexDao;
     private final boolean applicationIndexV1Enabled;
 
-    public HbaseOtlpAgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao, @Value("${pinpoint.collector.application.index.v1.enabled:true}") boolean applicationIndexV1Enabled) {
+    public HbaseOtlpAgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao, @Value("${pinpoint.collector.application.index.v1.enabled:false}") boolean applicationIndexV1Enabled) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationIndexV1Enabled = applicationIndexV1Enabled;

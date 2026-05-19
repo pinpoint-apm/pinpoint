@@ -41,9 +41,9 @@ public class HbaseScatterService implements ScatterService {
     public HbaseScatterService(
             ApplicationTraceIndexDao applicationTraceIndexDao,
             TraceIndexDao traceIndexDao,
-            @Value("${pinpoint.collector.application.trace.index.v1.enabled:true}")
+            @Value("${pinpoint.collector.application.trace.index.v1.enabled:false}")
             boolean enableApplicationTraceIndexV1,
-            @Value("${pinpoint.collector.application.trace.index.v2.enabled:false}")
+            @Value("${pinpoint.collector.application.trace.index.v2.enabled:true}")
             boolean enableApplicationTraceIndexV2
     ) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");

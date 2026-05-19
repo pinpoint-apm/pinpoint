@@ -71,7 +71,7 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
     public ScatterChartController(
             ScatterChartService scatterChartService,
             ServiceTypeRegistryService serviceTypeRegistryService,
-            @Value("${pinpoint.web.trace.index.read.v2:false}") boolean defaultTraceIndexReadV2) {
+            @Value("${pinpoint.web.trace.index.read.v2:true}") boolean defaultTraceIndexReadV2) {
         this.scatterChartService = Objects.requireNonNull(scatterChartService, "scatterChartService");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;

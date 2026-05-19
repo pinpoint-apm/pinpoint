@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.job;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
@@ -40,12 +41,14 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public class ApplicationCleanupTasklet implements Tasklet {
     private static final int DELETE_BATCH_SIZE = 2000;
+    private static final int STATISTICS_CHECK_RANGE_SPLIT_COUNT = 5;
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationDao applicationDao;
@@ -54,14 +57,14 @@ public class ApplicationCleanupTasklet implements Tasklet {
     private final MapAgentResponseDao mapAgentResponseDao;
 
     private final boolean dryRun;
-    private final List<Integer> serviceUidList;
-
-    private final int agentCountThreshold;
-    private final int inactiveDays;
-    private final int inactiveGraceDays;
     private final long baseTimestamp;
-    private final long cleanupWindowMillis;
+    private final int inactiveDays;
+
+    // Experimental: additional retention reduction for applications exceeding agentCountThreshold
+    private final int agentCountThreshold;
+    private final int inactiveGraceDays;
     private final Set<Integer> statisticsCheckServiceTypeCodes;
+
     private boolean traceIndexAvailable = true;
 
     public ApplicationCleanupTasklet(
@@ -71,12 +74,10 @@ public class ApplicationCleanupTasklet implements Tasklet {
             MapAgentResponseDao mapAgentResponseDao,
             Boolean dryRun,
             long baseTimestamp,
-            List<Integer> serviceUidList,
-            int agentCountThreshold,
             int inactiveDays,
+            int agentCountThreshold,
             int inactiveGraceDays,
-            Set<Integer> statisticsCheckServiceTypeCodes,
-            long cleanupWindowMillis
+            Set<Integer> statisticsCheckServiceTypeCodes
     ) {
         this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
@@ -84,22 +85,21 @@ public class ApplicationCleanupTasklet implements Tasklet {
         this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
         this.dryRun = Objects.requireNonNullElse(dryRun, Boolean.TRUE);
         this.baseTimestamp = baseTimestamp;
-        this.serviceUidList = Objects.requireNonNull(serviceUidList, "serviceUidList");
-        this.agentCountThreshold = agentCountThreshold;
         this.inactiveDays = inactiveDays;
+        this.agentCountThreshold = agentCountThreshold;
         this.inactiveGraceDays = inactiveGraceDays;
         this.statisticsCheckServiceTypeCodes = Objects.requireNonNull(statisticsCheckServiceTypeCodes, "statisticsCheckServiceTypeCodes");
-        this.cleanupWindowMillis = cleanupWindowMillis;
+        if (this.agentCountThreshold != Integer.MAX_VALUE) {
+            logger.info("ExperimentalAgentCountThreshold agentCountThreshold={}", this.agentCountThreshold);
+        }
     }
 
     @Override
     public RepeatStatus execute(@NonNull StepContribution contribution, @NonNull ChunkContext chunkContext) {
-        for (int serviceUid : serviceUidList) {
-            List<Application> applications = applicationDao.getApplications(serviceUid);
-            logger.info("processing service={}, applicationCount={}", serviceUid, applications.size());
-            for (Application application : applications) {
-                processApplication(application, baseTimestamp);
-            }
+        List<Application> applications = applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE);
+        logger.info("processing service={}, applicationCount={}", ServiceUid.DEFAULT_SERVICE_UID_CODE, applications.size());
+        for (Application application : applications) {
+            processApplication(application, baseTimestamp);
         }
         return RepeatStatus.FINISHED;
     }
@@ -132,26 +132,56 @@ public class ApplicationCleanupTasklet implements Tasklet {
     }
 
     private List<AgentIdEntry> getDeleteTargetsUsingStatisticsCheck(Application application, long baseTimestamp, List<AgentIdEntry> agentIdEntries) {
-        int newCleanDurationDays = calculateNewCleanDurationDays(agentIdEntries.size());
-        if (newCleanDurationDays >= inactiveDays) {
-            return List.of();
+        int excessCount = agentIdEntries.size() - agentCountThreshold;
+
+        long alignedBaseTimestamp = baseTimestamp - (baseTimestamp % Duration.ofDays(1).toMillis());
+        long alignedGraceTimestamp = alignedBaseTimestamp - Duration.ofDays(inactiveGraceDays).toMillis();
+
+        // check grace range
+        Set<String> keepSet = new HashSet<>(mapAgentResponseDao.selectAgentIds(application,
+                new TimeWindow(Range.between(alignedGraceTimestamp, alignedBaseTimestamp))));
+        int regularSliceDays = (inactiveDays - inactiveGraceDays) / STATISTICS_CHECK_RANGE_SPLIT_COUNT;
+        List<AgentIdEntry> deleteTargets = collectCandidates(agentIdEntries, keepSet, alignedGraceTimestamp);
+        long lastSliceStart = alignedGraceTimestamp;
+        // check older range slice by slice (newest first); commit deleteTargets only when still above excessCount
+        if (regularSliceDays > 0 && deleteTargets.size() > excessCount) {
+            long regularSliceMillis = Duration.ofDays(regularSliceDays).toMillis();
+            for (int i = 0; i < STATISTICS_CHECK_RANGE_SPLIT_COUNT; i++) {
+                TimeWindow sliceWindow = buildSliceWindow(alignedGraceTimestamp, regularSliceMillis, i);
+                keepSet.addAll(mapAgentResponseDao.selectAgentIds(application, sliceWindow));
+                List<AgentIdEntry> newDeleteTargets = collectCandidates(agentIdEntries, keepSet, sliceWindow.getWindowRange().getFrom());
+                if (newDeleteTargets.size() <= excessCount) {
+                    break;
+                }
+                deleteTargets = newDeleteTargets;
+                lastSliceStart = sliceWindow.getWindowRange().getFrom();
+            }
         }
-        long newThresholdTimestamp = baseTimestamp - Duration.ofDays(newCleanDurationDays).toMillis();
-        Set<String> activeAgentIds = mapAgentResponseDao.selectAgentIds(application, new TimeWindow(Range.between(newThresholdTimestamp, baseTimestamp)));
+        logger.info("Cleaning up excessive agents. application={}, agentCount={}, targetCount={}, lastSliceStart={}",
+                application, agentIdEntries.size(), deleteTargets.size(), new Date(lastSliceStart));
+        return deleteTargets;
+    }
+
+    private TimeWindow buildSliceWindow(long alignedGraceTimestamp, long regularSliceMillis, int sliceIndex) {
+        long sliceStart = alignedGraceTimestamp - regularSliceMillis * (sliceIndex + 1);
+        long sliceEnd = alignedGraceTimestamp - regularSliceMillis * sliceIndex;
+        return new TimeWindow(Range.between(sliceStart, sliceEnd));
+    }
+
+    private List<AgentIdEntry> collectCandidates(List<AgentIdEntry> agentIdEntries, Set<String> keepSet, long threshold) {
+        List<AgentIdEntry> candidates = new ArrayList<>();
         String lastKeptAgentId = null;
-        List<AgentIdEntry> deleteTargets = new ArrayList<>();
         for (AgentIdEntry entry : agentIdEntries) {
-            if (!isInactiveCandidate(entry, newThresholdTimestamp)) {
+            if (!isInactiveCandidate(entry, threshold)) {
                 continue;
             }
-            if (activeAgentIds.contains(entry.getAgentId()) && !entry.getAgentId().equals(lastKeptAgentId)) {
+            if (keepSet.contains(entry.getAgentId()) && !entry.getAgentId().equals(lastKeptAgentId)) {
                 lastKeptAgentId = entry.getAgentId();
                 continue;
             }
-            deleteTargets.add(entry);
+            candidates.add(entry);
         }
-        logger.info("Cleaning up excessive agents. application={}, agentCount={}, targetCount={}, newCleanDurationDays={}", application, agentIdEntries.size(), deleteTargets.size(), newCleanDurationDays);
-        return deleteTargets;
+        return candidates;
     }
 
     private List<AgentIdEntry> getDeleteTargets(Application application, long baseTimestamp, List<AgentIdEntry> agentIdEntries) {
@@ -179,15 +209,6 @@ public class ApplicationCleanupTasklet implements Tasklet {
     private boolean isInactiveCandidate(AgentIdEntry entry, long threshold) {
         return entry.getAgentStartTime() < threshold
                 && entry.getCurrentStateTimestamp() < threshold;
-    }
-
-    private int calculateNewCleanDurationDays(int agentCount) {
-        if (agentCount <= agentCountThreshold) {
-            return inactiveDays;
-        }
-        double cleanDurationMillis = cleanupWindowMillis * (agentCountThreshold / (double) agentCount);
-        int calculatedDays = (int) (cleanDurationMillis / Duration.ofDays(1).toMillis());
-        return Math.max(inactiveGraceDays, calculatedDays);
     }
 
     private void deleteAgentEntries(Application application, List<AgentIdEntry> deleteTargets) {

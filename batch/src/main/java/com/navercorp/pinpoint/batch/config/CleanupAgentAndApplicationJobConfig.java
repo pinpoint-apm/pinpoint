@@ -32,11 +32,9 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -47,9 +45,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.time.Duration;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -61,23 +57,19 @@ public class CleanupAgentAndApplicationJobConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
-    private final JobExplorer jobExplorer;
 
     private final BatchProperties batchProperties;
     private final AgentProperties agentProperties;
 
     private static final String BASE_TIMESTAMP_KEY = "baseTimestamp";
     private static final String DRY_RUN_KEY = "dryRun";
-    private static final String LAST_COMPLETED_JOB_TIME_KEY = "lastCompletedJobTime";
 
     public CleanupAgentAndApplicationJobConfig(JobRepository jobRepository,
                                                PlatformTransactionManager transactionManager,
-                                               JobExplorer jobExplorer,
                                                BatchProperties batchProperties,
                                                AgentProperties agentProperties) {
         this.jobRepository = Objects.requireNonNull(jobRepository, "jobRepository");
         this.transactionManager = Objects.requireNonNull(transactionManager, "transactionManager");
-        this.jobExplorer = Objects.requireNonNull(jobExplorer, "jobExplorer");
         this.batchProperties = Objects.requireNonNull(batchProperties, "batchProperties");
         this.agentProperties = Objects.requireNonNull(agentProperties, "agentProperties");
     }
@@ -85,17 +77,16 @@ public class CleanupAgentAndApplicationJobConfig {
     @Bean
     public Job agentIdCleanupJob(
             Step agentIdCleanupStep,
-            Step applicationCleanupStep,
-            @Value("${job.cleanup.inactive.application.job-history-search-limit:30}") int jobHistorySearchLimit
+            Step applicationCleanupStep
     ) {
         return new JobBuilder(JOB_NAME, jobRepository)
-                .listener(beforeJobListener(jobHistorySearchLimit))
+                .listener(beforeJobListener())
                 .start(agentIdCleanupStep)
                 .next(applicationCleanupStep)
                 .build();
     }
 
-    private JobExecutionListener beforeJobListener(int jobHistorySearchLimit) {
+    private JobExecutionListener beforeJobListener() {
         return new JobExecutionListener() {
             @Override
             public void beforeJob(@NonNull JobExecution jobExecution) {
@@ -105,14 +96,9 @@ public class CleanupAgentAndApplicationJobConfig {
                 Date scheduleDate = jobExecution.getJobParameters().getDate(JobParametersUtils.SCHEDULE_DATE_KEY);
                 long baseTimestamp = scheduleDate != null ? scheduleDate.getTime() : System.currentTimeMillis();
 
-                Long lastCompletedJobTime = getLastCompletedJobTime(jobHistorySearchLimit);
-
                 jobExecution.getExecutionContext().putLong(BASE_TIMESTAMP_KEY, baseTimestamp);
                 jobExecution.getExecutionContext().put(DRY_RUN_KEY, dryRun);
-                if (lastCompletedJobTime != null) {
-                    jobExecution.getExecutionContext().putLong(LAST_COMPLETED_JOB_TIME_KEY, lastCompletedJobTime);
-                }
-                logger.info("beforeJob: dryRun={}, baseTimestamp={}, lastCompletedJobTime={}", dryRun, baseTimestamp, lastCompletedJobTime);
+                logger.info("beforeJob: dryRun={}, baseTimestamp={}", dryRun, baseTimestamp);
             }
 
             @Override
@@ -154,12 +140,12 @@ public class CleanupAgentAndApplicationJobConfig {
     public AgentIdCleanupTasklet agentIdCleanupTasklet(
             @Value("#{jobExecutionContext['" + DRY_RUN_KEY + "']}") boolean dryRun,
             @Value("#{jobExecutionContext['" + BASE_TIMESTAMP_KEY + "']}") long baseTimestamp,
-            @Value("${job.cleanup.inactive.agent.fetch-size:2000}") int fetchSize,
-            @Value("${job.cleanup.inactive.agent.max-iteration:100000}") int maxIteration,
+            @Value("${job.cleanup.inactive.agent-application.fetch-size:2000}") int fetchSize,
+            @Value("${job.cleanup.inactive.agent-application.max-iteration:100000}") int maxIteration,
             AgentIdDao agentIdDao,
             MapAgentResponseDao mapAgentResponseDao
     ) {
-        int inactiveDays = Math.max(batchProperties.getCleanupAgentInactiveThresholdDays(), batchProperties.getCleanupAgentAndApplicationGraceDays());
+        int inactiveDays = batchProperties.getCleanupAgentAndApplicationThresholdDays();
         return new AgentIdCleanupTasklet(
                 agentIdDao,
                 mapAgentResponseDao,
@@ -177,16 +163,11 @@ public class CleanupAgentAndApplicationJobConfig {
     public ApplicationCleanupTasklet applicationCleanupTasklet(
             @Value("#{jobExecutionContext['" + DRY_RUN_KEY + "']}") boolean dryRun,
             @Value("#{jobExecutionContext['" + BASE_TIMESTAMP_KEY + "']}") long baseTimestamp,
-            @Value("#{jobExecutionContext['" + LAST_COMPLETED_JOB_TIME_KEY + "']}") Long lastCompletedJobTime,
-            @Value("${job.cleanup.inactive.application.service-uid:0}") List<Integer> serviceUidList,
-            @Value("${job.cleanup.inactive.application.agent-count-threshold:2147483647}") int agentCountThreshold,
             ApplicationDao applicationDao,
             AgentIdDao agentIdDao,
             TraceIndexDao traceIndexDao,
             MapAgentResponseDao mapAgentResponseDao
     ) {
-        long cleanupWindowMillis = calculateCleanupWindowMillis(baseTimestamp, lastCompletedJobTime);
-        logger.info("applicationCleanupTasklet: cleanupWindowMillis={}", cleanupWindowMillis);
         return new ApplicationCleanupTasklet(
                 applicationDao,
                 agentIdDao,
@@ -194,45 +175,10 @@ public class CleanupAgentAndApplicationJobConfig {
                 mapAgentResponseDao,
                 dryRun,
                 baseTimestamp,
-                serviceUidList,
-                agentCountThreshold,
-                batchProperties.getCleanupAgentInactiveThresholdDays(),
+                batchProperties.getCleanupAgentAndApplicationThresholdDays(),
+                batchProperties.getCleanupAgentAndApplicationAgentCountThreshold(),
                 batchProperties.getCleanupAgentAndApplicationGraceDays(),
-                agentProperties.getStatisticsCheckServiceTypeCodes(),
-                cleanupWindowMillis
+                agentProperties.getStatisticsCheckServiceTypeCodes()
         );
-    }
-
-    private long calculateCleanupWindowMillis(long baseTimestamp, Long lastCompletedJobTime) {
-        long maxWindowMillis = Duration.ofDays(batchProperties.getCleanupAgentInactiveThresholdDays()).toMillis();
-        if (lastCompletedJobTime == null) {
-            return maxWindowMillis;
-        }
-        long elapsed = baseTimestamp - lastCompletedJobTime;
-        long graceDaysMillis = Duration.ofDays(batchProperties.getCleanupAgentAndApplicationGraceDays()).toMillis();
-        return Math.min(elapsed + graceDaysMillis, maxWindowMillis);
-    }
-
-    private Long getLastCompletedJobTime(int searchLimit) {
-        if (searchLimit == 0) {
-            return null;
-        }
-        List<JobInstance> instances = jobExplorer.getJobInstances(JOB_NAME, 0, searchLimit);
-        for (JobInstance instance : instances) {
-            try {
-                List<JobExecution> executions = jobExplorer.getJobExecutions(instance);
-                for (JobExecution execution : executions) {
-                    if (!ExitStatus.COMPLETED.equals(execution.getExitStatus())) {
-                        continue;
-                    }
-                    logger.info("Found last completed job. execution={}", execution);
-                    return JobParametersUtils.getScheduleTime(execution);
-                }
-            } catch (Exception e) {
-                logger.warn("Failed to read job execution for instance={}. Skipping.", instance, e);
-            }
-        }
-        logger.info("No previous completed job found for job={}, searchLimit={}", JOB_NAME, searchLimit);
-        return null;
     }
 }

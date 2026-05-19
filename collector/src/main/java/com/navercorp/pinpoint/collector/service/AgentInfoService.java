@@ -40,7 +40,7 @@ public class AgentInfoService {
     private final boolean applicationIndexV1Enabled;
 
     public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao,
-                            @Value("${pinpoint.collector.application.index.v1.enabled:true}") boolean applicationIndexV1Enabled) {
+                            @Value("${pinpoint.collector.application.index.v1.enabled:false}") boolean applicationIndexV1Enabled) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationIndexV1Enabled = applicationIndexV1Enabled;

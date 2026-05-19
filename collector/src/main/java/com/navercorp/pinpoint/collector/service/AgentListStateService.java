@@ -37,7 +37,7 @@ public class AgentListStateService {
     private final boolean v2enabled;
 
     public AgentListStateService(AgentIdDao agentIdDao,
-                                 @Value("${pinpoint.collector.application.index.v2.enabled:false}") boolean v2enabled) {
+                                 @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
         this.v2enabled = v2enabled;
     }

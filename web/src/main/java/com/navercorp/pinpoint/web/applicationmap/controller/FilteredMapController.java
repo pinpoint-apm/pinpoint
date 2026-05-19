@@ -88,7 +88,7 @@ public class FilteredMapController {
             FilterBuilder<List<SpanBo>> filterBuilder,
             HyperLinkFactory hyperLinkFactory,
             ServiceTypeRegistryService serviceTypeRegistryService,
-            @Value("${pinpoint.web.trace.index.read.v2:false}") boolean defaultTraceIndexReadV2) {
+            @Value("${pinpoint.web.trace.index.read.v2:true}") boolean defaultTraceIndexReadV2) {
         this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.traceIndexService = Objects.requireNonNull(traceIndexService, "traceIndexService");
