@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.uristat.web.view.UriStatSummaryView;
 import com.navercorp.pinpoint.uristat.web.view.UriStatView;
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -85,6 +86,7 @@ public class UriStatController {
         return range;
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasUrlStatPermission(#serviceName.getName(), #applicationName)")
     @GetMapping("/summary")
     public List<UriStatSummaryView> getUriStatPagedSummary(
             @ServiceParam ServiceName serviceName,
@@ -122,6 +124,7 @@ public class UriStatController {
         }
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasUrlStatPermission(#serviceName.getName(), #applicationName)")
     @GetMapping("/chart")
     public UriStatView getCollectedUriStat(
             @ServiceParam ServiceName serviceName,
