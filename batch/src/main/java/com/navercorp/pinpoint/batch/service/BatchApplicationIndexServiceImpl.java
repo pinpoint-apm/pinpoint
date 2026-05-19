@@ -46,7 +46,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     public BatchApplicationIndexServiceImpl(
             ApplicationIndexDao applicationIndexDao,
             ApplicationDao applicationDao, AgentIdDao agentIdDao,
-            @Value("${pinpoint.batch.application.index.read.v2:false}") boolean readV2) {
+            @Value("${pinpoint.batch.application.index.read.v2:true}") boolean readV2) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");

@@ -79,10 +79,13 @@ public class BatchProperties {
     @Value("${job.cleanup.inactive.agent-application.dry-run:true}")
     private boolean cleanupAgentAndApplicationJobDryRun;
 
-    @Value("${job.cleanup.inactive.agent.threshold-days:30}")
-    private int cleanupAgentInactiveThresholdDays;
+    @Value("${job.cleanup.inactive.agent-application.threshold-days:30}")
+    private int cleanupAgentAndApplicationThresholdDays;
 
-    @Value("${job.cleanup.inactive.agent.grace-days:7}")
+    @Value("${job.cleanup.inactive.agent-application.agent-count-threshold:2147483647}")
+    private int cleanupAgentAndApplicationAgentCountThreshold;
+
+    @Value("${job.cleanup.inactive.agent-application.grace-days:7}")
     private int cleanupAgentAndApplicationGraceDays;
 
     private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
@@ -158,8 +161,12 @@ public class BatchProperties {
         return cleanupAgentAndApplicationJobCron;
     }
 
-    public int getCleanupAgentInactiveThresholdDays() {
-        return cleanupAgentInactiveThresholdDays;
+    public int getCleanupAgentAndApplicationThresholdDays() {
+        return cleanupAgentAndApplicationThresholdDays;
+    }
+
+    public int getCleanupAgentAndApplicationAgentCountThreshold() {
+        return cleanupAgentAndApplicationAgentCountThreshold;
     }
 
     public boolean isCleanupAgentAndApplicationJobDryRun() {

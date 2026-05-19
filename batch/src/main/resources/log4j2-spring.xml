@@ -53,8 +53,8 @@
             </DefaultArbiter>
         </Select>
 
-        <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint-web.log"
-                     filepattern="${logging_dir}/pinpoint-web-${rolling-date-format}-%i.log"  >
+        <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint-batch.log"
+                     filepattern="${logging_dir}/pinpoint-batch-${rolling-date-format}-%i.log"  >
             <PatternLayout>
                 <Pattern>${file_message_pattern}</Pattern>
             </PatternLayout>
@@ -64,7 +64,7 @@
             </Policies>
             <DefaultRolloverStrategy max="20">
                 <Delete basePath="${logging_dir}/" maxDepth="1">
-                    <IfFileName glob="pinpoint-web-*-*.log">
+                    <IfFileName glob="pinpoint-batch-*-*.log">
                         <IfAny>
                             <IfAccumulatedFileSize exceeds="${accumulated_file_size}" />
                             <IfAccumulatedFileCount exceeds="${accumulated_file_count}" />

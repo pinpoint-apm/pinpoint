@@ -31,7 +31,7 @@ public class ApplicationIndexV2Service {
                                      AgentIdDao agentIdDao,
                                      ApplicationServiceTypeService applicationServiceTypeService,
                                      AgentProperties agentProperties,
-                                     @Value("${pinpoint.collector.application.index.v2.enabled:false}") boolean v2enabled) {
+                                     @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
         this.applicationDao = Objects.requireNonNull(applicationDao, "ApplicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
         this.applicationServiceTypeService = Objects.requireNonNull(applicationServiceTypeService, "applicationServiceTypeService");

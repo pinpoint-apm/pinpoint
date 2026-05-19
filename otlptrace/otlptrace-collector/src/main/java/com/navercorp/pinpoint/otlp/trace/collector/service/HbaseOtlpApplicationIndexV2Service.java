@@ -38,7 +38,7 @@ public class HbaseOtlpApplicationIndexV2Service {
 
     public HbaseOtlpApplicationIndexV2Service(ApplicationDao applicationDao,
                                               AgentIdDao agentIdDao,
-                                              @Value("${pinpoint.collector.application.index.v2.enabled:false}") boolean v2enabled) {
+                                              @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
         this.applicationDao = Objects.requireNonNull(applicationDao, "ApplicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
         this.v2enabled = v2enabled;

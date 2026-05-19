@@ -70,7 +70,7 @@ public class AgentV2Controller {
                              AgentListV2Service agentListV2Service,
                              AgentsService agentsService,
                              ConfigProperties configProperties,
-                             @Value("${pinpoint.web.application.index.read.v2:false}") boolean readAgentV2) {
+                             @Value("${pinpoint.web.application.index.read.v2:true}") boolean readAgentV2) {
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentListV2Service = Objects.requireNonNull(agentListV2Service, "agentListV2Service");
         this.agentsService = Objects.requireNonNull(agentsService, "agentsService");

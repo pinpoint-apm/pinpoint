@@ -60,7 +60,7 @@ public class HeatMapController {
     private final boolean defaultTraceIndexReadV2;
 
     public HeatMapController(HeatMapService heatMap, ServiceTypeRegistryService serviceTypeRegistryService,
-                             @Value("${pinpoint.web.trace.index.read.v2:false}") boolean defaultTraceIndexReadV2) {
+                             @Value("${pinpoint.web.trace.index.read.v2:true}") boolean defaultTraceIndexReadV2) {
         this.heatMap = Objects.requireNonNull(heatMap, "heatMap");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;

@@ -51,9 +51,9 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     public ApplicationIndexServiceImpl(ApplicationIndexDao applicationIndexDao,
                                        ApplicationDao applicationDao,
                                        AgentIdDao agentIdDao,
-                                       @Value("${pinpoint.web.application.index.v1.enabled:true}") boolean v1TableEnabled,
-                                       @Value("${pinpoint.web.application.index.v2.enabled:false}") boolean v2TableEnabled,
-                                       @Value("${pinpoint.web.application.index.read.v2:false}") boolean readV2) {
+                                       @Value("${pinpoint.web.application.index.v1.enabled:false}") boolean v1TableEnabled,
+                                       @Value("${pinpoint.web.application.index.v2.enabled:true}") boolean v2TableEnabled,
+                                       @Value("${pinpoint.web.application.index.read.v2:true}") boolean readV2) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
