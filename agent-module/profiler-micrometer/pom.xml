@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>pinpoint-profiler-micrometer</artifactId>
+    <name>pinpoint-profiler-micrometer</name>
+    <description>pinpoint profiler micrometer integration</description>
     <packaging>jar</packaging>
 
     <properties>

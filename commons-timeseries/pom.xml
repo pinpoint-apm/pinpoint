@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>pinpoint-commons-timeseries</artifactId>
+    <name>pinpoint-commons-timeseries</name>
+    <description>pinpoint commons time-series utilities</description>
     <packaging>jar</packaging>
 
     <properties>
