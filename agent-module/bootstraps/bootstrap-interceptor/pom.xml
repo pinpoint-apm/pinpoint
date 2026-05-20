@@ -27,6 +27,8 @@
     </parent>
 
     <artifactId>pinpoint-bootstrap-interceptor</artifactId>
+    <name>pinpoint-bootstrap-interceptor</name>
+    <description>pinpoint bootstrap interceptor</description>
     <packaging>jar</packaging>
 
     <properties>
