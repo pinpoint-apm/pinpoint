@@ -10,6 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pinpoint-agentstatistics-module</artifactId>
+    <name>pinpoint-agentstatistics-module</name>
+    <description>pinpoint agent-statistics pom</description>
     <packaging>pom</packaging>
 
     <modules>

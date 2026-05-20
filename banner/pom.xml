@@ -9,6 +9,8 @@
     </parent>
 
     <artifactId>pinpoint-banner</artifactId>
+    <name>pinpoint-banner</name>
+    <description>pinpoint startup banner</description>
     <packaging>jar</packaging>
 
     <dependencies>
