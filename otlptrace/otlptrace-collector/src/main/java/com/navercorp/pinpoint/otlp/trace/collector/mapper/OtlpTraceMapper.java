@@ -175,6 +175,85 @@ public class OtlpTraceMapper {
                 }
             }
         }
+
+        alignWrapperRoots(rootSpanList);
+    }
+
+    // When a thin wrapper root (e.g. CONSUMER 'receive' or INTERNAL poll loop) has its
+    // startTime pinned to an artificial value (worker init, broker connect), the wrapper's
+    // child CONSUMER carries the real processing startTime. Re-align the wrapper's startTime
+    // to its earliest matching child so scatter/response-time stats reflect actual processing.
+    // For the CONSUMER -> CONSUMER case, the upper CONSUMER is additionally re-typed as
+    // SPAN_KIND_SERVER so OtlpTraceSpanMapper maps it to ServiceType.OPENTELEMETRY_SERVER
+    // (a generic entry-point), letting the lower CONSUMER retain the messaging semantics.
+    // The wrapper span itself is preserved so links and attributes stay intact.
+    // Applied only when the wrapper itself has no upstream parent — a strong heuristic for
+    // local poll/wrapper patterns rather than legitimate distributed-trace consumers.
+    void alignWrapperRoots(List<Span> rootSpanList) {
+        Map<ByteString, Span> rootById = new HashMap<>();
+        for (Span s : rootSpanList) {
+            rootById.put(s.getSpanId(), s);
+        }
+
+        Map<ByteString, Long> minChildStartByParent = new HashMap<>();
+        for (Span child : rootSpanList) {
+            ByteString pid = child.getParentSpanId();
+            if (pid.isEmpty()) {
+                continue;
+            }
+            Span parent = rootById.get(pid);
+            if (parent == null) {
+                continue;
+            }
+            if (!parent.getParentSpanId().isEmpty()) {
+                // wrapper itself must be a top-level root (no upstream) to be aligned
+                continue;
+            }
+
+            int pKind = parent.getKind().getNumber();
+            int cKind = child.getKind().getNumber();
+            boolean internalToConsumer =
+                    pKind == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE
+                            && cKind == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE;
+            boolean consumerToConsumer =
+                    pKind == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE
+                            && cKind == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE;
+            if (!internalToConsumer && !consumerToConsumer) {
+                continue;
+            }
+
+            minChildStartByParent.merge(pid, child.getStartTimeUnixNano(), Math::min);
+        }
+
+        if (minChildStartByParent.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < rootSpanList.size(); i++) {
+            Span s = rootSpanList.get(i);
+            Long newStart = minChildStartByParent.get(s.getSpanId());
+            if (newStart == null) {
+                continue;
+            }
+
+            boolean alignStart = s.getStartTimeUnixNano() < newStart;
+            // CONSUMER -> CONSUMER: the upper CONSUMER (this 's') becomes a generic entry-point.
+            // Its kind is rewritten to SERVER so OtlpTraceSpanMapper assigns OPENTELEMETRY_SERVER.
+            boolean retypeToServer = s.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE;
+
+            if (!alignStart && !retypeToServer) {
+                continue;
+            }
+
+            Span.Builder builder = Span.newBuilder(s);
+            if (alignStart) {
+                builder.setStartTimeUnixNano(newStart);
+            }
+            if (retypeToServer) {
+                builder.setKind(Span.SpanKind.SPAN_KIND_SERVER);
+            }
+            rootSpanList.set(i, builder.build());
+        }
     }
 
     List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth) {
