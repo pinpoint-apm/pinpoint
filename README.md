@@ -5,12 +5,12 @@
 [![Maven](https://img.shields.io/github/actions/workflow/status/pinpoint-apm/pinpoint/maven.yml?branch=master&label=build&logo=github)](https://github.com/pinpoint-apm/pinpoint/actions?query=workflow%3AMaven)
 [![codecov](https://codecov.io/gh/pinpoint-apm/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/pinpoint-apm/pinpoint)
 
-## Latest Release (2026/04/02)
+## Latest Release (2026/05/21)
 
-We're happy to announce the release of Pinpoint v3.0.5.
-Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.0.5).
+We're happy to announce the release of Pinpoint v3.1.0.
+Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.1.0).
 
-The current stable version is [v3.0.5](https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.0.5).
+The current stable version is [v3.1.0](https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.1.0).
 
 ## Live Demo
 
