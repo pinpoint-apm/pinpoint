@@ -93,11 +93,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     private void handleSpanBatch(Context current, PSpanMessageBatch request, StreamObserver<PSpanResultBatch> responseObserver) {
         final UidFetcher fetcher = uidFetcherStreamService.newUidFetcher();
         final SpanBatchErrorResult errorReporter = new SpanBatchErrorResult();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
         for (PSpanMessage spanMessage : request.getSpanList()) {
             if (isDebug) {
                 logger.debug("SendSpanList PSpanMessage={}", MessageFormatUtils.debugLog(spanMessage));
