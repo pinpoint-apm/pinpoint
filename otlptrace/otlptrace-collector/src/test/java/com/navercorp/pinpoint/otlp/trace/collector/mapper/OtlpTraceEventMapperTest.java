@@ -36,13 +36,14 @@ class OtlpTraceEventMapperTest {
     }
 
     // -----------------------------------------------------------------------
-    // name only (no attributes)
+    // name only (no attributes) — inner object still present with time
     // -----------------------------------------------------------------------
 
     @Test
-    void nameOnly_writesEmptyStringValue() {
+    void nameOnly_writesInnerObjectWithTime() throws Exception {
         Span.Event event = Span.Event.newBuilder()
                 .setName("exception")
+                .setTimeUnixNano(1716200000000000000L)
                 .build();
 
         mapper.addEventToAnnotation(event, writer);
@@ -50,28 +51,44 @@ class OtlpTraceEventMapperTest {
         assertThat(annotations).hasSize(1);
         AnnotationBo bo = annotations.get(0);
         assertThat(bo.getKey()).isEqualTo(AnnotationKey.OPENTELEMETRY_EVENT.getCode());
-        assertThat(bo.getValue()).isEqualTo("{\"exception\":\"\"}");
+
+        ObjectMapper om = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> root = om.readValue((String) bo.getValue(), Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> inner = (Map<String, Object>) root.get("exception");
+        assertThat(inner).containsEntry("time", 1716200000000000000L);
+        // No attributes → "attributes" field omitted entirely (no string/object inconsistency).
+        assertThat(inner).doesNotContainKey("attributes");
     }
 
     // -----------------------------------------------------------------------
-    // name + string attribute
+    // name + string attribute — attributes nested under "attributes" key
     // -----------------------------------------------------------------------
 
     @Test
-    void withStringAttribute_writesAttributeMap() {
+    void withStringAttribute_writesAttributeMap() throws Exception {
         List<KeyValue> attrs = List.of(
                 kv("exception.type", strVal("java.lang.RuntimeException"))
         );
         Span.Event event = Span.Event.newBuilder()
                 .setName("exception")
+                .setTimeUnixNano(42L)
                 .addAllAttributes(attrs)
                 .build();
 
         mapper.addEventToAnnotation(event, writer);
 
         assertThat(annotations).hasSize(1);
-        assertThat(annotations.get(0).getValue())
-                .isEqualTo("{\"exception\":{\"exception.type\":\"java.lang.RuntimeException\"}}");
+        ObjectMapper om = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> inner = (Map<String, Object>) root.get("exception");
+        assertThat(inner).containsEntry("time", 42);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> attrMap = (Map<String, Object>) inner.get("attributes");
+        assertThat(attrMap).containsEntry("exception.type", "java.lang.RuntimeException");
     }
 
     // -----------------------------------------------------------------------
@@ -102,9 +119,12 @@ class OtlpTraceEventMapperTest {
 
         @SuppressWarnings("unchecked")
         Map<String, Object> inner = (Map<String, Object>) root.get("my-event");
-        assertThat(inner).containsEntry("count", 42);
-        assertThat(inner).containsEntry("flag", true);
-        assertThat(inner).containsEntry("ratio", 0.5);
+        assertThat(inner).containsKey("time");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> attrMap = (Map<String, Object>) inner.get("attributes");
+        assertThat(attrMap).containsEntry("count", 42);
+        assertThat(attrMap).containsEntry("flag", true);
+        assertThat(attrMap).containsEntry("ratio", 0.5);
     }
 
     // -----------------------------------------------------------------------
@@ -131,10 +151,11 @@ class OtlpTraceEventMapperTest {
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue(json, Map.class);
 
-        assertThat(root.get("tagged")).isInstanceOf(Map.class);
         @SuppressWarnings("unchecked")
         Map<String, Object> inner = (Map<String, Object>) root.get("tagged");
-        assertThat(inner.get("tags")).isInstanceOf(List.class)
+        @SuppressWarnings("unchecked")
+        Map<String, Object> attrMap = (Map<String, Object>) inner.get("attributes");
+        assertThat(attrMap.get("tags")).isInstanceOf(List.class)
                 .asList().containsExactly("a", "b");
     }
 

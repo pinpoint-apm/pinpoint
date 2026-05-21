@@ -78,6 +78,34 @@ public final class MessagingAttributeUtils {
     }
 
     /**
+     * Messaging endpoint with {@code messaging.client_id} fallback when no broker address
+     * is available. Shared between producer (SpanEvent) and consumer (Span) paths so both
+     * sides resolve the same value from the same OTel attributes.
+     */
+    public static String resolveEndPoint(Map<String, AttributeValue> attributes) {
+        final String broker = getBrokerAddress(attributes);
+        if (broker != null) {
+            return broker;
+        }
+        return AttributeUtils.getAttributeStringValue(attributes,
+                OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
+    }
+
+    /**
+     * Producer destinationId derived from OTel attributes: {@code messaging.destination.name}
+     * (topic / exchange / queue, system-agnostic per OTel semconv) falling back to the resolved
+     * endPoint when the destination attribute is absent.
+     */
+    public static String resolveProducerDestinationId(Map<String, AttributeValue> attributes,
+                                                      String endPointFallback) {
+        final String destinationName = getDestinationName(attributes);
+        if (destinationName != null) {
+            return destinationName;
+        }
+        return endPointFallback;
+    }
+
+    /**
      * Partition id. OTel SDKs emit either of:
      * <ul>
      *   <li>{@code messaging.kafka.destination.partition} (int_value, legacy kafka namespace)</li>

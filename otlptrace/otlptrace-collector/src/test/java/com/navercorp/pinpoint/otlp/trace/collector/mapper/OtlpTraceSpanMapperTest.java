@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -143,11 +144,13 @@ class OtlpTraceSpanMapperTest {
 
     private static ServiceTypeRegistryService messagingRegistry() {
         Map<String, ServiceType> byName = new HashMap<>();
-        byName.put("KAFKA_CLIENT",    ServiceTypeFactory.of(8660, "KAFKA_CLIENT",    "KAFKA_CLIENT"));
-        byName.put("RABBITMQ_CLIENT", ServiceTypeFactory.of(8300, "RABBITMQ_CLIENT", "RABBITMQ_CLIENT"));
-        byName.put("PULSAR_CLIENT",   ServiceTypeFactory.of(8670, "PULSAR_CLIENT",   "PULSAR_CLIENT"));
-        byName.put("ROCKETMQ_CLIENT", ServiceTypeFactory.of(8400, "ROCKETMQ_CLIENT", "ROCKETMQ_CLIENT"));
-        byName.put("ACTIVEMQ_CLIENT", ServiceTypeFactory.of(8310, "ACTIVEMQ_CLIENT", "ACTIVEMQ_CLIENT"));
+        byName.put("KAFKA_CLIENT",          ServiceTypeFactory.of(8660, "KAFKA_CLIENT",          "KAFKA_CLIENT"));
+        byName.put("RABBITMQ_CLIENT",       ServiceTypeFactory.of(8300, "RABBITMQ_CLIENT",       "RABBITMQ_CLIENT"));
+        byName.put("PULSAR_CLIENT",         ServiceTypeFactory.of(8670, "PULSAR_CLIENT",         "PULSAR_CLIENT"));
+        byName.put("ROCKETMQ_CLIENT",       ServiceTypeFactory.of(8400, "ROCKETMQ_CLIENT",       "ROCKETMQ_CLIENT"));
+        byName.put("ACTIVEMQ_CLIENT",       ServiceTypeFactory.of(8310, "ACTIVEMQ_CLIENT",       "ACTIVEMQ_CLIENT"));
+        byName.put("GRPC_SERVER",           ServiceTypeFactory.of(1130, "GRPC_SERVER",           "GRPC_SERVER"));
+        byName.put("APACHE_DUBBO_PROVIDER", ServiceTypeFactory.of(1999, "APACHE_DUBBO_PROVIDER", "APACHE_DUBBO_PROVIDER"));
         return new ServiceTypeRegistryService() {
             @Override
             public ServiceType findServiceType(int code) {
@@ -174,7 +177,8 @@ class OtlpTraceSpanMapperTest {
         return new OtlpTraceSpanMapper(
                 new OtlpTraceEventMapper(json),
                 new OtlpTraceLinkMapper(json),
-                new OtlpMessagingTypeResolver(MESSAGING_REGISTRY));
+                new OtlpMessagingTypeResolver(MESSAGING_REGISTRY),
+                new OtlpServerTypeResolver(MESSAGING_REGISTRY));
     }
 
     private static IdAndName id() {
@@ -463,6 +467,155 @@ class OtlpTraceSpanMapperTest {
                 .isEqualTo("orders.queue");
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_ACTIVEMQ_BROKER_ADDRESS))
                 .isEqualTo("amq1.example.com:61616");
+    }
+
+    // =======================================================================
+    // map() — SERVER-kind ServiceType dispatch via rpc.system
+    // =======================================================================
+
+    private static Span serverSpan(KeyValue... attrs) {
+        Span.Builder builder = Span.newBuilder()
+                .setName("HTTP GET /api")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE);
+        for (KeyValue attr : attrs) {
+            builder.addAttributes(attr);
+        }
+        return builder.build();
+    }
+
+    @Test
+    void map_server_grpc_setsGrpcServerServiceType() {
+        // OTel grpc-1.6 agent emits rpc.system="grpc" on the server-side instrumenter.
+        Span span = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.service", strVal("orders.OrderService")),
+                kv("rpc.method", strVal("PlaceOrder")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getServiceType()).isEqualTo((short) 1130); // GRPC_SERVER
+    }
+
+    @Test
+    void map_server_dubbo_setsDubboProviderServiceType() {
+        // OTel apache-dubbo-2.7 agent emits rpc.system="apache_dubbo" on the server side.
+        Span span = serverSpan(
+                kv("rpc.system", strVal("apache_dubbo")),
+                kv("rpc.service", strVal("com.example.UserService")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getServiceType()).isEqualTo((short) 1999); // APACHE_DUBBO_PROVIDER
+    }
+
+    @Test
+    void map_server_http_keepsOpenTelemetryServer() {
+        // Generic HTTP server (jetty/netty/armeria/akka) — no rpc.system, no framework
+        // identifier in OTel attributes. Stays on OPENTELEMETRY_SERVER.
+        Span span = serverSpan(
+                kv("http.request.method", strVal("GET")),
+                kv("url.path", strVal("/api/users/123")),
+                kv("network.protocol.name", strVal("http")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
+    }
+
+    @Test
+    void map_server_unsupportedRpcSystem_keepsOpenTelemetryServer() {
+        // OTel-spec values without a Pinpoint counterpart (java_rmi, connect_rpc, dotnet_wcf).
+        Span span = serverSpan(kv("rpc.system", strVal("java_rmi")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
+    }
+
+    @Test
+    void map_server_grpc_caseInsensitive() {
+        Span span = serverSpan(kv("rpc.system", strVal("GRPC")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getServiceType()).isEqualTo((short) 1130); // GRPC_SERVER
+    }
+
+    // =======================================================================
+    // map() — SDK-side dropped count annotations
+    // =======================================================================
+
+    @Test
+    void map_droppedAnnotation_emittedWhenAnyCountNonZero() {
+        // All three counts > 0 — composite value includes all three labels in order.
+        Span span = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
+                .setDroppedAttributesCount(7)
+                .setDroppedEventsCount(3)
+                .setDroppedLinksCount(2)
+                .build();
+
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_DROPPED.getCode()))
+                .isEqualTo("attributes=7 events=3 links=2");
+    }
+
+    @Test
+    void map_droppedAnnotation_suppressedWhenAllZero() {
+        // Default counts are 0 — no annotation noise on well-behaved spans.
+        Span span = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
+                .build();
+
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_DROPPED.getCode())).isNull();
+    }
+
+    @Test
+    void map_droppedAnnotation_omitsZeroComponents() {
+        // Only attributes > 0 — composite value contains only "attributes=N".
+        Span span = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
+                .setDroppedAttributesCount(5)
+                .build();
+
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_DROPPED.getCode()))
+                .isEqualTo("attributes=5");
+    }
+
+    @Test
+    void map_droppedAnnotation_skipsAttributesWhenOnlyEventsAndLinks() {
+        // attributes=0, events>0, links>0 — composite drops the attributes= prefix.
+        Span span = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
+                .setDroppedEventsCount(4)
+                .setDroppedLinksCount(1)
+                .build();
+
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_DROPPED.getCode()))
+                .isEqualTo("events=4 links=1");
+    }
+
+    @Test
+    void map_internal_rpcSystemIgnored() {
+        // INTERNAL kind reuses recordServer but rpc.system dispatch is gated to SERVER kind
+        // — even if rpc.system=grpc somehow leaks onto an INTERNAL span, ServiceType stays
+        // on OPENTELEMETRY_SERVER.
+        Span span = Span.newBuilder()
+                .setName("internal-op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
+                .addAttributes(kv("rpc.system", strVal("grpc")))
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
     }
 
 }

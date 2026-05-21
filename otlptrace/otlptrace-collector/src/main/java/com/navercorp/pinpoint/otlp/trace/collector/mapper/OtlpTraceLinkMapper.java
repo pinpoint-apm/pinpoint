@@ -29,7 +29,19 @@ public class OtlpTraceLinkMapper {
         this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
     }
 
+    /**
+     * Serializes an OTel {@link Span.Link} as JSON under {@link AnnotationKey#OPENTELEMETRY_LINK}.
+     * Fields: {@code traceId} (hex), {@code spanId} (decimal string — see inline note),
+     * {@code traceState} (W3C tracestate, only when non-empty), {@code attributes} (only when
+     * non-empty), {@code dropped} (link-level dropped_attributes_count, only when > 0).
+     *
+     * <p>Skips entirely when both traceId and spanId are empty — OTel spec requires links to
+     * carry a non-empty SpanContext, so a fully-empty link is invalid input we drop silently.</p>
+     */
     public void addLinkToAnnotation(Span.Link link, AnnotationWriter annotationWriter) {
+        if (link.getTraceId().isEmpty() && link.getSpanId().isEmpty()) {
+            return;
+        }
         try {
             Map<String, Object> map = new HashMap<>();
             if (!link.getTraceId().isEmpty()) {
@@ -41,8 +53,18 @@ public class OtlpTraceLinkMapper {
                 // accept both number and decimal-string forms, preserving backward compatibility.
                 map.put("spanId", String.valueOf(ByteStringUtils.parseLong(link.getSpanId())));
             }
+            // W3C tracestate (vendor propagation context — AWS, Datadog, Sentry, etc.). Only
+            // emit when non-empty to keep well-behaved links compact.
+            if (!link.getTraceState().isEmpty()) {
+                map.put("traceState", link.getTraceState());
+            }
             if (link.getAttributesCount() > 0) {
                 map.put("attributes", getAttributeToMap(link.getAttributesList()));
+            }
+            // SDK-side data-loss counter for link attributes. Same convention as Span/SpanEvent
+            // OPENTELEMETRY_DROPPED — only included when > 0.
+            if (link.getDroppedAttributesCount() > 0) {
+                map.put("dropped", link.getDroppedAttributesCount());
             }
             final String value = mapWriter.writeValueAsString(map);
             annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), value));
