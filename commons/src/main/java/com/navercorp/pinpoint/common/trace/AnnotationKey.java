@@ -259,4 +259,10 @@ public interface AnnotationKey {
     AnnotationKey OPENTELEMETRY_LINK = AnnotationKeyFactory.of(403, "Link", VIEW_IN_RECORD_SET);
     AnnotationKey OPENTELEMETRY_SPAN_ID = AnnotationKeyFactory.of(404, "SpanId");
     AnnotationKey OPENTELEMETRY_PARENT_SPAN_ID = AnnotationKeyFactory.of(405, "ParentSpanId");
+    // SDK-side data-loss summary from the OTel Span proto (dropped_attributes_count /
+    // dropped_events_count / dropped_links_count). Surfaced as a single composite annotation
+    // — e.g. "attributes=12 events=5 links=3" — so operators investigating "why is some data
+    // missing on this span" see a direct hint that the SDK hit its limits. Zero-valued
+    // components are omitted, and the annotation itself is suppressed when all counts are 0.
+    AnnotationKey OPENTELEMETRY_DROPPED = AnnotationKeyFactory.of(406, "Dropped", VIEW_IN_RECORD_SET);
 }

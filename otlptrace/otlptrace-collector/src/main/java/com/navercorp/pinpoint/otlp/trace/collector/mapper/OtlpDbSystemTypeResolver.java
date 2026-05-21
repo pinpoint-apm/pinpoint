@@ -29,10 +29,12 @@ import java.util.Objects;
  *
  * <p>Codes are resolved from {@link ServiceTypeRegistryService} by ServiceType <em>name</em>
  * (e.g. {@code "MYSQL"}, {@code "MSSQL_JDBC"}), so a plugin re-mapping its code does not
- * desync this resolver. If a plugin is not deployed, its name is absent from the registry and
- * the resolver gracefully falls back to {@link ServiceType#OPENTELEMETRY_DB} /
- * {@link ServiceType#OPENTELEMETRY_DB_EXECUTE_QUERY}. Resolution happens eagerly at
- * construction so per-span lookups stay {@code O(1)}.</p>
+ * desync this resolver. If a plugin is not deployed, its name is absent from the registry
+ * and the resolver gracefully falls back to {@link ServiceType#UNKNOWN_DB} /
+ * {@link ServiceType#UNKNOWN_DB_EXECUTE_QUERY}, which share the property set of plugin-defined
+ * DB base / execute-query ServiceTypes (TERMINAL + INCLUDE_DESTINATION_ID, with additionally
+ * RECORD_STATISTICS on the execute-query variant). Resolution happens eagerly at construction
+ * so per-span lookups stay {@code O(1)}.</p>
  */
 public class OtlpDbSystemTypeResolver {
 
@@ -75,8 +77,8 @@ public class OtlpDbSystemTypeResolver {
         }
     }
 
-    private static final short DEFAULT_BASE = ServiceType.OPENTELEMETRY_DB.getCode();
-    private static final short DEFAULT_EXECUTE_QUERY = ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode();
+    private static final short DEFAULT_BASE = ServiceType.UNKNOWN_DB.getCode();
+    private static final short DEFAULT_EXECUTE_QUERY = ServiceType.UNKNOWN_DB_EXECUTE_QUERY.getCode();
 
     // dbSystem key → {baseCode, executeQueryCode}, eagerly resolved at construction.
     private final Map<String, short[]> codeMap;

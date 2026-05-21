@@ -142,31 +142,31 @@ class OtlpDbSystemTypeResolverTest {
     }
 
     // =======================================================================
-    // null / unknown → OPENTELEMETRY_DB fallback
+    // null / unknown → UNKNOWN_DB fallback
     // =======================================================================
 
     @Test
-    void resolveBaseCode_null_returnsOtlpDefault() {
+    void resolveBaseCode_null_returnsUnknownDbFallback() {
         assertThat(resolver.resolveBaseCode(null))
-                .isEqualTo(ServiceType.OPENTELEMETRY_DB.getCode());
+                .isEqualTo(ServiceType.UNKNOWN_DB.getCode());
     }
 
     @Test
-    void resolveExecuteQueryCode_null_returnsOtlpDefault() {
+    void resolveExecuteQueryCode_null_returnsUnknownDbFallback() {
         assertThat(resolver.resolveExecuteQueryCode(null))
-                .isEqualTo(ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode());
+                .isEqualTo(ServiceType.UNKNOWN_DB_EXECUTE_QUERY.getCode());
     }
 
     @Test
-    void resolveBaseCode_unknown_returnsOtlpDefault() {
+    void resolveBaseCode_unknown_returnsUnknownDbFallback() {
         assertThat(resolver.resolveBaseCode("some_unknown_db"))
-                .isEqualTo(ServiceType.OPENTELEMETRY_DB.getCode());
+                .isEqualTo(ServiceType.UNKNOWN_DB.getCode());
     }
 
     @Test
-    void resolveExecuteQueryCode_unknown_returnsOtlpDefault() {
+    void resolveExecuteQueryCode_unknown_returnsUnknownDbFallback() {
         assertThat(resolver.resolveExecuteQueryCode("some_unknown_db"))
-                .isEqualTo(ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode());
+                .isEqualTo(ServiceType.UNKNOWN_DB_EXECUTE_QUERY.getCode());
     }
 
     // =======================================================================
@@ -174,14 +174,14 @@ class OtlpDbSystemTypeResolverTest {
     // =======================================================================
 
     @Test
-    void resolveBaseCode_unregisteredPlugin_fallsBackToOtlpDefault() {
+    void resolveBaseCode_unregisteredPlugin_fallsBackToUnknownDb() {
         // Build an empty registry — no plugin types registered. Every dbSystem key should
-        // resolve to the OPENTELEMETRY_DB fallback rather than returning a stale code.
+        // resolve to the UNKNOWN_DB fallback rather than returning a stale code.
         OtlpDbSystemTypeResolver bareResolver = new OtlpDbSystemTypeResolver(new MapBackedRegistry(Map.of()));
         assertThat(bareResolver.resolveBaseCode("mysql"))
-                .isEqualTo(ServiceType.OPENTELEMETRY_DB.getCode());
+                .isEqualTo(ServiceType.UNKNOWN_DB.getCode());
         assertThat(bareResolver.resolveExecuteQueryCode("mysql"))
-                .isEqualTo(ServiceType.OPENTELEMETRY_DB_EXECUTE_QUERY.getCode());
+                .isEqualTo(ServiceType.UNKNOWN_DB_EXECUTE_QUERY.getCode());
     }
 
     /**

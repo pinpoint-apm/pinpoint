@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -43,13 +42,16 @@ public class OtlpTraceSpanMapper {
     private final OtlpTraceEventMapper eventMapper;
     private final OtlpTraceLinkMapper linkMapper;
     private final OtlpMessagingTypeResolver messagingTypeResolver;
+    private final OtlpServerTypeResolver serverTypeResolver;
 
     public OtlpTraceSpanMapper(OtlpTraceEventMapper eventMapper,
                                OtlpTraceLinkMapper linkMapper,
-                               OtlpMessagingTypeResolver messagingTypeResolver) {
+                               OtlpMessagingTypeResolver messagingTypeResolver,
+                               OtlpServerTypeResolver serverTypeResolver) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
         this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
         this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
+        this.serverTypeResolver = Objects.requireNonNull(serverTypeResolver, "serverTypeResolver");
     }
 
     SpanBo map(IdAndName idAndName, Span span) {
@@ -114,8 +116,44 @@ public class OtlpTraceSpanMapper {
         for (Span.Link link : span.getLinksList()) {
             linkMapper.addLinkToAnnotation(link, spanBo::addAnnotation);
         }
+        // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0 so
+        // well-behaved spans stay annotation-free.
+        addDroppedAnnotations(spanBo::addAnnotation,
+                span.getDroppedAttributesCount(),
+                span.getDroppedEventsCount(),
+                span.getDroppedLinksCount());
 
         return spanBo;
+    }
+
+    /**
+     * Emits a single OPENTELEMETRY_DROPPED annotation summarizing SDK-side drops when at
+     * least one count is non-zero. Value format: space-separated {@code label=count} pairs
+     * (e.g. {@code "attributes=12 events=5 links=3"}); zero components are omitted. Shared
+     * between {@link OtlpTraceSpanMapper} (root spans) and {@link OtlpTraceSpanEventMapper}
+     * (child spans) — both expose {@code addAnnotation(AnnotationBo)} as a method reference.
+     */
+    static void addDroppedAnnotations(Consumer<AnnotationBo> sink,
+                                      int droppedAttributes,
+                                      int droppedEvents,
+                                      int droppedLinks) {
+        if (droppedAttributes == 0 && droppedEvents == 0 && droppedLinks == 0) {
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        appendDroppedCount(sb, "attributes", droppedAttributes);
+        appendDroppedCount(sb, "events", droppedEvents);
+        appendDroppedCount(sb, "links", droppedLinks);
+        sink.accept(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_DROPPED.getCode(), sb.toString()));
+    }
+
+    private static void appendDroppedCount(StringBuilder sb, String label, int count) {
+        if (count > 0) {
+            if (!sb.isEmpty()) {
+                sb.append(' ');
+            }
+            sb.append(label).append('=').append(count);
+        }
     }
 
     /**
@@ -129,8 +167,7 @@ public class OtlpTraceSpanMapper {
                                          String messagingSystem) {
         final String broker = MessagingAttributeUtils.getBrokerAddress(attributes);
         spanBo.setRpc(buildMessagingConsumerRpc(messagingSystem, attributes));
-        spanBo.setEndPoint(broker != null ? broker : AttributeUtils.getAttributeStringValue(attributes,
-                OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null));
+        spanBo.setEndPoint(MessagingAttributeUtils.resolveEndPoint(attributes));
         spanBo.setRemoteAddr(broker);
 
         final String acceptor = spanBo.getRemoteAddr() != null ? spanBo.getRemoteAddr() : spanBo.getEndPoint();
@@ -158,7 +195,15 @@ public class OtlpTraceSpanMapper {
             spanBo.setAcceptorHost(spanBo.getEndPoint());
         }
 
-        spanBo.setServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
+        // SERVER kind only: dispatch ServiceType via rpc.system (grpc → GRPC_SERVER,
+        // apache_dubbo → APACHE_DUBBO_PROVIDER). INTERNAL and unsupported-messaging consumer
+        // fallthrough stay on OPENTELEMETRY_SERVER. HTTP server framework cannot be derived
+        // from OTel attributes — verified against OTel Java agent source.
+        final String rpcSystem = (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE)
+                ? AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null)
+                : null;
+        spanBo.setServiceType(serverTypeResolver.resolveServerServiceType(rpcSystem));
+
         final String apiName = isConsumer(span) ? OtlpTraceMapper.CONSUMER_METHOD_NAME : OtlpTraceMapper.SERVER_METHOD_NAME;
         spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), apiName));
     }

@@ -99,6 +99,11 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_HTTP_TARGET = "http.target";
     public static final String ATTRIBUTE_KEY_RPC_SERVICE = "rpc.service";
     public static final String ATTRIBUTE_KEY_RPC_METHOD = "rpc.method";
+    public static final String ATTRIBUTE_KEY_RPC_SYSTEM = "rpc.system";
+    // OTel RPC semconv enum values emitted by the OTel Java agent (verified against
+    // grpc-1.6 GrpcRpcAttributesGetter / apache-dubbo-2.7 DubboRpcAttributesGetter).
+    public static final String RPC_SYSTEM_GRPC = "grpc";
+    public static final String RPC_SYSTEM_APACHE_DUBBO = "apache_dubbo";
     public static final String ATTRIBUTE_KEY_MESSAGING_CLIENT_ID = "messaging.client_id";
     public static final String ATTRIBUTE_KEY_SERVER_PORT = "server.port";
     public static final String ATTRIBUTE_KEY_SERVER_ADDRESS = "server.address";
@@ -110,6 +115,10 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_DB_QUERY_TEXT = "db.query.text";
     public static final String ATTRIBUTE_KEY_DB_SYSTEM = "db.system";
     public static final String ATTRIBUTE_KEY_DB_SYSTEM_NAME = "db.system.name";
+    // OTel Redis semconv uses db.namespace as the numeric DB index (0-15) — semantically
+    // different from SQL/Mongo where db.namespace is a logical name. Guarded against in
+    // getClientSpanToDestinationId so Redis ServerMap groups by system, not per-index.
+    public static final String DB_SYSTEM_REDIS = "redis";
     public static final String ATTRIBUTE_KEY_DB_OPERATION_NAME = "db.operation.name";
     public static final String ATTRIBUTE_KEY_DB_COLLECTION_NAME = "db.collection.name";
     public static final String ATTRIBUTE_KEY_DB_RESPONSE_STATUS_CODE = "db.response.status_code";
@@ -149,13 +158,15 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_DB_QUERY_TEXT,
             ATTRIBUTE_KEY_DB_SYSTEM,
             ATTRIBUTE_KEY_DB_SYSTEM_NAME,
-            ATTRIBUTE_KEY_DB_OPERATION_NAME,
-            ATTRIBUTE_KEY_DB_COLLECTION_NAME,
-            ATTRIBUTE_KEY_DB_RESPONSE_STATUS_CODE,
+            // db.operation.name / db.collection.name / db.response.status_code intentionally
+            // NOT filtered — they are not promoted to a SpanEvent/Span 1st-class field, so
+            // filtering would drop them entirely. Keep them in the attribute list so the web
+            // UI surfaces vendor error codes (ORA-02813, 08P01, WRONGTYPE), table/collection
+            // names, and DB operation kind (INSERT/SELECT/findAndModify).
             ATTRIBUTE_KEY_ERROR_TYPE,
-            ATTRIBUTE_KEY_NETWORK_PEER_IP
+            ATTRIBUTE_KEY_NETWORK_PEER_IP,
+            ATTRIBUTE_KEY_RPC_SYSTEM
     );
 
     public static final Predicate<String> FILTERED_ATTRIBUTE_KEY = FILTERED_ATTRIBUTE_KEY_SET::contains;
-
 }
