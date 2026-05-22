@@ -35,7 +35,6 @@
 
         <spring-boot-build-skip>true</spring-boot-build-skip>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-        <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
         <main.verticle>com.pinpoint.test.plugin.Vertx4PluginTestStarter</main.verticle>
         <launcher.class>io.vertx.core.Launcher</launcher.class>
 

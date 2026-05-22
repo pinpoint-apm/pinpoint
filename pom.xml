@@ -298,6 +298,8 @@
         <plugin.frontend.node.install.dir>/node_install/node-${plugin.frontend.node.version}</plugin.frontend.node.install.dir>
 
         <spring-boot-maven-plugin.attatch>false</spring-boot-maven-plugin.attatch>
+
+        <exec-maven-plugin.version>3.6.2</exec-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -2021,7 +2023,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>${exec-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>submodule update</id>
