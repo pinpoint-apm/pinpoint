@@ -276,7 +276,7 @@
         <plugin.compiler.version>3.15.0</plugin.compiler.version>
         <plugin.source.version>3.3.1</plugin.source.version>
         <plugin.resources.version>3.3.1</plugin.resources.version>
-        <plugin.surefire.version>3.5.2</plugin.surefire.version>
+        <plugin.surefire.version>3.5.5</plugin.surefire.version>
         <plugin.failsafe.version>3.5.2</plugin.failsafe.version>
         <plugin.shade.version>3.4.1</plugin.shade.version>
         <plugin.assembly.version>3.6.0</plugin.assembly.version>
@@ -1875,6 +1875,12 @@
                     <version>${plugin.compiler.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${plugin.surefire.version}</version>
+                </plugin>
+
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>templating-maven-plugin</artifactId>
                     <version>3.1.0</version>
@@ -2067,7 +2073,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${plugin.surefire.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>**/Mock*</exclude>
