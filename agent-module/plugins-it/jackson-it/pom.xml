@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-plugins-it</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-jackson-plugin-it</artifactId>
