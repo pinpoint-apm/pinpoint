@@ -274,15 +274,15 @@
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.15.0</plugin.compiler.version>
-        <plugin.source.version>3.3.1</plugin.source.version>
-        <plugin.resources.version>3.3.1</plugin.resources.version>
+        <plugin.source.version>3.4.0</plugin.source.version>
+        <plugin.resources.version>3.5.0</plugin.resources.version>
         <plugin.surefire.version>3.5.5</plugin.surefire.version>
         <plugin.failsafe.version>3.5.5</plugin.failsafe.version>
-        <plugin.shade.version>3.4.1</plugin.shade.version>
-        <plugin.assembly.version>3.6.0</plugin.assembly.version>
-        <plugin.jar.version>3.3.0</plugin.jar.version>
+        <plugin.shade.version>3.6.2</plugin.shade.version>
+        <plugin.assembly.version>3.8.0</plugin.assembly.version>
+        <plugin.jar.version>3.5.0</plugin.jar.version>
         <plugin.build-helper.version>3.4.0</plugin.build-helper.version>
-        <plugin.javadoc.version>3.6.3</plugin.javadoc.version>
+        <plugin.javadoc.version>3.12.0</plugin.javadoc.version>
         <plugin.protobuf.version>0.6.1</plugin.protobuf.version>
 
         <plugin.spotbugs.version>4.7.3.6</plugin.spotbugs.version>
@@ -1806,6 +1806,11 @@
                     <version>${plugin.source.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${plugin.resources.version}</version>
+                </plugin>
+                <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot3.version}</version>
@@ -1837,7 +1842,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.5.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1847,22 +1852,22 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.9.1</version>
+                    <version>3.22.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.9.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.10.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -2058,7 +2063,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>${plugin.resources.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -2146,7 +2150,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${plugin.javadoc.version}</version>
                 <configuration>
                     <doclint>none</doclint>
                     <!-- <detectOfflineLinks>false</detectOfflineLinks>-->
@@ -2183,7 +2186,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.6.0</version>
                 <inherited>false</inherited>
                 <configuration>
                     <aggregate>true</aggregate>
