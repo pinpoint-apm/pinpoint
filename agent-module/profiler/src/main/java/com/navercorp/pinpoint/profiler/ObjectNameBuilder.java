@@ -29,7 +29,7 @@ import java.util.function.Function;
 public class ObjectNameBuilder {
 
     public ObjectName build(AgentOption agentOption, ProfilerConfig profilerConfig) {
-        String version = profilerConfig.readString(NameVersion.KEY, "v1");
+        String version = profilerConfig.readString(NameVersion.KEY, NameVersion.v3.name());
 
         NameVersion nameVersion = NameVersion.getVersion(version);
 

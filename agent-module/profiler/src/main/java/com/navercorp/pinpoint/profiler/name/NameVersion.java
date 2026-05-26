@@ -24,14 +24,12 @@ public enum NameVersion {
     public static final String KEY = "pinpoint.modules.uid.version";
 
     public static NameVersion getVersion(String version) {
-        if ("v1".equalsIgnoreCase(version)) {
-            return v1;
-        } else if ("v3".equalsIgnoreCase(version)) {
-            return v3;
-        } else if ("v4".equalsIgnoreCase(version)) {
-            return v4;
+        for (NameVersion value : NameVersion.values()) {
+            if (value.name().equalsIgnoreCase(version)) {
+                return value;
+            }
         }
-        return v1;
+        return v3;
     }
 
 }
