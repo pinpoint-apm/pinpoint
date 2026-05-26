@@ -133,8 +133,6 @@
 
                         <commandlineArguments>
                         </commandlineArguments>
-
-                        <fork>true</fork>
                     </configuration>
                 </plugin>
             </plugins>
