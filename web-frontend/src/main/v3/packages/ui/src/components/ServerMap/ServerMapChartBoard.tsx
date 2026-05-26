@@ -183,6 +183,14 @@ export const ServerMapChartsBoardFetcher = ({
     return;
   }, [isLoading, data, currentServer?.agentId]);
 
+  // serviceType의 진실의 원천: 클릭 즉시 세팅되는 serverMapCurrentTarget을 우선 사용하고,
+  // 그 다음으로 조회된 currentTargetData, 마지막으로 기본 application으로 폴백한다.
+  // currentTargetData만 보면 전환 중에 undefined가 되어 USER/UNKNOWN 체크를 통과시킬 수 있다.
+  const targetServiceType =
+    serverMapCurrentTarget?.serviceType ??
+    (currentTargetData as GetServerMap.NodeData)?.serviceType ??
+    application?.serviceType;
+
   // service group 노드/링크가 선택된 경우(subNodes/subLinks 보유) ChartsBoard를 그리지 않는다.
   // 팝업에서 자식 노드/링크를 선택하면 currentTarget이 자식 key로 바뀌어 다시 렌더된다.
   if (
@@ -231,8 +239,8 @@ export const ServerMapChartsBoardFetcher = ({
             ) : (
               <>
                 {(serverMapCurrentTarget?.type === 'node' || !serverMapCurrentTarget) &&
-                (currentTargetData as GetServerMap.NodeData)?.serviceType !== 'USER' &&
-                (currentTargetData as GetServerMap.NodeData)?.serviceType !== 'UNKNOWN' ? (
+                targetServiceType !== 'USER' &&
+                targetServiceType !== 'UNKNOWN' ? (
                   <div className="flex items-center h-12 py-2.5 px-4 gap-2">
                     <Button
                       className="px-2 py-1 text-xs"
