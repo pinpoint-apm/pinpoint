@@ -2093,8 +2093,8 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>3.5</version>
-                                    <message>Requires Maven 3.5 or higher</message>
+                                    <version>3.7</version>
+                                    <message>Requires Maven 3.7 or higher</message>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
                                     <version>17</version>
