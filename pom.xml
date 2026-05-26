@@ -273,7 +273,7 @@
         <junit-jupiter.version>5.12.2</junit-jupiter.version>
 
         <!-- maven-plugin -->
-        <plugin.compiler.version>3.13.0</plugin.compiler.version>
+        <plugin.compiler.version>3.15.0</plugin.compiler.version>
         <plugin.source.version>3.3.1</plugin.source.version>
         <plugin.resources.version>3.3.1</plugin.resources.version>
         <plugin.surefire.version>3.5.2</plugin.surefire.version>
