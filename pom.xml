@@ -288,7 +288,7 @@
         <plugin.spotbugs.version>4.7.3.6</plugin.spotbugs.version>
         <plugin.pmd.version>3.21.2</plugin.pmd.version>
 
-        <plugin.enforcer.version>3.5.0</plugin.enforcer.version>
+        <plugin.enforcer.version>3.6.3</plugin.enforcer.version>
 
         <!-- frontend-plugin -->
         <plugin.frontend.version>1.13.4</plugin.frontend.version>
@@ -1808,7 +1808,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring-boot2.version}</version>
+                    <version>${spring-boot3.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -2097,8 +2097,8 @@
                                     <message>Requires Maven 3.5 or higher</message>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <version>1.8</version>
-                                    <message>Requires Java 8 or higher</message>
+                                    <version>17</version>
+                                    <message>Requires Java 17 or higher</message>
                                 </requireJavaVersion>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_HOME</variableName>
