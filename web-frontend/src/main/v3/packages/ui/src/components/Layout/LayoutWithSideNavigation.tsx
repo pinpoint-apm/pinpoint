@@ -48,6 +48,11 @@ export type SideNavigationMenuItem = MenuItem & {
   children?: React.ReactNode | ((collapsed: boolean) => React.ReactNode);
   childItems?: SideNavigationMenuItem[];
   onClick?: () => void;
+  headerAction?: React.ReactNode | ((close: () => void) => React.ReactNode);
+  selected?: boolean;
+  leftChildItems?: SideNavigationMenuItem[];
+  leftSectionTitle?: string;
+  rightSectionTitle?: string;
 };
 
 interface MenuItemProps {
@@ -144,6 +149,12 @@ export const LayoutWithSideNavigation = ({
         <a href={item.aHref ?? ''} className={itemClassName}>
           {itemChildren}
         </a>
+      );
+    } else if (item.onClick && !item.href) {
+      return (
+        <button type="button" className={itemClassName} onClick={item.onClick}>
+          {itemChildren}
+        </button>
       );
     } else {
       return (
@@ -325,9 +336,50 @@ const SidebarMenuButtonWithDropdownMenu = ({
   collapsed: boolean;
 }) => {
   const contentRef = React.useRef<HTMLDivElement>(null);
+  const [open, setOpen] = React.useState(false);
+  const close = React.useCallback(() => setOpen(false), []);
+  const hasLeftSection = !!item.leftChildItems && item.leftChildItems.length > 0;
+
+  const renderChildList = (childItems: SideNavigationMenuItem[]) => (
+    <div className="space-y-1">
+      {childItems.map((childItem) => (
+        <DropdownMenuItem
+          key={getMenuKey(childItem.path)}
+          className={cn(
+            SIDEBAR_MENU_BUTTON_CLASS_NAME,
+            {
+              'font-semibold': isActive(childItem) || childItem.selected,
+              'bg-[var(--blue-700)]': isActive(childItem),
+            },
+            'cursor-pointer',
+          )}
+          asChild
+          onSelect={(e) => {
+            e.preventDefault();
+            if (contentRef.current) {
+              contentRef.current.style.visibility = 'hidden';
+            }
+          }}
+        >
+          {renderMenuItemContent(childItem, true)}
+        </DropdownMenuItem>
+      ))}
+    </div>
+  );
+
+  const rightSection = (
+    <>
+      <div className="flex items-center justify-between gap-4 pr-2 pl-6 h-10 text-sm">
+        <span className="opacity-50">{item.rightSectionTitle ?? item.name}</span>
+        {typeof item.headerAction === 'function' ? item.headerAction(close) : item.headerAction}
+      </div>
+      <Separator className="mb-2 opacity-50" />
+      {renderChildList(item.childItems ?? [])}
+    </>
+  );
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       {WithTooltip({
         trigger: (
           <DropdownMenuTrigger asChild>
@@ -350,37 +402,25 @@ const SidebarMenuButtonWithDropdownMenu = ({
         sideOffset={10}
         alignOffset={-50}
         className={cn(
-          'w-full rounded-md border-none shadow-lg bg-[var(--blue-900)] min-w-[180px] text-[var(--white-default)]',
+          'rounded-md border-none shadow-lg bg-[var(--blue-900)] text-[var(--white-default)]',
+          hasLeftSection ? 'min-w-[440px]' : 'w-full min-w-[220px]',
           'z-[1110]', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
         )}
       >
-        <div className="flex items-center pr-2 pl-6 h-10 text-sm opacity-50">{item.name}</div>
-        <Separator className="mb-2 opacity-50" />
-        <div className="space-y-1">
-          {item?.childItems?.map((childItem) => {
-            return (
-              <DropdownMenuItem
-                key={getMenuKey(childItem.path)}
-                className={cn(
-                  SIDEBAR_MENU_BUTTON_CLASS_NAME,
-                  {
-                    'font-semibold bg-[var(--blue-700)]': isActive(childItem),
-                  },
-                  'cursor-pointer',
-                )}
-                asChild
-                onSelect={(e) => {
-                  e.preventDefault();
-                  if (contentRef.current) {
-                    contentRef.current.style.visibility = 'hidden';
-                  }
-                }}
-              >
-                {renderMenuItemContent(childItem, true)}
-              </DropdownMenuItem>
-            );
-          })}
-        </div>
+        {hasLeftSection ? (
+          <div className="flex">
+            <div className="flex-1 pr-2 border-r border-white/10">
+              <div className="flex items-center pr-2 pl-6 h-10 text-sm">
+                <span className="opacity-50">{item.leftSectionTitle ?? ''}</span>
+              </div>
+              <Separator className="mb-2 opacity-50" />
+              {renderChildList(item.leftChildItems ?? [])}
+            </div>
+            <div className="flex-1 pl-2">{rightSection}</div>
+          </div>
+        ) : (
+          rightSection
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

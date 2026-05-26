@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useExperimentals, useGetConfiguration } from '@pinpoint-fe/ui/src/hooks';
+import { useExperimentals, useGetConfiguration, useServicesFetch } from '@pinpoint-fe/ui/src/hooks';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { configurationAtom, searchParametersAtom } from '@pinpoint-fe/ui/src/atoms';
 import { APP_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
@@ -17,6 +17,7 @@ export const InitialFetchOutlet = () => {
   const setSearchParameters = useSetAtom(searchParametersAtom);
 
   useExperimentals(data);
+  useServicesFetch(data);
 
   React.useEffect(() => {
     if (application && searchParameters) {

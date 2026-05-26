@@ -182,6 +182,19 @@
       "EDIT": "웹훅 수정",
       "DETAIL": "웹훅 상세",
       "ALIAS": "별칭"
+    },
+    "SERVICE_SETTING": {
+      "NEW_SERVICE": "New Service",
+      "SWITCH_TO": "전환",
+      "SWITCH_SUCCESS": "{{name}}으로 전환되었습니다.",
+      "DELETE_TITLE": "서비스 삭제",
+      "DELETE_DESC": "다음 서비스를 삭제합니다.",
+      "DELETE_SUCCESS": "\"{{name}}\" 서비스가 삭제되었습니다.",
+      "DELETE_RESERVED_DISABLED": "예약어 서비스는 삭제할 수 없습니다.",
+      "LABEL": {
+        "NAME": "Name",
+        "DELETE": "Delete"
+      }
     }
   },
   "HELP_VIEWER": {

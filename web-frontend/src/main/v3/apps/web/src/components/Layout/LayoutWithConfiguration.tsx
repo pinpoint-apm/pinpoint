@@ -2,6 +2,8 @@ import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import {
   LayoutWithConfiguration as LayoutWithConfigurationComponent,
   LayoutWithConfigurationProps,
+  SERVICE_CONFIG_MENU,
+  isServiceConfigPath,
 } from '@pinpoint-fe/ui';
 import { useLocation } from 'react-router-dom';
 
@@ -69,20 +71,24 @@ export const CONFIG_MENU_MAP = {
       },
     ],
   },
+  SERVICE: SERVICE_CONFIG_MENU,
 };
 
 export const LayoutWithConfiguration = ({ ...props }: LayoutWithConfigurationProps) => {
   const { pathname } = useLocation();
-  const configMenu = Object.values(CONFIG_MENU_MAP).find(({ menus }) => {
-    return menus.some(({ path }) => {
-      if (typeof path === 'string') {
-        return pathname === path;
-      } else if (Array.isArray(path)) {
-        return path.some((item) => item === pathname);
-      }
-      return false;
-    });
-  });
+
+  const configMenu = isServiceConfigPath(pathname)
+    ? CONFIG_MENU_MAP.SERVICE
+    : Object.values(CONFIG_MENU_MAP).find(({ menus }) => {
+        return menus.some(({ path }) => {
+          if (typeof path === 'string') {
+            return pathname === path;
+          } else if (Array.isArray(path)) {
+            return path.some((item) => item === pathname);
+          }
+          return false;
+        });
+      });
 
   return <LayoutWithConfigurationComponent configMenu={configMenu} {...props} />;
 };
