@@ -277,7 +277,7 @@
         <plugin.source.version>3.3.1</plugin.source.version>
         <plugin.resources.version>3.3.1</plugin.resources.version>
         <plugin.surefire.version>3.5.5</plugin.surefire.version>
-        <plugin.failsafe.version>3.5.2</plugin.failsafe.version>
+        <plugin.failsafe.version>3.5.5</plugin.failsafe.version>
         <plugin.shade.version>3.4.1</plugin.shade.version>
         <plugin.assembly.version>3.6.0</plugin.assembly.version>
         <plugin.jar.version>3.3.0</plugin.jar.version>
