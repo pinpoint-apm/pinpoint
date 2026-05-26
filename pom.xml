@@ -1873,6 +1873,12 @@
                     <version>${plugin.compiler.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${plugin.surefire.version}</version>
+                </plugin>
+
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>templating-maven-plugin</artifactId>
                     <version>3.1.0</version>
@@ -2065,7 +2071,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${plugin.surefire.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>**/Mock*</exclude>
