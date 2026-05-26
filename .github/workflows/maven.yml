@@ -5,9 +5,9 @@ name: Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 3.1.x ]
   pull_request:
-    branches: [ master ]
+    branches: [ 3.1.x ]
 
 jobs:
 
@@ -41,7 +41,7 @@ jobs:
         echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
         echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
         echo "JAVA_17_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
-        echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+        echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
     - name: Java Environment
       run: env | grep '^JAVA'
     - name: Build with Maven
