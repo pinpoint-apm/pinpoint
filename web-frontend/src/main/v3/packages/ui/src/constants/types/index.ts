@@ -25,6 +25,7 @@ export * from './GetHeatmapAppData';
 export * from './GetScatter';
 export * from './GetServerMap';
 export * from './GetServiceMap';
+export * from './GetServices';
 export * from './GetHistogramStatistics';
 export * from './HeatmapDrag';
 export * from './InspectorAgentChart';

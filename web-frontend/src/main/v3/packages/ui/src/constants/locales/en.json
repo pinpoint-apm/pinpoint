@@ -182,6 +182,19 @@
       "EDIT": "Edit Webhook",
       "DETAIL": "Webhook Detail",
       "ALIAS": "Alias"
+    },
+    "SERVICE_SETTING": {
+      "NEW_SERVICE": "New Service",
+      "SWITCH_TO": "Switch To",
+      "SWITCH_SUCCESS": "Switched to {{name}}.",
+      "DELETE_TITLE": "Delete service",
+      "DELETE_DESC": "Delete the following service.",
+      "DELETE_SUCCESS": "Service \"{{name}}\" deleted.",
+      "DELETE_RESERVED_DISABLED": "Reserved service names cannot be deleted.",
+      "LABEL": {
+        "NAME": "Name",
+        "DELETE": "Delete"
+      }
     }
   },
   "HELP_VIEWER": {
