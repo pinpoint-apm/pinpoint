@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
@@ -25,6 +26,7 @@ import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
@@ -85,6 +87,12 @@ public class OtlpTraceSpanMapper {
             recordServer(spanBo, span, attributes);
         }
 
+        // Apply Pinpoint context propagated via tracestate from an upstream OTel-traced service.
+        // Skip true trace roots (no parent span) — there is no upstream caller to record.
+        if (!span.getParentSpanId().isEmpty()) {
+            applyPinpointTraceState(spanBo, span.getTraceState());
+        }
+
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
             spanBo.setErrCode(1);
             final String errorType = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_ERROR_TYPE, null);
@@ -116,6 +124,37 @@ public class OtlpTraceSpanMapper {
         }
 
         return spanBo;
+    }
+
+    /**
+     * Applies an upstream Pinpoint context entry from {@code tracestate}.
+     * Mirrors the native {@code ServerRequestRecorder} behavior: parentServiceName is
+     * only meaningful when accompanied by a valid parentApplicationName, so the two
+     * fields are tied. The parent service type uses the {@code type} sub-key when
+     * present, otherwise falls back to {@link ServiceType#OPENTELEMETRY_SERVER} on the
+     * assumption that the upstream is another OTel-instrumented service. Invalid
+     * applicationName (length / pattern) is silently dropped to avoid corrupting
+     * ApplicationMap row keys.
+     */
+    private void applyPinpointTraceState(SpanBo spanBo, String traceState) {
+        final PinpointTraceStateParser.PinpointHeader header = PinpointTraceStateParser.parse(traceState);
+        if (header == null) {
+            return;
+        }
+        final String parentApplicationName = header.parentApplicationName();
+        if (parentApplicationName == null
+                || !IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
+            return;
+        }
+        spanBo.setParentApplicationName(parentApplicationName);
+        final Short parentApplicationType = header.parentApplicationType();
+        spanBo.setParentApplicationServiceType(parentApplicationType != null
+                ? parentApplicationType
+                : ServiceType.OPENTELEMETRY_SERVER.getCode());
+        final String parentServiceName = header.parentServiceName();
+        if (parentServiceName != null) {
+            spanBo.setParentServiceName(parentServiceName);
+        }
     }
 
     /**

@@ -465,4 +465,151 @@ class OtlpTraceSpanMapperTest {
                 .isEqualTo("amq1.example.com:61616");
     }
 
+    // =======================================================================
+    // map() — tracestate "pp" entry → parent application / service
+    // =======================================================================
+
+    private static final byte[] PARENT_SPAN_ID = {9, 9, 9, 9, 9, 9, 9, 9};
+
+    private static Span.Builder serverSpanBuilder() {
+        return Span.newBuilder()
+                .setName("/api/orders")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setParentSpanId(ByteString.copyFrom(PARENT_SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE);
+    }
+
+    @Test
+    void map_tracestate_bothSubKeys_populatesParentFields() {
+        Span span = serverSpanBuilder()
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
+        assertThat(bo.getParentApplicationServiceType())
+                .isEqualTo((short) ServiceType.OPENTELEMETRY_SERVER.getCode());
+        assertThat(bo.getParentServiceName()).isEqualTo("upstream-svc");
+    }
+
+    @Test
+    void map_tracestate_multipleVendors_pickPinpoint() {
+        Span span = serverSpanBuilder()
+                .setTraceState("dd=s:1;t.dm:-4,pp=svc:upstream-svc;app:upstream-app,nr=opaque")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
+        assertThat(bo.getParentServiceName()).isEqualTo("upstream-svc");
+    }
+
+    @Test
+    void map_tracestate_svcOnly_doesNotSetParentApplication() {
+        // Without parentApplicationName, ApplicationMap link insertion is gated off
+        // in HbaseApplicationMapService; mirror native ServerRequestRecorder by tying
+        // parentServiceName to a valid parentApplicationName.
+        Span span = serverSpanBuilder()
+                .setTraceState("pp=svc:upstream-svc")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isNull();
+        assertThat(bo.getParentServiceName()).isNull();
+    }
+
+    @Test
+    void map_tracestate_appOnly_setsApplicationButLeavesServiceNull() {
+        Span span = serverSpanBuilder()
+                .setTraceState("pp=app:upstream-app")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
+        assertThat(bo.getParentApplicationServiceType())
+                .isEqualTo((short) ServiceType.OPENTELEMETRY_SERVER.getCode());
+        assertThat(bo.getParentServiceName()).isNull();
+    }
+
+    @Test
+    void map_tracestate_invalidApplicationName_silentlyDropped() {
+        // IdValidateUtils rejects non-ASCII; we silently drop rather than throw,
+        // to avoid corrupting ApplicationMap row keys.
+        Span span = serverSpanBuilder()
+                .setTraceState("pp=svc:upstream-svc;app:한글앱")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isNull();
+        assertThat(bo.getParentServiceName()).isNull();
+    }
+
+    @Test
+    void map_tracestate_emptyHeader_noParentFields() {
+        Span span = serverSpanBuilder().build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isNull();
+        assertThat(bo.getParentServiceName()).isNull();
+    }
+
+    @Test
+    void map_tracestate_trueRoot_skipsParentRecording() {
+        // No parentSpanId → genuine trace root, no upstream caller; ignore tracestate
+        // even if a stray pp= entry is present.
+        Span span = Span.newBuilder()
+                .setName("/api/orders")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isNull();
+        assertThat(bo.getParentServiceName()).isNull();
+    }
+
+    @Test
+    void map_tracestate_consumerSpan_alsoApplies() {
+        // Messaging consumer dispatch path must also honour the upstream pp entry.
+        Span span = Span.newBuilder()
+                .setName("orders process")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setParentSpanId(ByteString.copyFrom(PARENT_SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_CONSUMER_VALUE)
+                .addAttributes(kv("messaging.system", strVal("kafka")))
+                .addAttributes(kv("messaging.destination.name", strVal("orders")))
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
+        assertThat(bo.getParentServiceName()).isEqualTo("upstream-svc");
+    }
+
+    @Test
+    void map_tracestate_typeOverridesOtelServerDefault() {
+        // Sender claims it is a Tomcat (1010) service — override the OTel default.
+        Span span = serverSpanBuilder()
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app;type:1010")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationServiceType()).isEqualTo((short) 1010);
+    }
+
+    @Test
+    void map_tracestate_typeMissing_fallsBackToOtelServer() {
+        Span span = serverSpanBuilder()
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationServiceType())
+                .isEqualTo((short) ServiceType.OPENTELEMETRY_SERVER.getCode());
+    }
+
+    @Test
+    void map_tracestate_typeNonNumeric_fallsBackToOtelServer() {
+        Span span = serverSpanBuilder()
+                .setTraceState("pp=app:upstream-app;type:tomcat")
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
+        assertThat(bo.getParentApplicationServiceType())
+                .isEqualTo((short) ServiceType.OPENTELEMETRY_SERVER.getCode());
+    }
+
 }
