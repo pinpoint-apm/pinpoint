@@ -5,9 +5,9 @@ name: Frontend-test
 
 on:
   push:
-    branches: [master]
+    branches: [ 3.1.x ]
   pull_request:
-    branches: [master]
+    branches: [ 3.1.x ]
 
 jobs:
   build:
