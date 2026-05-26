@@ -34,7 +34,6 @@
         <vertx.version>4.5.0</vertx.version>
 
         <spring-boot-build-skip>true</spring-boot-build-skip>
-        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <main.verticle>com.pinpoint.test.plugin.Vertx4PluginTestStarter</main.verticle>
         <launcher.class>io.vertx.core.Launcher</launcher.class>
 
@@ -86,8 +85,8 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
