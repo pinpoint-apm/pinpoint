@@ -1870,6 +1870,11 @@
                     <version>${plugin.build-helper.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${plugin.compiler.version}</version>
+                </plugin>
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>templating-maven-plugin</artifactId>
                     <version>3.1.0</version>
@@ -2052,7 +2057,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${plugin.compiler.version}</version>
                 <configuration>
                     <fork>true</fork>
                     <debug>true</debug>
