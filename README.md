@@ -127,7 +127,7 @@ Pinot compatibility table:
 |------------------|--------------|--------------|-------------|----------------------------------------------------------------------|-------------|
 | 2.5.x            | yes          | yes          | yes         | yes                                                                  | yes         |
 | 3.0.x            | no           | no           | yes         | yes                                                                  | yes         |
-| 3.1.x            | no           | no           | no          | yes                                                                  | yes         |
+| 3.1.x            | no           | no           | no          | no                                                                    | yes         |
 <!-- </compatibilityPinot.md> -->
 
 ## Community
