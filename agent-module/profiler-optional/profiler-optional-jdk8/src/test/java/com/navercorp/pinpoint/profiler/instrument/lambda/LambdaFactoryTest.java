@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
@@ -38,7 +39,7 @@ import org.objectweb.asm.tree.ClassNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -78,7 +79,7 @@ public class LambdaFactoryTest {
         String delegateClassName = "com/navercorp/pinpoint/profiler/instrument/lambda/mock/DefineAnonymousClassDelegator";
         String delegateMethod = "delegate";
 
-        List<MethodInsn> methodInsnList = Arrays.asList(new MethodInsn("test", "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeMock", "defineAnonymousClass", delegateClassName, delegateMethod, null));
+        List<MethodInsn> methodInsnList = Collections.singletonList(new MethodInsn("test", "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeMock", "defineAnonymousClass", delegateClassName, delegateMethod, null));
         MethodInstReplacer replacer = new MethodInstReplacer(writer, methodInsnList);
 
         renameClass(reader, replacer);
@@ -97,14 +98,13 @@ public class LambdaFactoryTest {
         Method test = o.getClass().getMethod("test");
         Object invoke = test.invoke(o);
 
-        Assertions.assertEquals(DefineAnonymousClassDelegator.count, 1);
-
+        Assertions.assertEquals(1, DefineAnonymousClassDelegator.count);
 
     }
 
     private void renameClass(ClassReader reader, ClassVisitor classVisitor) {
         String className = "com/navercorp/pinpoint/profiler/instrument/lambda/mock/UnsafeClassMock";
-        Remapper remapper = new SimpleRemapper(className, className + "2");
+        Remapper remapper = new SimpleRemapper(Opcodes.ASM9, className, className + "2");
         ClassRemapper classRemapper = new ClassRemapper(classVisitor, remapper);
         reader.accept(classRemapper, 0);
     }
