@@ -37,6 +37,8 @@ import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionGroupSummaryView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -94,6 +96,7 @@ public class ExceptionTraceController {
 
     @GetMapping("/transactionInfo")
     public List<ExceptionDetailView> getListOfExceptionMetaDataFromTransactionId(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("transactionId") @NotBlank String transactionId,
@@ -117,6 +120,7 @@ public class ExceptionTraceController {
 
     @GetMapping("/errorList")
     public List<ExceptionDetailView> getListOfExceptionMetaDataByGivenRange(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") Timestamp from,
@@ -148,6 +152,7 @@ public class ExceptionTraceController {
 
     @GetMapping("/errorList/groupBy")
     public List<ExceptionGroupSummaryView> getListOfExceptionMetaDataWithDynamicGroupBy(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") Timestamp from,
@@ -176,6 +181,7 @@ public class ExceptionTraceController {
 
     @GetMapping("/chart")
     public ExceptionChartView getCollectedExceptionMetaDataByGivenRange(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam("from") Timestamp from,
