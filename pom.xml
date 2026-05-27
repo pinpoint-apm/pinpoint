@@ -188,7 +188,7 @@
 
         <spring4.version>4.3.30.RELEASE</spring4.version>
         <spring5.version>5.3.39</spring5.version>
-        <spring.batch.version>5.1.2</spring.batch.version>
+        <spring-batch.version>5.2.5</spring-batch.version>
         <spring.retry.version>2.0.12</spring.retry.version>
 
         <spring-security.version>6.5.10</spring-security.version>
@@ -732,7 +732,7 @@
             <dependency>
                 <groupId>org.springframework.batch</groupId>
                 <artifactId>spring-batch-core</artifactId>
-                <version>${spring.batch.version}</version>
+                <version>${spring-batch.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.annotation</groupId>
@@ -743,7 +743,7 @@
             <dependency>
                 <groupId>org.springframework.batch</groupId>
                 <artifactId>spring-batch-test</artifactId>
-                <version>${spring.batch.version}</version>
+                <version>${spring-batch.version}</version>
                 <scope>test</scope>
             </dependency>
 
