@@ -14,5 +14,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>otlptrace-collector</module>
+        <module>otlptrace-otel-extension</module>
     </modules>
 </project>
