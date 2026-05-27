@@ -207,7 +207,7 @@
         <spring-cloud.version>${spring-cloud4.version}</spring-cloud.version>
 
         <spring-data2.version>2.7.18</spring-data2.version>
-        <spring-data3.version>3.5.3</spring-data3.version>
+        <spring-data3.version>3.5.11</spring-data3.version>
         <spring-data.version>${spring-data3.version}</spring-data.version>
 
         <lettuce-core.version>6.5.2.RELEASE</lettuce-core.version>
