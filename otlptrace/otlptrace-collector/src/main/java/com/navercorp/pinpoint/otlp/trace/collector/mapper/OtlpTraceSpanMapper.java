@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
@@ -85,6 +88,12 @@ public class OtlpTraceSpanMapper {
             recordMessagingConsumer(spanBo, attributes, messagingSystem);
         } else {
             recordServer(spanBo, span, attributes);
+        }
+
+        // Apply Pinpoint context propagated via tracestate from an upstream OTel-traced service.
+        // Skip true trace roots (no parent span) — there is no upstream caller to record.
+        if (!span.getParentSpanId().isEmpty()) {
+            applyPinpointTraceState(spanBo, span.getTraceState());
         }
 
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
@@ -153,6 +162,37 @@ public class OtlpTraceSpanMapper {
                 sb.append(' ');
             }
             sb.append(label).append('=').append(count);
+        }
+    }
+
+    /**
+     * Applies an upstream Pinpoint context entry from {@code tracestate}.
+     * Mirrors the native {@code ServerRequestRecorder} behavior: parentServiceName is
+     * only meaningful when accompanied by a valid parentApplicationName, so the two
+     * fields are tied. The parent service type uses the {@code type} sub-key when
+     * present, otherwise falls back to {@link ServiceType#OPENTELEMETRY_SERVER} on the
+     * assumption that the upstream is another OTel-instrumented service. Invalid
+     * applicationName (length / pattern) is silently dropped to avoid corrupting
+     * ApplicationMap row keys.
+     */
+    private void applyPinpointTraceState(SpanBo spanBo, String traceState) {
+        final PinpointTraceStateParser.PinpointHeader header = PinpointTraceStateParser.parse(traceState);
+        if (header == null) {
+            return;
+        }
+        final String parentApplicationName = header.parentApplicationName();
+        if (parentApplicationName == null
+                || !IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
+            return;
+        }
+        spanBo.setParentApplicationName(parentApplicationName);
+        final Short parentApplicationType = header.parentApplicationType();
+        spanBo.setParentApplicationServiceType(parentApplicationType != null
+                ? parentApplicationType
+                : ServiceType.OPENTELEMETRY_SERVER.getCode());
+        final String parentServiceName = header.parentServiceName();
+        if (parentServiceName != null) {
+            spanBo.setParentServiceName(parentServiceName);
         }
     }
 
@@ -312,7 +352,9 @@ public class OtlpTraceSpanMapper {
         return span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE;
     }
 
-    /** True when the consumer span belongs to a messaging system Pinpoint has a ServiceType for. */
+    /**
+     * True when the consumer span belongs to a messaging system Pinpoint has a ServiceType for.
+     */
     static boolean isSupportedMessagingSystem(String messagingSystem) {
         return OtlpTraceConstants.MESSAGING_SYSTEM_KAFKA.equalsIgnoreCase(messagingSystem)
                 || OtlpTraceConstants.MESSAGING_SYSTEM_RABBITMQ.equalsIgnoreCase(messagingSystem)
@@ -321,7 +363,9 @@ public class OtlpTraceSpanMapper {
                 || OtlpTraceConstants.MESSAGING_SYSTEM_ACTIVEMQ.equalsIgnoreCase(messagingSystem);
     }
 
-    /** Dispatch {@code messaging.system} → system-specific consumer rpc string. */
+    /**
+     * Dispatch {@code messaging.system} → system-specific consumer rpc string.
+     */
     static String buildMessagingConsumerRpc(String messagingSystem, Map<String, AttributeValue> attributes) {
         if (OtlpTraceConstants.MESSAGING_SYSTEM_KAFKA.equalsIgnoreCase(messagingSystem)) {
             return KafkaAttributeUtils.buildConsumerRpc(attributes);

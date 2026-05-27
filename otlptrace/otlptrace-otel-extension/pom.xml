@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-otlptrace</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-otlptrace-otel-extension</artifactId>
+    <name>pinpoint-otlptrace-otel-extension</name>
+    <description>
+        OpenTelemetry Java agent extension that injects a Pinpoint-aware "pp" entry
+        into the W3C tracestate header so that the Pinpoint OTLP trace collector can
+        identify the upstream service / application / type.
+    </description>
+
+    <properties>
+        <jdk.version>8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+    </properties>
+
+    <dependencies>
+        <!-- OTel SDK is provided by the user's OTel Java agent at runtime. -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-context</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-trace</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-extension-autoconfigure-spi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Constants are kept in sync with the collector-side OtlpTraceConstants by
+             unit tests on both ends that assert the same literal strings; we deliberately
+             do NOT depend on pinpoint-otlptrace-collector here, even at test scope, to
+             avoid pulling Spring/HBase/gRPC transitive deps into this lean module. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
