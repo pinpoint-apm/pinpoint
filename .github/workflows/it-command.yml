@@ -20,7 +20,7 @@ jobs:
           body: |
             > Action has been started. [Click here to see the action](${{ steps.vars.outputs.run-url }})
       - name: Git checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: "refs/pull/${{ env.PR_NUMBER }}/merge"
       - name: Cache node modules
