@@ -244,16 +244,16 @@
         <resilience4j-jdk8.version>1.7.1</resilience4j-jdk8.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.124.Final</netty4.version>
+        <netty4.version>4.1.132.Final</netty4.version>
 
-        <grpc.version>1.75.0</grpc.version>
-        <grpc-bom.version>1.75.0</grpc-bom.version>
+        <grpc.version>1.81.0</grpc.version>
+        <grpc-bom.version>1.81.0</grpc-bom.version>
         <protobuf-java.version>3.25.8</protobuf-java.version>
         <protoc.version>${protobuf-java.version}</protoc.version>
 
         <guava.version>33.6.0-jre</guava.version>
         <guice.version>7.0.0</guice.version>
-        <gson.version>2.11.0</gson.version>
+        <gson.version>2.13.2</gson.version>
 
         <mybatis.spring.version>3.0.3</mybatis.spring.version>
         <mybatis.version>3.5.16</mybatis.version>
@@ -1741,7 +1741,7 @@
             <dependency>
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
-                <version>2.11.0</version>
+                <version>2.48.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
