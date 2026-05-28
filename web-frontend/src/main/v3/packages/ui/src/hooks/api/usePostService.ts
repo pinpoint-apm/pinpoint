@@ -1,15 +1,10 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
-import { END_POINTS, ErrorResponse, PostServices } from '@pinpoint-fe/ui/src/constants';
+import { END_POINTS, ErrorResponse, PostService } from '@pinpoint-fe/ui/src/constants';
 
 export const usePostService = (
-  options?: UseMutationOptions<
-    PostServices.Response,
-    ErrorResponse,
-    PostServices.Body,
-    unknown
-  >,
+  options?: UseMutationOptions<PostService.Response, ErrorResponse, PostService.Body, unknown>,
 ) => {
-  const postService = async (body: PostServices.Body): Promise<PostServices.Response> => {
+  const postService = async (body: PostService.Body): Promise<PostService.Response> => {
     const response = await fetch(END_POINTS.SERVICES, {
       method: 'POST',
       body: JSON.stringify(body),

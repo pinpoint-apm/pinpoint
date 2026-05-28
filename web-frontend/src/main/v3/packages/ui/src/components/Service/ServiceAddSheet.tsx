@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import {
   Sheet,
@@ -23,11 +24,12 @@ export interface ServiceAddSheetProps {
 }
 
 export const ServiceAddSheet = ({ open, onOpenChange }: ServiceAddSheetProps) => {
+  const { t } = useTranslation();
   const [name, setName] = React.useState('');
   const toast = useReactToastifyToast();
   const { mutate, isPending } = usePostService({
     onSuccess: () => {
-      toast.success('Service added.');
+      toast.success(t('CONFIGURATION.SERVICE_SETTING.ADD_SUCCESS'));
       queryClient.invalidateQueries({ queryKey: [END_POINTS.SERVICES] });
       onOpenChange(false);
     },
@@ -51,7 +53,7 @@ export const ServiceAddSheet = ({ open, onOpenChange }: ServiceAddSheetProps) =>
       >
         <SheetHeader className="px-4 bg-secondary/50">
           <SheetTitle className="relative flex items-center justify-between h-16 gap-1 font-medium">
-            Add Service
+            {t('CONFIGURATION.SERVICE_SETTING.ADD_SERVICE_TITLE')}
             <SheetClose>
               <Cross2Icon className="w-4 h-4" />
             </SheetClose>
@@ -62,10 +64,12 @@ export const ServiceAddSheet = ({ open, onOpenChange }: ServiceAddSheetProps) =>
         <ScrollArea>
           <div className="flex flex-col gap-4 p-6">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="service-name">Name</Label>
+              <Label htmlFor="service-name">
+                {t('CONFIGURATION.SERVICE_SETTING.LABEL.NAME')}
+              </Label>
               <Input
                 id="service-name"
-                placeholder="Enter service name"
+                placeholder={t('CONFIGURATION.SERVICE_SETTING.SERVICE_NAME_PLACEHOLDER')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={isPending}
@@ -73,10 +77,10 @@ export const ServiceAddSheet = ({ open, onOpenChange }: ServiceAddSheetProps) =>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-                Cancel
+                {t('COMMON.CANCEL')}
               </Button>
               <Button onClick={handleSave} disabled={!name.trim() || isPending}>
-                Save
+                {t('COMMON.SAVE')}
               </Button>
             </div>
           </div>

@@ -191,6 +191,9 @@
       "DELETE_DESC": "Delete the following service.",
       "DELETE_SUCCESS": "Service \"{{name}}\" deleted.",
       "DELETE_RESERVED_DISABLED": "Reserved service names cannot be deleted.",
+      "ADD_SERVICE_TITLE": "Add Service",
+      "SERVICE_NAME_PLACEHOLDER": "Enter service name",
+      "ADD_SUCCESS": "Service added.",
       "LABEL": {
         "NAME": "Name",
         "DELETE": "Delete"

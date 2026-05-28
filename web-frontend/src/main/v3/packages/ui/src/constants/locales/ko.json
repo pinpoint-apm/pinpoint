@@ -184,16 +184,19 @@
       "ALIAS": "별칭"
     },
     "SERVICE_SETTING": {
-      "NEW_SERVICE": "New Service",
+      "NEW_SERVICE": "새 서비스",
       "SWITCH_TO": "전환",
       "SWITCH_SUCCESS": "{{name}}으로 전환되었습니다.",
       "DELETE_TITLE": "서비스 삭제",
       "DELETE_DESC": "다음 서비스를 삭제합니다.",
       "DELETE_SUCCESS": "\"{{name}}\" 서비스가 삭제되었습니다.",
       "DELETE_RESERVED_DISABLED": "예약어 서비스는 삭제할 수 없습니다.",
+      "ADD_SERVICE_TITLE": "서비스 추가",
+      "SERVICE_NAME_PLACEHOLDER": "서비스 이름을 입력하세요.",
+      "ADD_SUCCESS": "서비스가 추가되었습니다.",
       "LABEL": {
-        "NAME": "Name",
-        "DELETE": "Delete"
+        "NAME": "이름",
+        "DELETE": "삭제"
       }
     }
   },
