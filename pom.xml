@@ -282,7 +282,7 @@
         <plugin.shade.version>3.6.2</plugin.shade.version>
         <plugin.assembly.version>3.8.0</plugin.assembly.version>
         <plugin.jar.version>3.5.0</plugin.jar.version>
-        <plugin.build-helper.version>3.4.0</plugin.build-helper.version>
+        <plugin.build-helper.version>3.6.1</plugin.build-helper.version>
         <plugin.javadoc.version>3.12.0</plugin.javadoc.version>
         <plugin.protobuf.version>0.6.1</plugin.protobuf.version>
 
