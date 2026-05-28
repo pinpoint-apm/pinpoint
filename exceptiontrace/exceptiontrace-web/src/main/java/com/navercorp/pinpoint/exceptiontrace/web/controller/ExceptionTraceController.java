@@ -43,6 +43,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -94,6 +95,7 @@ public class ExceptionTraceController {
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(exceptionTraceProperties.getExceptionTracePeriodMax()));
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasExceptionTracePermission(#serviceName.getName(), #applicationName)")
     @GetMapping("/transactionInfo")
     public List<ExceptionDetailView> getListOfExceptionMetaDataFromTransactionId(
             @ServiceParam ServiceName serviceName,
@@ -118,6 +120,7 @@ public class ExceptionTraceController {
         );
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasExceptionTracePermission(#serviceName.getName(), #applicationName)")
     @GetMapping("/errorList")
     public List<ExceptionDetailView> getListOfExceptionMetaDataByGivenRange(
             @ServiceParam ServiceName serviceName,
@@ -150,6 +153,7 @@ public class ExceptionTraceController {
         );
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasExceptionTracePermission(#serviceName.getName(), #applicationName)")
     @GetMapping("/errorList/groupBy")
     public List<ExceptionGroupSummaryView> getListOfExceptionMetaDataWithDynamicGroupBy(
             @ServiceParam ServiceName serviceName,
@@ -179,6 +183,7 @@ public class ExceptionTraceController {
         return Lists.transform(groupSummaries, (e) -> mapper.toSummaryView(e, timeWindow));
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasExceptionTracePermission(#serviceName.getName(), #applicationName)")
     @GetMapping("/chart")
     public ExceptionChartView getCollectedExceptionMetaDataByGivenRange(
             @ServiceParam ServiceName serviceName,
