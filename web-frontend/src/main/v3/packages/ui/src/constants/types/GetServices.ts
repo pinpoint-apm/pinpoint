@@ -4,7 +4,7 @@ export namespace GetServices {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace PostServices {
+export namespace PostService {
   export interface Body {
     serviceName: string;
   }

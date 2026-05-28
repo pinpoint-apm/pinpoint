@@ -335,7 +335,6 @@ const SidebarMenuButtonWithDropdownMenu = ({
   renderMenuItemContent: (item: SideNavigationMenuItem, isChildItem?: boolean) => React.ReactNode;
   collapsed: boolean;
 }) => {
-  const contentRef = React.useRef<HTMLDivElement>(null);
   const [open, setOpen] = React.useState(false);
   const close = React.useCallback(() => setOpen(false), []);
   const hasLeftSection = !!item.leftChildItems && item.leftChildItems.length > 0;
@@ -354,12 +353,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
             'cursor-pointer',
           )}
           asChild
-          onSelect={(e) => {
-            e.preventDefault();
-            if (contentRef.current) {
-              contentRef.current.style.visibility = 'hidden';
-            }
-          }}
+          onSelect={close}
         >
           {renderMenuItemContent(childItem, true)}
         </DropdownMenuItem>
@@ -396,7 +390,6 @@ const SidebarMenuButtonWithDropdownMenu = ({
         hidden: !collapsed,
       })}
       <DropdownMenuContent
-        ref={contentRef}
         side="right"
         align="start"
         sideOffset={10}
