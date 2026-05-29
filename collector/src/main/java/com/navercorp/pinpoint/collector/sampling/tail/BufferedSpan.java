@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.collector.sampling.tail;
 
+/**
+ * Transient envelope used only to serialize a span/chunk into the Redis buffer and rebuild it at flush time.
+ * Instances are never compared or hashed, so the record's default array-reference equals/hashCode are not used.
+ */
 public record BufferedSpan(
         Type type,
         String agentId,

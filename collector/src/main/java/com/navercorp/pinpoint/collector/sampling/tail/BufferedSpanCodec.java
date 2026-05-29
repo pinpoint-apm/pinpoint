@@ -28,10 +28,12 @@ import java.io.UncheckedIOException;
  */
 public class BufferedSpanCodec {
 
+    private static final BufferedSpan.Type[] TYPES = BufferedSpan.Type.values();
+
     public byte[] encode(BufferedSpan span) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream out = new DataOutputStream(baos)) {
-            out.writeByte(span.type() == BufferedSpan.Type.SPAN ? 0 : 1);
+            out.writeByte(span.type().ordinal());
             out.writeUTF(nullToEmpty(span.agentId()));
             out.writeUTF(nullToEmpty(span.agentName()));
             out.writeUTF(nullToEmpty(span.applicationName()));
@@ -47,7 +49,7 @@ public class BufferedSpanCodec {
 
     public BufferedSpan decode(byte[] bytes) {
         try (DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes))) {
-            BufferedSpan.Type type = in.readByte() == 0 ? BufferedSpan.Type.SPAN : BufferedSpan.Type.SPAN_CHUNK;
+            BufferedSpan.Type type = TYPES[in.readByte() & 0xFF];
             String agentId = in.readUTF();
             String agentName = in.readUTF();
             String applicationName = in.readUTF();

@@ -48,4 +48,18 @@ class BufferedSpanCodecTest {
         BufferedSpan decoded = codec.decode(codec.encode(original));
         assertThat(decoded.type()).isEqualTo(BufferedSpan.Type.SPAN_CHUNK);
     }
+
+    @Test
+    void roundTripChunkAllFieldsAndEmptyProto() {
+        BufferedSpan original = new BufferedSpan(BufferedSpan.Type.SPAN_CHUNK,
+                "agent-2", "name-2", "app-2", 11L, 22L, new byte[0]);
+        BufferedSpan decoded = codec.decode(codec.encode(original));
+        assertThat(decoded.type()).isEqualTo(BufferedSpan.Type.SPAN_CHUNK);
+        assertThat(decoded.agentId()).isEqualTo("agent-2");
+        assertThat(decoded.agentName()).isEqualTo("name-2");
+        assertThat(decoded.applicationName()).isEqualTo("app-2");
+        assertThat(decoded.agentStartTime()).isEqualTo(11L);
+        assertThat(decoded.requestTime()).isEqualTo(22L);
+        assertThat(decoded.protoBytes()).isEmpty();
+    }
 }
