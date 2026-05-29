@@ -1,0 +1,117 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.collector.sampling.tail;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@Testcontainers
+class TailSamplingRepositoryIT {
+
+    @Container
+    @SuppressWarnings("resource")
+    static final GenericContainer<?> REDIS =
+            new GenericContainer<>(DockerImageName.parse("redis:7.0")).withExposedPorts(6379);
+
+    private LettuceConnectionFactory factory;
+    private TailSamplingRepository repository;
+
+    @BeforeEach
+    void setUp() {
+        factory = new LettuceConnectionFactory(REDIS.getHost(), REDIS.getMappedPort(6379));
+        factory.afterPropertiesSet();
+        RedisTemplate<String, byte[]> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
+        template.setKeySerializer(RedisSerializer.string());
+        template.setValueSerializer(RedisSerializer.byteArray());
+        template.afterPropertiesSet();
+
+        byte[] acceptScript = load("redis/tail-accept.lua");
+        byte[] decideScript = load("redis/tail-decide.lua");
+        repository = new TailSamplingRepository(template, acceptScript, decideScript, 300, 600);
+        template.execute((org.springframework.data.redis.core.RedisCallback<Object>) c -> {
+            c.serverCommands().flushDb();
+            return null;
+        });
+    }
+
+    @AfterEach
+    void tearDown() {
+        factory.destroy();
+    }
+
+    private static byte[] load(String path) {
+        try {
+            return org.springframework.util.StreamUtils.copyToByteArray(
+                    new org.springframework.core.io.ClassPathResource(path).getInputStream());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void accept_firstTime_returnsBuffered() {
+        String r = repository.accept("tx-1", new byte[]{1}, 1000L);
+        assertThat(r).isEqualTo("buffered");
+    }
+
+    @Test
+    void decide_keep_returnsBufferedSpansAndClearsBuffer() {
+        repository.accept("tx-2", new byte[]{1}, 1000L);
+        repository.accept("tx-2", new byte[]{2}, 1000L);
+
+        List<byte[]> spans = repository.decide("tx-2", true);
+
+        assertThat(spans).hasSize(2);
+        assertThat(repository.accept("tx-2", new byte[]{3}, 1000L)).isEqualTo("keep");
+    }
+
+    @Test
+    void decide_drop_returnsEmptyAndSubsequentAcceptDrops() {
+        repository.accept("tx-3", new byte[]{1}, 1000L);
+        List<byte[]> spans = repository.decide("tx-3", false);
+        assertThat(spans).isEmpty();
+        assertThat(repository.accept("tx-3", new byte[]{9}, 1000L)).isEqualTo("drop");
+    }
+
+    @Test
+    void decide_secondCall_returnsNull_noDoubleFlush() {
+        repository.accept("tx-4", new byte[]{1}, 1000L);
+        assertThat(repository.decide("tx-4", true)).isNotNull();
+        assertThat(repository.decide("tx-4", true)).isNull();
+    }
+
+    @Test
+    void findStale_returnsTxidsOlderThanThreshold() {
+        repository.accept("tx-old", new byte[]{1}, 1000L);
+        repository.accept("tx-new", new byte[]{1}, 5000L);
+        List<String> stale = repository.findStale(2000L, 100);
+        assertThat(stale).contains("tx-old").doesNotContain("tx-new");
+    }
+}
