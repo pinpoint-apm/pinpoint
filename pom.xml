@@ -272,6 +272,7 @@
 
         <testcontainers.version>1.21.4</testcontainers.version>
         <junit-jupiter.version>5.12.2</junit-jupiter.version>
+        <h2database.version>2.2.224</h2database.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.15.0</plugin.compiler.version>
