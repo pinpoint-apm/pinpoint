@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.sampling.tail;
+package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.applicationmap.service.ApplicationMapService;
-import com.navercorp.pinpoint.collector.service.ApplicationMapTraceService;
+import com.navercorp.pinpoint.collector.sampling.tail.StatisticsTraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import org.junit.jupiter.api.Test;

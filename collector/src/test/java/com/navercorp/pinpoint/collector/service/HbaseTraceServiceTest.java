@@ -54,4 +54,23 @@ class HbaseTraceServiceTest {
         verify(scatterService).insert(spanBo);
         verify(applicationMapService, never()).insertSpan(any());
     }
+
+    @Test
+    void insertSpanChunk_doesNotCallApplicationMapService() {
+        TraceDao traceDao = Mockito.mock(TraceDao.class);
+        ScatterService scatterService = Mockito.mock(ScatterService.class);
+        ApplicationMapService applicationMapService = Mockito.mock(ApplicationMapService.class);
+        SpanStorePublisher publisher = Mockito.mock(SpanStorePublisher.class);
+        when(publisher.captureContext(any(com.navercorp.pinpoint.common.server.bo.SpanChunkBo.class)))
+                .thenReturn(Mockito.mock(com.navercorp.pinpoint.common.server.event.SpanChunkInsertEvent.class));
+        Executor direct = Runnable::run;
+
+        HbaseTraceService service = new HbaseTraceService(traceDao, scatterService, applicationMapService, publisher, direct);
+        com.navercorp.pinpoint.common.server.bo.SpanChunkBo chunkBo = new com.navercorp.pinpoint.common.server.bo.SpanChunkBo();
+
+        service.insertSpanChunk(chunkBo);
+
+        verify(traceDao).insertSpanChunk(chunkBo);
+        verify(applicationMapService, never()).insertSpanChunk(any());
+    }
 }

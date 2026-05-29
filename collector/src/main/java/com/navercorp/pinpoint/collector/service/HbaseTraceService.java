@@ -44,6 +44,7 @@ public class HbaseTraceService implements TraceService {
 
     private final ScatterService scatterService;
 
+    // retained for constructor/DI compatibility; servermap moved to ApplicationMapTraceService
     private final ApplicationMapService applicationMapService;
 
     private final SpanStorePublisher publisher;
