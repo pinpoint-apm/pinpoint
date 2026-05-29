@@ -168,4 +168,49 @@ class TailSamplerTest {
         tailSampler.acceptSpanChunk(bo, new byte[]{1});
         verify(sampled).insertSpanChunk(bo);
     }
+
+    /** Builds a sampler whose band drops everything (rate 0), with the given keep-on-error toggle. */
+    private TailSampler dropAllSampler(boolean keepOnError) {
+        TailSamplingProperties props = new TailSamplingProperties();
+        TailSamplingProperties.Band dropAll = new TailSamplingProperties.Band();
+        dropAll.setRate(0); // catch-all, drop everything by response time
+        props.setBands(List.of(dropAll));
+        props.setKeepOnError(keepOnError);
+        return new TailSampler(new TraceService[]{always, sampled},
+                repository, props, new BufferedSpanCodec(), factory, new SimpleMeterRegistry());
+    }
+
+    @Test
+    void rootError_keptEvenWhenBandWouldDrop() {
+        when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
+        BufferedSpan buffered = new BufferedSpan(BufferedSpan.Type.SPAN, "agent", "agentName", "app", 1L, 2L,
+                com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
+        when(repository.decide(anyString(), org.mockito.ArgumentMatchers.eq(true)))
+                .thenReturn(List.of(new BufferedSpanCodec().encode(buffered)));
+        when(factory.buildSpanBo(any(), any(), anyLong())).thenReturn(new SpanBo());
+
+        TailSampler sampler = dropAllSampler(true);
+        SpanBo bo = rootSpan(10); // < any band; would drop by response time
+        bo.setErrCode(1);         // but it is an error
+
+        sampler.acceptSpan(bo, com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
+
+        verify(repository).decide(anyString(), org.mockito.ArgumentMatchers.eq(true)); // forced keep
+        verify(sampled).insertSpan(any());
+    }
+
+    @Test
+    void rootError_butKeepOnErrorDisabled_followsBandAndDrops() {
+        when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
+        when(repository.decide(anyString(), org.mockito.ArgumentMatchers.eq(false))).thenReturn(List.of());
+
+        TailSampler sampler = dropAllSampler(false);
+        SpanBo bo = rootSpan(10);
+        bo.setErrCode(1);
+
+        sampler.acceptSpan(bo, com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
+
+        verify(repository).decide(anyString(), org.mockito.ArgumentMatchers.eq(false)); // band rate 0 -> drop
+        verify(sampled, never()).insertSpan(any());
+    }
 }

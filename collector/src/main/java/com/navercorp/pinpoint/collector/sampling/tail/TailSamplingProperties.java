@@ -26,6 +26,7 @@ public class TailSamplingProperties {
     private Duration bufferTtl = Duration.ofSeconds(300);
     private Duration sweepInterval = Duration.ofSeconds(5);
     private Duration decisionTtl = Duration.ofSeconds(600);
+    private boolean keepOnError = true;
     private List<Band> bands = new ArrayList<>();
 
     /** Returns the sampling rate (%) of the first band matching elapsedMillis. Returns 100 (keep, fail-safe) when no band matches. */
@@ -49,6 +50,8 @@ public class TailSamplingProperties {
     public void setSweepInterval(Duration sweepInterval) { this.sweepInterval = sweepInterval; }
     public Duration getDecisionTtl() { return decisionTtl; }
     public void setDecisionTtl(Duration decisionTtl) { this.decisionTtl = decisionTtl; }
+    public boolean isKeepOnError() { return keepOnError; }
+    public void setKeepOnError(boolean keepOnError) { this.keepOnError = keepOnError; }
     public List<Band> getBands() { return bands; }
     public void setBands(List<Band> bands) { this.bands = bands; }
 

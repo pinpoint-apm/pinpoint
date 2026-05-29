@@ -48,6 +48,7 @@ public class TailSampler {
     private final Counter bufferedCounter;
     private final Counter redisErrorCounter;
     private final Counter flushTimeoutCounter;
+    private final Counter errorKeptCounter;
 
     public TailSampler(TraceService[] traceServices,
                        TailSamplingRepository repository,
@@ -78,6 +79,7 @@ public class TailSampler {
         this.bufferedCounter = meterRegistry.counter("collector.tail.sampling", "result", "buffered");
         this.redisErrorCounter = meterRegistry.counter("collector.tail.sampling", "result", "redis-error");
         this.flushTimeoutCounter = meterRegistry.counter("collector.tail.sampling", "result", "flush-timeout");
+        this.errorKeptCounter = meterRegistry.counter("collector.tail.sampling", "result", "kept-error");
     }
 
     public void acceptSpan(SpanBo spanBo, byte[] protoBytes) {
@@ -100,7 +102,8 @@ public class TailSampler {
             } else {
                 bufferedCounter.increment();
                 if (spanBo.isRoot()) {
-                    decideAndFlush(txid, spanBo.getElapsed());
+                    boolean error = spanBo.hasError() || spanBo.hasException();
+                    decideAndFlush(txid, spanBo.getElapsed(), error);
                 }
             }
         } catch (Exception e) {
@@ -138,15 +141,18 @@ public class TailSampler {
         }
     }
 
-    private void decideAndFlush(String txid, int elapsedMillis) {
-        int rate = properties.rateFor(elapsedMillis);
-        boolean keep = TailDecisions.keep(txid, rate);
+    private void decideAndFlush(String txid, int elapsedMillis, boolean error) {
+        final boolean keepOnError = properties.isKeepOnError() && error;
+        final boolean keep = keepOnError || TailDecisions.keep(txid, properties.rateFor(elapsedMillis));
         List<byte[]> won = repository.decide(txid, keep);
         if (won == null) {
             return;
         }
         if (keep) {
             keptCounter.increment();
+            if (keepOnError) {
+                errorKeptCounter.increment();
+            }
             replay(won);
         } else {
             droppedCounter.increment();
