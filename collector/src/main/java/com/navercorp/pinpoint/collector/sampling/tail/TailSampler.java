@@ -54,6 +54,7 @@ public class TailSampler {
                        BufferedSpanCodec codec,
                        GrpcSpanFactory spanFactory,
                        MeterRegistry meterRegistry) {
+        Objects.requireNonNull(traceServices, "traceServices");
         this.repository = Objects.requireNonNull(repository, "repository");
         this.properties = Objects.requireNonNull(properties, "properties");
         this.codec = Objects.requireNonNull(codec, "codec");
@@ -120,9 +121,12 @@ public class TailSampler {
             String decision = repository.accept(txid, envelope, System.currentTimeMillis());
 
             if ("keep".equals(decision)) {
+                keptCounter.increment();
                 insertSampledSpanChunkLive(spanChunkBo);
             } else if ("drop".equals(decision)) {
-                // discard
+                droppedCounter.increment();
+            } else {
+                bufferedCounter.increment();
             }
             // chunk is never a decision trigger (not root); buffered -> wait
         } catch (Exception e) {
@@ -155,35 +159,15 @@ public class TailSampler {
                     buffered.agentId(), buffered.agentName(), buffered.applicationName(), buffered.agentStartTime());
             try {
                 if (buffered.type() == BufferedSpan.Type.SPAN) {
-                    PSpan pSpan = parsePSpan(buffered.protoBytes());
-                    SpanBo bo = spanFactory.buildSpanBo(pSpan, header, buffered.requestTime());
+                    SpanBo bo = spanFactory.buildSpanBo(PSpan.parseFrom(buffered.protoBytes()), header, buffered.requestTime());
                     insertSampledSpanLive(bo);
                 } else {
-                    PSpanChunk pSpanChunk = parsePSpanChunk(buffered.protoBytes());
-                    SpanChunkBo bo = spanFactory.buildSpanChunkBo(pSpanChunk, header, buffered.requestTime());
+                    SpanChunkBo bo = spanFactory.buildSpanChunkBo(PSpanChunk.parseFrom(buffered.protoBytes()), header, buffered.requestTime());
                     insertSampledSpanChunkLive(bo);
                 }
             } catch (Exception e) {
                 logger.warn("failed to replay buffered span", e);
             }
-        }
-    }
-
-    private PSpan parsePSpan(byte[] bytes) {
-        try {
-            return PSpan.parseFrom(bytes);
-        } catch (Exception e) {
-            logger.warn("failed to parse PSpan from buffered bytes, using default instance", e);
-            return PSpan.getDefaultInstance();
-        }
-    }
-
-    private PSpanChunk parsePSpanChunk(byte[] bytes) {
-        try {
-            return PSpanChunk.parseFrom(bytes);
-        } catch (Exception e) {
-            logger.warn("failed to parse PSpanChunk from buffered bytes, using default instance", e);
-            return PSpanChunk.getDefaultInstance();
         }
     }
 

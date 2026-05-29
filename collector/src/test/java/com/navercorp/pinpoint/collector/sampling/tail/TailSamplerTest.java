@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.sampling.tail;
 
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.io.GrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -102,7 +103,8 @@ class TailSamplerTest {
     void rootBuffered_triggersDecide_andReplaysKeptSpans() {
         when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
         BufferedSpan buffered = new BufferedSpan(BufferedSpan.Type.SPAN,
-                "agent", "agentName", "app", 1L, 2L, new byte[]{7});
+                "agent", "agentName", "app", 1L, 2L,
+                com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
         byte[] encoded = new BufferedSpanCodec().encode(buffered);
         when(repository.decide(anyString(), org.mockito.ArgumentMatchers.eq(true)))
                 .thenReturn(List.of(encoded));
@@ -124,5 +126,46 @@ class TailSamplerTest {
 
         verify(always).insertSpan(bo);
         verify(sampled).insertSpan(bo); // fail-open
+    }
+
+    private SpanChunkBo chunk() {
+        SpanChunkBo bo = new SpanChunkBo();
+        bo.setTransactionId(new PinpointServerTraceId("agent", 1L, 200L));
+        bo.setAgentId("agent");
+        bo.setApplicationName("app");
+        bo.setAgentStartTime(1L);
+        return bo;
+    }
+
+    @Test
+    void chunk_alwaysGroupCalledImmediately() {
+        when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
+        SpanChunkBo bo = chunk();
+        tailSampler.acceptSpanChunk(bo, new byte[]{1});
+        verify(always).insertSpanChunk(bo);
+    }
+
+    @Test
+    void chunk_keep_writesThroughToSampledLive() {
+        when(repository.accept(anyString(), any(), anyLong())).thenReturn("keep");
+        SpanChunkBo bo = chunk();
+        tailSampler.acceptSpanChunk(bo, new byte[]{1});
+        verify(sampled).insertSpanChunk(bo);
+    }
+
+    @Test
+    void chunk_drop_notWritten() {
+        when(repository.accept(anyString(), any(), anyLong())).thenReturn("drop");
+        SpanChunkBo bo = chunk();
+        tailSampler.acceptSpanChunk(bo, new byte[]{1});
+        verify(sampled, never()).insertSpanChunk(any());
+    }
+
+    @Test
+    void chunk_redisFailure_failsOpen() {
+        when(repository.accept(anyString(), any(), anyLong())).thenThrow(new RuntimeException("down"));
+        SpanChunkBo bo = chunk();
+        tailSampler.acceptSpanChunk(bo, new byte[]{1});
+        verify(sampled).insertSpanChunk(bo);
     }
 }
