@@ -75,3 +75,19 @@ pinpoint:
     uid:
       # v2: lagacy table, v3: new table, dual : DualWrite for Data Migration
       version: v3
+
+collector:
+  sampling:
+    tail:
+      enable: false            # disabled by default; enabling requires Redis
+      buffer-ttl: 300s
+      sweep-interval: 5s
+      decision-ttl: 600s
+      bands:
+        - max-elapsed: 50ms
+          rate: 1
+        - max-elapsed: 100ms
+          rate: 5
+        - max-elapsed: 500ms
+          rate: 10
+        - rate: 100            # catch-all (>= 500ms)
