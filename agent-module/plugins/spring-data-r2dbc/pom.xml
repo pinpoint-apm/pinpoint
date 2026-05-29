@@ -34,6 +34,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>provided</scope>
+            <version>${h2database.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>dev.miku</groupId>
             <artifactId>r2dbc-mysql</artifactId>
             <scope>provided</scope>
@@ -53,6 +60,7 @@
             <artifactId>r2dbc-postgresql</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>com.oracle.database.r2dbc</groupId>
             <artifactId>oracle-r2dbc</artifactId>
