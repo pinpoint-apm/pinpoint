@@ -27,12 +27,14 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.io.GrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
+import com.navercorp.pinpoint.collector.sampling.tail.TailSampler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -57,12 +59,16 @@ public class GrpcSpanHandler implements SimpleHandler<PSpan> {
 
     private final Sampler<BasicSpan> sampler;
 
-    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, SpanSamplerFactory spanSamplerFactory) {
+    private final TailSampler tailSampler;
+
+    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, SpanSamplerFactory spanSamplerFactory,
+                           ObjectProvider<TailSampler> tailSamplerProvider) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
         this.sampler = spanSamplerFactory.createBasicSpanSampler();
+        this.tailSampler = tailSamplerProvider.getIfAvailable();
 
-        logger.info("TraceServices {}", Arrays.toString(traceServices));
+        logger.info("TraceServices {} tailSampler={}", Arrays.toString(traceServices), tailSampler != null ? "enabled" : "disabled");
     }
 
     @Override
@@ -81,6 +87,14 @@ public class GrpcSpanHandler implements SimpleHandler<PSpan> {
         }
 
         final SpanBo spanBo = spanFactory.buildSpanBo(span, serverHeader, requestTime);
+        if (tailSampler != null) {
+            try {
+                tailSampler.acceptSpan(spanBo, span.toByteArray());
+            } catch (Throwable e) {
+                logger.warn("Failed to tail-sample Span {} {}", serverHeader, MessageFormatUtils.debugLog(span), e);
+            }
+            return;
+        }
         if (!sampler.isSampling(spanBo)) {
             if (isDebug) {
                 logger.debug("Unsampled {} {}", serverHeader, createSimpleSpanLog(span));

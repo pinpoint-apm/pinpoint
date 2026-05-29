@@ -28,12 +28,14 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.io.GrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
+import com.navercorp.pinpoint.collector.sampling.tail.TailSampler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -57,12 +59,16 @@ public class GrpcSpanChunkHandler implements SimpleHandler<PSpanChunk> {
 
     private final Sampler<BasicSpan> sampler;
 
-    public GrpcSpanChunkHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, SpanSamplerFactory spanSamplerFactory) {
+    private final TailSampler tailSampler;
+
+    public GrpcSpanChunkHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, SpanSamplerFactory spanSamplerFactory,
+                                ObjectProvider<TailSampler> tailSamplerProvider) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
         this.sampler = spanSamplerFactory.createBasicSpanSampler();
+        this.tailSampler = tailSamplerProvider.getIfAvailable();
 
-        logger.info("TraceServices {}", Arrays.toString(traceServices));
+        logger.info("TraceServices {} tailSampler={}", Arrays.toString(traceServices), tailSampler != null ? "enabled" : "disabled");
     }
 
     @Override
@@ -79,6 +85,14 @@ public class GrpcSpanChunkHandler implements SimpleHandler<PSpanChunk> {
             logger.debug("Handle {} {}", header, createSimpleSpanChunkLog(spanChunk));
         }
         final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(spanChunk, header, requestTime);
+        if (tailSampler != null) {
+            try {
+                tailSampler.acceptSpanChunk(spanChunkBo, spanChunk.toByteArray());
+            } catch (Throwable e) {
+                logger.warn("Failed to tail-sample SpanChunk {} {}", header, MessageFormatUtils.debugLog(spanChunk), e);
+            }
+            return;
+        }
         if (!sampler.isSampling(spanChunkBo)) {
             if (isDebug) {
                 logger.debug("Unsampled {} {}", header, createSimpleSpanChunkLog(spanChunk));
