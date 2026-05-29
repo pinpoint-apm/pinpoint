@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.web.interceptor.PerformanceLoggingInterceptor;
 import com.navercorp.pinpoint.web.servlet.HttpIntentRoutingFilter;
-import com.navercorp.pinpoint.web.servlet.VersionPrefixRewriter;
+import com.navercorp.pinpoint.web.servlet.SpaFallbackRewriter;
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -35,8 +35,8 @@ public class WebServerConfig {
     public Filter rewriteFilter(@Value("${pinpoint.web.version-prefix.main-path:/index.html}") String mainPath,
                                 @Value("${pinpoint.web.version-prefix.special-paths:}") List<String> specialPaths,
                                 @Value("${pinpoint.web.version-prefix.resource-paths:/assets,/fronts,/img}") List<String> resourcePaths) {
-        final VersionPrefixRewriter rewriter = new VersionPrefixRewriter(mainPath, specialPaths, resourcePaths);
-        return new HttpIntentRoutingFilter(rewriter);
+        final SpaFallbackRewriter rewriter = new SpaFallbackRewriter(mainPath, specialPaths, resourcePaths);
+        return new HttpIntentRoutingFilter(rewriter::rewrite);
     }
 
     @Bean

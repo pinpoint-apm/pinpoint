@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author youngjin.kim2
@@ -35,9 +36,9 @@ public class HttpIntentRoutingFilter extends HttpFilter {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final VersionPrefixRewriter rewriter;
+    private final Function<String, String> rewriter;
 
-    public HttpIntentRoutingFilter(VersionPrefixRewriter rewriter) {
+    public HttpIntentRoutingFilter(Function<String, String> rewriter) {
         this.rewriter = Objects.requireNonNull(rewriter, "rewriter");
     }
 
@@ -45,12 +46,14 @@ public class HttpIntentRoutingFilter extends HttpFilter {
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String uri = request.getRequestURI();
 
-        final String rewriteUrl = rewriter.rewrite(uri);
+        final String rewriteUrl = rewriter.apply(uri);
         if (rewriteUrl == null) {
             chain.doFilter(request, response);
             return;
         }
-        logger.debug("requestUri: {} --(forward)--> {}", uri, rewriteUrl);
+        if (logger.isDebugEnabled()) {
+            logger.debug("requestUri: {} --(forward)--> {}", uri, rewriteUrl);
+        }
         RequestDispatcher dispatcher = request.getRequestDispatcher(rewriteUrl);
         dispatcher.forward(request, response);
     }

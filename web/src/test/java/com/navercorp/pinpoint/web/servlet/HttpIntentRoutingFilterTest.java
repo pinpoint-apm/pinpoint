@@ -49,8 +49,8 @@ public class HttpIntentRoutingFilterTest {
     }
 
     private HttpIntentRoutingFilter newHttpFilter() {
-        VersionPrefixRewriter rewriter = new VersionPrefixRewriter();
-        return new HttpIntentRoutingFilter(rewriter);
+        SpaFallbackRewriter rewriter = new SpaFallbackRewriter();
+        return new HttpIntentRoutingFilter(rewriter::rewrite);
     }
 
     @Test
