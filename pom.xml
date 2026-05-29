@@ -271,7 +271,7 @@
         <bytebuddy.version>1.12.23</bytebuddy.version>
 
         <testcontainers.version>1.21.4</testcontainers.version>
-        <junit-jupiter.version>5.12.2</junit-jupiter.version>
+        <junit-jupiter.version>5.14.4</junit-jupiter.version>
 
         <!-- maven-plugin -->
         <plugin.compiler.version>3.15.0</plugin.compiler.version>
