@@ -67,8 +67,6 @@ public class HbaseTraceService implements TraceService {
 
         this.traceDao.insertSpanChunk(spanChunkBo);
 
-        this.applicationMapService.insertSpanChunk(spanChunkBo);
-
         // TODO should be able to tell whether the span chunk is successfully inserted
         publisher.publishEvent(event, true);
     }
@@ -80,8 +78,6 @@ public class HbaseTraceService implements TraceService {
         CompletableFuture<Void> future = traceDao.asyncInsert(spanBo);
 
         this.scatterService.insert(spanBo);
-
-        this.applicationMapService.insertSpan(spanBo);
 
         future.whenCompleteAsync((unused, throwable) -> {
             final boolean result = throwable == null;
