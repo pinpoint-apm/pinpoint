@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.heatmap.service;
 
 import com.navercorp.pinpoint.collector.heatmap.dao.HeatmapDao;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
-import com.navercorp.pinpoint.collector.service.TraceService;
+import com.navercorp.pinpoint.collector.sampling.tail.StatisticsTraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import java.util.Objects;
  * @author minwoo-jung
  */
 @Service
-public class HeatmapService implements TraceService {
+public class HeatmapService implements StatisticsTraceService {
 
     private final HeatmapDao heatmapDao;
 
