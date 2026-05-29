@@ -20,13 +20,12 @@ package com.navercorp.pinpoint.web.servlet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static com.navercorp.pinpoint.web.servlet.VersionPrefixRewriter.DEFAULT_MAIN_PATH;
+import static com.navercorp.pinpoint.web.servlet.SpaFallbackRewriter.DEFAULT_MAIN_PATH;
 
-class VersionPrefixRewriterTest {
+class SpaFallbackRewriterTest {
 
-    private final String version = "/v3";
     private final String main = DEFAULT_MAIN_PATH;
-    private final VersionPrefixRewriter rewriter = new VersionPrefixRewriter();
+    private final SpaFallbackRewriter rewriter = new SpaFallbackRewriter();
 
     @Test
     public void api() {
@@ -43,12 +42,6 @@ class VersionPrefixRewriterTest {
     @Test
     public void apiTest() {
         String rewrite = rewriter.rewrite("/api-test/test");
-        Assertions.assertNull(rewrite);
-    }
-
-    @Test
-    public void normalize() {
-        String rewrite = rewriter.rewrite("///api///servermap");
         Assertions.assertNull(rewrite);
     }
 
@@ -76,29 +69,16 @@ class VersionPrefixRewriterTest {
         Assertions.assertNull(rewrite);
     }
 
-
-    @Test
-    public void version_main() {
-        String rewrite = rewriter.rewrite(version);
-        Assertions.assertEquals(version + main, rewrite);
-    }
-
-    @Test
-    public void version_api() {
-        String rewrite = rewriter.rewrite("/v3/api");
-        Assertions.assertNotNull(rewrite);
-    }
-
     @Test
     public void version_resource() {
-        String rewrite = rewriter.rewrite("/v3/assets");
+        String rewrite = rewriter.rewrite("/assets");
         Assertions.assertNull(rewrite);
     }
 
     @Test
     public void version_resource_main() {
-        String rewrite = rewriter.rewrite("/v3/main");
-        Assertions.assertEquals(version + main, rewrite);
+        String rewrite = rewriter.rewrite("/main");
+        Assertions.assertEquals(main, rewrite);
     }
 
 }
