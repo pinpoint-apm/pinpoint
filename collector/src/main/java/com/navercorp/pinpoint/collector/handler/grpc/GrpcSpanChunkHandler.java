@@ -91,6 +91,7 @@ public class GrpcSpanChunkHandler implements SimpleHandler<PSpanChunk> {
             } catch (Throwable e) {
                 logger.warn("Failed to tail-sample SpanChunk {} {}", header, MessageFormatUtils.debugLog(spanChunk), e);
             }
+            // tail sampler owns disposition; on unexpected failure, drop rather than write-through
             return;
         }
         if (!sampler.isSampling(spanChunkBo)) {

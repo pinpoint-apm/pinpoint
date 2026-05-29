@@ -93,6 +93,7 @@ public class GrpcSpanHandler implements SimpleHandler<PSpan> {
             } catch (Throwable e) {
                 logger.warn("Failed to tail-sample Span {} {}", serverHeader, MessageFormatUtils.debugLog(span), e);
             }
+            // tail sampler owns disposition; on unexpected failure, drop rather than write-through
             return;
         }
         if (!sampler.isSampling(spanBo)) {
