@@ -54,7 +54,7 @@ public class TailSamplingSweeper {
             for (String txid : stale) {
                 List<byte[]> won = repository.decide(txid, true); // default keep
                 if (won != null) {
-                    tailSampler.replay(won);
+                    tailSampler.replaySwept(won);
                 }
             }
             if (!stale.isEmpty() && logger.isInfoEnabled()) {

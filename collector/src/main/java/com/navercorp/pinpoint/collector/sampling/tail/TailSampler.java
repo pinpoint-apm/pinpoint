@@ -47,6 +47,7 @@ public class TailSampler {
     private final Counter droppedCounter;
     private final Counter bufferedCounter;
     private final Counter redisErrorCounter;
+    private final Counter flushTimeoutCounter;
 
     public TailSampler(TraceService[] traceServices,
                        TailSamplingRepository repository,
@@ -76,6 +77,7 @@ public class TailSampler {
         this.droppedCounter = meterRegistry.counter("collector.tail.sampling", "result", "dropped");
         this.bufferedCounter = meterRegistry.counter("collector.tail.sampling", "result", "buffered");
         this.redisErrorCounter = meterRegistry.counter("collector.tail.sampling", "result", "redis-error");
+        this.flushTimeoutCounter = meterRegistry.counter("collector.tail.sampling", "result", "flush-timeout");
     }
 
     public void acceptSpan(SpanBo spanBo, byte[] protoBytes) {
@@ -149,6 +151,13 @@ public class TailSampler {
         } else {
             droppedCounter.increment();
         }
+    }
+
+    /** Replay a sweeper-flushed (orphaned, default-keep) trace: counts it as kept + flush-timeout. */
+    public void replaySwept(List<byte[]> encodedSpans) {
+        flushTimeoutCounter.increment();
+        keptCounter.increment();
+        replay(encodedSpans);
     }
 
     /** Rebuild buffered envelopes and write them to the sampled services. */

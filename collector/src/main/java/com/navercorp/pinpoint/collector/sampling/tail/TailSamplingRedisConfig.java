@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.collector.sampling.tail;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -31,11 +34,21 @@ import java.io.UncheckedIOException;
 @Configuration(proxyBeanMethods = false)
 public class TailSamplingRedisConfig {
 
+    /**
+     * Redis connection factory for tail-sampling.
+     * host, port, and password are resolved from {@code spring.data.redis.*} properties,
+     * allowing a clustered collector to point at a shared Redis instance.
+     */
     @Bean("tailSamplingRedisConnectionFactory")
-    public RedisConnectionFactory tailSamplingRedisConnectionFactory(TailSamplingProperties properties) {
-        // host/port default to spring.data.redis.* defaults (localhost:6379).
-        // Extend with RedisStandaloneConfiguration if custom host/port is required.
-        LettuceConnectionFactory factory = new LettuceConnectionFactory();
+    public RedisConnectionFactory tailSamplingRedisConnectionFactory(
+            @Value("${spring.data.redis.host:localhost}") String host,
+            @Value("${spring.data.redis.port:6379}") int port,
+            @Value("${spring.data.redis.password:}") String password) {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
+        if (password != null && !password.isEmpty()) {
+            config.setPassword(RedisPassword.of(password));
+        }
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(config);
         factory.afterPropertiesSet();
         return factory;
     }

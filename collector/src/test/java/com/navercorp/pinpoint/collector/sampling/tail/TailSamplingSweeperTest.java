@@ -45,7 +45,7 @@ class TailSamplingSweeperTest {
         sweeper.sweep();
 
         verify(repository).decide("tx-stale", true); // default keep
-        verify(tailSampler).replay(spans);
+        verify(tailSampler).replaySwept(spans);
     }
 
     @Test
@@ -60,6 +60,6 @@ class TailSamplingSweeperTest {
         TailSamplingSweeper sweeper = new TailSamplingSweeper(repository, tailSampler, props);
         sweeper.sweep();
 
-        verify(tailSampler, Mockito.never()).replay(Mockito.any());
+        verify(tailSampler, Mockito.never()).replaySwept(Mockito.any());
     }
 }
