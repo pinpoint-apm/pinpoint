@@ -31,7 +31,7 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <spring.version>${spring4.version}</spring.version>
+        <spring.version>${spring5.version}</spring.version>
     </properties>
 
     <dependencies>
@@ -39,6 +39,7 @@
         <dependency>
             <groupId>org.springframework.amqp</groupId>
             <artifactId>spring-rabbit</artifactId>
+            <version>1.7.6.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.apache.qpid</groupId>

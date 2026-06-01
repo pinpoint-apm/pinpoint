@@ -146,6 +146,7 @@
                 <module>spring-boot3-testweb</module>
                 <module>spring-boot3-webflux-plugin-testweb</module>
                 <module>jetty12-plugin-testweb</module>
+                <module>spring-boot4-plugin-testweb</module>
             </modules>
         </profile>
     </profiles>

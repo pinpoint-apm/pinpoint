@@ -86,10 +86,14 @@ public class SpringBeansPlugin implements ProfilerPlugin, TransformTemplateAware
             final ObjectFactory beanFilterFactory = ObjectFactory.byStaticFactory("com.navercorp.pinpoint.plugin.spring.beans.interceptor.TargetBeanFilter", "of", config);
 
             final InstrumentMethod createBeanInstance = target.getDeclaredMethod("createBeanInstance", "java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]");
-            createBeanInstance.addInterceptor(CreateBeanInstanceInterceptor.class, va(beanTransformer, beanFilterFactory));
+            if (createBeanInstance != null) {
+                createBeanInstance.addInterceptor(CreateBeanInstanceInterceptor.class, va(beanTransformer, beanFilterFactory));
+            }
 
             final InstrumentMethod postProcessor = target.getDeclaredMethod("applyBeanPostProcessorsBeforeInstantiation", "java.lang.Class", "java.lang.String");
-            postProcessor.addInterceptor(PostProcessorInterceptor.class, va(beanTransformer, beanFilterFactory));
+            if (postProcessor != null) {
+                postProcessor.addInterceptor(PostProcessorInterceptor.class, va(beanTransformer, beanFilterFactory));
+            }
 
             return target.toBytecode();
         }
