@@ -14,7 +14,10 @@ import { buildServiceSidebarItems } from '../Layout/serviceMenu';
 import { SERVICE_CONFIG_MENU } from './serviceConfigMenu';
 import type { SideNavigationMenuItem } from '../Layout/LayoutWithSideNavigation';
 
-export const useServiceSideNavigation = (configuration: Configuration | undefined) => {
+export const useServiceSideNavigation = (
+  configuration: Configuration | undefined,
+  serviceGroupItems: SideNavigationMenuItem[] = [],
+) => {
   const enableServiceMap = !!configuration?.['experimental.enableServiceMap.value'];
   const services = useAtomValue(servicesAtom);
   const selectedService = useAtomValue(selectedServiceAtom);
@@ -28,24 +31,6 @@ export const useServiceSideNavigation = (configuration: Configuration | undefine
       setSelectedService(DEFAULT_SERVICE);
     }
   }, [enableServiceMap, services, selectedService, setSelectedService]);
-
-  const serviceGroupItems: SideNavigationMenuItem[] = [
-    {
-      name: 'Service Setting',
-      path: APP_PATH.CONFIG_SERVICE_SETTING,
-      href: APP_PATH.CONFIG_SERVICE_SETTING,
-    },
-    {
-      name: `User Group (${selectedService})`,
-      path: APP_PATH.CONFIG_SERVICE_USER_GROUP,
-      href: APP_PATH.CONFIG_SERVICE_USER_GROUP,
-    },
-    {
-      name: `Alarm (${selectedService})`,
-      path: APP_PATH.CONFIG_SERVICE_ALARM,
-      href: APP_PATH.CONFIG_SERVICE_ALARM,
-    },
-  ];
 
   const serviceMenuItems: SideNavigationMenuItem[] = enableServiceMap
     ? [

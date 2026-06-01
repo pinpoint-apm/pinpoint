@@ -6,7 +6,7 @@ import {
 } from '@pinpoint-fe/ui';
 import { useAtomValue } from 'jotai';
 import { FaCog } from 'react-icons/fa';
-import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
+import { configurationAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { LuCircleUser } from 'react-icons/lu';
 import { CONFIG_MENU_MAP } from './LayoutWithConfiguration';
@@ -15,8 +15,23 @@ import { useMenuItems } from '@pinpoint-fe/web/src/hooks/useMenuItems';
 
 export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationProps) => {
   const configuration = useAtomValue(configurationAtom);
+  const selectedService = useAtomValue(selectedServiceAtom);
   const { menuItems } = useMenuItems();
-  const { serviceMenuItems } = useServiceSideNavigation(configuration);
+
+  const serviceGroupItems: SideNavigationMenuItem[] = [
+    {
+      name: 'Service Setting',
+      path: APP_PATH.CONFIG_SERVICE_SETTING,
+      href: APP_PATH.CONFIG_SERVICE_SETTING,
+    },
+    {
+      name: `Alarm (${selectedService})`,
+      path: APP_PATH.CONFIG_SERVICE_ALARM,
+      href: APP_PATH.CONFIG_SERVICE_ALARM,
+    },
+  ];
+
+  const { serviceMenuItems } = useServiceSideNavigation(configuration, serviceGroupItems);
 
   const topMenuItems = menuItems;
 
