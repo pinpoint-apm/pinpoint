@@ -26,15 +26,15 @@ public final class TestcontainersOption {
     public static final String VERSION = TestcontainersOptionTemplate.VERSION;
 
     public static final String TEST_CONTAINER = "org.testcontainers:testcontainers:" + VERSION;
-    public static final String MSSQL = "org.testcontainers:mssqlserver:" + VERSION;
-    public static final String MYSQLDB = "org.testcontainers:mysql:" + VERSION;
-    public static final String MARIADB = "org.testcontainers:mariadb:" + VERSION;
-    public static final String POSTGRESQL = "org.testcontainers:postgresql:" + VERSION;
-    public static final String ORACLE = "org.testcontainers:oracle-xe:" + VERSION;
+    public static final String MSSQL = "org.testcontainers:testcontainers-mssqlserver:" + VERSION;
+    public static final String MYSQLDB = "org.testcontainers:testcontainers-mysql:" + VERSION;
+    public static final String MARIADB = "org.testcontainers:testcontainers-mariadb:" + VERSION;
+    public static final String POSTGRESQL = "org.testcontainers:testcontainers-postgresql:" + VERSION;
+    public static final String ORACLE = "org.testcontainers:testcontainers-oracle-xe:" + VERSION;
 
-    public static final String ELASTICSEARCH = "org.testcontainers:elasticsearch:" + VERSION;
-    public static final String MONGODB = "org.testcontainers:mongodb:" + VERSION;
-    public static final String KAFKA = "org.testcontainers:kafka:" + VERSION;
-    public static final String RABBITMQ = "org.testcontainers:rabbitmq:" + VERSION;
-    public static final String PULSAR = "org.testcontainers:pulsar:" + VERSION;
+    public static final String ELASTICSEARCH = "org.testcontainers:testcontainers-elasticsearch:" + VERSION;
+    public static final String MONGODB = "org.testcontainers:testcontainers-mongodb:" + VERSION;
+    public static final String KAFKA = "org.testcontainers:testcontainers-kafka:" + VERSION;
+    public static final String RABBITMQ = "org.testcontainers:testcontainers-rabbitmq:" + VERSION;
+    public static final String PULSAR = "org.testcontainers:testcontainers-pulsar:" + VERSION;
 }

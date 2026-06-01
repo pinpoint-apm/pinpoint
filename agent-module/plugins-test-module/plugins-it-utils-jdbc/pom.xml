@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>jdbc</artifactId>
+            <artifactId>testcontainers-jdbc</artifactId>
             <optional>true</optional>
             <scope>compile</scope>
         </dependency>

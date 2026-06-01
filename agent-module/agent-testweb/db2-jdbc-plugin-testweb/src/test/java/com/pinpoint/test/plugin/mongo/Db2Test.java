@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.Db2Container;
+import org.testcontainers.db2.Db2Container;
 
 import static com.pinpoint.test.plugin.Db2PluginConstants.PASSWORD;
 import static com.pinpoint.test.plugin.Db2PluginConstants.USERNAME;

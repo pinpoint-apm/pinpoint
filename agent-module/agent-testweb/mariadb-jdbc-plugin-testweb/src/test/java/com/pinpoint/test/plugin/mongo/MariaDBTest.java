@@ -24,8 +24,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.mariadb.MariaDBContainer;
 
 @Disabled
 public class MariaDBTest {
@@ -33,12 +33,12 @@ public class MariaDBTest {
     public static final String USERNAME = "root";
     public static final String PASSWORD = "";
 
-    private static MariaDBContainer<?> container;
+    private static MariaDBContainer container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
-        container = new MariaDBContainer<>("mariadb:10.6.17");
+        container = new MariaDBContainer("mariadb:10.6.17");
         container.waitingFor(Wait.forListeningPort());
         container.withDatabaseName(DATABASE_NAME);
         container.withUsername(USERNAME);

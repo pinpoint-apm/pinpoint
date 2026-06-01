@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.it.plugin.jdbc.mssql;
 import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,8 +28,8 @@ public final class MSSQLServerContainerFactory {
     private MSSQLServerContainerFactory() {
     }
 
-    public static MSSQLServerContainer<?> newMSSQLServerContainer(String loggerName) {
-        final MSSQLServerContainer<?> mssqlServerContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
+    public static MSSQLServerContainer newMSSQLServerContainer(String loggerName) {
+        final MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         mssqlServerContainer.acceptLicense();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
 

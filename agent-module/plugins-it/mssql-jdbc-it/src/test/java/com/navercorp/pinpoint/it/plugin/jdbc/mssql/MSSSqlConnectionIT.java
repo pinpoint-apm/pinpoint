@@ -40,7 +40,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -67,7 +67,7 @@ public class MSSSqlConnectionIT {
 
     private static JDBCDriverClass driverClass;
     @AutoClose("stop")
-    public static final MSSQLServerContainer<?> mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger.getName());
+    public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger.getName());
 
     @BeforeAll
     public static void beforeClass() throws Exception {

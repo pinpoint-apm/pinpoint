@@ -23,21 +23,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.mysql.MySQLContainer;
 
 import java.util.Properties;
 
 public class MysqlServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private MySQLContainer<?> container;
+    private MySQLContainer container;
 
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new MySQLContainer<>("mysql:5.7.34");
+        container = new MySQLContainer("mysql:5.7.34");
         container.waitingFor(Wait.forListeningPort());
         container.withInitScript("mysql-init.sql");
         container.start();

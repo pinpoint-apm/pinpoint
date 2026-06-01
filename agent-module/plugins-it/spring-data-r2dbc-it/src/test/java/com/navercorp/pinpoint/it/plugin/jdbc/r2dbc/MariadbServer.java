@@ -23,22 +23,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.mariadb.MariaDBContainer;
 
 import java.util.Properties;
 
 public class MariadbServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private MariaDBContainer<?> container;
+    private MariaDBContainer container;
 
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
         Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer(), "ARM not supported");
 
-        container = new MariaDBContainer<>("mariadb:10.3.6");
+        container = new MariaDBContainer("mariadb:10.3.6");
         container.waitingFor(Wait.forListeningPort());
         container.withInitScript("mariadb-init.sql");
         container.start();

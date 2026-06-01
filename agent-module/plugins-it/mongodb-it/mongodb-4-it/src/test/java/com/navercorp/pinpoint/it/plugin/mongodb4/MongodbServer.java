@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContai
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.mongodb.MongoDBContainer;
 
 import java.util.Properties;
 

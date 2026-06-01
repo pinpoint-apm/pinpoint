@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.it.plugin.jdbc.oracle;
 import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
 
 public final class OracleITConstants {
-    public static final String ORACLE_TESTCONTAINER = "org.testcontainers:oracle-xe:" + TestcontainersOption.VERSION;
-    public static final String ORACLE_TESTCONTAINER_15_3 = "org.testcontainers:oracle-xe:1.15.3";
+    public static final String ORACLE_TESTCONTAINER = "org.testcontainers:testcontainers-oracle-xe:" + TestcontainersOption.VERSION;
+    public static final String ORACLE_TESTCONTAINER_15_3 = "org.testcontainers:testcontainers-oracle-xe:1.15.3";
 
     public static final String ORACLE_11_X_IMAGE = "oracleinanutshell/oracle-xe-11g";
     public static final String ORACLE_12_X_IMAGE = "galam/oracle-xe-12c";

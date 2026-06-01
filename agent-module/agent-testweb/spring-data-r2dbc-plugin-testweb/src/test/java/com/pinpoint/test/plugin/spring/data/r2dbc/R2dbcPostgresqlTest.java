@@ -22,18 +22,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 @Disabled
 public class R2dbcPostgresqlTest {
 
-    private static PostgreSQLContainer<?> container;
+    private static PostgreSQLContainer container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new PostgreSQLContainer<>("postgres:9.6.24");
+        container = new PostgreSQLContainer("postgres:9.6.24");
         container.withInitScript("postgresql-init.sql");
 
         container.start();

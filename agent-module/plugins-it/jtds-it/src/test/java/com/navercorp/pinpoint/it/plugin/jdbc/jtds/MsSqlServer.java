@@ -7,20 +7,20 @@ import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 
 import java.util.Properties;
 
 public class MsSqlServer implements SharedTestLifeCycle {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private MSSQLServerContainer<?> mssqlserver;
+    private MSSQLServerContainer mssqlserver;
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
 
-        mssqlserver = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
+        mssqlserver = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         mssqlserver.acceptLicense();
         mssqlserver.withInitScript("sql/init_mssql.sql");
         mssqlserver.withPassword(JtdsITConstants.PASSWORD);
