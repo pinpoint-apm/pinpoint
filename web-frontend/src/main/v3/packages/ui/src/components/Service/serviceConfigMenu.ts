@@ -9,5 +9,4 @@ export const SERVICE_CONFIG_MENU: ConfigMenu = {
 
 export const isServiceConfigPath = (pathname: string) =>
   pathname === APP_PATH.CONFIG_SERVICE_SETTING ||
-  pathname === APP_PATH.CONFIG_SERVICE_USER_GROUP ||
   pathname === APP_PATH.CONFIG_SERVICE_ALARM;

@@ -48,9 +48,6 @@ const Webhook = lazy(() => import('@pinpoint-fe/web/src/pages/config/Webhook'));
 const AgentManagement = lazy(() => import('@pinpoint-fe/web/src/pages/config/AgentManagement'));
 const AgentStatistic = lazy(() => import('@pinpoint-fe/web/src/pages/config/AgentStatistic'));
 const ServiceSetting = lazy(() => import('@pinpoint-fe/web/src/pages/config/ServiceSetting'));
-const ServiceUserGroup = lazy(
-  () => import('@pinpoint-fe/web/src/pages/config/ServiceUserGroup'),
-);
 const ServiceAlarm = lazy(() => import('@pinpoint-fe/web/src/pages/config/ServiceAlarm'));
 
 const defaultLoader = () => {
@@ -211,10 +208,6 @@ const router = createBrowserRouter(
                     {
                       path: `${APP_PATH.CONFIG_SERVICE_SETTING}`,
                       element: <ServiceSetting />,
-                    },
-                    {
-                      path: `${APP_PATH.CONFIG_SERVICE_USER_GROUP}`,
-                      element: <ServiceUserGroup />,
                     },
                     {
                       path: `${APP_PATH.CONFIG_SERVICE_ALARM}`,

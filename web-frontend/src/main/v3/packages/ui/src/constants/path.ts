@@ -14,7 +14,6 @@ export const APP_PATH = {
   CONFIG_AGENT_STATISTIC: '/config/agentStatistic',
   CONFIG_SERVICES: '/config/service',
   CONFIG_SERVICE_SETTING: '/config/serviceSetting',
-  CONFIG_SERVICE_USER_GROUP: '/config/service/userGroup',
   CONFIG_SERVICE_ALARM: '/config/service/alarm',
   CONFIG: '/config',
   ERROR_ANALYSIS: '/errorAnalysis',

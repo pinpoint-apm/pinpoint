@@ -9,5 +9,4 @@ export * from './Webhook';
 export * from './AgentManagement';
 export * from './AgentStatistic';
 export * from './ServiceSetting';
-export * from './ServiceUserGroup';
 export * from './ServiceAlarm';
