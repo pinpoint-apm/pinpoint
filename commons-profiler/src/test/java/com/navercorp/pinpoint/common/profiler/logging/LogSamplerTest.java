@@ -11,13 +11,13 @@ class LogSamplerTest {
         MutableInt counter = new MutableInt(0);
 
         sampler.log((c) -> counter.increment());
-        Assertions.assertEquals(1, counter.getValue());
+        Assertions.assertEquals(1, counter.intValue());
 
         sampler.log((c) -> counter.increment());
-        Assertions.assertEquals(1, counter.getValue());
+        Assertions.assertEquals(1, counter.intValue());
 
         sampler.log((c) -> counter.increment());
-        Assertions.assertEquals(2, counter.getValue());
+        Assertions.assertEquals(2, counter.intValue());
     }
 
     @Test
@@ -25,12 +25,12 @@ class LogSamplerTest {
         MutableInt counter = new MutableInt(0);
 
         sampler.log(counter::increment);
-        Assertions.assertEquals(1, counter.getValue());
+        Assertions.assertEquals(1, counter.intValue());
 
         sampler.log(counter::increment);
-        Assertions.assertEquals(1, counter.getValue());
+        Assertions.assertEquals(1, counter.intValue());
 
         sampler.log(counter::increment);
-        Assertions.assertEquals(2, counter.getValue());
+        Assertions.assertEquals(2, counter.intValue());
     }
 }

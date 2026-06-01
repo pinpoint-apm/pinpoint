@@ -24,7 +24,8 @@ import org.junit.jupiter.api.Test;
  */
 public class TimeUtilsTest {
     @Test
-    public void testReverseCurrentTimeMillis() throws Exception {
+    @SuppressWarnings("deprecation")
+    public void testReverseCurrentTimeMillis() {
         long currentTime = System.currentTimeMillis();
         long reverseTime = TimeUtils.reverseTimeMillis(currentTime);
         long recoveryTime = TimeUtils.recoveryTimeMillis(reverseTime);
@@ -32,7 +33,9 @@ public class TimeUtilsTest {
         Assertions.assertEquals(currentTime, recoveryTime);
     }
 
+
     @Test
+    @SuppressWarnings("deprecation")
     public void testTimeOrder() throws InterruptedException {
         long l1 = TimeUtils.reverseCurrentTimeMillis();
         Thread.sleep(5);
@@ -40,5 +43,4 @@ public class TimeUtilsTest {
 
         Assertions.assertTrue(l1 > l2);
     }
-
 }
