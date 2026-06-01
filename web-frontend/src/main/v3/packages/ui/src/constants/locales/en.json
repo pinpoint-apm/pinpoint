@@ -187,6 +187,7 @@
       "NEW_SERVICE": "New Service",
       "SWITCH_TO": "Switch To",
       "SWITCH_SUCCESS": "Switched to {{name}}.",
+      "CURRENT": "Current",
       "DELETE_TITLE": "Delete service",
       "DELETE_DESC": "Delete the following service.",
       "DELETE_SUCCESS": "Service \"{{name}}\" deleted.",
@@ -194,6 +195,8 @@
       "ADD_SERVICE_TITLE": "Add Service",
       "SERVICE_NAME_PLACEHOLDER": "Enter service name",
       "ADD_SUCCESS": "Service added.",
+      "DUPLICATE_NAME": "Service name \"{{name}}\" already exists.",
+      "RESERVED_NAME": "\"{{name}}\" is a reserved name and cannot be used.",
       "LABEL": {
         "NAME": "Name",
         "DELETE": "Delete"

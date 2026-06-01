@@ -187,6 +187,7 @@
       "NEW_SERVICE": "새 서비스",
       "SWITCH_TO": "전환",
       "SWITCH_SUCCESS": "{{name}}으로 전환되었습니다.",
+      "CURRENT": "현재 선택됨",
       "DELETE_TITLE": "서비스 삭제",
       "DELETE_DESC": "다음 서비스를 삭제합니다.",
       "DELETE_SUCCESS": "\"{{name}}\" 서비스가 삭제되었습니다.",
@@ -194,6 +195,8 @@
       "ADD_SERVICE_TITLE": "서비스 추가",
       "SERVICE_NAME_PLACEHOLDER": "서비스 이름을 입력하세요.",
       "ADD_SUCCESS": "서비스가 추가되었습니다.",
+      "DUPLICATE_NAME": "\"{{name}}\" 서비스 이름이 이미 존재합니다.",
+      "RESERVED_NAME": "\"{{name}}\"은(는) 예약어이므로 사용할 수 없습니다.",
       "LABEL": {
         "NAME": "이름",
         "DELETE": "삭제"

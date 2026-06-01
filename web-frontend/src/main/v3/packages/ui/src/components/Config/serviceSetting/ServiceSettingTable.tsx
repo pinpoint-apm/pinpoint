@@ -4,27 +4,35 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { LuCheck, LuPlus } from 'react-icons/lu';
 import { HiOutlineSwitchHorizontal } from 'react-icons/hi';
 import { FaRegTrashCan } from 'react-icons/fa6';
-import { isServiceAddSheetOpenAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
-import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import {
+  DEFAULT_SERVICE,
+  isReservedServiceName,
+  isServiceAddSheetOpenAtom,
+  selectedServiceAtom,
+  servicesAtom,
+} from '@pinpoint-fe/ui/src/atoms';
+import { END_POINTS, GetServices } from '@pinpoint-fe/ui/src/constants';
 import { queryClient, useDeleteService, useGetServices } from '@pinpoint-fe/ui/src/hooks';
 import { DataTable } from '../../DataTable/DataTable';
 import { RemovePopup } from '../../Popup';
 import { ServiceAddSheet } from '../../Service/ServiceAddSheet';
 import { useReactToastifyToast } from '../../Toast';
-import { Button } from '../../ui';
-import { cn } from '../../../lib';
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../../ui';
 
 type ServiceRow = { name: string };
-
-const RESERVED_SERVICE_NAMES = ['DEFAULT', 'TEST', 'ERROR', 'UNKNOWN', 'NULL'];
-
-const isReservedServiceName = (name: string) => RESERVED_SERVICE_NAMES.includes(name.toUpperCase());
 
 export const ServiceSettingTable = () => {
   const { t } = useTranslation();
   const toast = useReactToastifyToast();
   const selectedService = useAtomValue(selectedServiceAtom);
   const setSelectedService = useSetAtom(selectedServiceAtom);
+  const setServices = useSetAtom(servicesAtom);
   const [isAddSheetOpen, setAddSheetOpen] = useAtom(isServiceAddSheetOpenAtom);
 
   const { data } = useGetServices();
@@ -35,6 +43,13 @@ export const ServiceSettingTable = () => {
       toast.success(
         t('CONFIGURATION.SERVICE_SETTING.DELETE_SUCCESS', { name: params.serviceName }),
       );
+      queryClient.setQueryData<GetServices.Response>([END_POINTS.SERVICES], (prev) =>
+        prev ? prev.filter((name) => name !== params.serviceName) : prev,
+      );
+      setServices((prev) => (prev ? prev.filter((name) => name !== params.serviceName) : prev));
+      if (params.serviceName === selectedService) {
+        setSelectedService(DEFAULT_SERVICE);
+      }
       queryClient.invalidateQueries({ queryKey: [END_POINTS.SERVICES] });
     },
   });
@@ -63,18 +78,23 @@ export const ServiceSettingTable = () => {
       id: 'actions',
       header: t('CONFIGURATION.COMMON.LABEL.ACTIONS') || 'Actions',
       meta: {
-        headerClassName: 'w-40',
+        headerClassName: 'w-40 text-center',
+        cellClassName: 'text-center',
       },
       cell: ({ row }) => {
         const service = row.original;
         const isCurrent = service.name === selectedService;
+        if (isCurrent) {
+          return (
+            <span className="inline-flex items-center px-2 text-sm font-medium text-muted-foreground">
+              {t('CONFIGURATION.SERVICE_SETTING.CURRENT') || 'Current'}
+            </span>
+          );
+        }
         return (
           <Button
             variant="ghost"
-            className={cn('px-2 text-[var(--blue-700)] hover:text-[var(--blue-600)]', {
-              'pointer-events-none opacity-50': isCurrent,
-            })}
-            disabled={isCurrent}
+            className="px-2 text-[var(--blue-700)] hover:text-[var(--blue-600)]"
             onClick={(e) => {
               e.stopPropagation();
               handleSwitchTo(service.name);
@@ -95,18 +115,33 @@ export const ServiceSettingTable = () => {
       cell: ({ row }) => {
         const service = row.original;
         const isReserved = isReservedServiceName(service.name);
+        if (isReserved) {
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-block">
+                  <Button
+                    variant="ghost"
+                    className="px-3 pointer-events-none"
+                    disabled
+                    tabIndex={-1}
+                  >
+                    <FaRegTrashCan />
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {t('CONFIGURATION.SERVICE_SETTING.DELETE_RESERVED_DISABLED')}
+              </TooltipContent>
+            </Tooltip>
+          );
+        }
         return (
           <RemovePopup
             popupTrigger={
               <Button
                 variant="ghost"
                 className="px-3"
-                disabled={isReserved}
-                title={
-                  isReserved
-                    ? t('CONFIGURATION.SERVICE_SETTING.DELETE_RESERVED_DISABLED')
-                    : undefined
-                }
                 onClick={(e) => e.stopPropagation()}
               >
                 <FaRegTrashCan />
@@ -123,22 +158,24 @@ export const ServiceSettingTable = () => {
   ];
 
   return (
-    <div className="space-y-2">
-      <div className="flex justify-end">
-        <Button onClick={() => setAddSheetOpen(true)}>
-          <LuPlus className="mr-0.5" />
-          {t('CONFIGURATION.SERVICE_SETTING.NEW_SERVICE') || 'New Service'}
-        </Button>
+    <TooltipProvider delayDuration={200}>
+      <div className="space-y-2">
+        <div className="flex justify-end">
+          <Button onClick={() => setAddSheetOpen(true)}>
+            <LuPlus className="mr-0.5" />
+            {t('CONFIGURATION.SERVICE_SETTING.NEW_SERVICE') || 'New Service'}
+          </Button>
+        </div>
+        <div className="overflow-hidden border rounded-md">
+          <DataTable
+            autoResize={true}
+            columns={columns}
+            data={rows}
+            emptyMessage={t('COMMON.NO_DATA')}
+          />
+        </div>
+        <ServiceAddSheet open={isAddSheetOpen} onOpenChange={setAddSheetOpen} />
       </div>
-      <div className="overflow-hidden border rounded-md">
-        <DataTable
-          autoResize={true}
-          columns={columns}
-          data={rows}
-          emptyMessage={t('COMMON.NO_DATA')}
-        />
-      </div>
-      <ServiceAddSheet open={isAddSheetOpen} onOpenChange={setAddSheetOpen} />
-    </div>
+    </TooltipProvider>
   );
 };
