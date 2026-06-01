@@ -117,6 +117,12 @@ public class SpringAsyncPlugin implements ProfilerPlugin, MatchableTransformTemp
                 submitListenableMethod.addScopedInterceptor(AsyncTaskExecutorSubmitInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
             }
 
+            // spring 7
+            final InstrumentMethod submitCompletableMethod = target.getDeclaredMethod("submitCompletable", callable);
+            if (submitCompletableMethod != null) {
+                submitCompletableMethod.addScopedInterceptor(AsyncTaskExecutorSubmitInterceptor.class, SpringAsyncConstants.ASYNC_TASK_EXECUTOR_SCOPE);
+            }
+
             return target.toBytecode();
         }
     }

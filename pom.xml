@@ -187,7 +187,6 @@
 
         <reactor-core.version>3.6.9</reactor-core.version>
 
-        <spring4.version>4.3.30.RELEASE</spring4.version>
         <spring5.version>5.3.39</spring5.version>
         <spring-batch.version>5.2.5</spring-batch.version>
         <spring.retry.version>2.0.12</spring.retry.version>
