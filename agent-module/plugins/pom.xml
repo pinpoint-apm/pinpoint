@@ -30,7 +30,6 @@
 
     
     <modules>
-        <module>bom</module>
         <module>assembly</module>
         <module>common-servlet</module>
         <module>external</module>
@@ -128,7 +127,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugin-bom</artifactId>
+                <artifactId>pinpoint-plugins-bom</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>

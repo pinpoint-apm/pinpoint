@@ -35,6 +35,7 @@
 
         <module>bootstraps</module>
 
+        <module>plugins-bom</module>
         <module>plugins</module>
         <module>plugins-loader</module>
         <module>plugins-test-module</module>

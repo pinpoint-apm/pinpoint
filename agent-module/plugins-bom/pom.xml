@@ -21,30 +21,44 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-agent-module</artifactId>
-        <relativePath>../../pom.xml</relativePath>
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
-    <artifactId>pinpoint-plugin-bom</artifactId>
-    <name>pinpoint-plugin-bom</name>
+    <artifactId>pinpoint-plugins-bom</artifactId>
+    <name>pinpoint-plugins-bom</name>
 
     <properties>
         <jedis.version>2.4.2</jedis.version>
+
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <cassandra4.driver.version>4.15.0</cassandra4.driver.version>
 
         <mongo.driver.3.version>3.12.11</mongo.driver.3.version>
         <mongo.driver.4.version>4.6.1</mongo.driver.4.version>
 
+        <httpcomponents3.version>3.1</httpcomponents3.version>
+
         <apache.dubbo.version>2.7.18</apache.dubbo.version>
         <ehcache.version>2.10.6</ehcache.version>
 
+        <undertow.version>2.2.17.Final</undertow.version>
         <cxf.version>3.0.16</cxf.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>1.8.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>2.2.49</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.navercorp.arcus</groupId>
                 <artifactId>arcus-java-client</artifactId>
@@ -126,7 +140,7 @@
             <dependency>
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
-                <version>3.1</version>
+                <version>${httpcomponents3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
@@ -316,7 +330,7 @@
             <dependency>
                 <groupId>io.undertow</groupId>
                 <artifactId>undertow-core</artifactId>
-                <version>2.0.1.Final</version>
+                <version>${undertow.version}</version>
             </dependency>
 
             <dependency>

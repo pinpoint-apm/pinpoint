@@ -50,7 +50,6 @@
     </properties>
 
     <modules>
-        <module>bom</module>
         <module>agent-testweb-commons</module>
         <module>agentsdk-async-testweb</module>
         <module>thread-plugin-testweb</module>
@@ -104,7 +103,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-agent-testweb-bom</artifactId>
+                <artifactId>pinpoint-plugins-bom</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
