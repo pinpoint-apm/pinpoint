@@ -89,10 +89,11 @@ public class TailSampler {
 
         final String txid = spanBo.getTransactionId().toString();
         try {
+            boolean error = properties.isKeepOnError() && TraceErrors.hasError(spanBo);
             byte[] envelope = codec.encode(new BufferedSpan(BufferedSpan.Type.SPAN,
                     spanBo.getAgentId(), spanBo.getAgentName(), spanBo.getApplicationName(),
                     spanBo.getAgentStartTime(), spanBo.getCollectorAcceptTime(), protoBytes));
-            String decision = repository.accept(txid, envelope, System.currentTimeMillis());
+            String decision = repository.accept(txid, envelope, System.currentTimeMillis(), error);
 
             if ("keep".equals(decision)) {
                 keptCounter.increment();
@@ -102,8 +103,7 @@ public class TailSampler {
             } else {
                 bufferedCounter.increment();
                 if (spanBo.isRoot()) {
-                    boolean error = spanBo.hasError() || spanBo.hasException();
-                    decideAndFlush(txid, spanBo.getElapsed(), error);
+                    decideAndFlush(txid, spanBo.getElapsed());
                 }
             }
         } catch (Exception e) {
@@ -120,10 +120,11 @@ public class TailSampler {
 
         final String txid = spanChunkBo.getTransactionId().toString();
         try {
+            boolean error = properties.isKeepOnError() && TraceErrors.hasError(spanChunkBo);
             byte[] envelope = codec.encode(new BufferedSpan(BufferedSpan.Type.SPAN_CHUNK,
                     spanChunkBo.getAgentId(), null, spanChunkBo.getApplicationName(),
                     spanChunkBo.getAgentStartTime(), spanChunkBo.getCollectorAcceptTime(), protoBytes));
-            String decision = repository.accept(txid, envelope, System.currentTimeMillis());
+            String decision = repository.accept(txid, envelope, System.currentTimeMillis(), error);
 
             if ("keep".equals(decision)) {
                 keptCounter.increment();
@@ -141,22 +142,23 @@ public class TailSampler {
         }
     }
 
-    private void decideAndFlush(String txid, int elapsedMillis, boolean error) {
-        final boolean keepOnError = properties.isKeepOnError() && error;
-        final boolean keep = keepOnError || TailDecisions.keep(txid, properties.rateFor(elapsedMillis));
-        List<byte[]> won = repository.decide(txid, keep);
+    private void decideAndFlush(String txid, int elapsedMillis) {
+        // Proposed decision is the response-time band; the script may upgrade it to keep
+        // when the trace's error flag is set, so we act on the returned list, not on `proposed`.
+        final boolean proposed = TailDecisions.keep(txid, properties.rateFor(elapsedMillis));
+        List<byte[]> won = repository.decide(txid, proposed);
         if (won == null) {
+            return; // another node already decided
+        }
+        if (won.isEmpty()) {
+            droppedCounter.increment();
             return;
         }
-        if (keep) {
-            keptCounter.increment();
-            if (keepOnError) {
-                errorKeptCounter.increment();
-            }
-            replay(won);
-        } else {
-            droppedCounter.increment();
+        keptCounter.increment();
+        if (!proposed) {
+            errorKeptCounter.increment(); // band would have dropped; kept because the trace errored
         }
+        replay(won);
     }
 
     /** Replay a sweeper-flushed (orphaned, default-keep) trace: counts it as kept + flush-timeout. */

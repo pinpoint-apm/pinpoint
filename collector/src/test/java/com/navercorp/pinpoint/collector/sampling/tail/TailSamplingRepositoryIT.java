@@ -77,41 +77,63 @@ class TailSamplingRepositoryIT {
 
     @Test
     void accept_firstTime_returnsBuffered() {
-        String r = repository.accept("tx-1", new byte[]{1}, 1000L);
+        String r = repository.accept("tx-1", new byte[]{1}, 1000L, false);
         assertThat(r).isEqualTo("buffered");
     }
 
     @Test
     void decide_keep_returnsBufferedSpansAndClearsBuffer() {
-        repository.accept("tx-2", new byte[]{1}, 1000L);
-        repository.accept("tx-2", new byte[]{2}, 1000L);
+        repository.accept("tx-2", new byte[]{1}, 1000L, false);
+        repository.accept("tx-2", new byte[]{2}, 1000L, false);
 
         List<byte[]> spans = repository.decide("tx-2", true);
 
         assertThat(spans).hasSize(2);
-        assertThat(repository.accept("tx-2", new byte[]{3}, 1000L)).isEqualTo("keep");
+        assertThat(repository.accept("tx-2", new byte[]{3}, 1000L, false)).isEqualTo("keep");
     }
 
     @Test
     void decide_drop_returnsEmptyAndSubsequentAcceptDrops() {
-        repository.accept("tx-3", new byte[]{1}, 1000L);
+        repository.accept("tx-3", new byte[]{1}, 1000L, false);
         List<byte[]> spans = repository.decide("tx-3", false);
         assertThat(spans).isEmpty();
-        assertThat(repository.accept("tx-3", new byte[]{9}, 1000L)).isEqualTo("drop");
+        assertThat(repository.accept("tx-3", new byte[]{9}, 1000L, false)).isEqualTo("drop");
     }
 
     @Test
     void decide_secondCall_returnsNull_noDoubleFlush() {
-        repository.accept("tx-4", new byte[]{1}, 1000L);
+        repository.accept("tx-4", new byte[]{1}, 1000L, false);
         assertThat(repository.decide("tx-4", true)).isNotNull();
         assertThat(repository.decide("tx-4", true)).isNull();
     }
 
     @Test
     void findStale_returnsTxidsOlderThanThreshold() {
-        repository.accept("tx-old", new byte[]{1}, 1000L);
-        repository.accept("tx-new", new byte[]{1}, 5000L);
+        repository.accept("tx-old", new byte[]{1}, 1000L, false);
+        repository.accept("tx-new", new byte[]{1}, 5000L, false);
         List<String> stale = repository.findStale(2000L, 100);
         assertThat(stale).contains("tx-old").doesNotContain("tx-new");
+    }
+
+    @Test
+    void decide_proposedDrop_upgradedToKeep_whenErrorFlagSet() {
+        // a child span (no error) buffered, then an errored span sets the error flag
+        repository.accept("tx-err", new byte[]{1}, 1000L, false);
+        repository.accept("tx-err", new byte[]{2}, 1000L, true);
+
+        // band proposes drop, but the error flag forces keep -> spans returned
+        List<byte[]> spans = repository.decide("tx-err", false);
+
+        assertThat(spans).hasSize(2);
+        // decision stored as keep -> late spans write through
+        assertThat(repository.accept("tx-err", new byte[]{3}, 1000L, false)).isEqualTo("keep");
+    }
+
+    @Test
+    void decide_proposedDrop_staysDrop_whenNoErrorFlag() {
+        repository.accept("tx-nor", new byte[]{1}, 1000L, false);
+        List<byte[]> spans = repository.decide("tx-nor", false);
+        assertThat(spans).isEmpty();
+        assertThat(repository.accept("tx-nor", new byte[]{9}, 1000L, false)).isEqualTo("drop");
     }
 }

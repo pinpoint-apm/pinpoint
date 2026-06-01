@@ -29,8 +29,10 @@ import org.mockito.Mockito;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -70,7 +72,7 @@ class TailSamplerTest {
 
     @Test
     void alwaysGroupCalledImmediately_regardlessOfDecision() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("buffered");
         SpanBo bo = rootSpan(10);
 
         tailSampler.acceptSpan(bo, new byte[]{1});
@@ -80,7 +82,7 @@ class TailSamplerTest {
 
     @Test
     void decisionDrop_sampledNotWritten() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("drop");
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("drop");
         SpanBo bo = rootSpan(10);
 
         tailSampler.acceptSpan(bo, new byte[]{1});
@@ -91,7 +93,7 @@ class TailSamplerTest {
 
     @Test
     void decisionKeep_writesThroughToSampledLive() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("keep");
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("keep");
         SpanBo bo = rootSpan(10);
 
         tailSampler.acceptSpan(bo, new byte[]{1});
@@ -101,7 +103,7 @@ class TailSamplerTest {
 
     @Test
     void rootBuffered_triggersDecide_andReplaysKeptSpans() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("buffered");
         BufferedSpan buffered = new BufferedSpan(BufferedSpan.Type.SPAN,
                 "agent", "agentName", "app", 1L, 2L,
                 com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
@@ -118,7 +120,7 @@ class TailSamplerTest {
 
     @Test
     void redisFailure_failsOpen_writesSampledLive() {
-        when(repository.accept(anyString(), any(), anyLong()))
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean()))
                 .thenThrow(new RuntimeException("redis down"));
         SpanBo bo = rootSpan(10);
 
@@ -139,7 +141,7 @@ class TailSamplerTest {
 
     @Test
     void chunk_alwaysGroupCalledImmediately() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("buffered");
         SpanChunkBo bo = chunk();
         tailSampler.acceptSpanChunk(bo, new byte[]{1});
         verify(always).insertSpanChunk(bo);
@@ -147,7 +149,7 @@ class TailSamplerTest {
 
     @Test
     void chunk_keep_writesThroughToSampledLive() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("keep");
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("keep");
         SpanChunkBo bo = chunk();
         tailSampler.acceptSpanChunk(bo, new byte[]{1});
         verify(sampled).insertSpanChunk(bo);
@@ -155,7 +157,7 @@ class TailSamplerTest {
 
     @Test
     void chunk_drop_notWritten() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("drop");
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("drop");
         SpanChunkBo bo = chunk();
         tailSampler.acceptSpanChunk(bo, new byte[]{1});
         verify(sampled, never()).insertSpanChunk(any());
@@ -163,7 +165,7 @@ class TailSamplerTest {
 
     @Test
     void chunk_redisFailure_failsOpen() {
-        when(repository.accept(anyString(), any(), anyLong())).thenThrow(new RuntimeException("down"));
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenThrow(new RuntimeException("down"));
         SpanChunkBo bo = chunk();
         tailSampler.acceptSpanChunk(bo, new byte[]{1});
         verify(sampled).insertSpanChunk(bo);
@@ -181,28 +183,30 @@ class TailSamplerTest {
     }
 
     @Test
-    void rootError_keptEvenWhenBandWouldDrop() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
+    void erroredSpan_setsErrorFlag_andReplaysWhenDecideUpgradesToKeep() {
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("buffered");
+        // band rate 0 -> proposed decision is drop (false); simulate the script upgrading to keep
+        // (error flag) by returning buffered spans for the proposed=drop call.
         BufferedSpan buffered = new BufferedSpan(BufferedSpan.Type.SPAN, "agent", "agentName", "app", 1L, 2L,
                 com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
-        when(repository.decide(anyString(), org.mockito.ArgumentMatchers.eq(true)))
+        when(repository.decide(anyString(), eq(false)))
                 .thenReturn(List.of(new BufferedSpanCodec().encode(buffered)));
         when(factory.buildSpanBo(any(), any(), anyLong())).thenReturn(new SpanBo());
 
         TailSampler sampler = dropAllSampler(true);
-        SpanBo bo = rootSpan(10); // < any band; would drop by response time
+        SpanBo bo = rootSpan(10); // < any band; band would drop by response time
         bo.setErrCode(1);         // but it is an error
 
         sampler.acceptSpan(bo, com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
 
-        verify(repository).decide(anyString(), org.mockito.ArgumentMatchers.eq(true)); // forced keep
-        verify(sampled).insertSpan(any());
+        verify(repository).accept(anyString(), any(), anyLong(), eq(true)); // error flag propagated
+        verify(sampled).insertSpan(any());                                   // kept via upgrade (non-empty result)
     }
 
     @Test
-    void rootError_butKeepOnErrorDisabled_followsBandAndDrops() {
-        when(repository.accept(anyString(), any(), anyLong())).thenReturn("buffered");
-        when(repository.decide(anyString(), org.mockito.ArgumentMatchers.eq(false))).thenReturn(List.of());
+    void keepOnErrorDisabled_doesNotSetErrorFlag_andDrops() {
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("buffered");
+        when(repository.decide(anyString(), eq(false))).thenReturn(List.of()); // drop
 
         TailSampler sampler = dropAllSampler(false);
         SpanBo bo = rootSpan(10);
@@ -210,7 +214,21 @@ class TailSamplerTest {
 
         sampler.acceptSpan(bo, com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
 
-        verify(repository).decide(anyString(), org.mockito.ArgumentMatchers.eq(false)); // band rate 0 -> drop
+        verify(repository).accept(anyString(), any(), anyLong(), eq(false)); // flag NOT set (toggle off)
         verify(sampled, never()).insertSpan(any());
+    }
+
+    @Test
+    void erroredChunk_setsErrorFlagOnAccept() {
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("buffered");
+        com.navercorp.pinpoint.common.server.bo.SpanEventBo event =
+                Mockito.mock(com.navercorp.pinpoint.common.server.bo.SpanEventBo.class);
+        when(event.hasException()).thenReturn(true);
+        SpanChunkBo bo = chunk();
+        bo.addSpanEventBoList(List.of(event));
+
+        tailSampler.acceptSpanChunk(bo, new byte[]{1});
+
+        verify(repository).accept(anyString(), any(), anyLong(), eq(true));
     }
 }

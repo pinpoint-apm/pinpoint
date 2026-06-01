@@ -83,7 +83,7 @@ collector:
       buffer-ttl: 300s
       sweep-interval: 5s
       decision-ttl: 600s
-      keep-on-error: true        # error traces (root errCode>0 / exception) kept 100% regardless of band
+      keep-on-error: true        # if ANY span/chunk in a trace errors (errCode>0 / exception), keep it 100% regardless of band
       bands:
         - max-elapsed: 50ms
           rate: 1

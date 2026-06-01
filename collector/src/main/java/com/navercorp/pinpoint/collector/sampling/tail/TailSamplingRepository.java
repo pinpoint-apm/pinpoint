@@ -37,6 +37,7 @@ public class TailSamplingRepository {
     static final String BUFFER_PREFIX = "buffer:";
     static final String DECISION_PREFIX = "decision:";
     static final String PENDING_KEY = "pending";
+    static final String ERROR_PREFIX = "error:";
 
     private final RedisTemplate<String, byte[]> template;
     private final byte[] acceptScript;
@@ -54,42 +55,51 @@ public class TailSamplingRepository {
         this.decisionTtlSeconds = String.valueOf(decisionTtlSeconds).getBytes(StandardCharsets.UTF_8);
     }
 
+    private static final byte[] FLAG_TRUE = "1".getBytes(StandardCharsets.UTF_8);
+    private static final byte[] FLAG_FALSE = "0".getBytes(StandardCharsets.UTF_8);
+
     /**
      * Accepts a span into the tail-sampling buffer.
      *
+     * @param error when true, marks the whole trace for keep-on-error (any span erroring forces keep)
      * @return "keep" | "drop" | "buffered"
      */
-    public String accept(String txid, byte[] bufferedSpanBytes, long firstSeenMillis) {
+    public String accept(String txid, byte[] bufferedSpanBytes, long firstSeenMillis, boolean error) {
         byte[] bufferKey = key(BUFFER_PREFIX, txid);
         byte[] decisionKey = key(DECISION_PREFIX, txid);
         byte[] pendingKey = PENDING_KEY.getBytes(StandardCharsets.UTF_8);
+        byte[] errorKey = key(ERROR_PREFIX, txid);
         byte[] txidBytes = txid.getBytes(StandardCharsets.UTF_8);
         byte[] firstSeen = String.valueOf(firstSeenMillis).getBytes(StandardCharsets.UTF_8);
+        byte[] errorFlag = error ? FLAG_TRUE : FLAG_FALSE;
 
         byte[] result = template.execute((RedisCallback<byte[]>) connection ->
-                connection.scriptingCommands().eval(acceptScript, ReturnType.VALUE, 3,
-                        bufferKey, decisionKey, pendingKey,
-                        bufferedSpanBytes, txidBytes, firstSeen, bufferTtlSeconds));
+                connection.scriptingCommands().eval(acceptScript, ReturnType.VALUE, 4,
+                        bufferKey, decisionKey, pendingKey, errorKey,
+                        bufferedSpanBytes, txidBytes, firstSeen, bufferTtlSeconds, errorFlag, decisionTtlSeconds));
         return result == null ? null : new String(result, StandardCharsets.UTF_8);
     }
 
     /**
      * Records the sampling decision for a transaction and returns buffered spans.
+     * The proposed decision may be upgraded to keep inside the script when the trace's
+     * error flag is set, so callers must act on the returned list, not on {@code keep}:
      *
-     * @return null if another node already decided (skip); otherwise the buffered span bytes
-     *         (the kept spans), or an empty list when the decision is drop.
+     * @return null if another node already decided (skip); a non-empty list of buffered span
+     *         bytes when the trace is kept; an empty list when the trace is dropped.
      */
     public List<byte[]> decide(String txid, boolean keep) {
         byte[] bufferKey = key(BUFFER_PREFIX, txid);
         byte[] decisionKey = key(DECISION_PREFIX, txid);
         byte[] pendingKey = PENDING_KEY.getBytes(StandardCharsets.UTF_8);
+        byte[] errorKey = key(ERROR_PREFIX, txid);
         byte[] txidBytes = txid.getBytes(StandardCharsets.UTF_8);
         byte[] decisionValue = (keep ? "keep" : "drop").getBytes(StandardCharsets.UTF_8);
 
         @SuppressWarnings("unchecked")
         List<byte[]> raw = template.execute((RedisCallback<List<byte[]>>) connection ->
-                (List<byte[]>) (List<?>) connection.scriptingCommands().eval(decideScript, ReturnType.MULTI, 3,
-                        bufferKey, decisionKey, pendingKey,
+                (List<byte[]>) (List<?>) connection.scriptingCommands().eval(decideScript, ReturnType.MULTI, 4,
+                        bufferKey, decisionKey, pendingKey, errorKey,
                         decisionValue, txidBytes, decisionTtlSeconds));
 
         // When Lua returns `false` (another node already decided), Lettuce maps it to a
