@@ -6,14 +6,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.util.Properties;
 
 public class PostgreSqlServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private PostgreSQLContainer<?> postgreSql;
+    private PostgreSQLContainer postgreSql;
 
     @Override
     public Properties beforeAll() {

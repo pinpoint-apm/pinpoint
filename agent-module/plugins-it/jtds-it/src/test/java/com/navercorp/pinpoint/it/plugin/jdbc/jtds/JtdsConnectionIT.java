@@ -38,7 +38,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -69,7 +69,7 @@ public class JtdsConnectionIT {
     public static final JdbcDatabaseContainer<?> mssqlserver = newMSSQLServerContainer(logger.getName());
 
     public static JdbcDatabaseContainer<?> newMSSQLServerContainer(String loggerName) {
-        final MSSQLServerContainer<?> mssqlServerContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
+        final MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         mssqlServerContainer.acceptLicense();
         mssqlServerContainer.withInitScript("sql/init_mssql.sql");
         mssqlServerContainer.withPassword(JtdsITConstants.PASSWORD);

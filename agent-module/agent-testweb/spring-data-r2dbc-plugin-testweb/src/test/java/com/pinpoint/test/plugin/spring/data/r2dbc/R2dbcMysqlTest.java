@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.mysql.MySQLContainer;
 
 @Disabled
 public class R2dbcMysqlTest {
@@ -31,13 +31,13 @@ public class R2dbcMysqlTest {
     public static final String USERNAME = "root";
     public static final String PASSWORD = "";
 
-    private static MySQLContainer<?> container;
+    private static MySQLContainer container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new MySQLContainer<>("mysql:8.0.36");
+        container = new MySQLContainer("mysql:8.0.36");
         container.withDatabaseName(DATABASE_NAME);
         container.withUsername(USERNAME);
         container.withPassword(PASSWORD);

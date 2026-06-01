@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.it.plugin.pulsar;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.PulsarContainer;
+import org.testcontainers.pulsar.PulsarContainer;
 import org.testcontainers.utility.DockerImageName;
 import test.pinpoint.plugin.pulsar.TestConsumer;
 

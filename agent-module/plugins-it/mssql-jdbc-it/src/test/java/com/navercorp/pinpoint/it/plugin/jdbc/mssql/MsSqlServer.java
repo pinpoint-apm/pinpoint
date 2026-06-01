@@ -6,14 +6,14 @@ import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 
 import java.util.Properties;
 
 public class MsSqlServer implements SharedTestLifeCycle {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private MSSQLServerContainer<?> mssqlserver;
+    private MSSQLServerContainer mssqlserver;
 
     @Override
     public Properties beforeAll() {

@@ -21,5 +21,5 @@ import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
  * @author intr3p1d
  */
 public class ClickHouseOption {
-    public static final String CLICKHOUSE = "org.testcontainers:clickhouse:" + TestcontainersOption.VERSION;
+    public static final String CLICKHOUSE = "org.testcontainers:testcontainers-clickhouse:" + TestcontainersOption.VERSION;
 }

@@ -20,20 +20,20 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContai
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 
 import java.util.Properties;
 
 public class MssqlServer implements SharedTestLifeCycle {
 
-    private static MSSQLServerContainer<?> container;
+    private static MSSQLServerContainer container;
 
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
+        container = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         container.acceptLicense();
         container.waitingFor(Wait.forListeningPort());
         container.withInitScript("mssql-init.sql");

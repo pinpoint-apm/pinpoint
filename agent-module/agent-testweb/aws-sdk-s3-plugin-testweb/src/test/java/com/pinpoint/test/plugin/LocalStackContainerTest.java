@@ -20,7 +20,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.localstack.LocalStackContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @Disabled
@@ -29,9 +29,9 @@ public class LocalStackContainerTest {
 
     @BeforeAll
     public static void setUp() {
-        DockerImageName localstackImage = DockerImageName.parse("localstack/localstack:3.5.0");
+        DockerImageName localstackImage = DockerImageName.parse("localstack/localstack:3.8.1");
         container = new LocalStackContainer(localstackImage)
-                .withServices(LocalStackContainer.Service.S3);
+                .withServices("s3");
         container.start();
 
         System.out.println("AccessKey=" + container.getAccessKey());

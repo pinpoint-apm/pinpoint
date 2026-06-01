@@ -7,14 +7,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.mariadb.MariaDBContainer;
 
 import java.util.Properties;
 
 public class MariaDBServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
-    private MariaDBContainer<?> mariaDB;
+    private MariaDBContainer mariaDB;
 
     public static final String DATABASE_NAME = "test";
     public static final String USERNAME = "root";
@@ -24,7 +24,7 @@ public class MariaDBServer implements SharedTestLifeCycle {
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        mariaDB = new MariaDBContainer<>("mariadb:10.6.17");
+        mariaDB = new MariaDBContainer("mariadb:10.6.17");
         mariaDB.withLogConsumer(new LogOutputStream(logger::info));
         mariaDB.waitingFor(Wait.forListeningPort());
         mariaDB.withDatabaseName(DATABASE_NAME);

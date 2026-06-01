@@ -22,18 +22,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 
 @Disabled
 public class R2dbcMssqlTest {
-    private static MSSQLServerContainer<?> container;
+    private static MSSQLServerContainer container;
 
     @BeforeAll
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
         Assumptions.assumeFalse(DockerTestUtils.isArmDockerServer(), "ARM not supported");
 
-        container = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
+        container = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04");
         container.acceptLicense();
         container.withInitScript("mssql-init.sql");
         container.start();
