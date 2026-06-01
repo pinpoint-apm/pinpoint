@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.collector.starter.multi.application.type;
 
 import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -64,11 +62,11 @@ public class ShellCollectorTypeParser implements CollectorTypeParser {
         return ctx;
     }
 
-    private static ApplicationArguments wrapArgs(String[] args) {
+    private static String[] wrapArgs(String[] args) {
         if (args == null || args.length == 0) {
-            return new DefaultApplicationArguments("run");
+            return new String[] { "run" };
         }
-        return new DefaultApplicationArguments(args);
+        return args;
     }
 
     @Bean("collectorTypeSink")
