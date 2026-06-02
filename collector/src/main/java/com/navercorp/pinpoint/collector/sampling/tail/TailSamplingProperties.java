@@ -29,7 +29,8 @@ public class TailSamplingProperties {
     private boolean keepOnError = true;
     // Grace window: when a band would drop a trace, hold the decision this long so a late-arriving
     // errored span (e.g. a downstream tier) can flip it to keep before it is finalized.
-    private Duration decisionGrace = Duration.ofSeconds(2);
+    // Must stay below bufferTtl. Longer grace catches later errors but buffers more in Redis.
+    private Duration decisionGrace = Duration.ofSeconds(60);
     private List<Band> bands = new ArrayList<>();
 
     /** Returns the sampling rate (%) of the first band matching elapsedMillis. Returns 100 (keep, fail-safe) when no band matches. */

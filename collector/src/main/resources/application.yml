@@ -84,7 +84,7 @@ collector:
       sweep-interval: 5s
       decision-ttl: 600s
       keep-on-error: true        # if ANY span/chunk in a trace errors (errCode>0 / exception), keep it 100% regardless of band
-      decision-grace: 2s         # hold a band-drop decision this long so a late downstream error span can flip it to keep
+      decision-grace: 60s        # hold a band-drop decision this long so a late downstream error span can flip it to keep (must be < buffer-ttl)
       grace-sweep-interval: 1s   # how often deferred (band-drop) traces past the grace window are finalized
       bands:
         - max-elapsed: 50ms
