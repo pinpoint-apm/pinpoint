@@ -27,6 +27,9 @@ public class TailSamplingProperties {
     private Duration sweepInterval = Duration.ofSeconds(5);
     private Duration decisionTtl = Duration.ofSeconds(600);
     private boolean keepOnError = true;
+    // Grace window: when a band would drop a trace, hold the decision this long so a late-arriving
+    // errored span (e.g. a downstream tier) can flip it to keep before it is finalized.
+    private Duration decisionGrace = Duration.ofSeconds(2);
     private List<Band> bands = new ArrayList<>();
 
     /** Returns the sampling rate (%) of the first band matching elapsedMillis. Returns 100 (keep, fail-safe) when no band matches. */
@@ -52,6 +55,8 @@ public class TailSamplingProperties {
     public void setDecisionTtl(Duration decisionTtl) { this.decisionTtl = decisionTtl; }
     public boolean isKeepOnError() { return keepOnError; }
     public void setKeepOnError(boolean keepOnError) { this.keepOnError = keepOnError; }
+    public Duration getDecisionGrace() { return decisionGrace; }
+    public void setDecisionGrace(Duration decisionGrace) { this.decisionGrace = decisionGrace; }
     public List<Band> getBands() { return bands; }
     public void setBands(List<Band> bands) { this.bands = bands; }
 

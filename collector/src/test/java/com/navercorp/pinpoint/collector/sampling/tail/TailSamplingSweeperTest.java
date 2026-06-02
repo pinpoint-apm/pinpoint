@@ -62,4 +62,19 @@ class TailSamplingSweeperTest {
 
         verify(tailSampler, Mockito.never()).replaySwept(Mockito.any());
     }
+
+    @Test
+    void finalizeDeferred_finalizesDueTraces() {
+        TailSamplingRepository repository = Mockito.mock(TailSamplingRepository.class);
+        TailSampler tailSampler = Mockito.mock(TailSampler.class);
+        TailSamplingProperties props = new TailSamplingProperties();
+        props.setDecisionGrace(Duration.ofSeconds(2));
+
+        when(repository.findDeferredDue(anyLong(), anyInt())).thenReturn(List.of("tx-deferred"));
+
+        TailSamplingSweeper sweeper = new TailSamplingSweeper(repository, tailSampler, props);
+        sweeper.finalizeDeferred();
+
+        verify(tailSampler).finalizeDeferred("tx-deferred");
+    }
 }

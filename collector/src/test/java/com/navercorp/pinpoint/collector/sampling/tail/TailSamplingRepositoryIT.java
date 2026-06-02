@@ -136,4 +136,38 @@ class TailSamplingRepositoryIT {
         assertThat(spans).isEmpty();
         assertThat(repository.accept("tx-nor", new byte[]{9}, 1000L, false)).isEqualTo("drop");
     }
+
+    @Test
+    void isErrorFlagged_reflectsErrorAccept() {
+        repository.accept("tx-flag-no", new byte[]{1}, 1000L, false);
+        assertThat(repository.isErrorFlagged("tx-flag-no")).isFalse();
+
+        repository.accept("tx-flag-yes", new byte[]{1}, 1000L, true);
+        assertThat(repository.isErrorFlagged("tx-flag-yes")).isTrue();
+    }
+
+    @Test
+    void defer_findDue_remove_roundTrip() {
+        repository.defer("tx-def-old", 1000L);
+        repository.defer("tx-def-new", 5000L);
+
+        List<String> due = repository.findDeferredDue(2000L, 100);
+        assertThat(due).contains("tx-def-old").doesNotContain("tx-def-new");
+
+        repository.removeDeferred("tx-def-old");
+        assertThat(repository.findDeferredDue(2000L, 100)).doesNotContain("tx-def-old");
+    }
+
+    @Test
+    void deferredTrace_finalizedAsKeep_whenErrorArrivesDuringGrace() {
+        // root buffered (band would drop) -> deferred
+        repository.accept("tx-grace", new byte[]{1}, 1000L, false);
+        repository.defer("tx-grace", 1000L);
+        // a downstream error span arrives during the grace window
+        repository.accept("tx-grace", new byte[]{2}, 1000L, true);
+
+        // finalize with proposed drop -> error flag upgrades to keep
+        List<byte[]> won = repository.decide("tx-grace", false);
+        assertThat(won).hasSize(2);
+    }
 }

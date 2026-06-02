@@ -231,4 +231,59 @@ class TailSamplerTest {
 
         verify(repository).accept(anyString(), any(), anyLong(), eq(true));
     }
+
+    @Test
+    void bandDrop_noErrorYet_defersInsteadOfDeciding() {
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("buffered");
+        when(repository.isErrorFlagged(anyString())).thenReturn(false);
+
+        TailSampler sampler = dropAllSampler(true);
+        sampler.acceptSpan(rootSpan(10), new byte[]{1}); // band rate 0, not an error
+
+        verify(repository).defer(anyString(), anyLong());
+        verify(repository, never()).decide(anyString(), anyBoolean());
+        verify(sampled, never()).insertSpan(any());
+    }
+
+    @Test
+    void bandDrop_alreadyErrorFlagged_decidesImmediately() {
+        when(repository.accept(anyString(), any(), anyLong(), anyBoolean())).thenReturn("buffered");
+        when(repository.isErrorFlagged(anyString())).thenReturn(true); // a child error already arrived
+        BufferedSpan buffered = new BufferedSpan(BufferedSpan.Type.SPAN, "agent", "agentName", "app", 1L, 2L,
+                com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
+        when(repository.decide(anyString(), eq(false)))
+                .thenReturn(List.of(new BufferedSpanCodec().encode(buffered)));
+        when(factory.buildSpanBo(any(), any(), anyLong())).thenReturn(new SpanBo());
+
+        TailSampler sampler = dropAllSampler(true);
+        sampler.acceptSpan(rootSpan(10), new byte[]{1});
+
+        verify(repository, never()).defer(anyString(), anyLong());
+        verify(repository).decide(anyString(), eq(false));
+        verify(sampled).insertSpan(any());
+    }
+
+    @Test
+    void finalizeDeferred_replaysWhenErrorFlippedToKeep() {
+        BufferedSpan buffered = new BufferedSpan(BufferedSpan.Type.SPAN, "agent", "agentName", "app", 1L, 2L,
+                com.navercorp.pinpoint.grpc.trace.PSpan.newBuilder().build().toByteArray());
+        when(repository.decide(anyString(), eq(false)))
+                .thenReturn(List.of(new BufferedSpanCodec().encode(buffered)));
+        when(factory.buildSpanBo(any(), any(), anyLong())).thenReturn(new SpanBo());
+
+        tailSampler.finalizeDeferred("agent^1^100");
+
+        verify(repository).removeDeferred("agent^1^100");
+        verify(sampled).insertSpan(any());
+    }
+
+    @Test
+    void finalizeDeferred_dropsWhenNoError() {
+        when(repository.decide(anyString(), eq(false))).thenReturn(List.of());
+
+        tailSampler.finalizeDeferred("agent^1^100");
+
+        verify(repository).removeDeferred("agent^1^100");
+        verify(sampled, never()).insertSpan(any());
+    }
 }

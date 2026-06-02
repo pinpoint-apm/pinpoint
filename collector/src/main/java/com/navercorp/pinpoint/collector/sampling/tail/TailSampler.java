@@ -103,7 +103,7 @@ public class TailSampler {
             } else {
                 bufferedCounter.increment();
                 if (spanBo.isRoot()) {
-                    decideAndFlush(txid, spanBo.getElapsed());
+                    decideRoot(txid, spanBo.getElapsed(), error);
                 }
             }
         } catch (Exception e) {
@@ -142,10 +142,28 @@ public class TailSampler {
         }
     }
 
-    private void decideAndFlush(String txid, int elapsedMillis) {
-        // Proposed decision is the response-time band; the script may upgrade it to keep
-        // when the trace's error flag is set, so we act on the returned list, not on `proposed`.
-        final boolean proposed = TailDecisions.keep(txid, properties.rateFor(elapsedMillis));
+    /**
+     * Root span arrived. If the band keeps, or the trace already errored, decide now.
+     * Otherwise (band would drop and no error yet) defer the decision for the grace window so a
+     * late-arriving errored span can still flip it to keep.
+     */
+    private void decideRoot(String txid, int elapsedMillis, boolean selfError) {
+        final boolean bandKeep = TailDecisions.keep(txid, properties.rateFor(elapsedMillis));
+        // defer only when keep-on-error is on and this band-drop trace has no error yet
+        final boolean deferForError = properties.isKeepOnError()
+                && !bandKeep
+                && !selfError
+                && !repository.isErrorFlagged(txid);
+        if (deferForError) {
+            repository.defer(txid, System.currentTimeMillis());
+            return;
+        }
+        decideAndFlush(txid, bandKeep);
+    }
+
+    private void decideAndFlush(String txid, boolean proposed) {
+        // The script may upgrade a proposed drop to keep when the trace's error flag is set,
+        // so we act on the returned list, not on `proposed`.
         List<byte[]> won = repository.decide(txid, proposed);
         if (won == null) {
             return; // another node already decided
@@ -158,6 +176,22 @@ public class TailSampler {
         if (!proposed) {
             errorKeptCounter.increment(); // band would have dropped; kept because the trace errored
         }
+        replay(won);
+    }
+
+    /** Finalizes a deferred trace once its grace window elapsed (band drop, unless an error flipped it). */
+    public void finalizeDeferred(String txid) {
+        List<byte[]> won = repository.decide(txid, false);
+        repository.removeDeferred(txid);
+        if (won == null) {
+            return;
+        }
+        if (won.isEmpty()) {
+            droppedCounter.increment();
+            return;
+        }
+        keptCounter.increment();
+        errorKeptCounter.increment();
         replay(won);
     }
 

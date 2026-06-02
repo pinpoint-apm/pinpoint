@@ -38,6 +38,7 @@ public class TailSamplingRepository {
     static final String DECISION_PREFIX = "decision:";
     static final String PENDING_KEY = "pending";
     static final String ERROR_PREFIX = "error:";
+    static final String DEFERRED_KEY = "deferred";
 
     private final RedisTemplate<String, byte[]> template;
     private final byte[] acceptScript;
@@ -112,6 +113,50 @@ public class TailSamplingRepository {
             spans.add(raw.get(i));
         }
         return spans;
+    }
+
+    /** True if the trace's error flag is set (some span of the trace errored). */
+    public boolean isErrorFlagged(String txid) {
+        byte[] errorKey = key(ERROR_PREFIX, txid);
+        byte[] value = template.execute((RedisCallback<byte[]>) connection ->
+                connection.stringCommands().get(errorKey));
+        return value != null;
+    }
+
+    /** Defers a band-drop decision so a late errored span can still flip it to keep. */
+    public void defer(String txid, long rootSeenMillis) {
+        byte[] deferredKey = DEFERRED_KEY.getBytes(StandardCharsets.UTF_8);
+        byte[] txidBytes = txid.getBytes(StandardCharsets.UTF_8);
+        template.execute((RedisCallback<Object>) connection -> {
+            connection.zSetCommands().zAdd(deferredKey, (double) rootSeenMillis, txidBytes);
+            return null;
+        });
+    }
+
+    /** Returns deferred txids whose root was seen at or before thresholdMillis (grace elapsed). */
+    public List<String> findDeferredDue(long thresholdMillis, int limit) {
+        Set<byte[]> members = template.execute((RedisCallback<Set<byte[]>>) connection ->
+                connection.zSetCommands().zRangeByScore(
+                        DEFERRED_KEY.getBytes(StandardCharsets.UTF_8),
+                        Range.closed(0d, (double) thresholdMillis),
+                        Limit.limit().count(limit)));
+        List<String> result = new ArrayList<>();
+        if (members != null) {
+            for (byte[] m : members) {
+                result.add(new String(m, StandardCharsets.UTF_8));
+            }
+        }
+        return result;
+    }
+
+    /** Removes a txid from the deferred set after it has been finalized. */
+    public void removeDeferred(String txid) {
+        byte[] deferredKey = DEFERRED_KEY.getBytes(StandardCharsets.UTF_8);
+        byte[] txidBytes = txid.getBytes(StandardCharsets.UTF_8);
+        template.execute((RedisCallback<Object>) connection -> {
+            connection.zSetCommands().zRem(deferredKey, txidBytes);
+            return null;
+        });
     }
 
     /**

@@ -64,4 +64,24 @@ public class TailSamplingSweeper {
             logger.warn("tail sampling sweeper error", e);
         }
     }
+
+    /**
+     * Finalizes band-drop traces whose grace window has elapsed. A late-arriving errored span may
+     * have flipped the decision to keep in the meantime; otherwise the trace is dropped.
+     */
+    @Scheduled(fixedDelayString = "${collector.sampling.tail.grace-sweep-interval:1s}")
+    public void finalizeDeferred() {
+        try {
+            long threshold = System.currentTimeMillis() - properties.getDecisionGrace().toMillis();
+            List<String> due = repository.findDeferredDue(threshold, BATCH_LIMIT);
+            for (String txid : due) {
+                tailSampler.finalizeDeferred(txid);
+            }
+            if (!due.isEmpty() && logger.isDebugEnabled()) {
+                logger.debug("tail sampling finalized {} deferred traces", due.size());
+            }
+        } catch (Exception e) {
+            logger.warn("tail sampling deferred finalize error", e);
+        }
+    }
 }
