@@ -53,10 +53,10 @@ import java.util.Properties;
 })
 @PinpointConfig("pinpoint-clickhouse.config")
 @SharedDependency({
-        "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION,
         TestcontainersOption.TEST_CONTAINER,
         ClickHouseOption.CLICKHOUSE,
+        "com.clickhouse:clickhouse-jdbc:[0.3.2-patch11]",
 })
 @SharedTestLifeCycleClass(ClickHouseServer.class)
 public class ClickHouse_0_3_2_IT extends ClickHouseITBase {
