@@ -40,8 +40,11 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_MULTI_RECOR
         "org.apache.kafka:kafka_2.12:[2.8.0]",
         "org.apache.kafka:kafka-clients:[2.8.0,2.max]"
 })
-@SharedDependency({"org.apache.kafka:kafka_2.12:2.8.0",
-        TestcontainersOption.TEST_CONTAINER, TestcontainersOption.KAFKA})
+@SharedDependency({
+        TestcontainersOption.TEST_CONTAINER,
+        TestcontainersOption.KAFKA,
+        "org.apache.kafka:kafka_2.12:2.8.0"
+})
 @SharedTestLifeCycleClass(Kafka3UnitServer.class)
 public class KafkaClient_2_8_x_3_IT extends KafkaClient3ITBase {
     Random random = new Random();
