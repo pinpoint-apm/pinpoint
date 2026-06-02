@@ -36,7 +36,16 @@ export const ServiceSettingTable = () => {
   const [isAddSheetOpen, setAddSheetOpen] = useAtom(isServiceAddSheetOpenAtom);
 
   const { data } = useGetServices();
-  const rows: ServiceRow[] = (data ?? []).map((name) => ({ name }));
+  const rows: ServiceRow[] = [...(data ?? [])]
+    .sort((a, b) => {
+      // Order: selected service first, then DEFAULT, then the rest sorted by name.
+      if (a === selectedService) return -1;
+      if (b === selectedService) return 1;
+      if (a === DEFAULT_SERVICE) return -1;
+      if (b === DEFAULT_SERVICE) return 1;
+      return a.localeCompare(b);
+    })
+    .map((name) => ({ name }));
 
   const { mutate: deleteService } = useDeleteService({
     onSuccess: (_res, params) => {

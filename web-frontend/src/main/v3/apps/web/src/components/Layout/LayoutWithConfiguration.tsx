@@ -6,6 +6,8 @@ import {
   isServiceConfigPath,
 } from '@pinpoint-fe/ui';
 import { useLocation } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 
 export const CONFIG_MENU_MAP = {
   CONFIGURATION: {
@@ -76,9 +78,17 @@ export const CONFIG_MENU_MAP = {
 
 export const LayoutWithConfiguration = ({ ...props }: LayoutWithConfigurationProps) => {
   const { pathname } = useLocation();
+  const selectedService = useAtomValue(selectedServiceAtom);
+
+  const serviceConfigMenu = {
+    ...CONFIG_MENU_MAP.SERVICE,
+    title: `${CONFIG_MENU_MAP.SERVICE.title} (${selectedService})`,
+  };
 
   const configMenu = isServiceConfigPath(pathname)
-    ? CONFIG_MENU_MAP.SERVICE
+    ? pathname === APP_PATH.CONFIG_SERVICE_SETTING
+      ? { ...serviceConfigMenu, menus: [] }
+      : serviceConfigMenu
     : Object.values(CONFIG_MENU_MAP).find(({ menus }) => {
         return menus.some(({ path }) => {
           if (typeof path === 'string') {
