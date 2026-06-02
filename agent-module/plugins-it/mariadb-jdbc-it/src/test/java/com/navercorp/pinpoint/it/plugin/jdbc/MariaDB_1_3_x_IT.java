@@ -46,7 +46,12 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @PinpointAgent(AgentPath.PATH)
 @PinpointLogLocationConfig(".")
 @Dependency({"org.mariadb.jdbc:mariadb-java-client:[1.3.0,1.3.max]", JDBCTestConstants.VERSION})
-@SharedDependency({"org.mariadb.jdbc:mariadb-java-client:1.3.0", JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
+@SharedDependency({
+        JDBCTestConstants.VERSION,
+        TestcontainersOption.TEST_CONTAINER,
+        TestcontainersOption.MARIADB,
+        "org.mariadb.jdbc:mariadb-java-client:1.3.0"
+})
 @SharedTestLifeCycleClass(MariaDBServer.class)
 public class MariaDB_1_3_x_IT extends MariaDB_IT_Base {
 

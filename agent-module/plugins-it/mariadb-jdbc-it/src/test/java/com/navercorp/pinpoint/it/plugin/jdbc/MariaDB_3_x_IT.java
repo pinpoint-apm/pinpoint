@@ -46,7 +46,12 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 // Skip 3.0.10, 3.1.1 - ConcurrentModificationException bug
 @Dependency({"org.mariadb.jdbc:mariadb-java-client:[3.0,3.0.9],[3.1.2,]",
         JDBCTestConstants.VERSION})
-@SharedDependency({"org.mariadb.jdbc:mariadb-java-client:1.3.0", JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MARIADB})
+@SharedDependency({
+        JDBCTestConstants.VERSION,
+        TestcontainersOption.TEST_CONTAINER,
+        TestcontainersOption.MARIADB,
+        "org.mariadb.jdbc:mariadb-java-client:1.3.0"
+})
 @SharedTestLifeCycleClass(MariaDBServer.class)
 public class MariaDB_3_x_IT extends MariaDB_IT_Base {
     // see CallableParameterMetaData#queryMetaInfos

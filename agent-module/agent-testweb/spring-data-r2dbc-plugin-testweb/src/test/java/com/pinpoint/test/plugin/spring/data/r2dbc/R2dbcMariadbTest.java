@@ -36,7 +36,7 @@ public class R2dbcMariadbTest {
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new MariaDBContainer("mariadb:10.6.17");
+        container = new MariaDBContainer("mariadb:10.6.27-ubi9");
         container.withDatabaseName(DATABASE_NAME);
         container.withUsername(USERNAME);
         container.withPassword(PASSWORD);
