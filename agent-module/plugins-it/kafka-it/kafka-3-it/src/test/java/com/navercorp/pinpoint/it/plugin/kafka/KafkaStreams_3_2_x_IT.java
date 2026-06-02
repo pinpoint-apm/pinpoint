@@ -40,8 +40,11 @@ import static test.pinpoint.plugin.kafka.KafkaITConstants.TRACE_TYPE_RECORD;
         "org.apache.kafka:kafka_2.12:[3.2.0]",
         "org.apache.kafka:kafka-clients:[3.2.0]", "org.apache.kafka:kafka-streams:[3.2.0,3.2.max]"
 })
-@SharedDependency({"org.apache.kafka:kafka-streams:2.5.0",
-        TestcontainersOption.TEST_CONTAINER, TestcontainersOption.KAFKA})
+@SharedDependency({
+        TestcontainersOption.TEST_CONTAINER,
+        TestcontainersOption.KAFKA,
+        "org.apache.kafka:kafka-streams:2.5.0"
+})
 @SharedTestLifeCycleClass(KafkaStreamsUnitServer.class)
 public class KafkaStreams_3_2_x_IT extends KafkaStreamsIT {
     Random random = new Random();
