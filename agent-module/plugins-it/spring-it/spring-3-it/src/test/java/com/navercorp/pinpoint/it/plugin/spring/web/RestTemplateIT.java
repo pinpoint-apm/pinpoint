@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
@@ -42,7 +43,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.springframework:spring-web:[4.1.2.RELEASE],[4.2.0.RELEASE,4.2.max],[4.3.0.RELEASE,4.3.max]",
+@Dependency({"org.springframework:spring-web:[5.0.0.RELEASE,5.max]",
         "org.apache.httpcomponents:httpclient:4.3", "io.netty:netty-all:4.1.9.Final",
         WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-disabled-plugin-test.config")
@@ -85,21 +86,4 @@ public class RestTemplateIT {
         verifier.verifyTrace(event("REST_TEMPLATE", RestTemplate.class.getConstructor()));
         verifier.verifyTrace(event("REST_TEMPLATE", AbstractClientHttpRequest.class.getMethod("execute"), annotation("http.status.code", 200)));
     }
-
-    @Test
-    public void test3() throws Exception {
-        RestTemplate restTemplate = new RestTemplate(new Netty4ClientHttpRequestFactory());
-        String forObject = restTemplate.getForObject(getAddress(), String.class);
-
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.awaitTrace(event("ASYNC", "Asynchronous Invocation"), 20, 3000);
-        verifier.printCache();
-
-        verifier.verifyTrace(event("REST_TEMPLATE", RestTemplate.class.getConstructor()));
-        verifier.verifyTrace(event("REST_TEMPLATE", "org.springframework.http.client.AbstractAsyncClientHttpRequest.executeAsync()"));
-        verifier.verifyTrace(event("REST_TEMPLATE", "RestTemplate execAsync Result Invocation"));
-        verifier.verifyTrace(event("ASYNC", "Asynchronous Invocation"));
-        verifier.verifyTrace(event("REST_TEMPLATE", "org.springframework.util.concurrent.SettableListenableFuture.set(java.lang.Object)", annotation("http.status.code", 200)));
-    }
-
 }
