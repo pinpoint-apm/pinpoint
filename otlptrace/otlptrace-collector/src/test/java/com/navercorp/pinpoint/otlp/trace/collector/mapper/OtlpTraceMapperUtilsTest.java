@@ -349,6 +349,141 @@ class OtlpTraceMapperUtilsTest {
     }
 
     @Test
+    void getId_pinpointAgentName_overridesDerivedAgentName() {
+        // pinpoint.agentName takes priority over the agentName derived
+        // alongside the agentId (here container.id full-hex → 64-hex original).
+        String fullId = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+        Map<String, AttributeValue> attrs = Map.of(
+                "container.id", AttributeValue.of(fullId),
+                "pinpoint.agentName", AttributeValue.of("human-readable-name"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentId()).hasSize(22);
+        assertThat(result.agentName()).isEqualTo("human-readable-name");
+    }
+
+    @Test
+    void getId_pinpointAgentName_withPinpointAgentId_keepsBothIndependent() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("short-id"),
+                "pinpoint.agentName", AttributeValue.of("human-readable-name"),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentId()).isEqualTo("short-id");
+        assertThat(result.agentName()).isEqualTo("human-readable-name");
+    }
+
+    @Test
+    void getId_pinpointAgentName_absent_preservesDerivedAgentName() {
+        // Without pinpoint.agentName the original UUID is preserved as agentName
+        // (existing behavior — fallback must not clobber it).
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.instance.id", AttributeValue.of("550e8400-e29b-41d4-a716-446655440000"),
+                "service.name", AttributeValue.of("svc")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentName()).isEqualTo("550e8400-e29b-41d4-a716-446655440000");
+    }
+
+    @Test
+    void getId_pinpointAgentName_short_usedVerbatimAsAgentId() {
+        // agentName ≤ AGENT_ID_MAX_LEN (24) and no other agent identifier → verbatim
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentName", AttributeValue.of("svc-001"),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentId()).isEqualTo("svc-001");
+        assertThat(result.agentName()).isEqualTo("svc-001");
+    }
+
+    @Test
+    void getId_pinpointAgentName_long_hashedToBase64AgentId() {
+        // agentName > AGENT_ID_MAX_LEN (24) → SHA-256 prefix → 22-char URL-safe Base64
+        String longName = "order-api-prod-seoul-pod-7f8d3a";  // 31 chars
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentName", AttributeValue.of(longName),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentId()).hasSize(22);
+        assertThat(result.agentId()).matches("[A-Za-z0-9_\\-]+");
+        assertThat(result.agentName()).isEqualTo(longName);
+    }
+
+    @Test
+    void getId_pinpointAgentName_hash_isDeterministic() {
+        String longName = "order-api-prod-seoul-pod-7f8d3a";
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentName", AttributeValue.of(longName),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        IdAndName first = OtlpTraceMapperUtils.getId(attrs);
+        IdAndName second = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(first.agentId()).isEqualTo(second.agentId());
+    }
+
+    @Test
+    void getId_pinpointAgentName_hash_differentNamesProduceDifferentIds() {
+        Map<String, AttributeValue> attrsA = Map.of(
+                "pinpoint.agentName", AttributeValue.of("order-api-prod-seoul-pod-aaaaaa"),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+        Map<String, AttributeValue> attrsB = Map.of(
+                "pinpoint.agentName", AttributeValue.of("order-api-prod-seoul-pod-bbbbbb"),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        IdAndName a = OtlpTraceMapperUtils.getId(attrsA);
+        IdAndName b = OtlpTraceMapperUtils.getId(attrsB);
+
+        assertThat(a.agentId()).isNotEqualTo(b.agentId());
+    }
+
+    @Test
+    void getId_pinpointAgentName_doesNotOverrideHostNameDerivedAgentId() {
+        // host.name is processed before the agentName-derived fallback,
+        // so agentId comes from host.name even when pinpoint.agentName is present.
+        Map<String, AttributeValue> attrs = Map.of(
+                "host.name", AttributeValue.of("my-host"),
+                "pinpoint.agentName", AttributeValue.of("order-api-prod-seoul-pod-7f8d3a"),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+
+        assertThat(result.agentId()).isEqualTo("my-host");
+        assertThat(result.agentName()).isEqualTo("order-api-prod-seoul-pod-7f8d3a");
+    }
+
+    @Test
+    void getId_invalidPinpointAgentName_throws() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.agentName", AttributeValue.of("name with spaces!!!"),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid pinpoint.agentName");
+    }
+
+    @Test
     void getId_pinpointApplicationName_hasPriority() {
         Map<String, AttributeValue> attrs = Map.of(
                 "pinpoint.agentId", AttributeValue.of("agent1"),
