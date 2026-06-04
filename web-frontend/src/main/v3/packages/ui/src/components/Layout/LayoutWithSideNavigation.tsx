@@ -368,7 +368,9 @@ const SidebarMenuButtonWithDropdownMenu = ({
         {typeof item.headerAction === 'function' ? item.headerAction(close) : item.headerAction}
       </div>
       <Separator className="mb-2 opacity-50" />
-      {renderChildList(item.childItems ?? [])}
+      <div className="overflow-y-auto max-h-[360px]">
+        {renderChildList(item.childItems ?? [])}
+      </div>
     </>
   );
 

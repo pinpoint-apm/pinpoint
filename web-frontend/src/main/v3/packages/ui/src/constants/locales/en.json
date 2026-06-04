@@ -197,6 +197,7 @@
       "ADD_SUCCESS": "Service added.",
       "DUPLICATE_NAME": "Service name \"{{name}}\" already exists.",
       "RESERVED_NAME": "\"{{name}}\" is a reserved name and cannot be used.",
+      "SEARCH_PLACEHOLDER": "Search service",
       "LABEL": {
         "NAME": "Name",
         "DELETE": "Delete"

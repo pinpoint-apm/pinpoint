@@ -197,6 +197,7 @@
       "ADD_SUCCESS": "서비스가 추가되었습니다.",
       "DUPLICATE_NAME": "\"{{name}}\" 서비스 이름이 이미 존재합니다.",
       "RESERVED_NAME": "\"{{name}}\"은(는) 예약어이므로 사용할 수 없습니다.",
+      "SEARCH_PLACEHOLDER": "서비스 검색",
       "LABEL": {
         "NAME": "이름",
         "DELETE": "삭제"
