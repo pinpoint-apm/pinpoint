@@ -33,8 +33,11 @@ import test.pinpoint.plugin.pulsar.TestProducer;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-pulsar-client.config")
 @Dependency({"org.apache.pulsar:pulsar-client:[4.0.0,4.1.0)"})
-@SharedDependency({"org.apache.pulsar:pulsar-client:4.0.0",
-        TestcontainersOption.TEST_CONTAINER, TestcontainersOption.PULSAR})
+@SharedDependency({
+        TestcontainersOption.TEST_CONTAINER,
+        TestcontainersOption.PULSAR,
+        "org.apache.pulsar:pulsar-client:4.0.0"
+})
 @SharedTestLifeCycleClass(TestBrokerServer.class)
 public class PulsarClient_4_x_IT extends PulsarClientITBase {
 
