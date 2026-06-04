@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
         PluginITConstants.VERSION,
         JDBCTestConstants.VERSION,
         OracleITConstants.ORACLE_TESTCONTAINER,
-        "com.oracle.database.jdbc:ojdbc8:19.30.0.0",
+        OracleITConstants.OJDBC_8,
 })
 @SharedTestLifeCycleClass(OracleServer12x.class)
 public class Oracle12_18_Ojdbc8_IT extends Oracle_IT_Base {
