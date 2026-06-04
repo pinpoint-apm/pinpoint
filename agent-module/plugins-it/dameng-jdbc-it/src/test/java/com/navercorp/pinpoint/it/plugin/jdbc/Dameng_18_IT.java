@@ -43,8 +43,15 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({ "com.dameng:DmJdbcDriver18:[8.1.1.193,8.max)", JDBCTestConstants.VERSION})
-@SharedDependency({"com.dameng:DmJdbcDriver18:8.1.1.193", JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER})
+@Dependency({
+        JDBCTestConstants.VERSION,
+        "com.dameng:DmJdbcDriver18:[8.1.1.193,8.max)"
+})
+@SharedDependency({
+        JDBCTestConstants.VERSION,
+        TestcontainersOption.TEST_CONTAINER,
+        "com.dameng:DmJdbcDriver18:8.1.1.193"
+})
 @SharedTestLifeCycleClass(DamengServer.class)
 public class Dameng_18_IT extends Dameng_IT_Base {
 
