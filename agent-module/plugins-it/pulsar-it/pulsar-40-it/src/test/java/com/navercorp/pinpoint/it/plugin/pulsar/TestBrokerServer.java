@@ -36,7 +36,7 @@ public class TestBrokerServer implements SharedTestLifeCycle {
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
-        container = new PulsarContainer(DockerImageName.parse("apachepulsar/pulsar:4.0.2"));
+        container = new PulsarContainer(DockerImageName.parse("apachepulsar/pulsar:4.0.10"));
         container.start();
         String serviceUrl = container.getPulsarBrokerUrl();
         testConsumer = new TestConsumer(serviceUrl);
