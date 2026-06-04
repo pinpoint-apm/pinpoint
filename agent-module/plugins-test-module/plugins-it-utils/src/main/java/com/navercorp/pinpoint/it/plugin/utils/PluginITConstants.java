@@ -23,4 +23,7 @@ import com.navercorp.pinpoint.common.Version;
  */
 public final class PluginITConstants {
     public static final String VERSION = "com.navercorp.pinpoint:pinpoint-plugin-it-utils:" + Version.VERSION;
+
+    // for testcontainers dependency
+    public static final String JACKSON_ANNOTATIONS_VERSION = "com.fasterxml.jackson.core:jackson-annotations:2.21";
 }
