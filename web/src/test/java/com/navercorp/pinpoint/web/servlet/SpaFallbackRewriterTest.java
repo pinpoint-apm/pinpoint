@@ -65,8 +65,9 @@ class SpaFallbackRewriterTest {
 
     @Test
     public void dispatch_resource_jpg() {
+        // unregistered path: fall back to SPA index.html regardless of extension(dot)
         String rewrite = rewriter.rewrite("/test.jpg");
-        Assertions.assertNull(rewrite);
+        Assertions.assertEquals(main, rewrite);
     }
 
     @Test
@@ -81,4 +82,9 @@ class SpaFallbackRewriterTest {
         Assertions.assertEquals(main, rewrite);
     }
 
+    @Test
+    public void version_resource_comma() {
+        String rewrite = rewriter.rewrite("/transactionList/VOD.TEST");
+        Assertions.assertEquals(main, rewrite);
+    }
 }

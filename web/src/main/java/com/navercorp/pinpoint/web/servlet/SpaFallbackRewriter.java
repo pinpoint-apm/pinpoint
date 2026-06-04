@@ -92,7 +92,7 @@ public class SpaFallbackRewriter {
                 return true;
             }
         }
-        return path.indexOf('.') != -1;
+        return false;
     }
 
 }
