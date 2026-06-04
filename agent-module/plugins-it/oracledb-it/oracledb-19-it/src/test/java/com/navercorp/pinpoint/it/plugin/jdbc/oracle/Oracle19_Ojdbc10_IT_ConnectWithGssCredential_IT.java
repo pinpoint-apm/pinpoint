@@ -45,9 +45,9 @@ import org.junit.jupiter.api.Test;
         PluginITConstants.VERSION,
         JDBCTestConstants.VERSION,
         OracleITConstants.ORACLE_TESTCONTAINER,
-        "com.oracle.database.jdbc:ojdbc10:19.30.0.0"
+        OracleITConstants.OJDBC_10
 })
-@SharedTestLifeCycleClass(OracleServer19x.class)
+@SharedTestLifeCycleClass(OracleServer18x.class)
 public class Oracle19_Ojdbc10_IT_ConnectWithGssCredential_IT extends Oracle_IT_Base {
     private final Logger logger = LogManager.getLogger(Oracle19_Ojdbc10_IT_ConnectWithGssCredential_IT.class);
 

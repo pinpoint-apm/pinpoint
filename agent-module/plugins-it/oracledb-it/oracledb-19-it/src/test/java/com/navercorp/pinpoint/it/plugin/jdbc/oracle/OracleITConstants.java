@@ -24,4 +24,6 @@ public final class OracleITConstants {
     public static final String ORACLE_11_X_IMAGE = "oracleinanutshell/oracle-xe-11g";
     public static final String ORACLE_12_X_IMAGE = "galam/oracle-xe-12c";
     public static final String ORACLE_18_X_IMAGE = "gvenzl/oracle-xe:18-slim";
+
+    public static final String OJDBC_10 = "com.oracle.database.jdbc:ojdbc10:19.30.0.0";
 }

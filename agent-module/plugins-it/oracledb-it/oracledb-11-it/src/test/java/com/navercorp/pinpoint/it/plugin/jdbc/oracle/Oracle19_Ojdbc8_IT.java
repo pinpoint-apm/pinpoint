@@ -41,9 +41,9 @@ import org.junit.jupiter.api.Test;
         PluginITConstants.VERSION,
         JDBCTestConstants.VERSION,
         OracleITConstants.ORACLE_TESTCONTAINER,
-        "com.oracle.database.jdbc:ojdbc8:19.30.0.0"
+        OracleITConstants.OJDBC_8,
 })
-@SharedTestLifeCycleClass(OracleServer19x.class)
+@SharedTestLifeCycleClass(OracleServer18x.class)
 public class Oracle19_Ojdbc8_IT extends Oracle_IT_Base {
     private final Logger logger = LogManager.getLogger(Oracle19_Ojdbc8_IT.class);
 
@@ -71,7 +71,7 @@ public class Oracle19_Ojdbc8_IT extends Oracle_IT_Base {
 
         helper.testStoredProcedure_with_IN_OUT_parameters(JDBC_API, param1, param2, storedProcedureQuery);
         helper.verifyTestStoredProcedure_with_IN_OUT_parameters(JDBC_API, param1, param2, storedProcedureQuery);
-    }
+   }
 
     @Test
     public void testStoredProcedure_with_INOUT_parameters() throws Exception {
@@ -84,5 +84,3 @@ public class Oracle19_Ojdbc8_IT extends Oracle_IT_Base {
     }
 
 }
-
-
