@@ -31,8 +31,17 @@ import org.junit.jupiter.api.Test;
 
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.oracle.database.jdbc:ojdbc8:[12,19)", PluginITConstants.VERSION, JDBCTestConstants.VERSION})
-@SharedDependency({"com.oracle.database.jdbc:ojdbc8:12.2.0.1", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER_15_3})
+@Dependency({
+        PluginITConstants.VERSION,
+        JDBCTestConstants.VERSION,
+        "com.oracle.database.jdbc:ojdbc8:[12,19)"
+})
+@SharedDependency({
+        PluginITConstants.VERSION,
+        JDBCTestConstants.VERSION,
+        OracleITConstants.ORACLE_TESTCONTAINER,
+        "com.oracle.database.jdbc:ojdbc8:19.30.0.0",
+})
 @SharedTestLifeCycleClass(OracleServer12x.class)
 public class Oracle12_18_Ojdbc8_IT extends Oracle_IT_Base {
     private final Logger logger = LogManager.getLogger(Oracle12_18_Ojdbc8_IT.class);

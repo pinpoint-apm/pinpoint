@@ -33,10 +33,21 @@ import org.junit.jupiter.api.Test;
 
 @PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.oracle.database.jdbc:ojdbc10:[19.9,)", "com.oracle.database.security:oraclepki:19.9.0.0", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
+@Dependency({
+        PluginITConstants.VERSION,
+        JDBCTestConstants.VERSION,
+        OracleITConstants.ORACLE_TESTCONTAINER,
+        "com.oracle.database.jdbc:ojdbc10:[19.9,)",
+        "com.oracle.database.security:oraclepki:19.9.0.0",
+})
 @JvmVersion(11)
 @ImportPlugin("com.navercorp.pinpoint:pinpoint-oracle-jdbc-driver-plugin")
-@SharedDependency({"com.oracle.database.jdbc:ojdbc8:19.9.0.0", PluginITConstants.VERSION, JDBCTestConstants.VERSION, OracleITConstants.ORACLE_TESTCONTAINER})
+@SharedDependency({
+        PluginITConstants.VERSION,
+        JDBCTestConstants.VERSION,
+        OracleITConstants.ORACLE_TESTCONTAINER,
+        "com.oracle.database.jdbc:ojdbc10:19.30.0.0"
+})
 @SharedTestLifeCycleClass(OracleServer19x.class)
 public class Oracle19_Ojdbc10_IT extends Oracle_IT_Base {
     private final Logger logger = LogManager.getLogger(Oracle19_Ojdbc10_IT.class);
