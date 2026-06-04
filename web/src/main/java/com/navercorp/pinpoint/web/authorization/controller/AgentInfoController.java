@@ -71,7 +71,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
     }
 
-    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #timestamp))")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.common.server.bo.AgentParam(#agentId, #timestamp))")
     @GetMapping(value = "/getAgentInfo")
     public AgentAndStatus getAgentInfo(
             @ServiceParam ServiceName serviceName,
@@ -127,7 +127,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         return result;
     }
 
-    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to))")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.common.server.bo.AgentParam(#agentId, #to))")
     @GetMapping(value = "/getAgentEvents")
     public List<AgentEvent> getAgentEvents(
             @ServiceParam ServiceName serviceName,
@@ -152,7 +152,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         return excludeEventTypes;
     }
 
-    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to))")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.common.server.bo.AgentParam(#agentId, #to))")
     @GetMapping(value = "/getAgentStatusTimeline")
     public InspectorTimeline getAgentStatusTimeline(
             @ServiceParam ServiceName serviceName,
@@ -164,7 +164,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
         return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range);
     }
 
-    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to))")
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.common.server.bo.AgentParam(#agentId, #to))")
     @GetMapping(value = "/getAgentStatusTimeline", params = {"exclude"})
     public InspectorTimeline getAgentStatusTimeline(
             @ServiceParam ServiceName serviceName,
