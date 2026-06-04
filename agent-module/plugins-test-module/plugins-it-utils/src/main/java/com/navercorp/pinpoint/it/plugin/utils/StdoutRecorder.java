@@ -21,10 +21,12 @@ import com.navercorp.pinpoint.common.util.IOUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class StdoutRecorder {
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
 
     public String record(Runnable runnable) {
         try {
@@ -40,25 +42,18 @@ public class StdoutRecorder {
 
         final PrintStream originalOut = System.out;
 
-        final StringOutputStream stream = new StringOutputStream();
-        final PrintStream printStream = new PrintStream(stream, false, StandardCharsets.UTF_8.name());
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final PrintStream printStream = new PrintStream(stream, false, UTF8.name());
 
         System.setOut(printStream);
 
         try {
             runnable.run();
-            return stream.toString();
+            return stream.toString(UTF8.name());
         } finally {
             System.setOut(originalOut);
             IOUtils.closeQuietly(printStream);
             IOUtils.closeQuietly(stream);
-        }
-    }
-
-    private static class StringOutputStream extends ByteArrayOutputStream {
-        @Override
-        public synchronized String toString() {
-            return new String(this.buf, 0, this.count, StandardCharsets.UTF_8);
         }
     }
 
