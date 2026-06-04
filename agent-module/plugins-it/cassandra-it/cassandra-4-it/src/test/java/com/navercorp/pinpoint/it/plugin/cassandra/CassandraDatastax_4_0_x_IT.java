@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.it.plugin.cassandra;
 
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
+import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
@@ -31,7 +32,11 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.datastax.oss:java-driver-core:[4.1.0,4.9.0),[4.11.0,4.max)"})
-@SharedDependency({"com.datastax.oss:java-driver-core:[4.15.0]", CassandraITConstants.CASSANDRA_TESTCONTAINER})
+@SharedDependency({
+        PluginITConstants.JACKSON_ANNOTATIONS_VERSION,
+        CassandraITConstants.CASSANDRA_TESTCONTAINER,
+        "com.datastax.oss:java-driver-core:[4.15.0]"
+})
 @SharedTestLifeCycleClass(CassandraServer3X.class)
 public class CassandraDatastax_4_0_x_IT extends CassandraDatastaxITBase {
 }
