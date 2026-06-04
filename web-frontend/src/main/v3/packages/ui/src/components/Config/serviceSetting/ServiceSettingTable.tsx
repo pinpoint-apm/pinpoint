@@ -1,9 +1,11 @@
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { LuCheck, LuPlus } from 'react-icons/lu';
 import { HiOutlineSwitchHorizontal } from 'react-icons/hi';
 import { FaRegTrashCan } from 'react-icons/fa6';
+import { RxMagnifyingGlass } from 'react-icons/rx';
 import {
   DEFAULT_SERVICE,
   isReservedServiceName,
@@ -19,6 +21,7 @@ import { ServiceAddSheet } from '../../Service/ServiceAddSheet';
 import { useReactToastifyToast } from '../../Toast';
 import {
   Button,
+  Input,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -34,9 +37,12 @@ export const ServiceSettingTable = () => {
   const setSelectedService = useSetAtom(selectedServiceAtom);
   const setServices = useSetAtom(servicesAtom);
   const [isAddSheetOpen, setAddSheetOpen] = useAtom(isServiceAddSheetOpenAtom);
+  const [searchKeyword, setSearchKeyword] = React.useState('');
 
   const { data } = useGetServices();
+  const keyword = searchKeyword.trim().toLowerCase();
   const rows: ServiceRow[] = [...(data ?? [])]
+    .filter((name) => name.toLowerCase().includes(keyword))
     .sort((a, b) => {
       // Order: selected service first, then DEFAULT, then the rest sorted by name.
       if (a === selectedService) return -1;
@@ -169,7 +175,21 @@ export const ServiceSettingTable = () => {
   return (
     <TooltipProvider delayDuration={200}>
       <div className="space-y-2">
-        <div className="flex justify-end">
+        <div className="flex justify-between">
+          <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-sm h-9">
+            <Input
+              value={searchKeyword}
+              className="h-full px-0 py-3 border-none focus-visible:ring-0"
+              placeholder={t('CONFIGURATION.SERVICE_SETTING.SEARCH_PLACEHOLDER')}
+              onChange={({ currentTarget }) => setSearchKeyword(currentTarget.value)}
+              onKeyDown={({ key }) => {
+                if (key === 'Escape') {
+                  setSearchKeyword('');
+                }
+              }}
+            />
+            <RxMagnifyingGlass className="opacity-50 shrink-0" />
+          </div>
           <Button onClick={() => setAddSheetOpen(true)}>
             <LuPlus className="mr-0.5" />
             {t('CONFIGURATION.SERVICE_SETTING.NEW_SERVICE') || 'New Service'}
