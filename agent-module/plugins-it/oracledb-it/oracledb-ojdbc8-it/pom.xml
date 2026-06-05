@@ -24,7 +24,7 @@
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-oracle-jdbc-driver-11-plugin-it</artifactId>
+    <artifactId>pinpoint-oracledb-ojdbc8-plugin-it</artifactId>
 
     <packaging>jar</packaging>
 
