@@ -35,8 +35,8 @@
     </properties>
 
     <modules>
-        <module>oracledb-11-it</module>
-        <module>oracledb-19-it</module>
+        <module>oracledb-ojdbc8-it</module>
+        <module>oracledb-ojdbc10-it</module>
     </modules>
 
 </project>
