@@ -90,6 +90,7 @@
         <module>rabbitmq</module>
         <module>weblogic</module>
         <module>akka-http</module>
+        <module>pekko-http</module>
         <module>undertow</module>
         <module>undertow-servlet</module>
         <module>kafka</module>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.akka.http;
+package com.navercorp.pinpoint.plugin.pekko.http;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -32,18 +32,18 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.akka.http.interceptor.DirectivesInterceptor;
-import com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplCompleteInterceptor;
-import com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplCopyInterceptor;
-import com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplFailInterceptor;
-import com.navercorp.pinpoint.plugin.akka.http.interceptor.RequestContextImplRedirectInterceptor;
+import com.navercorp.pinpoint.plugin.pekko.http.interceptor.DirectivesInterceptor;
+import com.navercorp.pinpoint.plugin.pekko.http.interceptor.RequestContextImplCompleteInterceptor;
+import com.navercorp.pinpoint.plugin.pekko.http.interceptor.RequestContextImplCopyInterceptor;
+import com.navercorp.pinpoint.plugin.pekko.http.interceptor.RequestContextImplFailInterceptor;
+import com.navercorp.pinpoint.plugin.pekko.http.interceptor.RequestContextImplRedirectInterceptor;
 
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
 
-public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class PekkoHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
@@ -51,7 +51,7 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        final AkkaHttpConfig config = new AkkaHttpConfig(context.getConfig());
+        final PekkoHttpConfig config = new PekkoHttpConfig(context.getConfig());
         if (!config.isEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
@@ -62,17 +62,17 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
 
         if (StringUtils.isEmpty(transformTargetName)) {
-            logger.warn("Not found 'profiler.akka.http.transform.targetname' in config");
+            logger.warn("Not found 'profiler.pekko.http.transform.targetname' in config");
         } else {
             try {
                 final String className = toClassName(transformTargetName);
                 final String methodName = DirectivesTransform.toMethodName(transformTargetName);
-                logger.info("Add request handler method for Akka HTTP Server. class={}, method={}", className, methodName);
+                logger.info("Add request handler method for Pekko HTTP Server. class={}, method={}", className, methodName);
                 transformDirectives(className);
                 transformRequestContext();
                 transformHttpRequest();
             } catch (IllegalArgumentException e) {
-                logger.warn("can't find target '{}' value={}", AkkaHttpConfig.KEY_TRANSFORM_TARGET_NAME, transformTargetName);
+                logger.warn("can't find target '{}' value={}", PekkoHttpConfig.KEY_TRANSFORM_TARGET_NAME, transformTargetName);
             }
         }
     }
@@ -97,7 +97,7 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            final AkkaHttpConfig config = new AkkaHttpConfig(instrumentor.getProfilerConfig());
+            final PekkoHttpConfig config = new PekkoHttpConfig(instrumentor.getProfilerConfig());
             final String transformTargetName = config.getTransformTargetName();
             final String methodName = toMethodName(transformTargetName);
             final List<String> methodParameters = config.getTransformTargetParameters();
@@ -147,7 +147,7 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
 
     private void transformRequestContext() {
-        transformTemplate.transform("akka.http.scaladsl.server.RequestContextImpl", RequestContextImplTransform.class);
+        transformTemplate.transform("org.apache.pekko.http.scaladsl.server.RequestContextImpl", RequestContextImplTransform.class);
     }
 
     public static class RequestContextImplTransform implements TransformCallback {
@@ -156,25 +156,25 @@ public class AkkaHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
 
-            final InstrumentMethod completeMethod = target.getDeclaredMethod("complete", "akka.http.scaladsl.marshalling.ToResponseMarshallable");
-            completeMethod.addScopedInterceptor(RequestContextImplCompleteInterceptor.class, AkkaHttpConstants.AKKA_HTTP_SCOPE, ExecutionPolicy.ALWAYS);
+            final InstrumentMethod completeMethod = target.getDeclaredMethod("complete", "org.apache.pekko.http.scaladsl.marshalling.ToResponseMarshallable");
+            completeMethod.addScopedInterceptor(RequestContextImplCompleteInterceptor.class, PekkoHttpConstants.PEKKO_HTTP_SCOPE, ExecutionPolicy.ALWAYS);
 
-            final InstrumentMethod redirectMethod = target.getDeclaredMethod("redirect", "akka.http.scaladsl.model.Uri", "akka.http.scaladsl.model.StatusCodes$Redirection");
+            final InstrumentMethod redirectMethod = target.getDeclaredMethod("redirect", "org.apache.pekko.http.scaladsl.model.Uri", "org.apache.pekko.http.scaladsl.model.StatusCodes$Redirection");
             redirectMethod.addInterceptor(RequestContextImplRedirectInterceptor.class);
 
             final InstrumentMethod failMethod = target.getDeclaredMethod("fail", "java.lang.Throwable");
             failMethod.addInterceptor(RequestContextImplFailInterceptor.class);
 
-            final InstrumentMethod copyMethod = target.getDeclaredMethod("copy", "akka.http.scaladsl.model.HttpRequest",
-                    "akka.http.scaladsl.model.Uri$Path", "scala.concurrent.ExecutionContextExecutor", "akka.stream.Materializer", "akka.event.LoggingAdapter",
-                    "akka.http.scaladsl.settings.RoutingSettings", "akka.http.scaladsl.settings.ParserSettings");
+            final InstrumentMethod copyMethod = target.getDeclaredMethod("copy", "org.apache.pekko.http.scaladsl.model.HttpRequest",
+                    "org.apache.pekko.http.scaladsl.model.Uri$Path", "scala.concurrent.ExecutionContextExecutor", "org.apache.pekko.stream.Materializer", "org.apache.pekko.event.LoggingAdapter",
+                    "org.apache.pekko.http.scaladsl.settings.RoutingSettings", "org.apache.pekko.http.scaladsl.settings.ParserSettings");
             copyMethod.addInterceptor(RequestContextImplCopyInterceptor.class);
             return target.toBytecode();
         }
     }
 
     private void transformHttpRequest() {
-        transformTemplate.transform("akka.http.javadsl.model.HttpRequest", HttpRequestTransform.class);
+        transformTemplate.transform("org.apache.pekko.http.javadsl.model.HttpRequest", HttpRequestTransform.class);
     }
 
     public static class HttpRequestTransform implements TransformCallback {

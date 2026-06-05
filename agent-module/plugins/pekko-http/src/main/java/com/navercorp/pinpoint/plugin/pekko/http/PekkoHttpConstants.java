@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.akka.http;
+package com.navercorp.pinpoint.plugin.pekko.http;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 
-/**
- * @author lopiter
- */
-public class AkkaHttpConstants {
+public class PekkoHttpConstants {
 
-    public static final String AKKA_HTTP_SCOPE = "AKKA_HTTP_SCOPE";
+    public static final String PEKKO_HTTP_SCOPE = "PEKKO_HTTP_SCOPE";
 
-    public static final ServiceType AKKA_HTTP_SERVER = ServiceTypeFactory.of(1310, "AKKA_HTTP_SERVER", ServiceTypeProperty.RECORD_STATISTICS);
-    public static final ServiceType AKKA_HTTP_SERVER_INTERNAL = ServiceTypeFactory.of(1311, "AKKA_HTTP_SERVER_INTERNAL");
-
-    /**
-     * backward compatibility for old agent
-     */
-    public static final ServiceType AKKA_HTTP_SERVER_INTERNAL_LEGACY = ServiceTypeFactory.of(9998, "AKKA_HTTP_SERVER_INTERNAL_LEGACY");
+    public static final ServiceType PEKKO_HTTP_SERVER = ServiceTypeFactory.of(1312, "PEKKO_HTTP_SERVER", ServiceTypeProperty.RECORD_STATISTICS);
+    public static final ServiceType PEKKO_HTTP_SERVER_INTERNAL = ServiceTypeFactory.of(1313, "PEKKO_HTTP_SERVER_INTERNAL");
 
 }
