@@ -318,15 +318,11 @@ const MethodCell = (props: {
     Icon = <FaFire className="fill-status-fail" />;
 
     if (rowData.exceptionChainId) {
-      let parentIndex = Number(rowData.id);
-      while (!metaData.callStack[parentIndex]?.[metaData.callStackIndex.id]) {
-        parentIndex--;
-      }
-
-      const parentData = metaData.callStack[parentIndex];
-      const startTime = parentData[metaData.callStackIndex.begin];
-      const endTime = parentData[metaData.callStackIndex.end];
-      const baseTime = (startTime + endTime) / 2;
+      // The call stack's begin/end can be empty (0) for many nodes, which would
+      // produce a window around epoch 0 and a negative `from` that the backend
+      // (Timestamp) rejects. Center the window on the transaction's focus
+      // timestamp, the same absolute time passed as `timestamp` below.
+      const baseTime = transactionInfo.focusTimestamp;
       const from = formatInTimeZone(baseTime - 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
       const to = formatInTimeZone(baseTime + 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
       const href = `${BASE_PATH}${getErrorAnalysisPath(application)}?${convertParamsToQueryString({
