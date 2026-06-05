@@ -26,8 +26,6 @@ export const TransactionCharts = () => {
   const { transactionInfo } = useTransactionSearchParameters();
   const transactionInfoData = useAtomValue(transactionInfoDatasAtom);
   const focusTimestamp = transactionInfo.focusTimestamp || transactionInfoData?.callStackEnd;
-  const fromDate = subMinutes(focusTimestamp, 10);
-  const toDate = addMinutes(focusTimestamp, 10);
 
   React.useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
@@ -43,9 +41,15 @@ export const TransactionCharts = () => {
     };
   }, []);
 
+  // focusTimestamp can be 0 (epoch) when missing; subtracting an offset from 0
+  // would produce a negative `from` that the backend (Timestamp) rejects.
+  // Bail out before computing the window so a negative timestamp is never sent.
   if (!focusTimestamp) {
     return null;
   }
+
+  const fromDate = subMinutes(focusTimestamp, 10);
+  const toDate = addMinutes(focusTimestamp, 10);
 
   return (
     <div ref={containerRef} className="h-full p-3">
