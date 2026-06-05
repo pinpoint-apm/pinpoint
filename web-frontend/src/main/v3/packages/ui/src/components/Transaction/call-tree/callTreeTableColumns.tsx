@@ -321,8 +321,10 @@ const MethodCell = (props: {
       // The call stack's begin/end can be empty (0) for many nodes, which would
       // produce a window around epoch 0 and a negative `from` that the backend
       // (Timestamp) rejects. Center the window on the transaction's focus
-      // timestamp, the same absolute time passed as `timestamp` below.
-      const baseTime = transactionInfo.focusTimestamp;
+      // timestamp, the same absolute time passed as `timestamp` below. Fall back
+      // to the transaction's start time when focusTimestamp is missing (0), e.g.
+      // when reached via an OTel link that carries no focus timestamp.
+      const baseTime = transactionInfo.focusTimestamp || metaData.callStackStart;
       const from = formatInTimeZone(baseTime - 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
       const to = formatInTimeZone(baseTime + 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
       const href = `${BASE_PATH}${getErrorAnalysisPath(application)}?${convertParamsToQueryString({
