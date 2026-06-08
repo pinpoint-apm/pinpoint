@@ -107,7 +107,7 @@ export const LayoutWithSideNavigation = ({
         {item?.icon && (
           <span
             className={cn(
-              'flex relative justify-center items-center mr-1 text-lg transition-opacity w-[35px] h-[35px]',
+              'flex relative shrink-0 justify-center items-center mr-1 text-lg transition-opacity w-[35px] h-[35px]',
               isActive(item) ? 'opacity-100' : 'opacity-70',
             )}
           >
@@ -121,7 +121,7 @@ export const LayoutWithSideNavigation = ({
           <>
             <span
               className={cn(
-                'transition-opacity truncate',
+                'flex-1 min-w-0 transition-opacity truncate',
                 isActive(item) ? 'opacity-100' : 'opacity-70',
                 {
                   'pl-6 pr-2': !item?.icon,
