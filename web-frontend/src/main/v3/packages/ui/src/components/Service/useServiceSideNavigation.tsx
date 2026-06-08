@@ -38,6 +38,12 @@ export const useServiceSideNavigation = (
           icon: <TbCategory />,
           name: SERVICE_CONFIG_MENU.title,
           path: APP_PATH.CONFIG_SERVICES,
+          children: (
+            <span className="flex flex-col min-w-0 leading-tight overflow-hidden">
+              <span className="truncate">{SERVICE_CONFIG_MENU.title}</span>
+              <span className="text-xs opacity-70 truncate">{selectedService}</span>
+            </span>
+          ),
           childItems: buildServiceSidebarItems(services, selectedService, setSelectedService),
           leftSectionTitle: 'Service Config',
           leftChildItems: serviceGroupItems,
