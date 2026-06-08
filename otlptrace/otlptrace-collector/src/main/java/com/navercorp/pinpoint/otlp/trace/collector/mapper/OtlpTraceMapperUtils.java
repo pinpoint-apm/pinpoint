@@ -31,9 +31,6 @@ import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,9 +55,13 @@ public class OtlpTraceMapperUtils {
     private static final int AGENT_ID_HASH_PREFIX_BYTES = 16;
 
     public static IdAndName getId(Map<String, AttributeValue> attributes) {
+        return getId(attributes, false);
+    }
+
+    public static IdAndName getId(Map<String, AttributeValue> attributes, boolean allowApplicationNameFallback) {
         final String applicationName = getApplicationName(attributes);
         final String agentNameOverride = getAgentNameOverride(attributes);
-        final AgentAuth agentAuth = getAgentAuth(attributes, agentNameOverride, applicationName);
+        final AgentAuth agentAuth = getAgentAuth(attributes, agentNameOverride, applicationName, allowApplicationNameFallback);
         final String serviceName = getServiceName(attributes);
         return new IdAndName(agentAuth.agentId(), agentAuth.agentName(), applicationName, serviceName);
     }
@@ -98,7 +99,7 @@ public class OtlpTraceMapperUtils {
     private record AgentAuth(String agentId, String agentName) {
     }
 
-    private static AgentAuth getAgentAuth(Map<String, AttributeValue> attributes, String agentNameOverride, String applicationName) {
+    private static AgentAuth getAgentAuth(Map<String, AttributeValue> attributes, String agentNameOverride, String applicationName, boolean allowApplicationNameFallback) {
         final String agentId = AttributeUtils.getAttributeStringValue(attributes, KEY_AGENT_ID, null);
         if (agentId != null) {
             if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
@@ -129,31 +130,16 @@ public class OtlpTraceMapperUtils {
             }
             return new AgentAuth(hostName, resolveAgentName(agentNameOverride, hostName));
         }
-        // pinpoint.agentName: short → verbatim; long → SHA-256 truncated to 22-char Base64
-        if (agentNameOverride != null) {
-            return toAgentNameAgentAuth(agentNameOverride);
+
+        // applicationName fallback — test/dev environment only.
+        // Gated by pinpoint.collector.otlptrace.application-name-fallback.enabled (default: false).
+        if (!allowApplicationNameFallback) {
+            throw new IllegalArgumentException("no per-instance identifier — set service.instance.id (e.g. via uuidgen), k8s.pod.uid, container.id, or host.name. applicationName='" + applicationName + "'");
         }
-        // otel demo agentId is derived from applicationName
         if (!IdValidateUtils.validateId(applicationName, PinpointConstants.AGENT_ID_MAX_LEN)) {
             throw new IllegalArgumentException("invalid agentId(derived from applicationName)=" + applicationName);
         }
         return new AgentAuth(applicationName, resolveAgentName(agentNameOverride, applicationName));
-    }
-
-    private static AgentAuth toAgentNameAgentAuth(String agentName) {
-        // agentName already passed AGENT_NAME_MAX_LEN_V4 (pattern + length ≤254) check in getAgentNameOverride.
-        // Verbatim path only needs the length check against AGENT_ID_MAX_LEN.
-        if (agentName.length() <= PinpointConstants.AGENT_ID_MAX_LEN) {
-            return new AgentAuth(agentName, agentName);
-        }
-        try {
-            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-            byte[] hash = sha256.digest(agentName.getBytes(StandardCharsets.UTF_8));
-            byte[] prefix = Arrays.copyOf(hash, AGENT_ID_HASH_PREFIX_BYTES);
-            return new AgentAuth(Base64Utils.encode(prefix), agentName);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available", e);
-        }
     }
 
     private static AgentAuth toAgentAuth(String id, String sourceKey, String agentNameOverride) {

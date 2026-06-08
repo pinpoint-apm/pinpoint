@@ -24,18 +24,20 @@ standard OTel agent environment variables:
 ```sh
 java \
   -javaagent:opentelemetry-javaagent.jar \
-  -Dotel.resource.attributes=pinpoint.applicationName=order-api,pinpoint.serviceName=order-team,pinpoint.agentName=order-api-seoul-001 \
+  -Dotel.resource.attributes=pinpoint.applicationName=order-api,pinpoint.serviceName=order-team,pinpoint.agentName=order-api-seoul-001,service.instance.id=$(uuidgen) \
   -Dotel.exporter.otlp.endpoint=http://pinpoint-otlptrace-collector:9998 \
   -Dotel.exporter.otlp.protocol=grpc \
   -Dotel.traces.exporter=otlp \
   -jar app.jar
 ```
 
-The example above sets the three recommended Pinpoint identifiers explicitly
-via `pinpoint.*` resource attributes — the collector derives `agentId`
-automatically from `pinpoint.agentName`. `otel.service.name` is omitted
-because `pinpoint.applicationName` takes priority and `service.name` is never
-consulted. If you instead want to drive the collector from pure OTel
+The example above sets the three Pinpoint identifiers explicitly via
+`pinpoint.*` resource attributes plus `service.instance.id` for per-instance
+`agentId` derivation. `otel.service.name` is omitted because
+`pinpoint.applicationName` takes priority and `service.name` is never
+consulted. In Kubernetes the OTel SDK auto-populates `k8s.pod.uid` /
+`service.instance.id`, so `service.instance.id` can be dropped from the
+command line. If you instead want to drive the collector from pure OTel
 semantic-convention keys, set `-Dotel.service.name=order-api` (and optionally
 `service.namespace`, `service.instance.id`) and drop the `pinpoint.*` overrides;
 see [Configuring identifiers](#configuring-identifiers) for the full fallback
@@ -55,9 +57,10 @@ The collector resolves each identifier from the incoming OTLP Resource
 attributes by walking a priority list. The first key that resolves wins; later
 keys are only consulted when earlier ones are absent.
 
-For most deployments you only need to set three attributes:
-`pinpoint.applicationName`, `pinpoint.serviceName`, and **`pinpoint.agentName`**
-(recommended). The collector derives `agentId` automatically.
+For most deployments you set three Pinpoint attributes:
+`pinpoint.applicationName`, `pinpoint.serviceName`, `pinpoint.agentName` (display
+name) — plus a per-instance identifier (`service.instance.id` on a VM via
+`uuidgen`; auto-populated by the OTel SDK in K8s).
 
 ### ⚠ Limits and allowed characters
 
@@ -87,13 +90,14 @@ The logical application shown on ApplicationMap (e.g. `order-api`).
 
 If neither resolves, the span is rejected.
 
-### `agentName` (recommended)
+### `agentName` (display name)
 
-The per-instance display name shown alongside `agentId` in the UI. **This is
-the attribute most users should set.** Setting `pinpoint.agentName` also
-makes the collector derive a stable `agentId` for you (see below) — so for a
-fresh deployment, `agentName` is the only agent-identity field you typically
-need to configure.
+The per-instance display name shown alongside `agentId` in the UI. Set this
+to a human-readable label; **`agentName` is not used as a fallback source for
+`agentId`** — provide a dedicated per-instance identifier (see
+[`agentId` — internal derivation](#agentid--internal-derivation)) such as
+`service.instance.id` (uuidgen on a VM, OTel SDK auto-populated in K8s) or
+`k8s.pod.uid` (auto-populated in K8s).
 
 Resolution:
 1. `pinpoint.agentName` — used verbatim when present.
@@ -113,9 +117,9 @@ Pinpoint's multi-tenant service grouping (the level above `applicationName`).
 ### `agentId` — internal derivation
 
 The per-process identifier (≤ 24 chars, part of the HBase row key). **You
-rarely need to set this directly.** Set `pinpoint.agentName` instead and the
-collector computes `agentId` automatically — or rely on standard OTel
-identifiers (`service.instance.id`, `k8s.pod.uid`, etc.) populated by the SDK.
+rarely need to set this directly.** Rely on standard OTel identifiers
+(`service.instance.id`, `k8s.pod.uid`, etc.) populated by the SDK, or set
+`service.instance.id` explicitly (e.g. via `uuidgen` on a VM).
 
 The collector walks this fallback chain (first match wins):
 
@@ -127,17 +131,38 @@ The collector walks this fallback chain (first match wins):
    to the first 16 bytes and Base64-encoded (22 chars). Shorter values are
    used verbatim.
 5. `host.name` — used verbatim.
-6. `pinpoint.agentName` — used verbatim if it fits 24 chars; otherwise
-   SHA-256 hashed, and the first 16 bytes are Base64-encoded (22 chars).
-   All instances sharing the same `agentName` collapse to the same `agentId`
-   — provide a per-instance identifier higher in the chain if you need
-   per-process identity.
-7. `applicationName` — last-resort fallback (used by the OTel demo apps).
+6. `applicationName` — **gated test/dev fallback** (used by the OTel demo apps).
+   Disabled by default in production; enable with the configuration property
+   below. All instances of the same application collapse to the same
+   `agentId`, so it's only suitable for test/dev environments. In production,
+   provide a per-instance identifier higher in the chain.
 
 For Kubernetes workloads the OTel SDK usually populates `k8s.pod.uid` or
 `service.instance.id` automatically — the resulting Base64 form fits the
 24-char budget while remaining stable per pod, so you get a sensible `agentId`
 without any configuration.
+
+#### `applicationName` fallback — configuration
+
+The `applicationName` fallback (step 6) is controlled by:
+
+| Property | Default | Notes |
+|---|---|---|
+| `pinpoint.collector.otlptrace.application-name-fallback.enabled` | `false` | Set `true` on the `dev` Spring profile only. |
+
+When disabled, a request with no per-instance identifier is rejected with:
+
+```
+no per-instance identifier — set service.instance.id (e.g. via uuidgen), k8s.pod.uid, container.id, or host.name. applicationName='<value>'
+```
+
+Recommended per Spring profile (collector profile, set in
+`profiles/<profile>/pinpoint-collector.properties`):
+
+| Profile | Value |
+|---|---|
+| `local` | `true` (OTel demo / sandbox compatibility) |
+| `release` (production) | `false` (default — forces explicit per-instance identifier) |
 
 ### Minimal vs. recommended
 
@@ -145,8 +170,7 @@ without any configuration.
 |---|---|
 | `service.name` only | Works. `applicationName` = `service.name`, `agentId` derived from `host.name` / `service.instance.id` / `applicationName`, `serviceName` defaults. |
 | `service.name` + `service.namespace` + `service.instance.id` | Pure OTel semconv. All identifiers resolve through the fallback chain. Good fit for OTel-native deployments. |
-| `pinpoint.applicationName` + `pinpoint.serviceName` + `pinpoint.agentName` | **Recommended.** Three explicit Pinpoint attributes — the collector derives `agentId` automatically. |
-| `pinpoint.applicationName` + `pinpoint.agentName` only | One-line minimal config. `serviceName` defaults; `agentId` is derived from `agentName`. Useful when there's no stable per-instance identifier. |
+| `pinpoint.applicationName` + `pinpoint.serviceName` + `pinpoint.agentName` + `service.instance.id` | **Recommended.** Three explicit Pinpoint attributes plus a per-instance identifier (`uuidgen` on a VM, auto-populated by OTel SDK in K8s). |
 
 Mixing is fine — set `pinpoint.*` only for the identifiers you want to pin and
 let the rest fall through to the OTel semconv keys.
@@ -169,6 +193,7 @@ of the following — the offending value is appended after `=`:
 | `applicationName` fallback exceeds 24 chars (used as `agentId`) | `invalid agentId(derived from applicationName)=<value>` |
 | `applicationName` length/pattern | `invalid applicationName=<value>` |
 | Neither `pinpoint.applicationName` nor `service.name` present | `not found applicationName` |
+| No per-instance identifier and `applicationName` fallback disabled | `no per-instance identifier — set service.instance.id ...` |
 | `serviceName` length/pattern | `invalid serviceName=<value>` |
 
 All of these share the same root cause: the value exceeds the **length cap**

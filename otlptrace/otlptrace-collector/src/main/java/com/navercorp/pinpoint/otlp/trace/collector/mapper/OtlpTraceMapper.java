@@ -28,6 +28,7 @@ import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -55,13 +56,16 @@ public class OtlpTraceMapper {
     private final OtlpTraceSpanChunkMapper spanChunkMapper;
     private final OtlpAgentInfoMapper agentInfoMapper;
     private final OtlpExceptionMapper exceptionMapper;
+    private final boolean allowApplicationNameFallback;
 
-    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpExceptionMapper exceptionMapper) {
+    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpExceptionMapper exceptionMapper,
+                           @Value("${pinpoint.collector.otlptrace.application-name-fallback.enabled:false}") boolean allowApplicationNameFallback) {
         this.spanMapper = spanMapper;
         this.spanEventMapper = spanEventMapper;
         this.spanChunkMapper = spanChunkMapper;
         this.agentInfoMapper = agentInfoMapper;
         this.exceptionMapper = exceptionMapper;
+        this.allowApplicationNameFallback = allowApplicationNameFallback;
     }
 
     // sort by traceId
@@ -137,7 +141,7 @@ public class OtlpTraceMapper {
 
     IdAndName getId(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, Map<String, AttributeValue> resourceAttributeMap) {
         try {
-            return OtlpTraceMapperUtils.getId(resourceAttributeMap);
+            return OtlpTraceMapperUtils.getId(resourceAttributeMap, allowApplicationNameFallback);
         } catch (Exception e) {
             logger.warn("Failed to auth", e);
             OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();

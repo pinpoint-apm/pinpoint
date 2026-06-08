@@ -319,10 +319,22 @@ class OtlpTraceMapperUtilsTest {
                 "service.name", AttributeValue.of("fallback-app")
         );
 
-        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs, true);
 
         assertThat(result.agentId()).isEqualTo("fallback-app");
         assertThat(result.applicationName()).isEqualTo("fallback-app");
+    }
+
+    @Test
+    void getId_applicationNameFallback_disabledByDefault_throws() {
+        // Default getId(attrs) keeps the fallback disabled — same behavior as production.
+        Map<String, AttributeValue> attrs = Map.of(
+                "service.name", AttributeValue.of("fallback-app")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("no per-instance identifier");
     }
 
     @Test
@@ -394,67 +406,6 @@ class OtlpTraceMapperUtilsTest {
     }
 
     @Test
-    void getId_pinpointAgentName_short_usedVerbatimAsAgentId() {
-        // agentName ≤ AGENT_ID_MAX_LEN (24) and no other agent identifier → verbatim
-        Map<String, AttributeValue> attrs = Map.of(
-                "pinpoint.agentName", AttributeValue.of("svc-001"),
-                "pinpoint.applicationName", AttributeValue.of("app")
-        );
-
-        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
-
-        assertThat(result.agentId()).isEqualTo("svc-001");
-        assertThat(result.agentName()).isEqualTo("svc-001");
-    }
-
-    @Test
-    void getId_pinpointAgentName_long_hashedToBase64AgentId() {
-        // agentName > AGENT_ID_MAX_LEN (24) → SHA-256 prefix → 22-char URL-safe Base64
-        String longName = "order-api-prod-seoul-pod-7f8d3a";  // 31 chars
-        Map<String, AttributeValue> attrs = Map.of(
-                "pinpoint.agentName", AttributeValue.of(longName),
-                "pinpoint.applicationName", AttributeValue.of("app")
-        );
-
-        IdAndName result = OtlpTraceMapperUtils.getId(attrs);
-
-        assertThat(result.agentId()).hasSize(22);
-        assertThat(result.agentId()).matches("[A-Za-z0-9_\\-]+");
-        assertThat(result.agentName()).isEqualTo(longName);
-    }
-
-    @Test
-    void getId_pinpointAgentName_hash_isDeterministic() {
-        String longName = "order-api-prod-seoul-pod-7f8d3a";
-        Map<String, AttributeValue> attrs = Map.of(
-                "pinpoint.agentName", AttributeValue.of(longName),
-                "pinpoint.applicationName", AttributeValue.of("app")
-        );
-
-        IdAndName first = OtlpTraceMapperUtils.getId(attrs);
-        IdAndName second = OtlpTraceMapperUtils.getId(attrs);
-
-        assertThat(first.agentId()).isEqualTo(second.agentId());
-    }
-
-    @Test
-    void getId_pinpointAgentName_hash_differentNamesProduceDifferentIds() {
-        Map<String, AttributeValue> attrsA = Map.of(
-                "pinpoint.agentName", AttributeValue.of("order-api-prod-seoul-pod-aaaaaa"),
-                "pinpoint.applicationName", AttributeValue.of("app")
-        );
-        Map<String, AttributeValue> attrsB = Map.of(
-                "pinpoint.agentName", AttributeValue.of("order-api-prod-seoul-pod-bbbbbb"),
-                "pinpoint.applicationName", AttributeValue.of("app")
-        );
-
-        IdAndName a = OtlpTraceMapperUtils.getId(attrsA);
-        IdAndName b = OtlpTraceMapperUtils.getId(attrsB);
-
-        assertThat(a.agentId()).isNotEqualTo(b.agentId());
-    }
-
-    @Test
     void getId_pinpointAgentName_doesNotOverrideHostNameDerivedAgentId() {
         // host.name is processed before the agentName-derived fallback,
         // so agentId comes from host.name even when pinpoint.agentName is present.
@@ -468,6 +419,21 @@ class OtlpTraceMapperUtilsTest {
 
         assertThat(result.agentId()).isEqualTo("my-host");
         assertThat(result.agentName()).isEqualTo("order-api-prod-seoul-pod-7f8d3a");
+    }
+
+    @Test
+    void getId_pinpointAgentName_only_fallsThroughToApplicationName() {
+        // agentName alone (no per-instance identifier) → agentId derived from applicationName
+        // when fallback is allowed (test/dev). agentName is preserved as the display name.
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentName", AttributeValue.of("human-readable-name"),
+                "pinpoint.applicationName", AttributeValue.of("app")
+        );
+
+        IdAndName result = OtlpTraceMapperUtils.getId(attrs, true);
+
+        assertThat(result.agentId()).isEqualTo("app");
+        assertThat(result.agentName()).isEqualTo("human-readable-name");
     }
 
     @Test
@@ -589,12 +555,12 @@ class OtlpTraceMapperUtilsTest {
     @Test
     void getId_applicationNameFallback_exceedsAgentIdLength_throws() {
         // applicationName is valid for V3 (<=254) but exceeds AGENT_ID_MAX_LEN (24)
-        // — when no agentId/serviceInstanceId/hostName present, fallback rejects it.
+        // — when fallback is allowed and no other identifier is set, validation rejects it.
         Map<String, AttributeValue> attrs = Map.of(
                 "service.name", AttributeValue.of("application-name-that-is-longer-than-24-chars")
         );
 
-        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs, true))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("invalid agentId(derived from applicationName)");
     }

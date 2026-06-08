@@ -93,3 +93,11 @@ pinpoint:
     uid:
       # v2: legacy table, v3: new table, dual : DualWrite for Data Migration
       version: v3
+  collector:
+    otlptrace:
+      # Test/dev only. When true, requests with no per-instance identifier
+      # (service.instance.id / k8s.pod.uid / container.id / host.name) fall back
+      # to using applicationName as agentId — collapsing all instances of the
+      # same application into one agent. Keep false in production.
+      application-name-fallback:
+        enabled: false
