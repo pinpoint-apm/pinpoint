@@ -72,7 +72,7 @@ public class ChannelFactoryTest {
 
     private static final Logger logger = LogManager.getLogger(ChannelFactoryTest.class);
 
-    public static final int PORT = 30211;
+    public static final int PORT = TestSocketUtils.findAvailableTcpPort();
 
     private static ServerFactory serverFactory;
     private static Server server;
