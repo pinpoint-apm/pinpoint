@@ -534,6 +534,29 @@ class OtlpTraceSpanMapperTest {
     }
 
     // =======================================================================
+    // map() — rpc (uriTemplate) extraction precedence
+    // =======================================================================
+
+    @Test
+    void map_server_httpRoute_preferredOverUrlPath() {
+        // http.route is the low-cardinality template; url.path is the raw request path.
+        // The route template must win so the rpc field groups by endpoint pattern.
+        Span span = serverSpan(
+                kv("http.route", strVal("/api/users/{id}")),
+                kv("url.path", strVal("/api/users/123")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getRpc()).isEqualTo("/api/users/{id}");
+    }
+
+    @Test
+    void map_server_urlPath_usedWhenHttpRouteAbsent() {
+        // Unrouted request (no http.route) falls back to url.path.
+        Span span = serverSpan(kv("url.path", strVal("/api/users/123")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getRpc()).isEqualTo("/api/users/123");
+    }
+
+    // =======================================================================
     // map() — SDK-side dropped count annotations
     // =======================================================================
 

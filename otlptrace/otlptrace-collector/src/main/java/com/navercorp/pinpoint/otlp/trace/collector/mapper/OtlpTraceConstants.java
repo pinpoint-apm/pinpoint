@@ -94,6 +94,12 @@ public class OtlpTraceConstants {
     // ACTIVEMQ_BROKER_ADDRESS is plugin-defined; queue name reuses the built-in AnnotationKey.MESSAGE_QUEUE_URI (100).
     public static final int ANNOTATION_KEY_ACTIVEMQ_BROKER_ADDRESS = 101;
     public static final int ANNOTATION_KEY_MESSAGE_QUEUE_URI = 100;
+    // OTel HTTP server semconv: the matched route template (low-cardinality, e.g. "/users/{id}").
+    // Takes precedence over url.path/http.url/http.target so the rpc field groups by endpoint
+    // pattern instead of the raw, high-cardinality request path. This is the OTel equivalent of
+    // the Pinpoint agent's SpanRecorder.recordUriTemplate. Emitted by framework instrumentations
+    // (Spring WebMVC/WebFlux, JAX-RS, etc.); absent for unrouted requests, where url.path is the fallback.
+    public static final String ATTRIBUTE_KEY_HTTP_ROUTE = "http.route";
     public static final String ATTRIBUTE_KEY_URL_PATH = "url.path";
     public static final String ATTRIBUTE_KEY_HTTP_URL = "http.url";
     public static final String ATTRIBUTE_KEY_HTTP_TARGET = "http.target";
@@ -159,6 +165,7 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_MESSAGING_KAFKA_CONSUMER_GROUP,
             ATTRIBUTE_KEY_MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY,
             ATTRIBUTE_KEY_MESSAGING_MESSAGE_ID,
+            ATTRIBUTE_KEY_HTTP_ROUTE,
             ATTRIBUTE_KEY_URL_PATH,
             ATTRIBUTE_KEY_MESSAGING_CLIENT_ID,
             ATTRIBUTE_KEY_SERVER_PORT,
