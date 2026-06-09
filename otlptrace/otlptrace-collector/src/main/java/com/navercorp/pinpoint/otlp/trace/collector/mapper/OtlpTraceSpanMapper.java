@@ -298,6 +298,13 @@ public class OtlpTraceSpanMapper {
 
     String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes) {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
+            // http.route is the matched route template ("/users/{id}") — prefer it over the raw
+            // url.path ("/users/12345") so the rpc field stays low-cardinality, matching the agent's
+            // recordUriTemplate behavior. Falls through to url.path when the request is unrouted.
+            final String httpRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE, null);
+            if (httpRoute != null) {
+                return httpRoute;
+            }
             final String urlPath = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
                 return urlPath;
