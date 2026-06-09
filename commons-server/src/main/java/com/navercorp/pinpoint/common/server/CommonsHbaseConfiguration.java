@@ -36,7 +36,6 @@ import org.springframework.context.annotation.Import;
         SpanSerializeConfiguration.class,
 })
 @ComponentScan(basePackages = {
-        "com.navercorp.pinpoint.common.server.bo.codec",
         "com.navercorp.pinpoint.common.server.dao.hbase.mapper",
 })
 public class CommonsHbaseConfiguration {
