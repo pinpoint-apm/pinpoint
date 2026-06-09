@@ -24,5 +24,9 @@
     "node": ">=22.13.1"
   },
   "packageManager": "yarn@1.22.22",
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "lodash": "^4.18.0",
+    "@microsoft/api-extractor": "^7.58.0"
+  }
 }
