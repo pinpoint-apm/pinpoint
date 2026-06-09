@@ -64,7 +64,7 @@
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.5.3",
     "remove-attr": "^0.0.13",
-    "sass": "^1.64.2",
+    "sass": "^1.98.0",
     "storybook": "^9.1.19",
     "stylelint": "^15.10.2",
     "stylelint-config-prettier": "^9.0.5",
