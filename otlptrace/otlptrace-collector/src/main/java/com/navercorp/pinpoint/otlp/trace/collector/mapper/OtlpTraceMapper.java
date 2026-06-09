@@ -108,7 +108,7 @@ public class OtlpTraceMapper {
                         mapperData.addAgentInfoBo(agentInfoBo);
                     } catch (Exception e) {
                         errorCount++;
-                        logger.warn("Failed to map span", e);
+                        logMappingError("Failed to map span", e);
                     }
                 }
 
@@ -121,12 +121,16 @@ public class OtlpTraceMapper {
                         }
                     } catch (Exception e) {
                         errorCount++;
-                        logger.warn("Failed to map spanChunk", e);
+                        logMappingError("Failed to map spanChunk", e);
                     }
                 }
 
                 if (!childSpanList.isEmpty()) {
-                    logger.warn("Unknown spans={}", childSpanList);
+                    // Orphan/cyclic spans that couldn't be linked into any trace tree are dropped.
+                    // Reflected to the client via the rejected-span count rather than an operator log
+                    // (client-data shape issue, and dumping every span would risk log flooding).
+                    errorCount += childSpanList.size();
+                    logger.debug("Dropped unknown spans count={}", childSpanList.size());
                 }
             }
         }
@@ -142,14 +146,33 @@ public class OtlpTraceMapper {
     IdAndName getId(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, Map<String, AttributeValue> resourceAttributeMap) {
         try {
             return OtlpTraceMapperUtils.getId(resourceAttributeMap, allowApplicationNameFallback);
+        } catch (IllegalArgumentException e) {
+            // Client-side fault (invalid/missing identifier). The reason is reported back to the
+            // client via the INVALID_ARGUMENT response, so an operator-facing log adds only noise.
+            reject(mapperData, resourceSpan, e.getMessage());
+            return null;
         } catch (Exception e) {
-            logger.warn("Failed to auth", e);
-            OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
-            int spansCount = resourceSpan.getScopeSpansCount();
-            rejectedSpan.putMessage(e.getMessage() + " (" + spansCount + ")");
-            rejectedSpan.addCount(spansCount);
+            // Unexpected server-side failure: keep visibility for the operator.
+            logger.warn("Unexpected error resolving agent id", e);
+            reject(mapperData, resourceSpan, e.getMessage());
             return null;
         }
+    }
+
+    private void logMappingError(String message, Exception e) {
+        if (e instanceof IllegalArgumentException) {
+            // Client-side data fault; reflected to the client via the rejected-span count.
+            return;
+        }
+        // Unexpected server-side failure: keep visibility for the operator.
+        logger.warn(message, e);
+    }
+
+    private void reject(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, String message) {
+        OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
+        int spansCount = resourceSpan.getScopeSpansCount();
+        rejectedSpan.putMessage(message + " (" + spansCount + ")");
+        rejectedSpan.addCount(spansCount);
     }
 
     Map<ByteString, List<Span>> getSpanMap(List<ScopeSpans> scopeSpanList) {
