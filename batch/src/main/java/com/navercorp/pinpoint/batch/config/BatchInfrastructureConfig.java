@@ -39,7 +39,7 @@ import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
+import org.springframework.batch.core.configuration.support.JobRegistrySmartInitializingSingleton;
 import org.springframework.batch.core.configuration.support.MapJobRegistry;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
@@ -131,10 +131,10 @@ public class BatchInfrastructureConfig {
     }
 
     @Bean
-    public JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor(JobRegistry jobRegistry) {
-        JobRegistryBeanPostProcessor processor = new JobRegistryBeanPostProcessor();
-        processor.setJobRegistry(jobRegistry);
-        return processor;
+    public JobRegistrySmartInitializingSingleton jobRegistrySmartInitializingSingleton(JobRegistry jobRegistry) {
+        JobRegistrySmartInitializingSingleton jobRegistrySmartInitializingSingleton = new JobRegistrySmartInitializingSingleton();
+        jobRegistrySmartInitializingSingleton.setJobRegistry(jobRegistry);
+        return jobRegistrySmartInitializingSingleton;
     }
 
     @Bean
