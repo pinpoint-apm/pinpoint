@@ -44,6 +44,7 @@ git push -u origin <branch-name>
 빌드나 테스트가 실패하면 커밋하지 마세요. 먼저 문제를 해결하세요.
 
 ## 커밋 메시지
+- **언어: 항상 영어로 작성** — 제목과 본문 모두 예외 없이 영어. (한글 금지)
 - 형식: `[#issue_number] Description` (예: `[#9520] Preserve timestamp during server map loading`)
 - **같은 플랫폼**: 이슈와 저장소가 같은 플랫폼에 있는 경우(예: 둘 다 github.com이거나 둘 다 oss.navercorp.com), 이슈 번호 사용: `[#issue_number]`
 - **다른 플랫폼**: 이슈와 저장소가 다른 플랫폼에 있는 경우(예: 이슈는 oss.navercorp.com에, 저장소는 github.com에 있는 경우), `[#noissue]` 사용
@@ -59,6 +60,7 @@ git push -u origin <branch-name>
 - 리모트 설정: `origin` = 포크 (jihea-park/pinpoint), `upstream` = pinpoint-apm/pinpoint
 
 ## Pull Request 생성
+- **언어: PR 제목과 본문은 항상 영어로 작성** — 예외 없음. (한글 금지)
 - PR은 `upstream` (pinpoint-apm/pinpoint) master 브랜치를 대상으로 합니다.
 - **항상** 사용자(jihea-park)를 PR에 어사인하세요.
 - **GitHub 저장소에서**, REST API로 Copilot 코드 리뷰를 요청하세요:
