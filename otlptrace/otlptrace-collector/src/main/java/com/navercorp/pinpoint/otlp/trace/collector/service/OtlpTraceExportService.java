@@ -74,17 +74,21 @@ public class OtlpTraceExportService {
     // Thread-safe, bounded dedup of already-persisted agentIds. Shared across transports so an
     // agentId first seen on gRPC is not re-inserted when it later arrives over HTTP (and vice versa).
     private final Cache<String, Boolean> agentIdCache;
+    // Null unless both uristat flags are enabled (the bean is conditional).
+    private final OtlpUriStatService uriStatService;
 
     private final Counter spanInsertErrorCounter;
     private final Counter spanChunkInsertErrorCounter;
     private final Counter agentInfoInsertErrorCounter;
     private final Counter exceptionInsertErrorCounter;
+    private final Counter uriStatInsertErrorCounter;
 
     public OtlpTraceExportService(TraceService[] traceServiceList,
                                   @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService,
                                   @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service,
                                   OtlpTraceMapper otlpTraceMapper,
                                   Optional<ExceptionMetaDataService> exceptionMetaDataService,
+                                  Optional<OtlpUriStatService> uriStatService,
                                   @Qualifier("otlpAgentIdCache") Cache<String, Boolean> agentIdCache,
                                   MeterRegistry meterRegistry) {
         this.traceServiceList = Objects.requireNonNull(traceServiceList, "traceServiceList");
@@ -93,11 +97,13 @@ public class OtlpTraceExportService {
         this.otlpTraceMapper = Objects.requireNonNull(otlpTraceMapper, "otlpTraceMapper");
         this.exceptionMetaDataService = exceptionMetaDataService.orElse(null);
         this.agentIdCache = Objects.requireNonNull(agentIdCache, "agentIdCache");
+        this.uriStatService = uriStatService.orElse(null);
         Objects.requireNonNull(meterRegistry, "meterRegistry");
         this.spanInsertErrorCounter = insertErrorCounter(meterRegistry, "span");
         this.spanChunkInsertErrorCounter = insertErrorCounter(meterRegistry, "spanChunk");
         this.agentInfoInsertErrorCounter = insertErrorCounter(meterRegistry, "agentInfo");
         this.exceptionInsertErrorCounter = insertErrorCounter(meterRegistry, "exception");
+        this.uriStatInsertErrorCounter = insertErrorCounter(meterRegistry, "uriStat");
     }
 
     private static Counter insertErrorCounter(MeterRegistry meterRegistry, String op) {
@@ -160,6 +166,17 @@ public class OtlpTraceExportService {
                     exceptionInsertErrorCounter.increment();
                     throttledLogger.warn("Failed to insert exceptionMetaData", e);
                 }
+            }
+        }
+
+        // Optional statistics side channel: a uriStat failure must not fail the trace export, so it
+        // is not counted toward serverErrorCount (spans are already stored at this point).
+        if (uriStatService != null) {
+            try {
+                uriStatService.store(otlpTraceMapperData.getUriStatSpanList());
+            } catch (Exception e) {
+                uriStatInsertErrorCounter.increment();
+                throttledLogger.warn("Failed to insert uriStat", e);
             }
         }
 

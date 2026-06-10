@@ -32,6 +32,10 @@ import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpUriStatService;
+import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
+import com.navercorp.pinpoint.uristat.collector.dao.UriStatDao;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.grpc.BindableService;
@@ -61,6 +65,12 @@ import java.util.concurrent.Executor;
         ServiceLookupConfiguration.class,
         StaticServiceLookupConfiguration.class,
         HeatmapCollectorModule.class,
+
+        // URI stat storage beans (UriStatDao / TenantProvider / kafkaUriStatTemplate) used by
+        // OtlpUriStatService. Self-guarded by @ConditionalOnProperty(uristat.enabled); without this
+        // import the OTLP trace app runs as its own Spring context with no uristat beans, so
+        // OtlpUriStatService cannot be created even when both uristat flags are true.
+        UriStatCollectorConfig.class,
 
         OtlpTraceCollectorPropertySources.class,
         OtlpTraceCollectorHbaseModule.class,
@@ -107,6 +117,17 @@ public class OtlpTraceCollectorModule {
     @Bean
     public ServerServiceDefinitions serviceList(@Qualifier("serverServiceDefinition") ServerServiceDefinition serviceDefinition) {
         return ServerServiceDefinitions.of(serviceDefinition);
+    }
+
+    // A @Bean method, not a component-scanned @Service: bean-method conditions are evaluated after
+    // the whole configuration tree (including the imported @PropertySources) is parsed, so the
+    // profile-file flags are visible here — a scanned class' condition would run before them.
+    @Bean
+    @ConditionalOnProperty(
+            name = {"pinpoint.modules.collector.uristat.enabled", "pinpoint.collector.otlptrace.uristat.enabled"},
+            havingValue = "true")
+    public OtlpUriStatService otlpUriStatService(UriStatDao uriStatDao, TenantProvider tenantProvider) {
+        return new OtlpUriStatService(uriStatDao, tenantProvider);
     }
 
     @Bean
