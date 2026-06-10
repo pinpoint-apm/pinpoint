@@ -31,6 +31,7 @@ public class OtlpTraceMapperData {
     private final List<SpanChunkBo> spanChunkBoList = new ArrayList<>();
     private final List<AgentInfoBo> agentInfoBoList = new ArrayList<>();
     private final List<ExceptionMetaDataBo> exceptionMetaDataBoList = new ArrayList<>();
+    private final List<OtlpUriStatSpan> uriStatSpanList = new ArrayList<>();
     private final OtlpTraceCollectorRejectedSpan rejectedSpan = new OtlpTraceCollectorRejectedSpan();
 
     public List<SpanBo> getSpanBoList() {
@@ -63,6 +64,14 @@ public class OtlpTraceMapperData {
 
     public void addExceptionMetaDataBo(ExceptionMetaDataBo exceptionMetaDataBo) {
         exceptionMetaDataBoList.add(exceptionMetaDataBo);
+    }
+
+    public List<OtlpUriStatSpan> getUriStatSpanList() {
+        return uriStatSpanList;
+    }
+
+    public void addUriStatSpan(OtlpUriStatSpan uriStatSpan) {
+        uriStatSpanList.add(uriStatSpan);
     }
 
     public OtlpTraceCollectorRejectedSpan getRejectedSpan() {

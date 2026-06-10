@@ -134,6 +134,15 @@ public class OtlpTraceMapper {
                         mapperData.addSpanBo(spanBo);
                         final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, resourceAttributeMap);
                         mapperData.addAgentInfoBo(agentInfoBo);
+
+                        // URI stat source: only entry-point spans carrying an http.route template.
+                        // The raw url.path fallback is intentionally excluded to keep uriStat low-cardinality.
+                        final String uriTemplate = spanMapper.getUriTemplate(rootSpan, rootAttributes);
+                        if (uriTemplate != null) {
+                            mapperData.addUriStatSpan(new OtlpUriStatSpan(
+                                    spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(),
+                                    uriTemplate, spanBo.getStartTimeMillis(), spanBo.getElapsed(), spanBo.getErrCode() != 0));
+                        }
                     } catch (Exception e) {
                         errorCount++;
                         logMappingError("Failed to map span", e);

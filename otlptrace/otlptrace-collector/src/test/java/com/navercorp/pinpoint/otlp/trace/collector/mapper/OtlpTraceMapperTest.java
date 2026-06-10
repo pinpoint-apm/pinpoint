@@ -649,4 +649,70 @@ class OtlpTraceMapperTest {
         assertThat(data.getSpanBoList()).hasSize(1);
         assertThat(data.getSpanBoList().get(0).getSpanOwner().getAgentStartTime()).isEqualTo(1000L);
     }
+
+    // =======================================================================
+    // URI stat collection — entry-point spans carrying http.route only
+    // =======================================================================
+
+    private static OtlpUriStatSpan uriStatSpanOf(OtlpTraceMapperData data, String uri) {
+        return data.getUriStatSpanList().stream()
+                .filter(s -> s.getUri().equals(uri))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Test
+    void uriStat_rootWithRoute_collectedWithSpanFields() {
+        Span okRoot = serverRoot(ROOT_A, "/api/orders", false);
+        Span errorRoot = withError(serverRoot(ROOT_B, "/api/items", false));
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(okRoot, errorRoot));
+
+        assertThat(data.getUriStatSpanList()).hasSize(2);
+        OtlpUriStatSpan ok = uriStatSpanOf(data, "/api/orders");
+        assertThat(ok).isNotNull();
+        assertThat(ok.getApplicationName()).isEqualTo("app-1");
+        assertThat(ok.getAgentId()).isEqualTo("agent-1");
+        // serverRoot: start 1_000_000_000ns = 1000ms, end 3_000_000_000ns → elapsed 2000ms
+        assertThat(ok.getStartTime()).isEqualTo(1000L);
+        assertThat(ok.getElapsed()).isEqualTo(2000);
+        assertThat(ok.isError()).isFalse();
+        // status ERROR → SpanBo errCode != 0 → feeds the failure histogram
+        OtlpUriStatSpan error = uriStatSpanOf(data, "/api/items");
+        assertThat(error).isNotNull();
+        assertThat(error.isError()).isTrue();
+    }
+
+    @Test
+    void uriStat_rootWithoutRoute_notCollected() {
+        // Unrouted SERVER root: the trace itself is stored, but no uriStat record is derived —
+        // there is no raw-path fallback (low-cardinality contract).
+        Span bareRoot = serverRoot(ROOT_A, "/api/orders", false).toBuilder()
+                .clearAttributes()
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(bareRoot));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getUriStatSpanList()).isEmpty();
+    }
+
+    @Test
+    void uriStat_childSpanWithRoute_notCollected() {
+        // Only entry-point (root) spans feed URI stat. An INTERNAL child carrying http.route is
+        // kind-eligible for the template, but as a child it lands in the root's span events and
+        // must not add a second uriStat record.
+        Span root = serverRoot(ROOT_A, "/root", false);
+        Span internalChild = clientChild(CHILD, ROOT_A, false).toBuilder()
+                .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
+                .addAttributes(kv("http.route", strVal("/child")))
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root, internalChild));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getUriStatSpanList())
+                .extracting(OtlpUriStatSpan::getUri)
+                .containsExactly("/root");
+    }
 }

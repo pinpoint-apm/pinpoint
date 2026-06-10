@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -507,6 +508,24 @@ public class OtlpTraceSpanMapper {
         // Known messaging consumer rpc is built via OtlpMessagingConsumerResolver#buildConsumerRpc.
         // Consumer for unsupported messaging.system / unknown kind: fall back to the OTel span name.
         return span.getName();
+    }
+
+    /**
+     * Returns the matched route template (http.route, e.g. "/users/{id}") for SERVER/INTERNAL
+     * spans, or null when the request was not routed. URI stat must aggregate by this
+     * low-cardinality template only: unlike {@link #getServerSpanToRpc}, it never falls back to the
+     * raw url.path, since path variables would explode the Pinot uriStat cardinality. This mirrors
+     * the Pinpoint agent feeding URI stat solely from SpanRecorder.recordUriTemplate.
+     */
+    String getUriTemplate(Span span, Map<String, AttributeValue> attributes) {
+        final int kind = span.getKind().getNumber();
+        if (kind == Span.SpanKind.SPAN_KIND_SERVER_VALUE || kind == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
+            final String httpRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE, null);
+            if (StringUtils.hasLength(httpRoute)) {
+                return httpRoute;
+            }
+        }
+        return null;
     }
 
     public static String extractPath(String url) {

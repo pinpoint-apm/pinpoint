@@ -10,6 +10,7 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.ActiveMQMessagingConsumerHandler;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.KafkaMessagingConsumerHandler;
@@ -1194,6 +1195,60 @@ class OtlpTraceSpanMapperTest {
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_METHOD.getCode())).isEqualTo("POST");
         assertThat(attributeKeys(bo)).doesNotContain("http.request.method");
         assertThat(attributeKeys(bo)).contains("http.method");
+    }
+
+    // =======================================================================
+    // getUriTemplate — URI stat template (http.route only, low-cardinality)
+    // =======================================================================
+
+    private static Map<String, AttributeValue> attrs(Span span) {
+        return OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
+    }
+
+    @Test
+    void uriTemplate_httpRouteOnServerSpan() {
+        Span span = serverSpan(
+                kv("http.route", strVal("/api/users/{id}")),
+                kv("url.path", strVal("/api/users/123")));
+        assertThat(newMapper().getUriTemplate(span, attrs(span))).isEqualTo("/api/users/{id}");
+    }
+
+    @Test
+    void uriTemplate_nullForRawPathOnly() {
+        // Unrouted HTTP (only url.path, no http.route) → null, NOT the raw path: path variables
+        // would explode the Pinot uriStat cardinality, mirroring the native agent feeding URI stat
+        // solely from recordUriTemplate.
+        Span span = serverSpan(kv("url.path", strVal("/api/users/123")));
+        assertThat(newMapper().getUriTemplate(span, attrs(span))).isNull();
+    }
+
+    @Test
+    void uriTemplate_nullForClientSpan() {
+        // URI stat is an entry-point (server-side) statistic; client spans never contribute.
+        Span span = serverSpan(kv("http.route", strVal("/api/users/{id}"))).toBuilder()
+                .setKindValue(Span.SpanKind.SPAN_KIND_CLIENT_VALUE)
+                .build();
+        assertThat(newMapper().getUriTemplate(span, attrs(span))).isNull();
+    }
+
+    @Test
+    void uriTemplate_httpRouteOnInternalSpan() {
+        // Some instrumentations expose the routed entry as an INTERNAL span carrying http.route
+        // (e.g. Next.js route resolution) — the kind gate accepts SERVER and INTERNAL alike.
+        Span span = serverSpan(kv("http.route", strVal("/api/users/[id]"))).toBuilder()
+                .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
+                .build();
+        assertThat(newMapper().getUriTemplate(span, attrs(span))).isEqualTo("/api/users/[id]");
+    }
+
+    @Test
+    void uriTemplate_nullForBlankRoute() {
+        // Real-world SDKs emit http.route as an empty string when no route matched — a blank
+        // template must not become a uriStat key.
+        Span span = serverSpan(
+                kv("http.route", strVal("")),
+                kv("url.path", strVal("/api/users/123")));
+        assertThat(newMapper().getUriTemplate(span, attrs(span))).isNull();
     }
 
     // =======================================================================

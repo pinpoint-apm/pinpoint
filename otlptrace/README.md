@@ -213,6 +213,26 @@ or violates the **`[a-zA-Z0-9._-]+` pattern** in the limits table above. Fix
 the offending attribute on the OTel agent side (no spaces, no special
 characters, within the length budget) and the error goes away.
 
+## URI stat
+
+The collector can also derive **URI stat** (per-endpoint response-time histograms, the data behind
+the URI Stat charts) from OTLP traces. It aggregates the entry-point spans of each export request by
+`(serviceName, applicationName, agentId, uri, 30s window)` and writes them to the same Kafka/Pinot
+store the native agent's URI stat uses.
+
+Only spans carrying an OTel `http.route` template (e.g. `/users/{id}`) contribute — the raw
+`url.path` (`/users/12345`) is deliberately excluded so the stat stays low-cardinality, mirroring the
+native agent recording URI stat solely from its resolved URI template.
+
+| Property | Default | Notes |
+|---|---|---|
+| `pinpoint.collector.otlptrace.uristat.enabled` | `false` | Enables OTLP → URI stat feeding. |
+| `pinpoint.modules.collector.uristat.enabled` | — | **Prerequisite.** Provides the shared URI stat storage module (Kafka/Pinot). Both flags must be `true`. |
+
+Off by default for two reasons: it requires the URI stat storage module, and OTLP spans are
+**sampled** — so counts/apdex reflect the sampled population rather than the native agent's
+pre-sampling totals. Keep that distinction in mind when reading charts that mix both sources.
+
 ## otlptrace-otel-extension
 
 A small **sender-side** OTel SDK extension that adds a `pp=...` entry to the
