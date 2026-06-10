@@ -11,7 +11,7 @@ export interface TraceServerMapProps extends TraceServerMapFetcherProps {}
 export const TraceServerMap = (props: TraceServerMapProps) => {
   return (
     <ErrorBoundary>
-      <React.Suspense fallback={<ServerMapSkeleton />}>
+      <React.Suspense fallback={<ServerMapSkeleton className="w-full h-full" />}>
         <TraceServerMapFetcher {...props} />
       </React.Suspense>
     </ErrorBoundary>
