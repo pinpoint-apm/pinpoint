@@ -48,7 +48,26 @@ export const getBaseNodeId = ({
         n.subNodes.some((inner) => inner.key === baseNodeId || inner.nodeKey === baseNodeId),
     );
     if (groupContaining) return groupContaining.key;
-    return baseNodeId.replace(/\^[^^]*$/, '^UNAUTHORIZED');
+    // 권한이 없는 노드는 백엔드가 serviceType을 UNAUTHORIZED로 치환해 내려준다.
+    // serviceMap 응답에서는 key가 3-part(serviceName^app^UNAUTHORIZED)이고 nodeKey가
+    // 2-part(app^UNAUTHORIZED)이므로, 합성한 2-part id 대신 실제 노드의 key를 반환해
+    // cytoscape id(=node.key)와 일치시켜야 센터링/하이라이트가 동작한다.
+    const unauthorizedKey = baseNodeId.replace(/\^[^^]*$/, '^UNAUTHORIZED');
+    const unauthorizedNode = (nodeList as GetServerMap.NodeData[]).find(
+      (n) => n.key === unauthorizedKey || n.nodeKey === unauthorizedKey,
+    );
+    if (unauthorizedNode) return unauthorizedNode.key;
+    // 권한 없는 노드가 service group의 자식인 경우, 그래프에 그려지는 것은 그룹 노드이므로
+    // subNodes까지 탐색해 그룹 노드의 key를 base로 사용한다. (위 groupContaining과 동일한 처리)
+    const groupContainingUnauthorized = (nodeList as GetServerMap.NodeData[]).find(
+      (n) =>
+        Array.isArray(n.subNodes) &&
+        n.subNodes.some(
+          (inner) => inner.key === unauthorizedKey || inner.nodeKey === unauthorizedKey,
+        ),
+    );
+    if (groupContainingUnauthorized) return groupContainingUnauthorized.key;
+    return unauthorizedKey;
   }
   return '';
 };

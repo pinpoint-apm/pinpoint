@@ -270,7 +270,11 @@ export const ServerMap = ({
         const baseNode = cy.getElementById(baseNodeId);
         highlightNode(baseNode);
         cy.resize();
-        cy.center(baseNode);
+        // baseNodeId가 실제 노드 id와 어긋나면 baseNode가 빈 컬렉션이고,
+        // cy.center(empty)는 아무 동작도 하지 않아 노드가 화면 밖/구석에 남는다.
+        // 이 경우 전체 노드 기준으로 센터링해 항상 화면 안에 보이도록 한다.
+        // (엣지를 제외한 cy.nodes()를 사용해 노드 클러스터 중심에 더 가깝게 맞춘다.)
+        cy.center(baseNode.nonempty() ? baseNode : cy.nodes());
       })
         .on('mouseover', ({ target, renderedPosition }) => {
           cy.container()!.style.cursor = target === cy ? 'default' : 'pointer';
