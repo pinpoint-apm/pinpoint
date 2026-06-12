@@ -1,12 +1,11 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.google.protobuf.ByteString;
-
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -780,7 +779,15 @@ class OtlpTraceMapperUtilsTest {
         assertThat(outer.get(0).getType()).isEqualTo(AttributeValueType.ARRAY);
         @SuppressWarnings("unchecked")
         List<AttributeValue> inner = (List<AttributeValue>) outer.get(0).getValue();
-        assertThat(inner).extracting(AttributeValue::getValue).containsExactly("x", "y");
+        assertThat(inner).extracting(this::getStringValue).containsExactly("x", "y");
+    }
+
+    private String getStringValue(AttributeValue s) {
+        return (String) s.getValue();
+    }
+
+    private Object getObjectValue(AttributeValue s) {
+        return s.getValue();
     }
 
     @Test
@@ -811,7 +818,7 @@ class OtlpTraceMapperUtilsTest {
         assertThat(nested.getType()).isEqualTo(AttributeValueType.ARRAY);
         @SuppressWarnings("unchecked")
         List<AttributeValue> innerList = (List<AttributeValue>) nested.getValue();
-        assertThat(innerList).extracting(AttributeValue::getValue).containsExactly("t1", "t2");
+        assertThat(innerList).extracting(this::getObjectValue).containsExactly("t1", "t2");
     }
 
     @Test
@@ -830,7 +837,7 @@ class OtlpTraceMapperUtilsTest {
         @SuppressWarnings("unchecked")
         List<AttributeValue> list = (List<AttributeValue>) result.getValue();
         assertThat(list).hasSize(2);
-        assertThat(list).extracting(AttributeValue::getValue).containsExactly("keep", 1L);
+        assertThat(list).extracting(this::getObjectValue).containsExactly("keep", 1L);
     }
 
     @Test

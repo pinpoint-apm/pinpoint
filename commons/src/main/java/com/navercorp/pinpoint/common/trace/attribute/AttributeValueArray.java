@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-final class AttributeValueArray implements AttributeValue {
+public final class AttributeValueArray implements AttributeValue {
     private final List<AttributeValue> value;
 
     AttributeValueArray(AttributeValue... values) {
@@ -44,7 +44,11 @@ final class AttributeValueArray implements AttributeValue {
     }
 
     @Override
-    public List<AttributeValue> getValue() {
+    public Object getValue() {
+        return value;
+    }
+
+    public List<AttributeValue> getArrayValue() {
         return value;
     }
 

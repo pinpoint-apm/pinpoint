@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.trace.attribute;
 /**
  * @author jaehong.kim
  */
-final class AttributeValueDouble implements AttributeValue {
+public final class AttributeValueDouble implements AttributeValue {
     private final double value;
 
     AttributeValueDouble(double value) {
@@ -32,12 +32,16 @@ final class AttributeValueDouble implements AttributeValue {
     }
 
     @Override
-    public Double getValue() {
+    public Object getValue() {
+        return value;
+    }
+
+    public double getDoubleValue() {
         return value;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return Double.toString(value);
     }
 }
