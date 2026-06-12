@@ -20,10 +20,12 @@ import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.HistogramAggregator;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -66,14 +68,10 @@ public class NodeHistogramSummaryView {
 
     public long getInstanceErrorCount() {
         final Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-        if (agentHistogramMap.isEmpty()) {
+        if (MapUtils.isEmpty(agentHistogramMap)) {
             return 0;
         }
-
-        // do not cache
-        return agentHistogramMap.values().stream()
-                .filter(agentHistogram -> agentHistogram.getTotalErrorCount() > 0)
-                .count();
+        return HistogramAggregator.countErrorInstances(agentHistogramMap.values());
     }
 
     public ResponseTimeStatics getResponseStatistics() {
