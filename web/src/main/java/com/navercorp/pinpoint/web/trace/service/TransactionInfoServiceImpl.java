@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.trace.service;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.ErrorCategoryResolver;
+import com.navercorp.pinpoint.common.trace.ErrorCategorySet;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -324,7 +324,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 if (align.isSpan()) {
                     final SpanBo spanBo = align.getSpanBo();
                     if (spanBo.hasError()) {
-                        Set<ErrorCategory> flagged = errorCategoryResolver.resolve(spanBo.getErrCode());
+                        ErrorCategorySet flagged = errorCategoryResolver.resolve(spanBo.getErrCode());
                         if (!flagged.isEmpty()) {
                             final Record errorCategoryRecord = factory.getErrorCategory(record.getTab() + 1, record.getId(), flagged);
                             recordList.add(errorCategoryRecord);
