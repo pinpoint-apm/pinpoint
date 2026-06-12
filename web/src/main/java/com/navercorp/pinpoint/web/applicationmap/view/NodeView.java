@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.HistogramAggregator;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWriter;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.NodeViewEntry;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
@@ -174,14 +176,12 @@ public class NodeView implements NodeViewEntry {
                 return 0;
             }
 
-            final Map<String, Histogram> agentHistogramMap = node.getNodeHistogram().getAgentHistogramMap();
-            if (agentHistogramMap == null) {
+            final Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
+            if (MapUtils.isEmpty(agentHistogramMap)) {
                 return 0;
             }
 
-            return agentHistogramMap.values().stream()
-                    .filter(agentHistogram -> agentHistogram.getTotalErrorCount() > 0)
-                    .count();
+            return HistogramAggregator.countErrorInstances(agentHistogramMap.values());
         }
 
         private void writeHistogram(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
