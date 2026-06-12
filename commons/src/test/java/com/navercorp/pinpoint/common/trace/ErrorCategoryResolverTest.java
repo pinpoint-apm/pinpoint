@@ -42,5 +42,30 @@ class ErrorCategoryResolverTest {
         Assertions.assertTrue(result.isEmpty());
     }
 
+    @Test
+    public void containsShouldReturnTrueForResolvedCategories() {
+        int errorCode = ErrorCategory.EXCEPTION.getBitMask() | ErrorCategory.SQL.getBitMask();
+        ErrorCategorySet result = new ErrorCategoryResolver().resolve(errorCode);
+        Assertions.assertTrue(result.contains(ErrorCategory.EXCEPTION));
+        Assertions.assertTrue(result.contains(ErrorCategory.SQL));
+        Assertions.assertFalse(result.contains(ErrorCategory.HTTP_STATUS));
+    }
+
+    @Test
+    public void containsShouldReturnFalseForEmptySet() {
+        ErrorCategorySet result = new ErrorCategoryResolver().resolve(0);
+        Assertions.assertFalse(result.contains(ErrorCategory.EXCEPTION));
+        Assertions.assertFalse(result.contains(ErrorCategory.HTTP_STATUS));
+        Assertions.assertFalse(result.contains(ErrorCategory.SQL));
+    }
+
+    @Test
+    public void containsShouldReturnFalseForUnknownCategory() {
+        int errorCode = ErrorCategory.UNKNOWN.getBitMask() | ErrorCategory.EXCEPTION.getBitMask();
+        ErrorCategorySet result = new ErrorCategoryResolver().resolve(errorCode);
+        Assertions.assertFalse(result.contains(ErrorCategory.UNKNOWN));
+        Assertions.assertTrue(result.contains(ErrorCategory.EXCEPTION));
+    }
+
 
 }
