@@ -18,7 +18,14 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValueList;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueArray;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueBoolean;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueBytes;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueDouble;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueLong;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueString;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -46,31 +53,30 @@ public class AttributeTranscoder {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void writeValue(Buffer buffer, AttributeValue attributeValue) {
         switch (attributeValue.getType()) {
             case STRING:
                 buffer.putByte(TYPE_STRING);
-                buffer.putPrefixedBytes(((String) attributeValue.getValue()).getBytes(StandardCharsets.UTF_8));
+                buffer.putPrefixedBytes(((AttributeValueString) attributeValue).getStringValue().getBytes(StandardCharsets.UTF_8));
                 break;
             case BOOLEAN:
-                buffer.putByte((Boolean) attributeValue.getValue() ? TYPE_BOOL_TRUE : TYPE_BOOL_FALSE);
+                buffer.putByte(((AttributeValueBoolean) attributeValue).getBooleanValue() ? TYPE_BOOL_TRUE : TYPE_BOOL_FALSE);
                 break;
             case LONG:
                 buffer.putByte(TYPE_LONG);
-                buffer.putSVLong((Long) attributeValue.getValue());
+                buffer.putSVLong(((AttributeValueLong) attributeValue).getLongValue());
                 break;
             case DOUBLE:
                 buffer.putByte(TYPE_DOUBLE);
-                buffer.putLong(Double.doubleToRawLongBits((Double) attributeValue.getValue()));
+                buffer.putLong(Double.doubleToRawLongBits(((AttributeValueDouble) attributeValue).getDoubleValue()));
                 break;
             case BYTES:
                 buffer.putByte(TYPE_BYTES);
-                buffer.putPrefixedBytes((byte[]) attributeValue.getValue());
+                buffer.putPrefixedBytes(((AttributeValueBytes) attributeValue).getBytesValue());
                 break;
             case ARRAY:
                 buffer.putByte(TYPE_ARRAY);
-                List<AttributeValue> array = (List<AttributeValue>) attributeValue.getValue();
+                List<AttributeValue> array = ((AttributeValueArray) attributeValue).getArrayValue();
                 buffer.putVInt(array.size());
                 for (AttributeValue item : array) {
                     writeValue(buffer, item);
@@ -78,7 +84,7 @@ public class AttributeTranscoder {
                 break;
             case KEY_VALUE_LIST:
                 buffer.putByte(TYPE_KVLIST);
-                List<AttributeKeyValue> kvList = (List<AttributeKeyValue>) attributeValue.getValue();
+                List<AttributeKeyValue> kvList = ((AttributeKeyValueList) attributeValue).getKeyValueListValue();
                 buffer.putVInt(kvList.size());
                 for (AttributeKeyValue kv : kvList) {
                     buffer.putNullTerminatedString(kv.getKey());

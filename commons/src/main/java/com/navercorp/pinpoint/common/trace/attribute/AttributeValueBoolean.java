@@ -19,10 +19,17 @@ package com.navercorp.pinpoint.common.trace.attribute;
 /**
  * @author jaehong.kim
  */
-final class AttributeValueBoolean implements AttributeValue {
+public final class AttributeValueBoolean implements AttributeValue {
+    private static final AttributeValueBoolean TRUE = new AttributeValueBoolean(true);
+    private static final AttributeValueBoolean FALSE = new AttributeValueBoolean(false);
+
     private final boolean value;
 
-    AttributeValueBoolean(boolean value) {
+    static AttributeValueBoolean of(boolean value) {
+        return value ? TRUE : FALSE;
+    }
+
+    private AttributeValueBoolean(boolean value) {
         this.value = value;
     }
 
@@ -32,12 +39,16 @@ final class AttributeValueBoolean implements AttributeValue {
     }
 
     @Override
-    public Boolean getValue() {
+    public Object getValue() {
+        return value;
+    }
+
+    public boolean getBooleanValue() {
         return value;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return Boolean.toString(value);
     }
 }

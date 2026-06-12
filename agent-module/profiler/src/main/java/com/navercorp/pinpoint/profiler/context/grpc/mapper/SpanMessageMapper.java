@@ -16,11 +16,31 @@
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 
-import com.navercorp.pinpoint.grpc.trace.*;
-import com.navercorp.pinpoint.io.SpanVersion;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValueList;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueArray;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueBoolean;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueBytes;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueDouble;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueLong;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueString;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
+import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
+import com.navercorp.pinpoint.grpc.trace.PAnnotation;
+import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PAttribute;
+import com.navercorp.pinpoint.grpc.trace.PAttributeArrayValue;
+import com.navercorp.pinpoint.grpc.trace.PAttributeKeyValueList;
+import com.navercorp.pinpoint.grpc.trace.PAttributeValue;
+import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
+import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
+import com.navercorp.pinpoint.grpc.trace.PNextEvent;
+import com.navercorp.pinpoint.grpc.trace.PParentInfo;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
@@ -150,29 +170,28 @@ public interface SpanMessageMapper {
         return builder.build();
     }
 
-    @SuppressWarnings("unchecked")
     default PAttributeValue mapAttributeValue(AttributeValue attributeValue) {
         PAttributeValue.Builder valueBuilder = PAttributeValue.newBuilder();
         AttributeValueType type = attributeValue.getType();
         switch (type) {
             case STRING:
-                valueBuilder.setStringValue((String) attributeValue.getValue());
+                valueBuilder.setStringValue(((AttributeValueString) attributeValue).getStringValue());
                 break;
             case BOOLEAN:
-                valueBuilder.setBoolValue((Boolean) attributeValue.getValue());
+                valueBuilder.setBoolValue(((AttributeValueBoolean) attributeValue).getBooleanValue());
                 break;
             case LONG:
-                valueBuilder.setLongValue((Long) attributeValue.getValue());
+                valueBuilder.setLongValue(((AttributeValueLong) attributeValue).getLongValue());
                 break;
             case DOUBLE:
-                valueBuilder.setDoubleValue((Double) attributeValue.getValue());
+                valueBuilder.setDoubleValue(((AttributeValueDouble) attributeValue).getDoubleValue());
                 break;
             case BYTES:
-                valueBuilder.setBinaryValue(com.google.protobuf.ByteString.copyFrom((byte[]) attributeValue.getValue()));
+                valueBuilder.setBinaryValue(com.google.protobuf.ByteString.copyFrom(((AttributeValueBytes) attributeValue).getBytesValue()));
                 break;
             case ARRAY:
                 PAttributeArrayValue.Builder arrayBuilder = PAttributeArrayValue.newBuilder();
-                for (AttributeValue item : (java.util.List<AttributeValue>) attributeValue.getValue()) {
+                for (AttributeValue item : ((AttributeValueArray) attributeValue).getArrayValue()) {
                     if (item != null) {
                         arrayBuilder.addValues(mapAttributeValue(item));
                     }
@@ -181,11 +200,12 @@ public interface SpanMessageMapper {
                 break;
             case KEY_VALUE_LIST:
                 PAttributeKeyValueList.Builder kvBuilder = PAttributeKeyValueList.newBuilder();
-                for (AttributeKeyValue kv : (java.util.List<AttributeKeyValue>) attributeValue.getValue()) {
+                for (AttributeKeyValue kv : ((AttributeKeyValueList) attributeValue).getKeyValueListValue()) {
                     PAttribute.Builder attrBuilder = PAttribute.newBuilder();
                     attrBuilder.setKey(kv.getKey());
-                    if (kv.getValue() != null) {
-                        attrBuilder.setValue(mapAttributeValue(kv.getValue()));
+                    final AttributeValue value = kv.getValue();
+                    if (value != null) {
+                        attrBuilder.setValue(mapAttributeValue(value));
                     }
                     kvBuilder.addValues(attrBuilder.build());
                 }

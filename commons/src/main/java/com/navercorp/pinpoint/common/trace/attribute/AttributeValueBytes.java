@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-final class AttributeValueBytes implements AttributeValue {
+public final class AttributeValueBytes implements AttributeValue {
     private final byte[] value;
 
     AttributeValueBytes(byte[] value) {
@@ -36,7 +36,11 @@ final class AttributeValueBytes implements AttributeValue {
     }
 
     @Override
-    public byte[] getValue() {
+    public Object getValue() {
+        return Arrays.copyOf(value, value.length);
+    }
+
+    public byte[] getBytesValue() {
         return Arrays.copyOf(value, value.length);
     }
 

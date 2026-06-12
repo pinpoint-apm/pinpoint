@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-final class AttributeValueString implements AttributeValue {
+public final class AttributeValueString implements AttributeValue {
     private final String value;
 
     AttributeValueString(String value) {
@@ -34,7 +34,11 @@ final class AttributeValueString implements AttributeValue {
     }
 
     @Override
-    public String getValue() {
+    public Object getValue() {
+        return value;
+    }
+
+    public String getStringValue() {
         return value;
     }
 

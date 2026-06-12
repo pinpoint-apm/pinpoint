@@ -22,6 +22,10 @@ import java.util.Map;
 /**
  * Typed attribute value for Span/SpanEvent attributes.
  * Inspired by OpenTelemetry's {@code io.opentelemetry.api.common.Value<T>}.
+ * <p>
+ * {@link #getValue()} returns the wrapped value as {@link Object} (boxing primitives).
+ * On hot paths, prefer the per-type accessors on the concrete classes
+ * (e.g. {@link AttributeValueLong#getLongValue()}) to avoid boxing.
  *
  * @author jaehong.kim
  */
@@ -31,39 +35,39 @@ public interface AttributeValue {
 
     Object getValue();
 
-    static AttributeValue of(String value) {
+    static AttributeValueString of(String value) {
         return new AttributeValueString(value);
     }
 
-    static AttributeValue of(boolean value) {
-        return new AttributeValueBoolean(value);
+    static AttributeValueBoolean of(boolean value) {
+        return AttributeValueBoolean.of(value);
     }
 
-    static AttributeValue of(long value) {
+    static AttributeValueLong of(long value) {
         return new AttributeValueLong(value);
     }
 
-    static AttributeValue of(double value) {
+    static AttributeValueDouble of(double value) {
         return new AttributeValueDouble(value);
     }
 
-    static AttributeValue of(byte[] value) {
+    static AttributeValueBytes of(byte[] value) {
         return new AttributeValueBytes(value);
     }
 
-    static AttributeValue of(AttributeValue... values) {
+    static AttributeValueArray of(AttributeValue... values) {
         return new AttributeValueArray(values);
     }
 
-    static AttributeValue of(List<AttributeValue> values) {
+    static AttributeValueArray of(List<AttributeValue> values) {
         return new AttributeValueArray(values);
     }
 
-    static AttributeValue ofAttributeKeyValueList(AttributeKeyValue... values) {
+    static AttributeKeyValueList ofAttributeKeyValueList(AttributeKeyValue... values) {
         return new AttributeKeyValueList(values);
     }
 
-    static AttributeValue ofAttributeKeyValueList(Map<String, AttributeValue> values) {
+    static AttributeKeyValueList ofAttributeKeyValueList(Map<String, AttributeValue> values) {
         return new AttributeKeyValueList(values);
     }
 }

@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-final class AttributeKeyValueList implements AttributeValue {
+public final class AttributeKeyValueList implements AttributeValue {
     private final List<AttributeKeyValue> value;
 
     AttributeKeyValueList(AttributeKeyValue... values) {
@@ -49,7 +49,11 @@ final class AttributeKeyValueList implements AttributeValue {
     }
 
     @Override
-    public List<AttributeKeyValue> getValue() {
+    public Object getValue() {
+        return value;
+    }
+
+    public List<AttributeKeyValue> getKeyValueListValue() {
         return value;
     }
 

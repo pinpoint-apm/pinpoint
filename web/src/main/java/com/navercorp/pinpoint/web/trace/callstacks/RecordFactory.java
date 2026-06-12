@@ -31,7 +31,10 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValueList;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueArray;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueBytes;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
@@ -253,20 +256,22 @@ public class RecordFactory {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static Object toPlainObject(AttributeValue value) {
         if (value == null) {
             return null;
         }
         return switch (value.getType()) {
             case STRING, BOOLEAN, LONG, DOUBLE -> value.getValue();
-            case BYTES -> Base64.getEncoder().encodeToString((byte[]) value.getValue());
+            case BYTES -> {
+                byte[] bytesValue = ((AttributeValueBytes) value).getBytesValue();
+                yield Base64.getEncoder().encodeToString(bytesValue);
+            }
             case ARRAY -> {
-                List<AttributeValue> list = (List<AttributeValue>) value.getValue();
+                List<AttributeValue> list = ((AttributeValueArray) value).getArrayValue();
                 yield list.stream().map(RecordFactory::toPlainObject).toList();
             }
             case KEY_VALUE_LIST -> {
-                List<AttributeKeyValue> kvList = (List<AttributeKeyValue>) value.getValue();
+                List<AttributeKeyValue> kvList = ((AttributeKeyValueList) value).getKeyValueListValue();
                 LinkedHashMap<String, Object> kvMap = new LinkedHashMap<>();
                 for (AttributeKeyValue kv : kvList) {
                     kvMap.put(kv.getKey(), toPlainObject(kv.getValue()));

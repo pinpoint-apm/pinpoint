@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.trace.attribute;
 /**
  * @author jaehong.kim
  */
-final class AttributeValueLong implements AttributeValue {
+public final class AttributeValueLong implements AttributeValue {
     private final long value;
 
     AttributeValueLong(long value) {
@@ -32,12 +32,16 @@ final class AttributeValueLong implements AttributeValue {
     }
 
     @Override
-    public Long getValue() {
+    public Object getValue() {
+        return value;
+    }
+
+    public long getLongValue() {
         return value;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return Long.toString(value);
     }
 }
