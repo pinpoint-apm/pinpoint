@@ -19,29 +19,26 @@ package com.navercorp.pinpoint.common.trace;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 class ErrorCategoryResolverTest {
 
     @Test
     public void resolveShouldReturnEmptySetForUnknownErrorCode() {
         int unknownErrorCode = ErrorCategory.UNKNOWN.getBitMask();
-        Set<ErrorCategory> result = new ErrorCategoryResolver().resolve(unknownErrorCode);
+        ErrorCategorySet result = new ErrorCategoryResolver().resolve(unknownErrorCode);
         Assertions.assertTrue(result.isEmpty());
     }
 
     @Test
     public void resolveShouldReturnSingleCategoryForMatchingErrorCode() {
         int networkErrorCode = ErrorCategory.EXCEPTION.getBitMask();
-        Set<ErrorCategory> result = new ErrorCategoryResolver().resolve(networkErrorCode);
-        Assertions.assertEquals(EnumSet.of(ErrorCategory.EXCEPTION), result);
+        ErrorCategorySet result = new ErrorCategoryResolver().resolve(networkErrorCode);
+        Assertions.assertEquals(ErrorCategorySet.of(ErrorCategory.EXCEPTION.getBitMask()), result);
     }
 
     @Test
     public void resolveShouldReturnEmptySetForZeroErrorCode() {
         int zeroErrorCode = 0;
-        Set<ErrorCategory> result = new ErrorCategoryResolver().resolve(zeroErrorCode);
+        ErrorCategorySet result = new ErrorCategoryResolver().resolve(zeroErrorCode);
         Assertions.assertTrue(result.isEmpty());
     }
 

@@ -16,30 +16,21 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
 public class ErrorCategoryResolver {
 
-    private static final ErrorCategory[] DISPLAY_CANDIDATE = displayCandidate();
+    private static final int DISPLAY_MASK = displayMask();
 
-    private static ErrorCategory[] displayCandidate() {
-        ErrorCategory[] values = ErrorCategory.values();
-        List<ErrorCategory> list = new ArrayList<>(Arrays.asList(values));
-        list.remove(ErrorCategory.UNKNOWN);
-        return list.toArray(new ErrorCategory[0]);
-    }
-
-    public Set<ErrorCategory> resolve(int errorCode) {
-        Set<ErrorCategory> flagged = EnumSet.noneOf(ErrorCategory.class);
-        for (ErrorCategory category : DISPLAY_CANDIDATE) {
-            if ((errorCode & category.getBitMask()) != 0) {
-                flagged.add(category);
+    private static int displayMask() {
+        int mask = 0;
+        for (ErrorCategory category : ErrorCategory.values()) {
+            if (category != ErrorCategory.UNKNOWN) {
+                mask |= category.getBitMask();
             }
         }
-        return flagged;
+        return mask;
+    }
+
+    public ErrorCategorySet resolve(int errorCode) {
+        return ErrorCategorySet.of(errorCode & DISPLAY_MASK);
     }
 }

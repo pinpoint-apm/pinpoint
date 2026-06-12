@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.trace.ErrorCategory;
+import com.navercorp.pinpoint.common.trace.ErrorCategorySet;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValueList;
@@ -47,8 +47,6 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**
@@ -289,8 +287,8 @@ public class RecordFactory {
         return new ParameterRecord(depth, getNextId(), parentId, method, argument);
     }
 
-    public Record getErrorCategory(final int depth, final int parentId, final Set<ErrorCategory> categories) {
-        String argument = categories.stream().map(Enum::name).collect(Collectors.joining(", "));
+    public Record getErrorCategory(final int depth, final int parentId, final ErrorCategorySet categories) {
+        String argument = categories.format();
         return ParameterRecord.errorRecord(depth, getNextId(), parentId, argument);
     }
 
