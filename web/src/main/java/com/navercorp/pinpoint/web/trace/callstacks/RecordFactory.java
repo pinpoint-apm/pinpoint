@@ -268,7 +268,11 @@ public class RecordFactory {
             }
             case ARRAY -> {
                 List<AttributeValue> list = ((AttributeValueArray) value).getArrayValue();
-                yield list.stream().map(RecordFactory::toPlainObject).toList();
+                List<Object> plainList = new ArrayList<>(list.size());
+                for (AttributeValue item : list) {
+                    plainList.add(toPlainObject(item));
+                }
+                yield plainList;
             }
             case KEY_VALUE_LIST -> {
                 List<AttributeKeyValue> kvList = ((AttributeKeyValueList) value).getKeyValueListValue();
