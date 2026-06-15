@@ -17,7 +17,7 @@ export const InitialFetchOutlet = () => {
   const setSearchParameters = useSetAtom(searchParametersAtom);
 
   useExperimentals(data);
-  useServicesFetch(data);
+  useServicesFetch();
 
   React.useEffect(() => {
     if (application && searchParameters) {
