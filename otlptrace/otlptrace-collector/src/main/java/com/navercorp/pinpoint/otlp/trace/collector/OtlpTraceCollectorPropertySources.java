@@ -25,8 +25,10 @@ import org.springframework.context.annotation.PropertySources;
         @PropertySource(name = "CollectorAppPropertySources-GRPC", value = { OtlpTraceCollectorPropertySources.GRPC_ROOT, OtlpTraceCollectorPropertySources.GRPC_PROFILE}),
 })
 public final class OtlpTraceCollectorPropertySources {
-    public static final String GRPC_ROOT = "classpath:pinpoint-collector-grpc-root.properties";
-    public static final String GRPC_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-collector-grpc.properties";
+    // OTLP trace owns its gRPC config so it can be tuned independently of the collector's
+    // agent/stat/span receivers (see otlptrace/collector/*-grpc*.properties).
+    public static final String GRPC_ROOT = "classpath:otlptrace/collector/pinpoint-otlptrace-grpc-root.properties";
+    public static final String GRPC_PROFILE = "classpath:otlptrace/collector/profiles/${pinpoint.profiles.active:local}/pinpoint-otlptrace-grpc.properties";
 
     public static final String COLLECTOR_ROOT = "classpath:pinpoint-collector-root.properties";
     public static final String COLLECTOR_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-collector.properties";

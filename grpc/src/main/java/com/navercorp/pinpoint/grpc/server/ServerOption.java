@@ -56,7 +56,7 @@ public class ServerOption {
     // Specify the most aggressive keep-alive time clients are permitted to configure.
     private final long permitKeepAliveTime;
     // Sets whether to allow clients to send keep-alive HTTP/2 PINGs even if there are no outstanding RPCs on the connection. Defaults to {@code false}.
-    private final boolean permitKeepAliveWithoutCalls = PERMIT_KEEPALIVE_WITHOUT_CALLS_DISABLE;
+    private final boolean permitKeepAliveWithoutCalls;
 
     // Sets a custom max connection idle time, connection being idle for longer than which will be gracefully terminated.
     private final long maxConnectionIdle;
@@ -85,7 +85,7 @@ public class ServerOption {
 
     public final ChannelTypeEnum channelTypeEnum;
 
-    ServerOption(long keepAliveTime, long keepAliveTimeout, long permitKeepAliveTime,
+    ServerOption(long keepAliveTime, long keepAliveTimeout, long permitKeepAliveTime, boolean permitKeepAliveWithoutCalls,
                  long maxConnectionIdle, long maxConnectionAge, long maxConnectionAgeGrace,
                  int maxConcurrentCallsPerConnection, int maxInboundMessageSize, int maxHeaderListSize,
                  long handshakeTimeout, int flowControlWindow, int receiveBufferSize,
@@ -94,6 +94,7 @@ public class ServerOption {
         this.keepAliveTime = keepAliveTime;
         this.keepAliveTimeout = keepAliveTimeout;
         this.permitKeepAliveTime = permitKeepAliveTime;
+        this.permitKeepAliveWithoutCalls = permitKeepAliveWithoutCalls;
 
         this.maxConnectionIdle = maxConnectionIdle;
         this.maxConnectionAge = maxConnectionAge;
@@ -206,6 +207,8 @@ public class ServerOption {
         private long keepAliveTimeout = DEFAULT_KEEPALIVE_TIMEOUT;
         // Specify the most aggressive keep-alive time clients are permitted to configure.
         private long permitKeepAliveTime = DEFAULT_PERMIT_KEEPALIVE_TIME;
+        // Allow clients to send keep-alive PINGs even with no outstanding RPCs. Defaults to false.
+        private boolean permitKeepAliveWithoutCalls = PERMIT_KEEPALIVE_WITHOUT_CALLS_DISABLE;
 
         // Sets a custom max connection idle time, connection being idle for longer than which will be gracefully terminated.
         private long maxConnectionIdle = DEFAULT_MAX_CONNECTION_IDLE;
@@ -236,7 +239,7 @@ public class ServerOption {
         }
 
         public ServerOption build() {
-            return new ServerOption(keepAliveTime, keepAliveTimeout, permitKeepAliveTime,
+            return new ServerOption(keepAliveTime, keepAliveTimeout, permitKeepAliveTime, permitKeepAliveWithoutCalls,
                     maxConnectionIdle, maxConnectionAge, maxConnectionAgeGrace,
                     maxConcurrentCallsPerConnection, maxInboundMessageSize,
                     maxHeaderListSize, handshakeTimeout, flowControlWindow, receiveBufferSize, allocator,
@@ -256,6 +259,10 @@ public class ServerOption {
         public void setPermitKeepAliveTime(long permitKeepAliveTime) {
             Assert.isTrue(permitKeepAliveTime >= 0, "permitKeepAliveTime " + permitKeepAliveTime + " must be non-negative");
             this.permitKeepAliveTime = permitKeepAliveTime;
+        }
+
+        public void setPermitKeepAliveWithoutCalls(boolean permitKeepAliveWithoutCalls) {
+            this.permitKeepAliveWithoutCalls = permitKeepAliveWithoutCalls;
         }
 
         public void setMaxConnectionIdle(long maxConnectionIdle) {

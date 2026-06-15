@@ -265,4 +265,8 @@ public interface AnnotationKey {
     // missing on this span" see a direct hint that the SDK hit its limits. Zero-valued
     // components are omitted, and the annotation itself is suppressed when all counts are 0.
     AnnotationKey OPENTELEMETRY_DROPPED = AnnotationKeyFactory.of(406, "Dropped", VIEW_IN_RECORD_SET);
+    // Collector-side truncation summary: number of attribute values / SQL statements that were
+    // truncated to the configured byte limits. Composite value e.g. "attributes=3 sql=1";
+    // suppressed when nothing was truncated.
+    AnnotationKey OPENTELEMETRY_TRUNCATED = AnnotationKeyFactory.of(407, "Truncated", VIEW_IN_RECORD_SET);
 }

@@ -60,6 +60,10 @@ public class GrpcPropertiesServerOptionBuilder {
         builder.setPermitKeepAliveTime(permitKeepAliveTime);
     }
 
+    public void setPermitKeepAliveWithoutCalls(boolean permitKeepAliveWithoutCalls) {
+        builder.setPermitKeepAliveWithoutCalls(permitKeepAliveWithoutCalls);
+    }
+
     public void setConnectionIdleTimeoutMillis(long maxConnectionIdle) {
         builder.setMaxConnectionIdle(maxConnectionIdle);
     }

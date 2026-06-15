@@ -58,10 +58,12 @@ class OtlpTraceSpanEventMapperTest {
     @BeforeEach
     void setUp() {
         mapper = new OtlpTraceSpanEventMapper(
-                new OtlpTraceEventMapper(new ObjectMapper()),
+                new OtlpTraceEventMapper(new ObjectMapper(), 8192),
                 TEST_REGISTRY,
                 new OtlpMessagingTypeResolver(TEST_REGISTRY),
-                new OtlpClientTypeResolver(TEST_REGISTRY));
+                new OtlpClientTypeResolver(TEST_REGISTRY),
+                8192,
+                8192);
     }
 
     // =======================================================================

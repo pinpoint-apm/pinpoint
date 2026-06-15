@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -24,10 +25,13 @@ public class OtlpTraceEventMapper {
     private static final String FIELD_ATTRIBUTES = "attributes";
 
     private final ObjectWriter mapWriter;
+    private final int valueMaxBytes;
 
-    public OtlpTraceEventMapper(ObjectMapper objectMapper) {
+    public OtlpTraceEventMapper(ObjectMapper objectMapper,
+                                @Value("${pinpoint.collector.otlptrace.event.value-max-bytes:8192}") int valueMaxBytes) {
         Objects.requireNonNull(objectMapper, "objectMapper");
         this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
+        this.valueMaxBytes = valueMaxBytes;
     }
 
     /**
@@ -37,16 +41,21 @@ public class OtlpTraceEventMapper {
      * produce {@code {"<event.name>": {"time": N}}} (no longer a heterogeneous string/object
      * value). Emitted under {@link AnnotationKey#OPENTELEMETRY_EVENT}.
      */
-    public void addEventToAnnotation(Span.Event event, AnnotationWriter annotationWriter) {
+    public int addEventToAnnotation(Span.Event event, AnnotationWriter annotationWriter) {
         if (StringUtils.isEmpty(event.getName())) {
-            return;
+            return 0;
         }
 
+        int truncated = 0;
         try {
             Map<String, Object> inner = new HashMap<>(2);
             inner.put(FIELD_TIME, event.getTimeUnixNano());
             if (event.getAttributesCount() > 0) {
-                inner.put(FIELD_ATTRIBUTES, getAttributeToMap(event.getAttributesList()));
+                final Map<String, Object> eventAttributes = getAttributeToMap(event.getAttributesList());
+                // Cap over-long string values (notably exception.stacktrace, which is also kept in
+                // full in exception metadata) so a single event cannot bloat the span row.
+                truncated = OtlpTraceMapperUtils.truncateStringValues(eventAttributes, valueMaxBytes);
+                inner.put(FIELD_ATTRIBUTES, eventAttributes);
             }
             Map<String, Object> map = Map.of(event.getName(), inner);
             final String value = mapWriter.writeValueAsString(map);
@@ -54,6 +63,7 @@ public class OtlpTraceEventMapper {
         } catch (JsonProcessingException e) {
             annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), "json processing error"));
         }
+        return truncated;
     }
 
 }

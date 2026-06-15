@@ -30,7 +30,7 @@ class OtlpTraceEventMapperTest {
 
     @BeforeEach
     void setUp() {
-        mapper = new OtlpTraceEventMapper(new ObjectMapper());
+        mapper = new OtlpTraceEventMapper(new ObjectMapper(), 8192);
         annotations = new ArrayList<>();
         writer = annotations::add;
     }

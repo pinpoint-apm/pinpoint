@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -46,15 +47,18 @@ public class OtlpTraceSpanMapper {
     private final OtlpTraceLinkMapper linkMapper;
     private final OtlpMessagingTypeResolver messagingTypeResolver;
     private final OtlpServerTypeResolver serverTypeResolver;
+    private final int attributeValueMaxBytes;
 
     public OtlpTraceSpanMapper(OtlpTraceEventMapper eventMapper,
                                OtlpTraceLinkMapper linkMapper,
                                OtlpMessagingTypeResolver messagingTypeResolver,
-                               OtlpServerTypeResolver serverTypeResolver) {
+                               OtlpServerTypeResolver serverTypeResolver,
+                               @Value("${pinpoint.collector.otlptrace.attribute.value-max-bytes:8192}") int attributeValueMaxBytes) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
         this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
         this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
         this.serverTypeResolver = Objects.requireNonNull(serverTypeResolver, "serverTypeResolver");
+        this.attributeValueMaxBytes = attributeValueMaxBytes;
     }
 
     SpanBo map(IdAndName idAndName, Span span) {
@@ -111,20 +115,25 @@ public class OtlpTraceSpanMapper {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatusCode));
         }
         // attributes
+        int truncatedAttributes = 0;
         if (!attributes.isEmpty()) {
             List<AttributeBo> attributeBoList = OtlpTraceMapperUtils.toAttributeBoList(
                     attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
+            truncatedAttributes = OtlpTraceMapperUtils.truncateAttributeValues(attributeBoList, attributeValueMaxBytes);
             spanBo.setAttributeBoList(attributeBoList);
         }
 
         // event
+        int truncatedEvents = 0;
         for (Span.Event event : span.getEventsList()) {
-            eventMapper.addEventToAnnotation(event, spanBo::addAnnotation);
+            truncatedEvents += eventMapper.addEventToAnnotation(event, spanBo::addAnnotation);
         }
         // link
+        int truncatedLinks = 0;
         for (Span.Link link : span.getLinksList()) {
-            linkMapper.addLinkToAnnotation(link, spanBo::addAnnotation);
+            truncatedLinks += linkMapper.addLinkToAnnotation(link, spanBo::addAnnotation);
         }
+        addTruncatedAnnotation(spanBo::addAnnotation, truncatedAttributes, 0, truncatedEvents, truncatedLinks);
         // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0 so
         // well-behaved spans stay annotation-free.
         addDroppedAnnotations(spanBo::addAnnotation,
@@ -163,6 +172,25 @@ public class OtlpTraceSpanMapper {
             }
             sb.append(label).append('=').append(count);
         }
+    }
+
+    /**
+     * Emits a single OPENTELEMETRY_TRUNCATED annotation when the collector truncated over-long
+     * attribute values or SQL on this span. Value format mirrors OPENTELEMETRY_DROPPED:
+     * space-separated {@code label=count} pairs (e.g. {@code "attributes=3 sql=1"}); zero
+     * components are omitted and the annotation is suppressed when nothing was truncated. Shared
+     * by {@link OtlpTraceSpanMapper} (root spans) and {@link OtlpTraceSpanEventMapper} (child spans).
+     */
+    static void addTruncatedAnnotation(Consumer<AnnotationBo> sink, int truncatedAttributes, int truncatedSql, int truncatedEvents, int truncatedLinks) {
+        if (truncatedAttributes == 0 && truncatedSql == 0 && truncatedEvents == 0 && truncatedLinks == 0) {
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        appendDroppedCount(sb, "attributes", truncatedAttributes);
+        appendDroppedCount(sb, "sql", truncatedSql);
+        appendDroppedCount(sb, "events", truncatedEvents);
+        appendDroppedCount(sb, "links", truncatedLinks);
+        sink.accept(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_TRUNCATED.getCode(), sb.toString()));
     }
 
     /**

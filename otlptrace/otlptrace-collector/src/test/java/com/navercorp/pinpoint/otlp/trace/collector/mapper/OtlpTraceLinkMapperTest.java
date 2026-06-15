@@ -30,7 +30,7 @@ class OtlpTraceLinkMapperTest {
 
     @BeforeEach
     void setUp() {
-        mapper = new OtlpTraceLinkMapper(new ObjectMapper());
+        mapper = new OtlpTraceLinkMapper(new ObjectMapper(), 8192);
         annotations = new ArrayList<>();
         writer = annotations::add;
     }

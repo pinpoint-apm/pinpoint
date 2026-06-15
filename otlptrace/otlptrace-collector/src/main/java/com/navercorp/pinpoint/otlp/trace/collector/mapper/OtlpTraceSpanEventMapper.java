@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -44,16 +45,22 @@ public class OtlpTraceSpanEventMapper {
     private final OtlpDbSystemTypeResolver dbSystemTypeResolver;
     private final OtlpMessagingTypeResolver messagingTypeResolver;
     private final OtlpClientTypeResolver clientTypeResolver;
+    private final int attributeValueMaxBytes;
+    private final int sqlMaxBytes;
 
     public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper,
                                     ServiceTypeRegistryService serviceTypeRegistryService,
                                     OtlpMessagingTypeResolver messagingTypeResolver,
-                                    OtlpClientTypeResolver clientTypeResolver) {
+                                    OtlpClientTypeResolver clientTypeResolver,
+                                    @Value("${pinpoint.collector.otlptrace.attribute.value-max-bytes:8192}") int attributeValueMaxBytes,
+                                    @Value("${pinpoint.collector.otlptrace.sql.max-bytes:8192}") int sqlMaxBytes) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
         this.dbSystemTypeResolver = new OtlpDbSystemTypeResolver(
                 Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService"));
         this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
         this.clientTypeResolver = Objects.requireNonNull(clientTypeResolver, "clientTypeResolver");
+        this.attributeValueMaxBytes = attributeValueMaxBytes;
+        this.sqlMaxBytes = sqlMaxBytes;
     }
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
@@ -76,6 +83,9 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.setEndElapsed(endElapsed);
 
         final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
+        int truncatedAttributes = 0;
+        int truncatedSql = 0;
+        int truncatedEvents = 0;
 
         // Keep the order
         if (isDatabase(attributes)) {
@@ -85,7 +95,13 @@ public class OtlpTraceSpanEventMapper {
             spanEventBo.setServiceType(dbSystemTypeResolver.resolveBaseCode(dbSystem));
             if (isDatabaseExecuteQuery(attributes)) {
                 spanEventBo.setServiceType(dbSystemTypeResolver.resolveExecuteQueryCode(dbSystem));
-                spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.SQL.getCode(), getClientSpanDbStatement(attributes)));
+                String statement = getClientSpanDbStatement(attributes);
+                final String truncatedStatement = (statement == null) ? null : OtlpTraceMapperUtils.truncateUtf8(statement, sqlMaxBytes);
+                if (truncatedStatement != null) {
+                    statement = truncatedStatement;
+                    truncatedSql = 1;
+                }
+                spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.SQL.getCode(), statement));
             }
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
         } else if (isClient(span)) {
@@ -124,11 +140,12 @@ public class OtlpTraceSpanEventMapper {
         if (!attributes.isEmpty()) {
             List<AttributeBo> attributeBoList = OtlpTraceMapperUtils.toAttributeBoList(
                     attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
+            truncatedAttributes = OtlpTraceMapperUtils.truncateAttributeValues(attributeBoList, attributeValueMaxBytes);
             spanEventBo.setAttributeBoList(attributeBoList);
         }
         // event
         for (Span.Event event : span.getEventsList()) {
-            eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation);
+            truncatedEvents += eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation);
         }
         // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0.
         OtlpTraceSpanMapper.addDroppedAnnotations(spanEventBo::addAnnotation,
@@ -142,6 +159,8 @@ public class OtlpTraceSpanEventMapper {
             final long nextSpanId = ByteStringUtils.parseLong(span.getSpanId());
             spanEventBo.setNextSpanId(nextSpanId);
         }
+
+        OtlpTraceSpanMapper.addTruncatedAnnotation(spanEventBo::addAnnotation, truncatedAttributes, truncatedSql, truncatedEvents, 0);
 
         return spanEventBo;
     }
