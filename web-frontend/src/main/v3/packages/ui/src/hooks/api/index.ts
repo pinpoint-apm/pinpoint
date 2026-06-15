@@ -1,4 +1,5 @@
 export * from './reactQueryHelper';
+export * from './serviceNameFetchInterceptor';
 export * from './useAdmin';
 export * from './useAlarmRuleMutation';
 export * from './useAlarmRuleQuery';
