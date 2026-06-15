@@ -60,7 +60,8 @@ public class SpanEncoderTest {
     private final RandomTSpan randomTSpan = new RandomTSpan();
     private final Random random = new Random();
 
-    private final ServerHeader header = new DefaultServerHeader("agentId", "agentName", "applicationName", "serviceName", () -> ServiceUid.DEFAULT, 88, 100, false);
+    private final ServerHeader header = new DefaultServerHeader(
+            "agentId", "agentName", "applicationName", ServiceUid.DEFAULT_SERVICE_UID_NAME, () -> ServiceUid.DEFAULT, 88, 100, false);
 
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
@@ -191,7 +192,7 @@ public class SpanEncoderTest {
         // logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
 
         List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType");
-        List<String> excludeField = List.of("spanEventBoList", "localAsyncId");
+        List<String> excludeField = List.of("spanEventBoList", "localAsyncId", "agentName");
         notSerializedField.addAll(excludeField);
         Assertions.assertThat(decode)
                 .usingRecursiveComparison()

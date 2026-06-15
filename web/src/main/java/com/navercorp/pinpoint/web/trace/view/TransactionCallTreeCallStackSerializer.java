@@ -56,6 +56,7 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         jgen.writeString(value.getApplicationServiceType());
         // json number overflow
         jgen.writeString(String.valueOf(value.getExceptionChainId()));
+        jgen.writeString(value.getServiceName());
         jgen.writeEndArray();
     }
 

@@ -53,6 +53,8 @@ public interface Record {
 
     String getApplicationName();
 
+    String getServiceName();
+
     String getApplicationServiceType();
 
     String getApiType();

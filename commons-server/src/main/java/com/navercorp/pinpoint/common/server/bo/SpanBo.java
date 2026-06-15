@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author emeroad
@@ -49,6 +50,7 @@ public class SpanBo implements BasicSpan {
 
     @NonNull
     private String serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
+    private Supplier<ServiceUid> serviceUidSupplier = () -> ServiceUid.DEFAULT;
 
     private long agentStartTime;
 
@@ -159,6 +161,16 @@ public class SpanBo implements BasicSpan {
     @Override
     public void setServiceName(String serviceName) {
         this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
+    }
+
+    @Override
+    public ServiceUid getServiceUid() {
+        return serviceUidSupplier.get();
+    }
+
+    @Override
+    public void setServiceUid(Supplier<ServiceUid> serviceUidSupplier) {
+        this.serviceUidSupplier = Objects.requireNonNull(serviceUidSupplier, "serviceUidSupplier");
     }
 
     //------------
@@ -447,6 +459,7 @@ public class SpanBo implements BasicSpan {
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", serviceName='" + serviceName + '\'' +
+                ", serviceUid='" + serviceUidSupplier.get() + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +
@@ -488,6 +501,7 @@ public class SpanBo implements BasicSpan {
         private String agentName;
         private String applicationName;
         private String serviceName;
+        private Supplier<ServiceUid> serviceUidSupplier;
 
         private long agentStartTime;
 
@@ -557,6 +571,11 @@ public class SpanBo implements BasicSpan {
 
         public Builder setServiceName(String serviceName) {
             this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
+            return this;
+        }
+
+        public Builder setServiceUid(Supplier<ServiceUid> serviceUidSupplier) {
+            this.serviceUidSupplier = Objects.requireNonNull(serviceUidSupplier, "serviceUidSupplier");
             return this;
         }
 
@@ -707,6 +726,7 @@ public class SpanBo implements BasicSpan {
                 this.serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
             }
             result.setServiceName(StringPrecondition.requireHasLength(this.serviceName, "serviceName"));
+            result.setServiceUid(this.serviceUidSupplier);
 
             result.setAgentStartTime(this.agentStartTime);
 

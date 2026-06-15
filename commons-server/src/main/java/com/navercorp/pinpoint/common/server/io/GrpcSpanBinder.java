@@ -92,8 +92,11 @@ public class GrpcSpanBinder {
         final SpanBo spanBo = new SpanBo();
         spanBo.setVersion(pSpan.getVersion());
         spanBo.setAgentId(serverHeader.getAgentId());
-        spanBo.setApplicationName(serverHeader.getApplicationName());
         spanBo.setAgentName(serverHeader.getAgentName());
+        spanBo.setApplicationName(serverHeader.getApplicationName());
+        spanBo.setServiceName(serverHeader.getServiceName());
+        spanBo.setServiceUid(serverHeader.getServiceUid());
+
         spanBo.setAgentStartTime(serverHeader.getAgentStartTime());
         spanBo.setCollectorAcceptTime(requestTime);
 
@@ -283,7 +286,11 @@ public class GrpcSpanBinder {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setVersion(pSpanChunk.getVersion());
         spanChunkBo.setAgentId(serverHeader.getAgentId());
+        spanChunkBo.setAgentName(serverHeader.getAgentName());
         spanChunkBo.setApplicationName(serverHeader.getApplicationName());
+        spanChunkBo.setServiceName(serverHeader.getServiceName());
+        spanChunkBo.setServiceUid(serverHeader.getServiceUid());
+
         spanChunkBo.setAgentStartTime(serverHeader.getAgentStartTime());
         spanChunkBo.setCollectorAcceptTime(requestTime);
 
@@ -294,7 +301,9 @@ public class GrpcSpanBinder {
             ServerTraceId transactionId = newTransactionId(pTransactionId, spanChunkBo.getAgentId());
             spanChunkBo.setTransactionId(transactionId);
         } else {
-            logger.warn("PTransactionId is not set {}", pSpanChunk);
+            if (logger.isWarnEnabled()) {
+                logger.warn("PTransactionId is not set {}/{}/{}", serverHeader.getServiceName(), serverHeader.getApplicationName(), serverHeader.getAgentId());
+            }
             throw new IllegalStateException("PTransactionId is not set");
         }
 
