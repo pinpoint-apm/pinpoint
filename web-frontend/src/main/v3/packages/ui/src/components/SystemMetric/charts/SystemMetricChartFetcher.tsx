@@ -128,9 +128,11 @@ export const SystemMetricChartFetcher = ({
       columns: chartData
         ? [
             ['dates', ...chartData.timestamp],
-            ...chartData.metricValueGroups[0].metricValues.map(({ fieldName, values }) => {
-              return [fieldName, ...values.map((v: number) => (v < 0 ? null : v))];
-            }),
+            ...(chartData.metricValueGroups?.[0]?.metricValues ?? []).map(
+              ({ fieldName, values }) => {
+                return [fieldName, ...values.map((v: number) => (v < 0 ? null : v))];
+              },
+            ),
           ]
         : [],
       resizeAfter: true,
