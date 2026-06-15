@@ -31,10 +31,12 @@ import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -329,5 +331,137 @@ public class OtlpTraceMapperUtils {
             result.add(new AttributeBo(entry.getKey(), entry.getValue()));
         }
         return result;
+    }
+
+    /**
+     * Truncates over-long string / byte attribute values in place (UTF-8 byte length), recursing
+     * into ARRAY / KVLIST. Numeric and boolean values are left untouched, matching the OTel spec
+     * (only string and byte values are length-limited). Returns the number of leaf values truncated
+     * so the caller can emit a single per-span {@code OPENTELEMETRY_TRUNCATED} summary.
+     */
+    public static int truncateAttributeValues(List<AttributeBo> attributeBoList, int maxValueBytes) {
+        int truncated = 0;
+        final ListIterator<AttributeBo> iterator = attributeBoList.listIterator();
+        while (iterator.hasNext()) {
+            final AttributeBo bo = iterator.next();
+            final int[] counter = {0};
+            final AttributeValue value = truncateValue(bo.getValue(), maxValueBytes, counter);
+            if (counter[0] > 0) {
+                iterator.set(new AttributeBo(bo.getKey(), value));
+                truncated += counter[0];
+            }
+        }
+        return truncated;
+    }
+
+    /**
+     * Truncates a string to at most {@code maxBytes} UTF-8 bytes without splitting a multi-byte
+     * character. Returns {@code null} when no truncation is needed (value already within the limit).
+     */
+    public static String truncateUtf8(String value, int maxBytes) {
+        final byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length <= maxBytes) {
+            return null;
+        }
+        int end = maxBytes;
+        // back off so a multi-byte UTF-8 sequence is not split (0b10xxxxxx == continuation byte)
+        while (end > 0 && (bytes[end] & 0xC0) == 0x80) {
+            end--;
+        }
+        return new String(bytes, 0, end, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Truncates over-long string values (UTF-8 byte length) in an {@code Object} map produced by
+     * {@link #getAttributeToMap}, recursing into nested maps/lists. Used for event/link attributes
+     * that are serialized to JSON, keeping the JSON valid. Returns the number of values truncated.
+     */
+    @SuppressWarnings("unchecked")
+    public static int truncateStringValues(Map<String, Object> map, int maxBytes) {
+        int count = 0;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            final Object value = entry.getValue();
+            if (value instanceof String s) {
+                final String truncated = truncateUtf8(s, maxBytes);
+                if (truncated != null) {
+                    entry.setValue(truncated);
+                    count++;
+                }
+            } else if (value instanceof Map) {
+                count += truncateStringValues((Map<String, Object>) value, maxBytes);
+            } else if (value instanceof List) {
+                count += truncateStringValues((List<Object>) value, maxBytes);
+            }
+        }
+        return count;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static int truncateStringValues(List<Object> list, int maxBytes) {
+        int count = 0;
+        for (int i = 0; i < list.size(); i++) {
+            final Object value = list.get(i);
+            if (value instanceof String s) {
+                final String truncated = truncateUtf8(s, maxBytes);
+                if (truncated != null) {
+                    list.set(i, truncated);
+                    count++;
+                }
+            } else if (value instanceof Map) {
+                count += truncateStringValues((Map<String, Object>) value, maxBytes);
+            } else if (value instanceof List) {
+                count += truncateStringValues((List<Object>) value, maxBytes);
+            }
+        }
+        return count;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static AttributeValue truncateValue(AttributeValue value, int maxBytes, int[] counter) {
+        switch (value.getType()) {
+            case STRING: {
+                final String truncated = truncateUtf8((String) value.getValue(), maxBytes);
+                if (truncated == null) {
+                    return value;
+                }
+                counter[0]++;
+                return AttributeValue.of(truncated);
+            }
+            case BYTES: {
+                final byte[] bytes = (byte[]) value.getValue();
+                if (bytes.length <= maxBytes) {
+                    return value;
+                }
+                counter[0]++;
+                return AttributeValue.of(Arrays.copyOf(bytes, maxBytes));
+            }
+            case ARRAY: {
+                final List<AttributeValue> array = (List<AttributeValue>) value.getValue();
+                boolean changed = false;
+                final List<AttributeValue> result = new ArrayList<>(array.size());
+                for (AttributeValue item : array) {
+                    final AttributeValue newItem = truncateValue(item, maxBytes, counter);
+                    result.add(newItem);
+                    changed |= (newItem != item);
+                }
+                return changed ? AttributeValue.of(result) : value;
+            }
+            case KEY_VALUE_LIST: {
+                final List<AttributeKeyValue> kvList = (List<AttributeKeyValue>) value.getValue();
+                boolean changed = false;
+                final AttributeKeyValue[] result = new AttributeKeyValue[kvList.size()];
+                for (int i = 0; i < kvList.size(); i++) {
+                    final AttributeKeyValue entry = kvList.get(i);
+                    final AttributeValue newValue = truncateValue(entry.getValue(), maxBytes, counter);
+                    final boolean entryChanged = newValue != entry.getValue();
+                    result[i] = entryChanged ? AttributeKeyValue.of(entry.getKey(), newValue) : entry;
+                    changed |= entryChanged;
+                }
+                return changed ? AttributeValue.ofAttributeKeyValueList(result) : value;
+            }
+            default:
+                // BOOLEAN / LONG / DOUBLE — never truncated (per OTel spec)
+                return value;
+        }
     }
 }

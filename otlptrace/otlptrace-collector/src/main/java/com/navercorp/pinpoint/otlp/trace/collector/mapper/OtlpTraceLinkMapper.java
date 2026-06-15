@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import io.opentelemetry.proto.trace.v1.Span;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -23,10 +24,13 @@ import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper
 public class OtlpTraceLinkMapper {
 
     private final ObjectWriter mapWriter;
+    private final int valueMaxBytes;
 
-    public OtlpTraceLinkMapper(ObjectMapper objectMapper) {
+    public OtlpTraceLinkMapper(ObjectMapper objectMapper,
+                               @Value("${pinpoint.collector.otlptrace.link.value-max-bytes:8192}") int valueMaxBytes) {
         Objects.requireNonNull(objectMapper, "objectMapper");
         this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
+        this.valueMaxBytes = valueMaxBytes;
     }
 
     /**
@@ -38,10 +42,11 @@ public class OtlpTraceLinkMapper {
      * <p>Skips entirely when both traceId and spanId are empty — OTel spec requires links to
      * carry a non-empty SpanContext, so a fully-empty link is invalid input we drop silently.</p>
      */
-    public void addLinkToAnnotation(Span.Link link, AnnotationWriter annotationWriter) {
+    public int addLinkToAnnotation(Span.Link link, AnnotationWriter annotationWriter) {
         if (link.getTraceId().isEmpty() && link.getSpanId().isEmpty()) {
-            return;
+            return 0;
         }
+        int truncated = 0;
         try {
             Map<String, Object> map = new HashMap<>();
             if (!link.getTraceId().isEmpty()) {
@@ -54,12 +59,21 @@ public class OtlpTraceLinkMapper {
                 map.put("spanId", String.valueOf(ByteStringUtils.parseLong(link.getSpanId())));
             }
             // W3C tracestate (vendor propagation context — AWS, Datadog, Sentry, etc.). Only
-            // emit when non-empty to keep well-behaved links compact.
+            // emit when non-empty to keep well-behaved links compact. Capped like attribute values
+            // since chained vendor entries can grow long.
             if (!link.getTraceState().isEmpty()) {
-                map.put("traceState", link.getTraceState());
+                String traceState = link.getTraceState();
+                final String truncatedTraceState = OtlpTraceMapperUtils.truncateUtf8(traceState, valueMaxBytes);
+                if (truncatedTraceState != null) {
+                    traceState = truncatedTraceState;
+                    truncated++;
+                }
+                map.put("traceState", traceState);
             }
             if (link.getAttributesCount() > 0) {
-                map.put("attributes", getAttributeToMap(link.getAttributesList()));
+                final Map<String, Object> linkAttributes = getAttributeToMap(link.getAttributesList());
+                truncated += OtlpTraceMapperUtils.truncateStringValues(linkAttributes, valueMaxBytes);
+                map.put("attributes", linkAttributes);
             }
             // SDK-side data-loss counter for link attributes. Same convention as Span/SpanEvent
             // OPENTELEMETRY_DROPPED — only included when > 0.
@@ -71,5 +85,6 @@ public class OtlpTraceLinkMapper {
         } catch (JsonProcessingException e) {
             annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), "json processing error"));
         }
+        return truncated;
     }
 }

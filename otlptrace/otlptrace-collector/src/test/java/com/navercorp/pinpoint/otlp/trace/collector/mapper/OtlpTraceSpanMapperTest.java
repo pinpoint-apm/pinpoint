@@ -175,10 +175,11 @@ class OtlpTraceSpanMapperTest {
     private static OtlpTraceSpanMapper newMapper() {
         ObjectMapper json = new ObjectMapper();
         return new OtlpTraceSpanMapper(
-                new OtlpTraceEventMapper(json),
-                new OtlpTraceLinkMapper(json),
+                new OtlpTraceEventMapper(json, 8192),
+                new OtlpTraceLinkMapper(json, 8192),
                 new OtlpMessagingTypeResolver(MESSAGING_REGISTRY),
-                new OtlpServerTypeResolver(MESSAGING_REGISTRY));
+                new OtlpServerTypeResolver(MESSAGING_REGISTRY),
+                8192);
     }
 
     private static IdAndName id() {

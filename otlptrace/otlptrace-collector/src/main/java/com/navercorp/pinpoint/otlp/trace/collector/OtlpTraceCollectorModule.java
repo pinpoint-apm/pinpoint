@@ -35,8 +35,13 @@ import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpAgentInfoService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpApplicationIndexV2Service;
 import io.grpc.BindableService;
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.binder.grpc.MetricCollectingServerInterceptor;
 import io.netty.buffer.ByteBufAllocator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,6 +64,7 @@ import java.util.concurrent.Executor;
         OtlpTraceCollectorPropertySources.class,
         OtlpTraceCollectorHbaseModule.class,
         OtlpTraceCollectorGrpcModule.class,
+        OtlpTraceCollectorGrpcSslModule.class,
         OtlpTraceCollectorHttpModule.class
 })
 @ComponentScan({
@@ -75,9 +81,16 @@ public class OtlpTraceCollectorModule {
     }
 
     @Bean
-    public ServerServiceDefinition serverServiceDefinition(TraceService[] traceServiceList, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper, Optional<ExceptionMetaDataService> exceptionMetaDataService) {
-        BindableService spanService = new GrpcOtlpTraceService(traceServiceList, agentInfoService, applicationIndexV2Service, mapper, exceptionMetaDataService.orElse(null));
-        return ServerInterceptors.intercept(spanService);
+    public ServerServiceDefinition serverServiceDefinition(TraceService[] traceServiceList, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper, Optional<ExceptionMetaDataService> exceptionMetaDataService, @Qualifier("grpcOtlpTraceWorkerExecutor") Executor workerExecutor,
+                                                           @Value("${pinpoint.collector.otlptrace.admission.max-in-flight-bytes:67108864}") int maxInFlightBytes,
+                                                           MeterRegistry meterRegistry) {
+        BindableService spanService = new GrpcOtlpTraceService(traceServiceList, agentInfoService, applicationIndexV2Service, mapper, exceptionMetaDataService.orElse(null), workerExecutor, maxInFlightBytes);
+        // gRPC server metrics (request count / latency / status code) for the OTLP trace endpoint,
+        // tagged service=otlptrace to match the agent/stat/span receivers' metrics.
+        final ServerInterceptor metricInterceptor = new MetricCollectingServerInterceptor(meterRegistry,
+                (Counter.Builder builder) -> builder.tag("service", "otlptrace"),
+                (Timer.Builder builder) -> builder.tag("service", "otlptrace"));
+        return ServerInterceptors.intercept(spanService, metricInterceptor);
     }
 
     @Bean
