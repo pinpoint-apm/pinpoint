@@ -26,6 +26,8 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,6 +45,7 @@ public class SpanChunkBo implements BasicSpan {
     private String applicationName;
     @NonNull
     private String serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
+    private Supplier<ServiceUid> serviceUidSupplier = () -> ServiceUid.DEFAULT;
 
     private long agentStartTime;
 
@@ -110,6 +113,16 @@ public class SpanChunkBo implements BasicSpan {
     @Override
     public void setServiceName(String serviceName) {
         this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
+    }
+
+    @Override
+    public ServiceUid getServiceUid() {
+        return serviceUidSupplier.get();
+    }
+
+    @Override
+    public void setServiceUid(Supplier<ServiceUid> serviceUidSupplier) {
+        this.serviceUidSupplier = Objects.requireNonNull(serviceUidSupplier, "serviceUidSupplier");
     }
 
     @Override
@@ -219,6 +232,7 @@ public class SpanChunkBo implements BasicSpan {
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", serviceName='" + serviceName + '\'' +
+                ", serviceUid='" + serviceUidSupplier.get() + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +

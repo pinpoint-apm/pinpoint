@@ -35,6 +35,8 @@ public abstract class BaseRecord implements Record {
     protected String agentId;
     protected String agentName;
     protected String applicationName;
+    protected String serviceName;
+
     protected ServiceType applicationServiceType;
     protected ServiceType apiServiceType;
     protected String destinationId;
@@ -108,6 +110,11 @@ public abstract class BaseRecord implements Record {
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    @Override
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getApplicationServiceType() {

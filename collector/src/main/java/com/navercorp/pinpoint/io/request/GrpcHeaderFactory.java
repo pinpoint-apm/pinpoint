@@ -11,13 +11,13 @@ public class GrpcHeaderFactory {
     public GrpcHeaderFactory() {
     }
 
-    public ServerHeader serverHeader(Header header, Supplier<ServiceUid> uidFetcher) {
+    public ServerHeader serverHeader(Header header, Supplier<ServiceUid> uidSupplier) {
         return new DefaultServerHeader(
                 header.getAgentId(),
                 header.getAgentName(),
                 header.getApplicationName(),
                 header.getServiceName(),
-                uidFetcher,
+                uidSupplier,
                 header.getAgentStartTime(),
                 header.getServiceType(),
                 header.isGrpcBuiltInRetry()

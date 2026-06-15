@@ -80,6 +80,11 @@ public class TransactionCallTreeViewModel {
         return recordSet.getApplicationName();
     }
 
+    @JsonProperty("serviceName")
+    public String getServiceName() {
+        return recordSet.getServiceName();
+    }
+
     @JsonProperty("serviceType")
     public String getServiceType() {
         return recordSet.getServiceType();
@@ -178,7 +183,8 @@ public class TransactionCallTreeViewModel {
         lineNumber,
         location,
         applicationServiceType,
-        exceptionChainId;
+        exceptionChainId,
+        serviceName;
 
         private static final Field[] FIELD_CACHE = Field.values();
         private static final CallStackMeta META = new CallStackMeta();
@@ -234,6 +240,8 @@ public class TransactionCallTreeViewModel {
         private final String apiType;
         private final String agent;
         private final String agentName;
+        private final String serviceName;
+
         private final boolean hasException;
         private final long exceptionChainId;
         private final boolean isAuthorized;
@@ -269,8 +277,11 @@ public class TransactionCallTreeViewModel {
             simpleClassName = record.getSimpleClassName();
             methodType = record.getMethodTypeEnum().getCode();
             apiType = record.getApiType();
+
             agent = record.getAgentId();
             agentName = record.getAgentName();
+            serviceName = record.getServiceName();
+
             hasException = record.getHasException();
             exceptionChainId = record.getExceptionChainId();
             isAuthorized = record.isAuthorized();
@@ -380,6 +391,10 @@ public class TransactionCallTreeViewModel {
 
         public String getAgentName() {
             return agentName;
+        }
+
+        public String getServiceName() {
+            return serviceName;
         }
 
         public boolean isHasException() {

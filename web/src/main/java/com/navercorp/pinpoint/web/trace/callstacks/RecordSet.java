@@ -38,6 +38,8 @@ public class RecordSet {
     private String agentName;
 
     private String applicationName;
+    private String serviceName;
+
     private String serviceType = ServiceType.UNKNOWN.toString();
     
     private boolean loggingTransactionInfo;
@@ -111,28 +113,20 @@ public class RecordSet {
         this.agentName = agentName;
     }
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
-     */
-    @Deprecated
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
-    /**
-     * @deprecated Since 3.1.0. Use {@link #setApplicationName(String)} instead.
-     */
-    @Deprecated
-    public void setApplicationId(String applicationId) {
-        this.setApplicationName(applicationId);
-    }
-
     public String getApplicationName() {
         return applicationName;
     }
 
     public void setApplicationName(String applicationName) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
     }
     
     public boolean isLoggingTransactionInfo() {

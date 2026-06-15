@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -91,6 +90,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             recordSet.setAgentId(viewPointAlign.getAgentId());
             recordSet.setAgentName(viewPointAlign.getAgentName());
             recordSet.setApplicationName(viewPointAlign.getApplicationName());
+            recordSet.setServiceName(viewPointAlign.getServiceName());
             final ServiceType servicetype = registry.findServiceType(viewPointAlign.getApplicationServiceType());
             if (servicetype != null) {
                 recordSet.setServiceType(servicetype.toString());

@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+
+import java.util.function.Supplier;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,6 +39,9 @@ public interface BasicSpan {
 
     String getServiceName();
     void setServiceName(String serviceName);
+
+    ServiceUid getServiceUid();
+    void setServiceUid(Supplier<ServiceUid> serviceUidSupplier);
 
     long getAgentStartTime();
     void setAgentStartTime(long agentStartTime);

@@ -24,7 +24,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class DefaultRecord extends BaseRecord {
     public DefaultRecord(int tab, int id, int parentId, boolean method, String title, String arguments,
-                         long begin, long elapsed, long gap, String agentId, String agentName, String applicationName, ServiceType serviceType,
+                         long begin, long elapsed, long gap,
+                         String agentId, String agentName, String applicationName, String serviceName,
+                         ServiceType serviceType,
                          String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId,
                          long executionMilliseconds, MethodTypeEnum methodTypeEnum, boolean isAuthorized, int lineNumber, String location) {
         this.tab = tab;
@@ -41,6 +43,7 @@ public class DefaultRecord extends BaseRecord {
         this.agentName = agentName;
 
         this.applicationName = applicationName;
+        this.serviceName = serviceName;
         this.apiServiceType = serviceType;
         this.destinationId = destinationId;
 
@@ -108,6 +111,10 @@ public class DefaultRecord extends BaseRecord {
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getApiType() {
@@ -212,6 +219,8 @@ public class DefaultRecord extends BaseRecord {
                 agentId +
                 ", applicationName=" +
                 applicationName +
+                ", serviceName=" +
+                serviceName +
                 ", serviceType=" +
                 apiServiceType +
                 ", destinationId=" +
