@@ -108,6 +108,13 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
                     return;
                 }
                 handleExport(resourceSpanList, responseObserver);
+            } catch (Throwable t) {
+                // Unexpected failure (e.g. mapping fault on malformed input). Without this catch the
+                // exception would escape to the worker thread: the response would never be closed
+                // (client hangs until deadline) and the worker thread would die on an uncaught error.
+                // INTERNAL is non-retryable, avoiding a retry storm on deterministic (poison-data) faults.
+                logger.warn("Unexpected error while exporting otlp trace", t);
+                safeOnError(responseObserver, Status.INTERNAL.withDescription("export failed"));
             } finally {
                 admissionBytes.release(requestBytes);
             }

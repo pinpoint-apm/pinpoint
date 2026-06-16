@@ -99,9 +99,8 @@ public class OtlpTraceCollectorGrpcSslModule {
     }
 
     private SslContext newSslContext(GrpcSslProperties properties) throws SSLException {
-        try {
-            InputStream keyCertChain = properties.getKeyCertChainResource().getInputStream();
-            InputStream key = properties.getKeyResource().getInputStream();
+        try (InputStream keyCertChain = properties.getKeyCertChainResource().getInputStream();
+             InputStream key = properties.getKeyResource().getInputStream()) {
             SslContextFactory factory = new SslContextFactory(properties.getProviderType());
             return factory.forServer(keyCertChain, key);
         } catch (IOException e) {
