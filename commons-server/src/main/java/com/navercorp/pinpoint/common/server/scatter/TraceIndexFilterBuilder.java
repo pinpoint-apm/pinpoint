@@ -25,6 +25,9 @@ public class TraceIndexFilterBuilder {
     private static final byte[] META_QUALIFIER_RPC = HbaseTables.TRACE_INDEX_META_QUALIFIER_RPC;
     private static final int ROW_FILTER_OFFSET = TraceIndexRowKeyUtils.SALTED_ROW_TIMESTAMP_OFFSET + 8 + 8;
 
+    // 0 for success
+    private static final BinaryComponentComparator SUCCESS_COMPARATOR = new BinaryComponentComparator(new byte[]{0}, ROW_FILTER_OFFSET + 1); // elapsed(1)
+
     private long elapsedMin = DEFAULT_ELAPSED_MIN;
     private long elapsedMax = DEFAULT_ELAPSED_MAX;
     private Boolean success;
@@ -84,12 +87,10 @@ public class TraceIndexFilterBuilder {
         if (success == null) {
             return List.of();
         }
-        // 0 for success
-        BinaryComponentComparator comparator = new BinaryComponentComparator(new byte[]{0}, ROW_FILTER_OFFSET + 1); // elapsed(1)
         if (success) {
-            return List.of(new RowFilter(CompareOperator.EQUAL, comparator));
+            return List.of(new RowFilter(CompareOperator.EQUAL, SUCCESS_COMPARATOR));
         } else {
-            return List.of(new RowFilter(CompareOperator.NOT_EQUAL, comparator));
+            return List.of(new RowFilter(CompareOperator.NOT_EQUAL, SUCCESS_COMPARATOR));
         }
     }
 
