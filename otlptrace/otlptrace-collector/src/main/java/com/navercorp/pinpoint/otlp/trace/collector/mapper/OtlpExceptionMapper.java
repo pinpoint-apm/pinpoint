@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.common.server.bo.exception.ExceptionWrapperBo;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
-import io.opentelemetry.proto.trace.v1.Status;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -44,49 +44,62 @@ public class OtlpExceptionMapper {
 
     private static final String EMPTY = "";
 
-    public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span span, String uriTemplate) {
-        if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() != span.getStatus().getCodeValue()) {
-            return Optional.empty();
-        }
-
-        Span.Event exceptionEvent = findExceptionEvent(span);
+    /**
+     * Maps an OTel 'exception' span event to an {@link ExceptionMetaDataBo}.
+     *
+     * <p>Recording is gated on the presence of an {@code exception} event (and a resolvable
+     * exception type), NOT on the span status: in OTel {@code recordException} and
+     * {@code setStatus(ERROR)} are independent, and Pinpoint's native path likewise records
+     * exceptions independently of the span error flag.
+     *
+     * <p>{@code rootSpanId} is the transaction root span id (== the stored root {@code SpanBo}
+     * spanId). It is used as {@link ExceptionMetaDataBo}'s spanId so the exception links back to
+     * the transaction via {@code (transactionId, spanId)}, mirroring the native agent which maps
+     * {@code traceRoot.traceId.spanId}. The exception-bearing span's own id is used as the
+     * exceptionId discriminator instead.
+     */
+    public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span exceptionSpan, long rootSpanId, String uriTemplate) {
+        Span.Event exceptionEvent = findExceptionEvent(exceptionSpan);
         if (exceptionEvent == null) {
             return Optional.empty();
         }
 
-        final Map<String, Object> eventAttrs = OtlpTraceMapperUtils.getAttributeToMap(exceptionEvent.getAttributesList());
-        String exceptionType = AttributeUtils.getStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_TYPE, null);
+        final Map<String, AttributeValue> eventAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionEvent.getAttributesList());
+        String exceptionType = AttributeUtils.getAttributeStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_TYPE, null);
         if (exceptionType == null) {
-            final Map<String, Object> spanAttrs = OtlpTraceMapperUtils.getAttributeToMap(span.getAttributesList());
-            exceptionType = AttributeUtils.getStringValue(spanAttrs, ATTRIBUTE_KEY_ERROR_TYPE, null);
+            final Map<String, AttributeValue> spanAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionSpan.getAttributesList());
+            exceptionType = AttributeUtils.getAttributeStringValue(spanAttrs, ATTRIBUTE_KEY_ERROR_TYPE, null);
         }
         if (!StringUtils.hasLength(exceptionType)) {
             return Optional.empty();
         }
 
-        final String exceptionMessage = AttributeUtils.getStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_MESSAGE, EMPTY);
-        final String stackTraceStr = AttributeUtils.getStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_STACKTRACE, EMPTY);
+        final String exceptionMessage = AttributeUtils.getAttributeStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_MESSAGE, EMPTY);
+        final String stackTraceStr = AttributeUtils.getAttributeStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_STACKTRACE, EMPTY);
 
         final long eventTime = exceptionEvent.getTimeUnixNano() > 0
                 ? TimeUnit.NANOSECONDS.toMillis(exceptionEvent.getTimeUnixNano())
-                : TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
+                : TimeUnit.NANOSECONDS.toMillis(exceptionSpan.getStartTimeUnixNano());
 
-        final long spanId = OtlpTraceMapperUtils.getSpanId(span.getSpanId());
+        // OTel has no exception-chain id. Since ExceptionMetaDataBo.spanId is the (shared) root
+        // span id, use the exception-bearing span's id as the exceptionId so multiple exceptions
+        // in one transaction stay distinct under (transactionId, rootSpanId, exceptionId).
+        final long exceptionSpanId = OtlpTraceMapperUtils.getSpanId(exceptionSpan.getSpanId());
         final List<StackTraceElementWrapperBo> stackTrace = parseStackTrace(stackTraceStr);
 
         ExceptionWrapperBo wrapper = new ExceptionWrapperBo(
                 exceptionType,
                 exceptionMessage,
                 eventTime,
-                spanId,
+                exceptionSpanId,
                 0,
                 stackTrace
         );
 
-        final OtelServerTraceId transactionId = new OtelServerTraceId(span.getTraceId().toByteArray());
+        final OtelServerTraceId transactionId = new OtelServerTraceId(exceptionSpan.getTraceId().toByteArray());
         ExceptionMetaDataBo bo = new ExceptionMetaDataBo(
                 transactionId,
-                spanId,
+                rootSpanId,
                 ServiceType.OPENTELEMETRY_SERVER.getCode(),
                 idAndName.applicationName(),
                 idAndName.agentId(),

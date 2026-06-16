@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 @Component
 public class OtlpTraceMapper {
@@ -91,17 +92,27 @@ public class OtlpTraceMapper {
                 List<Span> childSpanList = new ArrayList<>();
                 initRootAndChild(entry.getValue(), rootSpanList, childSpanList);
 
-                final String rootUriTemplate = rootSpanList.isEmpty() ? null
-                        : spanMapper.getServerSpanToRpc(rootSpanList.get(0),
-                            OtlpTraceMapperUtils.getAttributeValueMap(rootSpanList.get(0).getAttributesList()));
-                for (Span span : entry.getValue()) {
-                    exceptionMapper.map(idAndName, span, rootUriTemplate).ifPresent(mapperData::addExceptionMetaDataBo);
-                }
-
                 for (Span rootSpan : rootSpanList) {
                     try {
+                        // Resolve URI and root span id per root: each exception in this root's
+                        // subtree is attributed to the correct entry-point URI and linked back to
+                        // the stored transaction (root SpanBo) via (transactionId, rootSpanId).
+                        final Map<String, AttributeValue> rootAttributes =
+                                OtlpTraceMapperUtils.getAttributeValueMap(rootSpan.getAttributesList());
+                        final String rootUriTemplate = spanMapper.getServerSpanToRpc(rootSpan, rootAttributes);
+                        final long rootSpanId = OtlpTraceMapperUtils.getSpanId(rootSpan.getSpanId());
+
                         final SpanBo spanBo = spanMapper.map(idAndName, rootSpan);
-                        final List<SpanEventBo> spanEventList = findLinkSpan(spanBo.getStartTime(), childSpanList, rootSpan.getSpanId(), 1);
+
+                        // root span's own exception
+                        recordException(mapperData, idAndName, rootSpan, rootSpanId, rootUriTemplate);
+
+                        // Exceptions on linked child spans are recorded as findLinkSpan traverses the
+                        // original OTel spans (where the full stacktrace is still available). Orphan
+                        // spans not linked to any root are intentionally skipped: without a root there
+                        // is no transaction spanId to link the exception to.
+                        final List<SpanEventBo> spanEventList = findLinkSpan(spanBo.getStartTime(), childSpanList, rootSpan.getSpanId(), 1,
+                                childSpan -> recordException(mapperData, idAndName, childSpan, rootSpanId, rootUriTemplate));
                         spanBo.addSpanEventBoList(spanEventList);
                         mapperData.addSpanBo(spanBo);
                         final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, resourceAttributeMap);
@@ -156,6 +167,20 @@ public class OtlpTraceMapper {
             logger.warn("Unexpected error resolving agent id", e);
             reject(mapperData, resourceSpan, e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Records an exception-trace entry for a single OTel span, attributing it to the given root
+     * (transaction) span id and URI. Failures are isolated here so a malformed exception payload
+     * never aborts span/trace mapping.
+     */
+    private void recordException(OtlpTraceMapperData mapperData, IdAndName idAndName, Span span, long rootSpanId, String uriTemplate) {
+        try {
+            exceptionMapper.map(idAndName, span, rootSpanId, uriTemplate)
+                    .ifPresent(mapperData::addExceptionMetaDataBo);
+        } catch (Exception e) {
+            logMappingError("Failed to map exception", e);
         }
     }
 
@@ -284,6 +309,11 @@ public class OtlpTraceMapper {
     }
 
     List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth) {
+        // Orphan/spanChunk traversal: no exception processing (no root span to link against).
+        return findLinkSpan(startTime, childSpanList, parentSpanId, depth, span -> {});
+    }
+
+    List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth, Consumer<Span> spanConsumer) {
         List<SpanEventBo> spanEventList = new ArrayList<>();
         if (depth > 99) {
             // defensive check
@@ -303,9 +333,10 @@ public class OtlpTraceMapper {
         }
 
         for (Span span : linkSpanList) {
+            spanConsumer.accept(span);
             final SpanEventBo spanEventBo = spanEventMapper.map(startTime, span, depth);
             spanEventList.add(spanEventBo);
-            List<SpanEventBo> list = findLinkSpan(startTime, childSpanList, span.getSpanId(), depth + 1);
+            List<SpanEventBo> list = findLinkSpan(startTime, childSpanList, span.getSpanId(), depth + 1, spanConsumer);
             spanEventList.addAll(list);
         }
 
