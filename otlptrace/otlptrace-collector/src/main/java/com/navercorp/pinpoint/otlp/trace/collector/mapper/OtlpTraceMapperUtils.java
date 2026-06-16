@@ -256,8 +256,9 @@ public class OtlpTraceMapperUtils {
             return List.of();
         }
 
-        List<Object> list = new ArrayList<>(size);
-        for (AnyValue anyValue : arrayValue.getValuesList()) {
+        final List<AnyValue> valuesList = arrayValue.getValuesList();
+        List<Object> list = new ArrayList<>(valuesList.size());
+        for (AnyValue anyValue : valuesList) {
             list.add(getAttributeValueToValue(anyValue));
         }
         return list;
