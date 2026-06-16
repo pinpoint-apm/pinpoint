@@ -296,6 +296,14 @@ public class FixedBufferTest {
     }
 
     @Test
+    public void testNullTerminatedString_rejectNul() {
+        Buffer buffer = new FixedBuffer(1024);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> buffer.putNullTerminatedString("a\0b"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> buffer.putNullTerminatedString("\0"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> buffer.putNullTerminatedString("trailing\0"));
+    }
+
+    @Test
     public void testPut2PrefixedBytes() {
         String test = "test";
         int endExpected = 3333;
