@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
 import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
-import com.navercorp.pinpoint.batch.config.AgentCountJobXmlConfig;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
@@ -68,7 +67,6 @@ import java.util.List;
 
         BatchJavaConfigModule.class,
 
-        AgentCountJobXmlConfig.class,
         AgentCountJobConfig.class,
         CleanupInactiveApplicationsJobConfig.class,
         CleanupAgentAndApplicationJobConfig.class,

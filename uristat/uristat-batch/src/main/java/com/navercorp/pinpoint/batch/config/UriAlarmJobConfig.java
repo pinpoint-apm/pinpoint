@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.batch.alarm.AlarmMessageSender;
 import com.navercorp.pinpoint.batch.alarm.UriStatAlarmProcessor;
 import com.navercorp.pinpoint.batch.alarm.UriStatAlarmReader;
 import com.navercorp.pinpoint.batch.alarm.UriStatAlarmWriter;
-import com.navercorp.pinpoint.batch.alarm.checker.UriStatAlarmCheckerRegistry;
 import com.navercorp.pinpoint.batch.alarm.collector.UriStatDataCollectorFactory;
 import com.navercorp.pinpoint.batch.alarm.dao.UriStatDao;
 import com.navercorp.pinpoint.pinot.alarm.PinotAlarmWriterInterceptor;
@@ -41,7 +40,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -52,13 +50,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.util.Optional;
 
 @Configuration
-@ConditionalOnProperty(
-    name = "batch.use-java-config",
-    havingValue = "true"
-)
 @ComponentScan(basePackages = {
-    "com.navercorp.pinpoint.batch.alarm",
-    "com.navercorp.pinpoint.batch.alarm.sender"
+        "com.navercorp.pinpoint.batch.alarm",
+        "com.navercorp.pinpoint.batch.alarm.sender"
 })
 public class UriAlarmJobConfig {
 

@@ -39,14 +39,7 @@ import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.configuration.support.JobRegistrySmartInitializingSingleton;
-import org.springframework.batch.core.configuration.support.MapJobRegistry;
-import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +47,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -62,6 +56,9 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 @Configuration
+@Import({
+        MetaDataBatchConfiguration.class,
+})
 @ComponentScan(
         basePackages = {
                 "com.navercorp.pinpoint.web.dao.mysql",
@@ -79,7 +76,6 @@ import java.util.Optional;
         }
 )
 public class BatchInfrastructureConfig {
-
     private final Logger logger = LogManager.getLogger(BatchInfrastructureConfig.class);
 
     @Bean
@@ -92,49 +88,6 @@ public class BatchInfrastructureConfig {
                                              JobLauncher jobLauncher,
                                              BatchProperties batchProperties) {
         return new BatchJobLauncher(jobRegistry, jobLauncher, batchProperties);
-    }
-
-    @Bean
-    public JobLauncher jobLauncher(JobRepository jobRepository) throws Exception {
-        TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-        jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.afterPropertiesSet();
-        return jobLauncher;
-    }
-
-    @Bean
-    public JobRepository jobRepository(
-            @Qualifier("metaDataDataSource") DataSource dataSource,
-            @Qualifier("metaDataTransactionManager") PlatformTransactionManager transactionManager) throws Exception {
-
-        JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
-        factory.setDataSource(dataSource);
-        factory.setTransactionManager(transactionManager);
-        factory.afterPropertiesSet();
-        return factory.getObject();
-    }
-
-    @Bean
-    public JobExplorer jobExplorer(
-            @Qualifier("metaDataDataSource") DataSource dataSource,
-            @Qualifier("metaDataTransactionManager") PlatformTransactionManager transactionManager) throws Exception {
-        JobExplorerFactoryBean factory = new JobExplorerFactoryBean();
-        factory.setDataSource(dataSource);
-        factory.setTransactionManager(transactionManager);
-        factory.afterPropertiesSet();
-        return factory.getObject();
-    }
-
-    @Bean
-    public JobRegistry jobRegistry() {
-        return new MapJobRegistry();
-    }
-
-    @Bean
-    public JobRegistrySmartInitializingSingleton jobRegistrySmartInitializingSingleton(JobRegistry jobRegistry) {
-        JobRegistrySmartInitializingSingleton jobRegistrySmartInitializingSingleton = new JobRegistrySmartInitializingSingleton();
-        jobRegistrySmartInitializingSingleton.setJobRegistry(jobRegistry);
-        return jobRegistrySmartInitializingSingleton;
     }
 
     @Bean
