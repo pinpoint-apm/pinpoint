@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -32,6 +30,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -400,25 +400,16 @@ public class GrpcSpanBinder {
             return null;
         }
         final PAttributeValue.FieldCase fieldCase = pValue.getFieldCase();
-        switch (fieldCase) {
-            case STRINGVALUE:
-                return AttributeValue.of(pValue.getStringValue());
-            case BOOLVALUE:
-                return AttributeValue.of(pValue.getBoolValue());
-            case LONGVALUE:
-                return AttributeValue.of(pValue.getLongValue());
-            case DOUBLEVALUE:
-                return AttributeValue.of(pValue.getDoubleValue());
-            case BINARYVALUE:
-                return AttributeValue.of(pValue.getBinaryValue().toByteArray());
-            case ARRAYVALUE:
-                return convertValueArray(pValue.getArrayValue());
-            case KVLISTVALUE:
-                return convertKeyValueList(pValue.getKvlistValue());
-            case FIELD_NOT_SET:
-            default:
-                return null;
-        }
+        return switch (fieldCase) {
+            case STRINGVALUE -> AttributeValue.of(pValue.getStringValue());
+            case BOOLVALUE -> AttributeValue.of(pValue.getBoolValue());
+            case LONGVALUE -> AttributeValue.of(pValue.getLongValue());
+            case DOUBLEVALUE -> AttributeValue.of(pValue.getDoubleValue());
+            case BINARYVALUE -> AttributeValue.of(pValue.getBinaryValue().toByteArray());
+            case ARRAYVALUE -> convertValueArray(pValue.getArrayValue());
+            case KVLISTVALUE -> convertKeyValueList(pValue.getKvlistValue());
+            default -> null;
+        };
     }
 
     private AttributeValue convertValueArray(PAttributeArrayValue arrayValue) {
