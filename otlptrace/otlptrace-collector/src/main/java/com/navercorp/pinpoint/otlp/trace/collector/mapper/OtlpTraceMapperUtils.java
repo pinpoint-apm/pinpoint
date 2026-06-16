@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -344,11 +345,11 @@ public class OtlpTraceMapperUtils {
         final ListIterator<AttributeBo> iterator = attributeBoList.listIterator();
         while (iterator.hasNext()) {
             final AttributeBo bo = iterator.next();
-            final int[] counter = {0};
+            final MutableInt counter = new MutableInt();
             final AttributeValue value = truncateValue(bo.getValue(), maxValueBytes, counter);
-            if (counter[0] > 0) {
+            if (counter.intValue() > 0) {
                 iterator.set(new AttributeBo(bo.getKey(), value));
-                truncated += counter[0];
+                truncated += counter.intValue();
             }
         }
         return truncated;
@@ -417,14 +418,14 @@ public class OtlpTraceMapperUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static AttributeValue truncateValue(AttributeValue value, int maxBytes, int[] counter) {
+    private static AttributeValue truncateValue(AttributeValue value, int maxBytes, MutableInt counter) {
         switch (value.getType()) {
             case STRING: {
                 final String truncated = truncateUtf8((String) value.getValue(), maxBytes);
                 if (truncated == null) {
                     return value;
                 }
-                counter[0]++;
+                counter.increment();
                 return AttributeValue.of(truncated);
             }
             case BYTES: {
@@ -432,7 +433,7 @@ public class OtlpTraceMapperUtils {
                 if (bytes.length <= maxBytes) {
                     return value;
                 }
-                counter[0]++;
+                counter.increment();
                 return AttributeValue.of(Arrays.copyOf(bytes, maxBytes));
             }
             case ARRAY: {
