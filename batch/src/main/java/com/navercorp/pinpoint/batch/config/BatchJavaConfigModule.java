@@ -16,22 +16,15 @@
 
 package com.navercorp.pinpoint.batch.config;
 
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@ConditionalOnProperty(
-    name = "batch.use-java-config",
-    havingValue = "true"
-)
-@EnableBatchProcessing
 @Import({
-    BatchInfrastructureConfig.class,
-    BatchScheduleConfig.class,
-    AlarmJobConfig.class,
-    AlarmJobModule.class
+        BatchInfrastructureConfig.class,
+        BatchScheduleConfig.class,
+        AlarmJobConfig.class,
+        AlarmJobModule.class
 })
 public class BatchJavaConfigModule {
 }
