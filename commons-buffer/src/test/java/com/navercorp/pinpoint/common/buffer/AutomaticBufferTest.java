@@ -155,6 +155,12 @@ public class AutomaticBufferTest {
     }
 
     @Test
+    public void testNullTerminatedString_rejectNul() {
+        Buffer buffer = new AutomaticBuffer(0);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> buffer.putNullTerminatedString("a\0b"));
+    }
+
+    @Test
     public void testPutUnsignedBytePrefixedBytes() {
         byte[] bytes1 = new byte[2];
         checkPutUnsignedBytePrefixedBytes(bytes1);
