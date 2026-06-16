@@ -157,6 +157,38 @@ class OtlpTraceMapperUtilsTest {
         assertThat(result).containsEntry("key2", 100L);
     }
 
+    @Test
+    void getAttributeToMap_nonEmptyBytes_hexEncoded() {
+        List<KeyValue> attrs = List.of(kv("payload", bytesVal(new byte[]{0x0A, (byte) 0xFF})));
+
+        Map<String, Object> result = OtlpTraceMapperUtils.getAttributeToMap(attrs);
+
+        // Base16Utils uses lower-case hex (new Base16(true)).
+        assertThat(result).containsEntry("payload", "0aff");
+    }
+
+    @Test
+    void getAttributeToMap_emptyBytes_encodedAsEmptyString() {
+        // Base16 of an empty byte array is "" — the key is kept with an empty-string value
+        // (symmetric with the empty STRING case), not dropped or mapped to null.
+        List<KeyValue> attrs = List.of(kv("payload", bytesVal(new byte[0])));
+
+        Map<String, Object> result = OtlpTraceMapperUtils.getAttributeToMap(attrs);
+
+        assertThat(result).containsEntry("payload", "");
+    }
+
+    @Test
+    void getArrayValueToList_emptyBytesElement_encodedAsEmptyString() {
+        ArrayValue arrayValue = ArrayValue.newBuilder()
+                .addValues(bytesVal(new byte[0]))
+                .build();
+
+        List<Object> result = OtlpTraceMapperUtils.getArrayValueToList(arrayValue);
+
+        assertThat(result).containsExactly("");
+    }
+
     // =======================================================================
     // getId(Map<String, AttributeValue>)
     // =======================================================================

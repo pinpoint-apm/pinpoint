@@ -277,11 +277,9 @@ public class OtlpTraceMapperUtils {
             case ARRAY_VALUE:
                 return getArrayValueToList(anyValue.getArrayValue());
             case BYTES_VALUE:
-                final ByteString byteString = anyValue.getBytesValue();
-                if (!byteString.isEmpty()) {
-                    return Base16Utils.encodeToString(byteString.toByteArray());
-                }
-                return null;
+                // Base16 of an empty byte array is "" — emit it as such (symmetric with the empty
+                // STRING case) instead of null.
+                return Base16Utils.encodeToString(anyValue.getBytesValue().toByteArray());
             case KVLIST_VALUE:
                 return getAttributeToMap(anyValue.getKvlistValue().getValuesList());
             default:
