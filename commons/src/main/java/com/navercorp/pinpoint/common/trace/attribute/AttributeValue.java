@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.trace.attribute;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,10 @@ public interface AttributeValue {
 
     static AttributeValueBytes of(byte[] value) {
         return new AttributeValueBytes(value);
+    }
+
+    static AttributeValueBytes copyOf(byte[] value) {
+        return new AttributeValueBytes(Arrays.copyOf(value, value.length));
     }
 
     static AttributeValueArray of(AttributeValue... values) {

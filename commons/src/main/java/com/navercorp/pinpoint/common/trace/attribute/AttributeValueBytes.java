@@ -26,8 +26,7 @@ public final class AttributeValueBytes implements AttributeValue {
     private final byte[] value;
 
     AttributeValueBytes(byte[] value) {
-        Objects.requireNonNull(value, "value");
-        this.value = Arrays.copyOf(value, value.length);
+        this.value = Objects.requireNonNull(value, "value");
     }
 
     @Override
