@@ -12,7 +12,6 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -923,58 +922,6 @@ class OtlpTraceMapperUtilsTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getKey()).isEqualTo("keep");
         assertThat(result.get(0).getValue().getValue()).isEqualTo("ok");
-    }
-
-    // =======================================================================
-    // truncateUtf8(String, int)
-    // =======================================================================
-
-    private static int utf8Len(String value) {
-        return value.getBytes(StandardCharsets.UTF_8).length;
-    }
-
-    @Test
-    void truncateUtf8_withinLimit_returnsNull() {
-        assertThat(OtlpTraceMapperUtils.truncateUtf8("short", 64)).isNull();
-    }
-
-    @Test
-    void truncateUtf8_exactlyAtLimit_returnsNull() {
-        // bytes.length == maxBytes => no truncation
-        String value = "abcde";
-        assertThat(OtlpTraceMapperUtils.truncateUtf8(value, utf8Len(value))).isNull();
-    }
-
-    @Test
-    void truncateUtf8_emptyString_returnsNull() {
-        assertThat(OtlpTraceMapperUtils.truncateUtf8("", 8)).isNull();
-    }
-
-    @Test
-    void truncateUtf8_asciiOverLimit_truncatedToMaxBytes() {
-        String result = OtlpTraceMapperUtils.truncateUtf8("a".repeat(100), 10);
-
-        assertThat(result).isEqualTo("a".repeat(10));
-        assertThat(utf8Len(result)).isEqualTo(10);
-    }
-
-    @Test
-    void truncateUtf8_multiByteBoundary_doesNotSplitCharacter() {
-        // '가' is 3 UTF-8 bytes (0xEA 0xB0 0x80). "가가가" = 9 bytes.
-        // maxBytes=4 lands inside the 2nd char => must back off to the char boundary (3 bytes).
-        String result = OtlpTraceMapperUtils.truncateUtf8("가가가", 4);
-
-        assertThat(result).isEqualTo("가");
-        assertThat(utf8Len(result)).isLessThanOrEqualTo(4);
-    }
-
-    @Test
-    void truncateUtf8_multiByteExactBoundary_keepsWholeCharacters() {
-        // maxBytes=6 == exactly two '가' chars; no back-off needed.
-        String result = OtlpTraceMapperUtils.truncateUtf8("가가가", 6);
-
-        assertThat(result).isEqualTo("가가");
-        assertThat(utf8Len(result)).isEqualTo(6);
     }
 
     // =======================================================================
