@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
@@ -51,6 +52,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -83,9 +85,6 @@ public class RecordFactoryTest {
         return recorderFactoryProvider.getRecordFactory();
     }
 
-    public void get() {
-        // TODO
-    }
 
     @Test
     public void getException_check_argument() {
@@ -220,6 +219,12 @@ public class RecordFactoryTest {
                 .setAgentName("")
                 .setApplicationName("express-node-sample-name")
                 .setServiceName("express-node-sample-service")
+                .setServiceUid(new Supplier<ServiceUid>() {
+                    @Override
+                    public ServiceUid get() {
+                        return ServiceUid.of(100);
+                    }
+                })
                 .setAgentStartTime(1670293953108L)
                 .setTransactionId(new PinpointServerTraceId("express-node-sample-id", 1670293953108L, 30))
                 .setParentSpanId(-1)
