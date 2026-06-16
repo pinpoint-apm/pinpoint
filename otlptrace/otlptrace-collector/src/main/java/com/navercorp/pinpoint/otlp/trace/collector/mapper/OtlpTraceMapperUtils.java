@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
+import com.navercorp.pinpoint.common.server.util.StringTruncator;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
@@ -32,7 +33,6 @@ import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -357,23 +357,6 @@ public class OtlpTraceMapperUtils {
     }
 
     /**
-     * Truncates a string to at most {@code maxBytes} UTF-8 bytes without splitting a multi-byte
-     * character. Returns {@code null} when no truncation is needed (value already within the limit).
-     */
-    public static String truncateUtf8(String value, int maxBytes) {
-        final byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-        if (bytes.length <= maxBytes) {
-            return null;
-        }
-        int end = maxBytes;
-        // back off so a multi-byte UTF-8 sequence is not split (0b10xxxxxx == continuation byte)
-        while (end > 0 && (bytes[end] & 0xC0) == 0x80) {
-            end--;
-        }
-        return new String(bytes, 0, end, StandardCharsets.UTF_8);
-    }
-
-    /**
      * Truncates over-long string values (UTF-8 byte length) in an {@code Object} map produced by
      * {@link #getAttributeToMap}, recursing into nested maps/lists. Used for event/link attributes
      * that are serialized to JSON, keeping the JSON valid. Returns the number of values truncated.
@@ -384,7 +367,7 @@ public class OtlpTraceMapperUtils {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             final Object value = entry.getValue();
             if (value instanceof String s) {
-                final String truncated = truncateUtf8(s, maxBytes);
+                final String truncated = StringTruncator.truncateUtf8(s, maxBytes);
                 if (truncated != null) {
                     entry.setValue(truncated);
                     count++;
@@ -404,7 +387,7 @@ public class OtlpTraceMapperUtils {
         for (int i = 0; i < list.size(); i++) {
             final Object value = list.get(i);
             if (value instanceof String s) {
-                final String truncated = truncateUtf8(s, maxBytes);
+                final String truncated = StringTruncator.truncateUtf8(s, maxBytes);
                 if (truncated != null) {
                     list.set(i, truncated);
                     count++;
@@ -422,7 +405,7 @@ public class OtlpTraceMapperUtils {
     private static AttributeValue truncateValue(AttributeValue value, int maxBytes, MutableInt counter) {
         switch (value.getType()) {
             case STRING: {
-                final String truncated = truncateUtf8((String) value.getValue(), maxBytes);
+                final String truncated = StringTruncator.truncateUtf8((String) value.getValue(), maxBytes);
                 if (truncated == null) {
                     return value;
                 }
