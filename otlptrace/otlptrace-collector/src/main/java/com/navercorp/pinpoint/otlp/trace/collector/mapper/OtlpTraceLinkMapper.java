@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
-import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.server.util.StringTruncator;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -50,7 +49,7 @@ public class OtlpTraceLinkMapper {
         try {
             Map<String, Object> map = new HashMap<>();
             if (!link.getTraceId().isEmpty()) {
-                map.put("traceId", Base16Utils.encodeToString(link.getTraceId().toByteArray()));
+                map.put("traceId", ByteStringUtils.encodeBase16(link.getTraceId()));
             }
             if (!link.getSpanId().isEmpty()) {
                 // Stored as decimal String to avoid JS Number precision loss for any consumer that
@@ -71,8 +70,9 @@ public class OtlpTraceLinkMapper {
                 map.put("traceState", traceState);
             }
             if (link.getAttributesCount() > 0) {
-                final Map<String, Object> linkAttributes = getAttributeToMap(link.getAttributesList());
-                truncated += OtlpTraceMapperUtils.truncateStringValues(linkAttributes, valueMaxBytes);
+                final TransformContext context = new TransformContext(valueMaxBytes);
+                final Map<String, Object> linkAttributes = getAttributeToMap(link.getAttributesList(), context);
+                truncated += context.truncatedCount();
                 map.put("attributes", linkAttributes);
             }
             // SDK-side data-loss counter for link attributes. Same convention as Span/SpanEvent

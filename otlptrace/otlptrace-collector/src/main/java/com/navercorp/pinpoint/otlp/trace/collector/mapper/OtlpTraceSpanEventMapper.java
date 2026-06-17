@@ -139,9 +139,10 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
         // attributes
         if (!attributes.isEmpty()) {
+            final TransformContext context = new TransformContext(attributeValueMaxBytes);
             List<AttributeBo> attributeBoList = OtlpTraceMapperUtils.toAttributeBoList(
-                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
-            truncatedAttributes = OtlpTraceMapperUtils.truncateAttributeValues(attributeBoList, attributeValueMaxBytes);
+                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, context);
+            truncatedAttributes = context.truncatedCount();
             spanEventBo.setAttributeBoList(attributeBoList);
         }
         // event
