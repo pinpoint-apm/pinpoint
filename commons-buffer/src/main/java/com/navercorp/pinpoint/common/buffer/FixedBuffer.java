@@ -137,6 +137,12 @@ public class FixedBuffer implements Buffer {
     }
 
     protected void putNullTerminatedBytes(final byte[] bytes) {
+        // a NUL would be misread as the terminator by readNullTerminatedString()
+        for (int i = 0; i < bytes.length; i++) {
+            if (bytes[i] == NUL_DELIMITER) {
+                throw new IllegalArgumentException("embedded NUL(0x00) byte at index " + i + "; not allowed in null-terminated value");
+            }
+        }
         putBytes(bytes);
         putByte(NUL_DELIMITER);
     }
