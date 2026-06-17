@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.UnsafeByteOperations;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
@@ -68,6 +69,6 @@ public interface MetaDataMapper {
     PStringMetaData map(StringMetaData stringMetaData);
 
     default ByteString map(byte[] bytes) {
-        return ByteString.copyFrom(bytes);
+        return UnsafeByteOperations.unsafeWrap(bytes);
     }
 }

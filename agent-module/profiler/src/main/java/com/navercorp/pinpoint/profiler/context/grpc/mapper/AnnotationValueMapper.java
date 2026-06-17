@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.StringValue;
+import com.google.protobuf.UnsafeByteOperations;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.DataType;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
@@ -185,12 +186,12 @@ public interface AnnotationValueMapper {
     PAnnotationValue map(ByteAnnotation annotation);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
-    @Mapping(source = "value", target = "binaryValue", qualifiedByName = "copyFrom")
+    @Mapping(source = "value", target = "binaryValue", qualifiedByName = "toByteString")
     PAnnotationValue map(BytesAnnotation annotation);
 
-    @Named("copyFrom")
-    default ByteString copyFrom(byte[] v) {
-        return ByteString.copyFrom(v);
+    @Named("toByteString")
+    default ByteString toByteString(byte[] v) {
+        return UnsafeByteOperations.unsafeWrap(v);
     }
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
@@ -292,7 +293,7 @@ public interface AnnotationValueMapper {
     PIntBooleanIntBooleanValue map(IntBooleanIntBooleanValue v);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
-    @Mapping(source = "bytesValue", target = "bytesValue", qualifiedByName = "copyFrom")
+    @Mapping(source = "bytesValue", target = "bytesValue", qualifiedByName = "toByteString")
     PBytesStringStringValue map(BytesStringStringValue v);
 
 

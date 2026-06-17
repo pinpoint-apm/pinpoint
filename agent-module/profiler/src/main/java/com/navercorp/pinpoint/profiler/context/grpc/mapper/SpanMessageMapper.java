@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 
+import com.google.protobuf.ByteString;
+import com.google.protobuf.UnsafeByteOperations;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValueList;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
@@ -187,7 +189,8 @@ public interface SpanMessageMapper {
                 valueBuilder.setDoubleValue(((AttributeValueDouble) attributeValue).getDoubleValue());
                 break;
             case BYTES:
-                valueBuilder.setBinaryValue(com.google.protobuf.ByteString.copyFrom(((AttributeValueBytes) attributeValue).getBytesValue()));
+                ByteString byteString = UnsafeByteOperations.unsafeWrap(((AttributeValueBytes) attributeValue).getRawBytesValue());
+                valueBuilder.setBinaryValue(byteString);
                 break;
             case ARRAY:
                 PAttributeArrayValue.Builder arrayBuilder = PAttributeArrayValue.newBuilder();

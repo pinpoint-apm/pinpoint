@@ -36,11 +36,15 @@ public final class AttributeValueBytes implements AttributeValue {
 
     @Override
     public Object getValue() {
-        return Arrays.copyOf(value, value.length);
+        return getBytesValue();
     }
 
     public byte[] getBytesValue() {
         return Arrays.copyOf(value, value.length);
+    }
+
+    public byte[] getRawBytesValue() {
+        return value;
     }
 
     @Override
