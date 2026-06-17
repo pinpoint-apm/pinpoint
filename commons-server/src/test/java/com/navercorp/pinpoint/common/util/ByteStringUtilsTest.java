@@ -54,4 +54,34 @@ class ByteStringUtilsTest {
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> ByteStringUtils.parseInt(byteString, 1));
     }
 
+    @Test
+    void encodeBase16_empty_returnsEmptyString() {
+        Assertions.assertEquals("", ByteStringUtils.encodeBase16(ByteString.EMPTY, 8));
+    }
+
+    @Test
+    void encodeBase16_withinLimit_fullHex() {
+        ByteString buf = ByteString.copyFrom(new byte[]{0x0a, (byte) 0xbc});
+
+        Assertions.assertEquals("0abc", ByteStringUtils.encodeBase16(buf, 64));
+    }
+
+    @Test
+    void encodeBase16_overLimit_cutToMaxLength() {
+        ByteString buf = ByteString.copyFrom(new byte[16]); // 16 bytes -> 32 hex chars
+
+        String result = ByteStringUtils.encodeBase16(buf, 10);
+
+        Assertions.assertEquals(10, result.length());
+        Assertions.assertEquals("0000000000", result);
+    }
+
+    @Test
+    void encodeBase16_oddLimit_cutToExactLength() {
+        ByteString buf = ByteString.copyFrom(new byte[16]);
+
+        // odd maxLength: ceil(5/2)=3 bytes -> 6 hex chars, then cut to 5
+        Assertions.assertEquals("00000", ByteStringUtils.encodeBase16(buf, 5));
+    }
+
 }

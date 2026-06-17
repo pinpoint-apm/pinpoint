@@ -31,14 +31,15 @@ import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
-import org.apache.commons.lang3.mutable.MutableInt;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -223,13 +224,24 @@ public class OtlpTraceMapperUtils {
     }
 
     public static Map<String, Object> getAttributeToMap(List<KeyValue> keyValueList) {
+        // no context: plain conversion without truncation ((TransformContext) cast disambiguates the null)
+        return getAttributeToMap(keyValueList, (TransformContext) null);
+    }
+
+    /**
+     * Converts OTel attributes to a JSON-serializable map, recursing into nested arrays/maps. When
+     * {@code context} is non-null, over-long string / byte leaf values are truncated (bytes on their
+     * hex form) in the same pass and the count accumulates in the context; a {@code null} context
+     * renders without truncation.
+     */
+    public static Map<String, Object> getAttributeToMap(List<KeyValue> keyValueList, @Nullable TransformContext context) {
         final int size = keyValueList.size();
         if (size == 0) {
             return Map.of();
         }
         Map<String, Object> map = new HashMap<>(size);
         for (KeyValue kv : keyValueList) {
-            map.put(kv.getKey(), getAttributeValueToValue(kv.getValue()));
+            map.put(kv.getKey(), getAttributeValueToValue(kv.getValue(), context));
         }
         return map;
     }
@@ -251,6 +263,10 @@ public class OtlpTraceMapperUtils {
     }
 
     public static List<Object> getArrayValueToList(ArrayValue arrayValue) {
+        return getArrayValueToList(arrayValue, null);
+    }
+
+    public static List<Object> getArrayValueToList(ArrayValue arrayValue, @Nullable TransformContext context) {
         final int size = arrayValue.getValuesCount();
         if (size == 0) {
             return List.of();
@@ -259,32 +275,49 @@ public class OtlpTraceMapperUtils {
         final List<AnyValue> valuesList = arrayValue.getValuesList();
         List<Object> list = new ArrayList<>(valuesList.size());
         for (AnyValue anyValue : valuesList) {
-            list.add(getAttributeValueToValue(anyValue));
+            list.add(getAttributeValueToValue(anyValue, context));
         }
         return list;
     }
 
     public static Object getAttributeValueToValue(AnyValue anyValue) {
-        switch (anyValue.getValueCase()) {
-            case INT_VALUE:
-                return anyValue.getIntValue();
-            case DOUBLE_VALUE:
-                return anyValue.getDoubleValue();
-            case BOOL_VALUE:
-                return anyValue.getBoolValue();
-            case STRING_VALUE:
-                return anyValue.getStringValue();
-            case ARRAY_VALUE:
-                return getArrayValueToList(anyValue.getArrayValue());
-            case BYTES_VALUE:
-                // Base16 of an empty byte array is "" — emit it as such (symmetric with the empty
-                // STRING case) instead of null.
-                return Base16Utils.encodeToString(anyValue.getBytesValue().toByteArray());
-            case KVLIST_VALUE:
-                return getAttributeToMap(anyValue.getKvlistValue().getValuesList());
-            default:
-                return null;
+        return getAttributeValueToValue(anyValue, null);
+    }
+
+    public static Object getAttributeValueToValue(AnyValue anyValue, @Nullable TransformContext context) {
+        return switch (anyValue.getValueCase()) {
+            case INT_VALUE -> anyValue.getIntValue();
+            case DOUBLE_VALUE -> anyValue.getDoubleValue();
+            case BOOL_VALUE -> anyValue.getBoolValue();
+            case STRING_VALUE -> transformString(anyValue.getStringValue(), context);
+            case BYTES_VALUE -> transformBytes(anyValue.getBytesValue(), context);
+            case ARRAY_VALUE -> getArrayValueToList(anyValue.getArrayValue(), context);
+            case KVLIST_VALUE -> getAttributeToMap(anyValue.getKvlistValue().getValuesList(), context);
+            default -> null;
+        };
+    }
+
+    private static String transformString(String value, @Nullable TransformContext context) {
+        if (context == null) {
+            return value;
         }
+        final String truncated = StringTruncator.truncateUtf8(value, context.maxBytes());
+        if (truncated != null) {
+            context.truncated();
+            return truncated;
+        }
+        return value;
+    }
+
+    private static Object transformBytes(ByteString bytes, @Nullable TransformContext context) {
+        // empty bytes -> "" (Base16 of an empty array), symmetric with the empty STRING case
+        if (context == null) {
+            return ByteStringUtils.encodeBase16(bytes);
+        }
+        if (Base16Utils.encodedLength(bytes.size()) > context.maxBytes()) {
+            context.truncated();
+        }
+        return ByteStringUtils.encodeBase16(bytes, context.maxBytes());
     }
 
     public static AttributeValue toAttributeValue(AnyValue anyValue) {
@@ -320,6 +353,19 @@ public class OtlpTraceMapperUtils {
     }
 
     public static List<AttributeBo> toAttributeBoList(Map<String, AttributeValue> attributes, Predicate<String> excludeFilter) {
+        // no context: plain conversion without truncation
+        return toAttributeBoList(attributes, excludeFilter, null);
+    }
+
+    /**
+     * Converts attributes to an {@link AttributeBo} list, applying {@code excludeFilter} and — when
+     * {@code context} is non-null — truncating over-long string (UTF-8 byte length) and byte (raw
+     * byte length) values in the same pass, recursing into ARRAY / KVLIST. Numeric and boolean
+     * values are left untouched, matching the OTel spec (only string and byte values are
+     * length-limited). The truncated leaf count accumulates in {@code context} so the caller can
+     * emit a single per-span {@code OPENTELEMETRY_TRUNCATED} summary.
+     */
+    public static List<AttributeBo> toAttributeBoList(Map<String, AttributeValue> attributes, Predicate<String> excludeFilter, @Nullable TransformContext context) {
         if (attributes.isEmpty()) {
             return List.of();
         }
@@ -328,102 +374,46 @@ public class OtlpTraceMapperUtils {
             if (excludeFilter.test(entry.getKey())) {
                 continue;
             }
-            result.add(new AttributeBo(entry.getKey(), entry.getValue()));
+            final AttributeValue value = transformValue(entry.getValue(), context);
+            result.add(new AttributeBo(entry.getKey(), value));
         }
         return result;
     }
 
-    /**
-     * Truncates over-long string / byte attribute values in place (UTF-8 byte length), recursing
-     * into ARRAY / KVLIST. Numeric and boolean values are left untouched, matching the OTel spec
-     * (only string and byte values are length-limited). Returns the number of leaf values truncated
-     * so the caller can emit a single per-span {@code OPENTELEMETRY_TRUNCATED} summary.
-     */
-    public static int truncateAttributeValues(List<AttributeBo> attributeBoList, int maxValueBytes) {
-        int truncated = 0;
-        final ListIterator<AttributeBo> iterator = attributeBoList.listIterator();
-        while (iterator.hasNext()) {
-            final AttributeBo bo = iterator.next();
-            final MutableInt counter = new MutableInt();
-            final AttributeValue value = truncateValue(bo.getValue(), maxValueBytes, counter);
-            if (counter.intValue() > 0) {
-                iterator.set(new AttributeBo(bo.getKey(), value));
-                truncated += counter.intValue();
-            }
+    private static AttributeValue transformValue(AttributeValue value, @Nullable TransformContext context) {
+        if (context == null) {
+            return value;
         }
-        return truncated;
-    }
-
-    /**
-     * Truncates over-long string values (UTF-8 byte length) in an {@code Object} map produced by
-     * {@link #getAttributeToMap}, recursing into nested maps/lists. Used for event/link attributes
-     * that are serialized to JSON, keeping the JSON valid. Returns the number of values truncated.
-     */
-    @SuppressWarnings("unchecked")
-    public static int truncateStringValues(Map<String, Object> map, int maxBytes) {
-        int count = 0;
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            final Object value = entry.getValue();
-            if (value instanceof String s) {
-                final String truncated = StringTruncator.truncateUtf8(s, maxBytes);
-                if (truncated != null) {
-                    entry.setValue(truncated);
-                    count++;
-                }
-            } else if (value instanceof Map) {
-                count += truncateStringValues((Map<String, Object>) value, maxBytes);
-            } else if (value instanceof List) {
-                count += truncateStringValues((List<Object>) value, maxBytes);
-            }
-        }
-        return count;
+        return truncateValue(value, context);
     }
 
     @SuppressWarnings("unchecked")
-    public static int truncateStringValues(List<Object> list, int maxBytes) {
-        int count = 0;
-        for (int i = 0; i < list.size(); i++) {
-            final Object value = list.get(i);
-            if (value instanceof String s) {
-                final String truncated = StringTruncator.truncateUtf8(s, maxBytes);
-                if (truncated != null) {
-                    list.set(i, truncated);
-                    count++;
-                }
-            } else if (value instanceof Map) {
-                count += truncateStringValues((Map<String, Object>) value, maxBytes);
-            } else if (value instanceof List) {
-                count += truncateStringValues((List<Object>) value, maxBytes);
-            }
-        }
-        return count;
-    }
+    private static AttributeValue truncateValue(AttributeValue value, @NonNull TransformContext context) {
+        Objects.requireNonNull(context, "context");
 
-    @SuppressWarnings("unchecked")
-    private static AttributeValue truncateValue(AttributeValue value, int maxBytes, MutableInt counter) {
         switch (value.getType()) {
             case STRING: {
-                final String truncated = StringTruncator.truncateUtf8((String) value.getValue(), maxBytes);
+                final String truncated = StringTruncator.truncateUtf8((String) value.getValue(), context.maxBytes());
                 if (truncated == null) {
                     return value;
                 }
-                counter.increment();
+                context.truncated();
                 return AttributeValue.of(truncated);
             }
             case BYTES: {
                 final byte[] bytes = (byte[]) value.getValue();
-                if (bytes.length <= maxBytes) {
+                if (bytes.length <= context.maxBytes()) {
                     return value;
                 }
-                counter.increment();
-                return AttributeValue.of(Arrays.copyOf(bytes, maxBytes));
+                context.truncated();
+                return AttributeValue.of(Arrays.copyOf(bytes, context.maxBytes()));
             }
             case ARRAY: {
                 final List<AttributeValue> array = (List<AttributeValue>) value.getValue();
                 boolean changed = false;
                 final List<AttributeValue> result = new ArrayList<>(array.size());
                 for (AttributeValue item : array) {
-                    final AttributeValue newItem = truncateValue(item, maxBytes, counter);
+                    final AttributeValue newItem = truncateValue(item, context);
                     result.add(newItem);
                     changed |= (newItem != item);
                 }
@@ -435,7 +425,7 @@ public class OtlpTraceMapperUtils {
                 final AttributeKeyValue[] result = new AttributeKeyValue[kvList.size()];
                 for (int i = 0; i < kvList.size(); i++) {
                     final AttributeKeyValue entry = kvList.get(i);
-                    final AttributeValue newValue = truncateValue(entry.getValue(), maxBytes, counter);
+                    final AttributeValue newValue = truncateValue(entry.getValue(), context);
                     final boolean entryChanged = newValue != entry.getValue();
                     result[i] = entryChanged ? AttributeKeyValue.of(entry.getKey(), newValue) : entry;
                     changed |= entryChanged;

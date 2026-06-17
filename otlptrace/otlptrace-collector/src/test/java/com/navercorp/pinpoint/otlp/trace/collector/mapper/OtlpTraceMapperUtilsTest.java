@@ -12,8 +12,8 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class OtlpTraceMapperUtilsTest {
 
     // =======================================================================
-    // getAttributeToMap(List<KeyValue>, Predicate)
+    // getAttributeToMapExcluding(List<KeyValue>, Predicate)
     // =======================================================================
 
     @Test
@@ -957,35 +957,42 @@ class OtlpTraceMapperUtilsTest {
     }
 
     // =======================================================================
-    // truncateAttributeValues(List<AttributeBo>, int)
+    // toAttributeBoList(Map, Predicate, TransformContext) — single-pass truncation
     // =======================================================================
 
-    private static List<AttributeBo> mutableBoList(AttributeBo... bos) {
-        return new ArrayList<>(List.of(bos));
+    private static List<AttributeBo> truncate(TransformContext context, AttributeValue value) {
+        final Map<String, AttributeValue> attrs = new LinkedHashMap<>();
+        attrs.put("k", value);
+        return OtlpTraceMapperUtils.toAttributeBoList(attrs, key -> false, context);
     }
 
     @Test
-    void truncateAttributeValues_emptyList_returnsZero() {
-        assertThat(OtlpTraceMapperUtils.truncateAttributeValues(new ArrayList<>(), 8)).isZero();
+    void truncateAttributeValues_emptyMap_returnsZero() {
+        TransformContext context = new TransformContext(8);
+
+        List<AttributeBo> result = OtlpTraceMapperUtils.toAttributeBoList(Map.of(), key -> false, context);
+
+        assertThat(result).isEmpty();
+        assertThat(context.truncatedCount()).isZero();
     }
 
     @Test
     void truncateAttributeValues_shortString_unchanged() {
-        List<AttributeBo> list = mutableBoList(new AttributeBo("k", AttributeValue.of("ok")));
+        TransformContext context = new TransformContext(64);
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 64);
+        List<AttributeBo> list = truncate(context, AttributeValue.of("ok"));
 
-        assertThat(truncated).isZero();
+        assertThat(context.truncatedCount()).isZero();
         assertThat(list.get(0).getValue().getValue()).isEqualTo("ok");
     }
 
     @Test
     void truncateAttributeValues_overLongString_truncatedAndCounted() {
-        List<AttributeBo> list = mutableBoList(new AttributeBo("k", AttributeValue.of("a".repeat(100))));
+        TransformContext context = new TransformContext(10);
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 10);
+        List<AttributeBo> list = truncate(context, AttributeValue.of("a".repeat(100)));
 
-        assertThat(truncated).isEqualTo(1);
+        assertThat(context.truncatedCount()).isEqualTo(1);
         AttributeValue value = list.get(0).getValue();
         assertThat(value.getType()).isEqualTo(AttributeValueType.STRING);
         assertThat((String) value.getValue()).isEqualTo("a".repeat(10));
@@ -993,16 +1000,16 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void truncateAttributeValues_numericAndBoolean_neverTruncated() {
-        List<AttributeBo> list = mutableBoList(
-                new AttributeBo("i", AttributeValue.of(1234567890L)),
-                new AttributeBo("d", AttributeValue.of(3.14159d)),
-                new AttributeBo("b", AttributeValue.of(true))
-        );
+        TransformContext context = new TransformContext(1);
+        Map<String, AttributeValue> attrs = new LinkedHashMap<>();
+        attrs.put("i", AttributeValue.of(1234567890L));
+        attrs.put("d", AttributeValue.of(3.14159d));
+        attrs.put("b", AttributeValue.of(true));
 
         // maxBytes=1: would truncate any string, but numbers/booleans are exempt per OTel spec
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 1);
+        List<AttributeBo> list = OtlpTraceMapperUtils.toAttributeBoList(attrs, key -> false, context);
 
-        assertThat(truncated).isZero();
+        assertThat(context.truncatedCount()).isZero();
         assertThat(list.get(0).getValue().getValue()).isEqualTo(1234567890L);
         assertThat(list.get(1).getValue().getValue()).isEqualTo(3.14159d);
         assertThat(list.get(2).getValue().getValue()).isEqualTo(true);
@@ -1014,11 +1021,11 @@ class OtlpTraceMapperUtilsTest {
         for (int i = 0; i < payload.length; i++) {
             payload[i] = (byte) i;
         }
-        List<AttributeBo> list = mutableBoList(new AttributeBo("k", AttributeValue.of(payload)));
+        TransformContext context = new TransformContext(16);
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 16);
+        List<AttributeBo> list = truncate(context, AttributeValue.of(payload));
 
-        assertThat(truncated).isEqualTo(1);
+        assertThat(context.truncatedCount()).isEqualTo(1);
         AttributeValue value = list.get(0).getValue();
         assertThat(value.getType()).isEqualTo(AttributeValueType.BYTES);
         assertThat((byte[]) value.getValue()).hasSize(16)
@@ -1028,11 +1035,11 @@ class OtlpTraceMapperUtilsTest {
     @Test
     void truncateAttributeValues_bytesWithinLimit_unchanged() {
         byte[] payload = new byte[]{1, 2, 3};
-        List<AttributeBo> list = mutableBoList(new AttributeBo("k", AttributeValue.of(payload)));
+        TransformContext context = new TransformContext(16);
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 16);
+        List<AttributeBo> list = truncate(context, AttributeValue.of(payload));
 
-        assertThat(truncated).isZero();
+        assertThat(context.truncatedCount()).isZero();
         assertThat((byte[]) list.get(0).getValue().getValue()).containsExactly(1, 2, 3);
     }
 
@@ -1043,12 +1050,12 @@ class OtlpTraceMapperUtilsTest {
                 AttributeValue.of("short"),
                 AttributeValue.of("b".repeat(100))
         );
-        List<AttributeBo> list = mutableBoList(new AttributeBo("k", array));
+        TransformContext context = new TransformContext(10);
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 10);
+        List<AttributeBo> list = truncate(context, array);
 
         // two over-long leaves truncated, the "short" one untouched
-        assertThat(truncated).isEqualTo(2);
+        assertThat(context.truncatedCount()).isEqualTo(2);
         @SuppressWarnings("unchecked")
         List<AttributeValue> result = (List<AttributeValue>) list.get(0).getValue().getValue();
         assertThat(result).extracting(AttributeValue::getValue)
@@ -1058,11 +1065,11 @@ class OtlpTraceMapperUtilsTest {
     @Test
     void truncateAttributeValues_array_noOverLongLeaf_unchanged() {
         AttributeValue array = AttributeValue.of(AttributeValue.of("x"), AttributeValue.of("y"));
-        List<AttributeBo> list = mutableBoList(new AttributeBo("k", array));
+        TransformContext context = new TransformContext(10);
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 10);
+        List<AttributeBo> list = truncate(context, array);
 
-        assertThat(truncated).isZero();
+        assertThat(context.truncatedCount()).isZero();
         @SuppressWarnings("unchecked")
         List<AttributeValue> result = (List<AttributeValue>) list.get(0).getValue().getValue();
         assertThat(result).extracting(AttributeValue::getValue).containsExactly("x", "y");
@@ -1074,11 +1081,11 @@ class OtlpTraceMapperUtilsTest {
                 AttributeKeyValue.of("big", AttributeValue.of("a".repeat(100))),
                 AttributeKeyValue.of("small", AttributeValue.of("ok"))
         );
-        List<AttributeBo> list = mutableBoList(new AttributeBo("k", kvList));
+        TransformContext context = new TransformContext(10);
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 10);
+        List<AttributeBo> list = truncate(context, kvList);
 
-        assertThat(truncated).isEqualTo(1);
+        assertThat(context.truncatedCount()).isEqualTo(1);
         @SuppressWarnings("unchecked")
         List<AttributeKeyValue> result = (List<AttributeKeyValue>) list.get(0).getValue().getValue();
         assertThat(result.get(0).getKey()).isEqualTo("big");
@@ -1093,11 +1100,11 @@ class OtlpTraceMapperUtilsTest {
                         AttributeValue.of("a".repeat(100)),
                         AttributeValue.of("b".repeat(100))))
         );
-        List<AttributeBo> list = mutableBoList(new AttributeBo("k", kvList));
+        TransformContext context = new TransformContext(10);
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 10);
+        List<AttributeBo> list = truncate(context, kvList);
 
-        assertThat(truncated).isEqualTo(2);
+        assertThat(context.truncatedCount()).isEqualTo(2);
         @SuppressWarnings("unchecked")
         List<AttributeKeyValue> outer = (List<AttributeKeyValue>) list.get(0).getValue().getValue();
         @SuppressWarnings("unchecked")
@@ -1108,98 +1115,118 @@ class OtlpTraceMapperUtilsTest {
 
     @Test
     void truncateAttributeValues_multipleBos_sumsTruncations() {
-        List<AttributeBo> list = mutableBoList(
-                new AttributeBo("a", AttributeValue.of("a".repeat(100))),
-                new AttributeBo("b", AttributeValue.of("ok")),
-                new AttributeBo("c", AttributeValue.of("c".repeat(100)))
-        );
+        TransformContext context = new TransformContext(10);
+        Map<String, AttributeValue> attrs = new LinkedHashMap<>();
+        attrs.put("a", AttributeValue.of("a".repeat(100)));
+        attrs.put("b", AttributeValue.of("ok"));
+        attrs.put("c", AttributeValue.of("c".repeat(100)));
 
-        int truncated = OtlpTraceMapperUtils.truncateAttributeValues(list, 10);
+        List<AttributeBo> list = OtlpTraceMapperUtils.toAttributeBoList(attrs, key -> false, context);
 
-        assertThat(truncated).isEqualTo(2);
+        assertThat(context.truncatedCount()).isEqualTo(2);
         assertThat(list.get(0).getValue().getValue()).isEqualTo("a".repeat(10));
         assertThat(list.get(1).getValue().getValue()).isEqualTo("ok");
         assertThat(list.get(2).getValue().getValue()).isEqualTo("c".repeat(10));
     }
 
     // =======================================================================
-    // truncateStringValues(Map<String, Object>, int) / (List<Object>, int)
+    // getAttributeToMap(List<KeyValue>, TransformContext) — single-pass truncation
     // =======================================================================
 
+    @SuppressWarnings("unchecked")
     @Test
-    void truncateStringValues_map_overLongString_truncatedAndCounted() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("big", "a".repeat(100));
-        map.put("small", "ok");
+    void truncatingTransform_overLongString_truncatedAndCounted() {
+        TransformContext context = new TransformContext(10);
 
-        int count = OtlpTraceMapperUtils.truncateStringValues(map, 10);
+        Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
+                kv("big", strVal("a".repeat(100))),
+                kv("small", strVal("ok"))
+        ), context);
 
-        assertThat(count).isEqualTo(1);
+        assertThat(context.truncatedCount()).isEqualTo(1);
         assertThat(map).containsEntry("big", "a".repeat(10));
         assertThat(map).containsEntry("small", "ok");
     }
 
     @Test
-    void truncateStringValues_map_nonStringValues_untouched() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("i", 1234567890L);
-        map.put("b", true);
-        map.put("d", 3.14d);
+    void truncatingTransform_nonStringValues_untouched() {
+        TransformContext context = new TransformContext(1);
 
-        int count = OtlpTraceMapperUtils.truncateStringValues(map, 1);
+        Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
+                kv("i", intVal(1234567890L)),
+                kv("b", boolVal(true)),
+                kv("d", doubleVal(3.14d))
+        ), context);
 
-        assertThat(count).isZero();
+        assertThat(context.truncatedCount()).isZero();
         assertThat(map).containsEntry("i", 1234567890L);
         assertThat(map).containsEntry("b", true);
         assertThat(map).containsEntry("d", 3.14d);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    void truncateStringValues_map_nestedMapAndList_recurses() {
-        Map<String, Object> nestedMap = new HashMap<>();
-        nestedMap.put("inner", "a".repeat(100));
-        List<Object> nestedList = new ArrayList<>(List.of("b".repeat(100), "ok"));
-        Map<String, Object> map = new HashMap<>();
-        map.put("map", nestedMap);
-        map.put("list", nestedList);
+    void truncatingTransform_nestedMapAndList_recurses() {
+        TransformContext context = new TransformContext(10);
 
-        int count = OtlpTraceMapperUtils.truncateStringValues(map, 10);
+        Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
+                kv("map", kvlistVal(kv("inner", strVal("a".repeat(100))))),
+                kv("list", arrayVal(strVal("b".repeat(100)), strVal("ok")))
+        ), context);
 
-        assertThat(count).isEqualTo(2);
-        assertThat(nestedMap).containsEntry("inner", "a".repeat(10));
-        assertThat(nestedList).containsExactly("b".repeat(10), "ok");
+        assertThat(context.truncatedCount()).isEqualTo(2);
+        assertThat((Map<String, Object>) map.get("map")).containsEntry("inner", "a".repeat(10));
+        assertThat((List<Object>) map.get("list")).containsExactly("b".repeat(10), "ok");
     }
 
     @Test
-    void truncateStringValues_map_withinLimit_returnsZero() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("k", "short");
+    void truncatingTransform_withinLimit_countsZero() {
+        TransformContext context = new TransformContext(64);
 
-        assertThat(OtlpTraceMapperUtils.truncateStringValues(map, 64)).isZero();
+        Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
+                kv("k", strVal("short"))
+        ), context);
+
+        assertThat(context.truncatedCount()).isZero();
+        assertThat(map).containsEntry("k", "short");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void truncatingTransform_arrayOverLongStrings_truncatedInPlace() {
+        TransformContext context = new TransformContext(10);
+
+        Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
+                kv("list", arrayVal(strVal("a".repeat(100)), strVal("ok"), strVal("b".repeat(100))))
+        ), context);
+
+        assertThat(context.truncatedCount()).isEqualTo(2);
+        assertThat((List<Object>) map.get("list")).containsExactly("a".repeat(10), "ok", "b".repeat(10));
     }
 
     @Test
-    void truncateStringValues_list_overLongString_truncatedInPlace() {
-        List<Object> list = new ArrayList<>(List.of("a".repeat(100), "ok", "b".repeat(100)));
+    void truncatingTransform_bytesWithinLimit_notTruncated() {
+        TransformContext context = new TransformContext(64);
 
-        int count = OtlpTraceMapperUtils.truncateStringValues(list, 10);
+        Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
+                kv("bin", bytesVal(new byte[]{0x0a, (byte) 0xbc})) // 2 bytes -> 4 hex chars
+        ), context);
 
-        assertThat(count).isEqualTo(2);
-        assertThat(list).containsExactly("a".repeat(10), "ok", "b".repeat(10));
+        assertThat(context.truncatedCount()).isZero();
+        assertThat((String) map.get("bin")).hasSize(4);
     }
 
     @Test
-    void truncateStringValues_list_nestedMapAndList_recurses() {
-        Map<String, Object> nestedMap = new HashMap<>();
-        nestedMap.put("inner", "a".repeat(100));
-        List<Object> nestedList = new ArrayList<>(List.of("b".repeat(100)));
-        List<Object> list = new ArrayList<>(List.of(nestedMap, nestedList, "ok"));
+    void truncatingTransform_bytesHexString_truncated() {
+        // BYTES values are rendered as a hex string and subject to the same cap.
+        TransformContext context = new TransformContext(10);
 
-        int count = OtlpTraceMapperUtils.truncateStringValues(list, 10);
+        Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
+                kv("bin", bytesVal(new byte[16])) // 16 bytes -> 32 hex chars, exceeds 10
+        ), context);
 
-        assertThat(count).isEqualTo(2);
-        assertThat(nestedMap).containsEntry("inner", "a".repeat(10));
-        assertThat(nestedList).containsExactly("b".repeat(10));
+        assertThat(context.truncatedCount()).isEqualTo(1);
+        assertThat((String) map.get("bin")).hasSize(10);
     }
 
 }

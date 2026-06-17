@@ -117,9 +117,10 @@ public class OtlpTraceSpanMapper {
         // attributes
         int truncatedAttributes = 0;
         if (!attributes.isEmpty()) {
+            final TransformContext context = new TransformContext(attributeValueMaxBytes);
             List<AttributeBo> attributeBoList = OtlpTraceMapperUtils.toAttributeBoList(
-                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
-            truncatedAttributes = OtlpTraceMapperUtils.truncateAttributeValues(attributeBoList, attributeValueMaxBytes);
+                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, context);
+            truncatedAttributes = context.truncatedCount();
             spanBo.setAttributeBoList(attributeBoList);
         }
 

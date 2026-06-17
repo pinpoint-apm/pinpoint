@@ -51,10 +51,12 @@ public class OtlpTraceEventMapper {
             Map<String, Object> inner = new HashMap<>(2);
             inner.put(FIELD_TIME, event.getTimeUnixNano());
             if (event.getAttributesCount() > 0) {
-                final Map<String, Object> eventAttributes = getAttributeToMap(event.getAttributesList());
                 // Cap over-long string values (notably exception.stacktrace, which is also kept in
                 // full in exception metadata) so a single event cannot bloat the span row.
-                truncated = OtlpTraceMapperUtils.truncateStringValues(eventAttributes, valueMaxBytes);
+                final TransformContext context = new TransformContext(valueMaxBytes);
+                final Map<String, Object> eventAttributes =
+                        getAttributeToMap(event.getAttributesList(), context);
+                truncated = context.truncatedCount();
                 inner.put(FIELD_ATTRIBUTES, eventAttributes);
             }
             Map<String, Object> map = Map.of(event.getName(), inner);
