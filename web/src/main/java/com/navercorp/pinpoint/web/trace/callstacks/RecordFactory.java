@@ -263,7 +263,7 @@ public class RecordFactory {
         return switch (value.getType()) {
             case STRING, BOOLEAN, LONG, DOUBLE -> value.getValue();
             case BYTES -> {
-                byte[] bytesValue = ((AttributeValueBytes) value).getBytesValue();
+                byte[] bytesValue = ((AttributeValueBytes) value).getRawBytesValue();
                 yield Base64.getEncoder().encodeToString(bytesValue);
             }
             case ARRAY -> {

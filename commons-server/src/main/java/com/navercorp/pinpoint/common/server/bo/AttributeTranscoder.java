@@ -72,7 +72,7 @@ public class AttributeTranscoder {
                 break;
             case BYTES:
                 buffer.putByte(TYPE_BYTES);
-                buffer.putPrefixedBytes(((AttributeValueBytes) attributeValue).getBytesValue());
+                buffer.putPrefixedBytes(((AttributeValueBytes) attributeValue).getRawBytesValue());
                 break;
             case ARRAY:
                 buffer.putByte(TYPE_ARRAY);
