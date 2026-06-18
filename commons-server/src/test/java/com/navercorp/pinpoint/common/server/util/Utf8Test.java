@@ -82,4 +82,24 @@ class Utf8Test {
         assertThat(result).isEqualTo("가가");
         assertThat(utf8Len(result)).isEqualTo(6);
     }
+
+    // U+1F600 (😀) is a surrogate pair (😀) encoding to 4 UTF-8 bytes.
+    private static final String EMOJI = "😀";
+
+    @Test
+    void truncate_surrogatePair_keptWhenWithinLimit() {
+        assertThat(Utf8.truncate(EMOJI, 4)).isNull(); // 4 bytes fits exactly
+    }
+
+    @Test
+    void truncate_surrogatePair_droppedWholeNotSplit() {
+        // maxBytes=3 cannot hold the 4-byte pair, so it is dropped whole (never a lone surrogate)
+        assertThat(Utf8.truncate(EMOJI, 3)).isEmpty();
+    }
+
+    @Test
+    void truncate_surrogatePairAfterAscii_cutsBeforePair() {
+        // 'a'(1) + pair(4) = 5 bytes; maxBytes=3 keeps 'a' and drops the un-splittable pair
+        assertThat(Utf8.truncate("a" + EMOJI, 3)).isEqualTo("a");
+    }
 }
