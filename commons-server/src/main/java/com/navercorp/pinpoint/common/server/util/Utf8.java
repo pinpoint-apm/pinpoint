@@ -59,24 +59,33 @@ public final class Utf8 {
         if ((long) utf16Length * 4 <= maxBytes) {
             return utf16Length;
         }
+        // Per-char scan (cf. com.google.common.base.Utf8#encodedLength): branch on the UTF-16 unit
+        // and short-circuit ASCII first, avoiding codePointAt's surrogate combine + Character.charCount.
         int utf8Length = 0;
-        for (int i = 0; i < utf16Length; ) {
-            final int cp = str.codePointAt(i);
+        int i = 0;
+        while (i < utf16Length) {
+            final char c = str.charAt(i);
             final int bytes;
-            if (cp <= 0x7F) {
+            final int step;
+            if (c < 0x80) {
                 bytes = 1;
-            } else if (cp <= 0x7FF) {
+                step = 1;
+            } else if (c < 0x800) {
                 bytes = 2;
-            } else if (cp <= 0xFFFF) {
-                bytes = 3;
+                step = 1;
+            } else if (Character.isHighSurrogate(c)
+                    && i + 1 < utf16Length && Character.isLowSurrogate(str.charAt(i + 1))) {
+                bytes = 4; // surrogate pair -> one code point, 4 UTF-8 bytes across 2 chars
+                step = 2;
             } else {
-                bytes = 4;
+                bytes = 3; // BMP char (or an unpaired surrogate, kept lenient as 3 bytes)
+                step = 1;
             }
             if (utf8Length + bytes > maxBytes) {
-                return i; // cut at the code-point boundary
+                return i; // cut at the char/code-point boundary
             }
             utf8Length += bytes;
-            i += Character.charCount(cp); // 1 or 2 (surrogate pair)
+            i += step;
         }
         return utf16Length; // within limit
     }
