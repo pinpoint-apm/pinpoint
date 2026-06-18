@@ -1,5 +1,6 @@
 import { getDefaultStore } from 'jotai';
-import { configurationAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
+import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 
 /**
  * 백엔드(service-module)의 `ServiceConstants.KEY`와 동일한 헤더 이름.
@@ -35,11 +36,18 @@ let installed = false;
  * `experimental.enableServiceMap.value`가 true일 때 백엔드로 가는 모든
  * `/api` 요청 헤더에 현재 선택된 service(`selectedServiceAtom`)를 주입한다.
  *
- * Jotai 기본 store(`getDefaultStore`)를 사용하므로 컴포넌트의
+ * configuration은 부트스트랩 이후 비동기로 로드/갱신되므로, 값이 아니라
+ * 매 요청 시 최신 configuration을 반환하는 getter(`getConfiguration`)를 받는다.
+ * 이를 통해 ui 패키지가 `configurationAtom`에 직접 의존하지 않고,
+ * web 앱이 configuration의 출처를 주입한다.
+ *
+ * service는 Jotai 기본 store(`getDefaultStore`)에서 읽으므로 컴포넌트의
  * `useAtomValue`/`useSetAtom`과 동일한 상태를 참조한다.
  * 앱 부트스트랩(main.tsx)에서 렌더링 전에 한 번 호출한다.
  */
-export const installServiceNameFetchInterceptor = () => {
+export const installServiceNameFetchInterceptor = (
+  getConfiguration: () => Configuration | undefined,
+) => {
   if (installed) return;
   if (typeof window === 'undefined' || typeof window.fetch !== 'function') return;
   installed = true;
@@ -49,7 +57,7 @@ export const installServiceNameFetchInterceptor = () => {
 
   window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
     try {
-      const configuration = store.get(configurationAtom);
+      const configuration = getConfiguration();
       const enableServiceMap = !!configuration?.['experimental.enableServiceMap.value'];
 
       if (enableServiceMap && isApiRequest(input)) {

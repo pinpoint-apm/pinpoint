@@ -6,6 +6,7 @@ import { IconContext } from 'react-icons';
 // import { ReactToastContainer, queryClient } from '@pinpoint-fe/ui';
 import { ReactToastContainer } from '@pinpoint-fe/ui/src/components';
 import { queryClient, installServiceNameFetchInterceptor } from '@pinpoint-fe/ui/src/hooks';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 import router from './routes';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
@@ -17,7 +18,9 @@ const jotaiStore = getDefaultStore();
 
 // configuration의 experimental.enableServiceMap이 켜져 있을 때, 모든 /api 요청 헤더에
 // 현재 선택된 service를 주입한다. 렌더링/최초 fetch 이전에 한 번 설치해야 한다.
-installServiceNameFetchInterceptor();
+// configuration은 부트스트랩 이후 비동기로 로드되므로, 매 요청 시 store에서 최신값을
+// 읽도록 getter를 주입한다.
+installServiceNameFetchInterceptor(() => jotaiStore.get(configurationAtom));
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.Fragment>
