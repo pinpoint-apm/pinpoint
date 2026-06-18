@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.service.component;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +21,8 @@ class ReservedServiceRegistryTest {
     }
 
     @Test
-    void contains_TEST() {
-        assertThat(registry.contains("TEST")).isTrue();
+    void contains_TEST_SERVICE() {
+        assertThat(registry.contains(ServiceUid.TEST_SERVICE_UID_NAME)).isTrue();
     }
 
     @Test
@@ -43,7 +44,7 @@ class ReservedServiceRegistryTest {
     void contains_caseInsensitive() {
         assertThat(registry.contains("default")).isTrue();
         assertThat(registry.contains("Default")).isTrue();
-        assertThat(registry.contains("test")).isTrue();
+        assertThat(registry.contains("test_service")).isTrue();
     }
 
     @Test
@@ -60,6 +61,6 @@ class ReservedServiceRegistryTest {
     @Test
     void getReservedNames_notEmpty() {
         assertThat(registry.getReservedNames()).isNotEmpty();
-        assertThat(registry.getReservedNames()).contains("DEFAULT", "TEST", "ERROR", "UNKNOWN", "NULL");
+        assertThat(registry.getReservedNames()).contains("DEFAULT", ServiceUid.TEST_SERVICE_UID_NAME, "ERROR", "UNKNOWN", "NULL");
     }
 }

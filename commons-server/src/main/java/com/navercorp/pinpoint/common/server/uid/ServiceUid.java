@@ -12,9 +12,11 @@ public class ServiceUid {
     public static final String DEFAULT_SERVICE_UID_NAME = "DEFAULT";
     public static final String UNKNOWN_SERVICE_UID_NAME = "UNKNOWN";
 
+    public static final String TEST_SERVICE_UID_NAME = "TEST_SERVICE";
+
     // serviceUid
     public static final ServiceUid DEFAULT = new ServiceUid(DEFAULT_SERVICE_UID_CODE);
-    public static final ServiceUid TEST = new ServiceUid(5);
+    public static final ServiceUid TEST_SERVICE = new ServiceUid(5);
 
     public static final ServiceUid ERROR = new ServiceUid(-1);
     public static final ServiceUid UNKNOWN = new ServiceUid(-2);

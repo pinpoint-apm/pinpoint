@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.grpc;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,7 @@ public class HeaderV4 implements Header {
     private final String applicationName;
     private final String serviceName;
 
+    @Nullable
     private final String apiKey;
 
     private final long agentStartTime;
@@ -45,6 +48,7 @@ public class HeaderV4 implements Header {
 
     public HeaderV4(String name,
                     String agentId, String agentName, String applicationName, String serviceName,
+                    @Nullable
                     String apiKey,
                     int serviceType,
                     long agentStartTime, long socketId,
@@ -56,7 +60,7 @@ public class HeaderV4 implements Header {
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
-        this.apiKey = Objects.requireNonNull(apiKey, "apiKey");
+        this.apiKey = apiKey;
         this.serviceType = serviceType;
         this.agentStartTime = agentStartTime;
         this.socketId = socketId;
@@ -100,6 +104,7 @@ public class HeaderV4 implements Header {
         return serviceType;
     }
 
+    @Nullable
     public String getApiKey() {
         return apiKey;
     }
