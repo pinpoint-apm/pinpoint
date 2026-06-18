@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.plugin.jetty12.ee10.interceptor.EE10ServletChannelHandleInterceptor;
-import com.navercorp.pinpoint.plugin.jetty12.ee11.interceptor.EE11ServletChannelHandleInterceptor;
+import com.navercorp.pinpoint.plugin.jetty12.ee10.interceptor.EE10ServletHandlerHandleInterceptor;
+import com.navercorp.pinpoint.plugin.jetty12.ee11.interceptor.EE11ServletHandlerHandleInterceptor;
 import com.navercorp.pinpoint.plugin.jetty12.interceptor.RequestStartAsyncInterceptor;
 
 import java.security.ProtectionDomain;
@@ -60,39 +60,39 @@ public class Jetty12Plugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         logger.info("Adding Jetty 12 transformers");
-        addEE10ServletChannelInterceptor();
-        addEE11ServletChannelInterceptor();
+        addEE10ServletHandlerInterceptor();
+        addEE11ServletHandlerInterceptor();
         addEE10ServletApiRequestTransform();
         addEE11ServletApiRequestTransform();
     }
 
-    private void addEE10ServletChannelInterceptor() {
-        transformTemplate.transform("org.eclipse.jetty.ee10.servlet.ServletChannel", EE10ServletChannelTransform.class);
+    private void addEE10ServletHandlerInterceptor() {
+        transformTemplate.transform("org.eclipse.jetty.ee10.servlet.ServletHandler", EE10ServletHandlerTransform.class);
     }
 
-    public static class EE10ServletChannelTransform implements TransformCallback {
+    public static class EE10ServletHandlerTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            final InstrumentMethod handleMethod = target.getDeclaredMethod("handle");
+            final InstrumentMethod handleMethod = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.Request", "org.eclipse.jetty.server.Response", "org.eclipse.jetty.util.Callback");
             if (handleMethod != null) {
-                handleMethod.addInterceptor(EE10ServletChannelHandleInterceptor.class);
+                handleMethod.addInterceptor(EE10ServletHandlerHandleInterceptor.class);
             }
             return target.toBytecode();
         }
     }
 
-    private void addEE11ServletChannelInterceptor() {
-        transformTemplate.transform("org.eclipse.jetty.ee11.servlet.ServletChannel", EE11ServletChannelTransform.class);
+    private void addEE11ServletHandlerInterceptor() {
+        transformTemplate.transform("org.eclipse.jetty.ee11.servlet.ServletHandler", EE11ServletHandlerTransform.class);
     }
 
-    public static class EE11ServletChannelTransform implements TransformCallback {
+    public static class EE11ServletHandlerTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            final InstrumentMethod handleMethod = target.getDeclaredMethod("handle");
+            final InstrumentMethod handleMethod = target.getDeclaredMethod("handle", "org.eclipse.jetty.server.Request", "org.eclipse.jetty.server.Response", "org.eclipse.jetty.util.Callback");
             if (handleMethod != null) {
-                handleMethod.addInterceptor(EE11ServletChannelHandleInterceptor.class);
+                handleMethod.addInterceptor(EE11ServletHandlerHandleInterceptor.class);
             }
             return target.toBytecode();
         }
