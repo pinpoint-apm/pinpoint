@@ -51,7 +51,7 @@ public class ServerHeaderReaderV4 implements HeaderReader<Header> {
         final String applicationName = headerExtractor.getName(headers, Header.APPLICATION_NAME_KEY);
         final String serviceName = headerExtractor.getName(headers, Header.SERVICE_NAME_KEY);
 
-        final String apikey = headerExtractor.getName(headers, Header.API_KEY);
+        final String apikey = headers.get(Header.API_KEY);
 
         final long startTime = headerExtractor.getTime(headers, Header.AGENT_START_TIME_KEY);
         final int serviceType = headerExtractor.getServiceType(headers);

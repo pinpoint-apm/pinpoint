@@ -32,35 +32,38 @@ public class ClientHeaderFactoryV4 implements HeaderFactory {
     private final String agentName;
     private final String applicationName;
     private final String serviceName;
+    private final String apiKey;
+
     private final long agentStartTime;
     private final int serviceType;
 
-    private final String apiKey;
-
-    public ClientHeaderFactoryV4(String agentId, String agentName, String applicationName, String serviceName, int serviceType, long agentStartTime, String apiKey) {
+    public ClientHeaderFactoryV4(String agentId, String agentName, String applicationName, String serviceName, String apiKey, int serviceType, long agentStartTime) {
         this.protocolVersion = ProtocolVersion.V4;
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
+        this.apiKey = apiKey;
+
         this.serviceType = serviceType;
         this.agentStartTime = agentStartTime;
-        this.apiKey = Objects.requireNonNull(apiKey, "apiKey");
     }
 
     public Metadata newHeader() {
         Metadata headers = new Metadata();
+        headers.put(Header.PROTOCOL_VERSION_NAME_KEY, Integer.toString(protocolVersion.version()));
+
         headers.put(Header.AGENT_ID_KEY, agentId);
         headers.put(Header.APPLICATION_NAME_KEY, applicationName);
         headers.put(Header.AGENT_NAME_KEY, agentName);
         headers.put(Header.SERVICE_NAME_KEY, serviceName);
-
-        headers.put(Header.PROTOCOL_VERSION_NAME_KEY, Integer.toString(protocolVersion.version()));
+        if (apiKey != null) {
+            headers.put(Header.API_KEY, apiKey);
+        }
 
         headers.put(Header.SERVICE_TYPE_KEY, Integer.toString(serviceType));
         headers.put(Header.AGENT_START_TIME_KEY, Long.toString(agentStartTime));
 
-        headers.put(Header.API_KEY, apiKey);
         return headers;
     }
 }
