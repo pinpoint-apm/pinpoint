@@ -42,21 +42,35 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Base interceptor for Jetty 12 EE10/EE11 {@code ServletChannel#handle()}.
- * The {@code handle()} method takes no arguments; concrete subclasses extract
- * the request/response from the {@code ServletChannel} target with direct
- * typed access against their respective EE10 or EE11 servlet API.
+ * Base interceptor for Jetty 12 EE10/EE11 entry point
+ * {@code ServletHandler#handle(Request, Response, Callback)}.
+ * <p>
+ * The entry point is {@code ServletHandler.handle} rather than
+ * {@code ServletChannel.handle()} because {@code ServletChannel.handle()} is
+ * re-entered during asynchronous completion ({@code AsyncContext.complete()} ->
+ * {@code ServletChannelState.complete()} -> {@code runInContext} ->
+ * {@code ServletChannel.handle()}). On that re-entry the servlet
+ * {@code DispatcherType} is still {@code REQUEST}, so the async-dispatch guard
+ * does not suppress it and a second (duplicate) trace creation is attempted on a
+ * thread that already holds the async trace, raising
+ * {@code "already Trace Object exist"}. {@code ServletHandler.handle} is invoked
+ * only on the initial request dispatch and on async re-dispatch (DispatcherType
+ * ASYNC, which the guard skips); the completion path does not pass through it.
+ * <p>
+ * Concrete subclasses extract the request/response from the core
+ * {@code Request} argument ({@code args[0]}); the {@code ServletContextRequest}
+ * is already populated by the {@code ServletContextHandler} before
+ * {@code ServletHandler.handle} runs (independent of {@code ServletChannel.associate}).
  */
-public abstract class AbstractServletChannelHandleInterceptor implements ApiIdAwareAroundInterceptor {
+public abstract class AbstractServletHandlerHandleInterceptor implements ApiIdAwareAroundInterceptor {
     protected final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
 
-    public AbstractServletChannelHandleInterceptor(TraceContext traceContext, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
+    public AbstractServletHandlerHandleInterceptor(TraceContext traceContext, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
         final Jetty12Configuration config = new Jetty12Configuration(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(
@@ -80,9 +94,9 @@ public abstract class AbstractServletChannelHandleInterceptor implements ApiIdAw
         this.servletResponseListener = new ServletResponseListenerBuilder<>(traceContext, new HttpServletResponseAdaptor()).build();
     }
 
-    protected abstract HttpServletRequest toHttpServletRequest(Object target);
+    protected abstract HttpServletRequest toHttpServletRequest(Object[] args);
 
-    protected abstract HttpServletResponse toHttpServletResponse(Object target);
+    protected abstract HttpServletResponse toHttpServletResponse(Object[] args);
 
     @Override
     public void before(Object target, int apiId, Object[] args) {
@@ -90,7 +104,7 @@ public abstract class AbstractServletChannelHandleInterceptor implements ApiIdAw
             logger.beforeInterceptor(target, args);
         }
         try {
-            final HttpServletRequest request = toHttpServletRequest(target);
+            final HttpServletRequest request = toHttpServletRequest(args);
             if (request == null) {
                 return;
             }
@@ -102,7 +116,7 @@ public abstract class AbstractServletChannelHandleInterceptor implements ApiIdAw
             }
             final MethodDescriptor methodDescriptor = MethodDescriptorHelper.apiId(apiId);
             this.servletRequestListener.initialized(request, Jetty12Constants.JETTY_METHOD, methodDescriptor);
-            final HttpServletResponse response = toHttpServletResponse(target);
+            final HttpServletResponse response = toHttpServletResponse(args);
             this.servletResponseListener.initialized(response, Jetty12Constants.JETTY_METHOD, methodDescriptor);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -117,7 +131,7 @@ public abstract class AbstractServletChannelHandleInterceptor implements ApiIdAw
             logger.afterInterceptor(target, args, result, throwable);
         }
         try {
-            final HttpServletRequest request = toHttpServletRequest(target);
+            final HttpServletRequest request = toHttpServletRequest(args);
             if (request == null) {
                 return;
             }
@@ -127,7 +141,7 @@ public abstract class AbstractServletChannelHandleInterceptor implements ApiIdAw
                 }
                 return;
             }
-            final HttpServletResponse response = toHttpServletResponse(target);
+            final HttpServletResponse response = toHttpServletResponse(args);
             final int statusCode = getStatusCode(response);
             this.servletResponseListener.destroyed(response, throwable, statusCode);
             this.servletRequestListener.destroyed(request, throwable, statusCode);
