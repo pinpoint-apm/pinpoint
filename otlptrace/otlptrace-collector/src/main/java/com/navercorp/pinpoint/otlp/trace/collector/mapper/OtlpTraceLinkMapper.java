@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
-import com.navercorp.pinpoint.common.server.util.StringTruncator;
+import com.navercorp.pinpoint.common.server.util.Utf8;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +62,7 @@ public class OtlpTraceLinkMapper {
             // since chained vendor entries can grow long.
             if (!link.getTraceState().isEmpty()) {
                 String traceState = link.getTraceState();
-                final String truncatedTraceState = StringTruncator.truncateUtf8(traceState, valueMaxBytes);
+                final String truncatedTraceState = Utf8.truncate(traceState, valueMaxBytes);
                 if (truncatedTraceState != null) {
                     traceState = truncatedTraceState;
                     truncated++;
