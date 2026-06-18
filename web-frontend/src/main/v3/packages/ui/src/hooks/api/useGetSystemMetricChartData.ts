@@ -4,13 +4,15 @@ import { useSystemMetricSearchParameters } from '../searchParameters';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
-const getQueryString = (queryParams: Partial<SystemMetricChart.Parameters>) => {
+const getQueryString = (queryParams: Partial<SystemMetricChart.Parameters>, tagGroup?: boolean) => {
   if (
     queryParams.hostGroupName &&
     queryParams.hostName &&
     queryParams.metricDefinitionId &&
     queryParams.from &&
-    queryParams.to
+    queryParams.to &&
+    // tagGroup이 있는 metric은 tags가 정해지기 전에는 요청하지 않는다 (빈 tags= 요청 방지)
+    (!tagGroup || queryParams.tags)
   ) {
     return '?' + convertParamsToQueryString(queryParams);
   }
@@ -19,9 +21,11 @@ const getQueryString = (queryParams: Partial<SystemMetricChart.Parameters>) => {
 
 export const useGetSystemMetricChartData = ({
   metricDefinitionId,
+  tagGroup,
   tags,
 }: {
   metricDefinitionId: string;
+  tagGroup?: boolean;
   tags?: string;
 }) => {
   const { hostGroupName, hostName, dateRange } = useSystemMetricSearchParameters();
@@ -36,7 +40,7 @@ export const useGetSystemMetricChartData = ({
     tags,
   };
 
-  const queryString = getQueryString(queryParams);
+  const queryString = getQueryString(queryParams, tagGroup);
 
   const { data, isLoading, isFetching } = useSuspenseQuery<SystemMetricChart.Response | null>({
     queryKey: [END_POINTS.SYSTEM_METRIC_CHART, queryString],
