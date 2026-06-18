@@ -41,7 +41,7 @@ public class ObjectNameV4 implements ObjectName {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
 
-        this.apiKey = Objects.requireNonNull(apiKey, "apiKey");
+        this.apiKey = apiKey;
     }
 
     @Override

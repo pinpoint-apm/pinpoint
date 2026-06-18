@@ -52,7 +52,9 @@ public class AgentHeaderFactoryProvider implements Provider<HeaderFactory> {
         String agentId = objectName.getAgentId();
         String agentName = objectName.getAgentName();
         String applicationName = objectName.getApplicationName();
-        return new ClientHeaderFactoryV1(agentId, agentName, applicationName, agentInformation.getServerType().getCode(), agentInformation.getStartTime());
+        int serviceType = agentInformation.getServerType().getCode();
+        long startTime = agentInformation.getStartTime();
+        return new ClientHeaderFactoryV1(agentId, agentName, applicationName, serviceType, startTime);
     }
 
     private HeaderFactory createV4() {
@@ -63,7 +65,10 @@ public class AgentHeaderFactoryProvider implements Provider<HeaderFactory> {
             String applicationName = objectName.getApplicationName();
             String serviceName = objectName.getServiceName();
             String apiKey = objectName.getApiKey();
-            return new ClientHeaderFactoryV4(agentId, agentName, applicationName, serviceName, agentInformation.getServerType().getCode(), agentInformation.getStartTime(), apiKey);
+
+            int serviceType = agentInformation.getServerType().getCode();
+            long startTime = agentInformation.getStartTime();
+            return new ClientHeaderFactoryV4(agentId, agentName, applicationName, serviceName, apiKey, serviceType, startTime);
         }
         throw new IllegalStateException("unsupported ObjectType:" + objectName);
     }
