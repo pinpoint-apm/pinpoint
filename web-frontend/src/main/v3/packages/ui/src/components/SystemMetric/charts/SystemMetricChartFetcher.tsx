@@ -40,9 +40,14 @@ export const SystemMetricChartFetcher = ({
   const { data: tagData } = useGetSystemMetricTagsData({
     metricDefinitionId: tagGroup ? metricDefinitionId : '',
   });
-  const [tags, selectedTags] = React.useState<string>(tagData?.[0] || '');
+  // 사용자가 직접 고른 tag만 상태로 보관하고, 선택 전에는 tagData의 첫 tag를 파생값으로 사용한다.
+  // (useEffect로 뒤늦게 동기화하면 tagData 변경 시 ''로 리셋되는 문제가 있어 렌더 중 파생값으로 처리)
+  const [selectedTag, setSelectedTag] = React.useState<string>();
+  // 사용자가 고른 tag가 현재 tagData에 없으면(host/metric 전환 등) 첫 tag로 폴백한다.
+  const tags = selectedTag && tagData?.includes(selectedTag) ? selectedTag : (tagData?.[0] ?? '');
   const { data: chartData } = useGetSystemMetricChartData({
     metricDefinitionId,
+    tagGroup,
     tags,
   });
 
@@ -118,10 +123,6 @@ export const SystemMetricChartFetcher = ({
   };
 
   React.useEffect(() => {
-    selectedTags(tagData?.[0] || '');
-  }, [tagData]);
-
-  React.useEffect(() => {
     const chart = chartComponent.current?.instance;
 
     chart?.load({
@@ -146,7 +147,7 @@ export const SystemMetricChartFetcher = ({
         {tagGroup && (
           <CardDescription className="flex items-center gap-2.5 !mt-3">
             <Label className="text-xs">Group</Label>
-            <Select value={tags} onValueChange={(value) => selectedTags(value)}>
+            <Select value={tags} onValueChange={(value) => setSelectedTag(value)}>
               <SelectTrigger className="w-[calc(100%-3.125rem)] text-xs">
                 <span className="flex-1 text-left truncate">
                   <SelectValue>{tags}</SelectValue>
