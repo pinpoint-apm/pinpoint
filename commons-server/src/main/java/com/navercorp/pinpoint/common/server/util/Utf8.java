@@ -20,9 +20,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
-public final class StringTruncator {
+public final class Utf8 {
 
-    private StringTruncator() {
+    private Utf8() {
     }
 
     /**
@@ -34,16 +34,33 @@ public final class StringTruncator {
      * @return the truncated string, or {@code null} when no truncation is needed
      * (value already within the limit)
      */
-    public static @Nullable String truncateUtf8(String str, int maxBytes) {
-        Objects.requireNonNull(str, "str");
-        final int len = str.length();
-        // fast path: a UTF-8 char is at most 4 bytes, so when 4*len <= maxBytes
-        // the value cannot exceed the limit -> no truncation.
-        if ((long) len * 4 <= maxBytes) {
-            return null;
+    public static @Nullable String truncate(String str, int maxBytes) {
+        final int index = truncateIndex(str, maxBytes);
+        if (index == str.length()) {
+            return null; // within limit
         }
-        int byteCount = 0;
-        for (int i = 0; i < len; ) {
+        return str.substring(0, index);
+    }
+
+    /**
+     * Returns the char index marking the end of the longest prefix of {@code str} whose UTF-8 byte
+     * length is within {@code maxBytes}, never splitting a multi-byte character. Equals
+     * {@code str.length()} when the whole string already fits.
+     *
+     * @param str      the string to measure; must not be {@code null}
+     * @param maxBytes the maximum length in UTF-8 bytes
+     * @return the cut index in {@code [0, str.length()]}
+     */
+    public static int truncateIndex(String str, int maxBytes) {
+        Objects.requireNonNull(str, "str");
+        final int utf16Length = str.length();
+        // fast path: a UTF-8 char is at most 4 bytes, so when 4*utf16Length <= maxBytes
+        // the value cannot exceed the limit -> no truncation.
+        if ((long) utf16Length * 4 <= maxBytes) {
+            return utf16Length;
+        }
+        int utf8Length = 0;
+        for (int i = 0; i < utf16Length; ) {
             final int cp = str.codePointAt(i);
             final int bytes;
             if (cp <= 0x7F) {
@@ -55,12 +72,12 @@ public final class StringTruncator {
             } else {
                 bytes = 4;
             }
-            if (byteCount + bytes > maxBytes) {
-                return str.substring(0, i); // cut at the code-point boundary
+            if (utf8Length + bytes > maxBytes) {
+                return i; // cut at the code-point boundary
             }
-            byteCount += bytes;
+            utf8Length += bytes;
             i += Character.charCount(cp); // 1 or 2 (surrogate pair)
         }
-        return null; // within limit
+        return utf16Length; // within limit
     }
 }

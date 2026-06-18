@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
-import com.navercorp.pinpoint.common.server.util.StringTruncator;
+import com.navercorp.pinpoint.common.server.util.Utf8;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
@@ -97,7 +97,7 @@ public class OtlpTraceSpanEventMapper {
             if (isDatabaseExecuteQuery(attributes)) {
                 spanEventBo.setServiceType(dbSystemTypeResolver.resolveExecuteQueryCode(dbSystem));
                 String statement = getClientSpanDbStatement(attributes);
-                final String truncatedStatement = (statement == null) ? null : StringTruncator.truncateUtf8(statement, sqlMaxBytes);
+                final String truncatedStatement = (statement == null) ? null : Utf8.truncate(statement, sqlMaxBytes);
                 if (truncatedStatement != null) {
                     statement = truncatedStatement;
                     truncatedSql = 1;

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
-import com.navercorp.pinpoint.common.server.util.StringTruncator;
+import com.navercorp.pinpoint.common.server.util.Utf8;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
@@ -301,7 +301,7 @@ public class OtlpTraceMapperUtils {
         if (context == null) {
             return value;
         }
-        final String truncated = StringTruncator.truncateUtf8(value, context.maxBytes());
+        final String truncated = Utf8.truncate(value, context.maxBytes());
         if (truncated != null) {
             context.truncated();
             return truncated;
@@ -393,7 +393,7 @@ public class OtlpTraceMapperUtils {
 
         switch (value.getType()) {
             case STRING: {
-                final String truncated = StringTruncator.truncateUtf8((String) value.getValue(), context.maxBytes());
+                final String truncated = Utf8.truncate((String) value.getValue(), context.maxBytes());
                 if (truncated == null) {
                     return value;
                 }
