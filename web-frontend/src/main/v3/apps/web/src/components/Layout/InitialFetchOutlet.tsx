@@ -25,7 +25,7 @@ export const InitialFetchOutlet = () => {
   const setSearchParameters = useSetAtom(searchParametersAtom);
 
   useExperimentals(data);
-  useServicesFetch();
+  useServicesFetch(configuration);
 
   // selectedService가 바뀌면 fetch 인터셉터가 주입하는 pServiceName 헤더 값이 달라진다.
   // 하지만 queryKey에는 service가 포함되지 않아, 캐시된 쿼리는 새 헤더로 재요청되지 않는다.

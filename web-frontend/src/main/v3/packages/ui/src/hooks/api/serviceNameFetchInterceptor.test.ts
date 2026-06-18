@@ -22,8 +22,9 @@ const headerOfLastCall = (): string | null => {
 describe('serviceNameFetchInterceptor', () => {
   beforeAll(() => {
     // 패치 대상이 될 원본 fetch를 먼저 심어두고, 인터셉터를 한 번 설치한다.
+    // 인터셉터는 매 요청 시 getter로 최신 configuration을 읽으므로, store에서 읽도록 주입한다.
     window.fetch = originalFetch as typeof window.fetch;
-    installServiceNameFetchInterceptor();
+    installServiceNameFetchInterceptor(() => store.get(configurationAtom));
   });
 
   beforeEach(() => {
