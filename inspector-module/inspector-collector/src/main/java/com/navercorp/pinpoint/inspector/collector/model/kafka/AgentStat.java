@@ -33,6 +33,7 @@ public class AgentStat {
 
     private final String tenantId;
     private final long timestamp;
+    private final String serviceName;
     private final String applicationName;
     private final String agentId;
     private final String sortKey;
@@ -42,11 +43,12 @@ public class AgentStat {
     private final List<Tag> tags;
 
 
-    public AgentStat(String tenantId, long timestamp, String applicationName, String agentId,
-                     String sortKey,
+    public AgentStat(String tenantId, long timestamp, String serviceName,
+                     String applicationName, String agentId, String sortKey,
                      String metricName, String fieldName, double fieldValue, List<Tag> tags) {
         this.tenantId = tenantId;
         this.timestamp = timestamp;
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.sortKey = sortKey;
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
@@ -59,6 +61,10 @@ public class AgentStat {
     @Deprecated
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getApplicationName() {
@@ -99,6 +105,7 @@ public class AgentStat {
         return "AgentStat{" +
                 "tenantId='" + tenantId + '\'' +
                 ", timestamp=" + timestamp +
+                ", serviceName='" + serviceName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", sortKey='" + sortKey + '\'' +

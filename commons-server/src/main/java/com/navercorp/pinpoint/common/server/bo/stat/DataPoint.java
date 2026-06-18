@@ -25,11 +25,13 @@ public interface DataPoint {
 
     String getApplicationName();
 
+    String getServiceName();
+
     long getStartTimestamp();
 
     long getTimestamp();
 
-    static DataPoint of(String agentId, String applicationName, long startTimestamp, long timestamp) {
-        return new DefaultDataPoint(agentId, applicationName, startTimestamp, timestamp);
+    static DataPoint of(String agentId, String applicationName, String serviceName, long startTimestamp, long timestamp) {
+        return new DefaultDataPoint(agentId, applicationName, serviceName, startTimestamp, timestamp);
     }
 }

@@ -34,6 +34,8 @@ public class AgentStatBo {
     private final String applicationName;
     @NonNull
     private final String agentId;
+    @NonNull
+    private final String serviceName;
     private final long startTimestamp;
 
     private final List<JvmGcBo> jvmGcBos;
@@ -53,6 +55,7 @@ public class AgentStatBo {
     private AgentStatBo(Builder builder) {
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
+        this.serviceName = builder.serviceName;
         this.startTimestamp = builder.startTimestamp;
         this.jvmGcBos = FilterUtils.filter(builder.statList, JvmGcBo.class);
         this.jvmGcDetailedBos = FilterUtils.filter(builder.statList, JvmGcDetailedBo.class);
@@ -79,6 +82,10 @@ public class AgentStatBo {
 
     public String getAgentId() {
         return agentId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public List<JvmGcBo> getJvmGcBos() {
@@ -130,19 +137,21 @@ public class AgentStatBo {
         return loadedClassBos;
     }
 
-    public static Builder newBuilder(String applicationName, String agentId, long startTimestamp) {
-        return new Builder(applicationName, agentId, startTimestamp);
+    public static Builder newBuilder(String serviceName, String applicationName, String agentId, long startTimestamp) {
+        return new Builder(serviceName, applicationName, agentId, startTimestamp);
     }
 
     public static class Builder {
 
+        private final String serviceName;
         private final String applicationName;
         private final String agentId;
         private final long startTimestamp;
 
         private final List<StatDataPoint> statList = new ArrayList<>();
 
-        Builder(String applicationName, String agentId, long startTimestamp) {
+        Builder(String serviceName, String applicationName, String agentId, long startTimestamp) {
+            this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
             this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
             this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
             this.startTimestamp = NumberPrecondition.requirePositiveOrZero(startTimestamp, "startTimestamp");
@@ -156,7 +165,7 @@ public class AgentStatBo {
             private final DataPoint dataPoint;
 
             public StatBuilder(long timestamp) {
-                this.dataPoint = DataPoint.of(agentId, applicationName, startTimestamp, timestamp);
+                this.dataPoint = DataPoint.of(agentId, applicationName, serviceName, startTimestamp, timestamp);
             }
 
             public DataPoint getDataPoint() {

@@ -28,6 +28,7 @@ public class AgentStatBuilder {
         String metricName = dataPoint.getAgentStatType().getChartType();
         return new AgentStat(tenantId,
                 point.getTimestamp(),
+                point.getServiceName(),
                 point.getApplicationName(), point.getAgentId(), sortKey,
                 metricName, fieldName.getFieldName(), fieldValue, tags);
     }
