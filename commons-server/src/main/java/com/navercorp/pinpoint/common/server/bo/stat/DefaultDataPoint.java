@@ -8,12 +8,14 @@ public class DefaultDataPoint implements DataPoint {
 
     private final String agentId;
     private final String applicationName;
+    private final String serviceName;
     private final long startTimestamp;
     private final long timestamp;
 
-    DefaultDataPoint(String agentId, String applicationName, long startTimestamp, long timestamp) {
+    DefaultDataPoint(String agentId, String applicationName, String serviceName, long startTimestamp, long timestamp) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.startTimestamp = startTimestamp;
         this.timestamp = timestamp;
     }
@@ -37,6 +39,11 @@ public class DefaultDataPoint implements DataPoint {
     @Override
     public String getApplicationName() {
         return applicationName;
+    }
+
+    @Override
+    public String getServiceName() {
+        return serviceName;
     }
 
     @Override
