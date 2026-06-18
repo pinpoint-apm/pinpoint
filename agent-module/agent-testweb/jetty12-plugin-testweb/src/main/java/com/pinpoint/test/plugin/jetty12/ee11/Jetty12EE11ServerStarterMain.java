@@ -27,6 +27,7 @@ public class Jetty12EE11ServerStarterMain {
         contextHandler.setContextPath("/");
         contextHandler.addServlet(BlockingServlet.class, "/status");
         contextHandler.addServlet(AsyncServlet.class, "/async");
+        contextHandler.addServlet(AsyncCompleteServlet.class, "/async-complete");
         server.setHandler(contextHandler);
 
         server.start();
