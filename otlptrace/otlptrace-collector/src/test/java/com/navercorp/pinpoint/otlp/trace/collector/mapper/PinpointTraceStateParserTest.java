@@ -146,7 +146,7 @@ class PinpointTraceStateParserTest {
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isEqualTo("my-svc");
         assertThat(h.parentApplicationName()).isEqualTo("my-app");
-        assertThat(h.parentApplicationType()).isEqualTo((short) 1010);
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
@@ -156,7 +156,7 @@ class PinpointTraceStateParserTest {
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isNull();
         assertThat(h.parentApplicationName()).isNull();
-        assertThat(h.parentApplicationType()).isEqualTo((short) 1220);
+        assertThat(h.parentApplicationType()).isEqualTo(1220);
     }
 
     @Test
@@ -168,12 +168,12 @@ class PinpointTraceStateParserTest {
     }
 
     @Test
-    void parse_typeNegative_acceptedWithinShortRange() {
+    void parse_typeNegative_acceptedWithinIntRange() {
         // ServiceType.UNDEFINED uses -1; negative codes must be accepted.
         PinpointTraceStateParser.PinpointHeader h =
                 PinpointTraceStateParser.parse("pp=app:x;type:-1");
         assertThat(h).isNotNull();
-        assertThat(h.parentApplicationType()).isEqualTo((short) -1);
+        assertThat(h.parentApplicationType()).isEqualTo(-1);
     }
 
     @Test
@@ -187,20 +187,19 @@ class PinpointTraceStateParserTest {
     }
 
     @Test
-    void parse_typeOverflowsShort_dropped() {
-        // 32768 is one past Short.MAX_VALUE — must not silently wrap.
+    void parse_typeAboveShortRange_acceptedAsInt() {
         PinpointTraceStateParser.PinpointHeader h =
                 PinpointTraceStateParser.parse("pp=app:x;type:32768");
         assertThat(h).isNotNull();
-        assertThat(h.parentApplicationType()).isNull();
+        assertThat(h.parentApplicationType()).isEqualTo(32768);
     }
 
     @Test
-    void parse_typeUnderflowsShort_dropped() {
+    void parse_typeBelowShortRange_acceptedAsInt() {
         PinpointTraceStateParser.PinpointHeader h =
                 PinpointTraceStateParser.parse("pp=app:x;type:-32769");
         assertThat(h).isNotNull();
-        assertThat(h.parentApplicationType()).isNull();
+        assertThat(h.parentApplicationType()).isEqualTo(-32769);
     }
 
     @Test
@@ -226,7 +225,7 @@ class PinpointTraceStateParserTest {
         PinpointTraceStateParser.PinpointHeader h =
                 PinpointTraceStateParser.parse("pp=type:1010;type:2020");
         assertThat(h).isNotNull();
-        assertThat(h.parentApplicationType()).isEqualTo((short) 1010);
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
@@ -238,7 +237,7 @@ class PinpointTraceStateParserTest {
         PinpointTraceStateParser.PinpointHeader h =
                 PinpointTraceStateParser.parse("pp=type:tomcat;type:1010");
         assertThat(h).isNotNull();
-        assertThat(h.parentApplicationType()).isEqualTo((short) 1010);
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
@@ -249,19 +248,32 @@ class PinpointTraceStateParserTest {
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isEqualTo("s1");
         assertThat(h.parentApplicationName()).isEqualTo("a1");
-        assertThat(h.parentApplicationType()).isEqualTo((short) 1010);
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
-    void parse_typeAtShortBoundaries_accepted() {
+    void parse_typeAtIntBoundaries_accepted() {
         PinpointTraceStateParser.PinpointHeader max =
-                PinpointTraceStateParser.parse("pp=app:x;type:32767");
+                PinpointTraceStateParser.parse("pp=app:x;type:2147483647");
         assertThat(max).isNotNull();
-        assertThat(max.parentApplicationType()).isEqualTo(Short.MAX_VALUE);
+        assertThat(max.parentApplicationType()).isEqualTo(Integer.MAX_VALUE);
 
         PinpointTraceStateParser.PinpointHeader min =
-                PinpointTraceStateParser.parse("pp=app:x;type:-32768");
+                PinpointTraceStateParser.parse("pp=app:x;type:-2147483648");
         assertThat(min).isNotNull();
-        assertThat(min.parentApplicationType()).isEqualTo(Short.MIN_VALUE);
+        assertThat(min.parentApplicationType()).isEqualTo(Integer.MIN_VALUE);
+    }
+
+    @Test
+    void parse_typeOutOfIntRange_dropped() {
+        PinpointTraceStateParser.PinpointHeader max =
+                PinpointTraceStateParser.parse("pp=app:x;type:2147483648");
+        assertThat(max).isNotNull();
+        assertThat(max.parentApplicationType()).isNull();
+
+        PinpointTraceStateParser.PinpointHeader min =
+                PinpointTraceStateParser.parse("pp=app:x;type:-2147483649");
+        assertThat(min).isNotNull();
+        assertThat(min.parentApplicationType()).isNull();
     }
 }

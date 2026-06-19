@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -100,7 +101,10 @@ public class OtlpTraceSpanMapper {
         // Apply Pinpoint context propagated via tracestate from an upstream OTel-traced service.
         // Skip true trace roots (no parent span) — there is no upstream caller to record.
         if (!span.getParentSpanId().isEmpty()) {
-            applyPinpointTraceState(spanBo, span.getTraceState());
+            final ParentApplication parentApplication = parseTraceState(span.getTraceState());
+            if (parentApplication != null) {
+                spanBo.setParentApplication(parentApplication);
+            }
         }
 
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
@@ -207,23 +211,22 @@ public class OtlpTraceSpanMapper {
      * applicationName (length / pattern) is silently dropped to avoid corrupting
      * ApplicationMap row keys.
      */
-    private void applyPinpointTraceState(SpanBo spanBo, String traceState) {
+    private @Nullable ParentApplication parseTraceState(String traceState) {
         final PinpointTraceStateParser.PinpointHeader header = PinpointTraceStateParser.parse(traceState);
         if (header == null) {
-            return;
+            return null;
         }
         final String parentApplicationName = header.parentApplicationName();
         if (parentApplicationName == null
                 || !IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
-            return;
+            return null;
         }
-        final Short parentApplicationType = header.parentApplicationType();
+        final Integer parentApplicationType = header.parentApplicationType();
         final int parentServiceType = parentApplicationType != null
                 ? parentApplicationType
                 : ServiceType.OPENTELEMETRY_SERVER.getCode();
         final String parentServiceName = header.parentServiceName();
-        ParentApplication parentApplication = ParentApplication.of(parentServiceName, parentApplicationName, parentServiceType);
-        spanBo.setParentApplication(parentApplication);
+        return ParentApplication.of(parentServiceName, parentApplicationName, parentServiceType);
     }
 
     /**
