@@ -34,6 +34,7 @@ public class InspectorQueryParameter {
 
     private final static String DEFAULT_TABLE_NAME = "tableName";
     private final String tenantId;
+    private final String serviceName;
     private final String tableName;
     private final String applicationName;
     private final String sortKey;
@@ -62,6 +63,7 @@ public class InspectorQueryParameter {
         Objects.requireNonNull(inspectorDataSearchKey, "inspectorDataSearchKey");
 
         this.tenantId = inspectorDataSearchKey.getTenantId();
+        this.serviceName = inspectorDataSearchKey.getServiceName();
         this.tableName = StringPrecondition.requireHasLength(tableName, "tableName");
         this.sortKey = StringPrecondition.requireHasLength(sortKey, "sortKey");
         this.applicationName = inspectorDataSearchKey.getApplicationName();
@@ -76,6 +78,10 @@ public class InspectorQueryParameter {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getTableName() {
@@ -123,18 +129,19 @@ public class InspectorQueryParameter {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InspectorQueryParameter that = (InspectorQueryParameter) o;
-        return limit == that.limit && Objects.equals(tenantId, that.tenantId) && Objects.equals(tableName, that.tableName) && Objects.equals(applicationName, that.applicationName) && Objects.equals(sortKey, that.sortKey) && Objects.equals(agentId, that.agentId) && Objects.equals(metricName, that.metricName) && Objects.equals(fieldName, that.fieldName) && Objects.equals(tagList, that.tagList) && Objects.equals(range, that.range) && Objects.equals(timePrecision, that.timePrecision);
+        return limit == that.limit && Objects.equals(tenantId, that.tenantId) && Objects.equals(serviceName, that.serviceName) && Objects.equals(tableName, that.tableName) && Objects.equals(applicationName, that.applicationName) && Objects.equals(sortKey, that.sortKey) && Objects.equals(agentId, that.agentId) && Objects.equals(metricName, that.metricName) && Objects.equals(fieldName, that.fieldName) && Objects.equals(tagList, that.tagList) && Objects.equals(range, that.range) && Objects.equals(timePrecision, that.timePrecision);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tenantId, tableName, applicationName, sortKey, agentId, metricName, fieldName, tagList, range, timePrecision, limit);
+        return Objects.hash(tenantId, serviceName, tableName, applicationName, sortKey, agentId, metricName, fieldName, tagList, range, timePrecision, limit);
     }
 
     @Override
     public String toString() {
         return "InspectorQueryParameterV2{" +
                 "tenantId='" + tenantId + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", tableName='" + tableName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", sortKey='" + sortKey + '\'' +

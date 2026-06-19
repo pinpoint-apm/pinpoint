@@ -55,6 +55,6 @@ public interface AgentInfoService {
 
     List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery query);
 
-    InspectorTimeline getAgentStatusTimeline(String applicationName, String agentId, Range range, int... excludeAgentEventTypeCodes);
+    InspectorTimeline getAgentStatusTimeline(String serviceName, String applicationName, String agentId, Range range, int... excludeAgentEventTypeCodes);
 
 }

@@ -34,5 +34,5 @@ public interface AgentStatService {
 
     InspectorMetricGroupData selectAgentStatWithGrouping(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow);
 
-    InspectorMetricGroupData selectAgentStatGroupedByAgentId(String tenantId, String applicationName, List<String> agentIds, String metricDefinitionId, TimeWindow timeWindow);
+    InspectorMetricGroupData selectAgentStatGroupedByAgentId(String tenantId, String serviceName, String applicationName, List<String> agentIds, String metricDefinitionId, TimeWindow timeWindow);
 }

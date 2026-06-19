@@ -85,24 +85,24 @@ public class PinotAgentStatDao implements AgentStatDao {
     }
 
     @Override
-    public CompletableFuture<List<AgentStatPoint>> selectAgentStatAvgByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
-        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, applicationName, agentIds, metricName, field, timeWindow);
+    public CompletableFuture<List<AgentStatPoint>> selectAgentStatAvgByAgentIds(String tenantId, String serviceName, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
+        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, serviceName, applicationName, agentIds, metricName, field, timeWindow);
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgDataByAgentIds", param);
     }
 
     @Override
-    public CompletableFuture<List<AgentStatPoint>> selectAgentStatMaxByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
-        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, applicationName, agentIds, metricName, field, timeWindow);
+    public CompletableFuture<List<AgentStatPoint>> selectAgentStatMaxByAgentIds(String tenantId, String serviceName, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
+        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, serviceName, applicationName, agentIds, metricName, field, timeWindow);
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxDataByAgentIds", param);
     }
 
     @Override
-    public CompletableFuture<List<AgentStatPoint>> selectAgentStatSumByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
-        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, applicationName, agentIds, metricName, field, timeWindow);
+    public CompletableFuture<List<AgentStatPoint>> selectAgentStatSumByAgentIds(String tenantId, String serviceName, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow) {
+        InspectorQueryGroupParameter param = buildGroupParameter(tenantId, serviceName, applicationName, agentIds, metricName, field, timeWindow);
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumDataByAgentIds", param);
     }
 
-    private InspectorQueryGroupParameter buildGroupParameter(String tenantId, String applicationName, List<String> agentIds,
+    private InspectorQueryGroupParameter buildGroupParameter(String tenantId, String serviceName, String applicationName, List<String> agentIds,
                                                              String metricName, Field field, TimeWindow timeWindow) {
         String tableName = tableNameManager.getTableName(applicationName);
         List<String> sortKeys = agentIds.stream()
@@ -111,7 +111,7 @@ public class PinotAgentStatDao implements AgentStatDao {
         Range range = timeWindow.getWindowRange();
         TimePrecision timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize());
         long perAgentLimit = timeWindow.getWindowRangeCount();
-        return new InspectorQueryGroupParameter(tenantId, tableName, sortKeys, metricName, field.getFieldName(), field.getTags(), range, timePrecision, perAgentLimit);
+        return new InspectorQueryGroupParameter(tenantId, serviceName, tableName, sortKeys, metricName, field.getFieldName(), field.getTags(), range, timePrecision, perAgentLimit);
     }
 
     @Override

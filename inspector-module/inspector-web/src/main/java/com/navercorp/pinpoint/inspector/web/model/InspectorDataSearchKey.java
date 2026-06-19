@@ -36,6 +36,8 @@ public class InspectorDataSearchKey {
 
     private final String tenantId;
 
+    private final String serviceName;
+
     private final String applicationName;
 
     private final String agentId;
@@ -46,8 +48,9 @@ public class InspectorDataSearchKey {
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public InspectorDataSearchKey(String tenantId, String applicationName, String agentId, String metricDefinitionId, TimeWindow timeWindow) {
+    public InspectorDataSearchKey(String tenantId, String serviceName, String applicationName, String agentId, String metricDefinitionId, TimeWindow timeWindow) {
         this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.metricDefinitionId = StringPrecondition.requireHasLength(metricDefinitionId, "metricDefinitionId");
@@ -64,6 +67,10 @@ public class InspectorDataSearchKey {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getAgentId() {

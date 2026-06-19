@@ -26,6 +26,6 @@ import java.util.List;
  */
 public interface AgentWarningStatService {
 
-    List<AgentStatusTimelineSegment> select(String applicationName, String agentId, Range range);
+    List<AgentStatusTimelineSegment> select(String serviceName, String applicationName, String agentId, Range range);
 
 }
