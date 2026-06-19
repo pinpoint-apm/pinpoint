@@ -27,6 +27,7 @@ public class ApplicationStat {
     private static final String NULL_STRING = "null";
 
     private final String tenantId;
+    private final String serviceName;
 
     private final long timestamp;
 
@@ -37,14 +38,15 @@ public class ApplicationStat {
     private final double fieldValue;
     private final String primaryTag;
 
-    public static ApplicationStat ofEmptyTag(String tenantId, long timestamp, String applicationName, String metricName, String fieldName, double fieldValue) {
-        return new ApplicationStat(tenantId, timestamp, applicationName, metricName, fieldName, NULL_STRING, fieldValue);
+    public static ApplicationStat ofEmptyTag(String tenantId, String serviceName, long timestamp, String applicationName, String metricName, String fieldName, double fieldValue) {
+        return new ApplicationStat(tenantId, serviceName, timestamp, applicationName, metricName, fieldName, NULL_STRING, fieldValue);
     }
 
-    public ApplicationStat(String tenantId, long timestamp,
+    public ApplicationStat(String tenantId, String serviceName, long timestamp,
                            String applicationName, String metricName,
                            String fieldName, String primaryTag, double fieldValue) {
         this.tenantId = tenantId;
+        this.serviceName = serviceName;
         this.timestamp = timestamp;
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.metricName = metricName;
@@ -57,6 +59,10 @@ public class ApplicationStat {
     @Deprecated
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public long getEventTime() {

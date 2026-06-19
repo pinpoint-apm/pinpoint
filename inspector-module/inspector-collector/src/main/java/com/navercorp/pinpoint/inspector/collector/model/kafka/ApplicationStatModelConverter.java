@@ -35,10 +35,11 @@ public class ApplicationStatModelConverter {
 
         for (AgentStat agentStat : agentStatList) {
             applicationStatList.add(ApplicationStat.ofEmptyTag(agentStat.getTenantId(),
+                    agentStat.getServiceName(),
                     agentStat.getEventTime(), agentStat.getApplicationName(),
-                                                        agentStat.getMetricName(),
-                                                        agentStat.getFieldName(),
-                                                        agentStat.getFieldValue()
+                    agentStat.getMetricName(),
+                    agentStat.getFieldName(),
+                    agentStat.getFieldValue()
             ));
         }
 
@@ -63,11 +64,12 @@ public class ApplicationStatModelConverter {
             }
 
             applicationStatList.add(new ApplicationStat(agentStat.getTenantId(),
+                    agentStat.getServiceName(),
                     agentStat.getEventTime(), agentStat.getApplicationName(),
-                                                        agentStat.getMetricName(),
-                                                        agentStat.getFieldName(),
-                                                        jdbcUrlTag.toString(),
-                                                        agentStat.getFieldValue()
+                    agentStat.getMetricName(),
+                    agentStat.getFieldName(),
+                    jdbcUrlTag.toString(),
+                    agentStat.getFieldValue()
             ));
         }
 
