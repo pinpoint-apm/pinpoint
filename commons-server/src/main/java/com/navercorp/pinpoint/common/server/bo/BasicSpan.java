@@ -52,6 +52,9 @@ public interface BasicSpan {
     ServerTraceId getTransactionId();
 //    void setTransactionId(TransactionId transactionId);
 
+    TraceSourceType getTraceSourceType();
+    void setTraceSourceType(TraceSourceType traceSourceType);
+
     int getApplicationServiceType();
     void setApplicationServiceType(int applicationServiceType);
     boolean hasApplicationServiceType();

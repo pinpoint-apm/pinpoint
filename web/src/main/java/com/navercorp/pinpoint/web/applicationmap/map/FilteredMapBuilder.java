@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
@@ -108,7 +109,7 @@ public class FilteredMapBuilder {
         final MultiValueMap<TraceSpanKey, SpanBo> index = new LinkedMultiValueMap<>();
         for (List<SpanBo> transaction : transactionList) {
             for (SpanBo host : transaction) {
-                if (!ServerTraceId.isOpenTelemetry(host.getTransactionId())) {
+                if (host.getTraceSourceType() != TraceSourceType.OPENTELEMETRY) {
                     continue;
                 }
                 final List<AnnotationBo> annotationBoList = host.getAnnotationBoList();
@@ -135,7 +136,7 @@ public class FilteredMapBuilder {
             return;
         }
         for (SpanBo upstream : transaction) {
-            if (!ServerTraceId.isOpenTelemetry(upstream.getTransactionId())) {
+            if (upstream.getTraceSourceType() != TraceSourceType.OPENTELEMETRY) {
                 continue;
             }
             // 1) Top-level OTel span: compare SpanBo's spanId
@@ -276,7 +277,7 @@ public class FilteredMapBuilder {
     private MultiValueMap<Long, SpanBo> createTransactionSpanMap(List<SpanBo> transaction) {
         final MultiValueMap<Long, SpanBo> transactionSpanMap = new LinkedMultiValueMap<>(transaction.size());
         for (SpanBo span : transaction) {
-            if (ServerTraceId.isOpenTelemetry(span.getTransactionId())) {
+            if (span.getTraceSourceType() == TraceSourceType.OPENTELEMETRY) {
                 if (isParentSpanId(span.getSpanId(), transaction)) {
                     transactionSpanMap.add(span.getSpanId(), span);
                 }

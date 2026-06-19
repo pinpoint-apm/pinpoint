@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.trace.span;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +49,7 @@ public class Node {
 
     public Node(final SpanBo span) {
         this.span = Objects.requireNonNull(span, "span");
-        this.opentelemetry = ServerTraceId.isOpenTelemetry(span.getTransactionId());
+        this.opentelemetry = span.getTraceSourceType() == TraceSourceType.OPENTELEMETRY;
         this.spanCallTree = new SpanCallTree(new SpanAlign(span, false, opentelemetry));
         alignList = buildAlignList(span);
         asyncSpanEventMap = SpanAsyncEventMap.build(span);
@@ -134,7 +134,7 @@ public class Node {
 
     private List<Align> mergeAndSort(SpanBo spanBo, List<Align> alignList1, List<Align> alignList2) {
         List<Align> mergedList = ListUtils.union(alignList1, alignList2);
-        if (mergedList.size() > 1 && ServerTraceId.isOpenTelemetry(spanBo.getTransactionId())) {
+        if (mergedList.size() > 1 && spanBo.getTraceSourceType() == TraceSourceType.OPENTELEMETRY) {
             return findOpenTelemetryChildSpanEvent(spanBo, mergedList, spanBo.getSpanId(), 1, (short) 0);
         }
 
