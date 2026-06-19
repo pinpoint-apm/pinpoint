@@ -40,10 +40,19 @@ public class BasicLoginService {
 
     private final JwtService jwtService;
 
+    private final boolean jwtCookieHttpOnly;
+
+    private final boolean jwtCookieSecure;
+
+    private final String jwtCookieSameSite;
+
     public BasicLoginService(BasicLoginProperties basicLoginProperties) {
         this.pinpointMemoryUserDetailsService = new PinpointMemoryUserDetailsService(basicLoginProperties);
 
         this.jwtService = new JwtService(basicLoginProperties);
+        this.jwtCookieHttpOnly = basicLoginProperties.isJwtCookieHttpOnly();
+        this.jwtCookieSecure = basicLoginProperties.isJwtCookieSecure();
+        this.jwtCookieSameSite = basicLoginProperties.getJwtCookieSameSite();
     }
 
     public UserDetails getUserDetails(Cookie[] cookies) {
@@ -87,6 +96,11 @@ public class BasicLoginService {
         String token = jwtService.createToken(userDetails);
         Cookie cookie = new Cookie(BasicLoginConstants.PINPOINT_JWT_COOKIE_NAME, token);
         cookie.setPath("/");
+        cookie.setHttpOnly(jwtCookieHttpOnly);
+        cookie.setSecure(jwtCookieSecure);
+        if (jwtCookieSameSite != null && !jwtCookieSameSite.isBlank()) {
+            cookie.setAttribute("SameSite", jwtCookieSameSite);
+        }
 
         long maxAge = TimeUnit.MILLISECONDS.toSeconds(jwtService.getExpirationTimeMillis());
         cookie.setMaxAge((int) maxAge);

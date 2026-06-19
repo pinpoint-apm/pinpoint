@@ -50,6 +50,15 @@ public class BasicLoginProperties implements InitializingBean {
     @Value("${web.security.auth.jwt.secretkey:#{null}}")
     private String jwtSecretKey = DEFAULT_JWT_SECRET_KEY;
 
+    @Value("${web.security.auth.jwt.cookie.http-only:true}")
+    private boolean jwtCookieHttpOnly;
+
+    @Value("${web.security.auth.jwt.cookie.secure:true}")
+    private boolean jwtCookieSecure;
+
+    @Value("${web.security.auth.jwt.cookie.same-site:Lax}")
+    private String jwtCookieSameSite;
+
     private List<UserDetails> userList;
 
     private List<UserDetails> adminList;
@@ -68,6 +77,18 @@ public class BasicLoginProperties implements InitializingBean {
 
     public long getExpirationTimeSeconds() {
         return DEFAULT_EXPIRATION_TIME_SECONDS;
+    }
+
+    public boolean isJwtCookieHttpOnly() {
+        return jwtCookieHttpOnly;
+    }
+
+    public boolean isJwtCookieSecure() {
+        return jwtCookieSecure;
+    }
+
+    public String getJwtCookieSameSite() {
+        return jwtCookieSameSite;
     }
 
     @Override
