@@ -82,8 +82,8 @@ public class ObjectNameResolverV4 implements ObjectNameResolver {
 
         final ObjectNameProperty apiKey = getApiKey(filter);
         if (!apiKey.hasLengthValue()) {
-            logger.warn("Failed to resolve ApiKey(-Dpinpoint.apikey)");
-            throw new ObjectNameValidationFailedException(AgentIdType.APIKEY, "ApiKey not provided");
+            logger.info("Failed to resolve ApiKey(-Dpinpoint.apikey)");
+//            throw new ObjectNameValidationFailedException(AgentIdType.APIKEY, "ApiKey not provided");
         } else {
             resolveLog(apiKey);
         }

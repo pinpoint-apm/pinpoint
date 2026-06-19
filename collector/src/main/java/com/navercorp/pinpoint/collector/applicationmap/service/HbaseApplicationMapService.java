@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -75,7 +76,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
 
     private Vertex getSelfVertex(BasicSpan basicSpan) {
         final ServiceType applicationServiceType = getApplicationServiceType(basicSpan);
-        return Vertex.of(basicSpan.getApplicationName(), applicationServiceType);
+        return Vertex.of(ServiceUid.DEFAULT.getUid(), basicSpan.getApplicationName(), applicationServiceType);
     }
 
     private ServiceType getApplicationServiceType(BasicSpan basicSpan) {
