@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.user.service.UserService;
 import com.navercorp.pinpoint.user.vo.User;
 import com.navercorp.pinpoint.web.webhook.model.Webhook;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
+import com.navercorp.pinpoint.web.webhook.support.WebhookUrlValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;
@@ -34,9 +35,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -78,22 +76,9 @@ public class WebhookSenderImpl implements WebhookSender {
 
         WebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, sequenceCount, userGroup);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-
         List<Webhook> webhookSendInfoList = webhookService.selectWebhookByRuleId(checker.getRuleId());
-        for (Webhook webhook : webhookSendInfoList) {
-            try {
-                HttpEntity<WebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
-                String validatedUrl = validateURL(webhook.getUrl());
-                restTemplate.exchange(validatedUrl, HttpMethod.POST, httpEntity, String.class);
-                logger.info("Successfully sent webhook : {}", webhook);
-            } catch (MalformedURLException | URISyntaxException e) {
-                logger.warn("Webhook url is not valid. Failed Webhook : {} for Checker : {}", webhook, checker, e);
-            } catch (RestClientException e) {
-                logger.warn("Failed at sending webhook. Failed Webhook : {} for Checker : {}", webhook, checker, e);
-            }
-        }
+
+        sendWebhooks(webhookPayload, webhookSendInfoList, checker);
         logger.info("Finished sending webhooks for checker : {}", checker);
     }
 
@@ -110,28 +95,32 @@ public class WebhookSenderImpl implements WebhookSender {
 
         PinotAlarmWebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, index, userGroup);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-
         List<Webhook> webhookSendInfoList = webhookService.selectWebhookByPinotAlarmRuleId(checker.getRuleId(index));
+
+        sendWebhooks(webhookPayload, webhookSendInfoList, checker);
+        logger.info("Finished sending webhooks for checker : {}", checker);
+    }
+
+    private <P, C> void sendWebhooks(P webhookPayload, List<Webhook> webhookSendInfoList, C checker) {
+        HttpEntity<P> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders());
+
         for (Webhook webhook : webhookSendInfoList) {
             try {
-                HttpEntity<PinotAlarmWebhookPayload> httpEntity = new HttpEntity<>(webhookPayload, httpHeaders);
-                String validatedUrl = validateURL(webhook.getUrl());
+                String validatedUrl = WebhookUrlValidator.validateSyntax(webhook.getUrl());
                 restTemplate.exchange(validatedUrl, HttpMethod.POST, httpEntity, String.class);
                 logger.info("Successfully sent webhook : {}", webhook);
-            } catch (MalformedURLException | URISyntaxException e) {
+            } catch (IllegalArgumentException e) {
                 logger.warn("Webhook url is not valid. Failed Webhook : {} for Checker : {}", webhook, checker, e);
             } catch (RestClientException e) {
                 logger.warn("Failed at sending webhook. Failed Webhook : {} for Checker : {}", webhook, checker, e);
             }
         }
-        logger.info("Finished sending webhooks for checker : {}", checker);
     }
 
-    private String validateURL(String url) throws MalformedURLException, URISyntaxException {
-        URL u = new URL(url);
-        return u.toURI().toString();
+    private static HttpHeaders httpHeaders() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return httpHeaders;
     }
 
     private static UserMember newUser(User user) {
