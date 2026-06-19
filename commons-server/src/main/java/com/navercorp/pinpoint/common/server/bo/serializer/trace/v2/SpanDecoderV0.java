@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitField;
@@ -58,20 +59,26 @@ public class SpanDecoderV0 implements SpanDecoder {
         final byte type = qualifier.readByte();
 
         if (SpanEncoder.TYPE_SPAN == type) {
-            return readSpan(qualifier, columnValue, decodingContext);
+            return readSpan(qualifier, columnValue, decodingContext, TraceSourceType.PINPOINT);
+        } else if (SpanEncoder.TYPE_OTEL_SPAN == type) {
+            return readSpan(qualifier, columnValue, decodingContext, TraceSourceType.OPENTELEMETRY);
         } else if (SpanEncoder.TYPE_SPAN_CHUNK == type) {
-            return readSpanChunk(qualifier, columnValue, decodingContext);
+            return readSpanChunk(qualifier, columnValue, decodingContext, TraceSourceType.PINPOINT);
+        } else if (SpanEncoder.TYPE_OTEL_SPAN_CHUNK == type) {
+            return readSpanChunk(qualifier, columnValue, decodingContext, TraceSourceType.OPENTELEMETRY);
         } else {
             logger.warn("Unknown span type {}", type);
             return null;
         }
     }
 
-    private SpanChunkBo readSpanChunk(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
+    private SpanChunkBo readSpanChunk(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext,
+                                      TraceSourceType traceSourceType) {
         final SpanChunkBo spanChunk = new SpanChunkBo();
 
         final ServerTraceId transactionId = decodingContext.getTransactionId();
         spanChunk.setTransactionId(transactionId);
+        spanChunk.setTraceSourceType(traceSourceType);
         spanChunk.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
 
@@ -83,11 +90,13 @@ public class SpanDecoderV0 implements SpanDecoder {
     }
 
 
-    private SpanBo readSpan(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
+    private SpanBo readSpan(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext,
+                            TraceSourceType traceSourceType) {
         final SpanBo span = new SpanBo();
 
         final ServerTraceId transactionId = decodingContext.getTransactionId();
         span.setTransactionId(transactionId);
+        span.setTraceSourceType(traceSourceType);
         span.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
         readQualifier(span, qualifier, decodingContext);

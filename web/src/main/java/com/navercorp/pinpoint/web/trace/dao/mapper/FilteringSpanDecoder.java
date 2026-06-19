@@ -46,7 +46,7 @@ public class FilteringSpanDecoder implements SpanDecoder {
             return null;
         }
         final byte type = qualifier.getByte(0);
-        if (SpanEncoder.TYPE_SPAN == type) {
+        if (SpanEncoder.TYPE_SPAN == type || SpanEncoder.TYPE_OTEL_SPAN == type) {
             BasicSpan spanBo = delegate.decode(qualifier, columnValue, decodingContext);
             if (spanBo != null ) {
                 if (spanFilter.test((SpanBo) spanBo)) {

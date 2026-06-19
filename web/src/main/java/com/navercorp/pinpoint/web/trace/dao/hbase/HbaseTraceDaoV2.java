@@ -42,8 +42,8 @@ import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
-import org.apache.hadoop.hbase.filter.ByteArrayComparable;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -247,9 +247,13 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     public Filter createSpanQualifierFilter() {
-        byte indexPrefix = SpanEncoder.TYPE_SPAN;
-        ByteArrayComparable prefixComparator = new BinaryPrefixComparator(new byte[]{indexPrefix});
-        return new QualifierFilter(CompareOperator.EQUAL, prefixComparator);
+        // Keep span cells only (drop span-chunk cells). TYPE_SPAN marks Pinpoint-origin spans,
+        // TYPE_OTEL_SPAN marks OpenTelemetry-origin spans — both are full Span rows.
+        Filter pinpointSpan = new QualifierFilter(CompareOperator.EQUAL,
+                new BinaryPrefixComparator(new byte[]{SpanEncoder.TYPE_SPAN}));
+        Filter otelSpan = new QualifierFilter(CompareOperator.EQUAL,
+                new BinaryPrefixComparator(new byte[]{SpanEncoder.TYPE_OTEL_SPAN}));
+        return new FilterList(FilterList.Operator.MUST_PASS_ONE, pinpointSpan, otelSpan);
     }
 
 

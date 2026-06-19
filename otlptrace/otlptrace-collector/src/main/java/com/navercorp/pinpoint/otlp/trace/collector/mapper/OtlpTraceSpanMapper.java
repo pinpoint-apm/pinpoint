@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -63,6 +64,7 @@ public class OtlpTraceSpanMapper {
 
     SpanBo map(IdAndName idAndName, Span span) {
         SpanBo spanBo = new SpanBo();
+        spanBo.setTraceSourceType(TraceSourceType.OPENTELEMETRY);
         spanBo.setVersion(SpanVersion.TRACE_V2);
         spanBo.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {

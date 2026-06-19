@@ -89,8 +89,12 @@ public class FilteringSpanDecoderTest {
     }
 
     private @NotNull Buffer newSpanBuffer() {
+        return newQualifierBuffer(SpanEncoder.TYPE_SPAN);
+    }
+
+    private @NotNull Buffer newQualifierBuffer(byte type) {
         Buffer buffer = new FixedBuffer(1);
-        buffer.putByte(SpanEncoder.TYPE_SPAN);
+        buffer.putByte(type);
         buffer.setOffset(0);
         return buffer;
     }
@@ -143,6 +147,54 @@ public class FilteringSpanDecoderTest {
         Buffer buffer = newSpanBuffer();
         BasicSpan result = filteringSpanDecoder.decode(buffer, null, null);
         Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void decodeTest_otelSpan_isAccepted() {
+        SpanBo spanBo = Random.createSpanBo();
+        SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
+
+        GetTraceInfo getTraceInfo = createGetTraceInfo(spanBo);
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
+
+        FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
+
+        Buffer buffer = newQualifierBuffer(SpanEncoder.TYPE_OTEL_SPAN);
+        BasicSpan result = filteringSpanDecoder.decode(buffer, null, null);
+        Assertions.assertNotNull(result, "TYPE_OTEL_SPAN must be accepted and pass through filter");
+    }
+
+    @Test
+    public void decodeTest_spanChunk_isDroppedByDecoder() {
+        SpanBo spanBo = Random.createSpanBo();
+        SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
+
+        GetTraceInfo getTraceInfo = createGetTraceInfo(spanBo);
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
+
+        FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
+
+        Buffer buffer = newQualifierBuffer(SpanEncoder.TYPE_SPAN_CHUNK);
+        BasicSpan result = filteringSpanDecoder.decode(buffer, null, null);
+        Assertions.assertNull(result, "TYPE_SPAN_CHUNK must be dropped (decoder filters spans only)");
+    }
+
+    @Test
+    public void decodeTest_otelSpanChunk_isDroppedByDecoder() {
+        SpanBo spanBo = Random.createSpanBo();
+        SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
+
+        GetTraceInfo getTraceInfo = createGetTraceInfo(spanBo);
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
+
+        FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
+
+        Buffer buffer = newQualifierBuffer(SpanEncoder.TYPE_OTEL_SPAN_CHUNK);
+        BasicSpan result = filteringSpanDecoder.decode(buffer, null, null);
+        Assertions.assertNull(result, "TYPE_OTEL_SPAN_CHUNK must be dropped (decoder filters spans only)");
     }
 
     private GetTraceInfo createGetTraceInfo() {

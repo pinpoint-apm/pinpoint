@@ -56,6 +56,8 @@ public class SpanBo implements BasicSpan {
 
     private ServerTraceId transactionId;
 
+    private TraceSourceType traceSourceType = TraceSourceType.PINPOINT;
+
     private long spanId;
     private long parentSpanId;
 
@@ -117,6 +119,16 @@ public class SpanBo implements BasicSpan {
 
     public void setTransactionId(ServerTraceId transactionId) {
         this.transactionId = transactionId;
+    }
+
+    @Override
+    public TraceSourceType getTraceSourceType() {
+        return traceSourceType;
+    }
+
+    @Override
+    public void setTraceSourceType(TraceSourceType traceSourceType) {
+        this.traceSourceType = Objects.requireNonNull(traceSourceType, "traceSourceType");
     }
 
     @NonNull
@@ -462,6 +474,7 @@ public class SpanBo implements BasicSpan {
                 ", serviceUid='" + serviceUidSupplier.get() + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
+                ", traceSourceType=" + traceSourceType +
                 ", spanId=" + spanId +
                 ", parentSpanId=" + parentSpanId +
                 ", parentApplicationName='" + parentApplicationName + '\'' +

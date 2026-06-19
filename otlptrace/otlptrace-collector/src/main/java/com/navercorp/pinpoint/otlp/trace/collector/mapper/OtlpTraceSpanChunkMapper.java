@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -43,6 +44,7 @@ public class OtlpTraceSpanChunkMapper {
 
     SpanChunkBo map(IdAndName idAndName, Span span) {
         SpanChunkBo spanChunkBo = new SpanChunkBo();
+        spanChunkBo.setTraceSourceType(TraceSourceType.OPENTELEMETRY);
         spanChunkBo.setVersion(SpanVersion.TRACE_V2);
 
         spanChunkBo.setAgentId(idAndName.agentId());

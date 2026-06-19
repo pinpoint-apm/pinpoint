@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.io.CollectorGrpcSpanFactory;
@@ -96,6 +97,55 @@ public class SpanEncoderTest {
     public void testEncodeSpanColumnValue_complexSpanChunk() {
         SpanChunkBo spanChunkBo = randomComplexSpanChunk();
         assertSpanChunk(spanChunkBo);
+    }
+
+    @RepeatedTest(REPEAT_COUNT)
+    public void testEncodeSpan_otelSource_qualifierByteAndRoundTrip() {
+        SpanBo spanBo = randomComplexSpan();
+        spanBo.setTraceSourceType(TraceSourceType.OPENTELEMETRY);
+
+        SpanEncodingContext<SpanBo> ctx = new SpanEncodingContext<>(spanBo);
+        ByteBuffer qualifier = spanEncoder.encodeSpanQualifier(ctx);
+        Assertions.assertThat(qualifier.get(qualifier.position()))
+                .as("OTel span qualifier first byte must be TYPE_OTEL_SPAN")
+                .isEqualTo(SpanEncoder.TYPE_OTEL_SPAN);
+
+        assertSpan(spanBo);
+    }
+
+    @RepeatedTest(REPEAT_COUNT)
+    public void testEncodeSpanChunk_otelSource_qualifierByteAndRoundTrip() {
+        SpanChunkBo spanChunkBo = randomComplexSpanChunk();
+        spanChunkBo.setTraceSourceType(TraceSourceType.OPENTELEMETRY);
+
+        SpanEncodingContext<SpanChunkBo> ctx = new SpanEncodingContext<>(spanChunkBo);
+        ByteBuffer qualifier = spanEncoder.encodeSpanChunkQualifier(ctx);
+        Assertions.assertThat(qualifier.get(qualifier.position()))
+                .as("OTel span chunk qualifier first byte must be TYPE_OTEL_SPAN_CHUNK")
+                .isEqualTo(SpanEncoder.TYPE_OTEL_SPAN_CHUNK);
+
+        assertSpanChunk(spanChunkBo);
+    }
+
+    @Test
+    public void testEncodeSpan_pinpointSource_qualifierFirstByteIsTypeSpan() {
+        SpanBo spanBo = randomSpan();
+        // default traceSourceType = PINPOINT
+        SpanEncodingContext<SpanBo> ctx = new SpanEncodingContext<>(spanBo);
+        ByteBuffer qualifier = spanEncoder.encodeSpanQualifier(ctx);
+        Assertions.assertThat(qualifier.get(qualifier.position()))
+                .as("Pinpoint span qualifier first byte must be TYPE_SPAN")
+                .isEqualTo(SpanEncoder.TYPE_SPAN);
+    }
+
+    @Test
+    public void testEncodeSpanChunk_pinpointSource_qualifierFirstByteIsTypeSpanChunk() {
+        SpanChunkBo spanChunkBo = randomSpanChunk();
+        SpanEncodingContext<SpanChunkBo> ctx = new SpanEncodingContext<>(spanChunkBo);
+        ByteBuffer qualifier = spanEncoder.encodeSpanChunkQualifier(ctx);
+        Assertions.assertThat(qualifier.get(qualifier.position()))
+                .as("Pinpoint span chunk qualifier first byte must be TYPE_SPAN_CHUNK")
+                .isEqualTo(SpanEncoder.TYPE_SPAN_CHUNK);
     }
 
     private long getCollectorAcceptTime() {
