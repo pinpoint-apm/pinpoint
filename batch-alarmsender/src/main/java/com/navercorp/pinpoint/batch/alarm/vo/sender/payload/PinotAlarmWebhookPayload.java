@@ -7,14 +7,11 @@ import java.math.BigDecimal;
 public class PinotAlarmWebhookPayload {
     private final String pinpointUrl;
     private final String batchEnv;
-    private final UserGroup userGroup;
     private final PinotAlarmData data;
 
-    public PinotAlarmWebhookPayload(String pinpointUrl, String batchEnv, PinotAlarmCheckerInterface checker, int index, UserGroup userGroup) {
+    public PinotAlarmWebhookPayload(String pinpointUrl, String batchEnv, PinotAlarmCheckerInterface checker, int index) {
         this.pinpointUrl = pinpointUrl;
         this.batchEnv = batchEnv;
-        this.userGroup = userGroup;
-
         this.data = new PinotAlarmData(checker, index);
     }
 
@@ -24,10 +21,6 @@ public class PinotAlarmWebhookPayload {
 
     public String getBatchEnv() {
         return batchEnv;
-    }
-
-    public UserGroup getUserGroup() {
-        return userGroup;
     }
 
     public PinotAlarmData getData() {

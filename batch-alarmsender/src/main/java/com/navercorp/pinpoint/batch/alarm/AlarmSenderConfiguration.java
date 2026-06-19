@@ -8,7 +8,6 @@ import com.navercorp.pinpoint.batch.alarm.sender.WebhookSender;
 import com.navercorp.pinpoint.batch.alarm.sender.WebhookSenderEmptyImpl;
 import com.navercorp.pinpoint.batch.alarm.sender.WebhookSenderImpl;
 import com.navercorp.pinpoint.user.service.UserGroupService;
-import com.navercorp.pinpoint.user.service.UserService;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
@@ -56,14 +55,13 @@ public class AlarmSenderConfiguration {
     @Bean
     @ConditionalOnProperty(name = WebhookModule.NAME, havingValue = "true", matchIfMissing = true)
     public WebhookSender webhookSender(AlarmSenderProperties alarmSenderProperties,
-                                       UserService userService,
                                        @Qualifier("webhookRestTemplate") RestTemplate webhookRestTemplate,
                                        WebhookService webhookService) {
         String pinpointUrl = alarmSenderProperties.getPinpointUrl();
         String batchEnv = alarmSenderProperties.getBatchEnv();
 
         WebhookPayloadFactory webhookPayloadFactory = new WebhookPayloadFactory(pinpointUrl, batchEnv);
-        return new WebhookSenderImpl(webhookPayloadFactory, userService, webhookRestTemplate, webhookService);
+        return new WebhookSenderImpl(webhookPayloadFactory, webhookRestTemplate, webhookService);
     }
 
     @Bean(destroyMethod = "close")

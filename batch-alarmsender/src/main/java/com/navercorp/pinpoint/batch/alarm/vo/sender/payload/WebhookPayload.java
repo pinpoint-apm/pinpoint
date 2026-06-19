@@ -32,14 +32,13 @@ public class WebhookPayload {
     private final String serviceType;
     private final String checkerName;
     private final String checkerType;
-    private final UserGroup userGroup;
     private final CheckerDetectedValue checkerDetectedValue;
     private final String unit;
     private final Number threshold;
     private final String notes;
     private final Integer sequenceCount;
     
-    public WebhookPayload(String pinpointUrl, String batchEnv, AlarmCheckerInterface checker, int sequenceCount, UserGroup userGroup) {
+    public WebhookPayload(String pinpointUrl, String batchEnv, AlarmCheckerInterface checker, int sequenceCount) {
         this.pinpointUrl = pinpointUrl;
         this.batchEnv = batchEnv;
 
@@ -48,7 +47,6 @@ public class WebhookPayload {
         this.serviceType = rule.getServiceType();
         this.checkerName = rule.getCheckerName();
         this.checkerType = checker.getCheckerType();
-        this.userGroup = userGroup;
         this.checkerDetectedValue = checker.getCheckerDetectedValue();
         this.unit = checker.getUnit();
         this.threshold = rule.getThreshold();
@@ -87,11 +85,7 @@ public class WebhookPayload {
     public String getCheckerType() {
         return checkerType;
     }
-    
-    public UserGroup getUserGroup() {
-        return userGroup;
-    }
-    
+
     public CheckerDetectedValue getCheckerDetectedValue() {
         return checkerDetectedValue;
     }
@@ -121,7 +115,6 @@ public class WebhookPayload {
                 ", serviceType='" + serviceType + '\'' +
                 ", checkerName='" + checkerName + '\'' +
                 ", checkerType='" + checkerType + '\'' +
-                ", userGroup=" + userGroup +
                 ", checkerDetectedValue=" + checkerDetectedValue +
                 ", unit='" + unit + '\'' +
                 ", threshold=" + threshold +
