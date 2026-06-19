@@ -205,9 +205,7 @@ public class OtlpTraceSpanMapper {
      * Applies an upstream Pinpoint context entry from {@code tracestate}.
      * Mirrors the native {@code ServerRequestRecorder} behavior: parentServiceName is
      * only meaningful when accompanied by a valid parentApplicationName, so the two
-     * fields are tied. The parent service type uses the {@code type} sub-key when
-     * present, otherwise falls back to {@link ServiceType#OPENTELEMETRY_SERVER} on the
-     * assumption that the upstream is another OTel-instrumented service. Invalid
+     * fields are tied. The parent service type uses the required {@code type} sub-key. Invalid
      * applicationName (length / pattern) is silently dropped to avoid corrupting
      * ApplicationMap row keys.
      */
@@ -217,14 +215,10 @@ public class OtlpTraceSpanMapper {
             return null;
         }
         final String parentApplicationName = header.parentApplicationName();
-        if (parentApplicationName == null
-                || !IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
+        if (!IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
             return null;
         }
-        final Integer parentApplicationType = header.parentApplicationType();
-        final int parentServiceType = parentApplicationType != null
-                ? parentApplicationType
-                : ServiceType.OPENTELEMETRY_SERVER.getCode();
+        final int parentServiceType = header.parentApplicationType();
         final String parentServiceName = header.parentServiceName();
         return ParentApplication.of(parentServiceName, parentApplicationName, parentServiceType);
     }
