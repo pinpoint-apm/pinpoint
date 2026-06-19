@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.service.web.vo.ServiceConstants;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
@@ -92,7 +93,7 @@ class AgentWarningStatServiceImplTest {
         when(agentStatService.selectAgentStatUnconvertedTime(any(InspectorDataSearchKey.class), any(TimeWindow.class))).thenReturn(mockDataList);
         when(tenantProvider.getTenantId()).thenReturn("pinpoint");
 
-        List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("applicationName", "pinpoint", range);
+        List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select(ServiceConstants.DEFAULT, "applicationName", "pinpoint", range);
         assertThat(timelineSegmentList).hasSize(3);
 
         validateAgentStatusTimelineSegment(timelineSegmentList.get(0), AgentState.UNSTABLE_RUNNING, firstStartTimestamp, firstEndTimestamp);
@@ -123,7 +124,7 @@ class AgentWarningStatServiceImplTest {
         when(agentStatService.selectAgentStatUnconvertedTime(any(InspectorDataSearchKey.class), any(TimeWindow.class))).thenReturn(mockDataList);
         when(tenantProvider.getTenantId()).thenReturn("pinpoint");
 
-        List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("applicationName", "pinpoint", range);
+        List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select(ServiceConstants.DEFAULT, "applicationName", "pinpoint", range);
 
         assertThat(timelineSegmentList).hasSize(1);
         validateAgentStatusTimelineSegment(timelineSegmentList.get(0), AgentState.UNSTABLE_RUNNING, from, from + 25000);

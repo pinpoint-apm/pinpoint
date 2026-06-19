@@ -59,7 +59,7 @@ public class ApplicationInspectorStatController {
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = getTimeWindow(range);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, serviceName.getName(), applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
 
         InspectorMetricData inspectorMetricData = applicationStatService.selectApplicationStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
@@ -94,7 +94,7 @@ public class ApplicationInspectorStatController {
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = getTimeWindow(range);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, serviceName.getName(), applicationName, InspectorDataSearchKey.UNKNOWN_NAME, metricDefinitionId, timeWindow);
 
         InspectorMetricGroupData inspectorMetricGroupData = applicationStatService.selectApplicationStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);

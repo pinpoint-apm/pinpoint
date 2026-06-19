@@ -32,6 +32,7 @@ import java.util.Objects;
 public class InspectorQueryGroupParameter {
 
     private final String tenantId;
+    private final String serviceName;
     private final String tableName;
     private final List<String> sortKeys;
     private final String metricName;
@@ -41,10 +42,11 @@ public class InspectorQueryGroupParameter {
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public InspectorQueryGroupParameter(String tenantId, String tableName, List<String> sortKeys,
+    public InspectorQueryGroupParameter(String tenantId, String serviceName, String tableName, List<String> sortKeys,
                                         String metricName, String fieldName, List<Tag> tagList,
                                         Range range, TimePrecision timePrecision, long perAgentLimit) {
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.tableName = Objects.requireNonNull(tableName, "tableName");
         this.sortKeys = Objects.requireNonNull(sortKeys, "sortKeys");
         this.metricName = Objects.requireNonNull(metricName, "metricName");
@@ -57,6 +59,10 @@ public class InspectorQueryGroupParameter {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getTableName() {

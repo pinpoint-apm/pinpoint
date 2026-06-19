@@ -86,20 +86,20 @@ class AgentInspectorStatControllerTest {
     void getAgentStatChartGroupedByAgentId() {
         when(tenantProvider.getTenantId()).thenReturn("pinpoint");
         InspectorMetricGroupData groupData = new InspectorMetricGroupData("cpu", Collections.emptyList(), Collections.emptyMap());
-        when(agentStatService.selectAgentStatGroupedByAgentId(any(), any(), any(), any(), any())).thenReturn(groupData);
+        when(agentStatService.selectAgentStatGroupedByAgentId(any(), any(), any(), any(), any(), any())).thenReturn(groupData);
 
         InspectorMetricGroupDataView result = controller.getAgentStatChartGroupedByAgentId(
                 new ServiceName("DEFAULT"), "testApp", List.of("agent-01", "agent-02"), "cpu", FROM, TO);
 
         assertThat(result.getTitle()).isEqualTo("cpu");
-        verify(agentStatService).selectAgentStatGroupedByAgentId(any(), any(), any(), any(), any());
+        verify(agentStatService).selectAgentStatGroupedByAgentId(any(), any(), any(), any(), any(), any());
     }
 
     @Test
     void getAgentStatChartListGroupedByAgentId() {
         when(tenantProvider.getTenantId()).thenReturn("pinpoint");
         InspectorMetricGroupData groupData = new InspectorMetricGroupData("cpu", Collections.emptyList(), Collections.emptyMap());
-        when(agentStatService.selectAgentStatGroupedByAgentId(any(), any(), any(), any(), any())).thenReturn(groupData);
+        when(agentStatService.selectAgentStatGroupedByAgentId(any(), any(), any(), any(), any(), any())).thenReturn(groupData);
 
         InspectorMetricGroupDataView result = controller.getAgentStatChartListGroupedByAgentId(
                 new ServiceName("DEFAULT"), "testApp", List.of("agent-01"), "cpu", FROM, TO);

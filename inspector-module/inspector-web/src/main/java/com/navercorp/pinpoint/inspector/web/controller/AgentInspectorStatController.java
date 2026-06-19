@@ -83,7 +83,7 @@ public class AgentInspectorStatController {
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = getTimeWindow(range);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, serviceName.getName(), applicationName, agentId, metricDefinitionId, timeWindow);
 
         InspectorMetricData inspectorMetricData = agentStatService.selectAgentStat(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricView(inspectorMetricData);
@@ -120,7 +120,7 @@ public class AgentInspectorStatController {
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = getTimeWindow(range);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, metricDefinitionId, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, serviceName.getName(), applicationName, agentId, metricDefinitionId, timeWindow);
 
         InspectorMetricGroupData inspectorMetricGroupData = agentStatService.selectAgentStatWithGrouping(inspectorDataSearchKey, timeWindow);
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
@@ -161,7 +161,7 @@ public class AgentInspectorStatController {
         TimeWindow timeWindow = getTimeWindow(range);
 
         InspectorMetricGroupData inspectorMetricGroupData = agentStatService.selectAgentStatGroupedByAgentId(
-                tenantId, applicationName, agentIds, metricDefinitionId, timeWindow
+                tenantId, serviceName.getName(), applicationName, agentIds, metricDefinitionId, timeWindow
         );
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }
@@ -182,7 +182,7 @@ public class AgentInspectorStatController {
         TimeWindow timeWindow = getTimeWindow(range);
 
         InspectorMetricGroupData inspectorMetricGroupData = agentStatService.selectAgentStatGroupedByAgentId(
-                tenantId, applicationName, agentIds, metricDefinitionId, timeWindow
+                tenantId, serviceName.getName(), applicationName, agentIds, metricDefinitionId, timeWindow
         );
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }

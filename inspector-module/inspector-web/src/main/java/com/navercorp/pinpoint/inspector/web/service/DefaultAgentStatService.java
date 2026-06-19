@@ -215,7 +215,7 @@ public class DefaultAgentStatService implements AgentStatService {
 
     @Override
     public InspectorMetricGroupData selectAgentStatGroupedByAgentId(
-            String tenantId, String applicationName, List<String> agentIds,
+            String tenantId, String serviceName, String applicationName, List<String> agentIds,
             String metricDefinitionId, TimeWindow timeWindow) {
 
         if (agentIds.size() > MAX_AGENT_IDS) {
@@ -225,7 +225,7 @@ public class DefaultAgentStatService implements AgentStatService {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(metricDefinitionId);
 
         // One query per field (M queries) instead of N×M queries
-        List<BatchQueryResult> batchResults = selectAllByAgentIds(tenantId, applicationName, agentIds, metricDefinition, timeWindow);
+        List<BatchQueryResult> batchResults = selectAllByAgentIds(tenantId, serviceName, applicationName, agentIds, metricDefinition, timeWindow);
 
         CompletableFuture<?>[] allFutures = batchResults.stream()
                 .map(BatchQueryResult::future)
@@ -261,17 +261,17 @@ public class DefaultAgentStatService implements AgentStatService {
         return new InspectorMetricGroupData(metricDefinition.getTitle(), timeStampList, metricValueGroups);
     }
 
-    private List<BatchQueryResult> selectAllByAgentIds(String tenantId, String applicationName, List<String> agentIds,
+    private List<BatchQueryResult> selectAllByAgentIds(String tenantId, String serviceName, String applicationName, List<String> agentIds,
                                                        MetricDefinition metricDefinition, TimeWindow timeWindow) {
         List<BatchQueryResult> results = new ArrayList<>();
         for (Field field : metricDefinition.getFields()) {
             CompletableFuture<List<AgentStatPoint>> future;
             if (AggregationFunction.AVG.equals(field.getAggregationFunction())) {
-                future = agentStatDao.selectAgentStatAvgByAgentIds(tenantId, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
+                future = agentStatDao.selectAgentStatAvgByAgentIds(tenantId, serviceName, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
             } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
-                future = agentStatDao.selectAgentStatMaxByAgentIds(tenantId, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
+                future = agentStatDao.selectAgentStatMaxByAgentIds(tenantId, serviceName, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
             } else if (AggregationFunction.SUM.equals(field.getAggregationFunction())) {
-                future = agentStatDao.selectAgentStatSumByAgentIds(tenantId, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
+                future = agentStatDao.selectAgentStatSumByAgentIds(tenantId, serviceName, applicationName, agentIds, metricDefinition.getMetricName(), field, timeWindow);
             } else {
                 throw new IllegalArgumentException("Unknown aggregation function : " + field.getAggregationFunction());
             }

@@ -40,11 +40,11 @@ public interface AgentStatDao {
 
     CompletableFuture<List<DataPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    CompletableFuture<List<AgentStatPoint>> selectAgentStatAvgByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
+    CompletableFuture<List<AgentStatPoint>> selectAgentStatAvgByAgentIds(String tenantId, String serviceName, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
 
-    CompletableFuture<List<AgentStatPoint>> selectAgentStatMaxByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
+    CompletableFuture<List<AgentStatPoint>> selectAgentStatMaxByAgentIds(String tenantId, String serviceName, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
 
-    CompletableFuture<List<AgentStatPoint>> selectAgentStatSumByAgentIds(String tenantId, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
+    CompletableFuture<List<AgentStatPoint>> selectAgentStatSumByAgentIds(String tenantId, String serviceName, String applicationName, List<String> agentIds, String metricName, Field field, TimeWindow timeWindow);
 
     List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 

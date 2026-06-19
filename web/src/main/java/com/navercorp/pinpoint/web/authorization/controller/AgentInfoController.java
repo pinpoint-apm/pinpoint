@@ -161,7 +161,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to) {
         final Range range = Range.between(from, to);
-        return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range);
+        return agentInfoService.getAgentStatusTimeline(serviceName.getName(), applicationName, agentId, range);
     }
 
     @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), new com.navercorp.pinpoint.common.server.bo.AgentParam(#agentId, #to))")
@@ -175,7 +175,7 @@ public class AgentInfoController implements AccessDeniedExceptionHandler {
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         final Range range = Range.between(from, to);
         rangeValidator.validate(range);
-        return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range, excludeEventTypeCodes);
+        return agentInfoService.getAgentStatusTimeline(serviceName.getName(), applicationName, agentId, range, excludeEventTypeCodes);
     }
 
     @RequestMapping(value = "/isAvailableAgentId")

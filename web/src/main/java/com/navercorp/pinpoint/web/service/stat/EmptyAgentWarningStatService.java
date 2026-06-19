@@ -32,7 +32,7 @@ import java.util.List;
 public class EmptyAgentWarningStatService implements AgentWarningStatService {
 
     @Override
-    public List<AgentStatusTimelineSegment> select(String applicationName, String agentId, Range range) {
+    public List<AgentStatusTimelineSegment> select(String serviceName, String applicationName, String agentId, Range range) {
         return Collections.emptyList();
     }
 
