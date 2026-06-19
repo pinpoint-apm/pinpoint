@@ -31,7 +31,7 @@ final class PinpointTraceStateParser {
     /** Parsed Pinpoint sub-keys from a {@code tracestate} header. Any field may be null. */
     record PinpointHeader(String parentServiceName,
                           String parentApplicationName,
-                          Short parentApplicationType) {
+                          Integer parentApplicationType) {
         boolean isEmpty() {
             return parentServiceName == null
                     && parentApplicationName == null
@@ -69,7 +69,7 @@ final class PinpointTraceStateParser {
         }
         String svc = null;
         String app = null;
-        Short type = null;
+        Integer type = null;
         for (String sub : value.split(";")) {
             int colon = sub.indexOf(':');
             if (colon < 0) {
@@ -92,21 +92,17 @@ final class PinpointTraceStateParser {
                 app = subValue;
             } else if (type == null
                     && OtlpTraceConstants.TRACESTATE_SUBKEY_PARENT_APPLICATION_TYPE.equals(subKey)) {
-                type = parseShortOrNull(subValue);
+                type = parseIntegerOrNull(subValue);
             }
         }
         PinpointHeader header = new PinpointHeader(svc, app, type);
         return header.isEmpty() ? null : header;
     }
 
-    /** Parse a Pinpoint ServiceType code; non-numeric or out-of-short-range returns null. */
-    private static Short parseShortOrNull(String value) {
+    /** Parse a Pinpoint ServiceType code; non-numeric or out-of-int-range returns null. */
+    private static Integer parseIntegerOrNull(String value) {
         try {
-            int parsed = Integer.parseInt(value);
-            if (parsed < Short.MIN_VALUE || parsed > Short.MAX_VALUE) {
-                return null;
-            }
-            return (short) parsed;
+            return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return null;
         }
