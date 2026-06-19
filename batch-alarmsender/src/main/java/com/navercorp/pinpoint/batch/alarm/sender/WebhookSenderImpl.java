@@ -18,11 +18,7 @@ package com.navercorp.pinpoint.batch.alarm.sender;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmCheckerInterface;
 import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.PinotAlarmWebhookPayload;
-import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserGroup;
-import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserMember;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.WebhookPayload;
-import com.navercorp.pinpoint.user.service.UserService;
-import com.navercorp.pinpoint.user.vo.User;
 import com.navercorp.pinpoint.web.webhook.model.Webhook;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
 import com.navercorp.pinpoint.web.webhook.support.WebhookUrlValidator;
@@ -37,7 +33,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author hyeran.lee
@@ -45,36 +40,24 @@ import java.util.stream.Collectors;
 public class WebhookSenderImpl implements WebhookSender {
     
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final UserService userService;
     private final RestTemplate restTemplate;
 
     private final WebhookPayloadFactory webhookPayloadFactory;
     private final WebhookService webhookService;
 
     public WebhookSenderImpl(WebhookPayloadFactory webhookPayloadFactory,
-                             UserService userService,
                              RestTemplate restTemplate,
                              WebhookService webhookService) {
         this.webhookPayloadFactory = Objects.requireNonNull(webhookPayloadFactory, "webhookPayloadFactory");
 
         this.restTemplate = Objects.requireNonNull(restTemplate, "restTemplate");
-        this.userService = Objects.requireNonNull(userService, "userService");
         this.webhookService = Objects.requireNonNull(webhookService, "webhookService");
     }
 
 
     @Override
     public void sendWebhook(AlarmCheckerInterface checker, int sequenceCount) {
-        String userGroupId = checker.getUserGroupId();
-
-        List<UserMember> userMembers = userService.selectUserByUserGroupId(userGroupId)
-            .stream()
-            .map(WebhookSenderImpl::newUser)
-            .collect(Collectors.toList());
-
-        UserGroup userGroup = new UserGroup(userGroupId, userMembers);
-
-        WebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, sequenceCount, userGroup);
+        WebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, sequenceCount);
 
         List<Webhook> webhookSendInfoList = webhookService.selectWebhookByRuleId(checker.getRuleId());
 
@@ -84,16 +67,7 @@ public class WebhookSenderImpl implements WebhookSender {
 
     @Override
     public void sendWebhook(PinotAlarmCheckerInterface checker, int index) {
-        String userGroupId = checker.getUserGroupId(index);
-
-        List<UserMember> userMembers = userService.selectUserByUserGroupId(userGroupId)
-                .stream()
-                .map(WebhookSenderImpl::newUser)
-                .collect(Collectors.toList());
-
-        UserGroup userGroup = new UserGroup(userGroupId, userMembers);
-
-        PinotAlarmWebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, index, userGroup);
+        PinotAlarmWebhookPayload webhookPayload = webhookPayloadFactory.newPayload(checker, index);
 
         List<Webhook> webhookSendInfoList = webhookService.selectWebhookByPinotAlarmRuleId(checker.getRuleId(index));
 
@@ -121,10 +95,6 @@ public class WebhookSenderImpl implements WebhookSender {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return httpHeaders;
-    }
-
-    private static UserMember newUser(User user) {
-        return new UserMember(user.getUserId(), user.getName(), user.getEmail(), user.getDepartment(), user.getPhoneNumber(), user.getPhoneCountryCode());
     }
 
 }
