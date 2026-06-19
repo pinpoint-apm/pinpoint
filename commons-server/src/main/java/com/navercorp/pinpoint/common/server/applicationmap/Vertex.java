@@ -31,13 +31,16 @@ public record Vertex(int serviceUid, String applicationName, ServiceType service
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 
+    public static Vertex of(int serviceUid, String applicationName, ServiceType serviceType) {
+        return new Vertex(serviceUid, applicationName, serviceType);
+    }
 
     public static Vertex of(String applicationName, ServiceType serviceType) {
-        return new Vertex(DEFAULT.getUid(), applicationName, serviceType);
+        return of(DEFAULT.getUid(), applicationName, serviceType);
     }
 
     @Override
     public String toString() {
-        return applicationName + "/" + serviceType.getName() + ':' + serviceType.getCode();
+        return serviceUid + "/" + applicationName + "/" + serviceType.getName() + ':' + serviceType.getCode();
     }
 }
