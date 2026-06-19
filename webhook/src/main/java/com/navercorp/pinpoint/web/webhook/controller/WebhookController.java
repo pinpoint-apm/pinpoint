@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.web.webhook.model.Webhook;
 import com.navercorp.pinpoint.web.webhook.model.WebhookResponse;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
+import com.navercorp.pinpoint.web.webhook.support.WebhookUrlValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -20,9 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,9 +51,9 @@ public class WebhookController {
 
         try {
             validateURL(webhook);
-        } catch (MalformedURLException | URISyntaxException e) {
-            logger.info("Malformed argument: webhook.url");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed argument: webhook.url");
+        } catch (IllegalArgumentException e) {
+            logger.info("Invalid argument: webhook.url");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid argument: webhook.url");
         }
 
         String webhookId = webhookService.insertWebhook(webhook);
@@ -105,17 +103,16 @@ public class WebhookController {
 
         try {
             validateURL(webhook);
-        } catch (MalformedURLException | URISyntaxException e) {
-            logger.info("Malformed argument: webhook.url");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed argument: webhook.url");
+        } catch (IllegalArgumentException e) {
+            logger.info("Invalid argument: webhook.url");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid argument: webhook.url");
         }
 
         webhookService.updateWebhook(webhook);
         return SimpleResponse.ok();
     }
 
-    private void validateURL(Webhook webhook) throws MalformedURLException, URISyntaxException {
-        URL u = new URL(webhook.getUrl());
-        webhook.setUrl(u.toURI().toString());
+    private void validateURL(Webhook webhook) {
+        webhook.setUrl(WebhookUrlValidator.validate(webhook.getUrl()));
     }
 }
