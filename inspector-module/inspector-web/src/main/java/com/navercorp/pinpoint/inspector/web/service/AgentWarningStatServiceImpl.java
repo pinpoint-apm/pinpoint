@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import com.navercorp.pinpoint.service.web.vo.ServiceConstants;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
@@ -55,10 +54,10 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
     }
 
     @Override
-    public List<AgentStatusTimelineSegment> select(String applicationName, String agentId, Range range) {
+    public List<AgentStatusTimelineSegment> select(String serviceName, String applicationName, String agentId, Range range) {
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
-        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, ServiceConstants.DEFAULT, applicationName, agentId, DEADLOCK_DEFINITION_ID, timeWindow);
+        InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, serviceName, applicationName, agentId, DEADLOCK_DEFINITION_ID, timeWindow);
         List<DataPoint<Double>> dataPoints = agentStatService.selectAgentStatUnconvertedTime(inspectorDataSearchKey, timeWindow);
         return createTimelineSegment(dataPoints);
     }
