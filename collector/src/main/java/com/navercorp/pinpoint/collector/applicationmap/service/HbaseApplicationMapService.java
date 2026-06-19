@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -119,12 +120,13 @@ public class HbaseApplicationMapService implements ApplicationMapService {
             return;
         }
 
-        final String parentApplicationName = span.getParentApplicationName();
-        if (parentApplicationName == null) {
-            logger.debug("parentApplicationName is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
+        final ParentApplication parentApplication = span.getParentApplication();
+        if (parentApplication == null) {
+            logger.debug("parentApplication is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
             return;
         }
-        final int parentServiceType = span.getParentApplicationServiceType();
+        final String parentApplicationName = parentApplication.applicationName();
+        final int parentServiceType = parentApplication.applicationServiceType();
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         if (spanServiceType.isQueue()) {
             final String host = span.getEndPoint();
@@ -139,8 +141,9 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     }
 
     private Vertex getParentVertex(SpanBo span) {
-        String parentApplicationName = span.getParentApplicationName();
-        ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationServiceType());
+        ParentApplication parentApplication = Objects.requireNonNull(span.getParentApplication(), "parentApplication");
+        String parentApplicationName = parentApplication.applicationName();
+        ServiceType parentApplicationType = registry.findServiceType(parentApplication.applicationServiceType());
         return Vertex.of(parentApplicationName, parentApplicationType);
     }
 
@@ -179,7 +182,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
 
         // save statistics info only when parentApplicationContext exists
         // when drawing server map based on statistics info, you must know the application name of the previous node.
-        if (span.getParentApplicationName() != null) {
+        if (span.getParentApplication() != null) {
 
             Vertex parentVertex = getParentVertex(span);
             logger.debug("Received parent application name. parentName:{} appName:{}", parentVertex, span.getApplicationName());

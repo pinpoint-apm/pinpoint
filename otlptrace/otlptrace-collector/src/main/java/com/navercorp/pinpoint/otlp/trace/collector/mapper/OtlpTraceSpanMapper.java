@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
+import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
@@ -216,15 +217,13 @@ public class OtlpTraceSpanMapper {
                 || !IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
             return;
         }
-        spanBo.setParentApplicationName(parentApplicationName);
         final Short parentApplicationType = header.parentApplicationType();
-        spanBo.setParentApplicationServiceType(parentApplicationType != null
+        final int parentServiceType = parentApplicationType != null
                 ? parentApplicationType
-                : ServiceType.OPENTELEMETRY_SERVER.getCode());
+                : ServiceType.OPENTELEMETRY_SERVER.getCode();
         final String parentServiceName = header.parentServiceName();
-        if (parentServiceName != null) {
-            spanBo.setParentServiceName(parentServiceName);
-        }
+        ParentApplication parentApplication = ParentApplication.of(parentServiceName, parentApplicationName, parentServiceType);
+        spanBo.setParentApplication(parentApplication);
     }
 
     /**

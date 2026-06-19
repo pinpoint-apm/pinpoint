@@ -3,7 +3,9 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
@@ -662,10 +664,9 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
-        assertThat(bo.getParentApplicationServiceType())
-                .isEqualTo((short) ServiceType.OPENTELEMETRY_SERVER.getCode());
-        assertThat(bo.getParentServiceName()).isEqualTo("upstream-svc");
+        assertThat(bo.getParentApplication())
+                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
+                        (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
     }
 
     @Test
@@ -674,8 +675,9 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("dd=s:1;t.dm:-4,pp=svc:upstream-svc;app:upstream-app,nr=opaque")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
-        assertThat(bo.getParentServiceName()).isEqualTo("upstream-svc");
+        assertThat(bo.getParentApplication())
+                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
+                        (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
     }
 
     @Test
@@ -687,20 +689,18 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("pp=svc:upstream-svc")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isNull();
-        assertThat(bo.getParentServiceName()).isNull();
+        assertThat(bo.getParentApplication()).isNull();
     }
 
     @Test
-    void map_tracestate_appOnly_setsApplicationButLeavesServiceNull() {
+    void map_tracestate_appOnly_setsApplicationWithDefaultService() {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=app:upstream-app")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
-        assertThat(bo.getParentApplicationServiceType())
-                .isEqualTo((short) ServiceType.OPENTELEMETRY_SERVER.getCode());
-        assertThat(bo.getParentServiceName()).isNull();
+        assertThat(bo.getParentApplication())
+                .isEqualTo(new ParentApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, "upstream-app",
+                        (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
     }
 
     @Test
@@ -711,16 +711,14 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("pp=svc:upstream-svc;app:한글앱")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isNull();
-        assertThat(bo.getParentServiceName()).isNull();
+        assertThat(bo.getParentApplication()).isNull();
     }
 
     @Test
     void map_tracestate_emptyHeader_noParentFields() {
         Span span = serverSpanBuilder().build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isNull();
-        assertThat(bo.getParentServiceName()).isNull();
+        assertThat(bo.getParentApplication()).isNull();
     }
 
     @Test
@@ -735,8 +733,7 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isNull();
-        assertThat(bo.getParentServiceName()).isNull();
+        assertThat(bo.getParentApplication()).isNull();
     }
 
     @Test
@@ -753,8 +750,9 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
-        assertThat(bo.getParentServiceName()).isEqualTo("upstream-svc");
+        assertThat(bo.getParentApplication())
+                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
+                        (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
     }
 
     @Test
@@ -764,7 +762,7 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app;type:1010")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationServiceType()).isEqualTo((short) 1010);
+        assertThat(bo.getParentApplication().applicationServiceType()).isEqualTo((short) 1010);
     }
 
     @Test
@@ -773,8 +771,8 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationServiceType())
-                .isEqualTo((short) ServiceType.OPENTELEMETRY_SERVER.getCode());
+        assertThat(bo.getParentApplication().applicationServiceType())
+                .isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
     }
 
     @Test
@@ -783,8 +781,8 @@ class OtlpTraceSpanMapperTest {
                 .setTraceState("pp=app:upstream-app;type:tomcat")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplicationName()).isEqualTo("upstream-app");
-        assertThat(bo.getParentApplicationServiceType())
-                .isEqualTo((short) ServiceType.OPENTELEMETRY_SERVER.getCode());
+        assertThat(bo.getParentApplication())
+                .isEqualTo(new ParentApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, "upstream-app",
+                        ServiceType.OPENTELEMETRY_SERVER.getCode()));
     }
 }
