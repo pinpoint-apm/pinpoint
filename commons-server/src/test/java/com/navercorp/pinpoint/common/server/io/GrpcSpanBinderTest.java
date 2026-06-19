@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.io;
 
+import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
@@ -57,8 +58,7 @@ class GrpcSpanBinderTest {
         PSpan span = newSpan(event);
 
         SpanBo spanBo = grpcSpanBinder.newSpanBo(span, header, requestTime);
-        Assertions.assertEquals("validId", spanBo.getParentApplicationName());
-        Assertions.assertEquals(1000, spanBo.getParentApplicationServiceType());
+        Assertions.assertEquals(new ParentApplication("validId", 1000), spanBo.getParentApplication());
     }
 
     private PSpan newSpan(PAcceptEvent acceptEvent) {
@@ -84,7 +84,7 @@ class GrpcSpanBinderTest {
         PSpan span = newSpan(null);
 
         SpanBo spanBo = grpcSpanBinder.newSpanBo(span, header, requestTime);
-        Assertions.assertNull(spanBo.getParentApplicationName());
+        Assertions.assertNull(spanBo.getParentApplication());
 
     }
 }

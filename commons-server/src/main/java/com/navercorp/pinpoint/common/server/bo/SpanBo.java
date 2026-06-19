@@ -61,8 +61,7 @@ public class SpanBo implements BasicSpan {
     private long spanId;
     private long parentSpanId;
 
-    private String parentApplicationName;
-    private short parentApplicationServiceType;
+    private ParentApplication parentApplication;
 
     private long startTime;
     private int elapsed;
@@ -91,8 +90,6 @@ public class SpanBo implements BasicSpan {
     private String remoteAddr; // optional
 
     private byte loggingTransactionInfo; //optional
-
-    private String parentServiceName;
 
     private List<AttributeBo> attributeBoList = new ArrayList<>();
 
@@ -405,20 +402,13 @@ public class SpanBo implements BasicSpan {
         }
     }
 
-    public String getParentApplicationName() {
-        return parentApplicationName;
+
+    public ParentApplication getParentApplication() {
+        return parentApplication;
     }
 
-    public void setParentApplicationName(String parentApplicationName) {
-        this.parentApplicationName = parentApplicationName;
-    }
-
-    public short getParentApplicationServiceType() {
-        return parentApplicationServiceType;
-    }
-
-    public void setParentApplicationServiceType(short parentApplicationServiceType) {
-        this.parentApplicationServiceType = parentApplicationServiceType;
+    public void setParentApplication(ParentApplication parentApplication) {
+        this.parentApplication = parentApplication;
     }
 
     /**
@@ -432,14 +422,6 @@ public class SpanBo implements BasicSpan {
 
     public void setLoggingTransactionInfo(byte loggingTransactionInfo) {
         this.loggingTransactionInfo = loggingTransactionInfo;
-    }
-
-    public String getParentServiceName() {
-        return parentServiceName;
-    }
-
-    public void setParentServiceName(String parentServiceName) {
-        this.parentServiceName = parentServiceName;
     }
 
     public List<AttributeBo> getAttributeBoList() {
@@ -477,8 +459,7 @@ public class SpanBo implements BasicSpan {
                 ", traceSourceType=" + traceSourceType +
                 ", spanId=" + spanId +
                 ", parentSpanId=" + parentSpanId +
-                ", parentApplicationName='" + parentApplicationName + '\'' +
-                ", parentApplicationServiceType=" + parentApplicationServiceType +
+                ", parentApplication=" + parentApplication +
                 ", startTime=" + startTime +
                 ", elapsed=" + elapsed +
                 ", rpc='" + rpc + '\'' +
@@ -497,7 +478,6 @@ public class SpanBo implements BasicSpan {
                 ", acceptorHost='" + acceptorHost + '\'' +
                 ", remoteAddr='" + remoteAddr + '\'' +
                 ", loggingTransactionInfo=" + loggingTransactionInfo +
-                ", parentServiceName='" + parentServiceName + '\'' +
                 ", attributeBoList=" + attributeBoList +
                 '}';
     }
@@ -524,8 +504,7 @@ public class SpanBo implements BasicSpan {
 
         private long parentSpanId;
 
-        private String parentApplicationName;
-        private short parentApplicationServiceType;
+        private ParentApplication parentApplication;
 
         private long startTime;
         private int elapsed;
@@ -553,8 +532,6 @@ public class SpanBo implements BasicSpan {
         private String remoteAddr; // optional
 
         private byte loggingTransactionInfo; //optional
-
-        private String parentServiceName;
 
         private List<AttributeBo> attributeBoList;
 
@@ -607,13 +584,8 @@ public class SpanBo implements BasicSpan {
             return this;
         }
 
-        public Builder setParentApplicationName(String parentApplicationName) {
-            this.parentApplicationName = parentApplicationName;
-            return this;
-        }
-
-        public Builder setParentApplicationServiceType(short parentApplicationServiceType) {
-            this.parentApplicationServiceType = parentApplicationServiceType;
+        public Builder setParentApplication(ParentApplication parentApplication) {
+            this.parentApplication = parentApplication;
             return this;
         }
 
@@ -707,11 +679,6 @@ public class SpanBo implements BasicSpan {
             return this;
         }
 
-        public Builder setParentServiceName(String parentServiceName) {
-            this.parentServiceName = parentServiceName;
-            return this;
-        }
-
         public Builder addAttributeBo(AttributeBo e) {
             if (this.attributeBoList == null) {
                 this.attributeBoList = new ArrayList<>();
@@ -746,9 +713,7 @@ public class SpanBo implements BasicSpan {
             result.setTransactionId(this.transactionId);
             result.setSpanId(this.spanId);
             result.setParentSpanId(this.parentSpanId);
-            result.setParentApplicationName(this.parentApplicationName);
-            result.setParentApplicationServiceType(this.parentApplicationServiceType);
-            result.setParentServiceName(this.parentServiceName);
+            result.setParentApplication(this.parentApplication);
             result.setStartTime(this.startTime);
             result.setElapsed(this.elapsed);
             result.setRpc(this.rpc);

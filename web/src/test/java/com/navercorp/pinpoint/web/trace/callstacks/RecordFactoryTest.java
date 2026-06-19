@@ -228,8 +228,6 @@ public class RecordFactoryTest {
                 .setAgentStartTime(1670293953108L)
                 .setTransactionId(new PinpointServerTraceId("express-node-sample-id", 1670293953108L, 30))
                 .setParentSpanId(-1)
-                .setParentApplicationName(null)
-                .setParentApplicationServiceType((short) 0)
                 .setStartTime(1670305848569L)
                 .setElapsed(14)
                 .setRpc("/")

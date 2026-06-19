@@ -55,10 +55,13 @@ public class SpanFactoryAssert {
             Assertions.assertEquals(acceptEvent.getEndPoint(), spanBo.getEndPoint());
             Assertions.assertEquals(acceptEvent.getRemoteAddr(), spanBo.getRemoteAddr());
 
-            PParentInfo parentInfo = acceptEvent.getParentInfo();
-            Assertions.assertEquals(parentInfo.getParentApplicationName(), spanBo.getParentApplicationName());
-            Assertions.assertEquals(parentInfo.getParentApplicationType(), spanBo.getParentApplicationServiceType());
-            Assertions.assertEquals(parentInfo.getAcceptorHost(), spanBo.getAcceptorHost());
+            if (acceptEvent.hasParentInfo()) {
+                PParentInfo parentInfo = acceptEvent.getParentInfo();
+                assertParentApplication(parentInfo, spanBo.getParentApplication());
+                Assertions.assertEquals(parentInfo.getAcceptorHost(), spanBo.getAcceptorHost());
+            } else {
+                Assertions.assertNull(spanBo.getParentApplication());
+            }
         }
         Assertions.assertEquals(pSpan.getServiceType(), spanBo.getServiceType());
 
@@ -92,6 +95,16 @@ public class SpanFactoryAssert {
         Assertions.assertEquals(pinpointServerTraceId.getAgentId(), pTransactionId.getAgentId());
         Assertions.assertEquals(pinpointServerTraceId.getAgentStartTime(), pTransactionId.getAgentStartTime());
         Assertions.assertEquals(pinpointServerTraceId.getTransactionSequence(), pTransactionId.getSequence());
+    }
+
+    private void assertParentApplication(PParentInfo parentInfo, ParentApplication parentApplication) {
+        Assertions.assertNotNull(parentApplication);
+
+        ParentApplication expectedParentApplication = ParentApplication.of(
+                parentInfo.getParentServiceName(),
+                parentInfo.getParentApplicationName(),
+                parentInfo.getParentApplicationType());
+        Assertions.assertEquals(expectedParentApplication, parentApplication);
     }
 
     public void assertAnnotation(List<PAnnotation> tAnnotationList, List<AnnotationBo> annotationBoList) {

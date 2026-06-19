@@ -205,12 +205,10 @@ public class SpanEncoderTest {
 
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
 
-        List<String> notSerializedField = Lists.newArrayList("parentApplicationName", "parentApplicationServiceType");
-        List<String> excludeField = List.of("annotationBoList", "spanEventBoList", "agentName");
-        notSerializedField.addAll(excludeField);
+        List<String> excludeField = List.of("parentApplication", "annotationBoList", "spanEventBoList", "agentName");
         Assertions.assertThat(decode)
                 .usingRecursiveComparison()
-                .ignoringFields(notSerializedField.toArray(new String[0]))
+                .ignoringFields(excludeField.toArray(new String[0]))
                 .isEqualTo(spanBo);
 
         logger.debug("{} {}", spanBo.getAnnotationBoList(), decode.getAnnotationBoList());
