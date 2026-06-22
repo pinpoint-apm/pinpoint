@@ -21,10 +21,14 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.security.core.CredentialsContainer;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BasicLoginServiceTest {
 
@@ -58,6 +62,51 @@ class BasicLoginServiceTest {
             assertThat(cookie.isHttpOnly()).isFalse();
             assertThat(cookie.getSecure()).isFalse();
             assertThat(cookie.getAttribute("SameSite")).isEqualTo("Strict");
+        }
+    }
+
+    @Test
+    void userDetailsServiceShouldReturnCredentialCopy() {
+        try (AnnotationConfigApplicationContext context = newContext(Map.of(
+                "web.security.auth.user", "user:password"
+        ))) {
+            BasicLoginService service = context.getBean(BasicLoginService.class);
+
+            UserDetails userDetails = service.getUserDetailsService().loadUserByUsername("user");
+            ((CredentialsContainer) userDetails).eraseCredentials();
+
+            UserDetails reloaded = service.getUserDetailsService().loadUserByUsername("user");
+            assertThat(reloaded.getPassword()).isNotBlank();
+        }
+    }
+
+    @Test
+    void userDetailsServiceShouldThrowWhenUserIsUnknown() {
+        try (AnnotationConfigApplicationContext context = newContext(Map.of(
+                "web.security.auth.user", "user:password"
+        ))) {
+            BasicLoginService service = context.getBean(BasicLoginService.class);
+
+            assertThatThrownBy(() -> service.getUserDetailsService().loadUserByUsername("unknown"))
+                    .isInstanceOf(UsernameNotFoundException.class)
+                    .hasMessage("User not found: unknown");
+        }
+    }
+
+    @Test
+    void getUserDetailsShouldIgnoreJwtForUnknownUser() {
+        Cookie cookie;
+        try (AnnotationConfigApplicationContext context = newContext(Map.of(
+                "web.security.auth.user", "user:password"
+        ))) {
+            BasicLoginService service = context.getBean(BasicLoginService.class);
+            cookie = service.createNewCookie("user");
+        }
+
+        try (AnnotationConfigApplicationContext context = newContext(Map.of())) {
+            BasicLoginService service = context.getBean(BasicLoginService.class);
+
+            assertThat(service.getUserDetails(new Cookie[]{cookie})).isNull();
         }
     }
 
