@@ -66,13 +66,16 @@ public class HbaseApplicationMapService implements ApplicationMapService {
 
     @Override
     public void insertSpanChunk(final SpanChunkBo spanChunkBo) {
-        Vertex selfVertex = getSelfVertex(spanChunkBo);
         final List<SpanEventBo> spanEventList = spanChunkBo.getSpanEventBoList();
-        if (spanEventList != null) {
-            // TODO need to batch update later.
-            insertSpanEventList(spanEventList, selfVertex, spanChunkBo.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
+        if (CollectionUtils.isEmpty(spanEventList)) {
+            return;
         }
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("handle insertSpanChunk {}/{} size:{}", spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), spanEventList.size());
+        }
+        Vertex selfVertex = getSelfVertex(spanChunkBo);
+        // TODO need to batch update later.
+        insertSpanEventList(spanEventList, selfVertex, spanChunkBo.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
     }
 
     private Vertex getSelfVertex(BasicSpan basicSpan) {
@@ -248,7 +251,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
             return;
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("handle spanEvent {}/{} size:{}", span.getApplicationName(), span.getAgentId(), spanEventList.size());
+            logger.debug("handle insertSpanEventStat {}/{} size:{}", span.getApplicationName(), span.getAgentId(), spanEventList.size());
         }
 
         // TODO need to batch update later.
