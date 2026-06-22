@@ -145,8 +145,9 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         }
     }
 
-    private Vertex getParentVertex(SpanBo span) {
-        ParentApplication parentApplication = Objects.requireNonNull(span.getParentApplication(), "parentApplication");
+    private Vertex getParentVertex(ParentApplication parentApplication) {
+        Objects.requireNonNull(parentApplication, "parentApplication");
+
         String parentApplicationName = parentApplication.applicationName();
         ServiceType parentApplicationType = registry.findServiceType(parentApplication.applicationServiceType());
         return Vertex.of(parentApplicationName, parentApplicationType);
@@ -189,7 +190,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         // when drawing server map based on statistics info, you must know the application name of the previous node.
         if (span.getParentApplication() != null) {
 
-            Vertex parentVertex = getParentVertex(span);
+            Vertex parentVertex = getParentVertex(span.getParentApplication());
             logger.debug("Received parent application name. parentName:{} appName:{}", parentVertex, span.getApplicationName());
 
             // create virtual queue node if current' span's service type is a queue AND :
