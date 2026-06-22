@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.login.basic.service;
 import com.navercorp.pinpoint.login.basic.config.BasicLoginProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -69,7 +70,20 @@ public class PinpointMemoryUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userDetailsMap.get(username);
+        UserDetails userDetails = userDetailsMap.get(username);
+        if (userDetails == null) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        return new User(
+                userDetails.getUsername(),
+                userDetails.getPassword(),
+                userDetails.isEnabled(),
+                userDetails.isAccountNonExpired(),
+                userDetails.isCredentialsNonExpired(),
+                userDetails.isAccountNonLocked(),
+                userDetails.getAuthorities()
+        );
     }
 
 }
