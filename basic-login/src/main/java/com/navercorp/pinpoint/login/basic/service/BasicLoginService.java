@@ -23,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -71,15 +72,14 @@ public class BasicLoginService {
                     if (expirationDate.getTime() > System.currentTimeMillis()) {
                         String userId = jwtService.getUserId(pinpointJwtToken);
 
-                        UserDetails userDetails = pinpointMemoryUserDetailsService.loadUserByUsername(String.valueOf(userId));
-                        if (userDetails != null) {
-                            return userDetails;
-                        }
+                        return pinpointMemoryUserDetailsService.loadUserByUsername(String.valueOf(userId));
                     } else {
                         logger.warn("This token already expired.");
                     }
                 } catch (ExpiredJwtException e) {
                     logger.warn("This token already expired. message:{}", e.getMessage(), e);
+                } catch (UsernameNotFoundException e) {
+                    logger.warn("Could not find user for JWT token. message:{}", e.getMessage());
                 }
             }
         }
