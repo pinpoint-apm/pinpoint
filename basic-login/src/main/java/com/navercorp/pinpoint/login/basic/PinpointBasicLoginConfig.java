@@ -26,11 +26,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -54,20 +54,16 @@ public class PinpointBasicLoginConfig {
         this.basicLoginService = Objects.requireNonNull(basicLoginService, "basicLoginService");
     }
 
-
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
-
-        auth.eraseCredentials(false);
-        auth.userDetailsService(basicLoginService.getUserDetailsService());
-        return auth.build();
+    public UserDetailsService userDetailsService() {
+        return basicLoginService.getUserDetailsService();
     }
 
     @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    public SecurityFilterChain configure(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         // for common
         http
+                .userDetailsService(userDetailsService)
                 .csrf(customizer -> {
                     customizer.disable();
                 })
@@ -77,8 +73,7 @@ public class PinpointBasicLoginConfig {
                 .formLogin(customizer -> {
                     customizer.successHandler(new SaveJwtTokenAuthenticationSuccessHandler(basicLoginService));
                 })
-                .httpBasic(customizer -> {
-                })
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(customizer -> {
                     customizer.deleteCookies(BasicLoginConstants.PINPOINT_JWT_COOKIE_NAME);
                 });
