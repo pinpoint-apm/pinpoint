@@ -1,6 +1,8 @@
 import { ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 import { MutationCache, QueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { getDefaultStore } from 'jotai';
+import { toastCountAtom } from '@pinpoint-fe/ui/src/atoms';
 import { ErrorToast } from '../../components/Error/ErrorToast';
 
 declare module '@tanstack/react-query' {
@@ -64,10 +66,15 @@ const mutationCache = new MutationCache({
   onError: (error, _variables, _context, mutation) => {
     if (mutation.meta?.ignoreGlobalError) return;
 
+    // 모듈 레벨이라 useReactToastifyToast 훅을 쓸 수 없으므로, 동일한 default store를
+    // 통해 toastCountAtom을 직접 갱신해 query 에러 토스트와 "Clear All" 동작을 일치시킨다.
+    const store = getDefaultStore();
     toast.error(<ErrorToast error={error as Error} />, {
       className: 'pointer-events-auto',
       bodyClassName: '!items-start',
       autoClose: false,
+      onOpen: () => store.set(toastCountAtom, (prev) => prev + 1),
+      onClose: () => store.set(toastCountAtom, (prev) => (prev === 0 ? prev : prev - 1)),
     });
   },
 });
