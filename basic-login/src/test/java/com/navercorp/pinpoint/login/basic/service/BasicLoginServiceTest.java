@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class BasicLoginServiceTest {
 
     @Test
-    void createNewCookieShouldUseSecureDefaults() {
+    void createNewCookieShouldUseDefaults() {
         try (AnnotationConfigApplicationContext context = newContext(Map.of(
                 "web.security.auth.user", "user:password"
         ))) {
@@ -42,7 +42,7 @@ class BasicLoginServiceTest {
             Cookie cookie = service.createNewCookie("user");
 
             assertThat(cookie.isHttpOnly()).isTrue();
-            assertThat(cookie.getSecure()).isTrue();
+            assertThat(cookie.getSecure()).isFalse();
             assertThat(cookie.getAttribute("SameSite")).isEqualTo("Lax");
         }
     }
@@ -52,7 +52,7 @@ class BasicLoginServiceTest {
         try (AnnotationConfigApplicationContext context = newContext(Map.of(
                 "web.security.auth.user", "user:password",
                 "web.security.auth.jwt.cookie.http-only", "false",
-                "web.security.auth.jwt.cookie.secure", "false",
+                "web.security.auth.jwt.cookie.secure", "true",
                 "web.security.auth.jwt.cookie.same-site", "Strict"
         ))) {
             BasicLoginService service = context.getBean(BasicLoginService.class);
@@ -60,7 +60,7 @@ class BasicLoginServiceTest {
             Cookie cookie = service.createNewCookie("user");
 
             assertThat(cookie.isHttpOnly()).isFalse();
-            assertThat(cookie.getSecure()).isFalse();
+            assertThat(cookie.getSecure()).isTrue();
             assertThat(cookie.getAttribute("SameSite")).isEqualTo("Strict");
         }
     }
