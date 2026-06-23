@@ -53,7 +53,7 @@ public class BasicLoginProperties implements InitializingBean {
     @Value("${web.security.auth.jwt.cookie.http-only:true}")
     private boolean jwtCookieHttpOnly;
 
-    @Value("${web.security.auth.jwt.cookie.secure:true}")
+    @Value("${web.security.auth.jwt.cookie.secure:false}")
     private boolean jwtCookieSecure;
 
     @Value("${web.security.auth.jwt.cookie.same-site:Lax}")
