@@ -138,10 +138,9 @@ public class FixedBuffer implements Buffer {
 
     protected void putNullTerminatedBytes(final byte[] bytes) {
         // a NUL would be misread as the terminator by readNullTerminatedString()
-        for (int i = 0; i < bytes.length; i++) {
-            if (bytes[i] == NUL_DELIMITER) {
-                throw new IllegalArgumentException("embedded NUL(0x00) byte at index " + i + "; not allowed in null-terminated value");
-            }
+        final int nulIndex = ByteArrayUtils.indexOf(bytes, NUL_DELIMITER, 0, bytes.length);
+        if (nulIndex != -1) {
+            throw new IllegalArgumentException("embedded NUL(0x00) byte at index " + nulIndex + "; not allowed in null-terminated value");
         }
         putBytes(bytes);
         putByte(NUL_DELIMITER);
@@ -602,14 +601,13 @@ public class FixedBuffer implements Buffer {
     @Override
     public String readNullTerminatedString() {
         final int start = this.offset;
-        for (int off = this.offset; off < getEndOffset(); off++) {
-            if (this.buffer[off] == NUL_DELIMITER) {
-                String s = newString(off - start);
-                this.offset = off + 1;
-                return s;
-            }
+        final int nulIndex = ByteArrayUtils.indexOf(this.buffer, NUL_DELIMITER, start, remaining());
+        if (nulIndex == -1) {
+            throw new IllegalStateException("Delimiter not found");
         }
-        throw new IllegalStateException("Delimiter not found");
+        String s = newString(nulIndex - start);
+        this.offset = nulIndex + 1;
+        return s;
     }
 
     protected String readString(final int size) {

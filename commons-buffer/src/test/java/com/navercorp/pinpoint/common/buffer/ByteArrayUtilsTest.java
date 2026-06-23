@@ -125,6 +125,34 @@ class ByteArrayUtilsTest {
     }
 
     @Test
+    void indexOf() {
+        byte[] bytes = {9, 0, 7, 0, 8};
+
+        assertEquals(1, ByteArrayUtils.indexOf(bytes, (byte) 0, 0, bytes.length));
+        assertEquals(3, ByteArrayUtils.indexOf(bytes, (byte) 0, 2, 3));
+        assertEquals(4, ByteArrayUtils.indexOf(bytes, (byte) 8, 4, 1));
+    }
+
+    @Test
+    void indexOf_notFound() {
+        byte[] bytes = {1, 2, 3};
+
+        assertEquals(-1, ByteArrayUtils.indexOf(bytes, (byte) 4, 0, bytes.length));
+        assertEquals(-1, ByteArrayUtils.indexOf(bytes, (byte) 1, 1, 2));
+        assertEquals(-1, ByteArrayUtils.indexOf(bytes, (byte) 3, bytes.length, 0));
+    }
+
+    @Test
+    void indexOf_boundaryCheck() {
+        byte[] bytes = {1, 2, 3};
+
+        Assertions.assertThrows(NullPointerException.class, () -> ByteArrayUtils.indexOf(null, (byte) 1, 0, 1));
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> ByteArrayUtils.indexOf(bytes, (byte) 1, -1, 1));
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> ByteArrayUtils.indexOf(bytes, (byte) 1, 0, -1));
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> ByteArrayUtils.indexOf(bytes, (byte) 1, 2, 2));
+    }
+
+    @Test
     void compareRowKey_true() {
         byte[] row1 = BytesUtils.add((byte) 1, toInt(1));
         byte[] row2 = BytesUtils.add((byte) 2, toInt(1));
