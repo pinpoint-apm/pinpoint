@@ -71,7 +71,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
             return;
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("handle insertSpanChunk {}/{} size:{}", spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), spanEventList.size());
+            logger.debug("handle insertSpanChunk {}/{}/{} size:{}", spanChunkBo.getServiceName(), spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), spanEventList.size());
         }
         Vertex selfVertex = getSelfVertex(spanChunkBo);
         // TODO need to batch update later.
@@ -121,13 +121,13 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         // acceptor host is set at profiler module only when the span is not the kind of root span
         final String acceptorHost = span.getAcceptorHost();
         if (acceptorHost == null) {
-            logger.debug("acceptorHost is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
+            logger.debug("acceptorHost is null agent: {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
             return;
         }
 
         final ParentApplication parentApplication = span.getParentApplication();
         if (parentApplication == null) {
-            logger.debug("parentApplication is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
+            logger.debug("parentApplication is null agent: {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
             return;
         }
         final String parentApplicationName = parentApplication.applicationName();
@@ -136,7 +136,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         if (spanServiceType.isQueue()) {
             final String host = span.getEndPoint();
             if (host == null) {
-                logger.debug("endPoint is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
+                logger.debug("endPoint is null agent: {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
                 return;
             }
             hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentApplicationName, parentServiceType, selfVertex, host);
@@ -206,14 +206,13 @@ public class HbaseApplicationMapService implements ApplicationMapService {
                     final Vertex queueAcceptVertex = Vertex.of(applicationName, spanServiceType);
 
                     if (logger.isDebugEnabled()) {
-                        logger.debug("[Bind] child-queue {}/{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
+                        logger.debug("[Bind] child-queue {}:{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
                     }
                     hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex.applicationName(), parentVertex.serviceType().getCode(), queueAcceptVertex, span.getRemoteAddr());
                     // emulate virtual queue node's send SpanEvent
 
                     if (logger.isDebugEnabled()) {
-                        logger.debug("[OutLink] child-queue {}/{} -> {}/{}", queueAcceptVertex, span.getRemoteAddr(),
-                                selfVertex, span.getEndPoint());
+                        logger.debug("[OutLink] child-queue {}:{} -> {}:{}", queueAcceptVertex, span.getRemoteAddr(), selfVertex, span.getEndPoint());
                     }
                     linkService.updateOutLink(span.getCollectorAcceptTime(), queueAcceptVertex, span.getRemoteAddr(),
                             selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
@@ -222,8 +221,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
                 }
             }
             if (logger.isDebugEnabled()) {
-                logger.debug("child-span updateInLink child:{}/{} <- parentAppName:{}",
-                        selfVertex, span.getAgentId(), parentVertex);
+                logger.debug("child-span updateInLink child {}:{} <- parentAppName:{}", selfVertex, span.getAgentId(), parentVertex);
             }
             linkService.updateInLink(span.getCollectorAcceptTime(), selfVertex,
                     parentVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
@@ -238,7 +236,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         linkService.updateResponseTime(span.getCollectorAcceptTime(), selfVertex, span.getAgentId(), span.getElapsed(), span.hasError());
 
         if (bugCheck != 1) {
-            logger.info("ambiguous span found(bug). span {}/{}", span.getApplicationName(), span.getAgentName());
+            logger.info("ambiguous span found(bug). span {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
             if (logger.isDebugEnabled()) {
                 logger.debug("ambiguous span found(bug). detailed span {}", span);
             }
@@ -252,7 +250,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
             return;
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("handle insertSpanEventStat {}/{} size:{}", span.getApplicationName(), span.getAgentId(), spanEventList.size());
+            logger.debug("handle insertSpanEventStat {}/{}/{} size:{}", span.getServiceName(), span.getApplicationName(), span.getAgentId(), spanEventList.size());
         }
 
         // TODO need to batch update later.
