@@ -95,6 +95,26 @@ public final class ByteArrayUtils {
     }
 
     /**
+     * Searches {@code bytes} in the range {@code [offset, offset + length)}.
+     *
+     * @return the absolute index of the first matching byte, or {@code -1} if not found
+     */
+    static int indexOf(byte[] bytes, byte value, int offset, int length) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes");
+        }
+        BytesUtils.checkBounds(bytes, offset, length);
+
+        final int endOffset = offset + length;
+        for (int i = offset; i < endOffset; i++) {
+            if (bytes[i] == value) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Compares two byte arrays starting from the specified offset.
      *
      * @param bytes1 the first byte array to compare
