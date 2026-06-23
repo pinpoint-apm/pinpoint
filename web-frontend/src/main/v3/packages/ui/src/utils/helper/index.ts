@@ -5,4 +5,5 @@ export * from './route';
 export * from './routeV2';
 export * from './scatter';
 export * from './serverMap';
+export * from './serviceMap';
 export * from './transaction';
