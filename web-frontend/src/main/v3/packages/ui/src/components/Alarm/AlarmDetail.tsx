@@ -116,18 +116,6 @@ const parseAlarmType = (
   }
 };
 
-const formSchema = z.object({
-  checkerName: z.string({ required_error: 'Select Checker' }),
-  userGroupId: z.string({ required_error: 'Select User Group ID' }),
-  threshold: z
-    .number()
-    .min(0, { message: 'Must be greater than 0' })
-    .max(2147483647, { message: 'Must be less than 2147483647' }),
-  type: z.string(),
-  webhook: z.string().array().optional(),
-  notes: z.string().optional(),
-});
-
 export const AlarmDetail = ({
   data,
   editable,
@@ -136,6 +124,31 @@ export const AlarmDetail = ({
 }: AlarmDetailProps) => {
   const toast = useReactToastifyToast();
   const { t } = useTranslation();
+  const formSchema = React.useMemo(
+    () =>
+      z.object({
+        checkerName: z.string({
+          required_error: t('COMMON.REQUIRED_SELECT', {
+            requiredField: t('CONFIGURATION.COMMON.CHECKER'),
+          }),
+        }),
+        userGroupId: z.string({
+          required_error: t('COMMON.REQUIRED_SELECT', {
+            requiredField: t('CONFIGURATION.COMMON.USER_GROUP'),
+          }),
+        }),
+        threshold: z
+          .number()
+          .min(0, { message: t('CONFIGURATION.ALARM.THRESHOLD_MIN', { min: 0 }) })
+          .max(2147483647, {
+            message: t('CONFIGURATION.ALARM.THRESHOLD_MAX', { max: 2147483647 }),
+          }),
+        type: z.string(),
+        webhook: z.string().array().optional(),
+        notes: z.string().optional(),
+      }),
+    [t],
+  );
   const configuration = useAtomValue(configurationAtom);
   const [openWebhookDialog, setOpenWebhookDialog] = React.useState(false);
   const { data: chekerList } = useGetAlarmRuleChecker({ disableFetch: !editable });
@@ -225,7 +238,7 @@ export const AlarmDetail = ({
                           <SelectTrigger
                             className={cn('w-90', { 'border-destructive': fieldState.invalid })}
                           >
-                            <SelectValue placeholder="Select rule" />
+                            <SelectValue placeholder={t('CONFIGURATION.ALARM.SELECT_RULE')} />
                           </SelectTrigger>
                         ) : (
                           <Input className="w-90" value={field.value} disabled />
@@ -262,7 +275,7 @@ export const AlarmDetail = ({
                           <SelectTrigger
                             className={cn('w-90', { 'border-destructive': fieldState.invalid })}
                           >
-                            <SelectValue placeholder="Select user group" />
+                            <SelectValue placeholder={t('CONFIGURATION.ALARM.SELECT_USER_GROUP')} />
                           </SelectTrigger>
                         ) : (
                           <Input className="w-90" value={field.value} disabled />
@@ -321,7 +334,11 @@ export const AlarmDetail = ({
                     >
                       <FormControl>
                         <SelectTrigger className="w-40">
-                          <SelectValue placeholder="Select a verified email to display" />
+                          <SelectValue
+                            placeholder={t('COMMON.REQUIRED_SELECT', {
+                              requiredField: t('CONFIGURATION.COMMON.TYPE'),
+                            })}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

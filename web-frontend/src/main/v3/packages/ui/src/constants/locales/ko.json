@@ -26,6 +26,7 @@
     "CANCEL": "취소",
     "CLOSE": "닫기",
     "CONTINUE": "계속",
+    "APPLY": "적용",
     "EDIT": "수정",
     "SORT_STARTTIME_DESC": "최근 순",
     "SORT_STARTTIME_ASC": "오래된 순",
@@ -61,12 +62,28 @@
   },
   "SERVER_MAP": {
     "SCATTER_CHART_STATIC_WARN": "Agent별 scatter chart를 보기 위해\nheatmap을 scatter chart로 변경해 주세요.",
-    "HEATMAP_API_ERROR_MESSAGE": "Heatmap 호출 에러가 반복될 경우,\nscatter 차트를 참고해 주세요."
+    "HEATMAP_API_ERROR_MESSAGE": "Heatmap 호출 에러가 반복될 경우,\nscatter 차트를 참고해 주세요.",
+    "QUERY_OPTION": {
+      "TITLE": "서버맵 조회 옵션",
+      "DESC": "서버맵 조회 옵션을 설정합니다",
+      "APPLICATION_ONLY": "애플리케이션만 보기",
+      "BIDIRECTIONAL": "양방향",
+      "INBOUND": "인바운드",
+      "OUTBOUND": "아웃바운드"
+    },
+    "REAL_TIME": {
+      "LOCK_SERVER": "현재 서버 고정",
+      "UNLOCK_SERVER": "현재 서버 고정 해제",
+      "NOT_WAS": "선택한 대상이 WAS가 아닙니다.",
+      "CONNECTION_CLOSED": "연결이 종료되었습니다."
+    }
   },
   "TRANSACTION_LIST": {
     "SELECT_TRANSACTION": "Transaction을 선택하세요.",
     "TRANSACTION_RETRIEVE_ERROR": "Transaction 정보가 없습니다.",
-    "TRANSACTION_RETRIEVE_ERROR_DESC": "Servermap/Filtered 페이지에서 다시 시도해 주세요. (이 창을 닫으면 Servermap 페이지로 이동합니다)"
+    "TRANSACTION_RETRIEVE_ERROR_DESC": "Servermap/Filtered 페이지에서 다시 시도해 주세요. (이 창을 닫으면 Servermap 페이지로 이동합니다)",
+    "CALL_TREE_FILTER": "필터",
+    "CALL_TREE_FILTER_PLACEHOLDER": "콜 트리 필터..."
   },
   "METRIC": {
     "HOST_GROUP_LIST": "호스트 그룹 목록",
@@ -165,7 +182,8 @@
       "THRESHOLD": "기준점",
       "TYPE": "알림 형식",
       "NOTES": "메모",
-      "WEBHOOK": "웹훅"
+      "WEBHOOK": "웹훅",
+      "SELECT_APPLICATION_FIRST": "먼저 애플리케이션을 선택해 주세요."
     },
     "ALARM": {
       "NAME": "알람",
@@ -173,7 +191,13 @@
       "ADD": "알람 등록",
       "EDIT": "알람 수정",
       "DETAIL": "알람 상세",
-      "DESC": "애플리케이션의 상태는 주기적으로 확인되며 사전 구성된 특정 조건(규칙)이 충족되면 알람이 트리거됩니다.\npinpoint-batch 서버는 매 3분간 최근 5분간의 데이터를 기반으로 체크를 하며, 조건이 충족되면 사용자 그룹에 나열된 사용자에게 sms/email/webhook을 전송합니다."
+      "DESC": "애플리케이션의 상태는 주기적으로 확인되며 사전 구성된 특정 조건(규칙)이 충족되면 알람이 트리거됩니다.\npinpoint-batch 서버는 매 3분간 최근 5분간의 데이터를 기반으로 체크를 하며, 조건이 충족되면 사용자 그룹에 나열된 사용자에게 sms/email/webhook을 전송합니다.",
+      "RULE_NAME": "규칙 이름",
+      "USER_GROUP": "사용자 그룹",
+      "SELECT_RULE": "규칙을 선택하세요",
+      "SELECT_USER_GROUP": "사용자 그룹을 선택하세요",
+      "THRESHOLD_MIN": "{{min}}보다 커야 합니다",
+      "THRESHOLD_MAX": "{{max}}보다 작아야 합니다"
     },
     "WEBHOOK": {
       "NAME": "웹훅",
@@ -181,7 +205,10 @@
       "CREATE": "웹훅 생성",
       "EDIT": "웹훅 수정",
       "DETAIL": "웹훅 상세",
-      "ALIAS": "별칭"
+      "ALIAS": "별칭",
+      "URL": "URL",
+      "INVALID_URL_FORMAT": "올바르지 않은 URL 형식입니다",
+      "ALIAS_PLACEHOLDER": "입력하지 않으면 입력한 URL로 설정됩니다"
     },
     "SERVICE_SETTING": {
       "NEW_SERVICE": "새 서비스",

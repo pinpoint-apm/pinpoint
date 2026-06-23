@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { AgentActiveThread, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
 import { useAtomValue } from 'jotai';
@@ -24,6 +25,7 @@ import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 export interface ActiveRequestProps {}
 
 export const AgentActiveThreadFetcher = () => {
+  const { t } = useTranslation();
   const wsRef = React.useRef<WebSocket | undefined>(undefined);
   const [timezone] = useTimezone();
   const [webSocketState, setWebSocketState] = React.useState<number>(WebSocket.CLOSED);
@@ -143,7 +145,11 @@ export const AgentActiveThreadFetcher = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="left">
-                    <p>{isApplicationLocked ? 'Unlock current server' : 'Lock current server'}</p>
+                    <p>
+                      {isApplicationLocked
+                        ? t('SERVER_MAP.REAL_TIME.UNLOCK_SERVER')
+                        : t('SERVER_MAP.REAL_TIME.LOCK_SERVER')}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -190,13 +196,15 @@ export const AgentActiveThreadFetcher = () => {
           </div>
         ) : (
           <div className="flex justify-center items-center w-full h-full">
-            Selected target is not a WAS.
+            {t('SERVER_MAP.REAL_TIME.NOT_WAS')}
           </div>
         )
       ) : webSocketState === WebSocket.CONNECTING ? (
         <AgentActiveThreadSkeleton />
       ) : (
-        <div className="flex justify-center items-center w-full h-full">Connection closed.</div>
+        <div className="flex justify-center items-center w-full h-full">
+          {t('SERVER_MAP.REAL_TIME.CONNECTION_CLOSED')}
+        </div>
       )}
     </div>
   );

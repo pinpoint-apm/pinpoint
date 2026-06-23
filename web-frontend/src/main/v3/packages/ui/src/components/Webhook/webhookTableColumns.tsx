@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { Webhook } from '@pinpoint-fe/ui/src/constants';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
@@ -18,21 +19,22 @@ export interface WebhookTableColumnsProps {
 
 export const webhookTableColumns: (
   props: WebhookTableColumnsProps,
-) => ColumnDef<Webhook.WebhookData>[] = ({ onClickEdit, onClickDelete }) => [
+  t: TFunction,
+) => ColumnDef<Webhook.WebhookData>[] = ({ onClickEdit, onClickDelete }, t) => [
   {
     accessorKey: 'alias',
-    header: () => 'Alias',
+    header: () => t('CONFIGURATION.WEBHOOK.ALIAS'),
     cell: (props) => props.getValue(),
   },
 
   {
     accessorKey: 'url',
-    header: () => 'Url',
+    header: () => t('CONFIGURATION.WEBHOOK.URL'),
     cell: (props) => props.getValue(),
   },
   {
     accessorKey: 'actions',
-    header: () => 'Actions',
+    header: () => t('CONFIGURATION.COMMON.LABEL.ACTIONS'),
     cell: (props) => {
       return <ActionButtons cellProps={props} columnProps={{ onClickEdit, onClickDelete }} />;
     },

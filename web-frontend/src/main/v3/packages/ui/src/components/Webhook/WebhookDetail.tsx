@@ -1,3 +1,4 @@
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,20 +26,6 @@ export interface WebhookDetailProps {
   onCompleteMutation?: () => void;
 }
 
-const formSchema = z.object({
-  alias: z.string().max(256).optional(),
-  url: z
-    .string({ required_error: 'Url is required' })
-    .max(256)
-    .regex(
-      new RegExp(
-        // eslint-disable-next-line
-        /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/,
-      ),
-      'Invalied Url format',
-    ),
-});
-
 export const WebhookDetail = ({
   data,
   editable,
@@ -47,6 +34,27 @@ export const WebhookDetail = ({
 }: WebhookDetailProps) => {
   const toast = useReactToastifyToast();
   const { t } = useTranslation();
+  const formSchema = React.useMemo(
+    () =>
+      z.object({
+        alias: z.string().max(256).optional(),
+        url: z
+          .string({
+            required_error: t('COMMON.REQUIRED', {
+              requiredField: t('CONFIGURATION.WEBHOOK.URL'),
+            }),
+          })
+          .max(256)
+          .regex(
+            new RegExp(
+              // eslint-disable-next-line
+              /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/,
+            ),
+            t('CONFIGURATION.WEBHOOK.INVALID_URL_FORMAT'),
+          ),
+      }),
+    [t],
+  );
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -88,7 +96,7 @@ export const WebhookDetail = ({
                     <Input
                       {...field}
                       disabled={!editable}
-                      placeholder="If empty, it is set to the entered Url"
+                      placeholder={t('CONFIGURATION.WEBHOOK.ALIAS_PLACEHOLDER')}
                     />
                   </FormControl>
                   <FormDescription></FormDescription>
@@ -103,7 +111,7 @@ export const WebhookDetail = ({
             render={({ field, fieldState }) => {
               return (
                 <FormItem>
-                  <FormLabel>Url</FormLabel>
+                  <FormLabel>{t('CONFIGURATION.WEBHOOK.URL')}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}

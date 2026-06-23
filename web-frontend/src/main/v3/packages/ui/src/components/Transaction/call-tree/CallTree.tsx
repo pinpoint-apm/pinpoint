@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatInTimeZone } from 'date-fns-tz';
 import { usePostBind, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { useUpdateEffect } from 'usehooks-ts';
@@ -43,6 +44,7 @@ const filterList = [
 ];
 
 export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
+  const { t } = useTranslation();
   const [openSheet, setSheetOpen] = React.useState<boolean>(false);
   const [openDialog, setDialogOpen] = React.useState<boolean>(false);
   const [content, setContent] = React.useState<string>('');
@@ -163,7 +165,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         />
         <Select value={filter} onValueChange={(value) => setFilter(value)}>
           <SelectTrigger className="w-24 h-full text-xs">
-            <SelectValue placeholder="Theme" />
+            <SelectValue placeholder={t('TRANSACTION_LIST.CALL_TREE_FILTER')} />
           </SelectTrigger>
           <SelectContent>
             {filterList.map((filter) => (
@@ -176,7 +178,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         <div className="border flex rounded pr-0.5 w-64">
           <Input
             className="h-full text-xs border-none shadow-none focus-visible:ring-0 placeholder:text-xs"
-            placeholder="Filter call tree..."
+            placeholder={t('TRANSACTION_LIST.CALL_TREE_FILTER_PLACEHOLDER')}
             value={input}
             onChange={(e) => setInput(e.currentTarget.value)}
             onKeyDown={(e) => {
