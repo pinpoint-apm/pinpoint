@@ -26,6 +26,7 @@
     "CANCEL": "Cancel",
     "CLOSE": "Close",
     "CONTINUE": "Continue",
+    "APPLY": "Apply",
     "EDIT": "Edit",
     "SORT_STARTTIME_DESC": "Most Recent",
     "SORT_STARTTIME_ASC": "Oldest First",
@@ -61,12 +62,28 @@
   },
   "SERVER_MAP": {
     "SCATTER_CHART_STATIC_WARN": "To view the scatter chart by agent,\nplease switch the heatmap to a scatter chart.",
-    "HEATMAP_API_ERROR_MESSAGE": "If the heatmap call error persists,\nplease refer to the scatter chart."
+    "HEATMAP_API_ERROR_MESSAGE": "If the heatmap call error persists,\nplease refer to the scatter chart.",
+    "QUERY_OPTION": {
+      "TITLE": "Server-map Query Option",
+      "DESC": "Set the query options for the Server-map",
+      "APPLICATION_ONLY": "Application Only",
+      "BIDIRECTIONAL": "Bidirectional",
+      "INBOUND": "Inbound",
+      "OUTBOUND": "Outbound"
+    },
+    "REAL_TIME": {
+      "LOCK_SERVER": "Lock current server",
+      "UNLOCK_SERVER": "Unlock current server",
+      "NOT_WAS": "Selected target is not a WAS.",
+      "CONNECTION_CLOSED": "Connection closed."
+    }
   },
   "TRANSACTION_LIST": {
     "SELECT_TRANSACTION": "Select your transaction",
     "TRANSACTION_RETRIEVE_ERROR": "Transaction information is missing.",
-    "TRANSACTION_RETRIEVE_ERROR_DESC": "Please start it over from the Servermap/Filtered page.  (If you close this dialog, you will be redirected to the Servermap page.)"
+    "TRANSACTION_RETRIEVE_ERROR_DESC": "Please start it over from the Servermap/Filtered page.  (If you close this dialog, you will be redirected to the Servermap page.)",
+    "CALL_TREE_FILTER": "Filter",
+    "CALL_TREE_FILTER_PLACEHOLDER": "Filter call tree..."
   },
   "METRIC": {
     "HOST_GROUP_LIST": "Host-Group List",
@@ -165,7 +182,8 @@
       "THRESHOLD": "Threshold",
       "TYPE": "Type",
       "NOTES": "Notes",
-      "WEBHOOK": "Webhook"
+      "WEBHOOK": "Webhook",
+      "SELECT_APPLICATION_FIRST": "Select your application first."
     },
     "ALARM": {
       "NAME": "Alarm",
@@ -173,7 +191,13 @@
       "ADD": "Add Alarm",
       "EDIT": "Edit Alarm",
       "DETAIL": "Alarm Detail",
-      "DESC": "Application's status is periodically checked and alarm is triggered if certain pre-configured conditions (rules) are satisfied.\npinpoint-batch server checks every 3 minutes based on the last 5 minutes of data.\nAnd if the conditions are satisfied, it sends sms/email/webhook to the users listed in the user group."
+      "DESC": "Application's status is periodically checked and alarm is triggered if certain pre-configured conditions (rules) are satisfied.\npinpoint-batch server checks every 3 minutes based on the last 5 minutes of data.\nAnd if the conditions are satisfied, it sends sms/email/webhook to the users listed in the user group.",
+      "RULE_NAME": "Rule Name",
+      "USER_GROUP": "User Group",
+      "SELECT_RULE": "Select rule",
+      "SELECT_USER_GROUP": "Select user group",
+      "THRESHOLD_MIN": "Must be greater than {{min}}",
+      "THRESHOLD_MAX": "Must be less than {{max}}"
     },
     "WEBHOOK": {
       "NAME": "Webhook",
@@ -181,7 +205,10 @@
       "CREATE": "Create Webhook",
       "EDIT": "Edit Webhook",
       "DETAIL": "Webhook Detail",
-      "ALIAS": "Alias"
+      "ALIAS": "Alias",
+      "URL": "Url",
+      "INVALID_URL_FORMAT": "Invalid Url format",
+      "ALIAS_PLACEHOLDER": "If empty, it is set to the entered Url"
     },
     "SERVICE_SETTING": {
       "NEW_SERVICE": "New Service",

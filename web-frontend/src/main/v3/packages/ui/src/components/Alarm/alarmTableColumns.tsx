@@ -1,4 +1,5 @@
 import React from 'react';
+import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { AlarmRule } from '@pinpoint-fe/ui/src/constants';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
@@ -40,16 +41,17 @@ export interface AlarmTableColumns {
 
 export const alarmTableColumns: (
   props: AlarmTableColumns,
-) => ColumnDef<AlarmRule.AlarmRuleData>[] = ({ onClickEdit, onClickDelete }) => [
+  t: TFunction,
+) => ColumnDef<AlarmRule.AlarmRuleData>[] = ({ onClickEdit, onClickDelete }, t) => [
   {
     accessorKey: 'checkerName',
-    header: () => 'Rule Name',
+    header: () => t('CONFIGURATION.ALARM.RULE_NAME'),
     cell: (props) => props.getValue(),
   },
 
   {
     accessorKey: 'userGroupId',
-    header: () => 'User Group',
+    header: () => t('CONFIGURATION.ALARM.USER_GROUP'),
     cell: (props) => props.getValue(),
     meta: {
       headerClassName: 'w-40',
@@ -58,7 +60,7 @@ export const alarmTableColumns: (
   },
   {
     accessorKey: 'threshold',
-    header: () => 'Threshold',
+    header: () => t('CONFIGURATION.COMMON.THRESHOLD'),
     cell: (props) => props.getValue(),
     meta: {
       headerClassName: 'w-36 px-4',
@@ -67,7 +69,7 @@ export const alarmTableColumns: (
   },
   {
     accessorKey: 'type',
-    header: () => 'Type',
+    header: () => t('CONFIGURATION.COMMON.TYPE'),
     cell: (props) => {
       return <AlarmTypes data={props.row.original} />;
     },
@@ -78,7 +80,7 @@ export const alarmTableColumns: (
   },
   {
     accessorKey: 'actions',
-    header: () => 'Actions',
+    header: () => t('CONFIGURATION.COMMON.LABEL.ACTIONS'),
     cell: (props) => {
       return <ActionButtons cellProps={props} columnProps={{ onClickEdit, onClickDelete }} />;
     },

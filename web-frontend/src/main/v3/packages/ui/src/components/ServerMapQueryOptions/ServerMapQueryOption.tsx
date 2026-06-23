@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaSignInAlt, FaSignOutAlt, FaMapSigns } from 'react-icons/fa';
 import { useUpdateEffect } from 'usehooks-ts';
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -24,6 +25,7 @@ export interface ServerMapQueryOptionProps {
 const boundCount = [1, 2, 3, 4];
 
 export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOptionProps) => {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const [inbound, setInbound] = React.useState(queryOption?.inbound || 1);
   const [outbound, setOutbound] = React.useState(queryOption?.outbound || 1);
@@ -104,34 +106,34 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
               </Button>
             </TooltipTrigger>
             <TooltipContent side="left">
-              <p>Server-map Query Option</p>
+              <p>{t('SERVER_MAP.QUERY_OPTION.TITLE')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </PopoverTrigger>
       <PopoverContent side={'left'} align="start" className="w-90">
         <div>
-          <div className="mb-1 font-semibold">Server-map Query Option</div>
+          <div className="mb-1 font-semibold">{t('SERVER_MAP.QUERY_OPTION.TITLE')}</div>
           <div className="text-sm font-light text-gray-400">
-            Set the query options for the Server-map
+            {t('SERVER_MAP.QUERY_OPTION.DESC')}
           </div>
           <Separator className="mt-2 mb-3" />
           <div className="grid grid-cols-[120px_auto] text-sm mb-10 h-40 items-center [&>*:nth-child(odd)]:text-right [&>*:nth-child(even)]:ml-5">
-            <div>Application Only</div>
+            <div>{t('SERVER_MAP.QUERY_OPTION.APPLICATION_ONLY')}</div>
             <Checkbox
               checked={wasOnly}
               onCheckedChange={(checked) => {
                 setWasOnly(checked as boolean);
               }}
             />
-            <div>Bidirectional</div>
+            <div>{t('SERVER_MAP.QUERY_OPTION.BIDIRECTIONAL')}</div>
             <Checkbox
               checked={bidirectional}
               onCheckedChange={(checked) => {
                 setBidirectional(checked as boolean);
               }}
             />
-            <div>Inbound</div>
+            <div>{t('SERVER_MAP.QUERY_OPTION.INBOUND')}</div>
             <ButtonGroup
               defaultValue={`${inbound}`}
               className="h-7"
@@ -145,7 +147,7 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
                 </ButtonGroupItem>
               ))}
             </ButtonGroup>
-            <div>Outbound</div>
+            <div>{t('SERVER_MAP.QUERY_OPTION.OUTBOUND')}</div>
             <ButtonGroup
               className="h-7"
               defaultValue={`${outbound}`}
@@ -163,7 +165,7 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
           <div className="flex justify-end gap-2 ">
             <PopoverClose asChild>
               <Button className="w-20 font-normal" variant="outline">
-                Cancel
+                {t('COMMON.CANCEL')}
               </Button>
             </PopoverClose>
             <PopoverClose asChild>
@@ -180,7 +182,7 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
                   }, 100);
                 }}
               >
-                Apply
+                {t('COMMON.APPLY')}
               </Button>
             </PopoverClose>
           </div>
