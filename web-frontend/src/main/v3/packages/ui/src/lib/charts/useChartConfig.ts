@@ -1,5 +1,5 @@
 import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/ui/src/constants';
-import { ChartOptions, Data } from 'billboard.js';
+import { ChartOptions, Data } from 'billboard.js/canvas';
 import { getFormat } from '@pinpoint-fe/ui/src/utils';
 import { useChartAxis } from './useChartAxis';
 import { useChartParseData } from './useChartParseData';

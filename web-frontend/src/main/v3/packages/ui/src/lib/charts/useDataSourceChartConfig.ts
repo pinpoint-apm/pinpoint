@@ -1,4 +1,4 @@
-import { ChartOptions } from 'billboard.js';
+import { ChartOptions } from 'billboard.js/canvas';
 import { InspectorAgentDataSourceChart } from '@pinpoint-fe/ui/src/constants';
 import { useChartAxis } from './useChartAxis';
 import { useChartType } from './useChartType';
