@@ -26,6 +26,6 @@ public class QueryParamServiceNameExtractor implements ServiceNameExtractor {
 
     @Override
     public String extract(HttpServletRequest request) {
-        return request.getParameter(ServiceConstants.KEY);
+        return request.getParameter(ServiceConstants.QUERY_PARAM_KEY);
     }
 }

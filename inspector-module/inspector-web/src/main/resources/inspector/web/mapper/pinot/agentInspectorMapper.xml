@@ -27,9 +27,8 @@
             DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM ${tableName}
         WHERE
-      <!--  tenantId = #{tenantId}
-            AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -46,9 +45,8 @@
             DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM ${tableName}
         WHERE
-            <!--  tenantId = #{tenantId}
-                  AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -65,9 +63,8 @@
             DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM ${tableName}
         WHERE
-            <!--  tenantId = #{tenantId}
-                  AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -84,9 +81,8 @@
             cast(eventTime AS long) AS avgTime
         FROM ${tableName}
         WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
         sortKey = #{sortKey}
+        AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
         AND eventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
@@ -113,6 +109,7 @@
         WHERE
             sortKey IN
             <foreach collection="sortKeys" item="sortKey" open="(" separator="," close=")">#{sortKey}</foreach>
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -132,6 +129,7 @@
         WHERE
             sortKey IN
             <foreach collection="sortKeys" item="sortKey" open="(" separator="," close=")">#{sortKey}</foreach>
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -151,6 +149,7 @@
         WHERE
             sortKey IN
             <foreach collection="sortKeys" item="sortKey" open="(" separator="," close=")">#{sortKey}</foreach>
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -166,6 +165,7 @@
         FROM ${tableName}
         WHERE
             sortKey = #{sortKey}
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
     </select>
@@ -175,6 +175,7 @@
         FROM ${tableName}
         WHERE
             sortKey = #{sortKey}
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
