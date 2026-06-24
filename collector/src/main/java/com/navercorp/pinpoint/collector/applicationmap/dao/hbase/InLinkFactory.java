@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface InLinkFactory {
 
-    InLink newLink(String inApplicationName, ServiceType inServiceType, String selfApplicationName, ServiceType selfServiceType, String selfSubLink);
+    InLink newLink(Vertex inVertex, Vertex selfVertex, String selfSubLink);
 
     interface InLink {
         RowKey rowkey(long requestTime);

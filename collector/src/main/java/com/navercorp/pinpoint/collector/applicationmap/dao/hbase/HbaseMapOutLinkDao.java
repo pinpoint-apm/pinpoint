@@ -79,8 +79,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
         outHost = Objects.toString(outHost, "");
 
         // make row key. rowkey is me
-        OutLinkFactory.OutLink outLink = outLinkFactory.newOutLink(selfVertex.applicationName(), selfVertex.serviceType(), selfAgentId,
-                outVertex.applicationName(), outVertex.serviceType(), outHost);
+        OutLinkFactory.OutLink outLink = outLinkFactory.newOutLink(selfVertex, selfAgentId, outVertex, outHost);
 
         final RowKey selfLinkRowKey = outLink.rowkey(requestTime);
 

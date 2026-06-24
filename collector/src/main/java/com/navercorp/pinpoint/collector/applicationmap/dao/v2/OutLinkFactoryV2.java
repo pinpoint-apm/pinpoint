@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.v2;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.OutLinkFactory;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
@@ -34,10 +35,12 @@ public class OutLinkFactoryV2 implements OutLinkFactory {
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
-    public OutLink newOutLink(String selfApplicationName, ServiceType selfServiceType, String selfAgentId,
-                              String outApplicationName, ServiceType outServiceType, String outSubLink) {
-        return new OutLinkV2(selfApplicationName, selfServiceType, selfAgentId,
-                outApplicationName, outServiceType, outSubLink);
+    public OutLink newOutLink(Vertex selfVertex, String selfAgentId, Vertex outVertex, String outSubLink) {
+        Objects.requireNonNull(selfVertex, "selfVertex");
+        Objects.requireNonNull(outVertex, "outVertex");
+
+        return new OutLinkV2(selfVertex.applicationName(), selfVertex.serviceType(), selfAgentId,
+                outVertex.applicationName(), outVertex.serviceType(), outSubLink);
     }
 
     public class OutLinkV2 implements OutLink {

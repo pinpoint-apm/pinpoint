@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface OutLinkFactory {
 
-    OutLink newOutLink(String selfApplicationName, ServiceType selfServiceType, String selfAgentId,
-                              String outApplicationName, ServiceType outServiceType, String outSubLink);
+    OutLink newOutLink(Vertex selfVertex, String selfAgentId, Vertex outVertex, String outSubLink);
 
     interface OutLink {
         RowKey rowkey(long rowTimeSlot);

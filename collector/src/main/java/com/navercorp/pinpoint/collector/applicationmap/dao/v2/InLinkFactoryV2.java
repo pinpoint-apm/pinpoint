@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.v2;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.InLinkFactory;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
@@ -37,8 +38,10 @@ public class InLinkFactoryV2 implements InLinkFactory {
     }
 
     @Override
-    public InLink newLink(String inApplicationName, ServiceType inServiceType, String selfApplicationName, ServiceType selfServiceType, String selfSubLink) {
-        return new InLinkV2(inApplicationName, inServiceType, selfApplicationName, selfServiceType, selfSubLink);
+    public InLink newLink(Vertex inVertex, Vertex selfVertex, String selfSubLink) {
+        Objects.requireNonNull(inVertex, "inVertex");
+        Objects.requireNonNull(selfVertex, "selfVertex");
+        return new InLinkV2(inVertex.applicationName(), inVertex.serviceType(), selfVertex.applicationName(), selfVertex.serviceType(), selfSubLink);
     }
 
     public class InLinkV2 implements InLink {
