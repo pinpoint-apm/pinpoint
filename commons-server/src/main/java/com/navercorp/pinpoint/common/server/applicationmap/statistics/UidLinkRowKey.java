@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -39,12 +38,6 @@ public class UidLinkRowKey implements UidRowKey {
     private final String linkApplicationName;
     private final int linkServiceType;
     private final String subLink;
-
-    public static RowKey of(Vertex selfVertex, long rowTimeSlot, String outApplicationName, int outServiceType, String outSubLink) {
-
-        String applicationName = selfVertex.applicationName();
-        return new UidLinkRowKey(selfVertex.serviceUid(), applicationName, selfVertex.serviceType().getCode(), rowTimeSlot, outApplicationName, outServiceType, outSubLink);
-    }
 
     public static RowKey of(int serviceUid, String applicationName, ServiceType serviceType, long rowTimeSlot,
                             String outApplicationName, int outServiceType, String outSubLink) {

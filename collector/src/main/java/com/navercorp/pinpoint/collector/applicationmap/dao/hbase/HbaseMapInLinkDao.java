@@ -90,8 +90,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         }
 
         // make row key. rowkey is me
-        InLinkFactory.InLink inLink = inLinkFactory.newLink(inVertex.applicationName(), inVertex.serviceType(),
-                selfVertex.applicationName(), selfVertex.serviceType(), selfHost);
+        InLinkFactory.InLink inLink = inLinkFactory.newLink(inVertex, selfVertex, selfHost);
 
         final RowKey inLinkRowKey = inLink.rowkey(requestTime);
 

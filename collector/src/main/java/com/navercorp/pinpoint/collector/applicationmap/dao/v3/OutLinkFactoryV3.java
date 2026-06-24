@@ -17,20 +17,18 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.OutLinkFactory;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.ColumnNameV3;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
 
 public class OutLinkFactoryV3 implements OutLinkFactory {
-    public static final ServiceUid DEFAULT = ServiceUid.DEFAULT;
 
     private final TimeSlot timeSlot;
 
@@ -38,33 +36,29 @@ public class OutLinkFactoryV3 implements OutLinkFactory {
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
-    public OutLink newOutLink(String selfApplicationName, ServiceType selfServiceType, String selfAgentId,
-                              String outApplicationName, ServiceType outServiceType, String outSubLink) {
-        return new OutLinkV3(selfApplicationName, selfServiceType,
-                outApplicationName, outServiceType, outSubLink);
+    public OutLink newOutLink(Vertex selfVertex, String selfAgentId, Vertex outVertex, String outSubLink) {
+        return new OutLinkV3(selfVertex, outVertex, outSubLink);
     }
 
     public class OutLinkV3 implements OutLink {
-        private final String selfApplicationName;
-        private final ServiceType selfServiceType;
-
-        private final String outApplicationName;
-        private final ServiceType outServiceType;
+        private final Vertex selfVertex;
+        private final Vertex outVertex;
         private final String outSubLink;
 
-        public OutLinkV3(String selfApplicationName, ServiceType selfServiceType, String outApplicationName, ServiceType outServiceType, String outSubLink) {
-            this.selfApplicationName = Objects.requireNonNull(selfApplicationName, "selfApplicationName");
-            this.selfServiceType = Objects.requireNonNull(selfServiceType, "selfServiceType");
-
-            this.outApplicationName = Objects.requireNonNull(outApplicationName, "outApplicationName");
-            this.outServiceType = Objects.requireNonNull(outServiceType, "outServiceType");
+        public OutLinkV3(Vertex selfVertex, Vertex outVertex, String outSubLink) {
+            this.selfVertex = Objects.requireNonNull(selfVertex, "selfVertex");
+            this.outVertex = Objects.requireNonNull(outVertex, "outVertex");
             this.outSubLink = outSubLink;
         }
 
         @Override
         public RowKey rowkey(long requestTime) {
             long timestamp = timeSlot.getTimeSlot(requestTime);
-            return UidLinkRowKey.of(DEFAULT.getUid(), selfApplicationName, selfServiceType, timestamp, outApplicationName, outServiceType.getCode(), outSubLink);
+            return UidLinkRowKey.of(
+                    selfVertex.serviceUid(), selfVertex.applicationName(), selfVertex.serviceType(),
+                    timestamp,
+                    outVertex.applicationName(), outVertex.serviceType().getCode(), outSubLink
+            );
         }
 
         @Override
@@ -87,7 +81,7 @@ public class OutLinkFactoryV3 implements OutLinkFactory {
         }
 
         private HistogramSchema outSchema() {
-            return outServiceType.getHistogramSchema();
+            return outVertex.serviceType().getHistogramSchema();
         }
 
     }
