@@ -47,7 +47,7 @@ class QueryParamServiceNameExtractorTest {
     void extract_WithValidParameter_ReturnsServiceName() {
         String expectedServiceName = "queryService";
 
-        when(request.getParameter(ServiceConstants.KEY)).thenReturn(expectedServiceName);
+        when(request.getParameter(ServiceConstants.QUERY_PARAM_KEY)).thenReturn(expectedServiceName);
 
         String result = extractor.extract(request);
 
@@ -56,7 +56,7 @@ class QueryParamServiceNameExtractorTest {
 
     @Test
     void extract_WithoutParameter_ReturnsNull() {
-        when(request.getParameter(ServiceConstants.KEY)).thenReturn(null);
+        when(request.getParameter(ServiceConstants.QUERY_PARAM_KEY)).thenReturn(null);
 
         String result = extractor.extract(request);
 
@@ -65,7 +65,7 @@ class QueryParamServiceNameExtractorTest {
 
     @Test
     void extract_WithEmptyParameter_ReturnsEmptyString() {
-        when(request.getParameter(ServiceConstants.KEY)).thenReturn("");
+        when(request.getParameter(ServiceConstants.QUERY_PARAM_KEY)).thenReturn("");
 
         String result = extractor.extract(request);
 
@@ -76,7 +76,7 @@ class QueryParamServiceNameExtractorTest {
     void extract_WithDifferentParameterKey_ChecksCorrectKey() {
         String expectedServiceName = "myService";
 
-        when(request.getParameter(ServiceConstants.KEY)).thenReturn(expectedServiceName);
+        when(request.getParameter(ServiceConstants.QUERY_PARAM_KEY)).thenReturn(expectedServiceName);
 
         String result = extractor.extract(request);
 
