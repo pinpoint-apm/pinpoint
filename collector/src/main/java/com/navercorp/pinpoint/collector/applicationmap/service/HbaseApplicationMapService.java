@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -161,11 +162,8 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         if (span.getParentSpanId() == SpanId.NULL) {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
-                String applicationName = span.getAcceptorHost();
-                if (applicationName == null) {
-                    applicationName = span.getRemoteAddr();
-                }
-                Vertex acceptVertex = Vertex.of(applicationName, spanServiceType);
+                Vertex acceptVertex = getQueueAcceptVertex(span, spanServiceType);
+
                 linkService.updateOutLink(span.getCollectorAcceptTime(), acceptVertex, span.getRemoteAddr(),
                         selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
 
@@ -199,11 +197,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
             if (spanServiceType.isQueue()) {
                 if (!selfVertex.serviceType().isQueue() && !parentVertex.serviceType().isQueue()) {
                     // emulate virtual queue node's accept Span and record it's acceptor host
-                    String applicationName = span.getAcceptorHost();
-                    if (applicationName == null) {
-                        applicationName = span.getRemoteAddr();
-                    }
-                    final Vertex queueAcceptVertex = Vertex.of(applicationName, spanServiceType);
+                    final Vertex queueAcceptVertex = getQueueAcceptVertex(span, spanServiceType);
 
                     if (logger.isDebugEnabled()) {
                         logger.debug("[Bind] child-queue {}:{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
@@ -241,6 +235,15 @@ public class HbaseApplicationMapService implements ApplicationMapService {
                 logger.debug("ambiguous span found(bug). detailed span {}", span);
             }
         }
+    }
+
+    private @NonNull Vertex getQueueAcceptVertex(SpanBo span, ServiceType spanServiceType) {
+        String applicationName = span.getAcceptorHost();
+        if (applicationName == null) {
+            applicationName = span.getRemoteAddr();
+        }
+        ServiceUid serviceUid = span.getServiceUid();
+        return Vertex.of(serviceUid.getUid(), applicationName, spanServiceType);
     }
 
     private void insertSpanEventStat(SpanBo span, Vertex selfVertex) {
