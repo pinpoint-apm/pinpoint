@@ -62,9 +62,8 @@
             DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
         FROM inspectorStatApp
         WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
             sortKey = #{sortKey}
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
@@ -81,9 +80,8 @@
         DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
         FROM inspectorStatApp
         WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
         sortKey = #{sortKey}
+        AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
         AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
@@ -101,9 +99,8 @@
         DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
         FROM inspectorStatApp
         WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
         sortKey = #{sortKey}
+        AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
         AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
@@ -121,9 +118,8 @@
         DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
         FROM inspectorStatApp
         WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
         sortKey = #{sortKey}
+        AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
         AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <if test="tagList != null and tagList.size() > 0">
@@ -140,9 +136,8 @@
         DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime
         FROM inspectorStatApp
         WHERE
-        <!--  tenantId = #{tenantId}
-              AND serviceName = #{serviceName} -->
         sortKey = #{sortKey}
+        AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
         AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         <if test="tagList != null and tagList.size() > 0">
@@ -158,6 +153,7 @@
         FROM inspectorStatApp
         WHERE
             sortKey = #{sortKey}
+            AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
             AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
     </select>

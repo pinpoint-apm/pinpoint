@@ -23,8 +23,11 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
  */
 public final class ServiceConstants {
 
-    /** Key used in HTTP header, cookie, and query-param to carry the service name. */
+    /** Key used in HTTP header and cookie to carry the service name. */
     public static final String KEY = "pServiceName";
+
+    /** Key used in URL query parameters. */
+    public static final String QUERY_PARAM_KEY = "serviceName";
 
     /** Fallback value returned when no service name can be resolved. */
     public static final String DEFAULT = ServiceUid.DEFAULT_SERVICE_UID_NAME;
