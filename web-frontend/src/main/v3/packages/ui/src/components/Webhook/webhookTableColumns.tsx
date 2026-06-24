@@ -1,4 +1,4 @@
-import { TFunction } from 'i18next';
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { Webhook } from '@pinpoint-fe/ui/src/constants';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
