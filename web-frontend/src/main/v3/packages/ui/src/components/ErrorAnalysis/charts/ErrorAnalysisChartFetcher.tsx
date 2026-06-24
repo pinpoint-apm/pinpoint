@@ -1,7 +1,7 @@
 import 'billboard.js/dist/billboard.css';
 import React from 'react';
 import { useGetErrorAnalysisChartData } from '@pinpoint-fe/ui/src/hooks';
-import bb, { ChartOptions, line } from 'billboard.js';
+import bb, { ChartOptions, line, canvas, grid } from 'billboard.js/canvas';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
@@ -21,6 +21,11 @@ export const ErrorAnalysisChartFetcher = ({
   const { data } = useGetErrorAnalysisChartData();
   const chartComponent = React.useRef<IChart>(null);
   const options: ChartOptions = {
+    // v4 ESM: canvas 렌더링 모드 사용. grid 모듈은 더 이상 자동 번들되지 않아 명시적으로 등록한다.
+    render: {
+      mode: canvas(),
+    },
+    ...grid(),
     data: {
       x: 'dates',
       columns: [],

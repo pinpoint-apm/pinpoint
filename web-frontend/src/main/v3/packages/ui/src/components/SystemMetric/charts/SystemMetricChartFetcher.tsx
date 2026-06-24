@@ -2,7 +2,7 @@ import 'billboard.js/dist/billboard.css';
 import React from 'react';
 import { SystemMetricMetricInfo } from '@pinpoint-fe/ui/src/constants';
 import { useGetSystemMetricChartData, useGetSystemMetricTagsData } from '@pinpoint-fe/ui/src/hooks';
-import bb, { ChartOptions, line } from 'billboard.js';
+import bb, { ChartOptions, line, canvas } from 'billboard.js/canvas';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
@@ -55,7 +55,32 @@ export const SystemMetricChartFetcher = ({
   const title = chartData?.title || '';
 
   const chartComponent = React.useRef<IChart>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  // canvas 모드는 차트 높이를 스스로 측정해 캔버스 크기로 쓰는데, Group 변경 시 suspense 리마운트 순간
+  // 높이가 0으로 측정되면 billboard 기본값(320px)으로 그려져 박스보다 커지며 잘린다. 컨테이너 높이를
+  // 직접 측정해 size.height로 넘기면 billboard가 측정/폴백 없이 그 높이로 그리고, 리사이즈에도 대응한다.
+  const [measuredHeight, setMeasuredHeight] = React.useState<number>();
+  React.useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const updateHeight = () => {
+      const height = container.clientHeight;
+      if (height > 0) {
+        setMeasuredHeight(height);
+        chartComponent.current?.instance?.resize({ height });
+      }
+    };
+    updateHeight();
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(container);
+    return () => resizeObserver.disconnect();
+  }, []);
   const options: ChartOptions = {
+    // v4 ESM: canvas 렌더링 모드 사용.
+    render: {
+      mode: canvas(),
+    },
+    ...(measuredHeight ? { size: { height: measuredHeight } } : {}),
     data: {
       x: 'dates',
       columns: [],
@@ -168,12 +193,9 @@ export const SystemMetricChartFetcher = ({
       </CardHeader>
       <Separator />
       <CardContent className="p-0 pb-1">
-        <BillboardJS
-          bb={bb}
-          ref={chartComponent}
-          className={cn('w-full h-full', className)}
-          options={options}
-        />
+        <div ref={containerRef} className={cn('w-full h-full min-h-0 overflow-hidden', className)}>
+          <BillboardJS bb={bb} ref={chartComponent} className="h-full w-full" options={options} />
+        </div>
       </CardContent>
     </Card>
   );

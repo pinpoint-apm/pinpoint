@@ -1,4 +1,4 @@
-import { spline, areaSpline, bar, line } from 'billboard.js';
+import { spline, areaSpline, bar, line } from 'billboard.js/canvas';
 
 export const useChartType = () => {
   const getChartType = (chartType: string) => {

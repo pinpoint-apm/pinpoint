@@ -4984,18 +4984,16 @@ big.js@^5.2.2:
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
   integrity sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
 
-billboard.js@^3.18.0:
-  version "3.18.0"
-  resolved "https://registry.yarnpkg.com/billboard.js/-/billboard.js-3.18.0.tgz#20d0f9588e5631a94df66fedd5c35fc851e2ff59"
-  integrity sha512-aci69MLwOX0HfdmQHk+v/iA7L4R+wG53hW9VwhkYzMOyqemWLjscf229XsQRrTau9EJSVyOHnr/rpVukoqppXw==
+billboard.js@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/billboard.js/-/billboard.js-4.0.1.tgz#ca98b01038b84c8baf2bc50a86cde3ec8dc8fd8f"
+  integrity sha512-/o6iuVIwH5/hufm/hAHg4h4acx2563ePGejaXpdyaoGfyInuO1pJxy3Ya1iQXLCTZzv6HKCHPq+dJkuHqIIb+Q==
   dependencies:
     "@types/d3-selection" "^3.0.11"
     "@types/d3-transition" "^3.0.9"
     d3-axis "^3.0.0"
     d3-brush "^3.0.0"
     d3-drag "^3.0.0"
-    d3-dsv "^3.0.1"
-    d3-ease "^3.0.1"
     d3-hierarchy "^3.1.2"
     d3-interpolate "^3.0.1"
     d3-scale "^4.0.2"
@@ -5277,11 +5275,6 @@ combined-stream@^1.0.8:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@7:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-7.2.0.tgz#a36cb57d0b501ce108e4d20559a150a391d97ab7"
-  integrity sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==
-
 commander@^4.0.0:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-4.1.1.tgz#9fd602bd936294e9e9ef46a3f4d6964044b18068"
@@ -5490,15 +5483,6 @@ d3-brush@^3.0.0:
   dependencies:
     d3-dispatch "1 - 3"
     d3-selection "3"
-
-d3-dsv@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/d3-dsv/-/d3-dsv-3.0.1.tgz#c63af978f4d6a0d084a52a673922be2160789b73"
-  integrity sha512-UG6OvdI5afDIFP9w4G0mNq50dSOsXHJaRE8arAS5o9ApWnIElp8GZw1Dun8vP8OyHOZ/QJUKUJwxiiCCnUwm+Q==
-  dependencies:
-    commander "7"
-    iconv-lite "0.6"
-    rw "1"
 
 "d3-ease@1 - 3", d3-ease@^3.0.1:
   version "3.0.1"
@@ -6682,7 +6666,7 @@ i18next@^23.2.11:
   dependencies:
     "@babel/runtime" "^7.23.2"
 
-iconv-lite@0.6, iconv-lite@0.6.3:
+iconv-lite@0.6.3:
   version "0.6.3"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.6.3.tgz#a52f80bf38da1952eb5c681790719871a1a72501"
   integrity sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==
@@ -8906,11 +8890,6 @@ run-parallel@^1.1.9:
   integrity sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==
   dependencies:
     queue-microtask "^1.2.2"
-
-rw@1:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/rw/-/rw-1.3.3.tgz#3f862dfa91ab766b14885ef4d01124bfda074fb4"
-  integrity sha512-PdhdWy89SiZogBLaw42zdeqtRJ//zFd2PgQavcICDUgJT5oW10QCRKbJ6bg4r0/UY2M6BWd5tkxuGFRvCkgfHQ==
 
 safe-buffer@^5.2.0:
   version "5.2.1"

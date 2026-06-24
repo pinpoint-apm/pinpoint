@@ -2,7 +2,7 @@ import { useDataSourceChartConfig } from './useDataSourceChartConfig';
 import { InspectorAgentDataSourceChart } from '@pinpoint-fe/ui/src/constants';
 
 // Mock billboard.js
-jest.mock('billboard.js', () => ({
+jest.mock('billboard.js/canvas', () => ({
   spline: jest.fn(() => ({ type: 'spline' })),
   areaSpline: jest.fn(() => ({ type: 'areaSpline' })),
   bar: jest.fn(() => ({ type: 'bar' })),
