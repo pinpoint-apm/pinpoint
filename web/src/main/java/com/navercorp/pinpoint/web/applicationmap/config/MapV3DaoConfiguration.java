@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentRo
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
-import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
@@ -72,7 +71,6 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -81,7 +79,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 @Configuration
-@ConditionalOnProperty(name = ObjectNameVersion.KEY, havingValue = "v3")
 public class MapV3DaoConfiguration {
 
     private static final Logger logger = LogManager.getLogger(MapV3DaoConfiguration.class);

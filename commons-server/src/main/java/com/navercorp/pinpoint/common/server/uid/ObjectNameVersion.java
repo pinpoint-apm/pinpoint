@@ -17,12 +17,13 @@
 package com.navercorp.pinpoint.common.server.uid;
 
 public enum ObjectNameVersion {
+    @Deprecated
     v1,
     v3,
     v4;
 
     public static final String KEY = "pinpoint.modules.uid.version";
-    public static final String VALUE_KEY = "${" + KEY + ":v1}";
+    public static final String VALUE_KEY = "${" + KEY + ":v3}";
 
     public static ObjectNameVersion getVersion(String version) {
         if ("v1".equalsIgnoreCase(version)) {

@@ -73,5 +73,4 @@ pinpoint:
     realtime:
       enabled: false
     uid:
-      # v2: lagacy table, v3: new table, dual : DualWrite for Data Migration
       version: v3
