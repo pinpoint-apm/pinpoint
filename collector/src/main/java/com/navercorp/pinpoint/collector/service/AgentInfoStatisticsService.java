@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
-import java.util.function.Supplier;
-
 /**
  * @author intr3p1d
  */
 public interface AgentInfoStatisticsService {
-    void insert(Supplier<ServiceUid> serviceUidSupplier, String applicationName, AgentInfoBo agentInfoBo);
+    void insert(ServiceUid serviceUid, String applicationName, AgentInfoBo agentInfoBo);
 }

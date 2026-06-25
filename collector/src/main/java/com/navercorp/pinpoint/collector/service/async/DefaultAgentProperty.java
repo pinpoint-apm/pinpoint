@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -24,18 +26,25 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class DefaultAgentProperty implements AgentProperty {
+    private final ServiceUid serviceUid;
     private final String applicationName;
+    private final int serviceType;
     private final String agentId;
     private final long agentStartTime;
     private final Map<?, ?> properties;
-    private final int serviceType;
 
-    public DefaultAgentProperty(String applicationName, int serviceType, String agentId, long agentStartTime, Map<?, ?> properties) {
+    public DefaultAgentProperty(ServiceUid serviceUid, String applicationName, int serviceType, String agentId, long agentStartTime, Map<?, ?> properties) {
+        this.serviceUid = Objects.requireNonNull(serviceUid, "serviceUid");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
         this.properties = Objects.requireNonNull(properties, "properties");
+    }
+
+    @Override
+    public ServiceUid getServiceUid() {
+        return serviceUid;
     }
 
     @Override
@@ -66,11 +75,12 @@ public class DefaultAgentProperty implements AgentProperty {
     @Override
     public String toString() {
         return "DefaultAgentProperty{" +
-                "applicationName='" + applicationName + '\'' +
+                "serviceUid=" + serviceUid +
+                ", applicationName='" + applicationName + '\'' +
+                ", serviceType=" + serviceType +
                 ", agentId='" + agentId + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", properties=" + properties +
-                ", serviceType=" + serviceType +
                 '}';
     }
 }

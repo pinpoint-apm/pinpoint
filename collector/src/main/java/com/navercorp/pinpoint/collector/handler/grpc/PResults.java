@@ -15,4 +15,11 @@ public final class PResults {
             .setMessage("Internal Server Error")
             .build();
 
+    public static PResult serviceNotFound(String serviceName) {
+        return PResult.newBuilder()
+                .setSuccess(false)
+                .setMessage("Service not found. serviceName=" + serviceName)
+                .build();
+    }
+
 }

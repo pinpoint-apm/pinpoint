@@ -20,38 +20,45 @@ import com.navercorp.pinpoint.common.server.io.DefaultServerRequest;
 import com.navercorp.pinpoint.common.server.io.MessageType;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.io.request.GrpcHeaderFactory;
+import com.navercorp.pinpoint.io.request.ServiceUidSuppliers;
 import com.navercorp.pinpoint.io.request.UidFetcher;
+import com.navercorp.pinpoint.io.request.UidFetcherService;
 import com.navercorp.pinpoint.io.request.UidFetchers;
 import io.grpc.Context;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultServerRequestFactory implements ServerRequestFactory {
     private final GrpcHeaderFactory headerFactory;
+    private final UidFetcherService uidFetcherService;
 
     public DefaultServerRequestFactory() {
-        this(new GrpcHeaderFactory());
+        this(new GrpcHeaderFactory(), UidFetchers::defaultUidFetcher);
     }
 
     public DefaultServerRequestFactory(GrpcHeaderFactory headerFactory) {
-        this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
+        this(headerFactory, UidFetchers::defaultUidFetcher);
     }
 
+    public DefaultServerRequestFactory(UidFetcherService uidFetcherService) {
+        this(new GrpcHeaderFactory(), uidFetcherService);
+    }
 
+    public DefaultServerRequestFactory(GrpcHeaderFactory headerFactory, UidFetcherService uidFetcherService) {
+        this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
+        this.uidFetcherService = Objects.requireNonNull(uidFetcherService, "uidFetcherService");
+    }
 
     @Override
     public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
-        return newServerRequest(context, UidFetchers.defaultUidFetcher(), messageType, data);
+        return newServerRequest(context, uidFetcherService.newUidFetcher(), messageType, data);
     }
 
     @Override
@@ -62,14 +69,8 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
             throw new IllegalStateException("transportMetadata is null");
         }
         long requestTime = System.currentTimeMillis();
-        ServerHeader serverHeader = headerFactory.serverHeader(header, new Supplier<ServiceUid>() {
-            @Override
-            public ServiceUid get() {
-                String serviceName = header.getServiceName();
-
-                return ServiceUidService.getServiceUid(serviceName);
-            }
-        });
+        ServerHeader serverHeader = headerFactory.serverHeader(header,
+                ServiceUidSuppliers.newSupplier(header.getServiceName(), uidFetcher));
 
         return new DefaultServerRequest<>(serverHeader, transportMetadata, requestTime, messageType, data);
     }

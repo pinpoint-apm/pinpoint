@@ -73,7 +73,7 @@ public class KeepAliveService {
         final String agentId = header.getAgentId();
         final long agentStartTime = header.getAgentStartTime();
         int serviceType = resolveServiceType(pingSession);
-        return new DefaultAgentProperty(applicationName, serviceType, agentId, agentStartTime, header.getProperties());
+        return new DefaultAgentProperty(pingSession.getServiceUid(), applicationName, serviceType, agentId, agentStartTime, header.getProperties());
     }
 
     private int resolveServiceType(PingSession pingSession) {

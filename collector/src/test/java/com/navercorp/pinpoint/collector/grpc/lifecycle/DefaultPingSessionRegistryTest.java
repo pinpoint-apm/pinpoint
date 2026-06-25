@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,7 @@ import static org.mockito.Mockito.mock;
 class DefaultPingSessionRegistryTest {
 
     private PingSession newPingSession(Long transportId, long sessionId) {
-        return new PingSession(transportId, sessionId, mock(Header.class), null);
+        return new PingSession(transportId, sessionId, mock(Header.class), null, ServiceUid.DEFAULT);
     }
 
     @Test
