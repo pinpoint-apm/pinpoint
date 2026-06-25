@@ -16,25 +16,18 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.v2.HostRowKeyEncoderV2;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.collector.applicationmap.dao.v3.HostRowKeyEncoderV3;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class HostRowKeyEncoderV2Test {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
+class HostRowKeyEncoderV3Test {
 
     private final TimeSlot timeSlot = new DefaultTimeSlot();
 
@@ -45,18 +38,14 @@ public class HostRowKeyEncoderV2Test {
         ServiceType standAlone = ServiceType.STAND_ALONE;
 
         ByteHasher hasher = new OneByteSimpleHash(32);
-        HostRowKeyEncoder rowKeyEncoder = new HostRowKeyEncoderV2(hasher);
+        HostRowKeyEncoder rowKeyEncoder = new HostRowKeyEncoderV3(hasher);
         byte[] parentApps = rowKeyEncoder.encodeRowKey(parentApp, standAlone.getCode(), ServiceUid.DEFAULT_SERVICE_UID_CODE, statisticsRowSlot);
-        logger.debug("rowKey size:{}", parentApps.length);
 
-        Buffer readBuffer = new FixedBuffer(parentApps);
-        readBuffer.setOffset(hasher.getSaltKey().size());
-        String appName = readBuffer.readPadStringAndRightTrim(HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
-        short code = readBuffer.readShort();
-        long time = LongInverter.restore(readBuffer.readLong());
+        UidAppRowKey rowKey = UidAppRowKey.read(hasher.getSaltKey().size(), parentApps);
 
-        Assertions.assertEquals(parentApp, appName, "applicationName check");
-        Assertions.assertEquals(standAlone.getCode(), code, "serviceType check");
-        Assertions.assertEquals(statisticsRowSlot, time, "time check");
+        Assertions.assertEquals(ServiceUid.DEFAULT_SERVICE_UID_CODE, rowKey.getServiceUid(), "serviceUid check");
+        Assertions.assertEquals(parentApp, rowKey.getApplicationName(), "applicationName check");
+        Assertions.assertEquals(standAlone.getCode(), rowKey.getServiceType(), "serviceType check");
+        Assertions.assertEquals(statisticsRowSlot, rowKey.getTimestamp(), "time check");
     }
 }

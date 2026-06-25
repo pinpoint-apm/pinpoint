@@ -48,7 +48,6 @@ import java.util.concurrent.ExecutorService;
 @org.springframework.context.annotation.Configuration
 @Import({
         MapV3DaoConfiguration.class,
-        MapV2DaoConfiguration.class
 })
 public class MapDaoConfiguration {
     private static final Logger logger = LogManager.getLogger(MapDaoConfiguration.class);
