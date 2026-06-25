@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.TransportMutableContext;
@@ -40,15 +41,17 @@ public class PingSession {
 
     private final Header header;
     private final TransportMutableContext transportMutableContext;
+    private final ServiceUid serviceUid;
 
     private boolean updated = false;
     private long lastPingTimeMillis;
 
-    public PingSession(Long transportId, long sessionId, Header header, TransportMutableContext transportMutableContext) {
+    public PingSession(Long transportId, long sessionId, Header header, TransportMutableContext transportMutableContext, ServiceUid serviceUid) {
         this.transportId = Objects.requireNonNull(transportId, "transportId");
         this.sessionId = sessionId;
         this.header = Objects.requireNonNull(header, "header");
         this.transportMutableContext = transportMutableContext;
+        this.serviceUid = Objects.requireNonNull(serviceUid, "serviceUid");
     }
 
     public boolean firstPing() {
@@ -69,6 +72,10 @@ public class PingSession {
 
     public Header getHeader() {
         return header;
+    }
+
+    public ServiceUid getServiceUid() {
+        return serviceUid;
     }
 
     public int getServiceType() {

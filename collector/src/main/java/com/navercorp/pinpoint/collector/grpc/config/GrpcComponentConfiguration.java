@@ -23,13 +23,16 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRespo
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
+import com.navercorp.pinpoint.collector.uid.service.ServiceLookupService;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.io.CollectorGrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.io.GrpcSpanBinder;
+import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherService;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import com.navercorp.pinpoint.io.request.UidFetchers;
 import io.grpc.ServerTransportFilter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -48,18 +51,26 @@ public class GrpcComponentConfiguration {
     }
 
     @Bean
-    public UidFetcherStreamService UidFetcherStreamService() {
-        return UidFetchers::defaultUidFetcher;
+    public UidFetcherService uidFetcherService(ObjectProvider<ServiceLookupService> serviceLookupServiceProvider) {
+        return () -> newUidFetcher(serviceLookupServiceProvider);
     }
 
     @Bean
-    public UidFetcherService uidFetcherService() {
-        return UidFetchers::defaultUidFetcher;
+    public UidFetcherStreamService uidFetcherStreamService(ObjectProvider<ServiceLookupService> serviceLookupServiceProvider) {
+        return () -> newUidFetcher(serviceLookupServiceProvider);
+    }
+
+    private UidFetcher newUidFetcher(ObjectProvider<ServiceLookupService> serviceLookupServiceProvider) {
+        ServiceLookupService serviceLookupService = serviceLookupServiceProvider.getIfAvailable();
+        if (serviceLookupService == null) {
+            return UidFetchers.defaultUidFetcher();
+        }
+        return serviceLookupService::getServiceUid;
     }
 
     @Bean
-    public ServerRequestFactory serverRequestFactory() {
-        return new DefaultServerRequestFactory();
+    public ServerRequestFactory serverRequestFactory(UidFetcherService uidFetcherService) {
+        return new DefaultServerRequestFactory(uidFetcherService);
     }
 
     @Bean

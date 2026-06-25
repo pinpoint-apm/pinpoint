@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Supplier;
-
 /**
  * @author intr3p1d
  */
@@ -29,7 +27,7 @@ import java.util.function.Supplier;
 @Service
 public class EmptyAgentInfoStatisticsService implements AgentInfoStatisticsService {
     @Override
-    public void insert(Supplier<ServiceUid> serviceUidSupplier, String applicationName, AgentInfoBo agentInfoBo) {
+    public void insert(ServiceUid serviceUid, String applicationName, AgentInfoBo agentInfoBo) {
         // do nothing
     }
 }

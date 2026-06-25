@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.common.server.io.ServerResponse;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -77,11 +78,18 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, 
         }
 
         try {
+            ServiceUid serviceUid = header.getServiceUid().get();
+            if (serviceUid == null || ServiceUid.UNKNOWN.equals(serviceUid) || ServiceUid.ERROR.equals(serviceUid)) {
+                logger.warn("Service not found. serviceName={}, serviceUid={}, applicationName={}, agentId={}",
+                        header.getServiceName(), serviceUid, header.getApplicationName(), header.getAgentId());
+                return PResults.serviceNotFound(header.getServiceName());
+            }
+
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo, header);
             this.agentInfoService.insert(agentInfoBo);
-            this.applicationIndexV2Service.insert(header.getServiceUid(), header.getServiceType(), agentInfoBo);
-            this.agentInfoStatisticsService.insert(header.getServiceUid(), header.getApplicationName(), agentInfoBo);
+            this.applicationIndexV2Service.insert(serviceUid, header.getServiceType(), agentInfoBo);
+            this.agentInfoStatisticsService.insert(serviceUid, header.getApplicationName(), agentInfoBo);
             return PResults.SUCCESS;
         } catch (Exception e) {
             logger.warn("Failed to handle. agentInfo={}", MessageFormatUtils.debugLog(agentInfo), e);

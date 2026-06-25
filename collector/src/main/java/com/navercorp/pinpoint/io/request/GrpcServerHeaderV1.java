@@ -14,7 +14,7 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     private final Header header;
 
-    private final UidFetcher uidFetcher;
+    private final Supplier<ServiceUid> serviceUidSupplier;
 
     public GrpcServerHeaderV1(Header header) {
         this(header, UidFetchers.defaultUidFetcher());
@@ -22,7 +22,7 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     public GrpcServerHeaderV1(Header header, UidFetcher uidFetcher) {
         this.header = Objects.requireNonNull(header, "header");
-        this.uidFetcher = Objects.requireNonNull(uidFetcher, "uidFetcher");
+        this.serviceUidSupplier = ServiceUidSuppliers.newSupplier(header.getServiceName(), uidFetcher);
     }
 
     @NonNull
@@ -50,7 +50,7 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     @Override
     public Supplier<ServiceUid> getServiceUid() {
-        return () -> ServiceUid.DEFAULT;
+        return serviceUidSupplier;
     }
 
     @Override
