@@ -67,13 +67,14 @@ public class AgentLifeCycleAsyncTaskService {
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
 
         final int selfService = ServiceUid.DEFAULT_SERVICE_UID_CODE;
+        final int serviceUid = agentProperty.getServiceUid().getUid();
         final String applicationName = agentProperty.getApplicationName();
         final String agentId = agentProperty.getAgentId();
 
         final long startTimestamp = agentProperty.getStartTime();
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
         agentLifeCycleService.insert(agentLifeCycleBo);
-        agentListStateService.update(selfService, applicationName, agentProperty.getServiceType(), agentId, startTimestamp,
+        agentListStateService.update(serviceUid, applicationName, agentProperty.getServiceType(), agentId, startTimestamp,
                 agentLifeCycleState, eventTimestamp);
 
         updateAgentState(eventTimestamp, selfService, applicationName, agentProperty.getServiceType(), agentId);

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
 
 @Service
 public class ApplicationIndexV2Service {
@@ -39,13 +38,12 @@ public class ApplicationIndexV2Service {
         this.missingHeaderServiceTypeCodes = agentProperties.getMissingHeaderServiceTypeCodes();
     }
 
-    // TODO get serviceUid from agentInfoBo
-    public void insert(Supplier<ServiceUid> serviceUidSupplier, int headerServiceTypeCode, AgentInfoBo agentInfoBo) {
+    public void insert(ServiceUid serviceUid, int headerServiceTypeCode, AgentInfoBo agentInfoBo) {
         if (!v2enabled) {
             return;
         }
+        Objects.requireNonNull(serviceUid, "serviceUid");
         try {
-            ServiceUid serviceUid = serviceUidSupplier.get();
             if (headerServiceTypeCode == ServiceType.UNDEFINED.getCode()) {
                 handleMissingHeaderServiceType(serviceUid, agentInfoBo);
             }

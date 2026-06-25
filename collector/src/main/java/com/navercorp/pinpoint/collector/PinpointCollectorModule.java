@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.collector.grpc.CollectorGrpcConfiguration;
 import com.navercorp.pinpoint.collector.grpc.ssl.GrpcSslModule;
 import com.navercorp.pinpoint.collector.heatmap.HeatmapCollectorModule;
 import com.navercorp.pinpoint.collector.manage.CollectorAdminConfiguration;
-import com.navercorp.pinpoint.collector.uid.CollectorUidConfiguration;
+import com.navercorp.pinpoint.collector.uid.ServiceLookupConfiguration;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
@@ -61,7 +61,7 @@ import org.springframework.context.annotation.Import;
 
         ApplicationMapModule.class,
 
-        CollectorUidConfiguration.class,
+        ServiceLookupConfiguration.class,
         HeatmapCollectorModule.class,
 
         CollectorEventConfiguration.class

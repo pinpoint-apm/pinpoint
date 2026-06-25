@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFacto
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
+import com.navercorp.pinpoint.io.request.UidFetcherService;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -72,11 +73,12 @@ public class GrpcAgentConfiguration {
     @Bean
     public AgentService agentService(RequestResponseHandler<PAgentInfo, PResult> grpcAgentInfoHandler,
                                      PingEventHandler pingEventHandler,
+                                     UidFetcherService uidFetcherService,
                                      @Qualifier("grpcAgentWorkerExecutor")
                                      Executor executor,
                                      ServerRequestFactory serverRequestFactory,
                                      ServerResponseFactory serverResponseFactory) {
-        return new AgentService(grpcAgentInfoHandler, pingEventHandler, executor, serverRequestFactory, serverResponseFactory);
+        return new AgentService(grpcAgentInfoHandler, pingEventHandler, uidFetcherService, executor, serverRequestFactory, serverResponseFactory);
     }
 
     @Bean
