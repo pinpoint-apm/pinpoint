@@ -175,7 +175,7 @@
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
         <mysql-connector-j.verison>8.4.0</mysql-connector-j.verison>
 
-        <fastxml.jackson.version>2.21.3</fastxml.jackson.version>
+        <fastxml.jackson.version>2.21.4</fastxml.jackson.version>
         <fastxml.jackson-annotation.version>2.21</fastxml.jackson-annotation.version>
         <mapstruct.version>1.6.3</mapstruct.version>
 
