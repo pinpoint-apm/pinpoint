@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.bo.SpanId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
@@ -157,9 +156,10 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     private void insertSpanStat(SpanBo span, Vertex selfVertex) {
 
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
+        final ParentApplication parentApplication = span.getParentApplication();
 
-        int bugCheck = 0;
-        if (span.getParentSpanId() == SpanId.NULL) {
+        if (span.isRoot()) {
+            // root span
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
                 Vertex acceptVertex = getQueueAcceptVertex(span, spanServiceType);
@@ -181,60 +181,68 @@ public class HbaseApplicationMapService implements ApplicationMapService {
                 Vertex userVertex = Vertex.of(span.getApplicationName(), ServiceType.USER);
                 linkService.updateInLink(span.getCollectorAcceptTime(), selfVertex, userVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
             }
-            bugCheck++;
-        }
+            if (parentApplication != null) {
+                logInvalidSpan(span, InvalidSpanReason.ROOT_WITH_PARENT_APP);
+            }
+        } else {
+            // child span
+            // save statistics info only when parentApplicationContext exists
+            // when drawing server map based on statistics info, you must know the application name of the previous node.
+            if (parentApplication != null) {
+                Vertex parentVertex = getParentVertex(parentApplication);
 
-        // save statistics info only when parentApplicationContext exists
-        // when drawing server map based on statistics info, you must know the application name of the previous node.
-        if (span.getParentApplication() != null) {
+                logger.debug("Received parent application name. parentName:{} appName:{}", parentVertex, span.getApplicationName());
 
-            Vertex parentVertex = getParentVertex(span.getParentApplication());
-            logger.debug("Received parent application name. parentName:{} appName:{}", parentVertex, span.getApplicationName());
+                // create virtual queue node if current' span's service type is a queue AND :
+                // 1. parent node's application service type is not a queue (it may have come from a queue that is traced)
+                // 2. current node's application service type is not a queue (current node may be a queue that is traced)
+                if (spanServiceType.isQueue()) {
+                    if (!selfVertex.serviceType().isQueue() && !parentVertex.serviceType().isQueue()) {
+                        // emulate virtual queue node's accept Span and record it's acceptor host
+                        final Vertex queueAcceptVertex = getQueueAcceptVertex(span, spanServiceType);
 
-            // create virtual queue node if current' span's service type is a queue AND :
-            // 1. parent node's application service type is not a queue (it may have come from a queue that is traced)
-            // 2. current node's application service type is not a queue (current node may be a queue that is traced)
-            if (spanServiceType.isQueue()) {
-                if (!selfVertex.serviceType().isQueue() && !parentVertex.serviceType().isQueue()) {
-                    // emulate virtual queue node's accept Span and record it's acceptor host
-                    final Vertex queueAcceptVertex = getQueueAcceptVertex(span, spanServiceType);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("[Bind] child-queue {}:{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
+                        }
+                        hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex.applicationName(), parentVertex.serviceType().getCode(), queueAcceptVertex, span.getRemoteAddr());
+                        // emulate virtual queue node's send SpanEvent
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("[Bind] child-queue {}:{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("[OutLink] child-queue {}:{} -> {}:{}", queueAcceptVertex, span.getRemoteAddr(), selfVertex, span.getEndPoint());
+                        }
+                        linkService.updateOutLink(span.getCollectorAcceptTime(), queueAcceptVertex, span.getRemoteAddr(),
+                                selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
+
+                        parentVertex = queueAcceptVertex;
                     }
-                    hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex.applicationName(), parentVertex.serviceType().getCode(), queueAcceptVertex, span.getRemoteAddr());
-                    // emulate virtual queue node's send SpanEvent
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("[OutLink] child-queue {}:{} -> {}:{}", queueAcceptVertex, span.getRemoteAddr(), selfVertex, span.getEndPoint());
-                    }
-                    linkService.updateOutLink(span.getCollectorAcceptTime(), queueAcceptVertex, span.getRemoteAddr(),
-                            selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
-
-                    parentVertex = queueAcceptVertex;
                 }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("child-span updateInLink child {}:{} <- parentAppName:{}", selfVertex, span.getAgentId(), parentVertex);
+                }
+                linkService.updateInLink(span.getCollectorAcceptTime(), selfVertex,
+                        parentVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
+            } else {
+                logInvalidSpan(span, InvalidSpanReason.CHILD_WITHOUT_PARENT_APP);
             }
-            if (logger.isDebugEnabled()) {
-                logger.debug("child-span updateInLink child {}:{} <- parentAppName:{}", selfVertex, span.getAgentId(), parentVertex);
-            }
-            linkService.updateInLink(span.getCollectorAcceptTime(), selfVertex,
-                    parentVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
-            bugCheck++;
         }
 
         // record the response time of the current node (self).
         // blow code may be conflict of idea above callee key.
         // it is odd to record reversely, because of already recording the caller data at previous node.
         // the data may be different due to timeout or network error.
-
         linkService.updateResponseTime(span.getCollectorAcceptTime(), selfVertex, span.getAgentId(), span.getElapsed(), span.hasError());
+    }
 
-        if (bugCheck != 1) {
-            logger.info("ambiguous span found(bug). span {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
-            if (logger.isDebugEnabled()) {
-                logger.debug("ambiguous span found(bug). detailed span {}", span);
-            }
+    private void logInvalidSpan(SpanBo span, InvalidSpanReason reason) {
+        logger.info("Invalid span found. reason:{} span {}/{}/{}", reason, span.getServiceName(), span.getApplicationName(), span.getAgentId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Invalid span found. reason:{} detailed span {}", reason, span);
         }
+    }
+
+    private enum InvalidSpanReason {
+        ROOT_WITH_PARENT_APP,
+        CHILD_WITHOUT_PARENT_APP
     }
 
     private @NonNull Vertex getQueueAcceptVertex(SpanBo span, ServiceType spanServiceType) {
