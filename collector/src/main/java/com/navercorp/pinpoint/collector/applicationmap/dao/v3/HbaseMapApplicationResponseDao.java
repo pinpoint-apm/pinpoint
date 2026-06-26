@@ -65,7 +65,7 @@ public class HbaseMapApplicationResponseDao implements MapApplicationResponseDao
         }
 
         // make row key. rowkey is me
-        SelfAppNodeFactory.Node node = selfAppNodeFactory.newNode(selfVertex.applicationName(), selfVertex.serviceType());
+        SelfAppNodeFactory.Node node = selfAppNodeFactory.newNode(selfVertex);
         final RowKey selfRowKey = node.rowkey(requestTime);
 
         final ColumnName selfColumnName = node.histogram(elapsed, isError);

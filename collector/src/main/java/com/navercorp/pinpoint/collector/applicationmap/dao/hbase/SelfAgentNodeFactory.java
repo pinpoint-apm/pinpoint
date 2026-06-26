@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 
 public interface SelfAgentNodeFactory {
 
-    Node newNode(String applicationName, ServiceType serviceType, String agentId) ;
+    Node newNode(Vertex selfVertex, String agentId);
 
     interface Node {
         RowKey rowkey (long requestTime);
