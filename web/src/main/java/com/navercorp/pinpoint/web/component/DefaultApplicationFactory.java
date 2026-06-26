@@ -63,6 +63,11 @@ public class DefaultApplicationFactory implements ApplicationFactory {
         if (Service.TEST_SERVICE.getUid() == serviceUid) {
             return Service.TEST_SERVICE;
         }
+        // TODO serviceUid query
+        if (Service.TEST_SERVICE.getUid() == serviceUid) {
+            return Service.TEST_SERVICE;
+        }
+
         return Service.DEFAULT;
     }
 

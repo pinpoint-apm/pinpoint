@@ -35,6 +35,10 @@ public record Vertex(int serviceUid, String applicationName, ServiceType service
         return new Vertex(serviceUid, applicationName, serviceType);
     }
 
+    /**
+     * @deprecated use {@link #of(int, String, ServiceType)}
+     */
+    @Deprecated(since = "4.0.0")
     public static Vertex of(String applicationName, ServiceType serviceType) {
         return of(DEFAULT.getUid(), applicationName, serviceType);
     }

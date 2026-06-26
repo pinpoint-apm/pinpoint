@@ -112,7 +112,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
             return;
         }
         ServiceType serviceType = registry.findServiceType(spanEvent.getServiceType());
-        Vertex rpcVertex = Vertex.of(destinationId, serviceType);
+        Vertex rpcVertex = Vertex.of(selfVertex.serviceUid(), destinationId, serviceType);
         hostApplicationMapDao.insert(requestTime, selfVertex.applicationName(), selfVertex.serviceType().getCode(), rpcVertex, endPoint);
     }
 
@@ -148,9 +148,18 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     private Vertex getParentVertex(ParentApplication parentApplication) {
         Objects.requireNonNull(parentApplication, "parentApplication");
 
+        int serviceUid = getServiceUid(parentApplication.serviceName());
         String parentApplicationName = parentApplication.applicationName();
         ServiceType parentApplicationType = registry.findServiceType(parentApplication.applicationServiceType());
-        return Vertex.of(parentApplicationName, parentApplicationType);
+        return Vertex.of(serviceUid, parentApplicationName, parentApplicationType);
+    }
+
+    private int getServiceUid(String serviceName) {
+        if (serviceName == null || ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
+            return ServiceUid.DEFAULT.getUid();
+        }
+        // TODO ServiceUid query
+        return ServiceUid.DEFAULT.getUid();
     }
 
     private void insertSpanStat(SpanBo span, Vertex selfVertex) {
@@ -178,7 +187,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
 //                        spanLink, MERGE_AGENT, span.getElapsed(), span.hasError());
 
                 // update the span information of the current node (self)
-                Vertex userVertex = Vertex.of(span.getApplicationName(), ServiceType.USER);
+                Vertex userVertex = Vertex.of(span.getServiceUid().getUid(), span.getApplicationName(), ServiceType.USER);
                 linkService.updateInLink(span.getCollectorAcceptTime(), selfVertex, userVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
             }
             if (parentApplication != null) {
