@@ -17,21 +17,18 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.SelfAgentNodeFactory;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.ColumnNameV3;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
 
 public class SelfAgentNodeFactoryV3 implements SelfAgentNodeFactory {
-    public static final ServiceUid DEFAULT = ServiceUid.DEFAULT;
-
     private final TimeSlot timeSlot;
 
     public SelfAgentNodeFactoryV3(TimeSlot timeSlot) {
@@ -39,27 +36,28 @@ public class SelfAgentNodeFactoryV3 implements SelfAgentNodeFactory {
     }
 
     @Override
-    public Node newNode(String applicationName, ServiceType serviceType, String agentId) {
-        return new SelfAgentNode(applicationName, serviceType, agentId);
+    public Node newNode(Vertex selfVertex, String agentId) {
+        return new SelfAgentNode(selfVertex, agentId);
     }
 
 
     public class SelfAgentNode implements Node {
 
-        private final String applicationName;
-        private final ServiceType serviceType;
+        private final Vertex selfVertex;
         private final String agentId;
 
-        public SelfAgentNode(String applicationName, ServiceType serviceType, String agentId) {
-            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
+        public SelfAgentNode(Vertex selfVertex, String agentId) {
+            this.selfVertex = Objects.requireNonNull(selfVertex, "selfVertex");
             this.agentId = agentId;
         }
 
         @Override
         public RowKey rowkey(long requestTime) {
             long timestamp = timeSlot.getTimeSlot(requestTime);
-            return UidAgentRowKey.of(DEFAULT.getUid(), applicationName, serviceType, timestamp, agentId);
+            return UidAgentRowKey.of(
+                    selfVertex.serviceUid(), selfVertex.applicationName(), selfVertex.serviceType(),
+                    timestamp,
+                    agentId);
         }
 
         @Override
@@ -87,7 +85,7 @@ public class SelfAgentNodeFactoryV3 implements SelfAgentNodeFactory {
         }
 
         private HistogramSchema getHistogramSchema() {
-            return serviceType.getHistogramSchema();
+            return selfVertex.serviceType().getHistogramSchema();
         }
     }
 }

@@ -16,21 +16,18 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.ColumnNameV3;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
 
 public class SelfAppNodeFactoryV3 implements SelfAppNodeFactory {
-
-    public static final ServiceUid DEFAULT = ServiceUid.DEFAULT;
 
     private final TimeSlot timeSlot;
 
@@ -39,24 +36,23 @@ public class SelfAppNodeFactoryV3 implements SelfAppNodeFactory {
     }
 
     @Override
-    public SelfAppNodeFactory.Node newNode(String applicationName, ServiceType serviceType) {
-        return new SelfAppNode(applicationName, serviceType);
+    public SelfAppNodeFactory.Node newNode(Vertex selfVertex) {
+        return new SelfAppNode(selfVertex);
     }
 
     public class SelfAppNode implements Node {
 
-        private final String applicationName;
-        private final ServiceType serviceType;
+        private final Vertex selfVertex;
 
-        public SelfAppNode(String applicationName, ServiceType serviceType) {
-            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
+        public SelfAppNode(Vertex selfVertex) {
+            this.selfVertex = Objects.requireNonNull(selfVertex, "selfVertex");
         }
 
         @Override
         public RowKey rowkey(long requestTime) {
             final long timestamp = timeSlot.getTimeSlot(requestTime);
-            return UidAppRowKey.of(DEFAULT.getUid(), applicationName, serviceType, timestamp);
+            return UidAppRowKey.of(selfVertex.serviceUid(), selfVertex.applicationName(),
+                    selfVertex.serviceType(), timestamp);
         }
 
         @Override
@@ -78,7 +74,7 @@ public class SelfAppNodeFactoryV3 implements SelfAppNodeFactory {
         }
 
         private HistogramSchema getHistogramSchema() {
-            return serviceType.getHistogramSchema();
+            return selfVertex.serviceType().getHistogramSchema();
         }
     }
 }
