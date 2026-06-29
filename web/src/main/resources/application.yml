@@ -26,9 +26,8 @@ server:
 
 management:
   metrics:
-    binders:
-      tomcat:
-        enabled: true
+    enable:
+      tomcat: false
   health:
     defaults:
       enabled: false
