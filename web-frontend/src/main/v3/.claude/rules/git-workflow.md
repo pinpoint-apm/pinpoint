@@ -63,12 +63,17 @@ git push -u origin <branch-name>
 - **언어: PR 제목과 본문은 항상 영어로 작성** — 예외 없음. (한글 금지)
 - PR은 `upstream` (pinpoint-apm/pinpoint) master 브랜치를 대상으로 합니다.
 - **항상** 사용자(jihea-park)를 PR에 어사인하세요.
-- **GitHub 저장소에서**, REST API로 Copilot 코드 리뷰를 요청하세요:
+- **GitHub 저장소에서**, REST API로 Copilot 코드 리뷰를 요청하세요. Copilot의 리뷰어 로그인은 봇이며 **대문자 `Copilot`**으로 잡힙니다:
   ```bash
   gh api repos/{owner}/{repo}/pulls/{number}/requested_reviewers \
-    --method POST -f 'reviewers[]=copilot'
+    --method POST -f 'reviewers[]=Copilot'
   ```
   참고: `gh pr create --reviewer copilot`은 Copilot에 작동하지 않으므로 REST API를 사용하세요.
+- **요청 후 반드시 검증하세요.** 이 엔드포인트는 못 알아듣는 리뷰어 값(예: 소문자 `copilot`, 오타)이 오면 422 에러 대신 **200 + 빈 `requested_reviewers`**를 돌려주며 조용히 무시합니다. 응답이나 호출 결과의 `requested_reviewers`가 비어 있으면 **성공이 아니라 실패**입니다. "비동기 반영"으로 넘기지 말고 즉시 재시도하세요:
+  ```bash
+  gh api repos/{owner}/{repo}/pulls/{number}/requested_reviewers \
+    --jq '.users[].login'   # Copilot이 보이지 않으면 실패 → 로그인 철자(대문자 Copilot) 확인 후 재요청
+  ```
 - **PR 리뷰 피드백**: 사용자가 리뷰 코멘트를 제공하면 각각을 평가하세요. 피드백이 유효하고 필요한 경우에만 코드를 변경하세요. 불필요하거나 잘못된 코멘트에는 코드를 수정하지 말고 이유를 설명하세요.
 - PR 본문 형식:
   ```
