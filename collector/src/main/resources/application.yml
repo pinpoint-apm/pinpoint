@@ -10,9 +10,8 @@ server:
 
 management:
   metrics:
-    binders:
-      tomcat:
-        enabled: true
+    enable:
+      tomcat: true
   otlp:
     metrics:
       export:
