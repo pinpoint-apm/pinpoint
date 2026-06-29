@@ -100,6 +100,11 @@ public class TransactionCallTreeViewModel {
         return recordSet.getEndTime();
     }
 
+    @JsonProperty("callTreeTimelineEnd")
+    public long getCallTreeTimelineEnd() {
+        return recordSet.getCallTreeTimelineEnd();
+    }
+
     @JsonProperty("completeState")
     public String getCompleteState() {
         return completeState.toString();

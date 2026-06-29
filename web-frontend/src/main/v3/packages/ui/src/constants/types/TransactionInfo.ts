@@ -19,8 +19,9 @@ export namespace TransactionInfoType {
     completeState: string;
     callStackStart: number;
     callStackEnd: number;
+    callTreeTimelineEnd: number;
     callStackIndex: CallStackIndex;
-    callStack: any[][]; // ['begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'exceptionChainId']
+    callStack: any[][]; // ['begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'exceptionChainId', 'serviceName']
     loggingTransactionInfo: boolean;
     agentId: string;
     agentName: string;
@@ -58,6 +59,7 @@ export namespace TransactionInfoType {
     location: number;
     applicationServiceType: number;
     exceptionChainId: number;
+    serviceName: number;
   }
 
   export type CallStackKeyValueMap = {

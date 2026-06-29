@@ -56,10 +56,15 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
     bindedSql?: string;
     bindValue?: string;
   }>();
-  const focusRowIdIndex = filteredListIds?.findIndex((id) => id === focusRowId) || 0;
-  const { defaultColumns, columns, updateColumns } = useCallTreeTableColumns({
-    metaData,
-    onClickDetailView: (callStackData) => {
+  const { mutate } = usePostBind({
+    onSuccess: (result) => {
+      setSqlDetail((prev) => {
+        return { ...prev, bindedSql: result.bindedQuery };
+      });
+    },
+  });
+  const onClickDetailView = React.useCallback(
+    (callStackData: TransactionInfo.CallStackKeyValueMap) => {
       const nextItem = mapData?.find((d) => Number(d.id) === Number(callStackData.id) + 1);
       if (nextItem?.title === 'SQL-BindValue' || nextItem?.title === 'MONGO-JSON-BindValue') {
         const formData = new FormData();
@@ -81,13 +86,17 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
       }
       setSheetOpen(true);
     },
-  });
-  const { mutate } = usePostBind({
-    onSuccess: (result) => {
-      setSqlDetail((prev) => {
-        return { ...prev, bindedSql: result.bindedQuery };
-      });
-    },
+    [mapData, mutate],
+  );
+  const focusRowIdIndex = Math.max(
+    focusRowId === undefined ? 0 : filteredListIds?.indexOf(focusRowId) ?? 0,
+    0,
+  );
+  const hasFilteredList = Boolean(filteredListIds?.length);
+  const { defaultColumns, columns, updateColumns } = useCallTreeTableColumns({
+    metaData,
+    mapData,
+    onClickDetailView,
   });
   const focusIdFromTimeline = useAtomValue(transactionInfoCallTreeFocusId);
   const [timezone] = useTimezone();
@@ -203,11 +212,10 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
             }}
           />
           <div className="flex items-center opacity-50">
-            {filteredListIds && (
+            {hasFilteredList && (
               <>
                 <span className="whitespace-nowrap text-xxs">
-                  {filteredListIds?.findIndex((id) => id === focusRowId) + 1} of{' '}
-                  {filteredListIds?.length}
+                  {focusRowIdIndex + 1} of {filteredListIds?.length}
                 </span>
                 <Button
                   variant="ghost"
@@ -239,10 +247,10 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         focusRowIndex={Number(focusRowId) - 1}
         filteredRowIds={filteredListIds}
         onDoubleClickCell={(cell) => {
-          let content = `${cell.getValue()}`;
           const originalData = cell.getContext().row.original;
+          let content = `${cell.getValue()}`;
 
-          if (cell.column.id === 'excutionPercentage') {
+          if (cell.column.id === 'executionPercentage') {
             content = `${getExecPercentage(metaData, originalData).toFixed(0)}`;
           } else if (cell.column.id === 'begin') {
             content = originalData.begin
