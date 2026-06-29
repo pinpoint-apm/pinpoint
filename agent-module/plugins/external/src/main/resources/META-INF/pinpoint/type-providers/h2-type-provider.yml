@@ -1,0 +1,14 @@
+serviceTypes:
+  - code: 2750
+    name: 'H2'
+    desc: 'H2'
+    property:
+      terminal: true
+      includeDestinationId: true
+  - code: 2751
+    name: 'H2_EXECUTE_QUERY'
+    desc: 'H2_EXECUTE_QUERY'
+    property:
+      recordStatistics: true
+      terminal: true
+      includeDestinationId: true

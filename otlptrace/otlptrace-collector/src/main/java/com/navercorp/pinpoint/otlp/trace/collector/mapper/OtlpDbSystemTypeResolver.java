@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -73,7 +74,7 @@ public class OtlpDbSystemTypeResolver {
     private static void put(Map<String, String[]> map, String baseName, String executeQueryName, String... dbSystemKeys) {
         String[] names = {baseName, executeQueryName};
         for (String key : dbSystemKeys) {
-            map.put(key, names);
+            map.put(normalizeDbSystem(key), names);
         }
     }
 
@@ -106,7 +107,7 @@ public class OtlpDbSystemTypeResolver {
         if (dbSystem == null) {
             return DEFAULT_BASE;
         }
-        short[] codes = codeMap.get(dbSystem);
+        short[] codes = codeMap.get(normalizeDbSystem(dbSystem));
         return codes != null ? codes[0] : DEFAULT_BASE;
     }
 
@@ -114,7 +115,11 @@ public class OtlpDbSystemTypeResolver {
         if (dbSystem == null) {
             return DEFAULT_EXECUTE_QUERY;
         }
-        short[] codes = codeMap.get(dbSystem);
+        short[] codes = codeMap.get(normalizeDbSystem(dbSystem));
         return codes != null ? codes[1] : DEFAULT_EXECUTE_QUERY;
+    }
+
+    private static String normalizeDbSystem(String dbSystem) {
+        return dbSystem.trim().toLowerCase(Locale.ROOT);
     }
 }
