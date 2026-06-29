@@ -30,12 +30,12 @@ public class Service {
         if (o == null || getClass() != o.getClass()) return false;
 
         Service service = (Service) o;
-        return uid == service.uid && Objects.equals(serviceName, service.serviceName);
+        return uid == service.uid && serviceName.equals(service.serviceName);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(serviceName);
+        int result = serviceName.hashCode();
         result = 31 * result + uid;
         return result;
     }
