@@ -105,6 +105,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         // find the endTime to use as reference
         long endTime = getEndTime(alignList);
+        recordSet.setCallTreeTimelineEnd(endTime);
 
         /*
          * Workaround codes to prevent issues occurred

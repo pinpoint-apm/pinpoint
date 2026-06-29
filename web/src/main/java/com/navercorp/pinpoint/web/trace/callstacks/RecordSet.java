@@ -29,6 +29,7 @@ public class RecordSet {
 
     private long startTime = -1;
     private long endTime = -1;
+    private long callTreeTimelineEnd = -1;
 
     private List<Record> recordList;
     private String uri;
@@ -78,6 +79,14 @@ public class RecordSet {
 
     public boolean isEndTimeSet() {
         return endTime != -1;
+    }
+
+    public long getCallTreeTimelineEnd() {
+        return callTreeTimelineEnd;
+    }
+
+    public void setCallTreeTimelineEnd(long callTreeTimelineEnd) {
+        this.callTreeTimelineEnd = callTreeTimelineEnd;
     }
 
     public void setUri(String uri) {

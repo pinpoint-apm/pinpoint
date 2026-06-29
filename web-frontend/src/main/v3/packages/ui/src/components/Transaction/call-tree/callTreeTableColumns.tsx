@@ -17,7 +17,7 @@ import {
   FaLink,
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
-import { Button, ProgressBar } from '../..';
+import { Button } from '../..';
 import {
   addCommas,
   convertParamsToQueryString,
@@ -31,10 +31,17 @@ import { useTimezone, useTransactionSearchParameters } from '@pinpoint-fe/ui/src
 import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
 import { useSetAtom } from 'jotai';
 import React from 'react';
+import {
+  computeParallelGroups,
+  isTimelineWorkRow,
+  type TimelineAxis,
+  type ParallelInfo,
+} from './timeline';
 
 export interface CallTreeTableColumnsProps {
   metaData: TransactionInfo.Response;
   onClickDetailView?: (data: TransactionInfo.CallStackKeyValueMap) => void;
+  mapData?: TransactionInfo.CallStackKeyValueMap[];
 }
 
 export type CallTreeTableColumnId =
@@ -55,10 +62,19 @@ export type CallTreeTableColumnId =
 export const useCallTreeTableColumns = ({
   metaData,
   onClickDetailView,
+  mapData,
 }: CallTreeTableColumnsProps) => {
+  const timelineAxis = React.useMemo<TimelineAxis>(
+    () => ({
+      start: metaData.callStackStart,
+      end: metaData.callTreeTimelineEnd,
+    }),
+    [metaData.callStackStart, metaData.callTreeTimelineEnd],
+  );
+  const parallelGroups = React.useMemo(() => computeParallelGroups(mapData), [mapData]);
   const defaultColumns = React.useMemo(
-    () => callTreeTableColumns({ metaData, onClickDetailView }),
-    [metaData, onClickDetailView],
+    () => callTreeTableColumns({ metaData, onClickDetailView, timelineAxis, parallelGroups }),
+    [metaData, onClickDetailView, timelineAxis, parallelGroups],
   );
 
   const [columns, setColumns] =
@@ -79,7 +95,12 @@ export const useCallTreeTableColumns = ({
 export const callTreeTableColumns = ({
   metaData,
   onClickDetailView,
-}: CallTreeTableColumnsProps): ColumnDef<TransactionInfo.CallStackKeyValueMap>[] => [
+  timelineAxis,
+  parallelGroups,
+}: CallTreeTableColumnsProps & {
+  timelineAxis: TimelineAxis;
+  parallelGroups: ParallelInfo;
+}): ColumnDef<TransactionInfo.CallStackKeyValueMap>[] => [
   {
     id: 'index',
     accessorKey: 'index',
@@ -153,7 +174,21 @@ export const callTreeTableColumns = ({
     header: 'Gap(ms)',
     size: 65,
     cell: (props) => {
-      return props.getValue();
+      const rowData = props.row.original;
+      const value = props.getValue() as React.ReactNode;
+      // parallel group member: keep the (possibly negative) gap value, add a ∥ marker
+      const parallel = parallelGroups.get(String(rowData.id));
+      if (parallel) {
+        return (
+          <span className="inline-flex items-center justify-end gap-0.5">
+            {value}
+            <span className="font-bold text-primary" title="parallel execution">
+              ∥
+            </span>
+          </span>
+        );
+      }
+      return value;
     },
     meta: {
       cellClassName: 'grow-0 text-right',
@@ -181,31 +216,93 @@ export const callTreeTableColumns = ({
     id: 'executionPercentage',
     accessorKey: 'executionPercentage',
     header: 'Exec(%)',
-    size: 120,
+    size: 220,
     cell: (props) => {
       const rowData = props.row.original;
-      const entireTime = Number(rowData?.elapsedTime) || 0;
-      if (entireTime) {
-        const percentage = getExecPercentage(metaData, rowData);
-
-        return (
-          <div className="flex items-center w-full h-full">
-            <ProgressBar
-              className="z-[-1]"
-              style={{ width: `${percentage}%` }}
-              range={[0, rowData.end - rowData.begin]}
-              progress={Number(rowData.executionMilliseconds)}
-              tickCount={0}
-              hideTick
-            />
-          </div>
-        );
+      // Only real work rows render timeline bars. Metadata rows such as annotations and
+      // exception details are displayed in the Call Tree but are not timeline work.
+      if (!isTimelineWorkRow(rowData)) {
+        return null;
       }
-      return null;
+
+      const start = Number(rowData.begin);
+      const end = Number(rowData.end);
+      const elapsed = Math.max(end - start, 0);
+
+      // Each row is positioned on the Call Tree timeline axis supplied by the server.
+      const axisStart = timelineAxis.start;
+      const axisEnd = timelineAxis.end;
+      const total = axisEnd - axisStart;
+      if (Number.isNaN(total) || total <= 0) {
+        return null;
+      }
+
+      // gaps (empty space) and overlaps (vertically overlapping bars) become visible.
+      // A zero-duration row keeps elapsed 0; the `max(width, 2px)` floor below still draws a
+      // minimum-width bar so the event's position stays visible instead of vanishing.
+      const rawOffset = ((start - axisStart) / total) * 100;
+      const rawWidth = (elapsed / total) * 100;
+      const offset = Math.min(Math.max(rawOffset, 0), 100); // keep the bar start within the axis
+      const width = Math.max(rawWidth, 0);
+      const barLeft = `min(${offset}%, calc(100% - 2px))`;
+
+      // self time (darker segment) as a ratio of this row's own elapsed time
+      const selfMs = Number(rowData.executionMilliseconds) || 0;
+      const selfRatio = elapsed > 0 ? Math.min(selfMs / elapsed, 1) * 100 : 0;
+
+      const barColor = calcColor(rowData);
+
+      // parallel lane: members of a concurrent sibling group share a tinted band spanning the
+      // group's time window. Each member draws its own segment at the same offset; stacked rows
+      // form one continuous band, making the parallel block explicit.
+      const parallel = parallelGroups.get(String(rowData.id));
+      const laneLeft = parallel
+        ? Math.min(Math.max(((parallel.group.start - axisStart) / total) * 100, 0), 100)
+        : 0;
+      const laneWidth = parallel
+        ? Math.max(((parallel.group.end - parallel.group.start) / total) * 100, 0)
+        : 0;
+
+      const tooltip =
+        `start: +${addCommas(rowData.begin - axisStart)}ms\n` +
+        `elapsed: ${addCommas(elapsed)}ms\n` +
+        `self: ${addCommas(selfMs)}ms`;
+
+      return (
+        <div className="flex items-center w-full h-full">
+          <div className="relative w-full h-3 overflow-hidden">
+            <div className="absolute inset-0 rounded-sm bg-muted/30" />
+            {parallel && (
+              <div
+                className="absolute top-0 h-full border-l border-r border-dashed border-primary/50 bg-primary/10"
+                style={{
+                  left: `${laneLeft}%`,
+                  width: `max(${laneWidth}%, 2px)`,
+                }}
+                title={`parallel ×${parallel.group.size}`}
+              />
+            )}
+            <div
+              className="absolute h-full rounded-sm"
+              style={{
+                left: barLeft,
+                width: `max(${width}%, 2px)`,
+                backgroundColor: `${barColor}66`,
+              }}
+              title={tooltip}
+            >
+              <div
+                className="h-full rounded-sm"
+                style={{ width: `${selfRatio}%`, backgroundColor: barColor }}
+              />
+            </div>
+          </div>
+        </div>
+      );
     },
     meta: {
       headerClassName: 'grow-0',
-      cellClassName: 'grow-0 text-center',
+      cellClassName: 'grow-0',
     },
   },
   {
@@ -404,8 +501,16 @@ export const getExecPercentage = (
   metaData: TransactionInfo.Response,
   rowData: TransactionInfo.CallStackKeyValueMap,
 ) => {
-  const totalExcuteTime = metaData.callStackEnd - metaData.callStackStart;
-  return ((rowData.end - rowData.begin) / totalExcuteTime) * 100;
+  if (!isTimelineWorkRow(rowData)) {
+    return 0;
+  }
+  const axisStart = metaData.callStackStart;
+  const axisEnd = metaData.callTreeTimelineEnd;
+  const totalExecuteTime = axisEnd - axisStart;
+  if (!(totalExecuteTime > 0)) {
+    return 0;
+  }
+  return ((rowData.end - rowData.begin) / totalExecuteTime) * 100;
 };
 
 const buildOtelLinkPath = (

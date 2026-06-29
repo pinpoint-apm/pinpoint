@@ -37,7 +37,7 @@ export const CallTreeTableColumnsSetting = ({
 
   React.useEffect(() => {
     updateColumns(selectedColumnIds as CallTreeTableColumnId[]);
-  }, [selectedColumnIds]);
+  }, [selectedColumnIds, updateColumns]);
 
   return (
     <Popover>
