@@ -36,6 +36,27 @@ describe('Test for Scatter', () => {
       expect(events).toMatchSnapshot();
     });
 
+    it('should keep incremental(append) legend counts equal to a single full re-render', () => {
+      // given: 동일 데이터를 (1) append로 나눠 렌더 vs (2) 한 번에 전량 렌더
+      const wrapperAppend = document.createElement('div');
+      const wrapperFull = document.createElement('div');
+      const readCount = (w: HTMLElement, type: string) =>
+        w.querySelector(`.${type} .__scatter_chart__legend_count`)?.innerHTML;
+
+      // when
+      const scAppend = new ScatterChartTestHelper(wrapperAppend, initOption);
+      scAppend.render(data1.data, { append: true });
+      scAppend.render(data2.data, { append: true });
+
+      const scFull = new ScatterChartTestHelper(wrapperFull, initOption);
+      scFull.render([...data1.data, ...data2.data]);
+
+      // then: 증분 누적 카운트가 전량 재계산 결과와 일치해야 함
+      expect(readCount(wrapperAppend, 'success')).toBe(readCount(wrapperFull, 'success'));
+      expect(readCount(wrapperAppend, 'fail')).toBe(readCount(wrapperFull, 'fail'));
+      expect(readCount(wrapperAppend, 'success')).toBeDefined();
+    });
+
     it('should render all data then greater than y.min when drawOutOfRange flag is true', () => {
       // given
       SC = new ScatterChartTestHelper(wrapper, initOption);
