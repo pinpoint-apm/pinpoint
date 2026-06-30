@@ -84,6 +84,8 @@ export class ScatterChart {
   protected guide?: Guide;
   protected data: ScatterDataType[] = [];
   private datas: { [key: string]: Coord[] } = {};
+  // 범례 카운트 러닝 합계 (정적/로딩 렌더에서 매 틱 전량 재계산을 피하기 위한 증분 누적값)
+  private legendCounts: { [key: string]: number } = {};
   private rootContainer;
   private dataStyleMap!: DataStyleMap;
   private dataLayers: { [key: string]: Layer } = {};
@@ -414,10 +416,16 @@ export class ScatterChart {
 
     if (this.reqAnimation === 0) {
       if (renderOption.append) {
-        this.data = [...this.data, ...data];
+        // 누적 전체를 매 틱 복사(O(n))하면 스트리밍에서 O(n^2)가 되므로 제자리 추가
+        for (let i = 0; i < data.length; i++) {
+          this.data.push(data[i]);
+        }
       } else {
-        this.data = data;
+        // 방어적 복사: 이후 append가 호출자 배열(예: jotai atom의 acc)을 제자리 변경하지 않도록
+        this.data = [...data];
         this.datas = {};
+        // 데이터 리셋 시 범례 카운트도 초기화 (이후 forEach에서 새 데이터 기준으로 재누적)
+        this.legendCounts = {};
         // clear all data layers
         Object.values(this.dataLayers).forEach((layer) => layer.clear());
       }
@@ -441,6 +449,11 @@ export class ScatterChart {
       const isInRangeY = renderOption.drawOutOfRange ? y >= this.yAxis.min : y >= this.yAxis.min && y <= this.yAxis.max;
 
       if (isInRangeX && isInRangeY) {
+        // 정적/로딩 렌더(비실시간): 범위 내 dot을 범례별로 증분 카운트 (hidden 무관 — 기존 setLegendCount와 동일)
+        if (this.reqAnimation === 0) {
+          this.legendCounts[legend] = (this.legendCounts[legend] || 0) + 1;
+        }
+
         const xCoordinate = this.xRatio * (x - this.xAxis.min) + padding.left + this.xAxis.innerPadding;
         const yCoordinate =
           renderOption.drawOutOfRange && y > this.yAxis.max
@@ -480,20 +493,28 @@ export class ScatterChart {
       }
     });
 
-    Object.keys(this.dataLayers).forEach((key) => {
-      this.setLegendCount({
-        type: key,
-        minCoord: {
-          x: this.xAxis.min,
-          y: this.yAxis.min,
-        },
-        maxCoord: {
-          x: this.xAxis.max,
-          y: this.yAxis.max,
-        },
-        drawOutOfRange: renderOption.drawOutOfRange,
+    if (this.reqAnimation === 0) {
+      // 정적/로딩 렌더: forEach에서 누적한 증분 카운트를 그대로 사용 (전량 재계산 O(n²) 제거)
+      Object.keys(this.dataLayers).forEach((key) => {
+        this.legend?.setLegendCount(key, this.legendCounts[key] || 0);
       });
-    });
+    } else {
+      // 실시간 렌더: animate()가 슬라이딩 윈도우로 datas를 필터링하므로 윈도우 기준 전량 재계산 유지
+      Object.keys(this.dataLayers).forEach((key) => {
+        this.setLegendCount({
+          type: key,
+          minCoord: {
+            x: this.xAxis.min,
+            y: this.yAxis.min,
+          },
+          maxCoord: {
+            x: this.xAxis.max,
+            y: this.yAxis.max,
+          },
+          drawOutOfRange: renderOption.drawOutOfRange,
+        });
+      });
+    }
 
     this.shoot();
   }
