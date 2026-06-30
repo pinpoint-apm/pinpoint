@@ -421,8 +421,11 @@ export class ScatterChart {
           this.data.push(data[i]);
         }
       } else {
-        // 방어적 복사: 이후 append가 호출자 배열(예: jotai atom의 acc)을 제자리 변경하지 않도록
-        this.data = [...data];
+        // 외부에서 넘긴 배열(예: jotai atom의 acc)일 때만 방어적 복사 — 이후 append가 호출자 배열을 제자리 변경하지 않도록.
+        // 내부 재렌더(resize/setOption/realtime 등 render(this.data))는 이미 차트 소유 배열이므로 복사 생략(불필요한 O(n) 회피).
+        if (data !== this.data) {
+          this.data = [...data];
+        }
         this.datas = {};
         // 데이터 리셋 시 범례 카운트도 초기화 (이후 forEach에서 새 데이터 기준으로 재누적)
         this.legendCounts = {};
