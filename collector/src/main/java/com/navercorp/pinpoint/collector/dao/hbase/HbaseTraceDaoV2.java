@@ -122,16 +122,16 @@ public class HbaseTraceDaoV2 implements TraceDao {
     public void insertSpanChunk(SpanChunkBo spanChunkBo) {
         Objects.requireNonNull(spanChunkBo, "spanChunkBo");
 
+        final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
+        if (CollectionUtils.isEmpty(spanEventBoList)) {
+            return;
+        }
+
         ServerTraceId transactionId = spanChunkBo.getTransactionId();
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
 
         final long acceptedTime = spanChunkBo.getCollectorAcceptTime();
         final Put put = new Put(rowKey, acceptedTime, true);
-
-        final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
-        if (CollectionUtils.isEmpty(spanEventBoList)) {
-            return;
-        }
 
         this.spanChunkSerializer.serialize(spanChunkBo, put, null);
 
