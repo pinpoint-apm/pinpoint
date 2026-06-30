@@ -44,7 +44,7 @@ public class TraceIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
     @Override
     public byte[] encodeRowKey(SpanBo span) {
-        ServiceUid serviceUid = ServiceUid.DEFAULT; //span.getServiceUid();
+        ServiceUid serviceUid = span.getServiceUid();
         return encodeRowKey(hasher.getSaltKey().size(),
                 serviceUid.getUid(), span.getApplicationName(), span.getApplicationServiceType(),
                 span.getCollectorAcceptTime(), span.getAgentId(),
@@ -53,7 +53,7 @@ public class TraceIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
     @Override
     public byte[] encodeRowKey(int saltKeySize, SpanBo span) {
-        ServiceUid serviceUid = ServiceUid.DEFAULT; //span.getServiceUid();
+        ServiceUid serviceUid = span.getServiceUid();
         return encodeRowKey(saltKeySize,
                 serviceUid.getUid(), span.getApplicationName(), span.getApplicationServiceType(),
                 span.getCollectorAcceptTime(), span.getAgentId(),
