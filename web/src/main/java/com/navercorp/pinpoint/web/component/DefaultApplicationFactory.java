@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.component;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
@@ -56,8 +57,11 @@ public class DefaultApplicationFactory implements ApplicationFactory {
     }
 
     static Service requireDefaultService(int serviceUid) {
-        if (Service.DEFAULT.getUid() != serviceUid) {
-            throw new UnsupportedOperationException("Unsupported serviceUid: " + serviceUid);
+        if (Service.DEFAULT.getUid() == serviceUid) {
+            return Service.DEFAULT;
+        }
+        if (Service.TEST_SERVICE.getUid() == serviceUid) {
+            return Service.TEST_SERVICE;
         }
         return Service.DEFAULT;
     }
