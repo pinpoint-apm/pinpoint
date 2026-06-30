@@ -24,7 +24,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author intr3p1d
@@ -50,11 +49,11 @@ public class PinotAgentInfoStatisticsService implements AgentInfoStatisticsServi
 
     @Override
     public void insert(
-            Supplier<ServiceUid> serviceUidSupplier,
+            ServiceUid serviceUid,
             String applicationName,
             AgentInfoBo agentInfoBo
     ) {
-        Objects.requireNonNull(serviceUidSupplier, "serviceUidSupplier");
+        Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentInfoBo, "agentInfoBo");
 
@@ -64,7 +63,7 @@ public class PinotAgentInfoStatisticsService implements AgentInfoStatisticsServi
         }
 
         agentInfoStatisticsDao.insert(
-                null, // TODO: will be replaced with serviceUidSupplier.get()
+                null, // TODO: will be replaced with serviceUid
                 applicationName,
                 agentInfoBo
         );

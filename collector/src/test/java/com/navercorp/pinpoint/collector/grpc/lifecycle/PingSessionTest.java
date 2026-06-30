@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.TransportMutableContext;
@@ -11,11 +12,13 @@ import static org.mockito.Mockito.when;
 
 class PingSessionTest {
 
+    private static final ServiceUid DEFAULT_SERVICE_UID = ServiceUid.DEFAULT;
+
     @Test
     void getServiceType() {
         Header header = mock(Header.class);
         when(header.getServiceType()).thenReturn((int) ServiceType.SPRING.getCode());
-        PingSession session = new PingSession(1L, 0, header, null);
+        PingSession session = new PingSession(1L, 0, header, null, DEFAULT_SERVICE_UID);
 
         Assertions.assertEquals(ServiceType.SPRING.getCode(), session.getServiceType());
     }
@@ -25,7 +28,7 @@ class PingSessionTest {
         Header header = mock(Header.class);
         when(header.getServiceType()).thenReturn(-1);
         TransportMutableContext context = new TransportMutableContext();
-        PingSession session = new PingSession(1L, 0, header, context);
+        PingSession session = new PingSession(1L, 0, header, context, DEFAULT_SERVICE_UID);
 
         Assertions.assertEquals(-1, session.getServiceType());
         context.setServiceType(1010);
@@ -37,7 +40,7 @@ class PingSessionTest {
         Header header = mock(Header.class);
         when(header.getServiceType()).thenReturn(-1);
         TransportMutableContext context = new TransportMutableContext();
-        PingSession session = new PingSession(1L, 0, header, context);
+        PingSession session = new PingSession(1L, 0, header, context, DEFAULT_SERVICE_UID);
 
         session.setServiceType(1010);
         Assertions.assertEquals(1010, session.getServiceType());
@@ -47,7 +50,7 @@ class PingSessionTest {
     @Test
     void nextEventIdAllocator() {
         Header header = mock(Header.class);
-        PingSession session = new PingSession(1L, 0, header, null);
+        PingSession session = new PingSession(1L, 0, header, null, DEFAULT_SERVICE_UID);
 
         Assertions.assertEquals(1, session.nextEventIdAllocator());
         Assertions.assertEquals(2, session.nextEventIdAllocator());
@@ -56,7 +59,7 @@ class PingSessionTest {
     @Test
     void ping() {
         Header header = mock(Header.class);
-        PingSession session = new PingSession(1L, 0, header, null);
+        PingSession session = new PingSession(1L, 0, header, null, DEFAULT_SERVICE_UID);
 
         Assertions.assertTrue(session.firstPing());
         Assertions.assertFalse(session.firstPing());

@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFact
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.common.server.io.ServerResponse;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.io.request.UidFetcherService;
+import com.navercorp.pinpoint.io.request.UidFetchers;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -68,7 +70,8 @@ public class AgentServerTestMain {
 
         PingEventHandler pingEventHandler = mock(PingEventHandler.class);
         RequestResponseHandler<PAgentInfo, PResult> mockDispatchHandler = new MockDispatchHandler<>();
-        BindableService agentService = new AgentService(mockDispatchHandler, pingEventHandler, Executors.newFixedThreadPool(8), serverRequestFactory, serverResponseFactory);
+        UidFetcherService uidFetcherService = UidFetchers::defaultUidFetcher;
+        BindableService agentService = new AgentService(mockDispatchHandler, pingEventHandler, uidFetcherService, Executors.newFixedThreadPool(8), serverRequestFactory, serverResponseFactory);
 
         RequestResponseHandler<PApiMetaData, PResult> apiMetaDataHandler = new MockDispatchHandler<>();
         RequestResponseHandler<PSqlMetaData, PResult> sqlMetaDataHandler = new MockDispatchHandler<>();

@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+
 /**
  * @author Woonduk Kang(emeroad)
  * @author jaehong.kim
  */
 public interface AgentProperty {
+    ServiceUid getServiceUid();
     String getApplicationName();
+    int getServiceType();
     String getAgentId();
     long getStartTime();
     Object get(String key);
-    int getServiceType();
 }
