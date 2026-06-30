@@ -69,11 +69,11 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
                 if (StringUtils.isEmpty(serviceName)) {
                     return ServiceUid.DEFAULT;
                 }
-                if (serviceName.equals(ServiceUid.DEFAULT_SERVICE_UID_NAME)) {
+                if (ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
                     return ServiceUid.DEFAULT;
                 }
-                // for Test
-                if (serviceName.equals(ServiceUid.TEST_SERVICE_UID_NAME)) {
+                // TODO ServiceUid
+                if (ServiceUid.TEST_SERVICE_UID_NAME.equals(serviceName)) {
                     return ServiceUid.TEST_SERVICE;
                 }
 //                CompletableFuture<ServiceUid> future = uidFetcher.getServiceUid(ServiceUid.DEFAULT_SERVICE_UID_NAME);

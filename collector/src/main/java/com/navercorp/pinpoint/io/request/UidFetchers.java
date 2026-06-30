@@ -18,6 +18,10 @@ public class UidFetchers {
             if (ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
                 return CompletableFuture.completedFuture(ServiceUid.DEFAULT);
             }
+            // TODO ServiceUid
+            if (ServiceUid.TEST_SERVICE_UID_NAME.equals(serviceName)) {
+                return CompletableFuture.completedFuture(ServiceUid.TEST_SERVICE);
+            }
             return CompletableFuture.failedFuture(new UidException("Unsupported serviceName:" + serviceName));
         }
     }
