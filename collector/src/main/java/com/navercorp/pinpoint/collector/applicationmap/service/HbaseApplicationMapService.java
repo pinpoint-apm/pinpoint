@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -155,11 +156,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     }
 
     private int getServiceUid(String serviceName) {
-        if (serviceName == null || ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
-            return ServiceUid.DEFAULT.getUid();
-        }
-        // TODO ServiceUid query
-        return ServiceUid.DEFAULT.getUid();
+        return ServiceUidService.getServiceUid(serviceName).getUid();
     }
 
     private void insertSpanStat(SpanBo span, Vertex selfVertex) {

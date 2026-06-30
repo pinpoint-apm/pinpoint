@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.io.MessageType;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
@@ -66,18 +66,8 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
             @Override
             public ServiceUid get() {
                 String serviceName = header.getServiceName();
-                if (StringUtils.isEmpty(serviceName)) {
-                    return ServiceUid.DEFAULT;
-                }
-                if (ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
-                    return ServiceUid.DEFAULT;
-                }
-                // TODO ServiceUid
-                if (ServiceUid.TEST_SERVICE_UID_NAME.equals(serviceName)) {
-                    return ServiceUid.TEST_SERVICE;
-                }
-//                CompletableFuture<ServiceUid> future = uidFetcher.getServiceUid(ServiceUid.DEFAULT_SERVICE_UID_NAME);
-                return ServiceUid.DEFAULT;
+
+                return ServiceUidService.getServiceUid(serviceName);
             }
         });
 
