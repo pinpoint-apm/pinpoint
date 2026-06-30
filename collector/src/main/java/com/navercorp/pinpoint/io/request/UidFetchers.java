@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -15,14 +16,8 @@ public class UidFetchers {
     public static class DefaultUidFetcher implements UidFetcher {
         @Override
         public CompletableFuture<ServiceUid> getServiceUid(String serviceName) {
-            if (ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
-                return CompletableFuture.completedFuture(ServiceUid.DEFAULT);
-            }
-            // TODO ServiceUid
-            if (ServiceUid.TEST_SERVICE_UID_NAME.equals(serviceName)) {
-                return CompletableFuture.completedFuture(ServiceUid.TEST_SERVICE);
-            }
-            return CompletableFuture.failedFuture(new UidException("Unsupported serviceName:" + serviceName));
+            ServiceUid serviceUid = ServiceUidService.getServiceUid(serviceName);
+            return CompletableFuture.completedFuture(serviceUid);
         }
     }
 }
