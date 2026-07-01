@@ -253,7 +253,7 @@ public class ASMClassNodeAdapterTest {
         ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, ASMClassNodeLoader.getClassLoader(),
                 getClass().getProtectionDomain(), "com/navercorp/pinpoint/profiler/instrument/mock/ArgsClass");
         List<ASMMethodNodeAdapter> constructors = adapter.getDeclaredConstructors();
-        assertThat(constructors).hasSize(2);
+        assertThat(constructors).hasSize(4);
         assertEquals("ArgsClass", constructors.get(0).getName());
 
         assertEquals("ArgsClass", constructors.get(1).getName());
