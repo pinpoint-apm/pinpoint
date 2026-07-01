@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -94,15 +92,14 @@ public class HbaseMapAgentResponseDao implements MapAgentResponseDao {
     }
 
     @Override
-    public void updatePing(long requestTime, String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    public void updatePing(long requestTime, Vertex selfVertex, String agentId, int elapsed, boolean isError) {
+        Objects.requireNonNull(selfVertex, "selfVertex");
         Objects.requireNonNull(agentId, "agentId");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Self] {} ({})[{}]", applicationName, applicationServiceType, agentId);
+            logger.debug("[Self] Ping {} [{}]", selfVertex, agentId);
         }
 
-        Vertex selfVertex = Vertex.of(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, applicationServiceType);
         SelfAgentNodeFactory.Node node = selfAgentNodeFactory.newNode(selfVertex, agentId);
         // make row key. rowkey is me
         final RowKey selfRowKey = node.rowkey(requestTime);

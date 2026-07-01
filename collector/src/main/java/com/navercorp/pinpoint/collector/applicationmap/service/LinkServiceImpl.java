@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.MapApplicationRespons
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -85,10 +84,9 @@ public class LinkServiceImpl implements LinkService {
     @Override
     public void updateAgentState(
             long requestTime,
-            final String outApplicationName,
-            final ServiceType outServiceType,
-            final String outAgentId
+            final Vertex selfVertex,
+            final String selfAgentId
     ) {
-        responseTimeDao.updatePing(requestTime, outApplicationName, outServiceType, outAgentId, 0, false);
+        responseTimeDao.updatePing(requestTime, selfVertex, selfAgentId, 0, false);
     }
 }

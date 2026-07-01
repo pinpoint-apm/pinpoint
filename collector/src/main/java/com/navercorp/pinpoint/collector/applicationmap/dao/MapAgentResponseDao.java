@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.applicationmap.dao;
 
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author emeroad
@@ -27,5 +26,5 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public interface MapAgentResponseDao extends CachedStatisticsDao {
     void received(long requestTime, Vertex selfVertex, String agentId, int elapsed, boolean isError);
 
-    void updatePing(long requestTime, String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError);
+    void updatePing(long requestTime, Vertex selfVertex, String agentId, int elapsed, boolean isError);
 }

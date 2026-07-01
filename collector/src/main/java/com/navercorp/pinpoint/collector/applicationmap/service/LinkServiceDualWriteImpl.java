@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.MapApplicationRespons
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
 
@@ -91,12 +90,11 @@ public class LinkServiceDualWriteImpl implements LinkService {
     @Override
     public void updateAgentState(
             long requestTime,
-            final String outApplicationName,
-            final ServiceType outServiceType,
-            final String outAgentId
+            final Vertex selfVertex,
+            final String selfAgentId
     ) {
         for (MapAgentResponseDao dao : responseTimeDao) {
-            dao.updatePing(requestTime, outApplicationName, outServiceType, outAgentId, 0, false);
+            dao.updatePing(requestTime, selfVertex, selfAgentId, 0, false);
         }
     }
 }

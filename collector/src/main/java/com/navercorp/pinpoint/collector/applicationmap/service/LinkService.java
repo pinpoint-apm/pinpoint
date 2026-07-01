@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface LinkService {
 
@@ -74,8 +73,7 @@ public interface LinkService {
 
     void updateAgentState(
             long requestTime,
-            String outApplicationName,
-            ServiceType outServiceType,
-            String outAgentId
+            Vertex selfVertex,
+            String selfAgentId
     );
 }
