@@ -133,12 +133,24 @@ class OtlpDbSystemTypeResolverTest {
     }
 
     @Test
+    void resolveBaseCode_normalizesDbSystem() {
+        assertThat(resolver.resolveBaseCode(" H2DATABASE ")).isEqualTo((short) 2750);
+        assertThat(resolver.resolveBaseCode(" H2 ")).isEqualTo((short) 2750);
+    }
+
+    @Test
     void resolveExecuteQueryCode_legacyAliases() {
         assertThat(resolver.resolveExecuteQueryCode("mssql")).isEqualTo((short) 2251);
         assertThat(resolver.resolveExecuteQueryCode("oracle")).isEqualTo((short) 2301);
         assertThat(resolver.resolveExecuteQueryCode("db2")).isEqualTo((short) 2161);
         assertThat(resolver.resolveExecuteQueryCode("informix")).isEqualTo((short) 2451);
         assertThat(resolver.resolveExecuteQueryCode("h2")).isEqualTo((short) 2751);
+    }
+
+    @Test
+    void resolveExecuteQueryCode_normalizesDbSystem() {
+        assertThat(resolver.resolveExecuteQueryCode(" H2DATABASE ")).isEqualTo((short) 2751);
+        assertThat(resolver.resolveExecuteQueryCode(" H2 ")).isEqualTo((short) 2751);
     }
 
     // =======================================================================

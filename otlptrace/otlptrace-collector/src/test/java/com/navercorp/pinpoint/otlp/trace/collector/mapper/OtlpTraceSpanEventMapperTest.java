@@ -23,15 +23,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class OtlpTraceSpanEventMapperTest {
 
-    // Stub registry pre-loaded with the client-side RPC ServiceTypes so client/RPC dispatch
-    // tests resolve to the real plugin codes. DB / messaging resolvers fall back gracefully
-    // when their plugin names are absent.
+    // Stub registry pre-loaded with the ServiceTypes needed for targeted dispatch tests.
+    // Unregistered DB / messaging plugin names still fall back gracefully.
     private static final ServiceTypeRegistryService TEST_REGISTRY = buildRegistry();
 
     private static ServiceTypeRegistryService buildRegistry() {
         Map<String, ServiceType> byName = new HashMap<>();
         byName.put("GRPC",                   ServiceTypeFactory.of(9160, "GRPC",                   "GRPC"));
         byName.put("APACHE_DUBBO_CONSUMER",  ServiceTypeFactory.of(9997, "APACHE_DUBBO_CONSUMER",  "APACHE_DUBBO_CONSUMER"));
+        byName.put("H2",                     ServiceTypeFactory.of(2750, "H2",                     "H2"));
+        byName.put("H2_EXECUTE_QUERY",       ServiceTypeFactory.of(2751, "H2_EXECUTE_QUERY",       "H2_EXECUTE_QUERY"));
         return new ServiceTypeRegistryService() {
             @Override
             public ServiceType findServiceType(int serviceType) {
@@ -403,6 +404,28 @@ class OtlpTraceSpanEventMapperTest {
         SpanEventBo event = mapSingle(span);
         assertThat(event.getEndPoint()).isEqualTo("amq1.example.com:61616");
         assertThat(event.getDestinationId()).isEqualTo("orders.queue");
+    }
+
+    @Test
+    void map_database_h2StableDbSystemName_setsH2ServiceType() {
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("db.system.name", strVal("h2database")),
+                kv("db.namespace", strVal("mem:testdb")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getServiceType()).isEqualTo((short) 2750); // H2
+        assertThat(event.getDestinationId()).isEqualTo("mem:testdb");
+    }
+
+    @Test
+    void map_database_h2LegacyDbSystem_setsH2ExecuteQueryServiceType() {
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("db.system", strVal("h2")),
+                kv("db.statement", strVal("SELECT 1")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getServiceType()).isEqualTo((short) 2751); // H2_EXECUTE_QUERY
+        assertThat(event.getDestinationId()).isEqualTo("h2");
     }
 
     @Test
