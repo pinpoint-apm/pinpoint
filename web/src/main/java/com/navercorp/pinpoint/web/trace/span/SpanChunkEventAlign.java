@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.io.SpanVersion;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -47,16 +48,20 @@ public class SpanChunkEventAlign extends SpanEventAlign {
     }
 
     @Override
-    public long getStartTime() {
+    public long getStartTimeNanos() {
         final int version = spanChunkBo.getVersion();
         if (version == SpanVersion.TRACE_V1) {
-            return super.getStartTime();
+            return super.getStartTimeNanos();
         } else if (version == SpanVersion.TRACE_V2) {
-            final long keyTime = spanChunkBo.getKeyTime();
             if (isOpenTelemetry()) {
-                return keyTime;
+                return spanChunkBo.getKeyTimeNanos();
             }
-            return keyTime + getSpanEventBo().getStartElapsed();
+            return spanChunkBo.getKeyTimeNanos() + TimeUnit.MILLISECONDS.toNanos(getSpanEventBo().getStartElapsed());
+        } else if (version == SpanVersion.TRACE_V3) {
+            if (isOpenTelemetry() && getSpanEventBo().hasStartTime()) {
+                return getSpanEventBo().getStartTimeNanos();
+            }
+            return spanChunkBo.getKeyTimeNanos() + TimeUnit.MILLISECONDS.toNanos(getSpanEventBo().getStartElapsed());
         } else {
             throw new IllegalStateException("unsupported version:" + version);
         }

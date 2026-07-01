@@ -128,8 +128,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         final List<SpanBo> spanBoList = allSpanList.get(0);
         for (SpanBo spanBo : spanBoList) {
-            min = Math.min(min, spanBo.getStartTime());
-            max = Math.max(max, spanBo.getStartTime() + spanBo.getElapsed());
+            final long startTimeMillis = spanBo.getStartTimeMillis();
+            min = Math.min(min, startTimeMillis);
+            max = Math.max(max, spanBo.getEndTimeMillis());
         }
 
         final long startTime = min;

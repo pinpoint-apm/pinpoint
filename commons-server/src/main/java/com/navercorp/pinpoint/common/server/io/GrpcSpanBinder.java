@@ -91,7 +91,6 @@ public class GrpcSpanBinder {
     // for test
     SpanBo newSpanBo(PSpan pSpan, ServerHeader serverHeader, long requestTime) {
         final SpanBo spanBo = new SpanBo();
-        spanBo.setVersion(pSpan.getVersion());
         spanBo.setAgentId(serverHeader.getAgentId());
         spanBo.setAgentName(serverHeader.getAgentName());
         spanBo.setApplicationName(serverHeader.getApplicationName());
@@ -110,8 +109,7 @@ public class GrpcSpanBinder {
         spanBo.setSpanId(pSpan.getSpanId());
         spanBo.setParentSpanId(pSpan.getParentSpanId());
 
-        spanBo.setStartTime(pSpan.getStartTime());
-        spanBo.setElapsed(pSpan.getElapsed());
+        spanBo.setTraceTime(pSpan.getVersion(), pSpan.getStartTime(), pSpan.getElapsed());
 
         spanBo.setServiceType(pSpan.getServiceType());
 
@@ -195,8 +193,7 @@ public class GrpcSpanBinder {
         spanEvent.setSequence((short) pSpanEvent.getSequence());
 
         int startTime = getStartTimeDelta(pSpanEvent, prevSpanEvent);
-        spanEvent.setStartElapsed(startTime);
-        spanEvent.setEndElapsed(pSpanEvent.getEndElapsed());
+        spanEvent.setTraceTime(SpanVersion.TRACE_V2, startTime, pSpanEvent.getEndElapsed());
 
         spanEvent.setServiceType((short) pSpanEvent.getServiceType());
 
@@ -283,7 +280,6 @@ public class GrpcSpanBinder {
     // for test
     SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
-        spanChunkBo.setVersion(pSpanChunk.getVersion());
         spanChunkBo.setAgentId(serverHeader.getAgentId());
         spanChunkBo.setAgentName(serverHeader.getAgentName());
         spanChunkBo.setApplicationName(serverHeader.getApplicationName());
@@ -306,7 +302,7 @@ public class GrpcSpanBinder {
             throw new IllegalStateException("PTransactionId is not set");
         }
 
-        spanChunkBo.setKeyTime(pSpanChunk.getKeyTime());
+        spanChunkBo.setTraceTime(pSpanChunk.getVersion(), pSpanChunk.getKeyTime());
 
         spanChunkBo.setSpanId(pSpanChunk.getSpanId());
         spanChunkBo.setEndPoint(pSpanChunk.getEndPoint());

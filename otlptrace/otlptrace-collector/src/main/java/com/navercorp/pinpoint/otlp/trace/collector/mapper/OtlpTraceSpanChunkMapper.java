@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @Component
@@ -45,7 +44,6 @@ public class OtlpTraceSpanChunkMapper {
     SpanChunkBo map(IdAndName idAndName, Span span) {
         SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setTraceSourceType(TraceSourceType.OPENTELEMETRY);
-        spanChunkBo.setVersion(SpanVersion.TRACE_V2);
 
         spanChunkBo.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {
@@ -54,18 +52,18 @@ public class OtlpTraceSpanChunkMapper {
         spanChunkBo.setApplicationName(idAndName.applicationName());
         spanChunkBo.setServiceName(idAndName.serviceName());
 
-        final long startTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
+        final long startTimeNanos = span.getStartTimeUnixNano();
         // The sequence value is 0, so make a difference with the agentStartTime value.
         spanChunkBo.setAgentStartTime(generateAgentStartTime());
         spanChunkBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
         spanChunkBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getParentSpanId()));
         // spanChunkBo.setEndPoint();
         spanChunkBo.setApplicationServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
-        final List<SpanEventBo> spanEventBoList = spanEventMapper.map(startTime, span);
+        final List<SpanEventBo> spanEventBoList = spanEventMapper.map(startTimeNanos, span);
         spanChunkBo.addSpanEventBoList(spanEventBoList);
         spanChunkBo.setCollectorAcceptTime(System.currentTimeMillis());
         // spanChunkBo.setLocalAsyncId();
-        spanChunkBo.setKeyTime(startTime);
+        spanChunkBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos);
 
         return spanChunkBo;
     }

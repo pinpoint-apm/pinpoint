@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.util.OpenTelemetryAnnotationValueUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -37,11 +38,12 @@ public class SpanEventAlign implements Align {
 
     private int id;
     private long gap;
+    private long gapNanos;
     private int depth;
-    private long executionMilliseconds;
+    private long executionMillis;
+    private long executionNanos;
     private long openTelemetrySpanId = -1;
     private long openTelemetryParentSpanId = -1;
-    private long openTelemetryStartTime = -1;
 
     public SpanEventAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
         this(spanBo, spanEventBo, false);
@@ -53,10 +55,8 @@ public class SpanEventAlign implements Align {
         this.openTelemetry = openTelemetry;
 
         if (openTelemetry) {
-            OpenTelemetryAnnotationValueUtils.Values annotationValue = OpenTelemetryAnnotationValueUtils.getValues(spanEventBo.getAnnotationBoList());
-            openTelemetrySpanId = annotationValue.spanId();
-            openTelemetryParentSpanId = annotationValue.parentSpanId();
-            openTelemetryStartTime = annotationValue.startTime();
+            openTelemetrySpanId = OpenTelemetryAnnotationValueUtils.getSpanId(spanEventBo.getAnnotationBoList());
+            openTelemetryParentSpanId = OpenTelemetryAnnotationValueUtils.getParentSpanId(spanEventBo.getAnnotationBoList());
         }
     }
 
@@ -96,13 +96,25 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
-    public long getGap() {
+    public long getGapMillis() {
         return gap;
     }
 
     @Override
-    public void setGap(long gap) {
-        this.gap = gap;
+    public void setGapMillis(long gapMillis) {
+        this.gap = gapMillis;
+        this.gapNanos = TimeUnit.MILLISECONDS.toNanos(gapMillis);
+    }
+
+    @Override
+    public long getGapNanos() {
+        return gapNanos;
+    }
+
+    @Override
+    public void setGapNanos(long gapNanos) {
+        this.gapNanos = gapNanos;
+        this.gap = TimeUnit.NANOSECONDS.toMillis(gapNanos);
     }
 
     @Override
@@ -126,13 +138,25 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
-    public long getExecutionMilliseconds() {
-        return executionMilliseconds;
+    public long getExecutionMillis() {
+        return executionMillis;
     }
 
     @Override
-    public void setExecutionMilliseconds(long executionMilliseconds) {
-        this.executionMilliseconds = executionMilliseconds;
+    public void setExecutionMillis(long executionMillis) {
+        this.executionMillis = executionMillis;
+        this.executionNanos = TimeUnit.MILLISECONDS.toNanos(executionMillis);
+    }
+
+    @Override
+    public long getExecutionNanos() {
+        return executionNanos;
+    }
+
+    @Override
+    public void setExecutionNanos(long executionNanos) {
+        this.executionNanos = executionNanos;
+        this.executionMillis = TimeUnit.NANOSECONDS.toMillis(executionNanos);
     }
 
     @Override
@@ -146,18 +170,30 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
-    public long getEndTime() {
-        return getStartTime() + spanEventBo.getEndElapsed();
+    public long getStartTimeNanos() {
+        if (spanEventBo.hasStartTime()) {
+            return spanEventBo.getStartTimeNanos();
+        }
+        return spanBo.getStartTimeNanos() + TimeUnit.MILLISECONDS.toNanos(spanEventBo.getStartElapsed());
     }
 
     @Override
-    public long getStartTime() {
-        return spanBo.getStartTime() + spanEventBo.getStartElapsed();
+    public long getEndTimeNanos() {
+        if (spanEventBo.hasEndTime()) {
+            return spanEventBo.getEndTimeNanos();
+        }
+
+        return getStartTimeNanos() + TimeUnit.MILLISECONDS.toNanos(spanEventBo.getEndElapsed());
     }
 
     @Override
-    public long getElapsed() {
-        return spanEventBo.getEndElapsed();
+    public long getElapsedMillis() {
+        return TimeUnit.NANOSECONDS.toMillis(getElapsedNanos());
+    }
+
+    @Override
+    public long getElapsedNanos() {
+        return getEndTimeNanos() - getStartTimeNanos();
     }
 
 
@@ -284,7 +320,10 @@ public class SpanEventAlign implements Align {
 
     @Override
     public long getOpenTelemetryStartTime() {
-        return openTelemetryStartTime;
+        if (openTelemetry) {
+            return getStartTimeNanos();
+        }
+        return -1;
     }
 
     @Override
@@ -295,11 +334,13 @@ public class SpanEventAlign implements Align {
                 ", openTelemetry=" + openTelemetry +
                 ", id=" + id +
                 ", gap=" + gap +
+                ", gapNanos=" + gapNanos +
                 ", depth=" + depth +
-                ", executionMilliseconds=" + executionMilliseconds +
+                ", executionMillis=" + executionMillis +
+                ", executionNanos=" + executionNanos +
                 ", openTelemetrySpanId=" + openTelemetrySpanId +
                 ", openTelemetryParentSpanId=" + openTelemetryParentSpanId +
-                ", openTelemetryStartTime=" + openTelemetryStartTime +
+                ", openTelemetryStartTime=" + getOpenTelemetryStartTime() +
                 '}';
     }
 
@@ -310,7 +351,7 @@ public class SpanEventAlign implements Align {
         private int id;
         private long gap;
         private int depth;
-        private long executionMilliseconds;
+        private long executionMillis;
 
         public Builder(SpanBo spanBo, SpanEventBo spanEventBo) {
             this.spanBo = spanBo;
@@ -322,7 +363,7 @@ public class SpanEventAlign implements Align {
             return this;
         }
 
-        public Builder setGap(long gap) {
+        public Builder setGapMillis(long gap) {
             this.gap = gap;
             return this;
         }
@@ -332,17 +373,17 @@ public class SpanEventAlign implements Align {
             return this;
         }
 
-        public Builder setExecutionMilliseconds(long executionMilliseconds) {
-            this.executionMilliseconds = executionMilliseconds;
+        public Builder setExecutionMillis(long executionMillis) {
+            this.executionMillis = executionMillis;
             return this;
         }
 
         public SpanEventAlign build() {
             SpanEventAlign result = new SpanEventAlign(this.spanBo, this.spanEventBo);
             result.setId(this.id);
-            result.setGap(this.gap);
+            result.setGapMillis(this.gap);
             result.setDepth(this.depth);
-            result.setExecutionMilliseconds(this.executionMilliseconds);
+            result.setExecutionMillis(this.executionMillis);
             return result;
         }
     }

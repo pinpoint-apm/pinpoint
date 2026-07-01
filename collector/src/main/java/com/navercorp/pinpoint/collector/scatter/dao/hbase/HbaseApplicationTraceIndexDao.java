@@ -106,7 +106,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         Buffer buffer = new AutomaticBuffer(64);
         buffer.putByte((byte) 0);
         buffer.putLong(span.getSpanId());
-        buffer.putLong(span.getStartTime());
+        buffer.putLong(span.getStartTimeMillis());
         // fixed field offset
         buffer.setByte(0, (byte) buffer.getOffset());
 

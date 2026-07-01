@@ -588,9 +588,9 @@ public class SpanServiceImpl implements SpanService {
                                 || (align.isSpan() && ServiceTypeCategory.MESSAGE_BROKER.contains(serviceType));
                         ApiMetaDataBo apiMetaDataBo;
                         if (isEntryPoint) {
-                            apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.WEB_REQUEST, apiString);
+                            apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTimeMillis(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.WEB_REQUEST, apiString);
                         } else {
-                            apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTime(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.DEFAULT, apiString);
+                            apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTimeMillis(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.DEFAULT, apiString);
                         }
 
                         AnnotationBo apiAnnotation = AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaDataBo);

@@ -30,6 +30,8 @@ public class RecordSet {
     private long startTime = -1;
     private long endTime = -1;
     private long callTreeTimelineEnd = -1;
+    private long callTreeTimelineStartNanos = -1;
+    private long callTreeTimelineDurationNanos = -1;
 
     private List<Record> recordList;
     private String uri;
@@ -87,6 +89,22 @@ public class RecordSet {
 
     public void setCallTreeTimelineEnd(long callTreeTimelineEnd) {
         this.callTreeTimelineEnd = callTreeTimelineEnd;
+    }
+
+    public long getCallTreeTimelineStartNanos() {
+        return callTreeTimelineStartNanos;
+    }
+
+    public void setCallTreeTimelineStartNanos(long callTreeTimelineStartNanos) {
+        this.callTreeTimelineStartNanos = callTreeTimelineStartNanos;
+    }
+
+    public long getCallTreeTimelineDurationNanos() {
+        return callTreeTimelineDurationNanos;
+    }
+
+    public void setCallTreeTimelineDurationNanos(long callTreeTimelineDurationNanos) {
+        this.callTreeTimelineDurationNanos = callTreeTimelineDurationNanos;
     }
 
     public void setUri(String uri) {

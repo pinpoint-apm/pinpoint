@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.trace.span;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.io.SpanVersion;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -241,11 +242,11 @@ public class CallTreeTest {
 
         CallTreeNode parent = callTree.getRoot().getChild();
         CallTreeNode first = parent.getChild();
-        assertEquals(100L, first.getAlign().getStartTime());
+        assertEquals(100L, first.getAlign().getStartTimeMillis());
         CallTreeNode second = first.getSibling();
-        assertEquals(200L, second.getAlign().getStartTime());
+        assertEquals(200L, second.getAlign().getStartTimeMillis());
         CallTreeNode third = second.getSibling();
-        assertEquals(300L, third.getAlign().getStartTime());
+        assertEquals(300L, third.getAlign().getStartTimeMillis());
         assertNull(third.getSibling());
     }
 
@@ -268,10 +269,10 @@ public class CallTreeTest {
 
         CallTreeNode parent = callTree.getRoot().getChild();
         CallTreeNode first = parent.getChild();
-        assertEquals(100L, first.getAlign().getStartTime());
-        assertEquals(200L, first.getSibling().getAlign().getStartTime());
-        assertEquals(250L, first.getSibling().getSibling().getAlign().getStartTime());
-        assertEquals(300L, first.getSibling().getSibling().getSibling().getAlign().getStartTime());
+        assertEquals(100L, first.getAlign().getStartTimeMillis());
+        assertEquals(200L, first.getSibling().getAlign().getStartTimeMillis());
+        assertEquals(250L, first.getSibling().getSibling().getAlign().getStartTimeMillis());
+        assertEquals(300L, first.getSibling().getSibling().getSibling().getAlign().getStartTimeMillis());
         assertNull(first.getSibling().getSibling().getSibling().getSibling());
     }
 
@@ -313,8 +314,7 @@ public class CallTreeTest {
 
     private Align makeSpanAlign(long startTime, int elapsed) {
         SpanBo span = new SpanBo();
-        span.setStartTime(startTime);
-        span.setElapsed(elapsed);
+        span.setTraceTime(SpanVersion.TRACE_V1, startTime, elapsed);
         span.setAgentId("agentId");
         span.setApplicationName("applicationId");
 

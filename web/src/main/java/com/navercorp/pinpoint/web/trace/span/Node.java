@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -89,8 +88,8 @@ public class Node {
                 ", agentId=" + span.getAgentId() +
                 ", parentSpanId=" + span.getParentSpanId() +
                 ", spanId=" + span.getSpanId() +
-                ", startTime=" + span.getStartTime() +
-                ", elapsed=" + span.getElapsed() +
+                ", startTimeMillis=" + span.getStartTimeMillis() +
+                ", elapsedMillis=" + span.getElapsed() +
                 ", collectorAcceptTime=" + span.getCollectorAcceptTime() +
                 ", linked=" + linked +
                 '}';
@@ -157,13 +156,10 @@ public class Node {
         alignList.removeAll(childAlignList);
         childAlignList.sort(AlignComparator.OPENTELEMETRY_START_TIME);
         for (Align align : childAlignList) {
-            // set depth, sequence, startElapsed
+            // set depth, sequence
             final SpanEventBo spanEventBo = align.getSpanEventBo();
             spanEventBo.setDepth(depth);
             spanEventBo.setSequence(sequence++);
-            final long eventStartTime = TimeUnit.NANOSECONDS.toMillis(align.getOpenTelemetryStartTime());
-            final int startElapsed = (int) (eventStartTime - spanBo.getStartTime());
-            spanEventBo.setStartElapsed(startElapsed);
             sortedAlignList.add(align);
             final List<Align> list = findOpenTelemetryChildSpanEvent(spanBo, alignList, align.getOpenTelemetrySpanId(), depth + 1, sequence);
             sequence += (short) list.size();

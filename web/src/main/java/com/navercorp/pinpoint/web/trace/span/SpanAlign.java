@@ -27,6 +27,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -40,8 +41,10 @@ public class SpanAlign implements Align {
 
     private int id;
     private long gap;
+    private long gapNanos;
     private int depth;
-    private long executionMilliseconds;
+    private long executionMillis;
+    private long executionNanos;
 
     public SpanAlign(SpanBo spanBo) {
         this(spanBo, false);
@@ -108,13 +111,25 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public long getGap() {
+    public long getGapMillis() {
         return gap;
     }
 
     @Override
-    public void setGap(long gap) {
-        this.gap = gap;
+    public void setGapMillis(long gapMillis) {
+        this.gap = gapMillis;
+        this.gapNanos = TimeUnit.MILLISECONDS.toNanos(gapMillis);
+    }
+
+    @Override
+    public long getGapNanos() {
+        return gapNanos;
+    }
+
+    @Override
+    public void setGapNanos(long gapNanos) {
+        this.gapNanos = gapNanos;
+        this.gap = TimeUnit.NANOSECONDS.toMillis(gapNanos);
     }
 
     @Override
@@ -139,13 +154,25 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public long getExecutionMilliseconds() {
-        return executionMilliseconds;
+    public long getExecutionMillis() {
+        return executionMillis;
     }
 
     @Override
-    public void setExecutionMilliseconds(long executionMilliseconds) {
-        this.executionMilliseconds = executionMilliseconds;
+    public void setExecutionMillis(long executionMillis) {
+        this.executionMillis = executionMillis;
+        this.executionNanos = TimeUnit.MILLISECONDS.toNanos(executionMillis);
+    }
+
+    @Override
+    public long getExecutionNanos() {
+        return executionNanos;
+    }
+
+    @Override
+    public void setExecutionNanos(long executionNanos) {
+        this.executionNanos = executionNanos;
+        this.executionMillis = TimeUnit.NANOSECONDS.toMillis(executionNanos);
     }
 
     @Override
@@ -159,18 +186,33 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public long getEndTime() {
-        return spanBo.getStartTime() + spanBo.getElapsed();
+    public long getStartTimeMillis() {
+        return spanBo.getStartTimeMillis();
     }
 
     @Override
-    public long getStartTime() {
-        return spanBo.getStartTime();
+    public long getStartTimeNanos() {
+        return spanBo.getStartTimeNanos();
     }
 
     @Override
-    public long getElapsed() {
-        return spanBo.getElapsed();
+    public long getEndTimeMillis() {
+        return spanBo.getEndTimeMillis();
+    }
+
+    @Override
+    public long getEndTimeNanos() {
+        return spanBo.getEndTimeNanos();
+    }
+
+    @Override
+    public long getElapsedMillis() {
+        return TimeUnit.NANOSECONDS.toMillis(getElapsedNanos());
+    }
+
+    @Override
+    public long getElapsedNanos() {
+        return getEndTimeNanos() - getStartTimeNanos();
     }
 
     @Override
@@ -308,7 +350,7 @@ public class SpanAlign implements Align {
 
     @Override
     public long getOpenTelemetryStartTime() {
-        return spanBo.getStartTime();
+        return spanBo.getStartTimeNanos();
     }
 
     @Override
@@ -320,8 +362,10 @@ public class SpanAlign implements Align {
                 ", openTelemetry=" + openTelemetry +
                 ", id=" + id +
                 ", gap=" + gap +
+                ", gapNanos=" + gapNanos +
                 ", depth=" + depth +
-                ", executionMilliseconds=" + executionMilliseconds +
+                ", executionMillis=" + executionMillis +
+                ", executionNanos=" + executionNanos +
                 '}';
     }
 
@@ -331,7 +375,7 @@ public class SpanAlign implements Align {
         private int id;
         private long gap;
         private int depth;
-        private long executionMilliseconds;
+        private long executionMillis;
 
         public Builder(SpanBo spanBo) {
             this.spanBo = spanBo;
@@ -352,7 +396,7 @@ public class SpanAlign implements Align {
             return this;
         }
 
-        public Builder setGap(long gap) {
+        public Builder setGapMillis(long gap) {
             this.gap = gap;
             return this;
         }
@@ -362,17 +406,17 @@ public class SpanAlign implements Align {
             return this;
         }
 
-        public Builder setExecutionMilliseconds(long executionMilliseconds) {
-            this.executionMilliseconds = executionMilliseconds;
+        public Builder setExecutionMillis(long executionMillis) {
+            this.executionMillis = executionMillis;
             return this;
         }
 
         public SpanAlign build() {
             SpanAlign align = new SpanAlign(this.spanBo, meta);
             align.setId(this.id);
-            align.setGap(this.gap);
+            align.setGapMillis(this.gap);
             align.setDepth(this.depth);
-            align.setExecutionMilliseconds(this.executionMilliseconds);
+            align.setExecutionMillis(this.executionMillis);
             return align;
         }
     }

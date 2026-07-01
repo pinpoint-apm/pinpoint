@@ -454,7 +454,7 @@ public class FilteredMapBuilder {
         final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 
         // FIXME
-        final long spanEventTimeStamp = timeWindow.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
+        final long spanEventTimeStamp = timeWindow.refineTimestamp(span.getStartTimeMillis() + spanEvent.getStartElapsed());
         if (logger.isTraceEnabled()) {
             logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
         }

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
 import org.assertj.core.matcher.AssertionMatcher;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
@@ -169,7 +171,6 @@ public class TestTraceUtils {
 
         public SpanBo build() {
             SpanBo spanBo = new SpanBo();
-            spanBo.setVersion(version);
             spanBo.setApplicationName(applicationName);
             spanBo.setAgentId(agentId);
             long spanId = this.spanId;
@@ -179,9 +180,12 @@ public class TestTraceUtils {
             spanBo.setSpanId(spanId);
             spanBo.setServiceType(serviceType.getCode());
             spanBo.setApplicationServiceType(serviceType.getCode());
-            spanBo.setStartTime(startTime);
+            if (version == SpanVersion.TRACE_V3) {
+                spanBo.setTraceTime(version, startTime, startTime + TimeUnit.MILLISECONDS.toNanos(elapsed), elapsed);
+            } else {
+                spanBo.setTraceTime(version, startTime, elapsed);
+            }
             spanBo.setCollectorAcceptTime(collectorAcceptTime);
-            spanBo.setElapsed(elapsed);
             spanBo.setErrCode(errorCode);
             if (parentSpan != null) {
                 spanBo.setTransactionId(parentSpan.getTransactionId());

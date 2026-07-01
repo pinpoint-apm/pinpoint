@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.io.SpanVersion;
 
 /**
  * @author jaehong.kim
@@ -45,7 +46,7 @@ public class CallStackMock {
 
     public CallStackMock(boolean async, int asyncId) {
         this.spanBo = new SpanBo();
-        this.spanBo.setStartTime(currentTime);
+        this.spanBo.setTraceTime(SpanVersion.TRACE_V1, currentTime, 0);
         currentTime++;
 
         this.async = async;
@@ -59,7 +60,7 @@ public class CallStackMock {
 
     public void push() {
         final SpanEventBo spanEvent = new SpanEventBo();
-        final int startElapsed = (int) (currentTime - spanBo.getStartTime());
+        final int startElapsed = (int) (currentTime - spanBo.getStartTimeMillis());
         currentTime++;
         spanEvent.setStartElapsed(startElapsed);
         spanEvent.setSequence(sequence++);
@@ -99,7 +100,7 @@ public class CallStackMock {
         if (spanEvent != null) {
             stack[index - 1] = null;
             index--;
-            final int endElapsed = (int) (currentTime - (spanBo.getStartTime() + spanEvent.getStartElapsed()));
+            final int endElapsed = (int) (currentTime - (spanBo.getStartTimeMillis() + spanEvent.getStartElapsed()));
             spanEvent.setEndElapsed(endElapsed);
         }
 
@@ -138,7 +139,7 @@ public class CallStackMock {
         if (this.async) {
             pop();
         }
-        final int after = (int) (currentTime - spanBo.getStartTime());
+        final int after = (int) (currentTime - spanBo.getStartTimeMillis());
         spanBo.setElapsed(after);
         return callTree;
     }

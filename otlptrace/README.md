@@ -51,6 +51,18 @@ attributes the OTel SDK builds from `OTEL_RESOURCE_ATTRIBUTES` and the
 `service.*` semantic-convention keys). No Pinpoint-specific exporter or plugin
 is required on the application side.
 
+## Trace time precision
+
+The OTLP trace collector preserves OpenTelemetry span timestamps with nano
+precision by mapping incoming OTel data to Pinpoint trace V3.
+
+- OTLP span start/end timestamps and span event start/end timestamps are stored
+  as epoch-nanos in V3.
+- This V3 path is currently used for OTLP collector ingestion. The native
+  Pinpoint agent gRPC span path keeps the existing V2/millis behavior.
+- Backend and UI APIs may still expose millis for compatibility, but V3 keeps
+  nanos internally for ordering and Call Tree timeline positioning.
+
 ## Configuring identifiers
 
 The collector resolves each identifier from the incoming OTLP Resource

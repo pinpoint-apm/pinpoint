@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -106,18 +107,23 @@ public class SpanEncoderV0 implements SpanEncoder {
 
         final byte version = (byte) spanChunkBo.getVersion();
         buffer.putByte(version);
-        if (version == SpanVersion.TRACE_V2) {
-            long keyTime = spanChunkBo.getKeyTime();
-            buffer.putVLong(keyTime);
+        long spanEventBaseTimeNanos = 0;
+        if (version == SpanVersion.TRACE_V3) {
+            final long keyTimeNanos = spanChunkBo.getKeyTimeNanos();
+            final long collectorAcceptTimeNanos = TimeUnit.MILLISECONDS.toNanos(spanChunkBo.getCollectorAcceptTime());
+            buffer.putSVLong(collectorAcceptTimeNanos - keyTimeNanos);
+            spanEventBaseTimeNanos = keyTimeNanos;
+        } else if (version == SpanVersion.TRACE_V2) {
+            buffer.putVLong(spanChunkBo.getKeyTimeMillis());
         }
 
         final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
-        writeSpanEventList(buffer, spanEventBoList, encodingContext);
+        writeSpanEventList(buffer, spanEventBoList, encodingContext, version, spanEventBaseTimeNanos);
 
         return buffer.wrapByteBuffer();
     }
 
-    private void writeSpanEventList(Buffer buffer, List<SpanEventBo> spanEventBoList, SpanEncodingContext<?> encodingContext) {
+    private void writeSpanEventList(Buffer buffer, List<SpanEventBo> spanEventBoList, SpanEncodingContext<?> encodingContext, byte version, long baseTimeNanos) {
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             buffer.putVInt(0);
         } else {
@@ -125,6 +131,9 @@ public class SpanEncoderV0 implements SpanEncoder {
 
             SpanEventBo prevSpanEvent = null;
             for (SpanEventBo spanEventBo : spanEventBoList) {
+                if (version == SpanVersion.TRACE_V3) {
+                    writeSpanEventTime(buffer, spanEventBo, baseTimeNanos);
+                }
                 if (prevSpanEvent == null) {
                     writeFirstSpanEvent(buffer, spanEventBo, encodingContext);
                 } else {
@@ -133,6 +142,13 @@ public class SpanEncoderV0 implements SpanEncoder {
                 prevSpanEvent = spanEventBo;
             }
         }
+    }
+
+    private void writeSpanEventTime(Buffer buffer, SpanEventBo spanEventBo, long baseTimeNanos) {
+        final long startTime = spanEventBo.getStartTimeNanos();
+        final long endTime = spanEventBo.getEndTimeNanos();
+        buffer.putSVLong(startTime - baseTimeNanos);
+        buffer.putVLong(Math.max(endTime - startTime, 0));
     }
 
     @Override
@@ -171,9 +187,22 @@ public class SpanEncoderV0 implements SpanEncoder {
         }
 
         // prevSpanEvent coding
-        final long startTime = span.getStartTime();
-        final long startTimeDelta = span.getCollectorAcceptTime() - startTime;
-        buffer.putVLong(startTimeDelta);
+        long spanEventBaseTimeNanos = 0;
+        if (version == SpanVersion.TRACE_V3) {
+            if (!span.hasEndTime()) {
+                throw new IllegalStateException("span end time is not set");
+            }
+            final long startTime = span.getStartTimeNanos();
+            final long collectorAcceptTimeNanos = TimeUnit.MILLISECONDS.toNanos(span.getCollectorAcceptTime());
+            buffer.putSVLong(collectorAcceptTimeNanos - startTime);
+            final long endTime = span.getEndTimeNanos();
+            buffer.putVLong(Math.max(endTime - startTime, 0));
+            spanEventBaseTimeNanos = startTime;
+        } else {
+            final long startTime = span.getStartTimeMillis();
+            final long startTimeDelta = span.getCollectorAcceptTime() - startTime;
+            buffer.putVLong(startTimeDelta);
+        }
         buffer.putVInt(span.getElapsed());
 
 
@@ -219,7 +248,7 @@ public class SpanEncoderV0 implements SpanEncoder {
         }
 
         final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
-        writeSpanEventList(buffer, spanEventBoList, encodingContext);
+        writeSpanEventList(buffer, spanEventBoList, encodingContext, version, spanEventBaseTimeNanos);
 
         return buffer.wrapByteBuffer();
     }

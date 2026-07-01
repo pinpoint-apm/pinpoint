@@ -38,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Component
@@ -111,7 +110,7 @@ public class OtlpTraceMapper {
                         // original OTel spans (where the full stacktrace is still available). Orphan
                         // spans not linked to any root are intentionally skipped: without a root there
                         // is no transaction spanId to link the exception to.
-                        final List<SpanEventBo> spanEventList = findLinkSpan(spanBo.getStartTime(), childSpanList, rootSpan.getSpanId(), 1,
+                        final List<SpanEventBo> spanEventList = findLinkSpan(spanBo.getStartTimeNanos(), childSpanList, rootSpan.getSpanId(), 1,
                                 childSpan -> recordException(mapperData, idAndName, childSpan, rootSpanId, rootUriTemplate));
                         spanBo.addSpanEventBoList(spanEventList);
                         mapperData.addSpanBo(spanBo);
@@ -368,7 +367,7 @@ public class OtlpTraceMapper {
         for (Span localRootSpan : localRootSpanList) {
             // Map root as SpanChunk (attached to its parentSpanId if present)
             SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, localRootSpan);
-            long rootStartTime = TimeUnit.NANOSECONDS.toMillis(localRootSpan.getStartTimeUnixNano());
+            long rootStartTime = localRootSpan.getStartTimeUnixNano();
             // Recursively attach children as events
             List<SpanEventBo> childrenEvents = findLinkSpan(rootStartTime, childSpanList, localRootSpan.getSpanId(), 2);
             spanChunkBo.addSpanEventBoList(childrenEvents);

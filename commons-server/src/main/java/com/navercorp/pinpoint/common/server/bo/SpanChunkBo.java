@@ -22,11 +22,13 @@ import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.SpanVersion;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -165,11 +167,29 @@ public class SpanChunkBo implements BasicSpan {
         this.spanId = spanId;
     }
 
-    public long getKeyTime() {
-        return this.keyTime;
+    public long getKeyTimeMillis() {
+        if (getVersion() == SpanVersion.TRACE_V3) {
+            return TimeUnit.NANOSECONDS.toMillis(keyTime);
+        }
+        return keyTime;
     }
 
-    public void setKeyTime(long keyTime) {
+    public long getKeyTimeNanos() {
+        if (getVersion() == SpanVersion.TRACE_V3) {
+            return keyTime;
+        }
+        return TimeUnit.MILLISECONDS.toNanos(keyTime);
+    }
+
+    /**
+     * Sets the span chunk time fields as one versioned unit.
+     * TRACE_V2 uses epoch millis. TRACE_V3 uses epoch nanos.
+     */
+    public void setTraceTime(int version, long keyTime) {
+        if (version != SpanVersion.TRACE_V2 && version != SpanVersion.TRACE_V3) {
+            throw new IllegalArgumentException("span chunk keyTime is only supported for TRACE_V2 or TRACE_V3");
+        }
+        setVersion(version);
         this.keyTime = keyTime;
     }
 

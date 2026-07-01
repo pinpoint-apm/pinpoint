@@ -79,6 +79,7 @@
     }
   },
   "TRANSACTION_LIST": {
+    "CALL_TREE_TIMELINE": "타임라인",
     "SELECT_TRANSACTION": "Transaction을 선택하세요.",
     "TRANSACTION_RETRIEVE_ERROR": "Transaction 정보가 없습니다.",
     "TRANSACTION_RETRIEVE_ERROR_DESC": "Servermap/Filtered 페이지에서 다시 시도해 주세요. (이 창을 닫으면 Servermap 페이지로 이동합니다)",
@@ -1447,7 +1448,7 @@
             },
             {
               "NAME": "Exec(%)",
-              "DESC": "<FaCircle color=\"#5bc0de\"/> 트랜잭션 전체 실행 시간 대비 Exec 시간의 비율<br/><FaCircle color=\"#4343C8\"/> 시간 비율"
+              "DESC": "<FaCircle color=\"#5bc0de\"/> 연한 막대: 전체 요청 중 이 메소드가 언제 시작했고 얼마나 오래 걸렸는지 보여줍니다.<br/><FaCircle color=\"#4343C8\"/> 진한 막대: 이 메소드 안에서 다시 호출한 작업 시간을 빼고, 이 메소드 자체에 걸린 시간을 보여줍니다. 진한 막대는 항상 연한 막대의 왼쪽에서 시작하므로, 실제 자체 작업이 시작된 시간을 뜻하지는 않습니다."
             },
             {
               "NAME": "Self",

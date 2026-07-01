@@ -44,7 +44,7 @@ public class ProxyHeaderAnnotationArgumentHandler implements AnnotationHandler {
     @Override
     public String format(AnnotationKey annotationKey, AnnotationBo annotationBo, Align align) {
         if (annotationBo.getValue() instanceof LongIntIntByteByteStringValue value) {
-            return buildProxyHttpHeaderAnnotationArguments(value, align.getStartTime());
+            return buildProxyHttpHeaderAnnotationArguments(value, align.getStartTimeMillis());
         } else {
             return "Unsupported type(collector server needs to be upgraded)";
         }

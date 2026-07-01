@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.trace.span;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author jaehong.kim
@@ -80,18 +81,24 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
 
         final Align align = node.getAlign();
         if (align.isMeta()) {
-            align.setGap(0);
+            align.setGapMillis(0);
+            align.setGapNanos(0);
             align.setDepth(node.getDepth());
-            align.setExecutionMilliseconds(0);
+            align.setExecutionMillis(0);
+            align.setExecutionNanos(0);
         } else {
-            align.setGap(getGap());
+            final long gapNanos = getGapNanos();
+            final long executionNanos = getExecutionTimeNanos();
+            align.setGapMillis(TimeUnit.NANOSECONDS.toMillis(gapNanos));
+            align.setGapNanos(gapNanos);
             align.setDepth(node.getDepth());
-            align.setExecutionMilliseconds(getExecutionTime());
+            align.setExecutionMillis(TimeUnit.NANOSECONDS.toMillis(executionNanos));
+            align.setExecutionNanos(executionNanos);
         }
 
     }
 
-    private long getGap() {
+    private long getGapNanos() {
         final CallTreeNode current = getCurrent();
         if (current.isRoot()) {
             return 0;
@@ -103,7 +110,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
                 return 0;
             }
             // skip sibling.
-            return current.getAlign().getStartTime() - parent.getAlign().getStartTime();
+            return getStartTimeNanos(current) - getStartTimeNanos(parent);
         }
 
         final CallTreeNode prev = getPrev();
@@ -111,14 +118,14 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
             throw new IllegalStateException("A non-root CallTreeNode must have a previous node");
         }
 
-        return current.getAlign().getStartTime() - getLastExecuteTime(current, prev);
+        return getStartTimeNanos(current) - getLastExecuteTimeNanos(current, prev);
     }
 
 
-    private long getLastExecuteTime(final CallTreeNode current, final CallTreeNode prev) {
+    private long getLastExecuteTimeNanos(final CallTreeNode current, final CallTreeNode prev) {
         if (prev.getDepth() < current.getDepth()) {
             // push and not closed.
-            return prev.getAlign().getStartTime();
+            return getStartTimeNanos(prev);
         }
 
         CallTreeNode node = prev;
@@ -129,10 +136,10 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         while (true) {
             if (!node.getAlign().isAsyncFirst()) {
                 // not async first.
-                return node.getAlign().getEndTime();
+                return getEndTimeNanos(node);
             } else if (isFirstChild(node)) {
                 // first child
-                return node.getParent().getAlign().getStartTime();
+                return getStartTimeNanos(node.getParent());
             }
             // pop prev sibling.
             node = getPrevSibling(node);
@@ -167,29 +174,85 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         return null;
     }
 
-    private long getExecutionTime() {
+    private long getExecutionTimeNanos() {
         final CallTreeNode current = getCurrent();
         final Align align = current.getAlign();
         if (!current.hasChild()) {
-            return align.getElapsed();
+            return getElapsedNanos(align);
         }
 
-        return align.getElapsed() - getChildrenTotalElapsedTime(current);
+        return Math.max(getElapsedNanos(align) - getChildrenTotalElapsedTimeNanos(current), 0);
     }
 
-    private long getChildrenTotalElapsedTime(final CallTreeNode node) {
-        long totalElapsed = 0;
+    private long getChildrenTotalElapsedTimeNanos(final CallTreeNode node) {
+        final long parentStartTimeNanos = getStartTimeNanos(node);
+        final long parentEndTimeNanos = getEndTimeNanos(node);
+        if (parentEndTimeNanos <= parentStartTimeNanos) {
+            return 0;
+        }
+
+        final List<TimeRange> ranges = new ArrayList<>();
         CallTreeNode child = node.getChild();
         while (child != null) {
             Align align = child.getAlign();
             if (!align.isSpan() && !align.isAsyncFirst()) {
                 // skip span and first async event;
-                totalElapsed += align.getElapsed();
+                final long startTimeNanos = Math.max(parentStartTimeNanos, getStartTimeNanos(child));
+                final long endTimeNanos = Math.min(parentEndTimeNanos, getEndTimeNanos(child));
+                if (endTimeNanos > startTimeNanos) {
+                    ranges.add(new TimeRange(startTimeNanos, endTimeNanos));
+                }
             }
             child = child.getSibling();
         }
 
-        return totalElapsed;
+        return sumMergedRanges(ranges);
+    }
+
+    private long sumMergedRanges(List<TimeRange> ranges) {
+        if (ranges.isEmpty()) {
+            return 0;
+        }
+
+        ranges.sort((range1, range2) -> Long.compare(range1.startTimeNanos, range2.startTimeNanos));
+
+        long totalElapsed = 0;
+        long startTimeNanos = ranges.get(0).startTimeNanos;
+        long endTimeNanos = ranges.get(0).endTimeNanos;
+        for (int i = 1; i < ranges.size(); i++) {
+            final TimeRange range = ranges.get(i);
+            if (range.startTimeNanos <= endTimeNanos) {
+                endTimeNanos = Math.max(endTimeNanos, range.endTimeNanos);
+            } else {
+                totalElapsed += endTimeNanos - startTimeNanos;
+                startTimeNanos = range.startTimeNanos;
+                endTimeNanos = range.endTimeNanos;
+            }
+        }
+
+        return totalElapsed + endTimeNanos - startTimeNanos;
+    }
+
+    private long getStartTimeNanos(CallTreeNode node) {
+        return node.getAlign().getStartTimeNanos();
+    }
+
+    private long getEndTimeNanos(CallTreeNode node) {
+        return node.getAlign().getEndTimeNanos();
+    }
+
+    private long getElapsedNanos(Align align) {
+        return align.getElapsedNanos();
+    }
+
+    private static class TimeRange {
+        private final long startTimeNanos;
+        private final long endTimeNanos;
+
+        private TimeRange(long startTimeNanos, long endTimeNanos) {
+            this.startTimeNanos = startTimeNanos;
+            this.endTimeNanos = endTimeNanos;
+        }
     }
 
     @Override

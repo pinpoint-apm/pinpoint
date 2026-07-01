@@ -79,6 +79,7 @@
     }
   },
   "TRANSACTION_LIST": {
+    "CALL_TREE_TIMELINE": "Timeline",
     "SELECT_TRANSACTION": "Select your transaction",
     "TRANSACTION_RETRIEVE_ERROR": "Transaction information is missing.",
     "TRANSACTION_RETRIEVE_ERROR_DESC": "Please start it over from the Servermap/Filtered page.  (If you close this dialog, you will be redirected to the Servermap page.)",
@@ -1447,7 +1448,7 @@
             },
             {
               "NAME": "Exec(%)",
-              "DESC": "<FaCircle color=\"#5bc0de\"/> The execution time of the method call as a percentage of the total execution time of the transaction<br/><FaCircle color=\"#4343C8\"/> A percentage of the self execution time"
+              "DESC": "<FaCircle color=\"#5bc0de\"/> Light bar: Shows when this method started during the whole request and how long it took.<br/><FaCircle color=\"#4343C8\"/> Dark bar: Shows the time spent in this method itself, not in calls made inside it. The dark bar always starts from the left side of the light bar, so its position is not the real start time of that work."
             },
             {
               "NAME": "Self",

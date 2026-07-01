@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.trace.callstacks;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author jaehong.kim
  */
@@ -30,8 +32,12 @@ public abstract class BaseRecord implements Record {
     protected String title;
     protected String arguments;
     protected long begin;
+    protected long beginTimeNanos;
+    protected long endTimeNanos;
     protected long elapsed;
+    protected long elapsedNanos;
     protected long gap;
+    protected long gapNanos;
     protected String agentId;
     protected String agentName;
     protected String applicationName;
@@ -46,6 +52,7 @@ public abstract class BaseRecord implements Record {
     protected String transactionId;
     protected long spanId;
     protected long executionMilliseconds;
+    protected long executionNanos;
     protected MethodTypeEnum methodTypeEnum = MethodTypeEnum.DEFAULT;
     protected boolean isAuthorized;
 
@@ -91,12 +98,34 @@ public abstract class BaseRecord implements Record {
         return begin;
     }
 
+    public long getBeginTimeNanos() {
+        return beginTimeNanos;
+    }
+
+    public long getEndTimeNanos() {
+        return endTimeNanos;
+    }
+
     public long getElapsed() {
         return elapsed;
     }
 
+    public long getElapsedNanos() {
+        if (elapsedNanos == 0) {
+            return TimeUnit.MILLISECONDS.toNanos(elapsed);
+        }
+        return elapsedNanos;
+    }
+
     public long getGap() {
         return gap;
+    }
+
+    public long getGapNanos() {
+        if (gapNanos == 0) {
+            return TimeUnit.MILLISECONDS.toNanos(gap);
+        }
+        return gapNanos;
     }
 
     public String getAgentId() {
@@ -184,6 +213,13 @@ public abstract class BaseRecord implements Record {
         return executionMilliseconds;
     }
 
+    public long getExecutionNanos() {
+        if (executionNanos == 0) {
+            return TimeUnit.MILLISECONDS.toNanos(executionMilliseconds);
+        }
+        return executionNanos;
+    }
+
     public MethodTypeEnum getMethodTypeEnum() {
         return methodTypeEnum;
     }
@@ -210,8 +246,12 @@ public abstract class BaseRecord implements Record {
                 ", title='" + title + '\'' +
                 ", arguments='" + arguments + '\'' +
                 ", begin=" + begin +
+                ", beginTimeNanos=" + beginTimeNanos +
+                ", endTimeNanos=" + endTimeNanos +
                 ", elapsed=" + elapsed +
+                ", elapsedNanos=" + elapsedNanos +
                 ", gap=" + gap +
+                ", gapNanos=" + gapNanos +
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
@@ -224,6 +264,7 @@ public abstract class BaseRecord implements Record {
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
                 ", executionMilliseconds=" + executionMilliseconds +
+                ", executionNanos=" + executionNanos +
                 ", methodTypeEnum=" + methodTypeEnum +
                 ", isAuthorized=" + isAuthorized +
                 ", excludeFromTimeline=" + excludeFromTimeline +

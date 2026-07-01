@@ -105,6 +105,11 @@ public class TransactionCallTreeViewModel {
         return recordSet.getCallTreeTimelineEnd();
     }
 
+    @JsonProperty("callTreeTimelineDurationNanos")
+    public long getCallTreeTimelineDurationNanos() {
+        return recordSet.getCallTreeTimelineDurationNanos();
+    }
+
     @JsonProperty("completeState")
     public String getCompleteState() {
         return completeState.toString();
@@ -146,7 +151,7 @@ public class TransactionCallTreeViewModel {
                 first = false;
             }
 
-            list.add(new CallStack(record, barRatio));
+            list.add(new CallStack(record, barRatio, recordSet.getCallTreeTimelineStartNanos()));
         }
 
         return list;
@@ -189,7 +194,12 @@ public class TransactionCallTreeViewModel {
         location,
         applicationServiceType,
         exceptionChainId,
-        serviceName;
+        serviceName,
+        gapNanos,
+        elapsedTimeNanos,
+        executionNanos,
+        beginOffsetNanos,
+        endOffsetNanos;
 
         private static final Field[] FIELD_CACHE = Field.values();
         private static final CallStackMeta META = new CallStackMeta();
@@ -234,11 +244,21 @@ public class TransactionCallTreeViewModel {
         @Nullable
         private final Long gap;
         @Nullable
+        private final Long gapNanos;
+        @Nullable
         private final Long elapsedTime;
+        @Nullable
+        private final Long elapsedTimeNanos;
         @Nullable
         private final Integer barWidth;
         @Nullable
         private final Long executionMilliseconds;
+        @Nullable
+        private final Long executionNanos;
+        @Nullable
+        private final Long beginOffsetNanos;
+        @Nullable
+        private final Long endOffsetNanos;
 
         private final String simpleClassName;
         private final int methodType;
@@ -253,7 +273,7 @@ public class TransactionCallTreeViewModel {
         private final int lineNumber;
         private final String location;
 
-        public CallStack(final Record record, long barRatio) {
+        public CallStack(final Record record, long barRatio, long callTreeTimelineStartNanos) {
             begin = record.getBegin();
             end = record.getBegin() + record.getElapsed();
             excludeFromTimeline = record.isExcludeFromTimeline();
@@ -269,15 +289,25 @@ public class TransactionCallTreeViewModel {
             if (record.isMethod()) {
                 executeTime = DateTimeFormatUtils.formatAbsolute(record.getBegin()); // time format
                 gap = record.getGap();
+                gapNanos = record.getGapNanos();
                 elapsedTime = record.getElapsed();
+                elapsedTimeNanos = record.getElapsedNanos();
                 barWidth = getBarWidth(barRatio, elapsedTime);
                 executionMilliseconds = record.getExecutionMilliseconds();
+                executionNanos = record.getExecutionNanos();
+                beginOffsetNanos = getOffsetNanos(record.getBeginTimeNanos(), callTreeTimelineStartNanos);
+                endOffsetNanos = getOffsetNanos(record.getEndTimeNanos(), callTreeTimelineStartNanos);
             } else {
                 executeTime = "";
                 gap = null;
+                gapNanos = null;
                 elapsedTime = null;
+                elapsedTimeNanos = null;
                 barWidth = null;
                 executionMilliseconds = null;
+                executionNanos = null;
+                beginOffsetNanos = null;
+                endOffsetNanos = null;
             }
             simpleClassName = record.getSimpleClassName();
             methodType = record.getMethodTypeEnum().getCode();
@@ -303,6 +333,13 @@ public class TransactionCallTreeViewModel {
 
         private int getBarWidth(long barRatio, long elapsedTime) {
             return (int) ((elapsedTime * barRatio) + 0.9);
+        }
+
+        private @Nullable Long getOffsetNanos(long timeNanos, long callTreeTimelineStartNanos) {
+            if (callTreeTimelineStartNanos < 0) {
+                return null;
+            }
+            return timeNanos - callTreeTimelineStartNanos;
         }
 
         public long getBegin() {
@@ -364,8 +401,18 @@ public class TransactionCallTreeViewModel {
         }
 
         @Nullable
+        public Long getGapNanos() {
+            return gapNanos;
+        }
+
+        @Nullable
         public Long getElapsedTime() {
             return elapsedTime;
+        }
+
+        @Nullable
+        public Long getElapsedTimeNanos() {
+            return elapsedTimeNanos;
         }
 
         @Nullable
@@ -376,6 +423,21 @@ public class TransactionCallTreeViewModel {
         @Nullable
         public Long getExecutionMilliseconds() {
             return executionMilliseconds;
+        }
+
+        @Nullable
+        public Long getExecutionNanos() {
+            return executionNanos;
+        }
+
+        @Nullable
+        public Long getBeginOffsetNanos() {
+            return beginOffsetNanos;
+        }
+
+        @Nullable
+        public Long getEndOffsetNanos() {
+            return endOffsetNanos;
         }
 
         public String getSimpleClassName() {

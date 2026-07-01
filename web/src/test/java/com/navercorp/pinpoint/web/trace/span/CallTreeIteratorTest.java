@@ -489,8 +489,8 @@ public class CallTreeIteratorTest {
                 Align align = callTreeNode.getAlign();
                 final StackEvent stackEvent = stackEventQueue.poll();
                 assertEquals(stackEvent.getDepth(), align.getDepth(), "depth " + index);
-                assertEquals(stackEvent.getGap(), align.getGap(), "gap " + index);
-                assertEquals(stackEvent.getExec(), align.getExecutionMilliseconds(), "exec " + index);
+                assertEquals(stackEvent.getGap(), align.getGapMillis(), "gap " + index);
+                assertEquals(stackEvent.getExec(), align.getExecutionMillis(), "exec " + index);
                 index++;
             }
         }
@@ -516,15 +516,15 @@ public class CallTreeIteratorTest {
             buffer.append(" : depth=");
             buffer.append(align.getDepth());
             buffer.append(" : gap=");
-            buffer.append(align.getGap());
+            buffer.append(align.getGapMillis());
             buffer.append(", exec=");
-            buffer.append(align.getExecutionMilliseconds());
+            buffer.append(align.getExecutionMillis());
             buffer.append(", elapsed=");
-            buffer.append(align.getElapsed());
+            buffer.append(align.getElapsedMillis());
             buffer.append(", startTime=");
-            buffer.append(align.getStartTime());
+            buffer.append(align.getStartTimeMillis());
             buffer.append(", lastTime=");
-            buffer.append(align.getEndTime());
+            buffer.append(align.getEndTimeMillis());
             if (align.isAsync()) {
                 buffer.append(", asyncId=");
                 buffer.append(align.getAsyncId());
