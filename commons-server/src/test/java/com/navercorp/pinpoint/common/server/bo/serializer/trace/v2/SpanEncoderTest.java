@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
@@ -226,7 +227,11 @@ public class SpanEncoderTest {
     }
 
     private void assertSpanChunk(SpanChunkBo spanChunkBo) {
-        spanChunkBo.setCollectorAcceptTime(getCollectorAcceptTime());
+        assertSpanChunk(spanChunkBo, getCollectorAcceptTime());
+    }
+
+    private void assertSpanChunk(SpanChunkBo spanChunkBo, long collectorAcceptTime) {
+        spanChunkBo.setCollectorAcceptTime(collectorAcceptTime);
 
         SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<>(spanChunkBo);
         Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanChunkQualifier(encodingContext));
@@ -286,5 +291,117 @@ public class SpanEncoderTest {
         spanEventBo1.setServiceType(spanEventBo0.getServiceType());
 
         assertSpan(spanBo);
+    }
+
+    @Test
+    public void testEncodeSpanColumnValue_traceV3_preservesNanos() {
+        SpanBo spanBo = randomComplexSpan();
+        setTraceV3Time(spanBo);
+
+        assertSpan(spanBo);
+    }
+
+    @Test
+    public void testEncodeSpanChunkColumnValue_traceV3_preservesNanos() {
+        SpanChunkBo spanChunkBo = randomComplexSpanChunk();
+        setTraceV3Time(spanChunkBo);
+
+        assertSpanChunk(spanChunkBo);
+    }
+
+    @Test
+    public void testEncodeSpanColumnValue_traceV3_preservesNegativeSpanEventStartOffset() {
+        SpanBo spanBo = randomComplexSpan();
+        setTraceV3Time(spanBo);
+
+        final SpanEventBo spanEventBo = spanBo.getSpanEventBoList().get(0);
+        final long startTimeNanos = spanBo.getStartTimeNanos() - 123_456;
+        spanEventBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos, startTimeNanos + 789_123,
+                spanEventBo.getStartElapsed());
+
+        assertSpan(spanBo);
+    }
+
+    @Test
+    public void testEncodeSpanChunkColumnValue_traceV3_preservesNegativeKeyTimeDelta() {
+        SpanChunkBo spanChunkBo = randomComplexSpanChunk();
+        setTraceV3Time(spanChunkBo);
+
+        assertSpanChunk(spanChunkBo, 0);
+    }
+
+    @Test
+    public void testEncodeSpanColumnValue_traceV3_spanEventVersionMismatch() {
+        SpanBo spanBo = randomComplexSpan();
+        final long startTimeNanos = spanBo.getStartTimeNanos();
+        spanBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos,
+                startTimeNanos + TimeUnit.MILLISECONDS.toNanos(spanBo.getElapsed()),
+                spanBo.getElapsed());
+        spanBo.setCollectorAcceptTime(getCollectorAcceptTime());
+
+        SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<>(spanBo);
+        Assertions.assertThatThrownBy(() -> spanEncoder.encodeSpanColumnValue(encodingContext))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("span event start time is not set");
+    }
+
+    @Test
+    public void testEncodeSpanColumnValue_traceV3_spanEndTimestampRequired() {
+        SpanBo spanBo = randomSpan();
+        spanBo.setVersion(SpanVersion.TRACE_V3);
+        spanBo.setCollectorAcceptTime(getCollectorAcceptTime());
+
+        SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<>(spanBo);
+        Assertions.assertThatThrownBy(() -> spanEncoder.encodeSpanColumnValue(encodingContext))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("span end time is not set");
+    }
+
+    @Test
+    public void testEncodeSpanColumnValue_traceV3_spanEventStartTimestampRequired() {
+        SpanBo spanBo = randomComplexSpan();
+        final long startTimeNanos = spanBo.getStartTimeNanos();
+        spanBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos,
+                startTimeNanos + TimeUnit.MILLISECONDS.toNanos(spanBo.getElapsed()),
+                spanBo.getElapsed());
+        spanBo.setCollectorAcceptTime(getCollectorAcceptTime());
+
+        SpanEventBo spanEventBo = spanBo.getSpanEventBoList().get(0);
+        spanEventBo.setVersion(SpanVersion.TRACE_V3);
+
+        SpanEncodingContext<SpanBo> encodingContext = new SpanEncodingContext<>(spanBo);
+        Assertions.assertThatThrownBy(() -> spanEncoder.encodeSpanColumnValue(encodingContext))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("span event start time is not set");
+    }
+
+    private void setTraceV3Time(SpanBo spanBo) {
+        final long startTimeNanos = spanBo.getStartTimeNanos() + 123_456;
+        final long elapsedNanos = TimeUnit.MILLISECONDS.toNanos(spanBo.getElapsed()) + 789_123;
+
+        spanBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos, startTimeNanos + elapsedNanos,
+                spanBo.getElapsed());
+        setTraceV3SpanEventTime(spanBo.getSpanEventBoList(), startTimeNanos);
+    }
+
+    private void setTraceV3Time(SpanChunkBo spanChunkBo) {
+        final long keyTimeNanos = spanChunkBo.getKeyTimeNanos() + 123_456;
+
+        spanChunkBo.setTraceTime(SpanVersion.TRACE_V3, keyTimeNanos);
+        setTraceV3SpanEventTime(spanChunkBo.getSpanEventBoList(), keyTimeNanos);
+    }
+
+    private void setTraceV3SpanEventTime(List<SpanEventBo> spanEventBoList, long baseTimeNanos) {
+        for (int i = 0; i < spanEventBoList.size(); i++) {
+            SpanEventBo spanEventBo = spanEventBoList.get(i);
+            final long startTimeNanos = baseTimeNanos
+                    + TimeUnit.MILLISECONDS.toNanos(spanEventBo.getStartElapsed())
+                    + i + 1;
+            final long elapsedNanos = TimeUnit.MILLISECONDS.toNanos(Math.max(spanEventBo.getEndElapsed(), 0))
+                    + i + 1;
+
+            spanEventBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos, startTimeNanos + elapsedNanos,
+                    spanEventBo.getStartElapsed());
+        }
     }
 }

@@ -25,9 +25,10 @@ public class SpanVersion {
 
     public static final byte TRACE_V1 = 0;
     public static final byte TRACE_V2 = 1;
+    public static final byte TRACE_V3 = 2;
 
     public static boolean supportedVersionRange(byte version) {
-        if (version >= TRACE_V1 && version <= TRACE_V2) {
+        if (version >= TRACE_V1 && version <= TRACE_V3) {
             return true;
         }
         return false;

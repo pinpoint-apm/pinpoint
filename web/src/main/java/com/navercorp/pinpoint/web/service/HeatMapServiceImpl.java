@@ -138,7 +138,7 @@ public class HeatMapServiceImpl implements HeatMapService {
                 builder.setAgentName(span.getAgentName());
                 builder.setEndpoint(span.getEndPoint());
                 builder.setRemoteAddr(span.getRemoteAddr());
-                builder.setStartTime(span.getStartTime());
+                builder.setStartTime(span.getStartTimeMillis());
                 builder.setSpanId(span.getSpanId());
                 builder.setRpc(span.getRpc());
                 result.add(builder.build());

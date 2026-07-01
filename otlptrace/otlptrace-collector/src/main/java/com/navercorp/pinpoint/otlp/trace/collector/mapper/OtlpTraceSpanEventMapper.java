@@ -64,24 +64,21 @@ public class OtlpTraceSpanEventMapper {
         this.sqlMaxBytes = sqlMaxBytes;
     }
 
-    List<SpanEventBo> map(long spanStartTime, Span span) {
+    List<SpanEventBo> map(long spanStartTimeNanos, Span span) {
         // Delegate to depth-aware mapper with default depth=1
         List<SpanEventBo> list = new ArrayList<>();
-        list.add(map(spanStartTime, span, 1));
+        list.add(map(spanStartTimeNanos, span, 1));
         return list;
     }
 
-    SpanEventBo map(long spanStartTime, Span span, int depth) {
+    SpanEventBo map(long spanStartTimeNanos, Span span, int depth) {
         SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setVersion(SpanVersion.TRACE_V2);
         spanEventBo.setSequence((short) 0);
-        final long eventStartTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
-        final long eventEndTime = TimeUnit.NANOSECONDS.toMillis(span.getEndTimeUnixNano());
+        final long eventStartTimeNanos = span.getStartTimeUnixNano();
+        final long eventEndTimeNanos = Math.max(span.getEndTimeUnixNano(), eventStartTimeNanos);
 
-        final int startElapsed = (int) (eventStartTime - spanStartTime);
-        spanEventBo.setStartElapsed(startElapsed);
-        final int endElapsed = (int) (eventEndTime - eventStartTime);
-        spanEventBo.setEndElapsed(endElapsed);
+        final int startElapsed = (int) TimeUnit.NANOSECONDS.toMillis(eventStartTimeNanos - spanStartTimeNanos);
+        spanEventBo.setTraceTime(SpanVersion.TRACE_V3, eventStartTimeNanos, eventEndTimeNanos, startElapsed);
 
         final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
         int truncatedAttributes = 0;
@@ -134,7 +131,6 @@ public class OtlpTraceSpanEventMapper {
         }
         // api
         spanEventBo.setApiId(0);
-        spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_START_TIME.getCode(), span.getStartTimeUnixNano()));
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode(), OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
         // attributes

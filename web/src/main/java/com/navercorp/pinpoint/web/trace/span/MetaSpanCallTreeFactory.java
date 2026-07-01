@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.LineNumber;
+import com.navercorp.pinpoint.io.SpanVersion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class MetaSpanCallTreeFactory {
         rootSpan.setTransactionId(new PinpointServerTraceId(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
         rootSpan.setAgentId(UNKNOWN_AGENT_ID);
         rootSpan.setApplicationName("UNKNOWN");
-        rootSpan.setStartTime(startTimeMillis);
+        rootSpan.setTraceTime(SpanVersion.TRACE_V1, startTimeMillis, 0);
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
@@ -67,7 +68,7 @@ public class MetaSpanCallTreeFactory {
         final SpanBo rootSpan = new SpanBo();
         rootSpan.setParentSpanId(parentSpanId);
         rootSpan.setSpanId(spanId);
-        rootSpan.setStartTime(startTimeMillis);
+        rootSpan.setTraceTime(SpanVersion.TRACE_V1, startTimeMillis, 0);
 
         rootSpan.setTransactionId(new PinpointServerTraceId(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
         rootSpan.setAgentId(CORRUPTED_AGENT_ID);

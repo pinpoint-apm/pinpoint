@@ -61,7 +61,7 @@ public class TransactionMetaDataViewModel {
 
         @Override
         public long getStartTime() {
-            return span.getStartTime();
+            return span.getStartTimeMillis();
         }
 
         @Override

@@ -24,11 +24,12 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class DefaultRecord extends BaseRecord {
     public DefaultRecord(int tab, int id, int parentId, boolean method, String title, String arguments,
-                         long begin, long elapsed, long gap,
+                         long begin, long beginTimeNanos, long endTimeNanos,
+                         long elapsed, long elapsedNanos, long gap, long gapNanos,
                          String agentId, String agentName, String applicationName, String serviceName,
                          ServiceType serviceType,
                          String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId,
-                         long executionMilliseconds, MethodTypeEnum methodTypeEnum, boolean isAuthorized, int lineNumber, String location) {
+                         long executionMilliseconds, long executionNanos, MethodTypeEnum methodTypeEnum, boolean isAuthorized, int lineNumber, String location) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
@@ -37,8 +38,12 @@ public class DefaultRecord extends BaseRecord {
         this.title = title;
         this.arguments = arguments;
         this.begin = begin;
+        this.beginTimeNanos = beginTimeNanos;
+        this.endTimeNanos = endTimeNanos;
         this.elapsed = elapsed;
+        this.elapsedNanos = elapsedNanos;
         this.gap = gap;
+        this.gapNanos = gapNanos;
         this.agentId = agentId;
         this.agentName = agentName;
 
@@ -55,6 +60,7 @@ public class DefaultRecord extends BaseRecord {
         this.spanId = spanId;
 
         this.executionMilliseconds = executionMilliseconds;
+        this.executionNanos = executionNanos;
         this.methodTypeEnum = methodTypeEnum;
         this.isAuthorized = isAuthorized;
 
@@ -209,12 +215,22 @@ public class DefaultRecord extends BaseRecord {
                 arguments +
                 ", begin=" +
                 begin +
+                ", beginTimeNanos=" +
+                beginTimeNanos +
+                ", endTimeNanos=" +
+                endTimeNanos +
                 ", elapsed=" +
                 elapsed +
+                ", elapsedNanos=" +
+                elapsedNanos +
                 ", gap=" +
                 gap +
+                ", gapNanos=" +
+                gapNanos +
                 ", executionMilliseconds=" +
                 executionMilliseconds +
+                ", executionNanos=" +
+                executionNanos +
                 ", agentId=" +
                 agentId +
                 ", applicationName=" +

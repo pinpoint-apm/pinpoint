@@ -9,31 +9,41 @@ const row = (r: {
   parentId?: number | string | null;
   begin?: number;
   end?: number;
+  beginOffsetNanos?: number | null;
+  endOffsetNanos?: number | null;
   apiType?: string;
   methodType?: number;
   excludeFromTimeline?: boolean;
   isMethod?: boolean;
   hasException?: boolean;
   exceptionChainId?: string;
-}): Row =>
-  ({
+}): Row => {
+  const beginOffsetNanos =
+    r.beginOffsetNanos === undefined ? (r.begin ?? 0) : r.beginOffsetNanos;
+  const endOffsetNanos = r.endOffsetNanos === undefined ? (r.end ?? 0) : r.endOffsetNanos;
+  return ({
     parentId: null,
     begin: 0,
     end: 0,
+    beginOffsetNanos,
+    endOffsetNanos,
     apiType: '',
     methodType: 0,
     excludeFromTimeline: false,
     isMethod: true,
     ...r,
   }) as unknown as Row;
+};
 
 describe('isTimelineWorkRow', () => {
-  test('accepts method rows with a valid begin time', () => {
+  test('accepts method rows with valid timeline offsets', () => {
     expect(isTimelineWorkRow(row({ id: 1, begin: 1000, end: 1100 }))).toBe(true);
   });
 
   test('skips metadata and async invocation rows', () => {
-    expect(isTimelineWorkRow(row({ id: 1, begin: 0, end: 0 }))).toBe(false);
+    expect(isTimelineWorkRow(row({ id: 1, begin: 0, end: 0, beginOffsetNanos: null }))).toBe(
+      false,
+    );
     expect(isTimelineWorkRow(row({ id: 2, begin: 1000, end: 1100, isMethod: false }))).toBe(
       false,
     );
@@ -92,7 +102,7 @@ describe('computeParallelGroups', () => {
   test('annotation (no begin) and excludeFromTimeline rows are skipped', () => {
     const rows = [
       row({ id: 1, parentId: null, begin: 1000, end: 1100 }),
-      row({ id: 2, parentId: 1, begin: 0, end: 0 }), // annotation
+      row({ id: 2, parentId: 1, begin: 0, end: 0, isMethod: false }), // annotation
       row({ id: 3, parentId: 1, begin: 1000, end: 1010, excludeFromTimeline: true }),
       row({ id: 4, parentId: 1, begin: 1000, end: 1010 }), // only this remains -> no group
     ];

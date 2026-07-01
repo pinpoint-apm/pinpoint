@@ -46,8 +46,7 @@ public class SpanFactoryAssert {
 
         Assertions.assertEquals(pSpan.getSpanId(), spanBo.getSpanId());
         Assertions.assertEquals(pSpan.getParentSpanId(), spanBo.getParentSpanId());
-        Assertions.assertEquals(pSpan.getStartTime(), spanBo.getStartTime());
-        Assertions.assertEquals(pSpan.getElapsed(), spanBo.getElapsed());
+        Assertions.assertEquals(pSpan.getStartTime(), spanBo.getStartTimeMillis());
         Assertions.assertEquals(pSpan.getElapsed(), spanBo.getElapsed());
         if (pSpan.hasAcceptEvent()) {
             PAcceptEvent acceptEvent = pSpan.getAcceptEvent();

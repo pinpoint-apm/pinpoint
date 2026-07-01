@@ -25,7 +25,7 @@ public class SimpleContextSupplier implements ContextSupplier {
 
     @Override
     public ContextData applyAsContext(SpanBo spanBo) {
-        return new ContextData(spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getStartTime(), Map.of());
+        return new ContextData(spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getStartTimeMillis(), Map.of());
     }
 
     @Override

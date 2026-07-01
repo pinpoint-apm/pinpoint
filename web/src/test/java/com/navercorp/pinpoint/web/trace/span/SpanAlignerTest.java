@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.trace.span;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -285,7 +286,7 @@ public class SpanAlignerTest {
         SpanBo span = new SpanBo();
         span.setParentSpanId(0);
         span.setSpanId(1);
-        span.setStartTime(1);
+        span.setTraceTime(SpanVersion.TRACE_V1, 1, 0);
 
         span.addSpanEvent(makeSpanEvent(0, 1, -1));
         span.addSpanEvent(makeSpanEvent(1, 2, 100, 2));
@@ -296,7 +297,7 @@ public class SpanAlignerTest {
         SpanBo nextSpan = new SpanBo();
         nextSpan.setParentSpanId(100);
         nextSpan.setSpanId(200);
-        nextSpan.setStartTime(0);  // too fast
+        nextSpan.setTraceTime(SpanVersion.TRACE_V1, 0, 0);  // too fast
 
         nextSpan.addSpanEvent(makeSpanEvent(0, 1, -1));
         nextSpan.addSpanEvent(makeSpanEvent(1, 2, -1));

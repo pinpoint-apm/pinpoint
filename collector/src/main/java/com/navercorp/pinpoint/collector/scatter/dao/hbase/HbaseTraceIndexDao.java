@@ -87,7 +87,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     private byte[] buildMetaValue(SpanBo span) {
-        return TraceIndexValue.Meta.encode(span.getTransactionId(), span.getStartTime(), span.getRemoteAddr(), span.getEndPoint(), span.getAgentName());
+        return TraceIndexValue.Meta.encode(span.getTransactionId(), span.getStartTimeMillis(), span.getRemoteAddr(), span.getEndPoint(), span.getAgentName());
     }
 
     private byte[] buildMetaRpcValue(SpanBo span) {

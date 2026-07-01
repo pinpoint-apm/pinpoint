@@ -41,6 +41,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -109,19 +110,25 @@ public class SpanDecoderV0 implements SpanDecoder {
     private void readSpanChunkValue(Buffer buffer, SpanChunkBo spanChunk, SpanDecodingContext decodingContext) {
         final byte version = buffer.readByte();
 
-        spanChunk.setVersion(version);
-        if (version == SpanVersion.TRACE_V2) {
+        long spanEventBaseTimeNanos = 0;
+        if (version == SpanVersion.TRACE_V3) {
+            final long keyTimeDelta = buffer.readSVLong();
+            final long collectorAcceptTimeNanos = TimeUnit.MILLISECONDS.toNanos(spanChunk.getCollectorAcceptTime());
+            final long keyTime = collectorAcceptTimeNanos - keyTimeDelta;
+            spanChunk.setTraceTime(version, keyTime);
+            spanEventBaseTimeNanos = keyTime;
+        } else if (version == SpanVersion.TRACE_V2) {
             final long keyTime = buffer.readVLong();
-            spanChunk.setKeyTime(keyTime);
+            spanChunk.setTraceTime(version, keyTime);
+        } else {
+            spanChunk.setVersion(version);
         }
 
-        readSpanEvent(spanChunk::addSpanEvent, buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
+        readSpanEvent(spanChunk::addSpanEvent, buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER, version, spanEventBaseTimeNanos);
     }
 
     public void readSpanValue(Buffer buffer, SpanBo span, SpanDecodingContext decodingContext) {
         final byte version = buffer.readByte();
-
-        span.setVersion(version);
 
         final SpanBitField bitField = new SpanBitField(buffer.readByte());
 
@@ -145,10 +152,18 @@ public class SpanDecoderV0 implements SpanDecoder {
             span.setParentSpanId(-1);
         }
 
-        final long startTimeDelta = buffer.readVLong();
-        final long startTime = span.getCollectorAcceptTime() - startTimeDelta;
-        span.setStartTime(startTime);
-        span.setElapsed(buffer.readVInt());
+        if (version == SpanVersion.TRACE_V3) {
+            final long startTimeDelta = buffer.readSVLong();
+            final long startTime = TimeUnit.MILLISECONDS.toNanos(span.getCollectorAcceptTime()) - startTimeDelta;
+            final long endTime = startTime + buffer.readVLong();
+            final int elapsed = buffer.readVInt();
+            span.setTraceTime(version, startTime, endTime, elapsed);
+        } else {
+            final long startTimeDelta = buffer.readVLong();
+            final long startTime = span.getCollectorAcceptTime() - startTimeDelta;
+            final int elapsed = buffer.readVInt();
+            span.setTraceTime(version, startTime, elapsed);
+        }
 
         span.setRpc(buffer.readPrefixedString());
 
@@ -186,10 +201,11 @@ public class SpanDecoderV0 implements SpanDecoder {
             span.setAttributeBoList(attributeBoList);
         }
 
-        readSpanEvent(span::addSpanEvent, buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
+        final long spanEventBaseTimeNanos = version == SpanVersion.TRACE_V3 ? span.getStartTimeNanos() : 0;
+        readSpanEvent(span::addSpanEvent, buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER, version, spanEventBaseTimeNanos);
     }
 
-    private void readSpanEvent(SpanEventWriter writer, Buffer buffer, SpanDecodingContext decodingContext, SpanEventFilter spanEventFilter) {
+    private void readSpanEvent(SpanEventWriter writer, Buffer buffer, SpanDecodingContext decodingContext, SpanEventFilter spanEventFilter, byte version, long baseTimeNanos) {
         final int spanEventSize = buffer.readVInt();
         if (spanEventSize <= 0) {
             return;
@@ -197,10 +213,24 @@ public class SpanDecoderV0 implements SpanDecoder {
         SpanEventBo prev = null;
         for (int i = 0; i < spanEventSize; i++) {
             SpanEventBo spanEvent;
+            final long startTime;
+            final long endTime;
+            if (version == SpanVersion.TRACE_V3) {
+                startTime = baseTimeNanos + buffer.readSVLong();
+                endTime = startTime + buffer.readVLong();
+            } else {
+                startTime = SpanEventBo.DEFAULT_START_TIME;
+                endTime = SpanEventBo.DEFAULT_END_TIME;
+            }
             if (i == 0) {
                 spanEvent = readFirstSpanEvent(buffer, decodingContext);
             } else {
                 spanEvent = readNextSpanEvent(buffer, prev, decodingContext);
+            }
+            if (version == SpanVersion.TRACE_V3) {
+                spanEvent.setTraceTime(version, startTime, endTime, spanEvent.getStartElapsed());
+            } else {
+                spanEvent.setTraceTime(version, spanEvent.getStartElapsed(), spanEvent.getEndElapsed());
             }
             prev = spanEvent;
             boolean accept = spanEventFilter.filter(spanEvent);

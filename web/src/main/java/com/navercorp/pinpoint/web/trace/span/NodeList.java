@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 public class NodeList implements Iterable<Node> {
 
     private final static Comparator<Node> STARTTIME_COMPARATOR
-            = Comparator.comparingLong((Node node) -> node.getSpanBo().getStartTime());
+            = Comparator.comparingLong((Node node) -> node.getSpanBo().getStartTimeNanos());
 
     public static final NodeList EMPTY = new NodeList(Collections.emptyList());
 

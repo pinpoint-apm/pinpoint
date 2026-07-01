@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,9 +43,13 @@ public interface Align {
 
     void setId(int id);
 
-    long getGap();
+    long getGapMillis();
 
-    void setGap(long gap);
+    void setGapMillis(long gapMillis);
+
+    long getGapNanos();
+
+    void setGapNanos(long gapNanos);
 
     int getDepth();
 
@@ -54,19 +59,35 @@ public interface Align {
 
     boolean isAsyncFirst();
 
-    long getExecutionMilliseconds();
+    long getExecutionMillis();
 
-    void setExecutionMilliseconds(long executionMilliseconds);
+    void setExecutionMillis(long executionMillis);
+
+    long getExecutionNanos();
+
+    void setExecutionNanos(long executionNanos);
 
     long getCollectorAcceptTime();
 
     byte getLoggingTransactionInfo();
 
-    long getStartTime();
+    default long getStartTimeMillis() {
+        return TimeUnit.NANOSECONDS.toMillis(getStartTimeNanos());
+    }
 
-    long getEndTime();
+    long getStartTimeNanos();
 
-    long getElapsed();
+    default long getEndTimeMillis() {
+        return TimeUnit.NANOSECONDS.toMillis(getEndTimeNanos());
+    }
+
+    long getEndTimeNanos();
+
+    default long getElapsedMillis() {
+        return TimeUnit.NANOSECONDS.toMillis(getElapsedNanos());
+    }
+
+    long getElapsedNanos();
 
 
     String getAgentId();

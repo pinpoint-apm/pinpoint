@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.io.SpanVersion;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
@@ -97,7 +98,7 @@ class SpanDecoderV0Test {
         span.setSpanId(1L);
         span.setParentSpanId(-1L);
         span.setServiceType((short) 1000);
-        span.setStartTime(System.currentTimeMillis());
+        span.setTraceTime(SpanVersion.TRACE_V2, System.currentTimeMillis(), 0);
         span.setCollectorAcceptTime(System.currentTimeMillis());
         span.setTraceSourceType(type);
         return span;

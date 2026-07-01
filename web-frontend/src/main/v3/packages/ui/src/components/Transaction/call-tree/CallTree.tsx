@@ -24,6 +24,7 @@ import {
   useCallTreeTableColumns,
 } from '../..';
 import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
+import { addCommas } from '@pinpoint-fe/ui/src/utils';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { HighLightCode } from '../../HighLightCode';
 import { useAtomValue } from 'jotai';
@@ -134,7 +135,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           Object.values(d).some((value) => `${value}`.toLowerCase().includes(filterInput)),
         );
       } else if (filter === 'executionMilliseconds') {
-        filteredList = mapData.filter((d) => d[filter] >= Number(filterInput));
+        filteredList = mapData.filter((d) => getExecutionMilliseconds(d) >= Number(filterInput));
       } else if (filter === 'arguments') {
         filteredList = mapData.filter((d) =>
           d[filter as keyof typeof d].toLowerCase().includes(filterInput),
@@ -250,7 +251,8 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         filteredRowIds={filteredListIds}
         onDoubleClickCell={(cell) => {
           const originalData = cell.getContext().row.original;
-          let content = `${cell.getValue()}`;
+          const durationContent = getDurationContent(cell.column.id, originalData);
+          let content = durationContent ?? `${cell.getValue()}`;
 
           if (cell.column.id === 'executionPercentage') {
             content = `${getExecPercentage(metaData, originalData).toFixed(0)}`;
@@ -322,4 +324,56 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
       </Dialog>
     </div>
   );
+};
+
+const getExecutionMilliseconds = (data: TransactionInfo.CallStackKeyValueMap) => {
+  if (data.executionNanos !== undefined && data.executionNanos !== null) {
+    return Number(data.executionNanos) / 1_000_000;
+  }
+  return Number(data.executionMilliseconds) || 0;
+};
+
+const getDurationContent = (
+  columnId: string,
+  data: TransactionInfo.CallStackKeyValueMap,
+): string | undefined => {
+  if (columnId === 'gap') {
+    return formatDurationMillis(data.gap, data.gapNanos);
+  }
+  if (columnId === 'elapsedTime') {
+    return formatDurationMillis(data.elapsedTime, data.elapsedTimeNanos);
+  }
+  if (columnId === 'executionMilliseconds') {
+    return formatDurationMillis(data.executionMilliseconds, data.executionNanos);
+  }
+  return undefined;
+};
+
+const formatDurationMillis = (
+  millis?: number | string | null,
+  nanos?: number | string | null,
+) => {
+  if (nanos !== undefined && nanos !== null && nanos !== '') {
+    const nanosValue = Number(nanos);
+    if (Number.isFinite(nanosValue)) {
+      return addDurationCommas(formatNanosToMillis(nanosValue));
+    }
+  }
+
+  if (millis === undefined || millis === null || millis === '') {
+    return '';
+  }
+  return addCommas(millis);
+};
+
+const formatNanosToMillis = (nanos: number) => {
+  return (nanos / 1_000_000).toFixed(6).replace(/\.?0+$/, '');
+};
+
+const addDurationCommas = (value: string) => {
+  const [integer, fraction] = value.split('.');
+  if (fraction) {
+    return `${addCommas(integer)}.${fraction}`;
+  }
+  return addCommas(integer);
 };

@@ -106,6 +106,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         // find the endTime to use as reference
         long endTime = getEndTime(alignList);
         recordSet.setCallTreeTimelineEnd(endTime);
+        setCallTreeTimelineNanos(recordSet, alignList);
 
         /*
          * Workaround codes to prevent issues occurred
@@ -127,7 +128,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         List<Record> recordList = spanAlignPopulate.populateSpanRecord(callTreeIterator);
         if (viewPointAlign != null) {
             // mark the record to be used as focus
-            long beginTimeStamp = viewPointAlign.getStartTime();
+            long beginTimeStamp = viewPointAlign.getStartTimeMillis();
 
             markFocusRecord(recordSet, recordList, viewPointAlign);
             recordSet.setBeginTimestamp(beginTimeStamp);
@@ -153,7 +154,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private void markFocusRecord(RecordSet recordSet, List<Record> recordList, final Align viewPointTimeAlign) {
         final String agentId = viewPointTimeAlign.getAgentId();
         for (Record record : recordList) {
-            if (viewPointTimeAlign.getSpanId() == record.getSpanId() && record.getBegin() == viewPointTimeAlign.getStartTime()) {
+            if (viewPointTimeAlign.getSpanId() == record.getSpanId() && record.getBegin() == viewPointTimeAlign.getStartTimeMillis()) {
                 if (agentId == null) {
                     if (record.getAgentId() == null) {
                         recordSet.setFocusCallStackId(record.getId());
@@ -200,9 +201,26 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         long min = Long.MAX_VALUE;
         for (Align align : alignList) {
-            min = Math.min(min, align.getStartTime());
+            min = Math.min(min, align.getStartTimeMillis());
         }
         return min;
+    }
+
+    private void setCallTreeTimelineNanos(RecordSet recordSet, List<Align> alignList) {
+        if (CollectionUtils.isEmpty(alignList)) {
+            recordSet.setCallTreeTimelineStartNanos(0);
+            recordSet.setCallTreeTimelineDurationNanos(0);
+            return;
+        }
+
+        long min = Long.MAX_VALUE;
+        long max = Long.MIN_VALUE;
+        for (Align align : alignList) {
+            min = Math.min(min, align.getStartTimeNanos());
+            max = Math.max(max, align.getEndTimeNanos());
+        }
+        recordSet.setCallTreeTimelineStartNanos(min);
+        recordSet.setCallTreeTimelineDurationNanos(Math.max(max - min, 0));
     }
 
     private long getRootEndTime(List<Align> alignList) {
@@ -210,7 +228,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             return 0;
         }
 
-        return alignList.get(0).getEndTime();
+        return alignList.get(0).getEndTimeMillis();
     }
 
     private long getEndTime(List<Align> alignList) {
@@ -219,7 +237,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
         long max = Long.MIN_VALUE;
         for (Align align : alignList) {
-            max = Math.max(max, align.getEndTime());
+            max = Math.max(max, align.getEndTimeMillis());
         }
         return max;
     }

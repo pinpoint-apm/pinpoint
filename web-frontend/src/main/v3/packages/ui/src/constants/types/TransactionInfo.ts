@@ -20,8 +20,9 @@ export namespace TransactionInfoType {
     callStackStart: number;
     callStackEnd: number;
     callTreeTimelineEnd: number;
+    callTreeTimelineDurationNanos: number;
     callStackIndex: CallStackIndex;
-    callStack: any[][]; // ['begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'exceptionChainId', 'serviceName']
+    callStack: any[][]; // ['begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'exceptionChainId', 'serviceName', 'gapNanos', 'elapsedTimeNanos', 'executionNanos', 'beginOffsetNanos', 'endOffsetNanos']
     loggingTransactionInfo: boolean;
     agentId: string;
     agentName: string;
@@ -60,6 +61,11 @@ export namespace TransactionInfoType {
     applicationServiceType: number;
     exceptionChainId: number;
     serviceName: number;
+    gapNanos: number;
+    elapsedTimeNanos: number;
+    executionNanos: number;
+    beginOffsetNanos: number;
+    endOffsetNanos: number;
   }
 
   export type CallStackKeyValueMap = {

@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService;
+import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -52,7 +53,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -196,123 +196,23 @@ public class RecordFactoryTest {
     //                                                                          , depth=1, nextSpanId=-1, hasException=false, exceptionClass=null, nextAsyncId=0}}}"
     @Test
     public void testMakeRecord() {
-        SpanEventBo spanEventBo1 = SpanEventBo.newBuilder()
-                .setVersion(0)
-                .setSequence((short) 0)
-                .setStartElapsed(0)
-                .setEndElapsed(1)
-                .setServiceType((short) 6600)
-                .setDestinationId("localhost:3000")
-                .setEndPoint("localhost:3000")
-                .setApiId(17)
-                .addAnnotationBo(AnnotationBo.of(-1, "/"))
-                .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 17, 42,
-                        MethodTypeEnum.DEFAULT, "express.Function.use(logger)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build()))
-                .addAnnotationBo(AnnotationBo.of(12, "express.Function.use(logger):42"))
-                .setDepth(1)
-                .setNextSpanId(-1)
-                .setNextAsyncId(0)
-                .build();
-        SpanBo.Builder spanBoBuilder = SpanBo.newBuilder(8174884636707391L)
-                .setVersion(1)
-                .setAgentId("express-node-sample-id")
-                .setAgentName("")
-                .setApplicationName("express-node-sample-name")
-                .setServiceName("express-node-sample-service")
-                .setServiceUid(new Supplier<ServiceUid>() {
-                    @Override
-                    public ServiceUid get() {
-                        return ServiceUid.of(100);
-                    }
-                })
-                .setAgentStartTime(1670293953108L)
-                .setTransactionId(new PinpointServerTraceId("express-node-sample-id", 1670293953108L, 30))
-                .setParentSpanId(-1)
-                .setStartTime(1670305848569L)
-                .setElapsed(14)
-                .setRpc("/")
-                .setServiceType(1400)
-                .setEndPoint("localhost:3000")
-                .setApiId(1)
-                .setFlag((short) 0)
-                .setErrCode(0)
-                .setCollectorAcceptTime(1670305848586L)
-                .setExceptionClass(null)
-                .setApplicationServiceType(1400)
-                .setAcceptorHost(null)
-                .setRemoteAddr("::1")
-                .addAnnotationBo(AnnotationBo.of(46, 200))
-                .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 1, 0,
-                        MethodTypeEnum.WEB_REQUEST, "Node Server Process").build()))
-                .addAnnotationBo(AnnotationBo.of(10015, "Node Server Process"))
-                .setFlag((short) 0)
-                .setErrCode(0)
-                .addSpanEventBo(spanEventBo1)
-                .addSpanEventBo(SpanEventBo.newBuilder()
-                        .setSequence((short) 1)
-                        .setStartElapsed(1)
-                        .setEndElapsed(0)
-                        .setServiceType((short) 6600)
-                        .setDestinationId("localhost:3000")
-                        .setEndPoint("localhost:3000")
-                        .setApiId(18)
-                        .addAnnotationBo(AnnotationBo.of(-1, "/"))
-                        .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 18, 43,
-                                MethodTypeEnum.DEFAULT, "express.Function.use(jsonParser)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build())
-                        )
-                        .addAnnotationBo(AnnotationBo.of(12, "express.Function.use(jsonParser):43"))
-                        .setDepth(1)
-                        .setNextSpanId(-1)
-                        .build())
-                .addSpanEventBo(SpanEventBo.newBuilder()
-                        .setSequence((short) 2)
-                        .setStartElapsed(1)
-                        .setEndElapsed(0)
-                        .setServiceType((short) 6600)
-                        .setDestinationId("localhost:3000")
-                        .setEndPoint("localhost:3000")
-                        .setApiId(19)
-                        .addAnnotationBo(AnnotationBo.of(-1, "/"))
-                        .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 19, 44,
-                                MethodTypeEnum.DEFAULT, "express.Function.use(urlencodedParser)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build())
-                        )
-                        .addAnnotationBo(AnnotationBo.of(12, "express.Function.use(urlencodedParser):44"))
-                        .setDepth(1)
-                        .setNextSpanId(-1)
-                        .build())
-                .addSpanEventBo(SpanEventBo.newBuilder()
-                        .setSequence((short) 3)
-                        .setStartElapsed(1)
-                        .setEndElapsed(0)
-                        .setServiceType((short) 6600)
-                        .setDestinationId("localhost:3000")
-                        .setEndPoint("localhost:3000")
-                        .setApiId(20)
-                        .addAnnotationBo(AnnotationBo.of(-1, "/"))
-                        .addAnnotationBo(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 20, 45,
-                                MethodTypeEnum.DEFAULT, "express.Function.use(cookieParser)").setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js").build())
-                         )
-                        .addAnnotationBo(AnnotationBo.of(12, "express.Function.use(cookieParser):45"))
-                        .setDepth(1)
-                        .setNextSpanId(-1)
-                        .build())
-                .setCollectorAcceptTime(1670305848586L)
-                .setApplicationServiceType((short) 1400)
-                .setRemoteAddr("::1");
+        SpanEventBo spanEventBo1 = newSpanEventBo((short) 0, 0, 1, 17, 42,
+                "express.Function.use(logger)", "express.Function.use(logger):42", 0);
+        SpanBo spanBo = newSpanBo(spanEventBo1);
 
-        SpanAlign.Builder rootAlign = new SpanAlign.Builder(spanBoBuilder.build())
+        SpanAlign.Builder rootAlign = new SpanAlign.Builder(spanBo)
                 .disableMeta()
                 .setId(0)
-                .setGap(0)
+                .setGapMillis(0)
                 .setDepth(0)
-                .setExecutionMilliseconds(12);
+                .setExecutionMillis(12);
         CallTreeNode.Builder root = new CallTreeNode.Builder(rootAlign.build());
 
-        SpanEventAlign.Builder childAlign = new SpanEventAlign.Builder(spanBoBuilder.build(), spanEventBo1)
+        SpanEventAlign.Builder childAlign = new SpanEventAlign.Builder(spanBo, spanEventBo1)
                 .setId(0)
-                .setGap(0)
+                .setGapMillis(0)
                 .setDepth(1)
-                .setExecutionMilliseconds(1);
+                .setExecutionMillis(1);
         CallTreeNode.Builder child = new CallTreeNode.Builder(childAlign.build());
 
         root.setChild(child);
@@ -352,5 +252,68 @@ public class RecordFactoryTest {
         recordActual = recordActuals.get(4);
         assertThat(recordActual).extracting("tab", "id", "parentId", "method", "title", "arguments", "begin", "elapsed", "gap", "agentId", "agentName", "applicationName", "apiServiceType", "destinationId", "hasChild", "hasException", "spanId", "executionMilliseconds", "methodTypeEnum", "isAuthorized", "excludeFromTimeline", "simpleClassName", "fullApiDescription", "lineNumber", "location")
                 .contains(1, 5, 1, true, "use(logger)", "", 1670305848569L, 1L, 0L, "express-node-sample-id", "", "express-node-sample-name", null, "localhost:3000", false, false, 8174884636707391L, 1L, MethodTypeEnum.DEFAULT, true, true, false, "Function", "express.Function.use(logger)", 42, "/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js");
+    }
+
+    private static SpanBo newSpanBo(SpanEventBo spanEventBo1) {
+        SpanBo spanBo = new SpanBo();
+        spanBo.setAgentId("express-node-sample-id");
+        spanBo.setAgentName("");
+        spanBo.setApplicationName("express-node-sample-name");
+        spanBo.setServiceName("express-node-sample-service");
+        spanBo.setServiceUid(() -> ServiceUid.of(100));
+        spanBo.setAgentStartTime(1670293953108L);
+        spanBo.setTransactionId(new PinpointServerTraceId("express-node-sample-id", 1670293953108L, 30));
+        spanBo.setSpanId(8174884636707391L);
+        spanBo.setParentSpanId(-1);
+//        spanBo.setParentApplicationName(null);
+//        spanBo.setParentApplicationServiceType((short) 0);
+        spanBo.setTraceTime(SpanVersion.TRACE_V2, 1670305848569L, 14);
+        spanBo.setRpc("/");
+        spanBo.setServiceType(1400);
+        spanBo.setEndPoint("localhost:3000");
+        spanBo.setApiId(1);
+        spanBo.setFlag((short) 0);
+        spanBo.setErrCode(0);
+        spanBo.setCollectorAcceptTime(1670305848586L);
+        spanBo.setExceptionClass(null);
+        spanBo.setApplicationServiceType(1400);
+        spanBo.setAcceptorHost(null);
+        spanBo.setRemoteAddr("::1");
+        spanBo.addAnnotation(AnnotationBo.of(46, 200));
+        spanBo.addAnnotation(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L, 1, 0,
+                MethodTypeEnum.WEB_REQUEST, "Node Server Process").build()));
+        spanBo.addAnnotation(AnnotationBo.of(10015, "Node Server Process"));
+        spanBo.addSpanEvent(spanEventBo1);
+        spanBo.addSpanEvent(newSpanEventBo((short) 1, 1, 0, 18, 43,
+                "express.Function.use(jsonParser)", "express.Function.use(jsonParser):43", -1));
+        spanBo.addSpanEvent(newSpanEventBo((short) 2, 1, 0, 19, 44,
+                "express.Function.use(urlencodedParser)", "express.Function.use(urlencodedParser):44", -1));
+        spanBo.addSpanEvent(newSpanEventBo((short) 3, 1, 0, 20, 45,
+                "express.Function.use(cookieParser)", "express.Function.use(cookieParser):45", -1));
+        return spanBo;
+    }
+
+    private static SpanEventBo newSpanEventBo(short sequence, int startElapsedMillis, int endElapsedMillis,
+                                              int apiId, int lineNumber, String apiInfo,
+                                              String annotationValue, int nextAsyncId) {
+        SpanEventBo spanEventBo = new SpanEventBo();
+        spanEventBo.setVersion((byte) 0);
+        spanEventBo.setSequence(sequence);
+        spanEventBo.setStartElapsed(startElapsedMillis);
+        spanEventBo.setEndElapsed(endElapsedMillis);
+        spanEventBo.setServiceType(6600);
+        spanEventBo.setDestinationId("localhost:3000");
+        spanEventBo.setEndPoint("localhost:3000");
+        spanEventBo.setApiId(apiId);
+        spanEventBo.addAnnotation(AnnotationBo.of(-1, "/"));
+        spanEventBo.addAnnotation(AnnotationBo.of(13, new ApiMetaDataBo.Builder("express-node-sample-id", 1670293953108L,
+                apiId, lineNumber, MethodTypeEnum.DEFAULT, apiInfo)
+                .setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js")
+                .build()));
+        spanEventBo.addAnnotation(AnnotationBo.of(12, annotationValue));
+        spanEventBo.setDepth(1);
+        spanEventBo.setNextSpanId(-1);
+        spanEventBo.setNextAsyncId(nextAsyncId);
+        return spanEventBo;
     }
 }

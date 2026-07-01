@@ -157,7 +157,7 @@ public class SpanCallTree implements CallTree {
     }
 
     private void insertSiblingSorted(CallTreeNode parent, CallTreeNode node) {
-        final long startTime = node.getAlign().getStartTime();
+        final long startTime = node.getAlign().getStartTimeNanos();
         CallTreeNode child = parent.getChild();
         if (child == null) {
             return;
@@ -166,7 +166,7 @@ public class SpanCallTree implements CallTree {
         CallTreeNode sibling = child;
         CallTreeNode prevSibling = null;
         while (sibling != null) {
-            if (sibling.getAlign().getStartTime() > startTime) {
+            if (sibling.getAlign().getStartTimeNanos() > startTime) {
                 if (sibling == child) {
                     // change child
                     parent.setChild(node);
@@ -410,8 +410,8 @@ public class SpanCallTree implements CallTree {
         final StringBuilder sb = new StringBuilder("{");
         sb.append("parentSpanId=").append(spanBo.getParentSpanId());
         sb.append(", spanId=").append(spanBo.getSpanId());
-        sb.append(", startTime=").append(spanBo.getStartTime());
-        sb.append(", elapsed=").append(spanBo.getElapsed());
+        sb.append(", startTimeMillis=").append(spanBo.getStartTimeMillis());
+        sb.append(", elapsedMillis=").append(spanBo.getElapsed());
         sb.append('}');
         return sb.toString();
     }

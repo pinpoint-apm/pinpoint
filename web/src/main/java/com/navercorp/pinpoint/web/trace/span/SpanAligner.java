@@ -88,7 +88,7 @@ public class SpanAligner {
                 SpanBo span = node.getSpanBo();
                 List<Align> alignList = node.getAlignList();
                 SpanAsyncEventMap asyncSpanEventMap = node.getAsyncSpanEventMap();
-                logger.debug("Populate span {parentSpanId={}, spanId={}, startTime={}, root={}, eventSize={}, asyncEventSize={}}", span.getParentSpanId(), span.getSpanId(), span.getStartTime(), span.isRoot(), alignList.size(), asyncSpanEventMap.size());
+                logger.debug("Populate span {parentSpanId={}, spanId={}, startTimeMillis={}, root={}, eventSize={}, asyncEventSize={}}", span.getParentSpanId(), span.getSpanId(), span.getStartTimeMillis(), span.isRoot(), alignList.size(), asyncSpanEventMap.size());
             }
 
             populateSpanEvent(node, node.getSpanCallTree(), node.getAlignList());
@@ -117,7 +117,7 @@ public class SpanAligner {
                 node.setCorrupted(true);
                 traceState.progress();
 
-                final long startTimeMillis = align.getStartTime();
+                final long startTimeMillis = align.getStartTimeMillis();
                 final SpanBo spanBo = node.getSpanBo();
                 final SpanCallTree corruptedCallTree = metaSpanCallTreeFactory.corrupted(e.getTitle(), spanBo.getParentSpanId(), spanBo.getSpanId(), startTimeMillis);
                 tree.add(corruptedCallTree);
@@ -204,7 +204,7 @@ public class SpanAligner {
             if (!targetLinkList.isEmpty()) {
                 traceState.progress();
                 for (Link link : targetLinkList) {
-                    final CallTree unknownSpanCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTime());
+                    final CallTree unknownSpanCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTimeMillis());
                     unknownSpanCallTree.add(node.getSpanCallTree());
                     node.setLinked(true);
                     SpanCallTree callTree = link.getSpanCallTree();
@@ -259,7 +259,7 @@ public class SpanAligner {
 
         logger.info("Select span in top node list, not found root span");
 
-        CallTree rootCallTree = this.metaSpanCallTreeFactory.unknown(node.getSpanBo().getStartTime());
+        CallTree rootCallTree = this.metaSpanCallTreeFactory.unknown(node.getSpanBo().getStartTimeMillis());
         rootCallTree.add(node.getSpanCallTree());
         traceState.progress();
         return rootCallTree;
@@ -337,7 +337,7 @@ public class SpanAligner {
 
     private CallTree selectInNodeList(final Node node, final NodeList topNodeList) {
         final SpanBo spanBo = node.getSpanBo();
-        final CallTree unknownCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTime());
+        final CallTree unknownCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTimeMillis());
         unknownCallTree.add(node.getSpanCallTree());
         // find same parent
         final NodeList sameParentNodeList = topNodeList.filter(NodeList.parentFilter(spanBo.getParentSpanId()));

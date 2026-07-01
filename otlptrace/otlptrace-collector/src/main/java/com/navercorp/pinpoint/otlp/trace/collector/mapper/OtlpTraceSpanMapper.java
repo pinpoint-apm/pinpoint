@@ -67,7 +67,6 @@ public class OtlpTraceSpanMapper {
     SpanBo map(IdAndName idAndName, Span span) {
         SpanBo spanBo = new SpanBo();
         spanBo.setTraceSourceType(TraceSourceType.OPENTELEMETRY);
-        spanBo.setVersion(SpanVersion.TRACE_V2);
         spanBo.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {
             spanBo.setAgentName(idAndName.agentName());
@@ -78,12 +77,12 @@ public class OtlpTraceSpanMapper {
         spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
         spanBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getSpanId()));
         spanBo.setParentSpanId(OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId()));
-        final long startTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
-        final long endTime = TimeUnit.NANOSECONDS.toMillis(span.getEndTimeUnixNano());
-        spanBo.setStartTime(startTime);
-        int elapsed = Math.max((int) (endTime - startTime), 0);
-        spanBo.setElapsed(elapsed);
-        spanBo.setAgentStartTime(startTime);
+        final long startTimeNanos = span.getStartTimeUnixNano();
+        final long endTimeNanos = Math.max(span.getEndTimeUnixNano(), startTimeNanos);
+        final long elapsedNanos = endTimeNanos - startTimeNanos;
+        int elapsed = (int) TimeUnit.NANOSECONDS.toMillis(elapsedNanos);
+        spanBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos, endTimeNanos, elapsed);
+        spanBo.setAgentStartTime(TimeUnit.NANOSECONDS.toMillis(startTimeNanos));
         spanBo.setCollectorAcceptTime(System.currentTimeMillis());
         spanBo.setFlag((short) 0);
         spanBo.setExceptionClass(null);

@@ -43,9 +43,17 @@ public interface Record {
 
     long getBegin();
 
+    long getBeginTimeNanos();
+
+    long getEndTimeNanos();
+
     long getElapsed();
 
+    long getElapsedNanos();
+
     long getGap();
+
+    long getGapNanos();
 
     String getAgentId();
 
@@ -80,6 +88,8 @@ public interface Record {
     long getSpanId();
 
     long getExecutionMilliseconds();
+
+    long getExecutionNanos();
 
     MethodTypeEnum getMethodTypeEnum();
 

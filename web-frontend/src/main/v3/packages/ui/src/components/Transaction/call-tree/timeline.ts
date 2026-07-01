@@ -2,19 +2,35 @@ import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/cons
 
 // Pure helpers for the Call Tree "Timeline" column. Kept free of React / component imports so
 // they can be unit-tested in isolation. The timeline axis itself is supplied by the server.
-const rowStartMs = (r: TransactionInfo.CallStackKeyValueMap): number => Number(r.begin);
-const rowEndMs = (r: TransactionInfo.CallStackKeyValueMap): number => Number(r.end);
+const toTimelineNumber = (value: unknown): number => {
+  if (value === undefined || value === null || value === '') {
+    return Number.NaN;
+  }
+  return Number(value);
+};
 
-export type TimelineAxis = { start: number; end: number };
+export const getRowStartOffsetNanos = (r: TransactionInfo.CallStackKeyValueMap): number =>
+  toTimelineNumber(r.beginOffsetNanos);
+
+export const getRowEndOffsetNanos = (r: TransactionInfo.CallStackKeyValueMap): number =>
+  toTimelineNumber(r.endOffsetNanos);
+
+export type TimelineAxis = { durationNanos: number };
 
 export const isTimelineWorkRow = (r: TransactionInfo.CallStackKeyValueMap): boolean => {
-  if (!r.begin || r.excludeFromTimeline) {
+  if (r.excludeFromTimeline) {
     return false;
   }
   if (r.isMethod === false) {
     return false;
   }
-  return !(r.apiType === 'ASYNC' || Number(r.methodType) === 200);
+  if (r.apiType === 'ASYNC' || Number(r.methodType) === 200) {
+    return false;
+  }
+
+  const start = getRowStartOffsetNanos(r);
+  const end = getRowEndOffsetNanos(r);
+  return Number.isFinite(start) && Number.isFinite(end);
 };
 
 export type ParallelGroup = { start: number; end: number; size: number };
@@ -57,16 +73,16 @@ export const computeParallelGroups = (
     let i = 0;
     while (i < children.length) {
       const members = [children[i]];
-      let maxEnd = rowEndMs(children[i]);
+      let maxEnd = getRowEndOffsetNanos(children[i]);
       let j = i + 1;
       // a sibling joins the group while it starts before the group's running max-end
-      while (j < children.length && rowStartMs(children[j]) < maxEnd) {
+      while (j < children.length && getRowStartOffsetNanos(children[j]) < maxEnd) {
         members.push(children[j]);
-        maxEnd = Math.max(maxEnd, rowEndMs(children[j]));
+        maxEnd = Math.max(maxEnd, getRowEndOffsetNanos(children[j]));
         j++;
       }
       if (members.length >= 2) {
-        const start = Math.min(...members.map(rowStartMs));
+        const start = Math.min(...members.map(getRowStartOffsetNanos));
         const group: ParallelGroup = { start, end: maxEnd, size: members.length };
         members.forEach((m, idx) => result.set(String(m.id), { group, isFirst: idx === 0 }));
       }
