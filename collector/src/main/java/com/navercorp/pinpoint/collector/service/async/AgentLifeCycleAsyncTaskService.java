@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
 import com.navercorp.pinpoint.collector.service.AgentListStateService;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -65,32 +66,35 @@ public class AgentLifeCycleAsyncTaskService {
         Objects.requireNonNull(agentProperty, "agentProperty");
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
 
-        final String agentId = agentProperty.getAgentId();
+        final int selfService = ServiceUid.DEFAULT_SERVICE_UID_CODE;
         final String applicationName = agentProperty.getApplicationName();
+        final String agentId = agentProperty.getAgentId();
 
         final long startTimestamp = agentProperty.getStartTime();
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
         agentLifeCycleService.insert(agentLifeCycleBo);
-        agentListStateService.update(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, agentProperty.getServiceType(), agentId, startTimestamp,
+        agentListStateService.update(selfService, applicationName, agentProperty.getServiceType(), agentId, startTimestamp,
                 agentLifeCycleState, eventTimestamp);
 
-        updateAgentState(agentProperty.getServiceType(), eventTimestamp, applicationName, agentId);
+        updateAgentState(eventTimestamp, selfService, applicationName, agentProperty.getServiceType(), agentId);
     }
 
     @Async("agentEventWorker")
     public void handlePingEvent(AgentProperty agentProperty, long eventTimestamp) {
         Objects.requireNonNull(agentProperty, "agentProperty");
 
-        final String agentId = agentProperty.getAgentId();
+        final int selfService = ServiceUid.DEFAULT_SERVICE_UID_CODE;
         final String applicationName = agentProperty.getApplicationName();
+        final String agentId = agentProperty.getAgentId();
 
-        updateAgentState(agentProperty.getServiceType(), eventTimestamp, applicationName, agentId);
+        updateAgentState(eventTimestamp, selfService, applicationName, agentProperty.getServiceType(), agentId);
     }
 
-    private void updateAgentState(int serviceTypeCode, long eventTimestamp, String applicationName, String agentId) {
+    private void updateAgentState(long eventTimestamp, int selfService, String applicationName, int serviceTypeCode, String agentId) {
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         if (isUpdateAgentState(serviceType)) {
-            linkService.updateAgentState(eventTimestamp, applicationName, serviceType, agentId);
+            Vertex selfVertex = Vertex.of(selfService, applicationName, serviceType);
+            linkService.updateAgentState(eventTimestamp, selfVertex, agentId);
         }
     }
 
