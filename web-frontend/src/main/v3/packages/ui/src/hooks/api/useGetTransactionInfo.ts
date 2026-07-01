@@ -73,9 +73,22 @@ const convertToTree = (
 
   for (const item of items) {
     if (item.parentId === parentId) {
+      // The backend emits a separate "Attribute" child row per node. Lift its JSON
+      // onto the parent method row (rendered as an icon) and drop the standalone row.
+      if (item.title === 'Attribute') {
+        continue;
+      }
+
       const newItem: TransactionInfo.CallStackKeyValueMap = {
         ...item,
       };
+
+      const attributeChild = items.find(
+        (i) => i.parentId === item.id && i.title === 'Attribute',
+      );
+      if (attributeChild) {
+        newItem.attributes = attributeChild.arguments;
+      }
 
       const subRows = convertToTree(items, item.id);
       if (subRows.length > 0) {

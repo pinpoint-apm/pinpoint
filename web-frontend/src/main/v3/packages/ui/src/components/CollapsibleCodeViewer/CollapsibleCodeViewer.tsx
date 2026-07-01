@@ -9,6 +9,7 @@ export interface CollapsibleCodeViewerProps {
   language: HighLightCodeProps['language'];
   title?: string;
   defaultOpen?: boolean;
+  wrap?: boolean;
 }
 
 export const CollapsibleCodeViewer = ({
@@ -16,6 +17,7 @@ export const CollapsibleCodeViewer = ({
   code,
   language,
   defaultOpen = true,
+  wrap = false,
 }: CollapsibleCodeViewerProps) => {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
@@ -35,7 +37,7 @@ export const CollapsibleCodeViewer = ({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent className="px-4 pb-4">
-        <HighLightCode language={language} code={code} className="p-2 text-xs" />
+        <HighLightCode language={language} code={code} className="p-2 text-xs" wrap={wrap} />
       </CollapsibleContent>
     </Collapsible>
   );
