@@ -15,6 +15,7 @@ import {
   FaExchangeAlt,
   FaExclamationTriangle,
   FaLink,
+  FaListUl,
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { Button } from '../..';
@@ -546,6 +547,18 @@ const MethodCell = (props: {
     <>
       <div className="flex-none">{Icon}</div>
       <div className="ml-1 truncate">{text}</div>
+      {rowData.attributes && (
+        <Button
+          className="flex-none w-4 h-4 p-0 ml-1.5 text-xs bg-slate-500 text-white hover:bg-slate-600"
+          title="Attribute"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClickDetailView?.(rowData);
+          }}
+        >
+          <FaListUl />
+        </Button>
+      )}
     </>
   );
 };

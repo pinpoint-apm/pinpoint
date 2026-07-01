@@ -44,6 +44,15 @@ const filterList = [
   { id: 'arguments', display: 'Argument' },
 ];
 
+// Pretty-print compact JSON from the backend for readability; keep the raw string if not JSON.
+const prettyJson = (raw: string) => {
+  try {
+    return JSON.stringify(JSON.parse(raw), null, 2);
+  } catch {
+    return raw;
+  }
+};
+
 export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
   const { t } = useTranslation();
   const [openSheet, setSheetOpen] = React.useState<boolean>(false);
@@ -59,6 +68,8 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
     bindedSql?: string;
     bindValue?: string;
   }>();
+  const [detailType, setDetailType] = React.useState<'sql' | 'attribute'>('sql');
+  const [jsonDetail, setJsonDetail] = React.useState<string>('');
   const { mutate } = usePostBind({
     onSuccess: (result) => {
       setSqlDetail((prev) => {
@@ -68,6 +79,14 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
   });
   const onClickDetailView = React.useCallback(
     (callStackData: TransactionInfo.CallStackKeyValueMap) => {
+      if (callStackData.attributes) {
+        setJsonDetail(prettyJson(callStackData.attributes));
+        setDetailType('attribute');
+        setSheetOpen(true);
+        return;
+      }
+
+      setDetailType('sql');
       const nextItem = mapData?.find((d) => Number(d.id) === Number(callStackData.id) + 1);
       if (nextItem?.title === 'SQL-BindValue' || nextItem?.title === 'MONGO-JSON-BindValue') {
         const formData = new FormData();
@@ -273,7 +292,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         >
           <SheetHeader className="px-5 pb-4">
             <SheetTitle className="flex items-center">
-              SQL Detail
+              {detailType === 'attribute' ? 'Attribute Detail' : 'SQL Detail'}
               <Button
                 variant="outline"
                 size="icon"
@@ -286,31 +305,44 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           </SheetHeader>
           <Separator className="" />
           <div className="p-4 space-y-4 overflow-auto">
-            {sqlDetail?.bindedSql && (
+            {detailType === 'attribute' ? (
               <div className="relative space-y-2">
                 <CollapsibleCodeViewer
-                  title="Binded SQL"
-                  code={sqlDetail?.bindedSql}
-                  language="sql"
+                  title="Attribute"
+                  code={jsonDetail}
+                  language="json"
+                  wrap
                 />
               </div>
-            )}
-            <div className="relative space-y-2">
-              <CollapsibleCodeViewer
-                title="Original SQL"
-                code={sqlDetail?.originalSql || ''}
-                language="sql"
-              />
-              {sqlDetail?.bindedSql && (
+            ) : (
+              <>
+                {sqlDetail?.bindedSql && (
+                  <div className="relative space-y-2">
+                    <CollapsibleCodeViewer
+                      title="Binded SQL"
+                      code={sqlDetail?.bindedSql}
+                      language="sql"
+                    />
+                  </div>
+                )}
                 <div className="relative space-y-2">
                   <CollapsibleCodeViewer
-                    title="SQL Bind Value"
-                    code={sqlDetail?.bindValue || ''}
+                    title="Original SQL"
+                    code={sqlDetail?.originalSql || ''}
                     language="sql"
                   />
+                  {sqlDetail?.bindedSql && (
+                    <div className="relative space-y-2">
+                      <CollapsibleCodeViewer
+                        title="SQL Bind Value"
+                        code={sqlDetail?.bindValue || ''}
+                        language="sql"
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
         </SheetContent>
       </Sheet>
