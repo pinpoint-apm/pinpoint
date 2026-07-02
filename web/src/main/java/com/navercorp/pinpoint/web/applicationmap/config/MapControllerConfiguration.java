@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramSe
 import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMappingProperties;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
+import com.navercorp.pinpoint.web.applicationmap.virtualapplication.VirtualApplicationProperties;
+import com.navercorp.pinpoint.web.applicationmap.virtualapplication.VirtualApplicationResolver;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
@@ -43,7 +45,7 @@ import java.time.Duration;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties(ServiceMappingProperties.class)
+@EnableConfigurationProperties({ServiceMappingProperties.class, VirtualApplicationProperties.class})
 public class MapControllerConfiguration {
 
     @Bean
@@ -55,12 +57,22 @@ public class MapControllerConfiguration {
     }
 
     @Bean
+    public VirtualApplicationResolver virtualApplicationResolver(VirtualApplicationProperties properties,
+                                                                 ApplicationValidator applicationValidator) {
+        if (!properties.isMockEnabled()) {
+            return VirtualApplicationResolver.emptyResolver();
+        }
+        return VirtualApplicationResolver.of(properties.getMappings(), applicationValidator);
+    }
+
+    @Bean
     public MapController mapController(MapProperties mapProperties,
                                        MapService mapService,
                                        ApplicationValidator applicationValidator,
+                                       VirtualApplicationResolver virtualApplicationResolver,
                                        ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapController(mapProperties, mapService, applicationValidator, maxPeriod);
+        return new MapController(mapProperties, mapService, applicationValidator, virtualApplicationResolver, maxPeriod);
     }
 
     @Bean

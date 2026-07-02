@@ -33,9 +33,11 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>3</td><td>UNKNOWN_GROUP</td></tr>
  * <tr><td>5</td><td>TEST</td></tr>
  * <tr><td>7</td><td>COLLECTOR</td></tr>
+ * <tr><td>10</td><td>SERVICE</td></tr>
  * <tr><td>100</td><td>ASYNC</td></tr>
  * <tr><td>500</td><td>SDK</td></tr>
  * <tr><td>510</td><td>SDK_ASYNC</td></tr>
+ *
  * </table>
  *
  * 
@@ -372,6 +374,8 @@ public interface ServiceType {
     ServiceType TEST = of(5, "TEST");
 
     ServiceType COLLECTOR = of(7, "COLLECTOR");
+
+    ServiceType SERVICE = of(10, "SERVICE");
 
     ServiceType ASYNC = of(100, "ASYNC");
 

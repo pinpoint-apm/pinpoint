@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.config.MapProperties;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
+import com.navercorp.pinpoint.web.applicationmap.virtualapplication.VirtualApplicationResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
@@ -60,7 +61,8 @@ class MapControllerTest {
 
         MapProperties mapProperties = new MapProperties();
         Duration duration = Duration.ofMinutes(1);
-        MapController controller = new MapController(mapProperties, mapService, applicationValidator, duration);
+        VirtualApplicationResolver virtualApplicationResolver = VirtualApplicationResolver.emptyResolver();
+        MapController controller = new MapController(mapProperties, mapService, applicationValidator, virtualApplicationResolver, duration);
         when(applicationValidator.newApplication(any(), anyInt(), any()))
                 .thenReturn(new Application("test", ServiceType.STAND_ALONE));
 
