@@ -33,7 +33,7 @@ public class RangeFactory {
 
     /**
      * Create minute-based reversed Range for statistics
-     * 
+     *
      * @param range
      * @return
      */
@@ -41,9 +41,9 @@ public class RangeFactory {
         Objects.requireNonNull(range, "range");
 
         // HBase scanner does not include endTime when scanning, so 1 is usually added to the endTime.
-        // In this case, the Range is reversed, so we instead subtract 1 from the startTime.
+        // In this case, the Range is reversed, so we instead subtract 1
         final long startTime = timeSlot.getTimeSlot(range.getFrom()) - 1;
-        final long endTime = timeSlot.getTimeSlot(range.getTo());
+        final long endTime = timeSlot.getTimeSlot(range.getTo()) - 1;
         return Range.unchecked(startTime, endTime);
     }
 

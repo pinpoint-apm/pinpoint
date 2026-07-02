@@ -10,7 +10,7 @@
             AND serviceName = #{serviceName}
             AND applicationName = #{applicationName}
             AND uri = #{targetUri}
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
     </select>
 
     <select id="selectFailureCount" parameterType="UriStatQueryParams" resultType="double">
@@ -20,7 +20,7 @@
           AND serviceName = #{serviceName}
           AND applicationName = #{applicationName}
           AND uri = #{targetUri}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+          AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
     </select>
 
     <select id="selectApdex" parameterType="UriStatQueryParams" resultType="double">
@@ -30,7 +30,7 @@
             AND serviceName = #{serviceName}
             AND applicationName = #{applicationName}
             AND uri = #{targetUri}
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
     </select>
 
     <select id="selectAvgResponse" parameterType="UriStatQueryParams" resultType="double">
@@ -40,7 +40,7 @@
           AND serviceName = #{serviceName}
           AND applicationName = #{applicationName}
           AND uri = #{targetUri}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+          AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
     </select>
 
     <select id="selectMaxResponse" parameterType="UriStatQueryParams" resultType="double">
@@ -50,7 +50,7 @@
           AND serviceName = #{serviceName}
           AND applicationName = #{applicationName}
           AND uri = #{targetUri}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+          AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
     </select>
 
     <select id="checkIfKeyExists" parameterType="UriStatQueryParams" resultType="double">
@@ -60,6 +60,6 @@
           AND serviceName = #{serviceName}
           AND applicationName = #{applicationName}
           AND uri = #{targetUri}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+          AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
     </select>
 </mapper>

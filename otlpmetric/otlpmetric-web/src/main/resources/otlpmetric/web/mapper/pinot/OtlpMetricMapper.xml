@@ -114,7 +114,7 @@
         AND tags = #{tag}
         </foreach>
         AND version = #{version}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY fieldName
         LIMIT #{limit}
     </select>
@@ -148,7 +148,7 @@
         <foreach collection="tags" item="tag" separator=" ">
         AND tags = #{tag}
         </foreach>        AND version = #{version}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY fieldName
         LIMIT #{limit}
     </select>
@@ -185,7 +185,7 @@
         AND tags = #{tag}
         </foreach>
         AND version = #{version}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
         LIMIT #{limit}
@@ -223,7 +223,7 @@
             AND tags = #{tag}
             </foreach>
             AND version = #{version}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
         LIMIT #{limit}
@@ -260,7 +260,7 @@
             AND tags = #{tag}
         </foreach>
         AND version = #{version}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
         LIMIT #{limit}
@@ -297,7 +297,7 @@
             AND tags = #{tag}
         </foreach>
         AND version = #{version}
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
         LIMIT #{limit}

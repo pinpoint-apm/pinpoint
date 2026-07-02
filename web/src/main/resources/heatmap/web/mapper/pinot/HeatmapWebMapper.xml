@@ -23,7 +23,7 @@
         FROM heatmapStatApp
         WHERE
             sortKey = #{sortKey}
-            AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+            AND roundedEventTime >= #{range.from} AND roundedEventTime <![CDATA[<]]> #{range.to}
         GROUP BY aggregatedTime, bucketElapsedTime
         ORDER BY aggregatedTime ASC
         LIMIT ${limit}
