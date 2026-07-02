@@ -26,3 +26,16 @@ export function decodeHTMLEntities(text: string): string {
 
   return text.replace(/&lt;|&gt;|&amp;|&quot;|&#39;/g, (match) => entities[match]);
 }
+
+// HTML 문자열에 서버 제공 값을 삽입할 때 인젝션을 막기 위해 특수문자를 엔티티로 이스케이프한다.
+export function escapeHTMLEntities(text: string): string {
+  const entities: { [key: string]: string } = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  };
+
+  return text.replace(/[&<>"']/g, (match) => entities[match]);
+}
