@@ -16,54 +16,64 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Extracts Pinpoint upstream context from the W3C {@code tracestate} header.
  *
- * <p>Expected entry: {@code pp=svc:<parentServiceName>;app:<parentApplicationName>[;type:<serviceTypeCode>]}.
- * Any sub-key may be absent; unknown sub-keys are ignored so the format can be
+ * <p>Expected entry: {@code pp=svc:<parentServiceName>;app:<parentApplicationName>;type:<serviceTypeCode>}.
+ * All sub-keys are required; unknown sub-keys are ignored so the format can be
  * extended later without breaking parsing.</p>
  */
 final class PinpointTraceStateParser {
 
+    private static final String PINPOINT_ENTRY_PREFIX = OtlpTraceConstants.TRACESTATE_KEY_PINPOINT + "=";
+
     private PinpointTraceStateParser() {
     }
 
-    /** Parsed Pinpoint sub-keys from a {@code tracestate} header. Any field may be null. */
+    /** Parsed Pinpoint sub-keys from a {@code tracestate} header. */
     record PinpointHeader(String parentServiceName,
                           String parentApplicationName,
                           Integer parentApplicationType) {
-        boolean isEmpty() {
-            return parentServiceName == null
-                    && parentApplicationName == null
-                    && parentApplicationType == null;
+        static @Nullable PinpointHeader ofNullable(@Nullable String parentServiceName,
+                                                   @Nullable String parentApplicationName,
+                                                   @Nullable Integer parentApplicationType) {
+            if (parentServiceName == null || parentApplicationName == null || parentApplicationType == null) {
+                return null;
+            }
+            return new PinpointHeader(parentServiceName, parentApplicationName, parentApplicationType);
         }
     }
 
     /**
      * @return parsed header or {@code null} when no usable {@code pp} entry exists
      */
-    static PinpointHeader parse(String traceState) {
+    static @Nullable PinpointHeader parse(@Nullable String traceState) {
         if (traceState == null || traceState.isEmpty()) {
             return null;
         }
+        String pinpointEntryValue = findPinpointEntryValue(traceState, PINPOINT_ENTRY_PREFIX);
+        if (pinpointEntryValue == null) {
+            return null;
+        }
+        return parseValue(pinpointEntryValue);
+    }
+
+    private static @Nullable String findPinpointEntryValue(String traceState, String entryPrefix) {
         for (String entry : traceState.split(",")) {
-            int eq = entry.indexOf('=');
-            if (eq < 0) {
-                continue;
-            }
-            String key = entry.substring(0, eq).trim();
-            if (!OtlpTraceConstants.TRACESTATE_KEY_PINPOINT.equals(key)) {
+            if (!entry.startsWith(entryPrefix)) {
                 continue;
             }
             // W3C tracestate top-level: on duplicate vendor keys, the first list-member
             // wins. Sub-key duplicate semantics inside the value are vendor-defined;
             // parseValue mirrors the same first-wins rule for consistency.
-            return parseValue(entry.substring(eq + 1).trim());
+            return entry.substring(entryPrefix.length());
         }
         return null;
     }
 
-    private static PinpointHeader parseValue(String value) {
+    private static @Nullable PinpointHeader parseValue(String value) {
         if (value.isEmpty()) {
             return null;
         }
@@ -75,8 +85,8 @@ final class PinpointTraceStateParser {
             if (colon < 0) {
                 continue;
             }
-            String subKey = sub.substring(0, colon).trim();
-            String subValue = sub.substring(colon + 1).trim();
+            String subKey = sub.substring(0, colon);
+            String subValue = sub.substring(colon + 1);
             if (subValue.isEmpty()) {
                 continue;
             }
@@ -95,12 +105,11 @@ final class PinpointTraceStateParser {
                 type = parseIntegerOrNull(subValue);
             }
         }
-        PinpointHeader header = new PinpointHeader(svc, app, type);
-        return header.isEmpty() ? null : header;
+        return PinpointHeader.ofNullable(svc, app, type);
     }
 
     /** Parse a Pinpoint ServiceType code; non-numeric or out-of-int-range returns null. */
-    private static Integer parseIntegerOrNull(String value) {
+    private static @Nullable Integer parseIntegerOrNull(String value) {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {

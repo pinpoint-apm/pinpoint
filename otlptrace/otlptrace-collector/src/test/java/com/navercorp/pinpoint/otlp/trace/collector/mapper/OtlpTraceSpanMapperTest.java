@@ -5,7 +5,6 @@ import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
@@ -659,25 +658,23 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
-    void map_tracestate_bothSubKeys_populatesParentFields() {
+    void map_tracestate_allSubKeys_populatesParentFields() {
         Span span = serverSpanBuilder()
-                .setTraceState("pp=svc:upstream-svc;app:upstream-app")
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app;type:1010")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
         assertThat(bo.getParentApplication())
-                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
-                        (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
+                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app", 1010));
     }
 
     @Test
     void map_tracestate_multipleVendors_pickPinpoint() {
         Span span = serverSpanBuilder()
-                .setTraceState("dd=s:1;t.dm:-4,pp=svc:upstream-svc;app:upstream-app,nr=opaque")
+                .setTraceState("dd=s:1;t.dm:-4,pp=svc:upstream-svc;app:upstream-app;type:1010,nr=opaque")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
         assertThat(bo.getParentApplication())
-                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
-                        (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
+                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app", 1010));
     }
 
     @Test
@@ -693,14 +690,12 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
-    void map_tracestate_appOnly_setsApplicationWithDefaultService() {
+    void map_tracestate_appOnly_doesNotSetParentApplication() {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=app:upstream-app")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplication())
-                .isEqualTo(new ParentApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, "upstream-app",
-                        (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
+        assertThat(bo.getParentApplication()).isNull();
     }
 
     @Test
@@ -708,7 +703,7 @@ class OtlpTraceSpanMapperTest {
         // IdValidateUtils rejects non-ASCII; we silently drop rather than throw,
         // to avoid corrupting ApplicationMap row keys.
         Span span = serverSpanBuilder()
-                .setTraceState("pp=svc:upstream-svc;app:한글앱")
+                .setTraceState("pp=svc:upstream-svc;app:한글앱;type:1010")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
         assertThat(bo.getParentApplication()).isNull();
@@ -730,7 +725,7 @@ class OtlpTraceSpanMapperTest {
                 .setTraceId(ByteString.copyFrom(TRACE_ID))
                 .setSpanId(ByteString.copyFrom(SPAN_ID))
                 .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
-                .setTraceState("pp=svc:upstream-svc;app:upstream-app")
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app;type:1010")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
         assertThat(bo.getParentApplication()).isNull();
@@ -747,12 +742,11 @@ class OtlpTraceSpanMapperTest {
                 .setKindValue(Span.SpanKind.SPAN_KIND_CONSUMER_VALUE)
                 .addAttributes(kv("messaging.system", strVal("kafka")))
                 .addAttributes(kv("messaging.destination.name", strVal("orders")))
-                .setTraceState("pp=svc:upstream-svc;app:upstream-app")
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app;type:1010")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
         assertThat(bo.getParentApplication())
-                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
-                        (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
+                .isEqualTo(new ParentApplication("upstream-svc", "upstream-app", 1010));
     }
 
     @Test
@@ -766,23 +760,20 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
-    void map_tracestate_typeMissing_fallsBackToOtelServer() {
+    void map_tracestate_typeMissing_doesNotSetParentApplication() {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplication().applicationServiceType())
-                .isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
+        assertThat(bo.getParentApplication()).isNull();
     }
 
     @Test
-    void map_tracestate_typeNonNumeric_fallsBackToOtelServer() {
+    void map_tracestate_typeNonNumeric_doesNotSetParentApplication() {
         Span span = serverSpanBuilder()
-                .setTraceState("pp=app:upstream-app;type:tomcat")
+                .setTraceState("pp=svc:upstream-svc;app:upstream-app;type:tomcat")
                 .build();
         SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getParentApplication())
-                .isEqualTo(new ParentApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, "upstream-app",
-                        ServiceType.OPENTELEMETRY_SERVER.getCode()));
+        assertThat(bo.getParentApplication()).isNull();
     }
 }

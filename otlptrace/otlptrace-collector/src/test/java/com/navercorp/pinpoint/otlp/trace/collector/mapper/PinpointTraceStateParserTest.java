@@ -38,76 +38,64 @@ class PinpointTraceStateParserTest {
     }
 
     @Test
-    void parse_bothSubKeys() {
+    void parse_allRequiredSubKeys() {
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=svc:my-svc;app:my-app");
+                PinpointTraceStateParser.parse("pp=svc:my-svc;app:my-app;type:1010");
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isEqualTo("my-svc");
         assertThat(h.parentApplicationName()).isEqualTo("my-app");
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
     void parse_svcOnly() {
-        PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=svc:my-svc");
-        assertThat(h).isNotNull();
-        assertThat(h.parentServiceName()).isEqualTo("my-svc");
-        assertThat(h.parentApplicationName()).isNull();
+        assertThat(PinpointTraceStateParser.parse("pp=svc:my-svc")).isNull();
     }
 
     @Test
     void parse_appOnly() {
-        PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=app:my-app");
-        assertThat(h).isNotNull();
-        assertThat(h.parentServiceName()).isNull();
-        assertThat(h.parentApplicationName()).isEqualTo("my-app");
+        assertThat(PinpointTraceStateParser.parse("pp=app:my-app")).isNull();
     }
 
     @Test
     void parse_multipleVendors_extractsPinpoint() {
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("dd=s:1,pp=svc:my-svc;app:my-app,nr=opaque");
+                PinpointTraceStateParser.parse("dd=s:1,pp=svc:my-svc;app:my-app;type:1010,nr=opaque");
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isEqualTo("my-svc");
         assertThat(h.parentApplicationName()).isEqualTo("my-app");
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
     void parse_duplicatePinpoint_firstWins() {
         // W3C tracestate: on duplicate keys, the first list-member wins.
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=svc:first,pp=svc:second");
+                PinpointTraceStateParser.parse("pp=svc:first;app:app;type:1010,pp=svc:second;app:app;type:2020");
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isEqualTo("first");
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
-    void parse_whitespaceAroundSeparators() {
-        PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse(" pp = svc : my-svc ; app : my-app ");
-        assertThat(h).isNotNull();
-        assertThat(h.parentServiceName()).isEqualTo("my-svc");
-        assertThat(h.parentApplicationName()).isEqualTo("my-app");
+    void parse_whitespaceAroundSeparators_returnsNull() {
+        assertThat(PinpointTraceStateParser.parse(" pp= svc : my-svc ; app : my-app ; type : 1010 ")).isNull();
     }
 
     @Test
     void parse_unknownSubKey_ignored() {
-        // Forward compatibility: unknown sub-keys (e.g. future "type") must not break parsing.
+        // Forward compatibility: unknown sub-keys must not break parsing.
         PinpointTraceStateParser.PinpointHeader h =
                 PinpointTraceStateParser.parse("pp=svc:my-svc;type:1010;app:my-app");
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isEqualTo("my-svc");
         assertThat(h.parentApplicationName()).isEqualTo("my-app");
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
     void parse_emptySubValue_skipped() {
-        PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=svc:;app:my-app");
-        assertThat(h).isNotNull();
-        assertThat(h.parentServiceName()).isNull();
-        assertThat(h.parentApplicationName()).isEqualTo("my-app");
+        assertThat(PinpointTraceStateParser.parse("pp=svc:;app:my-app")).isNull();
     }
 
     @Test
@@ -118,11 +106,7 @@ class PinpointTraceStateParserTest {
     @Test
     void parse_malformedSubKey_skipped() {
         // No ':' separator inside sub-entry — skip that fragment, keep parsing the rest.
-        PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=garbage;svc:my-svc");
-        assertThat(h).isNotNull();
-        assertThat(h.parentServiceName()).isEqualTo("my-svc");
-        assertThat(h.parentApplicationName()).isNull();
+        assertThat(PinpointTraceStateParser.parse("pp=garbage;svc:my-svc")).isNull();
     }
 
     @Test
@@ -134,9 +118,10 @@ class PinpointTraceStateParserTest {
     void parse_malformedTopLevelEntry_skipped() {
         // top-level entry without '=' — skipped, but a later valid pp= still wins.
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("garbage,pp=svc:my-svc;app:my-app");
+                PinpointTraceStateParser.parse("garbage,pp=svc:my-svc;app:my-app;type:1010");
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isEqualTo("my-svc");
+        assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
 
     @Test
@@ -151,45 +136,32 @@ class PinpointTraceStateParserTest {
 
     @Test
     void parse_typeOnly() {
-        PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=type:1220");
-        assertThat(h).isNotNull();
-        assertThat(h.parentServiceName()).isNull();
-        assertThat(h.parentApplicationName()).isNull();
-        assertThat(h.parentApplicationType()).isEqualTo(1220);
+        assertThat(PinpointTraceStateParser.parse("pp=type:1220")).isNull();
     }
 
     @Test
     void parse_typeMissing_isNull() {
-        PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=svc:my-svc;app:my-app");
-        assertThat(h).isNotNull();
-        assertThat(h.parentApplicationType()).isNull();
+        assertThat(PinpointTraceStateParser.parse("pp=svc:my-svc;app:my-app")).isNull();
     }
 
     @Test
     void parse_typeNegative_acceptedWithinIntRange() {
         // ServiceType.UNDEFINED uses -1; negative codes must be accepted.
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=app:x;type:-1");
+                PinpointTraceStateParser.parse("pp=svc:svc;app:x;type:-1");
         assertThat(h).isNotNull();
         assertThat(h.parentApplicationType()).isEqualTo(-1);
     }
 
     @Test
-    void parse_typeNonNumeric_droppedKeepsOtherFields() {
-        PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=svc:my-svc;type:tomcat;app:my-app");
-        assertThat(h).isNotNull();
-        assertThat(h.parentServiceName()).isEqualTo("my-svc");
-        assertThat(h.parentApplicationName()).isEqualTo("my-app");
-        assertThat(h.parentApplicationType()).isNull();
+    void parse_typeNonNumeric_returnsNull() {
+        assertThat(PinpointTraceStateParser.parse("pp=svc:my-svc;type:tomcat;app:my-app")).isNull();
     }
 
     @Test
     void parse_typeAboveShortRange_acceptedAsInt() {
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=app:x;type:32768");
+                PinpointTraceStateParser.parse("pp=svc:svc;app:x;type:32768");
         assertThat(h).isNotNull();
         assertThat(h.parentApplicationType()).isEqualTo(32768);
     }
@@ -197,7 +169,7 @@ class PinpointTraceStateParserTest {
     @Test
     void parse_typeBelowShortRange_acceptedAsInt() {
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=app:x;type:-32769");
+                PinpointTraceStateParser.parse("pp=svc:svc;app:x;type:-32769");
         assertThat(h).isNotNull();
         assertThat(h.parentApplicationType()).isEqualTo(-32769);
     }
@@ -207,7 +179,7 @@ class PinpointTraceStateParserTest {
         // Mirrors the W3C top-level "first list-member wins" rule for sub-keys inside
         // the pp value. A duplicate cannot overwrite the earlier assignment.
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=svc:first;svc:second");
+                PinpointTraceStateParser.parse("pp=svc:first;svc:second;app:app;type:1010");
         assertThat(h).isNotNull();
         assertThat(h.parentServiceName()).isEqualTo("first");
     }
@@ -215,7 +187,7 @@ class PinpointTraceStateParserTest {
     @Test
     void parse_duplicateSubKey_app_firstWins() {
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=app:first;app:second");
+                PinpointTraceStateParser.parse("pp=svc:svc;app:first;app:second;type:1010");
         assertThat(h).isNotNull();
         assertThat(h.parentApplicationName()).isEqualTo("first");
     }
@@ -223,7 +195,7 @@ class PinpointTraceStateParserTest {
     @Test
     void parse_duplicateSubKey_type_firstWins() {
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=type:1010;type:2020");
+                PinpointTraceStateParser.parse("pp=svc:svc;app:app;type:1010;type:2020");
         assertThat(h).isNotNull();
         assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
@@ -235,7 +207,7 @@ class PinpointTraceStateParserTest {
         // This is "first valid value wins" — slightly looser than strict first-occurrence
         // wins, but more useful when one of the duplicates is plain garbage.
         PinpointTraceStateParser.PinpointHeader h =
-                PinpointTraceStateParser.parse("pp=type:tomcat;type:1010");
+                PinpointTraceStateParser.parse("pp=svc:svc;app:app;type:tomcat;type:1010");
         assertThat(h).isNotNull();
         assertThat(h.parentApplicationType()).isEqualTo(1010);
     }
@@ -254,26 +226,19 @@ class PinpointTraceStateParserTest {
     @Test
     void parse_typeAtIntBoundaries_accepted() {
         PinpointTraceStateParser.PinpointHeader max =
-                PinpointTraceStateParser.parse("pp=app:x;type:2147483647");
+                PinpointTraceStateParser.parse("pp=svc:svc;app:x;type:2147483647");
         assertThat(max).isNotNull();
         assertThat(max.parentApplicationType()).isEqualTo(Integer.MAX_VALUE);
 
         PinpointTraceStateParser.PinpointHeader min =
-                PinpointTraceStateParser.parse("pp=app:x;type:-2147483648");
+                PinpointTraceStateParser.parse("pp=svc:svc;app:x;type:-2147483648");
         assertThat(min).isNotNull();
         assertThat(min.parentApplicationType()).isEqualTo(Integer.MIN_VALUE);
     }
 
     @Test
-    void parse_typeOutOfIntRange_dropped() {
-        PinpointTraceStateParser.PinpointHeader max =
-                PinpointTraceStateParser.parse("pp=app:x;type:2147483648");
-        assertThat(max).isNotNull();
-        assertThat(max.parentApplicationType()).isNull();
-
-        PinpointTraceStateParser.PinpointHeader min =
-                PinpointTraceStateParser.parse("pp=app:x;type:-2147483649");
-        assertThat(min).isNotNull();
-        assertThat(min.parentApplicationType()).isNull();
+    void parse_typeOutOfIntRange_returnsNull() {
+        assertThat(PinpointTraceStateParser.parse("pp=svc:svc;app:x;type:2147483648")).isNull();
+        assertThat(PinpointTraceStateParser.parse("pp=svc:svc;app:x;type:-2147483649")).isNull();
     }
 }
