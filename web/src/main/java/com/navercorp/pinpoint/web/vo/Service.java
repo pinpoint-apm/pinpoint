@@ -7,23 +7,28 @@ import java.util.Objects;
 
 public class Service {
 
-    public static final Service DEFAULT = new Service(ServiceUid.DEFAULT_SERVICE_UID_NAME, ServiceUid.DEFAULT.getUid());
-    public static final Service TEST_SERVICE = new Service(ServiceUid.TEST_SERVICE_UID_NAME, ServiceUid.TEST_SERVICE.getUid());
+    public static final Service DEFAULT = new Service(ServiceUid.DEFAULT_SERVICE_UID_NAME, ServiceUid.DEFAULT);
+    public static final Service TEST_SERVICE = new Service(ServiceUid.TEST_SERVICE_UID_NAME, ServiceUid.TEST_SERVICE);
 
     private final String serviceName;
-    private final int uid;
+    private final ServiceUid serviceUid;
 
-    public Service(String serviceName, int uid) {
+    public Service(String serviceName, int serviceUid) {
         this.serviceName = StringPrecondition.requireHasLength(serviceName, "name");
-        this.uid = uid;
+        this.serviceUid = ServiceUid.of(serviceUid);
+    }
+
+    public Service(String serviceName, ServiceUid serviceUid) {
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "name");
+        this.serviceUid = serviceUid;
     }
 
     public String getServiceName() {
         return serviceName;
     }
 
-    public int getUid() {
-        return uid;
+    public int getServiceUid() {
+        return serviceUid.getUid();
     }
 
     @Override
@@ -31,18 +36,18 @@ public class Service {
         if (o == null || getClass() != o.getClass()) return false;
 
         Service service = (Service) o;
-        return uid == service.uid && serviceName.equals(service.serviceName);
+        return serviceUid.equals(service.serviceUid) && serviceName.equals(service.serviceName);
     }
 
     @Override
     public int hashCode() {
         int result = serviceName.hashCode();
-        result = 31 * result + uid;
+        result = 31 * result + serviceUid.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return "Service[" + serviceName + "(" + uid + ")]";
+        return "Service[" + serviceName + "(" + serviceUid + ")]";
     }
 }

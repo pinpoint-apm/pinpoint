@@ -47,6 +47,7 @@ import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeseriesHistogramView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
@@ -73,6 +74,7 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
@@ -120,7 +122,7 @@ public class FilteredMapServiceImplTest {
     @BeforeEach
     public void init() {
         registry = TestTraceUtils.mockServiceTypeRegistryService();
-        applicationFactory = new DefaultApplicationFactory(registry);
+        applicationFactory = new DefaultApplicationFactory(registry, mock(ServiceModelResolver.class));
 
         nodeHistogramService = new NodeHistogramServiceImpl(mapAgentResponseDao, mapResponseDao);
 

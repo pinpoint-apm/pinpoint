@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author HyunGil Jeong
@@ -60,7 +62,7 @@ public class FilteredMapBuilderTest {
 
     @BeforeEach
     public void setUp() {
-        this.applicationFactory = new DefaultApplicationFactory(registry);
+        this.applicationFactory = new DefaultApplicationFactory(registry, mock(ServiceModelResolver.class));
     }
 
     /**

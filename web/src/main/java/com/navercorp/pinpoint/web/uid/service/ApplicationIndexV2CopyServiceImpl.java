@@ -57,7 +57,7 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
             if (application.getServiceType().equals(ServiceType.UNDEFINED)) {
                 continue;
             }
-            applicationDao.insert(application.getService().getUid(), application.getApplicationName(), application.getServiceTypeCode());
+            applicationDao.insert(application.getService().getServiceUid(), application.getApplicationName(), application.getServiceTypeCode());
         }
         stopWatch.stop();
         logger.info(stopWatch.prettyPrint());

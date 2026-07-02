@@ -20,9 +20,9 @@ package com.navercorp.pinpoint.web.component;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Service;
-import com.navercorp.pinpoint.web.vo.ServiceUidQueryService;
 
 import java.util.Objects;
 
@@ -33,15 +33,19 @@ public class DefaultApplicationFactory implements ApplicationFactory {
 
     private final ServiceTypeRegistryService registry;
     private final ServiceResolver serviceResolver;
+    private final ServiceModelResolver serviceModelResolver;
 
-    public DefaultApplicationFactory(ServiceTypeRegistryService registry) {
-        this(registry, ServiceResolver.emptyResolver());
+    public DefaultApplicationFactory(ServiceTypeRegistryService registry,
+                                     ServiceModelResolver serviceModelResolver) {
+        this(registry, ServiceResolver.emptyResolver(), serviceModelResolver);
     }
 
     public DefaultApplicationFactory(ServiceTypeRegistryService registry,
-                                     ServiceResolver serviceResolver) {
+                                     ServiceResolver serviceResolver,
+                                     ServiceModelResolver serviceModelResolver) {
         this.registry = Objects.requireNonNull(registry, "registry");
         this.serviceResolver = Objects.requireNonNull(serviceResolver, "serviceResolver");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
     }
 
     private Application newApplication(Service service, String applicationName, ServiceType serviceType) {
@@ -56,8 +60,8 @@ public class DefaultApplicationFactory implements ApplicationFactory {
         return serviceResolver.resolve(applicationName, service);
     }
 
-    static Service requireDefaultService(int serviceUid) {
-        return ServiceUidQueryService.getService(serviceUid);
+    private Service requireService(int serviceUid) {
+        return serviceModelResolver.getService(serviceUid);
     }
 
     @Override
@@ -80,7 +84,7 @@ public class DefaultApplicationFactory implements ApplicationFactory {
 
     @Override
     public Application createApplication(int serviceUid, String applicationName, int serviceTypeCode) {
-        Service service = requireDefaultService(serviceUid);
+        Service service = requireService(serviceUid);
 
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         return newApplication(service, applicationName, serviceType);
@@ -113,7 +117,7 @@ public class DefaultApplicationFactory implements ApplicationFactory {
 
     @Override
     public Application createApplicationByTypeName(int serviceUid, String applicationName, String serviceTypeName) {
-        Service service = requireDefaultService(serviceUid);
+        Service service = requireService(serviceUid);
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(serviceTypeName, "serviceTypeName");
 
