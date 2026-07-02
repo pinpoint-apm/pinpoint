@@ -1,12 +1,11 @@
-import 'billboard.js/dist/billboard.css';
 import React from 'react';
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 import { SystemMetricMetricInfo } from '@pinpoint-fe/ui/src/constants';
 import { useGetSystemMetricChartData, useGetSystemMetricTagsData } from '@pinpoint-fe/ui/src/hooks';
-import bb, { ChartOptions, line, canvas } from 'billboard.js/canvas';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import BillboardJS, { IChart } from '@billboard.js/react';
-import { isValid } from 'date-fns';
+import { getFormat } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '../../../lib';
 import {
   Card,
@@ -23,7 +22,22 @@ import {
   SelectItem,
   Separator,
 } from '../../ui';
-import { formatNewLinedDateString, getFormat } from '@pinpoint-fe/ui/src/utils';
+import {
+  getGridBottom,
+  LEGEND_ICON_WIDTH,
+  LEGEND_ITEM_GAP,
+} from '../../../lib/charts/echartsLegendLayout';
+import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
+import {
+  formatAxisTooltip,
+  formatCategoryDateLabel,
+} from '../../../lib/charts/echartsTimeSeriesFormat';
+
+echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+
+// 페이지의 모든 System Metric 차트를 하나의 echarts 그룹으로 묶어 tooltip/axisPointer를 동기화한다.
+// (billboard 의 tooltip.linked: true 대체)
+const SYSTEM_METRIC_CHART_GROUP = 'system-metric-chart';
 
 export interface SystemMetricChartFetcherProps {
   chartInfo: SystemMetricMetricInfo.MetricInfoData;
@@ -54,116 +68,120 @@ export const SystemMetricChartFetcher = ({
   const dataUnit = chartData?.metricValueGroups?.[0]?.unit || '';
   const title = chartData?.title || '';
 
-  const chartComponent = React.useRef<IChart>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  // canvas 모드는 차트 높이를 스스로 측정해 캔버스 크기로 쓰는데, Group 변경 시 suspense 리마운트 순간
-  // 높이가 0으로 측정되면 billboard 기본값(320px)으로 그려져 박스보다 커지며 잘린다. 컨테이너 높이를
-  // 직접 측정해 size.height로 넘기면 billboard가 측정/폴백 없이 그 높이로 그리고, 리사이즈에도 대응한다.
-  const [measuredHeight, setMeasuredHeight] = React.useState<number>();
-  React.useLayoutEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const updateHeight = () => {
-      const height = container.clientHeight;
-      if (height > 0) {
-        setMeasuredHeight(height);
-        chartComponent.current?.instance?.resize({ height });
-      }
-    };
-    updateHeight();
-    const resizeObserver = new ResizeObserver(updateHeight);
-    resizeObserver.observe(container);
-    return () => resizeObserver.disconnect();
-  }, []);
-  const options: ChartOptions = {
-    // v4 ESM: canvas 렌더링 모드 사용.
-    render: {
-      mode: canvas(),
-    },
-    ...(measuredHeight ? { size: { height: measuredHeight } } : {}),
-    data: {
-      x: 'dates',
-      columns: [],
-      empty: {
-        label: {
-          text: emptyMessage,
-        },
-      },
-      type: line(),
-    },
-    padding: {
-      mode: 'fit',
-      top: 20,
-      bottom: 10,
-      right: 25,
-      left: 15,
-    },
-    axis: {
-      x: {
-        type: 'timeseries',
-        tick: {
-          count: 4,
-          format: (date: Date) => {
-            if (isValid(date)) {
-              return `${formatNewLinedDateString(date)}`;
-            }
-            return '';
-          },
-        },
-      },
-      y: {
-        tick: {
-          format: getFormat(dataUnit),
-        },
-        padding: {
-          bottom: 0,
-        },
-        min: 0,
-        default: [0, 10],
-      },
-    },
-    point: {
-      r: 0,
-      focus: {
-        only: true,
-        expand: {
-          r: 3,
-        },
-      },
-    },
-    resize: {
-      auto: 'parent',
-      timer: false,
-    },
-    transition: {
-      duration: 0,
-    },
-    tooltip: {
-      linked: true,
-      order: '',
-      format: {
-        value: getFormat(dataUnit),
-      },
-    },
-  };
+  const { chartRef, chartInstanceRef, renderRef } = useEChartsInstance({
+    group: SYSTEM_METRIC_CHART_GROUP,
+  });
 
   React.useEffect(() => {
-    const chart = chartComponent.current?.instance;
+    if (!chartInstanceRef.current) return;
 
-    chart?.load({
-      columns: chartData
-        ? [
-            ['dates', ...chartData.timestamp],
-            ...(chartData.metricValueGroups?.[0]?.metricValues ?? []).map(
-              ({ fieldName, values }) => {
-                return [fieldName, ...values.map((v: number) => (v < 0 ? null : v))];
-              },
-            ),
-          ]
-        : [],
-      resizeAfter: true,
-    });
-  }, [chartData]);
+    const formatValue = getFormat(dataUnit);
+    const timestamps = chartData?.timestamp ?? [];
+    const metricValues = chartData?.metricValueGroups?.[0]?.metricValues ?? [];
+    const hasData =
+      timestamps.length > 0 &&
+      metricValues.some((mv) => mv.values && mv.values.some((v) => v >= 0));
+
+    const series = metricValues.map(({ fieldName, values }) => ({
+      name: fieldName,
+      type: 'line' as const,
+      data: values.map((v) => (v < 0 ? null : v)),
+      showSymbol: false,
+      smooth: false,
+      lineStyle: {
+        width: 1,
+      },
+      emphasis: {
+        focus: 'series' as const,
+      },
+    }));
+
+    const legendNames = metricValues.map((mv) => mv.fieldName);
+
+    const render = () => {
+      const chart = chartInstanceRef.current;
+      if (!chart) return;
+
+      const containerWidth = chartRef.current?.clientWidth ?? 0;
+      const gridBottom = getGridBottom(legendNames, containerWidth);
+
+      chart.setOption(
+        {
+          animation: false,
+          legend: {
+            data: legendNames,
+            bottom: 0,
+            icon: 'square',
+            itemWidth: LEGEND_ICON_WIDTH,
+            itemHeight: 10,
+            itemGap: LEGEND_ITEM_GAP,
+          },
+          grid: {
+            top: 20,
+            bottom: gridBottom,
+            right: 25,
+            left: 0,
+          },
+          xAxis: {
+            type: 'category',
+            data: timestamps,
+            axisLabel: {
+              show: true,
+              formatter: formatCategoryDateLabel,
+              showMaxLabel: true,
+              showMinLabel: true,
+            },
+            axisTick: { show: false },
+            zlevel: 1,
+          },
+          yAxis: {
+            type: 'value',
+            min: 0,
+            axisLabel: {
+              formatter: formatValue,
+            },
+            axisLine: {
+              show: true,
+            },
+            axisTick: {
+              show: true,
+            },
+            splitLine: {
+              show: false,
+            },
+            zlevel: 1,
+          },
+          tooltip: {
+            show: true,
+            trigger: 'axis',
+            confine: true,
+            formatter: (params: unknown) => formatAxisTooltip(params, formatValue),
+          },
+          series,
+          graphic: !hasData
+            ? [
+                {
+                  type: 'text',
+                  left: 'center',
+                  top: 'middle',
+                  style: {
+                    text: emptyMessage,
+                    fontSize: 18,
+                    fill: '#999',
+                    textAlign: 'center',
+                  },
+                },
+              ]
+            : [],
+        },
+        // tag/metric 변경으로 series 수가 줄어도 이전 series가 병합되어 잔존하지 않도록 항상 교체한다.
+        { replaceMerge: ['series'] },
+      );
+    };
+
+    renderRef.current = render;
+    render();
+  }, [chartData, dataUnit, emptyMessage, chartInstanceRef, chartRef, renderRef]);
 
   return (
     <Card className="rounded-lg">
@@ -192,10 +210,8 @@ export const SystemMetricChartFetcher = ({
         )}
       </CardHeader>
       <Separator />
-      <CardContent className="p-0 pb-1">
-        <div ref={containerRef} className={cn('w-full h-full min-h-0 overflow-hidden', className)}>
-          <BillboardJS bb={bb} ref={chartComponent} className="h-full w-full" options={options} />
-        </div>
+      <CardContent className="p-0 px-3 pb-2">
+        <div ref={chartRef} className={cn('w-full aspect-video', className)} />
       </CardContent>
     </Card>
   );

@@ -3,10 +3,18 @@ import * as echarts from 'echarts/core';
 import { BarChart as BarChartEcharts, LineChart as LineChartEcharts } from 'echarts/charts';
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-import { formatNewLinedDateString } from '@pinpoint-fe/ui/src/utils';
-import { isValid } from 'date-fns';
 import { UrlStatChartType as UrlStatChartApi } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../../lib';
+import {
+  getGridBottom,
+  LEGEND_ICON_WIDTH,
+  LEGEND_ITEM_GAP,
+} from '../../../lib/charts/echartsLegendLayout';
+import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
+import {
+  formatAxisTooltip,
+  formatCategoryDateLabel,
+} from '../../../lib/charts/echartsTimeSeriesFormat';
 
 echarts.use([
   BarChartEcharts,
@@ -16,46 +24,6 @@ echarts.use([
   LegendComponent,
   CanvasRenderer,
 ]);
-
-// legend가 차트 폭에 따라 몇 줄로 줄바꿈되는지 계산해 grid.bottom을 동적으로 잡기 위한 상수/헬퍼.
-// 이렇게 해야 legend를 하단에 둔 채로 2줄짜리 x축 라벨과 겹치지 않는다.
-const LEGEND_FONT = '12px sans-serif'; // echarts legend 기본 폰트
-const LEGEND_ICON_WIDTH = 10; // legend.itemWidth
-const LEGEND_ICON_TEXT_GAP = 5; // 아이콘과 텍스트 사이 기본 간격
-const LEGEND_ITEM_GAP = 15; // legend.itemGap
-const LEGEND_PADDING = 5; // legend 기본 좌우 padding
-const LEGEND_ROW_HEIGHT = 20; // legend 한 줄 높이
-const X_AXIS_LABEL_HEIGHT = 38; // x축 2줄(날짜/시간) 라벨 높이 + 여백
-const BOTTOM_GAP = 12; // x축 라벨과 legend 사이 간격
-
-const measureCanvas = typeof document !== 'undefined' ? document.createElement('canvas') : null;
-const measureCtx = measureCanvas?.getContext('2d') ?? null;
-
-const getLegendRowCount = (names: string[], availableWidth: number) => {
-  if (!measureCtx || availableWidth <= 0 || names.length === 0) return 1;
-  measureCtx.font = LEGEND_FONT;
-
-  let rows = 1;
-  let lineWidth = 0;
-  for (const name of names) {
-    const textWidth = measureCtx.measureText(name).width;
-    const itemWidth = LEGEND_ICON_WIDTH + LEGEND_ICON_TEXT_GAP + textWidth;
-    const nextWidth = lineWidth === 0 ? itemWidth : lineWidth + LEGEND_ITEM_GAP + itemWidth;
-    if (nextWidth > availableWidth && lineWidth > 0) {
-      rows += 1;
-      lineWidth = itemWidth;
-    } else {
-      lineWidth = nextWidth;
-    }
-  }
-  return rows;
-};
-
-const getGridBottom = (names: string[], containerWidth: number) => {
-  const availableWidth = containerWidth - LEGEND_PADDING * 2;
-  const rows = getLegendRowCount(names, availableWidth);
-  return X_AXIS_LABEL_HEIGHT + BOTTOM_GAP + rows * LEGEND_ROW_HEIGHT;
-};
 
 export interface UrlStatEChartsChartProps {
   chartType: 'bar' | 'line';
@@ -76,31 +44,7 @@ export const UrlStatEChartsChart = ({
   className,
   emptyMessage = 'No Data',
 }: UrlStatEChartsChartProps) => {
-  const chartRef = React.useRef<HTMLDivElement>(null);
-  const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
-  // 데이터 effect에서 만든 렌더 함수를 보관해, resize 시 폭에 맞춰 grid.bottom을 다시 계산한다.
-  const renderRef = React.useRef<(() => void) | null>(null);
-
-  React.useEffect(() => {
-    if (!chartRef.current) return;
-
-    const chart = echarts.init(chartRef.current);
-    chartInstanceRef.current = chart;
-
-    const wrapperElement = chartRef.current;
-    const resizeObserver = new ResizeObserver(() => {
-      chart.resize();
-      // 폭이 바뀌면 legend 줄바꿈 행 수가 달라지므로 grid.bottom을 다시 계산한다.
-      renderRef.current?.();
-    });
-    resizeObserver.observe(wrapperElement);
-
-    return () => {
-      resizeObserver.disconnect();
-      chart.dispose();
-      chartInstanceRef.current = null;
-    };
-  }, []);
+  const { chartRef, chartInstanceRef, renderRef } = useEChartsInstance();
 
   React.useEffect(() => {
     if (!chartInstanceRef.current) return;
@@ -178,14 +122,7 @@ export const UrlStatEChartsChart = ({
             data: timestamps,
             axisLabel: {
               show: true,
-              formatter: (value: number | string) => {
-                const ts = typeof value === 'string' ? Number(value) : value;
-                const date = new Date(ts);
-                if (isValid(date)) {
-                  return formatNewLinedDateString(date);
-                }
-                return String(value);
-              },
+              formatter: formatCategoryDateLabel,
               showMaxLabel: true,
               showMinLabel: true,
             },
@@ -217,39 +154,8 @@ export const UrlStatEChartsChart = ({
             show: true,
             trigger: 'axis',
             confine: true,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter: (params: any) => {
-              if (!Array.isArray(params) || params.length === 0) return '';
-              const firstParam = params[0];
-              const axisValue = firstParam.axisValue;
-              const axisValueNum = typeof axisValue === 'number' ? axisValue : Number(axisValue);
-              const dateStr = isValid(new Date(axisValueNum))
-                ? formatNewLinedDateString(axisValueNum).replace('\n', ' ')
-                : String(axisValue);
-              const rows = params
-                .map(
-                  (param: {
-                    value?: number | [number, number];
-                    seriesName?: string;
-                    color?: string;
-                  }) => {
-                    const yValue = typeof param.value === 'number' ? param.value : param.value?.[1];
-                    if (yValue == null) return null;
-                    return `<div style="display: flex; justify-content: space-between; gap: 12px; align-items: center;">
-                  <div style="display: flex; gap: 5px; align-items: center;">
-                    <div style="width: 10px; height: 10px; background: ${param.color};"></div>${param.seriesName}
-                  </div>
-                  <div>${formatter ? formatter(yValue) : String(yValue)}</div>
-                </div>`;
-                  },
-                )
-                .filter(Boolean)
-                .join('');
-              return `<div>
-            <div style="margin-bottom: 5px;"><strong>${dateStr}</strong></div>
-            ${rows}
-          </div>`;
-            },
+            formatter: (params: unknown) =>
+              formatAxisTooltip(params, formatter ?? ((value: number) => String(value))),
           },
           series,
           graphic: !hasData
@@ -276,7 +182,17 @@ export const UrlStatEChartsChart = ({
 
     renderRef.current = render;
     render();
-  }, [data, emptyMessage, chartType, yAxisName, chartColors, formatter]);
+  }, [
+    data,
+    emptyMessage,
+    chartType,
+    yAxisName,
+    chartColors,
+    formatter,
+    chartInstanceRef,
+    chartRef,
+    renderRef,
+  ]);
 
   return <div className={cn('w-full h-full', className)} ref={chartRef} />;
 };

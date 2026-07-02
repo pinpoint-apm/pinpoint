@@ -116,7 +116,7 @@ export const ErrorAnalysisPage = ({
         >
           <ErrorAnalysisSidebar />
           <>
-            <div className="py-2 bg-white border rounded h-72">
+            <div className="px-6 py-2 bg-white border rounded h-72">
               <ErrorAnalysisChart emptyMessage={t('COMMON.NO_DATA')} />
             </div>
             {groupBy ? (
