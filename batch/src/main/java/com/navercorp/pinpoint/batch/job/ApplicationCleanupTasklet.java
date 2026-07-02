@@ -105,7 +105,7 @@ public class ApplicationCleanupTasklet implements Tasklet {
     }
 
     private void processApplication(Application application, long baseTimestamp) {
-        int serviceUid = application.getService().getUid();
+        int serviceUid = application.getService().getServiceUid();
         String applicationName = application.getApplicationName();
         int serviceTypeCode = application.getServiceTypeCode();
         int agentCount = agentIdDao.countAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
@@ -252,7 +252,7 @@ public class ApplicationCleanupTasklet implements Tasklet {
 
     private Dot getTraceIndexData(Application application, long baseTimestamp) {
         Range range = Range.between(baseTimestamp - Duration.ofDays(inactiveDays).toMillis(), baseTimestamp);
-        LimitedScanResult<List<Dot>> result = traceIndexDao.scanTraceScatterData(application.getService().getUid(), application.getApplicationName(), application.getServiceTypeCode(), range, 1);
+        LimitedScanResult<List<Dot>> result = traceIndexDao.scanTraceScatterData(application.getService().getServiceUid(), application.getApplicationName(), application.getServiceTypeCode(), range, 1);
         if (!result.scanData().isEmpty()) {
             return result.scanData().get(0);
         }
@@ -266,7 +266,7 @@ public class ApplicationCleanupTasklet implements Tasklet {
         }
         logger.info("delete application. application={}", application);
         applicationDao.deleteApplication(
-                application.getService().getUid(),
+                application.getService().getServiceUid(),
                 application.getApplicationName(),
                 application.getServiceTypeCode(),
                 baseTimestamp - Duration.ofHours(1).toMillis()
