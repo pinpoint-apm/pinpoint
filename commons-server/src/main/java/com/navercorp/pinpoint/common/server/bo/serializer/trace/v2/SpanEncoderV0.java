@@ -109,9 +109,10 @@ public class SpanEncoderV0 implements SpanEncoder {
         buffer.putByte(version);
         long spanEventBaseTimeNanos = 0;
         if (version == SpanVersion.TRACE_V3) {
+            // keyTime is stored as an absolute epoch-nanos value (not a collectorAcceptTime delta),
+            // so it survives HBase cell-timestamp drift the same way TRACE_V2 keyTime does.
             final long keyTimeNanos = spanChunkBo.getKeyTimeNanos();
-            final long collectorAcceptTimeNanos = TimeUnit.MILLISECONDS.toNanos(spanChunkBo.getCollectorAcceptTime());
-            buffer.putSVLong(collectorAcceptTimeNanos - keyTimeNanos);
+            buffer.putVLong(keyTimeNanos);
             spanEventBaseTimeNanos = keyTimeNanos;
         } else if (version == SpanVersion.TRACE_V2) {
             buffer.putVLong(spanChunkBo.getKeyTimeMillis());

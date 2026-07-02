@@ -154,7 +154,7 @@ public class Node {
             }
         }
         alignList.removeAll(childAlignList);
-        childAlignList.sort(AlignComparator.OPENTELEMETRY_START_TIME);
+        childAlignList.sort(AlignComparator.START_TIMESTAMP);
         for (Align align : childAlignList) {
             // set depth, sequence
             final SpanEventBo spanEventBo = align.getSpanEventBo();

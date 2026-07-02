@@ -138,6 +138,4 @@ public interface Align {
     long getOpenTelemetrySpanId();
 
     long getOpenTelemetryParentSpanId();
-
-    long getOpenTelemetryStartTime();
 }

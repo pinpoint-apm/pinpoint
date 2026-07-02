@@ -323,11 +323,35 @@ public class SpanEncoderTest {
     }
 
     @Test
-    public void testEncodeSpanChunkColumnValue_traceV3_preservesNegativeKeyTimeDelta() {
+    public void testEncodeSpanChunkColumnValue_traceV3_keyTimeIndependentOfCollectorAcceptTime() {
         SpanChunkBo spanChunkBo = randomComplexSpanChunk();
         setTraceV3Time(spanChunkBo);
 
-        assertSpanChunk(spanChunkBo, 0);
+        final long encodeAcceptTime = getCollectorAcceptTime();
+        spanChunkBo.setCollectorAcceptTime(encodeAcceptTime);
+
+        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<>(spanChunkBo);
+        Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanChunkQualifier(encodingContext));
+        Buffer column = wrapBuffer(spanEncoder.encodeSpanChunkColumnValue(encodingContext));
+
+        // Decode with a DIFFERENT collectorAcceptTime to simulate HBase cell-timestamp drift.
+        // Because TRACE_V3 keyTime is stored as an absolute value, it must reconstruct identically
+        // regardless of the anchor - and so must every span event time derived from it.
+        final long decodeAcceptTime = encodeAcceptTime + TimeUnit.HOURS.toMillis(3);
+        SpanDecodingContext decodingContext = new SpanDecodingContext(spanChunkBo.getTransactionId());
+        decodingContext.setCollectorAcceptedTime(decodeAcceptTime);
+
+        SpanChunkBo decode = (SpanChunkBo) spanDecoder.decode(qualifier, column, decodingContext);
+
+        Assertions.assertThat(decode.getKeyTimeNanos()).isEqualTo(spanChunkBo.getKeyTimeNanos());
+
+        List<SpanEventBo> expected = spanChunkBo.getSpanEventBoList();
+        List<SpanEventBo> actual = decode.getSpanEventBoList();
+        Assertions.assertThat(actual).hasSameSizeAs(expected);
+        for (int i = 0; i < expected.size(); i++) {
+            Assertions.assertThat(actual.get(i).getStartTimeNanos()).isEqualTo(expected.get(i).getStartTimeNanos());
+            Assertions.assertThat(actual.get(i).getEndTimeNanos()).isEqualTo(expected.get(i).getEndTimeNanos());
+        }
     }
 
     @Test

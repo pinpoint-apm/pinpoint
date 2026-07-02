@@ -254,7 +254,7 @@ public interface AnnotationKey {
     AnnotationKey MEMORY_USAGE = AnnotationKeyFactory.of(330, "memory.usage", VIEW_IN_RECORD_SET);
 
     AnnotationKey OPENTELEMETRY_ATTRIBUTE = AnnotationKeyFactory.of(400, "Attribute", VIEW_IN_RECORD_SET);
-    AnnotationKey OPENTELEMETRY_START_TIME = AnnotationKeyFactory.of(401, "StartTimeUnixNano");
+    // 401 was OPENTELEMETRY_START_TIME (StartTimeUnixNano): now stored on SpanBo/SpanEventBo as V3 nanos, no longer an annotation.
     AnnotationKey OPENTELEMETRY_EVENT = AnnotationKeyFactory.of(402, "Event", VIEW_IN_RECORD_SET);
     AnnotationKey OPENTELEMETRY_LINK = AnnotationKeyFactory.of(403, "Link", VIEW_IN_RECORD_SET);
     AnnotationKey OPENTELEMETRY_SPAN_ID = AnnotationKeyFactory.of(404, "SpanId");

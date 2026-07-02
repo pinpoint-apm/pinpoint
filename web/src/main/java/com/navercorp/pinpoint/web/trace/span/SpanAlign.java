@@ -349,11 +349,6 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public long getOpenTelemetryStartTime() {
-        return spanBo.getStartTimeNanos();
-    }
-
-    @Override
     public String toString() {
         return "SpanAlign{" +
                 "spanBo=" + spanBo.getSpanId() +
