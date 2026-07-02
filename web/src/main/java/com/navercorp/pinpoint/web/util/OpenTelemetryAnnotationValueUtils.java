@@ -24,7 +24,6 @@ import java.util.List;
 public class OpenTelemetryAnnotationValueUtils {
     public static final long DEFAULT_SPAN_ID = -1;
     public static final long DEFAULT_PARENT_SPAN_ID = -1;
-    public static final long DEFAULT_START_TIME = 0;
 
     public static long getSpanId(List<AnnotationBo> annotationBoList) {
         return getValue(annotationBoList, AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode(), DEFAULT_SPAN_ID);
@@ -48,34 +47,5 @@ public class OpenTelemetryAnnotationValueUtils {
         }
 
         return defaultValue;
-    }
-
-    public static Values getValues(List<AnnotationBo> annotationBoList) {
-        long startTime = DEFAULT_START_TIME;
-        long spanId = DEFAULT_SPAN_ID;
-        long parentSpanId = DEFAULT_PARENT_SPAN_ID;
-
-        if (annotationBoList != null && !annotationBoList.isEmpty()) {
-            for (AnnotationBo annotationBo : annotationBoList) {
-                Object value = annotationBo.getValue();
-                if (!(value instanceof Number)) {
-                    continue;
-                }
-                long longValue = ((Number) value).longValue();
-                if (annotationBo.getKey() == AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode()) {
-                    spanId = longValue;
-                } else if (annotationBo.getKey() == AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode()) {
-                    parentSpanId = longValue;
-                } else if (annotationBo.getKey() == AnnotationKey.OPENTELEMETRY_START_TIME.getCode()) {
-                    startTime = longValue;
-                }
-            }
-        }
-
-        return new Values(startTime, spanId, parentSpanId);
-    }
-
-
-    public record Values(long startTime, long spanId, long parentSpanId) {
     }
 }

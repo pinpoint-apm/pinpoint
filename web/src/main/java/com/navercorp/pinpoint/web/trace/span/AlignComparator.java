@@ -26,6 +26,5 @@ import java.util.Comparator;
 public final class AlignComparator {
 
     public static final Comparator<Align> INSTANCE = Comparator.comparing(Align::getSpanEventBo, SpanEventComparator.INSTANCE);
-    public static final Comparator<Align> OPENTELEMETRY_START_TIME = Comparator.comparingLong(Align::getOpenTelemetryStartTime);
     public static final Comparator<Align> START_TIMESTAMP = Comparator.comparingLong(Align::getStartTimeNanos);
 }

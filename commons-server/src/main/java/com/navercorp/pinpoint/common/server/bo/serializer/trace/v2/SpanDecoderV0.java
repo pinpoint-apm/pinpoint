@@ -112,9 +112,8 @@ public class SpanDecoderV0 implements SpanDecoder {
 
         long spanEventBaseTimeNanos = 0;
         if (version == SpanVersion.TRACE_V3) {
-            final long keyTimeDelta = buffer.readSVLong();
-            final long collectorAcceptTimeNanos = TimeUnit.MILLISECONDS.toNanos(spanChunk.getCollectorAcceptTime());
-            final long keyTime = collectorAcceptTimeNanos - keyTimeDelta;
+            // keyTime is an absolute epoch-nanos value; it does not depend on collectorAcceptTime.
+            final long keyTime = buffer.readVLong();
             spanChunk.setTraceTime(version, keyTime);
             spanEventBaseTimeNanos = keyTime;
         } else if (version == SpanVersion.TRACE_V2) {

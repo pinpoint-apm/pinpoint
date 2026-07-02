@@ -319,14 +319,6 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
-    public long getOpenTelemetryStartTime() {
-        if (openTelemetry) {
-            return getStartTimeNanos();
-        }
-        return -1;
-    }
-
-    @Override
     public String toString() {
         return "SpanEventAlign{" +
                 "spanBo=" + spanBo.getSpanId() +
@@ -340,7 +332,6 @@ public class SpanEventAlign implements Align {
                 ", executionNanos=" + executionNanos +
                 ", openTelemetrySpanId=" + openTelemetrySpanId +
                 ", openTelemetryParentSpanId=" + openTelemetryParentSpanId +
-                ", openTelemetryStartTime=" + getOpenTelemetryStartTime() +
                 '}';
     }
 
