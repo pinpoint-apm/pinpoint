@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.ApplicationAgentHostService;
@@ -60,7 +61,7 @@ public class ApplicationController {
     private final CommonService commonService;
     private final CacheService cacheService;
 
-    private static final String KEY = CacheService.DEFAULT_KEY;
+    private static final String KEY = Service.DEFAULT.getServiceName();
 
     public ApplicationController(ApplicationAgentHostService applicationAgentHostService, ApplicationIndexService applicationIndexService, CommonService commonService, CacheService cacheService) {
         this.applicationAgentHostService = Objects.requireNonNull(applicationAgentHostService, "applicationAgentHostService");

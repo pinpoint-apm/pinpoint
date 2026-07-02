@@ -37,7 +37,7 @@ class ServiceNodeNameTest {
 
     @Test
     void of() {
-        Service service = new Service("myService", 1);
+        Service service = new Service("myService", 100);
         Application application = new Application(service, "myApp", ServiceType.STAND_ALONE);
 
         ServiceNodeName nodeName = ServiceNodeName.of(application);

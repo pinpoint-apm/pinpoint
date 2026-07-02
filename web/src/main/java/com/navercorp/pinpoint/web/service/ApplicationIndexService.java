@@ -17,17 +17,19 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.vo.Application;
-import org.springframework.stereotype.Service;
+import com.navercorp.pinpoint.web.vo.Service;
 
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-@Service
+@org.springframework.stereotype.Service
 public interface ApplicationIndexService {
 
     List<Application> selectAllApplications();
+
+    List<Application> selectAllApplications(Service service);
 
     List<Application> selectApplication(String applicationName);
 

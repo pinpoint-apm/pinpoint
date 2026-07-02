@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.web.view.TagApplications;
  */
 public interface CacheService {
 
-    String DEFAULT_KEY = "DEFAULT";
-
     TagApplications get(String key);
 
     void put(String key, TagApplications tagApplications);

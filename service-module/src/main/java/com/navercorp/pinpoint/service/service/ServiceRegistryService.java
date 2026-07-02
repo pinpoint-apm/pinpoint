@@ -12,5 +12,7 @@ public interface ServiceRegistryService {
 
     ServiceEntity getService(String name);
 
+    ServiceEntity getService(int uid);
+
     void deleteService(String name);
 }

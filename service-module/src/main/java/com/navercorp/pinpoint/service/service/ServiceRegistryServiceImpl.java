@@ -52,6 +52,12 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public ServiceEntity getService(int uid) {
+        return serviceRegistryDao.selectService(uid);
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public void deleteService(String name) {
         Objects.requireNonNull(name, "name");

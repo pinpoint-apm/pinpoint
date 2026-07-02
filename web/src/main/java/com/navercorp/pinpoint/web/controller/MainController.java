@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.service.CacheService;
 import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.util.TagApplicationsUtils;
 import com.navercorp.pinpoint.web.util.etag.ETag;
 import com.navercorp.pinpoint.web.util.etag.ETagUtils;
@@ -34,6 +38,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 
 import java.util.List;
 import java.util.Objects;
@@ -52,54 +57,58 @@ public class MainController {
 
     private final CacheService cacheService;
 
-    // Reserve key
-    private static final String KEY = CacheService.DEFAULT_KEY;
+    private final ServiceModelResolver serviceModelResolver;
 
     public MainController(
             CommonService commonService,
-            CacheService cacheService
+            CacheService cacheService,
+            ServiceModelResolver serviceModelResolver
     ) {
         this.commonService = Objects.requireNonNull(commonService, "commonService");
         this.cacheService = Objects.requireNonNull(cacheService, "cacheService");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
     }
 
     @GetMapping(value = "/api/applications")
     public ResponseEntity<ApplicationGroup> getApplicationGroup(
             @RequestHeader(value = "If-None-Match", required = false) @NullOrNotBlank String eTagHeader,
-            @RequestParam(value = "clearCache", required = false) @NullOrNotBlank String clearCache
+            @RequestParam(value = "clearCache", required = false) @NullOrNotBlank String clearCache,
+            @ServiceParam ServiceName serviceName
     ) {
+        final String cacheKey = serviceName.getName();
         final ETag eTag = ETagUtils.parseETag(eTagHeader);
         if (needClearCache(eTag, clearCache)) {
-            cacheService.remove(KEY);
+            cacheService.remove(cacheKey);
         }
 
         if (eTag != null) {
             logger.debug("eTag: {}", eTag);
 
-            final TagApplications cachedApplications = cacheService.get(KEY);
+            final TagApplications cachedApplications = cacheService.get(cacheKey);
             if (cachedApplications != null) {
                 if (eTag.tag().equals(cachedApplications.getTag())) {
-                    logger.debug("applicationList {} cache hit", KEY);
+                    logger.debug("applicationList {} cache hit", cacheKey);
                     return notModified();
                 } else {
                     logger.debug("applicationList {} cache hit, but missed eTag {} = {}",
-                            KEY, clearCache, cachedApplications.getTag());
+                            cacheKey, clearCache, cachedApplications.getTag());
                 }
             } else {
                 // ETag changed by another node.
-                logger.debug("applicationList {} cache missed", KEY);
+                logger.debug("applicationList {} cache missed", cacheKey);
             }
         }
 
-        final List<Application> applicationList = commonService.selectAllApplicationNames();
-        logger.debug("/applications size: {}", applicationList.size());
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final List<Application> applicationList = commonService.selectAllApplicationNames(service);
+        logger.debug("/applications service: {}, size: {}", serviceName.getName(), applicationList.size());
         logger.trace("/applications {}", applicationList);
 
 
         // Update atomicity between multiple nodes is not guaranteed
         final TagApplications tagApplications = TagApplicationsUtils.wrapApplicationList(applicationList);
 
-        cacheService.put(KEY, tagApplications);
+        cacheService.put(cacheKey, tagApplications);
 
         final ETag newETag = new ETag(true, tagApplications.getTag());
         logger.debug("eTag cache {} -> {}", eTag, newETag);

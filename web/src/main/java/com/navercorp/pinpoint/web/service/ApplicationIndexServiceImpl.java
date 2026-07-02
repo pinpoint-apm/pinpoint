@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  * @author Taejin Koo
  */
-@Service
+@org.springframework.stereotype.Service
 public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     private static final int AGENT_ID_ENTRY_DELETE_BATCH_SIZE = 200;
 
@@ -64,8 +64,13 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<Application> selectAllApplications() {
+        return selectAllApplications(Service.DEFAULT);
+    }
+
+    @Override
+    public List<Application> selectAllApplications(Service service) {
         if (readV2) {
-            return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE);
+            return this.applicationDao.getApplications(service.getServiceUid());
         }
         return this.applicationIndexDao.selectAllApplicationNames();
     }
@@ -154,7 +159,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         if (v2TableEnabled) {
             List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
             for (Application application : applicationList) {
-                batchDeleteAgentIdsV2(application.getService().getUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
+                batchDeleteAgentIdsV2(application.getService().getServiceUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
             }
         }
         if (v1TableEnabled) {

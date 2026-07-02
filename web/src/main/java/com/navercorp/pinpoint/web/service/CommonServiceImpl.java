@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.vo.Application;
-import org.springframework.stereotype.Service;
+import com.navercorp.pinpoint.web.vo.Service;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +26,7 @@ import java.util.Objects;
  * @author netspider
  * @author yjqg6666
  */
-@Service
+@org.springframework.stereotype.Service
 public class CommonServiceImpl implements CommonService {
 
     private final ApplicationIndexService applicationIndexService;
@@ -38,6 +38,11 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public List<Application> selectAllApplicationNames() {
         return applicationIndexService.selectAllApplications();
+    }
+
+    @Override
+    public List<Application> selectAllApplicationNames(Service service) {
+        return applicationIndexService.selectAllApplications(service);
     }
 
 }
