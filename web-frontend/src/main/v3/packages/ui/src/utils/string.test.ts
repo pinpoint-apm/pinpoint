@@ -2,6 +2,7 @@ import {
   convertParamsToQueryString,
   extractStringAfterSubstring,
   decodeHTMLEntities,
+  escapeHTMLEntities,
 } from './string';
 
 describe('Test string utils', () => {
@@ -114,6 +115,33 @@ describe('Test string utils', () => {
       const text = 'Text &lt;tag&gt; with &amp; entities';
       const result = decodeHTMLEntities(text);
       expect(result).toBe('Text <tag> with & entities');
+    });
+  });
+
+  describe('Test "escapeHTMLEntities"', () => {
+    test('Escape HTML special characters', () => {
+      const text = '<img src=x onerror="alert(\'x\')">';
+      const result = escapeHTMLEntities(text);
+      expect(result).toBe('&lt;img src=x onerror=&quot;alert(&#39;x&#39;)&quot;&gt;');
+    });
+
+    test('Escape multiple special characters in a single pass', () => {
+      const result = escapeHTMLEntities('a & b < c');
+      expect(result).toBe('a &amp; b &lt; c');
+    });
+
+    test('Handle text without special characters', () => {
+      const text = 'plain text';
+      expect(escapeHTMLEntities(text)).toBe('plain text');
+    });
+
+    test('Handle empty string', () => {
+      expect(escapeHTMLEntities('')).toBe('');
+    });
+
+    test('Round-trip with decodeHTMLEntities', () => {
+      const text = '<div>&"test"\'value\'</div>';
+      expect(decodeHTMLEntities(escapeHTMLEntities(text))).toBe(text);
     });
   });
 });

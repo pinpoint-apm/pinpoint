@@ -1,4 +1,7 @@
+export * from './echartsLegendLayout';
+export * from './echartsTimeSeriesFormat';
 export * from './useChartAxis';
+export * from './useEChartsInstance';
 export * from './useChartConfig';
 export * from './useChartParseData';
 export * from './useChartTooltip';
