@@ -1,13 +1,25 @@
-import 'billboard.js/dist/billboard.css';
 import React from 'react';
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 import { useGetErrorAnalysisChartData } from '@pinpoint-fe/ui/src/hooks';
-import bb, { ChartOptions, line, canvas, grid } from 'billboard.js/canvas';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import BillboardJS, { IChart } from '@billboard.js/react';
-import { abbreviateNumber, formatNewLinedDateString } from '@pinpoint-fe/ui/src/utils';
-import { isValid } from 'date-fns';
+import { abbreviateNumber } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '../../../lib';
+import {
+  getGridBottom,
+  LEGEND_ICON_WIDTH,
+  LEGEND_ITEM_GAP,
+} from '../../../lib/charts/echartsLegendLayout';
+import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
+import {
+  formatAxisTooltip,
+  formatCategoryDateLabel,
+} from '../../../lib/charts/echartsTimeSeriesFormat';
+
+echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+
+const formatErrorCount = (value: number) => abbreviateNumber(value, ['', 'K', 'M', 'G']);
 
 export interface ErrorAnalysisChartFetcherProps {
   className?: string;
@@ -19,105 +31,121 @@ export const ErrorAnalysisChartFetcher = ({
   emptyMessage = 'No Data',
 }: ErrorAnalysisChartFetcherProps) => {
   const { data } = useGetErrorAnalysisChartData();
-  const chartComponent = React.useRef<IChart>(null);
-  const options: ChartOptions = {
-    // v4 ESM: canvas 렌더링 모드 사용. grid 모듈은 더 이상 자동 번들되지 않아 명시적으로 등록한다.
-    render: {
-      mode: canvas(),
-    },
-    ...grid(),
-    data: {
-      x: 'dates',
-      columns: [],
-      empty: {
-        label: {
-          text: emptyMessage,
-        },
-      },
-      type: line(),
-    },
-    padding: {
-      mode: 'fit',
-      top: 20,
-      bottom: 10,
-      right: 25,
-      left: 15,
-    },
-    axis: {
-      x: {
-        type: 'timeseries',
-        tick: {
-          count: 6,
-          show: false,
-          format: (date: Date) => {
-            if (isValid(date)) {
-              return `${formatNewLinedDateString(date)}`;
-            }
-            return '';
-          },
-        },
-      },
-      y: {
-        label: {
-          text: 'Error Count',
-          position: 'outer-middle',
-        },
-        tick: {
-          format: (v: number) => abbreviateNumber(v, ['', 'K', 'M', 'G']),
-        },
-        padding: {
-          bottom: 0,
-        },
-        min: 0,
-        default: [0, 10],
-      },
-    },
-    grid: {
-      y: {
-        show: false,
-      },
-    },
-    point: {
-      show: false,
-    },
-    transition: {
-      duration: 0,
-    },
-    tooltip: {
-      order: '',
-      format: {
-        value: (v: number) => abbreviateNumber(v, ['', 'K', 'M', 'G']),
-      },
-    },
-    resize: {
-      auto: 'parent',
-      timer: false,
-    },
-  };
+  const { chartRef, chartInstanceRef, renderRef } = useEChartsInstance();
 
   React.useEffect(() => {
-    const chart = chartComponent.current?.instance;
+    if (!chartInstanceRef.current) return;
 
-    chart?.load({
-      columns: data
-        ? [
-            ['dates', ...data.timestamp],
-            ...data.metricValueGroups[0].metricValues.map(({ fieldName, values }) => {
-              return [fieldName, ...values.map((v: number) => (v < 0 ? null : v))];
-            }),
-          ]
-        : [],
-      unload: true,
-      resizeAfter: true,
-    });
-  }, [data]);
+    const timestamps = data?.timestamp ?? [];
+    const metricValues = data?.metricValueGroups[0]?.metricValues ?? [];
+    const hasData =
+      timestamps.length > 0 &&
+      metricValues.some((mv) => mv.values && mv.values.some((v) => v >= 0));
 
-  return (
-    <BillboardJS
-      bb={bb}
-      ref={chartComponent}
-      className={cn('w-full h-full', className)}
-      options={options}
-    />
-  );
+    const series = metricValues.map(({ fieldName, values }) => ({
+      name: fieldName,
+      type: 'line' as const,
+      data: values.map((v) => (v < 0 ? null : v)),
+      showSymbol: false,
+      smooth: false,
+      lineStyle: {
+        width: 1,
+      },
+      emphasis: {
+        focus: 'series' as const,
+      },
+    }));
+
+    const legendNames = metricValues.map((mv) => mv.fieldName);
+
+    const render = () => {
+      const chart = chartInstanceRef.current;
+      if (!chart) return;
+
+      const containerWidth = chartRef.current?.clientWidth ?? 0;
+      // legend가 줄바꿈되는 행 수를 반영해 하단 여백을 확보 → legend(하단)와 x축 라벨이 겹치지 않음.
+      const gridBottom = getGridBottom(legendNames, containerWidth);
+
+      chart.setOption(
+        {
+          animation: false,
+          legend: {
+            data: legendNames,
+            bottom: 0,
+            icon: 'square',
+            itemWidth: LEGEND_ICON_WIDTH,
+            itemHeight: 10,
+            itemGap: LEGEND_ITEM_GAP,
+          },
+          grid: {
+            top: 20,
+            bottom: gridBottom,
+            right: 25,
+            left: 0,
+          },
+          xAxis: {
+            type: 'category',
+            data: timestamps,
+            axisLabel: {
+              show: true,
+              formatter: formatCategoryDateLabel,
+              showMaxLabel: true,
+              showMinLabel: true,
+            },
+            axisTick: { show: false },
+            zlevel: 1,
+          },
+          yAxis: {
+            type: 'value',
+            name: 'Error Count',
+            nameGap: 40,
+            nameLocation: 'middle',
+            min: 0,
+            axisLabel: {
+              formatter: (value: number) => formatErrorCount(value),
+            },
+            axisLine: {
+              show: true,
+            },
+            axisTick: {
+              show: true,
+            },
+            splitLine: {
+              show: false,
+            },
+            zlevel: 1,
+          },
+          tooltip: {
+            show: true,
+            trigger: 'axis',
+            confine: true,
+            formatter: (params: unknown) => formatAxisTooltip(params, formatErrorCount),
+          },
+          series,
+          graphic: !hasData
+            ? [
+                {
+                  type: 'text',
+                  left: 'center',
+                  top: 'middle',
+                  style: {
+                    text: emptyMessage,
+                    fontSize: 18,
+                    fill: '#999',
+                    textAlign: 'center',
+                  },
+                },
+              ]
+            : [],
+        },
+        // groupBy 변경 등으로 series 수가 줄어도 이전 series가 병합되어 잔존하지 않도록 항상 교체한다.
+        { replaceMerge: ['series'] },
+      );
+    };
+
+    renderRef.current = render;
+    render();
+  }, [data, emptyMessage, chartInstanceRef, chartRef, renderRef]);
+
+  return <div className={cn('w-full h-full', className)} ref={chartRef} />;
 };
