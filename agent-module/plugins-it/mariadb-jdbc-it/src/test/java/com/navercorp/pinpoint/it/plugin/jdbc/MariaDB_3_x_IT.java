@@ -138,8 +138,12 @@ public class MariaDB_3_x_IT extends MariaDB_IT_Base {
         Method executeQuery = jdbcApi.getPreparedStatement().getExecuteQuery();
         verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQuery, null, URL, DATABASE_NAME, sql(CALLABLE_STATEMENT_QUERY, null, CALLABLE_STATEMENT_INPUT_PARAM)));
 
-        Method executeQueryMethod = getMethod("org.mariadb.jdbc.ClientPreparedStatement", "executeQuery");
-        verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQueryMethod, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null, "getPlaygroundByName, test")));
+        // The CallableParameterMetaData query is issued lazily/conditionally by the driver,
+        // so it is only present when traceCount == 6 (see the count check above).
+        if (traceCount == 6) {
+            Method executeQueryMethod = getMethod("org.mariadb.jdbc.ClientPreparedStatement", "executeQuery");
+            verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQueryMethod, null, URL, DATABASE_NAME, sql(CALLABLE_QUERY_META_INFOS_QUERY, null, "getPlaygroundByName, test")));
+        }
     }
 
     private Method getMethod(String className, String methodName, Class<?>... parameterTypes) {
