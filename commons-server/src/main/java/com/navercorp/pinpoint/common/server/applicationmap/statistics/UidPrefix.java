@@ -126,10 +126,8 @@ public class UidPrefix {
     @Override
     public String toString() {
         return "UidPrefix{" +
-               "serviceUid=" + serviceUid +
-               ", applicationNameHash=" + applicationNameHash +
-               ", serviceType=" + serviceType +
-               ", timestamp=" + timestamp +
+               serviceUid + '/' + applicationNameHash + '/' + serviceType +
+               ", t=" + timestamp +
                '}';
     }
 }

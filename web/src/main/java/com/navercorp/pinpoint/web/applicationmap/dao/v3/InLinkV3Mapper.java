@@ -161,7 +161,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
     }
 
     private Application readSelfApplication(UidLinkRowKey self, ServiceType inServiceType) {
-        int serviceUid = self.getServiceUid();
+        int serviceUid = self.getLinkServiceUid();
         String selfApplicationName = self.getLinkApplicationName();
         int selfServiceType = self.getLinkServiceType();
 

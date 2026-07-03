@@ -122,7 +122,7 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
 
 
     private Application inApplication(UidLinkRowKey rowKey) {
-        int serviceUid = rowKey.getServiceUid();
+        int serviceUid = rowKey.getLinkServiceUid();
         String inApplicationName = rowKey.getLinkApplicationName();
         int inServiceType = rowKey.getLinkServiceType();
         return applicationFactory.createApplication(serviceUid, inApplicationName, inServiceType);
