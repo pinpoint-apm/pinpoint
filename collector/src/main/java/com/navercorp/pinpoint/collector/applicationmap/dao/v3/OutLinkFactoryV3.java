@@ -57,7 +57,7 @@ public class OutLinkFactoryV3 implements OutLinkFactory {
             return UidLinkRowKey.of(
                     selfVertex.serviceUid(), selfVertex.applicationName(), selfVertex.serviceType(),
                     timestamp,
-                    outVertex.applicationName(), outVertex.serviceType().getCode(), outSubLink
+                    outVertex.serviceUid(), outVertex.applicationName(), outVertex.serviceType().getCode(), outSubLink
             );
         }
 

@@ -69,7 +69,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
     public void outLink(long requestTime, Vertex selfVertex, String selfAgentId,
                         Vertex outVertex, String outHost, int elapsed, boolean isError) {
         Objects.requireNonNull(selfVertex, "selfVertex");
-        Objects.requireNonNull(outVertex, "inVertex");
+        Objects.requireNonNull(outVertex, "outVertex");
 
         if (logger.isDebugEnabled()) {
             logger.debug("[OutLink] {}/{} -> {}/{}", selfVertex, selfAgentId, outVertex, outHost);

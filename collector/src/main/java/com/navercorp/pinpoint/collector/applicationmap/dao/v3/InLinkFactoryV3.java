@@ -58,7 +58,7 @@ public class InLinkFactoryV3 implements InLinkFactory {
             return UidLinkRowKey.of(
                     inVertex.serviceUid(), inVertex.applicationName(), inVertex.serviceType(),
                     timestamp,
-                    selfVertex.applicationName(), selfVertex.serviceType().getCode(), selfSubLink
+                    selfVertex.serviceUid(), selfVertex.applicationName(), selfVertex.serviceType().getCode(), selfSubLink
             );
         }
 

@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
@@ -88,7 +87,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
-        final Scan scan = scanFactory.createScan("MOutLink", ServiceUid.DEFAULT_SERVICE_UID_CODE, outApplication, timeWindow.getWindowRange(), table.getName());
+        final Scan scan = scanFactory.createScan("MOutLink", outApplication.getService().getServiceUid(), outApplication, timeWindow.getWindowRange(), table.getName());
         final LinkDataMap linkDataMap = selectOutLink(scan, table.getTable(), resultExtractor, NUM_PARTITIONS);
         if (logger.isDebugEnabled()) {
             logger.debug("selectOutLink {} {}", outApplication, linkDataMap.getLinkDataSize());

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -38,19 +39,22 @@ public class UidLinkRowKey implements UidRowKey {
     private final String linkApplicationName;
     private final int linkServiceType;
     private final String subLink;
+    private final int linkServiceUid;
 
-    public static RowKey of(int serviceUid, String applicationName, ServiceType serviceType, long rowTimeSlot,
-                            String outApplicationName, int outServiceType, String outSubLink) {
-        return new UidLinkRowKey(serviceUid, applicationName, serviceType.getCode(), rowTimeSlot, outApplicationName, outServiceType, outSubLink);
+    public static RowKey of(int serviceUid, String applicationName, ServiceType serviceType,
+                            long rowTimeSlot,
+                            int outServiceUid, String outApplicationName, int outServiceType, String outSubLink) {
+        return new UidLinkRowKey(serviceUid, applicationName, serviceType.getCode(), rowTimeSlot, outServiceUid, outApplicationName, outServiceType, outSubLink);
     }
 
     public UidLinkRowKey(int serviceUid, String applicationName, int serviceType, long timestamp,
-                         String outApplicationName, int outServiceType, String subLink) {
+                         int outServiceUid, String outApplicationName, int outServiceType, String subLink) {
         this.serviceUid = serviceUid;
         this.applicationName = UidPrefix.requireNameLength(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.timestamp = timestamp;
 
+        this.linkServiceUid = outServiceUid;
         this.linkApplicationName = Objects.requireNonNull(outApplicationName, "linkApplicationName");
         this.linkServiceType = outServiceType;
         this.subLink = Objects.requireNonNull(subLink, "outSubLink");
@@ -85,23 +89,30 @@ public class UidLinkRowKey implements UidRowKey {
         return linkServiceType;
     }
 
+    public int getLinkServiceUid() {
+        return linkServiceUid;
+    }
+
     public String getSubLink() {
         return subLink;
     }
 
     /**
      * <pre>
-     * rowkey format = "UidPrefix(16) + outApplicationNameHash(4) + outServiceType(4) + applicationName + outApplicationName + outSubLink"
+     * rowkey format = "UidPrefix(16) + outApplicationNameHash(4) + outServiceType(4) + applicationName + outApplicationName + outSubLink + outServiceUid(4)"
+     * outServiceUid is always appended at the tail. Legacy rows written before this field omit it; {@link #read} treats a
+     * missing tail as {@link ServiceUid#DEFAULT_SERVICE_UID_CODE} (no non-DEFAULT legacy data exists).
      * </pre>
      *
      * @param saltKeySize
      */
     public byte[] getRowKey(int saltKeySize) {
-        return makeRowKey(saltKeySize, serviceUid, applicationName, serviceType, timestamp, linkApplicationName, linkServiceType, subLink);
+        return makeRowKey(saltKeySize, serviceUid, applicationName, serviceType, timestamp, linkServiceUid, linkApplicationName, linkServiceType, subLink);
     }
 
-    public static byte[] makeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceType, long timestamp,
-                                    String outApplicationName, int outServiceType, String outSubLink) {
+    public static byte[] makeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceType,
+                                    long timestamp,
+                                    int outServiceUid, String outApplicationName, int outServiceType, String outSubLink) {
         UidPrefix.requireNameLength(applicationName, "applicationName");
 
         byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
@@ -115,7 +126,8 @@ public class UidLinkRowKey implements UidRowKey {
                                                   BytesUtils.INT_BYTE_LENGTH +
                                                   BytesUtils.computeSVar32ByteArraySize(applicationNameBytes) +
                                                   BytesUtils.computeSVar32ByteArraySize(outApplicationNameBytes) +
-                                                  BytesUtils.computeSVar32ByteArraySize(outSubLinkBytes)
+                                                  BytesUtils.computeSVar32ByteArraySize(outSubLinkBytes) +
+                                                  BytesUtils.INT_BYTE_LENGTH
         );
         buffer.skip(saltKeySize);
         UidPrefix.writePrefix(buffer, serviceUid, applicationNameBytes, serviceType, timestamp);
@@ -127,6 +139,9 @@ public class UidLinkRowKey implements UidRowKey {
         buffer.putPrefixedBytes(applicationNameBytes);
         buffer.putPrefixedBytes(outApplicationNameBytes);
         buffer.putPrefixedBytes(outSubLinkBytes);
+
+        // tail-appended link serviceUid (kept last for backward compatibility with legacy rows that omit it)
+        buffer.putInt(outServiceUid);
 
         return buffer.getBuffer();
     }
@@ -156,8 +171,24 @@ public class UidLinkRowKey implements UidRowKey {
         String outApplicationName = buffer.readPrefixedString();
         String outSubLink = buffer.readPrefixedString();
 
+        // tail-appended link serviceUid; absent in legacy rows -> assume DEFAULT service (no non-DEFAULT legacy data exists)
+        int outServiceUid = getOutServiceUid(buffer);
 
-        return new UidLinkRowKey(serviceUid, applicationName, serviceType, timestamp, outApplicationName, outServiceType, outSubLink);
+        return new UidLinkRowKey(serviceUid, applicationName, serviceType,
+                timestamp,
+                outServiceUid, outApplicationName, outServiceType, outSubLink);
+    }
+
+    private static int getOutServiceUid(Buffer buffer) {
+        final int remaining = buffer.remaining();
+        if (remaining == 0) {
+            return ServiceUid.DEFAULT_SERVICE_UID_CODE;
+        }
+        // fail fast on a truncated tail: readInt() does not check the slice bound
+        if (remaining < BytesUtils.INT_BYTE_LENGTH) {
+            throw new IllegalArgumentException("truncated outServiceUid tail, remaining:" + remaining);
+        }
+        return buffer.readInt();
     }
 
 
@@ -166,7 +197,7 @@ public class UidLinkRowKey implements UidRowKey {
         if (o == null || getClass() != o.getClass()) return false;
 
         UidLinkRowKey that = (UidLinkRowKey) o;
-        return serviceUid == that.serviceUid && serviceType == that.serviceType && timestamp == that.timestamp && linkServiceType == that.linkServiceType && Objects.equals(applicationName, that.applicationName) && Objects.equals(linkApplicationName, that.linkApplicationName) && Objects.equals(subLink, that.subLink);
+        return serviceUid == that.serviceUid && serviceType == that.serviceType && timestamp == that.timestamp && linkServiceType == that.linkServiceType && linkServiceUid == that.linkServiceUid && Objects.equals(applicationName, that.applicationName) && Objects.equals(linkApplicationName, that.linkApplicationName) && Objects.equals(subLink, that.subLink);
     }
 
     @Override
@@ -177,6 +208,7 @@ public class UidLinkRowKey implements UidRowKey {
         result = 31 * result + Long.hashCode(timestamp);
         result = 31 * result + Objects.hashCode(linkApplicationName);
         result = 31 * result + linkServiceType;
+        result = 31 * result + linkServiceUid;
         result = 31 * result + Objects.hashCode(subLink);
         return result;
     }
@@ -184,13 +216,11 @@ public class UidLinkRowKey implements UidRowKey {
     @Override
     public String toString() {
         return "UidLinkRowKey{" +
-               "serviceUid=" + serviceUid +
-               ", applicationName='" + applicationName + '\'' +
-               ", serviceType=" + serviceType +
-               ", timestamp=" + timestamp +
-               ", linkApplicationName='" + linkApplicationName + '\'' +
-               ", linkServiceType=" + linkServiceType +
-               ", outSubLink='" + subLink + '\'' +
+               serviceUid + '/' + applicationName + '/' + serviceType +
+               " -> " +
+               linkServiceUid + '/' + linkApplicationName + '/' + linkServiceType +
+               ", t=" + timestamp +
+               ", subLink='" + subLink + '\'' +
                '}';
     }
 }
