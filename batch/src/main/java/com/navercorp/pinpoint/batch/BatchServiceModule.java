@@ -5,11 +5,13 @@ import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.common.server.util.RandomServiceUidGenerator;
 import com.navercorp.pinpoint.service.config.ServiceMysqlConfiguration;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
+import com.navercorp.pinpoint.service.service.ServiceRegistryServiceImpl;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
 import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 
 @Import({
@@ -18,6 +20,10 @@ import org.springframework.context.annotation.Import;
 @ComponentScan(
         basePackages = {
                 "com.navercorp.pinpoint.service.service",
+        },
+        useDefaultFilters = false,
+        includeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = ServiceRegistryServiceImpl.class)
         }
 )
 public class BatchServiceModule {
