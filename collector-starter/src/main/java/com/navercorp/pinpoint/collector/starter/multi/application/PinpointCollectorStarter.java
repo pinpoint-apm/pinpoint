@@ -92,12 +92,13 @@ public class PinpointCollectorStarter {
             metricAppBuilder.build().run(args);
         }
 
-        // OTLP Trace must run with metric.
-        // gRPC 9998 port is used for OTLP Trace.
-        if (types.hasType(CollectorType.METRIC)) {
-            logger.info(String.format("Start OTLP trace collector"));
-            SpringApplicationBuilder logAppBuilder = createAppBuilder(builder, 9999, OtlpTraceCollectorApp.class);
-            logAppBuilder.build().run(args);
+        // OTLP Trace runs as its own collector type (decoupled from METRIC).
+        // gRPC 9998 is used for OTLP/gRPC ingestion; the servlet port (9997) hosts the OTLP/HTTP
+        // endpoint (POST /v1/traces) and keeps the JVM alive when this app runs standalone.
+        if (types.hasType(CollectorType.OTLPTRACE)) {
+            logger.info(String.format("Start %s collector", CollectorType.OTLPTRACE));
+            SpringApplicationBuilder otlpTraceAppBuilder = createAppBuilder(builder, 9997, OtlpTraceCollectorApp.class);
+            otlpTraceAppBuilder.build().run(args);
         }
 
         if (types.hasType(CollectorType.LOG)) {

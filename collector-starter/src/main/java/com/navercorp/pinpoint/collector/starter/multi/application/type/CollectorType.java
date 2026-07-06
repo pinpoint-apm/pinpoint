@@ -25,6 +25,7 @@ public enum CollectorType {
     METRIC,
     LEGACY, // added type to change metric port temporarily.
     LOG,
+    OTLPTRACE,
     BASIC_WITH_INSPECTOR;
 
     public boolean hasType(CollectorType type) {
