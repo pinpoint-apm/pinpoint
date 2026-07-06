@@ -24,6 +24,6 @@ import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
  * 
  */
 public interface HostApplicationMapDao {
-    void insert(long requestTime, String parentApplicationName, int parentServiceType, Vertex selfVertex, String host);
+    void insert(long requestTime, Vertex parentVertex, Vertex selfVertex, String host);
 
 }

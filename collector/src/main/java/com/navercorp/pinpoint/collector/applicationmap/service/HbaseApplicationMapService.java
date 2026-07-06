@@ -114,7 +114,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         }
         ServiceType serviceType = registry.findServiceType(spanEvent.getServiceType());
         Vertex rpcVertex = Vertex.of(selfVertex.serviceUid(), destinationId, serviceType);
-        hostApplicationMapDao.insert(requestTime, selfVertex.applicationName(), selfVertex.serviceType().getCode(), rpcVertex, endPoint);
+        hostApplicationMapDao.insert(requestTime, selfVertex, rpcVertex, endPoint);
     }
 
     private void insertAcceptorHost(SpanBo span, Vertex selfVertex) {
@@ -131,8 +131,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
             logger.debug("parentApplication is null agent: {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
             return;
         }
-        final String parentApplicationName = parentApplication.applicationName();
-        final int parentServiceType = parentApplication.applicationServiceType();
+        final Vertex parentVertex = getParentVertex(parentApplication);
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         if (spanServiceType.isQueue()) {
             final String host = span.getEndPoint();
@@ -140,9 +139,9 @@ public class HbaseApplicationMapService implements ApplicationMapService {
                 logger.debug("endPoint is null agent: {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
                 return;
             }
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentApplicationName, parentServiceType, selfVertex, host);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex, selfVertex, host);
         } else {
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentApplicationName, parentServiceType, selfVertex, acceptorHost);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex, selfVertex, acceptorHost);
         }
     }
 
@@ -210,7 +209,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
                         if (logger.isDebugEnabled()) {
                             logger.debug("[Bind] child-queue {}:{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
                         }
-                        hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex.applicationName(), parentVertex.serviceType().getCode(), queueAcceptVertex, span.getRemoteAddr());
+                        hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex, queueAcceptVertex, span.getRemoteAddr());
                         // emulate virtual queue node's send SpanEvent
 
                         if (logger.isDebugEnabled()) {

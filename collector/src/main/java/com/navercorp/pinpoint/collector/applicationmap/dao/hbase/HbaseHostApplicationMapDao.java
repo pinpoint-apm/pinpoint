@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -71,32 +70,32 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 
     @Override
-    public void insert(long requestTime, String parentApplicationName, int parentServiceType, Vertex selfVertex, String host) {
+    public void insert(long requestTime, Vertex parentVertex, Vertex selfVertex, String host) {
         Objects.requireNonNull(host, "host");
+        Objects.requireNonNull(parentVertex, "parentVertex");
         Objects.requireNonNull(selfVertex, "selfVertex");
         if (logger.isDebugEnabled()) {
-            logger.debug("insert HostApplicationMap host:{}, self:{} parent:{}/{}", host, selfVertex, parentApplicationName, parentServiceType);
+            logger.debug("insert HostApplicationMap parent:{} self:{} host:{}", parentVertex, selfVertex, host);
         }
 
         final long statisticsRowSlot = timeSlot.getTimeSlot(requestTime);
 
-        final CacheKey cacheKey = new CacheKey(selfVertex.applicationName(), selfVertex.serviceType().getCode(), selfVertex.serviceUid(), host,
-                parentApplicationName, parentServiceType, ServiceUid.DEFAULT_SERVICE_UID_CODE);
+        final CacheKey cacheKey = new CacheKey(parentVertex, selfVertex, host);
         final boolean needUpdate = updater.update(cacheKey, statisticsRowSlot);
         if (needUpdate) {
-            insertHostVer2(parentApplicationName, parentServiceType, selfVertex, host, statisticsRowSlot);
+            insertHostVer2(statisticsRowSlot, parentVertex, selfVertex, host);
         }
     }
 
-    private void insertHostVer2(String parentApplicationName, int parentServiceType, Vertex selfVertex, String host, long timestamp) {
+    private void insertHostVer2(long timestamp, Vertex parentVertex, Vertex selfVertex, String host) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Insert HostApplicationMap Ver2 host={}, self={}, parent={}/{}",
-                    host, selfVertex, parentApplicationName, parentServiceType);
+            logger.debug("Insert HostApplicationMap Ver2 parent={} self={} host={}",
+                    parentVertex, selfVertex, host);
         }
 
         // TODO should consider to add bellow codes again later.
         //String parentAgentId = null;
-        final byte[] rowKey = hostLinkFactory.rowkey(parentApplicationName, parentServiceType, ServiceUid.DEFAULT_SERVICE_UID_CODE, timestamp);
+        final byte[] rowKey = hostLinkFactory.rowkey(parentVertex, timestamp);
 
         byte[] columnName = hostLinkFactory.columnName(selfVertex, host);
 
@@ -107,11 +106,11 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     }
 
-    private record CacheKey(String applicationName, int serviceType, int serviceUid, String host,
-                            String parentApplicationName, int parentServiceType, int parentServiceUid) {
+    private record CacheKey(Vertex parent, Vertex self, String host) {
 
             private CacheKey {
-                Objects.requireNonNull(applicationName, "applicationName");
+                Objects.requireNonNull(parent, "parent");
+                Objects.requireNonNull(self, "self");
                 Objects.requireNonNull(host, "host");
             }
     }
