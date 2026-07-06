@@ -33,8 +33,8 @@ public class HostLinkFactoryV3 implements HostLinkFactory {
     }
 
     @Override
-    public byte[] rowkey(String parentApplicationName, int parentServiceType, int parentServiceUid, long timestamp) {
-        return this.rowKeyEncoder.encodeRowKey(parentApplicationName, parentServiceType, parentServiceUid, timestamp);
+    public byte[] rowkey(Vertex parent, long timestamp) {
+        return this.rowKeyEncoder.encodeRowKey(parent.applicationName(), parent.serviceType().getCode(), parent.serviceUid(), timestamp);
     }
 
     @Override

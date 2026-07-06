@@ -32,12 +32,12 @@ public class HostApplicationMapDaoDelegate implements HostApplicationMapDao {
     }
 
     @Override
-    public void insert(long requestTime, String parentApplicationName, int parentServiceType, Vertex selfVertex, String host) {
+    public void insert(long requestTime, Vertex parentVertex, Vertex selfVertex, String host) {
         for (HostApplicationMapDao delegate : delegates) {
             try {
-                delegate.insert(requestTime, parentApplicationName, parentServiceType, selfVertex, host);
+                delegate.insert(requestTime, parentVertex, selfVertex, host);
             } catch (Exception e) {
-                logger.warn("Failed to insert host application map. parentApplicationName:{}, parentServiceType:{}, selfVertex:{}, host:{}", parentApplicationName, parentServiceType, selfVertex, host, e);
+                logger.warn("Failed to insert host application map. parentVertex:{}, selfVertex:{}, host:{}", parentVertex, selfVertex, host, e);
             }
         }}
 }

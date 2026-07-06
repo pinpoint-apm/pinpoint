@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -27,8 +26,10 @@ public class HostScanKeyFactoryV3 implements HostScanKeyFactory {
 
     @Override
     public byte[] scanKey(Application parentApplication, long timestamp) {
-        return UidAppRowKey.makeRowKey(saltKeySize, ServiceUid.DEFAULT_SERVICE_UID_CODE,
-                parentApplication.getApplicationName(), parentApplication.getServiceTypeCode(),
+        return UidAppRowKey.makeRowKey(saltKeySize,
+                parentApplication.getService().getServiceUid(),
+                parentApplication.getApplicationName(),
+                parentApplication.getServiceTypeCode(),
                 timestamp);
     }
 }

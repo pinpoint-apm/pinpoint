@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 
 public interface HostLinkFactory {
-    byte[] rowkey(String parentApplicationName, int parentServiceType, int parentServiceUid, long timestamp);
+    byte[] rowkey(Vertex parent, long timestamp);
 
     byte[] columnName(Vertex self, String host);
 }
