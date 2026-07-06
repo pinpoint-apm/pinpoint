@@ -122,13 +122,24 @@
             <AppenderRef ref="console"/>
         </Logger>
 
-        <Logger name="org.apache.hadoop.hbase" level="${logger_level}" additivity="false">
+        <Logger name="org.apache.hadoop.hbase" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
-        <Logger name="org.apache.hadoop.ipc" level="${logger_level}" additivity="false">
+        <Logger name="org.apache.hadoop.ipc" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
-        <Logger name="org.apache.hadoop" level="${logger_level}" additivity="false">
+        <Logger name="org.apache.hadoop" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <!-- rmi logging -->
+        <Logger name="sun.datatransfer" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="sun.rmi" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="javax.management.remote" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
 

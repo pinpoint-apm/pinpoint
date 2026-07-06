@@ -143,6 +143,17 @@
             <!--<Appender-ref ref="console"/>-->
         </Logger>
 
+        <!-- rmi logging -->
+        <Logger name="sun.datatransfer" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="sun.rmi" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="javax.management.remote" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
         <Root level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
