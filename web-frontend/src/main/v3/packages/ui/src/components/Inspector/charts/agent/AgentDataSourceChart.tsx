@@ -1,6 +1,6 @@
 import { useGetInspectorAgentDataSourceChartData } from '@pinpoint-fe/ui/src/hooks';
 import { InspectorChart } from '../InspectorChart';
-import { useDataSourceChartConfig } from '../../../../lib';
+import { DATA_SOURCE_TOOLTIP_ID, useDataSourceChartConfig } from '../../../../lib';
 
 export interface AgentDataSourceChartProps {
   className?: string;
@@ -18,7 +18,7 @@ export const AgentDataSourceChart = ({ ...props }: AgentDataSourceChartProps) =>
         chartOptions={chartConfig.chartOptions}
         {...props}
       >
-        <div id="dataSourceTooltip" className="w-full px-2"></div>
+        <div id={DATA_SOURCE_TOOLTIP_ID} className="w-full px-2 mt-3"></div>
       </InspectorChart>
     )
   );

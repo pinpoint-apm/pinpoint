@@ -142,4 +142,3 @@ describe('useChartParseData', () => {
     expect(result.dataKeys).not.toContain('tooltip1');
   });
 });
-

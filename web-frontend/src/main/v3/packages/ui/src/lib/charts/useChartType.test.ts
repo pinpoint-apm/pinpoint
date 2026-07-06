@@ -1,13 +1,5 @@
 import { useChartType } from './useChartType';
 
-// Mock billboard.js
-jest.mock('billboard.js/canvas', () => ({
-  spline: jest.fn(() => ({ type: 'spline' })),
-  areaSpline: jest.fn(() => ({ type: 'areaSpline' })),
-  bar: jest.fn(() => ({ type: 'bar' })),
-  line: jest.fn(() => ({ type: 'line' })),
-}));
-
 describe('useChartType', () => {
   it('should return getChartType function', () => {
     const { getChartType } = useChartType();
@@ -15,59 +7,39 @@ describe('useChartType', () => {
     expect(typeof getChartType).toBe('function');
   });
 
-  it('should return spline type for "spline"', () => {
+  it('should return a smooth line (no area) for "spline"', () => {
     const { getChartType } = useChartType();
 
-    const chartType = getChartType('spline');
-
-    expect(chartType).toBeDefined();
-    // spline() returns an object, so we check it's not null/undefined
-    expect(chartType).not.toBeNull();
+    expect(getChartType('spline')).toEqual({ type: 'line', area: false, smooth: true });
   });
 
-  it('should return areaSpline type for "areaSpline"', () => {
+  it('should return a smooth area line for "areaSpline"', () => {
     const { getChartType } = useChartType();
 
-    const chartType = getChartType('areaSpline');
-
-    expect(chartType).toBeDefined();
-    expect(chartType).not.toBeNull();
+    expect(getChartType('areaSpline')).toEqual({ type: 'line', area: true, smooth: true });
   });
 
-  it('should return bar type for "bar"', () => {
+  it('should return a bar for "bar"', () => {
     const { getChartType } = useChartType();
 
-    const chartType = getChartType('bar');
-
-    expect(chartType).toBeDefined();
-    expect(chartType).not.toBeNull();
+    expect(getChartType('bar')).toEqual({ type: 'bar', area: false, smooth: false });
   });
 
-  it('should return line type as default for unknown type', () => {
+  it('should return a straight line for "line"', () => {
     const { getChartType } = useChartType();
 
-    const chartType = getChartType('unknown');
-
-    expect(chartType).toBeDefined();
-    expect(chartType).not.toBeNull();
+    expect(getChartType('line')).toEqual({ type: 'line', area: false, smooth: false });
   });
 
-  it('should return line type for empty string', () => {
+  it('should return a straight line as default for unknown type', () => {
     const { getChartType } = useChartType();
 
-    const chartType = getChartType('');
-
-    expect(chartType).toBeDefined();
-    expect(chartType).not.toBeNull();
+    expect(getChartType('unknown')).toEqual({ type: 'line', area: false, smooth: false });
   });
 
-  it('should return line type for "line"', () => {
+  it('should return a straight line for empty string', () => {
     const { getChartType } = useChartType();
 
-    const chartType = getChartType('line');
-
-    expect(chartType).toBeDefined();
-    expect(chartType).not.toBeNull();
+    expect(getChartType('')).toEqual({ type: 'line', area: false, smooth: false });
   });
 });
-
