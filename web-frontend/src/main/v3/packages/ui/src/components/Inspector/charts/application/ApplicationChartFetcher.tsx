@@ -41,29 +41,12 @@ export const ApplicationChartFetcher = ({
     metricDefinitionId: chartId,
   });
   const chartConfig = useChartConfig(data, {
-    dataOptions: {
-      colors: {
-        AVG: colors.violet[800],
-        MIN: colors.sky[500],
-        MAX: colors.blue[800],
-      },
-      regions: {
-        MIN: [
-          {
-            style: {
-              dasharray: '2 2',
-            },
-          },
-        ],
-        MAX: [
-          {
-            style: {
-              dasharray: '2 2',
-            },
-          },
-        ],
-      },
+    colors: {
+      AVG: colors.violet[800],
+      MIN: colors.sky[500],
+      MAX: colors.blue[800],
     },
+    dashedFields: ['MIN', 'MAX'],
   });
 
   if (chartConfig) {

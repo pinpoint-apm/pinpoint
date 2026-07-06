@@ -1,155 +1,228 @@
-import 'billboard.js/dist/billboard.css';
 import React from 'react';
-import bb, { ChartOptions, canvas, regions } from 'billboard.js/canvas';
-import { isValid } from 'date-fns';
-import deepmerge from 'deepmerge';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import BillboardJS, { IChart } from '@billboard.js/react';
-import { cn, DEFAULT_CHART_CONFIG } from '../../../lib';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  GraphicComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import { cn, DEFAULT_CHART_CONFIG, InspectorChartOptions } from '../../../lib';
 import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/ui/src/constants';
-import { formatNewLinedDateString } from '@pinpoint-fe/ui/src/utils';
+import { getFormat } from '@pinpoint-fe/ui/src/utils';
+import {
+  getGridBottom,
+  LEGEND_ICON_WIDTH,
+  LEGEND_ITEM_GAP,
+} from '../../../lib/charts/echartsLegendLayout';
+import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
+import {
+  formatAxisTooltip,
+  formatCategoryDateLabel,
+} from '../../../lib/charts/echartsTimeSeriesFormat';
+
+echarts.use([
+  LineChart,
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  GraphicComponent,
+  CanvasRenderer,
+]);
 
 export interface ChartCoreProps {
   data: InspectorAgentChart.Response | InspectorApplicationChart.Response;
-  chartOptions?: ChartOptions;
+  chartOptions?: InspectorChartOptions;
   className?: string;
   emptyMessage?: string;
   style?: React.CSSProperties;
 }
 
+const EMPTY_CHART_OPTIONS: InspectorChartOptions = {
+  seriesOptions: {},
+  yAxis: [],
+  legendShow: true,
+};
+
 export const ChartCore = ({
   data,
-  chartOptions = {},
+  chartOptions = EMPTY_CHART_OPTIONS,
   className,
   emptyMessage = 'No Data',
   style,
 }: ChartCoreProps) => {
-  const prevData = React.useRef([] as (string | number | null)[][]);
-  const chartComponent = React.useRef<IChart>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  // canvas 모드는 차트 높이를 스스로 측정해 캔버스 크기로 쓰는데, suspense 리마운트(agent/시간/지표 변경)
-  // 순간 높이가 0으로 측정되면 billboard 기본값(320px)으로 그려져 박스보다 커지며 잘린다. 컨테이너 높이를
-  // 직접 측정해 size.height로 넘기면 billboard가 측정/폴백 없이 그 높이로 그린다. 컨테이너가 aspect-video든
-  // 고정 높이(h-80)든 실제 높이를 따르므로 소비처별 높이를 모두 지원하고, 리사이즈에도 대응한다.
-  const [measuredHeight, setMeasuredHeight] = React.useState<number>();
-  React.useLayoutEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const updateHeight = () => {
-      const height = container.clientHeight;
-      if (height > 0) {
-        setMeasuredHeight(height);
-        chartComponent.current?.instance?.resize({ height });
-      }
-    };
-    updateHeight();
-    const resizeObserver = new ResizeObserver(updateHeight);
-    resizeObserver.observe(container);
-    return () => resizeObserver.disconnect();
-  }, []);
-  const defaultOptions = {
-    // v4 ESM: canvas 렌더링 모드 사용. regions 모듈은 더 이상 자동 번들되지 않아 명시적으로 등록한다
-    // (application 차트가 data.regions로 점선 영역을 그림).
-    render: {
-      mode: canvas(),
-    },
-    ...regions(),
-    ...(measuredHeight ? { size: { height: measuredHeight } } : {}),
-    data: {
-      x: 'dates',
-      columns: [],
-      empty: {
-        label: {
-          text: emptyMessage,
-        },
-      },
-    },
-    padding: {
-      mode: 'fit',
-      top: DEFAULT_CHART_CONFIG.PADDING_TOP,
-      bottom: DEFAULT_CHART_CONFIG.PADDING_BOTTOM,
-      right: DEFAULT_CHART_CONFIG.PADDING_RIGHT,
-      left: DEFAULT_CHART_CONFIG.PADDING_LEFT,
-    },
-    axis: {
-      x: {
-        type: 'timeseries',
-        tick: {
-          count: DEFAULT_CHART_CONFIG.X_AXIS_TICK_COUNT,
-          format: (date: Date) => {
-            if (isValid(date)) {
-              return `${formatNewLinedDateString(date)}`;
-            }
-            return '';
-          },
-        },
-      },
-      y: {
-        padding: {
-          bottom: 0,
-        },
-        min: 0,
-        default: [0, DEFAULT_CHART_CONFIG.DEFAULT_MAX],
-      },
-    },
-    point: {
-      r: 0,
-      focus: {
-        only: true,
-        expand: {
-          r: 3,
-        },
-      },
-    },
-    tooltip: {
-      linked: true,
-      order: '',
-    },
-    resize: {
-      auto: 'parent',
-      timer: false,
-    },
-  };
-  const options = deepmerge(defaultOptions, chartOptions);
+  const { seriesOptions, yAxis, group, legendShow, tooltipFormatter } = chartOptions;
+  const { chartRef, chartInstanceRef, renderRef } = useEChartsInstance({ group });
 
   React.useEffect(() => {
-    const chart = chartComponent.current?.instance;
-    const chartData = data
-      ? [
-          ['dates', ...data.timestamp],
-          ...data.metricValues.map(({ fieldName, valueList }) => {
-            return [fieldName, ...valueList.map((v) => (v < 0 ? null : v))];
-          }),
-        ]
-      : [];
-    const maxData = Math.max(
-      ...(chartData
-        .slice(1)
-        .map((d) => d.slice(1).filter((v) => v !== null))
-        .flat() as number[]),
-    );
+    if (!chartInstanceRef.current) return;
 
-    const prevKeys = prevData.current.slice(1).map(([fieldName]) => fieldName as string);
-    const currKeys = chartData.slice(1).map(([fieldName]) => fieldName as string);
-    const removedKeys = prevKeys.filter((key) => !currKeys.includes(key));
-    const unload = prevKeys.length === 0 ? false : removedKeys.length !== 0;
-    chart?.load({
-      columns: chartData,
-      unload,
+    const timestamps = data?.timestamp ?? [];
+    // tooltip 전용 필드(chartType: 'tooltip')는 시리즈로 그리지 않고 tooltipFormatter 가 별도로 처리한다.
+    const metricValues = (data?.metricValues ?? []).filter((mv) => mv.chartType !== 'tooltip');
+    const hasData =
+      timestamps.length > 0 &&
+      metricValues.some((mv) => mv.valueList && mv.valueList.some((v) => v >= 0));
+
+    const yAxisList = yAxis.length > 0 ? yAxis : [{ unit: metricValues[0]?.unit ?? '' }];
+
+    // unit 별 최대값.
+    const maxByUnit = new Map<string, number>();
+    metricValues.forEach((mv) => {
+      const unit = seriesOptions[mv.fieldName]?.unit ?? mv.unit;
+      const m = Math.max(0, ...mv.valueList.filter((v) => v >= 0));
+      maxByUnit.set(unit, Math.max(maxByUnit.get(unit) ?? 0, m));
     });
-    chart?.axis.max(maxData === 0 ? DEFAULT_CHART_CONFIG.DEFAULT_MAX : false);
-    chart?.config('tooltip.contents', chartOptions.tooltip?.contents);
-    prevData.current = chartData;
-  }, [data]);
+
+    const series = metricValues.map((mv) => {
+      const seriesOption = seriesOptions[mv.fieldName];
+      const unit = seriesOption?.unit ?? mv.unit;
+      const yAxisIndex = Math.max(
+        0,
+        yAxisList.findIndex((axis) => axis.unit === unit),
+      );
+      // 음수(-1)는 BE 의 미수집(uncollected) 센티넬이므로 null 로 두어 선을 끊는다.
+      const seriesData = mv.valueList.map((v) => (v < 0 ? null : v));
+      const dashed = seriesOption?.dashed;
+
+      return {
+        name: seriesOption?.name ?? mv.fieldName,
+        type: seriesOption?.type === 'bar' ? ('bar' as const) : ('line' as const),
+        yAxisIndex,
+        data: seriesData,
+        stack: seriesOption?.stack,
+        smooth: !!seriesOption?.smooth,
+        showSymbol: false,
+        ...(seriesOption?.area ? { areaStyle: {} } : {}),
+        lineStyle: {
+          width: 1,
+          ...(dashed ? { type: 'dashed' as const } : {}),
+        },
+        ...(seriesOption?.color ? { itemStyle: { color: seriesOption.color } } : {}),
+        // hover 시 다른 시리즈를 흐리게 하지 않는다.
+        emphasis: {
+          focus: 'none' as const,
+        },
+      };
+    });
+
+    const legendNames = legendShow ? series.map((s) => s.name) : [];
+
+    const yAxisEChartsOption = yAxisList.map((axis, index) => {
+      const axisMax = maxByUnit.get(axis.unit) ?? 0;
+      const formatValue = getFormat(axis.unit);
+      // 모든 축을 0 바닥 기준으로 그린다(보조 축 포함). 값이 없으면(전부 0/미수집) 축이 납작해지지 않도록
+      // 기본 최대값을 준다. 실측 음수 값은 없고 -1 은 미수집 센티넬(null 처리)이므로 min 은 항상 0.
+      const range = { min: 0, max: axisMax > 0 ? undefined : DEFAULT_CHART_CONFIG.DEFAULT_MAX };
+      return {
+        type: 'value' as const,
+        position: index === 0 ? ('left' as const) : ('right' as const),
+        ...(index > 1 ? { offset: (index - 1) * DEFAULT_CHART_CONFIG.GRID_RIGHT_MULTI_AXIS } : {}),
+        ...range,
+        ...(axis.name ? { name: axis.name, nameLocation: 'middle' as const, nameGap: 40 } : {}),
+        axisLabel: {
+          formatter: formatValue,
+        },
+        axisLine: { show: true },
+        axisTick: { show: true },
+        splitLine: { show: false },
+        zlevel: 1,
+      };
+    });
+
+    const render = () => {
+      const chart = chartInstanceRef.current;
+      if (!chart) return;
+
+      const containerWidth = chartRef.current?.clientWidth ?? 0;
+      const gridBottom = getGridBottom(legendNames, containerWidth);
+      const gridRight =
+        yAxisList.length > 1
+          ? DEFAULT_CHART_CONFIG.GRID_RIGHT_MULTI_AXIS
+          : DEFAULT_CHART_CONFIG.GRID_RIGHT;
+
+      chart.setOption(
+        {
+          animation: false,
+          legend: {
+            show: legendShow,
+            data: legendNames,
+            bottom: 0,
+            icon: 'square',
+            itemWidth: LEGEND_ICON_WIDTH,
+            itemHeight: 10,
+            itemGap: LEGEND_ITEM_GAP,
+          },
+          grid: {
+            top: DEFAULT_CHART_CONFIG.GRID_TOP,
+            bottom: gridBottom,
+            right: gridRight,
+            left: DEFAULT_CHART_CONFIG.GRID_LEFT,
+          },
+          xAxis: {
+            type: 'category',
+            data: timestamps,
+            axisLabel: {
+              show: true,
+              formatter: formatCategoryDateLabel,
+              showMaxLabel: true,
+              showMinLabel: true,
+            },
+            axisTick: { show: false },
+            zlevel: 1,
+          },
+          yAxis: yAxisEChartsOption,
+          tooltip: {
+            show: true,
+            trigger: 'axis',
+            confine: true,
+            formatter:
+              tooltipFormatter ??
+              ((params: unknown) => formatAxisTooltip(params, getFormat(yAxisList[0].unit))),
+          },
+          series,
+          graphic: !hasData
+            ? [
+                {
+                  type: 'text',
+                  left: 'center',
+                  top: 'middle',
+                  style: {
+                    text: emptyMessage,
+                    fontSize: 18,
+                    fill: '#999',
+                    textAlign: 'center',
+                  },
+                },
+              ]
+            : [],
+        },
+        // agent/시간/지표 변경으로 series 나 y축 수가 줄어도 이전 것이 잔존하지 않도록 항상 교체한다.
+        { replaceMerge: ['series', 'yAxis'] },
+      );
+    };
+
+    renderRef.current = render;
+    render();
+  }, [
+    data,
+    seriesOptions,
+    yAxis,
+    legendShow,
+    tooltipFormatter,
+    emptyMessage,
+    chartInstanceRef,
+    chartRef,
+    renderRef,
+  ]);
 
   return (
     <div
-      ref={containerRef}
       style={style}
       className={cn('w-full h-full min-h-0 overflow-hidden', className)}
-    >
-      <BillboardJS bb={bb} ref={chartComponent} className="h-full w-full" options={options} />
-    </div>
+      ref={chartRef}
+    />
   );
 };

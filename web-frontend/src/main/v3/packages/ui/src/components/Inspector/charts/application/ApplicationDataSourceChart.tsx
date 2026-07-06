@@ -23,29 +23,12 @@ export const ApplicationDataSourceChart = ({ ...props }: ApplicationDataSourceCh
         }
       : undefined,
     {
-      dataOptions: {
-        colors: {
-          AVG: colors.violet[800],
-          MIN: colors.sky[500],
-          MAX: colors.blue[800],
-        },
-        regions: {
-          MIN: [
-            {
-              style: {
-                dasharray: '2 2',
-              },
-            },
-          ],
-          MAX: [
-            {
-              style: {
-                dasharray: '2 2',
-              },
-            },
-          ],
-        },
+      colors: {
+        AVG: colors.violet[800],
+        MIN: colors.sky[500],
+        MAX: colors.blue[800],
       },
+      dashedFields: ['MIN', 'MAX'],
     },
   );
   const tableData = data?.metricValueGroups.map(({ tags }) => {
@@ -62,6 +45,7 @@ export const ApplicationDataSourceChart = ({ ...props }: ApplicationDataSourceCh
         {...props}
       >
         <ApplicationDataSourceChartTable
+          className="mt-3"
           data={tableData}
           onClickRow={({ index }) => {
             setSelectedChartIndex(index);
