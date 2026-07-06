@@ -69,10 +69,23 @@ const convertToTree = (
   items: TransactionInfo.CallStackKeyValueMap[] = [],
   parentId?: string | null,
 ): TransactionInfo.CallStackKeyValueMap[] => {
-  const result: TransactionInfo.CallStackKeyValueMap[] = [];
-
+  // Index nodes by parentId once so both child and Attribute lookups are O(1) during
+  // recursion. A naive scan (items.find / re-filtering items per node) is O(n^2) and
+  // gets slow for large call stacks.
+  const childrenByParentId = new Map<unknown, TransactionInfo.CallStackKeyValueMap[]>();
   for (const item of items) {
-    if (item.parentId === parentId) {
+    const siblings = childrenByParentId.get(item.parentId);
+    if (siblings) {
+      siblings.push(item);
+    } else {
+      childrenByParentId.set(item.parentId, [item]);
+    }
+  }
+
+  const build = (pId: unknown): TransactionInfo.CallStackKeyValueMap[] => {
+    const result: TransactionInfo.CallStackKeyValueMap[] = [];
+
+    for (const item of childrenByParentId.get(pId) ?? []) {
       // The backend emits a separate "Attribute" child row per node. Lift its JSON
       // onto the parent method row (rendered as an icon) and drop the standalone row.
       if (item.title === 'Attribute') {
@@ -83,23 +96,25 @@ const convertToTree = (
         ...item,
       };
 
-      const attributeChild = items.find(
-        (i) => i.parentId === item.id && i.title === 'Attribute',
+      const attributeChild = (childrenByParentId.get(item.id) ?? []).find(
+        (i) => i.title === 'Attribute',
       );
       if (attributeChild) {
         newItem.attributes = attributeChild.arguments;
       }
 
-      const subRows = convertToTree(items, item.id);
+      const subRows = build(item.id);
       if (subRows.length > 0) {
         newItem.subRows = subRows;
       }
 
       result.push(newItem);
     }
-  }
 
-  return result;
+    return result;
+  };
+
+  return build(parentId);
 };
 
 const getAgentKey = (datas: TransactionInfo.Response, rowIndex: number) => {
