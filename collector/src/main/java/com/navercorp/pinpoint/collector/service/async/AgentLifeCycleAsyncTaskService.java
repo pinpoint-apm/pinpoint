@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
 import com.navercorp.pinpoint.collector.service.AgentListStateService;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -66,15 +65,14 @@ public class AgentLifeCycleAsyncTaskService {
         Objects.requireNonNull(agentProperty, "agentProperty");
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
 
-        final int selfService = ServiceUid.DEFAULT_SERVICE_UID_CODE;
-        final int serviceUid = agentProperty.getServiceUid().getUid();
+        final int selfService = agentProperty.getServiceUid().getUid();
         final String applicationName = agentProperty.getApplicationName();
         final String agentId = agentProperty.getAgentId();
 
         final long startTimestamp = agentProperty.getStartTime();
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
         agentLifeCycleService.insert(agentLifeCycleBo);
-        agentListStateService.update(serviceUid, applicationName, agentProperty.getServiceType(), agentId, startTimestamp,
+        agentListStateService.update(selfService, applicationName, agentProperty.getServiceType(), agentId, startTimestamp,
                 agentLifeCycleState, eventTimestamp);
 
         updateAgentState(eventTimestamp, selfService, applicationName, agentProperty.getServiceType(), agentId);
@@ -84,7 +82,7 @@ public class AgentLifeCycleAsyncTaskService {
     public void handlePingEvent(AgentProperty agentProperty, long eventTimestamp) {
         Objects.requireNonNull(agentProperty, "agentProperty");
 
-        final int selfService = ServiceUid.DEFAULT_SERVICE_UID_CODE;
+        final int selfService = agentProperty.getServiceUid().getUid();
         final String applicationName = agentProperty.getApplicationName();
         final String agentId = agentProperty.getAgentId();
 
