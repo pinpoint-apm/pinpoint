@@ -16,6 +16,16 @@ hljs.registerLanguage('java', java);
 hljs.registerLanguage('json', json);
 hljs.registerLanguage('text', text);
 
+// The highlighted output is rendered via dangerouslySetInnerHTML. hljs.highlight() escapes
+// its output, but the fallback path uses the raw code, so it must be escaped to avoid XSS.
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 export interface HighLightCodeProps {
   language?: LanguageType;
   code?: string;
@@ -42,7 +52,7 @@ export const HighLightCode = ({
       setHighLightedCode(value);
     } catch (e) {
       console.error('Highlight Error', e);
-      setHighLightedCode(code || '');
+      setHighLightedCode(escapeHtml(code || ''));
     }
   }, [code, language]);
 
