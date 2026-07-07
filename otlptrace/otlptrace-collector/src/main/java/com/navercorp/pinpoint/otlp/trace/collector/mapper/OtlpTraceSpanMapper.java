@@ -65,8 +65,7 @@ public class OtlpTraceSpanMapper {
     }
 
     SpanBo map(IdAndName idAndName, Span span) {
-        SpanBo spanBo = new SpanBo();
-        spanBo.setTraceSourceType(TraceSourceType.OPENTELEMETRY);
+        SpanBo spanBo = new SpanBo(TraceSourceType.OPENTELEMETRY);
         spanBo.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {
             spanBo.setAgentName(idAndName.agentName());
