@@ -39,13 +39,12 @@ public enum TraceSourceType {
     }
 
     public static TraceSourceType of(byte code) {
-        for (TraceSourceType type : VALUES) {
-            if (type.code == code) {
-                return type;
-            }
+        if (code == PINPOINT.code) {
+            return PINPOINT;
+        }
+        if (code == OPENTELEMETRY.code) {
+            return OPENTELEMETRY;
         }
         throw new IllegalArgumentException("unknown TraceSourceType code:" + code);
     }
-
-    private static final TraceSourceType[] VALUES = values();
 }

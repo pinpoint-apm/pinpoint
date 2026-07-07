@@ -43,6 +43,9 @@ class TraceSourceTypeTest {
 
     @Test
     void of_roundTrip() {
+        // of() is a hand-written if-else: this exhaustive values() sweep fails when a new
+        // constant is added without extending of(), and isSameAs also fails when a constant
+        // reuses another's code (of() would resolve to the first match).
         for (TraceSourceType type : TraceSourceType.values()) {
             assertThat(TraceSourceType.of(type.getCode())).isSameAs(type);
         }
