@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
@@ -94,13 +95,7 @@ public class GrpcSpanBinder {
     }
 
     public SpanBo bind(SpanBo spanBo, PSpan pSpan, ServerHeader serverHeader, long requestTime) {
-        spanBo.setAgentId(serverHeader.getAgentId());
-        spanBo.setAgentName(serverHeader.getAgentName());
-        spanBo.setApplicationName(serverHeader.getApplicationName());
-        spanBo.setServiceName(serverHeader.getServiceName());
-        spanBo.setServiceUid(serverHeader.getServiceUid());
-
-        spanBo.setAgentStartTime(serverHeader.getAgentStartTime());
+        spanBo.setSpanOwner(SpanOwner.from(serverHeader));
         spanBo.setCollectorAcceptTime(requestTime);
 
         if (!pSpan.hasTransactionId()) {
@@ -286,13 +281,7 @@ public class GrpcSpanBinder {
     }
 
     public SpanChunkBo bind(SpanChunkBo spanChunkBo, PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
-        spanChunkBo.setAgentId(serverHeader.getAgentId());
-        spanChunkBo.setAgentName(serverHeader.getAgentName());
-        spanChunkBo.setApplicationName(serverHeader.getApplicationName());
-        spanChunkBo.setServiceName(serverHeader.getServiceName());
-        spanChunkBo.setServiceUid(serverHeader.getServiceUid());
-
-        spanChunkBo.setAgentStartTime(serverHeader.getAgentStartTime());
+        spanChunkBo.setSpanOwner(SpanOwner.from(serverHeader));
         spanChunkBo.setCollectorAcceptTime(requestTime);
 
         spanChunkBo.setApplicationServiceType((short) pSpanChunk.getApplicationServiceType());

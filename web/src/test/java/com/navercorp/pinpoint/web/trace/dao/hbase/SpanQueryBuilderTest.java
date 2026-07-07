@@ -46,8 +46,8 @@ public class SpanQueryBuilderTest {
         span.setTransactionId(new PinpointServerTraceId("agent", 1, 2));
         span.setCollectorAcceptTime(100);
         span.setElapsed(200);
-        span.setApplicationName("appName");
-        span.setAgentId("agentId");
+        span.getSpanOwner().setApplicationName("appName");
+        span.getSpanOwner().setAgentId("agentId");
 
         Assertions.assertEquals(spanQuery.getTransactionId(), span.getTransactionId());
         Assertions.assertTrue(spanQuery.getSpanFilter().test(span));
@@ -65,7 +65,7 @@ public class SpanQueryBuilderTest {
         span.setTransactionId(txId);
         span.setCollectorAcceptTime(100);
         span.setElapsed(200);
-        span.setApplicationName("appName");
+        span.getSpanOwner().setApplicationName("appName");
 
         Assertions.assertTrue(filter.test(span));
     }
@@ -135,7 +135,7 @@ public class SpanQueryBuilderTest {
         Predicate<SpanBo> filter = SpanFilters.agentIdFilter("agentId");
 
         SpanBo span = new SpanBo();
-        span.setAgentId("agentId");
+        span.getSpanOwner().setAgentId("agentId");
 
         Assertions.assertTrue(filter.test(span));
     }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -71,12 +72,13 @@ public class OtlpTraceSpanMapper {
 
     SpanBo map(IdAndName idAndName, Span span) {
         SpanBo spanBo = new SpanBo(TraceSourceType.OPENTELEMETRY);
-        spanBo.setAgentId(idAndName.agentId());
+        final SpanOwner owner = spanBo.getSpanOwner();
+        owner.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {
-            spanBo.setAgentName(idAndName.agentName());
+            owner.setAgentName(idAndName.agentName());
         }
-        spanBo.setApplicationName(idAndName.applicationName());
-        spanBo.setServiceName(idAndName.serviceName());
+        owner.setApplicationName(idAndName.applicationName());
+        owner.setServiceName(idAndName.serviceName());
 
         spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
         spanBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getSpanId()));
@@ -86,7 +88,7 @@ public class OtlpTraceSpanMapper {
         final long elapsedNanos = endTimeNanos - startTimeNanos;
         int elapsed = (int) TimeUnit.NANOSECONDS.toMillis(elapsedNanos);
         spanBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos, endTimeNanos, elapsed);
-        spanBo.setAgentStartTime(TimeUnit.NANOSECONDS.toMillis(startTimeNanos));
+        owner.setAgentStartTime(TimeUnit.NANOSECONDS.toMillis(startTimeNanos));
         spanBo.setCollectorAcceptTime(System.currentTimeMillis());
         spanBo.setFlag((short) 0);
         spanBo.setExceptionClass(null);

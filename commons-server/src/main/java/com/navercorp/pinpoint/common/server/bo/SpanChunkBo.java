@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
-import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
-import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.jspecify.annotations.NonNull;
@@ -42,16 +40,7 @@ public class SpanChunkBo implements BasicSpan {
     @NonNull
     private final TraceSourceType traceSourceType;
 
-    @NonNull
-    private String agentId;
-    private String agentName;
-    @NonNull
-    private String applicationName;
-    @NonNull
-    private String serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
-    private Supplier<ServiceUid> serviceUidSupplier = () -> ServiceUid.DEFAULT;
-
-    private long agentStartTime;
+    private SpanOwner owner = new SpanOwner();
 
     private ServerTraceId transactionId;
 
@@ -92,61 +81,45 @@ public class SpanChunkBo implements BasicSpan {
     }
 
     @Override
-    public String getAgentId() {
-        return agentId;
+    public SpanOwner getSpanOwner() {
+        return owner;
     }
 
-    public void setAgentId(String agentId) {
-        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
+    @Override
+    public void setSpanOwner(SpanOwner owner) {
+        this.owner = Objects.requireNonNull(owner, "owner");
+    }
+
+    @Override
+    public String getAgentId() {
+        return owner.getAgentId();
     }
 
     @Override
     public String getAgentName() {
-        return agentName;
-    }
-
-    public void setAgentName(String agentName) {
-        this.agentName = agentName;
+        return owner.getAgentName();
     }
 
     @NonNull
     @Override
     public String getApplicationName() {
-        return applicationName;
-    }
-
-    public void setApplicationName(String applicationName) {
-        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        return owner.getApplicationName();
     }
 
     @NonNull
     @Override
     public String getServiceName() {
-        return serviceName;
-    }
-
-    @Override
-    public void setServiceName(String serviceName) {
-        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
+        return owner.getServiceName();
     }
 
     @Override
     public ServiceUid getServiceUid() {
-        return serviceUidSupplier.get();
-    }
-
-    @Override
-    public void setServiceUid(Supplier<ServiceUid> serviceUidSupplier) {
-        this.serviceUidSupplier = Objects.requireNonNull(serviceUidSupplier, "serviceUidSupplier");
+        return owner.getServiceUid();
     }
 
     @Override
     public long getAgentStartTime() {
-        return agentStartTime;
-    }
-
-    public void setAgentStartTime(long agentStartTime) {
-        this.agentStartTime = NumberPrecondition.requirePositiveOrZero(agentStartTime, "agentStartTime");
+        return owner.getAgentStartTime();
     }
 
     @Override
@@ -262,12 +235,7 @@ public class SpanChunkBo implements BasicSpan {
         return "SpanChunkBo{" +
                 "version=" + version +
                 ", traceSourceType=" + traceSourceType +
-                ", agentId='" + agentId + '\'' +
-                ", agentName='" + agentName + '\'' +
-                ", applicationName='" + applicationName + '\'' +
-                ", serviceName='" + serviceName + '\'' +
-                ", serviceUid='" + serviceUidSupplier.get() + '\'' +
-                ", agentStartTime=" + agentStartTime +
+                ", owner=" + owner +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +
                 ", endPoint='" + endPoint + '\'' +

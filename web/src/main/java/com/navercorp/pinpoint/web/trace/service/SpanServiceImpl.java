@@ -360,7 +360,7 @@ public class SpanServiceImpl implements SpanService {
         for (SpanBo spanBo : list) {
             AgentIdStartTimeKey key = new AgentIdStartTimeKey(spanBo.getAgentId(), spanBo.getAgentStartTime());
             Optional<String> agentName = agentNameMap.get(key);
-            spanBo.setAgentName(agentName.orElse(StringUtils.EMPTY));
+            spanBo.getSpanOwner().setAgentName(agentName.orElse(StringUtils.EMPTY));
         }
     }
 

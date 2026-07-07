@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -44,16 +45,17 @@ public class OtlpTraceSpanChunkMapper {
     SpanChunkBo map(IdAndName idAndName, Span span) {
         SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.OPENTELEMETRY);
 
-        spanChunkBo.setAgentId(idAndName.agentId());
+        final SpanOwner owner = spanChunkBo.getSpanOwner();
+        owner.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {
-            spanChunkBo.setAgentName(idAndName.agentName());
+            owner.setAgentName(idAndName.agentName());
         }
-        spanChunkBo.setApplicationName(idAndName.applicationName());
-        spanChunkBo.setServiceName(idAndName.serviceName());
+        owner.setApplicationName(idAndName.applicationName());
+        owner.setServiceName(idAndName.serviceName());
 
         final long startTimeNanos = span.getStartTimeUnixNano();
         // The sequence value is 0, so make a difference with the agentStartTime value.
-        spanChunkBo.setAgentStartTime(generateAgentStartTime());
+        owner.setAgentStartTime(generateAgentStartTime());
         spanChunkBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
         spanChunkBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getParentSpanId()));
         // spanChunkBo.setEndPoint();

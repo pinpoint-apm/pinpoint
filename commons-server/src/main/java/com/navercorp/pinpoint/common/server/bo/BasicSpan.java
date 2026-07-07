@@ -32,23 +32,20 @@ public interface BasicSpan {
     @NonNull
     TraceSourceType getTraceSourceType();
 
+    SpanOwner getSpanOwner();
+    void setSpanOwner(SpanOwner owner);
+
     String getAgentId();
-    void setAgentId(String agentId);
 
     String getAgentName();
-    void setAgentName(String agentName);
 
     String getApplicationName();
-    void setApplicationName(String applicationName);
 
     String getServiceName();
-    void setServiceName(String serviceName);
 
     ServiceUid getServiceUid();
-    void setServiceUid(Supplier<ServiceUid> serviceUidSupplier);
 
     long getAgentStartTime();
-    void setAgentStartTime(long agentStartTime);
 
     long getSpanId();
     void setSpanId(long spanId);
