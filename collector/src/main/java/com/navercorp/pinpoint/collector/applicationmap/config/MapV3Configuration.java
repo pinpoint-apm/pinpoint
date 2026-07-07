@@ -39,6 +39,8 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.v3.SelfAgentNodeFacto
 import com.navercorp.pinpoint.collector.applicationmap.dao.v3.SelfAppNodeFactory;
 import com.navercorp.pinpoint.collector.applicationmap.dao.v3.SelfAppNodeFactoryV3;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
+import com.navercorp.pinpoint.collector.util.CaffeineDedupCache;
+import com.navercorp.pinpoint.collector.util.DedupCache;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkFactory;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkProperties;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
@@ -54,6 +56,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
 
 @Configuration
 public class MapV3Configuration {
@@ -170,14 +174,23 @@ public class MapV3Configuration {
         return new HbaseMapApplicationResponseDao(mapLinkProperties, table, tableNameProvider, bulkWriter, selfAppNodeFactory);
     }
 
+    @Bean
+    public DedupCache<HbaseHostApplicationMapDao.HostLinkKey> hostLinkDedupCache(TimeSlot timeSlot) {
+        // TTL = time slot length + margin; early expiry only costs a duplicate (idempotent) put
+        Duration expireAfterWrite = Duration.ofMillis(timeSlot.getResolution())
+                .plusSeconds(1);
+        return new CaffeineDedupCache<>(expireAfterWrite, 100_000);
+    }
+
     @Bean(name = "hostApplicationMapDaoV3")
     public HostApplicationMapDao hostApplicationMapDao(HbaseOperations hbaseTemplate,
                                                        TableNameProvider tableNameProvider,
                                                        @Qualifier("uidRowKeyDistributor") RowKeyDistributor rowKeyDistributor,
+                                                       DedupCache<HbaseHostApplicationMapDao.HostLinkKey> hostLinkDedupCache,
                                                        TimeSlot timeSlot) {
         HostRowKeyEncoder encoder = new HostRowKeyEncoderV3(rowKeyDistributor.getByteHasher());
         HostLinkFactory hostLinkFactory = new HostLinkFactoryV3(encoder);
         HbaseColumnFamily table = HbaseTables.MAP_APP_HOST;
-        return new HbaseHostApplicationMapDao(hbaseTemplate, table, tableNameProvider, hostLinkFactory, timeSlot);
+        return new HbaseHostApplicationMapDao(hbaseTemplate, table, tableNameProvider, hostLinkFactory, hostLinkDedupCache, timeSlot);
     }
 }
