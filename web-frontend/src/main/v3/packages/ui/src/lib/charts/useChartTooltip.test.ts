@@ -18,7 +18,7 @@ describe('createChartTooltipFormatter', () => {
   ];
 
   it('should return an empty string when params is not an array or is empty', () => {
-    const formatter = createChartTooltipFormatter({ unitByField: {}, tooltipData: [] });
+    const formatter = createChartTooltipFormatter({ unitBySeriesName: {}, tooltipData: [] });
 
     expect(formatter([])).toBe('');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,7 +27,7 @@ describe('createChartTooltipFormatter', () => {
 
   it('should render a row per series with its formatted value', () => {
     const formatter = createChartTooltipFormatter({
-      unitByField: { field1: 'count', field2: 'count' },
+      unitBySeriesName: { field1: 'count', field2: 'count' },
       tooltipData: [],
     });
 
@@ -43,7 +43,7 @@ describe('createChartTooltipFormatter', () => {
 
   it('should skip series whose value is null', () => {
     const formatter = createChartTooltipFormatter({
-      unitByField: { field1: 'count', field2: 'count' },
+      unitBySeriesName: { field1: 'count', field2: 'count' },
       tooltipData: [],
     });
 
@@ -61,7 +61,7 @@ describe('createChartTooltipFormatter', () => {
       { chartType: 'tooltip', fieldName: 'extra', unit: 'count', valueList: [10, 20, 30] },
     ];
     const formatter = createChartTooltipFormatter({
-      unitByField: { field1: 'count' },
+      unitBySeriesName: { field1: 'count' },
       tooltipData,
     });
 
@@ -76,7 +76,7 @@ describe('createChartTooltipFormatter', () => {
 
   it('should escape HTML in series names to prevent injection', () => {
     const formatter = createChartTooltipFormatter({
-      unitByField: { '<img src=x>': 'count' },
+      unitBySeriesName: { '<img src=x>': 'count' },
       tooltipData: [],
     });
 

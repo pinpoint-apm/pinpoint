@@ -90,10 +90,15 @@ export const useChartConfig = (
     {},
   );
 
-  const unitByField = chartMetricData.reduce<Record<string, string>>((acc, { fieldName, unit }) => {
-    acc[fieldName] = unit;
-    return acc;
-  }, {});
+  // tooltip 포맷터는 echarts series 이름(param.seriesName)으로 unit 을 조회하므로,
+  // ChartCore 의 series 이름과 동일한 표시명(name ?? fieldName) 기준으로 맵을 만든다.
+  const unitBySeriesName = chartMetricData.reduce<Record<string, string>>(
+    (acc, { fieldName, unit }) => {
+      acc[seriesOptions[fieldName]?.name ?? fieldName] = unit;
+      return acc;
+    },
+    {},
+  );
 
   const chartOptions: InspectorChartOptions = {
     seriesOptions,
@@ -103,7 +108,7 @@ export const useChartConfig = (
       : INSPECTOR_CHART_GROUP,
     legendShow: initOptions?.legendShow ?? true,
     tooltipFormatter: createChartTooltipFormatter({
-      unitByField,
+      unitBySeriesName,
       tooltipData: chartTooltipData,
     }),
   };
