@@ -26,12 +26,14 @@ const row = (color: string | undefined, name: string, value: string) =>
    </div>`;
 
 // 렌더링되는 시리즈(params)와 tooltip 전용 데이터(tooltipData)를 합쳐 tooltip HTML 을 만드는 포맷터를 생성한다.
-// 시리즈마다 unit 이 다를 수 있어 unitByField 로 각 시리즈의 포맷을 적용한다.
+// 시리즈마다 unit 이 다를 수 있어 unit 맵으로 각 시리즈의 포맷을 적용한다.
+// 조회 키는 echarts 가 실제로 쓰는 series 이름(param.seriesName)이므로, 맵도 반드시 그 이름(표시명 = name ?? fieldName)
+// 기준으로 만들어야 한다. fieldName 기준으로 만들면 표시명을 별도 지정한 시리즈에서 포맷이 어긋난다.
 export const createChartTooltipFormatter = ({
-  unitByField,
+  unitBySeriesName,
   tooltipData,
 }: {
-  unitByField: Record<string, string>;
+  unitBySeriesName: Record<string, string>;
   tooltipData: (InspectorAgentChart.MetricValue | InspectorApplicationChart.MetricValue)[];
 }) => {
   return (params: AxisTooltipParam[]) => {
@@ -48,7 +50,7 @@ export const createChartTooltipFormatter = ({
       .map((param) => {
         if (param.value == null) return null;
         const name = param.seriesName ?? '';
-        return row(param.color, name, getFormat(unitByField[name] ?? '')(param.value));
+        return row(param.color, name, getFormat(unitBySeriesName[name] ?? '')(param.value));
       })
       .filter(Boolean)
       .join('');
