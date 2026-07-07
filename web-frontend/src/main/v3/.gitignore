@@ -45,3 +45,6 @@ storybook-static
 dist
 
 **/.vite/*
+
+# claude agent-generated local memory (per-machine, not shared)
+**/.claude/agent-memory/
