@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class ServiceLookupLoadProperties {
 
-    @Value("${collector.service.lookup.cache.load.warmup.enabled:true}")
-    private boolean warmupEnabled = true;
+    @Value("${collector.service.lookup.cache.load.warmup.enabled:false}")
+    private boolean warmupEnabled;
     @Value("${collector.service.lookup.cache.load.refresh.enabled:false}")
     private boolean refreshEnabled;
     @Value("${collector.service.lookup.cache.load.refresh.interval:60000}")
