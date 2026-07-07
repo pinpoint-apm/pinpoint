@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
@@ -416,14 +417,16 @@ public class SpanDecoderV0 implements SpanDecoder {
     }
 
     private void readQualifier(BasicSpan basicSpan, Buffer buffer, SpanDecodingContext decodingContext) {
+        final SpanOwner owner = basicSpan.getSpanOwner();
+
         String applicationName = decodingContext.encoding(buffer.readPrefixedBytes());
-        basicSpan.setApplicationName(applicationName);
+        owner.setApplicationName(applicationName);
 
         String agentId = decodingContext.encoding(buffer.readPrefixedBytes());
-        basicSpan.setAgentId(agentId);
+        owner.setAgentId(agentId);
 
         long agentStartTime = buffer.readVLong();
-        basicSpan.setAgentStartTime(agentStartTime);
+        owner.setAgentStartTime(agentStartTime);
 
         long spanId = buffer.readLong();
         basicSpan.setSpanId(spanId);

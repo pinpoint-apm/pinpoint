@@ -45,8 +45,8 @@ public class MetaSpanCallTreeFactory {
     public CallTree unknown(final long startTimeMillis) {
         final SpanBo rootSpan = new SpanBo();
         rootSpan.setTransactionId(new PinpointServerTraceId(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
-        rootSpan.setAgentId(UNKNOWN_AGENT_ID);
-        rootSpan.setApplicationName("UNKNOWN");
+        rootSpan.getSpanOwner().setAgentId(UNKNOWN_AGENT_ID);
+        rootSpan.getSpanOwner().setApplicationName("UNKNOWN");
         rootSpan.setTraceTime(SpanVersion.TRACE_V1, startTimeMillis, 0);
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
@@ -71,8 +71,8 @@ public class MetaSpanCallTreeFactory {
         rootSpan.setTraceTime(SpanVersion.TRACE_V1, startTimeMillis, 0);
 
         rootSpan.setTransactionId(new PinpointServerTraceId(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
-        rootSpan.setAgentId(CORRUPTED_AGENT_ID);
-        rootSpan.setApplicationName("CORRUPTED");
+        rootSpan.getSpanOwner().setAgentId(CORRUPTED_AGENT_ID);
+        rootSpan.getSpanOwner().setApplicationName("CORRUPTED");
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,

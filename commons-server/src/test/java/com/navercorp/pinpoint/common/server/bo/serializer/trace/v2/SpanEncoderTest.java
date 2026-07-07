@@ -218,7 +218,7 @@ public class SpanEncoderTest {
 
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
 
-        List<String> excludeField = List.of("parentApplication", "annotationBoList", "spanEventBoList", "agentName");
+        List<String> excludeField = List.of("parentApplication", "annotationBoList", "spanEventBoList", "owner.agentName");
         Assertions.assertThat(decode)
                 .usingRecursiveComparison()
                 .ignoringFields(excludeField.toArray(new String[0]))
@@ -257,7 +257,7 @@ public class SpanEncoderTest {
         // logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
 
         List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType");
-        List<String> excludeField = List.of("spanEventBoList", "localAsyncId", "agentName");
+        List<String> excludeField = List.of("spanEventBoList", "localAsyncId", "owner.agentName");
         notSerializedField.addAll(excludeField);
         Assertions.assertThat(decode)
                 .usingRecursiveComparison()
