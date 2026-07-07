@@ -315,8 +315,8 @@ public class CallTreeTest {
     private Align makeSpanAlign(long startTime, int elapsed) {
         SpanBo span = new SpanBo();
         span.setTraceTime(SpanVersion.TRACE_V1, startTime, elapsed);
-        span.setAgentId("agentId");
-        span.setApplicationName("applicationId");
+        span.getSpanOwner().setAgentId("agentId");
+        span.getSpanOwner().setApplicationName("applicationId");
 
         return new SpanAlign(span);
     }
@@ -327,8 +327,8 @@ public class CallTreeTest {
 
     private Align makeSpanAlign(final boolean async, final short sequence, final int nextAsyncId, final int asyncId) {
         SpanBo span = new SpanBo();
-        span.setAgentId("agentId");
-        span.setApplicationName("applicationName");
+        span.getSpanOwner().setAgentId("agentId");
+        span.getSpanOwner().setApplicationName("applicationName");
         return makeSpanAlign(span, async, sequence, nextAsyncId, asyncId, -1, -1);
     }
 
@@ -348,9 +348,9 @@ public class CallTreeTest {
         spanChunkBo.setVersion(span.getVersion());
         spanChunkBo.setTransactionId(span.getTransactionId());
         spanChunkBo.setSpanId(span.getSpanId());
-        spanChunkBo.setAgentId(span.getAgentId());
-        spanChunkBo.setAgentName(span.getAgentName());
-        spanChunkBo.setApplicationName(span.getApplicationName());
+        spanChunkBo.getSpanOwner().setAgentId(span.getAgentId());
+        spanChunkBo.getSpanOwner().setAgentName(span.getAgentName());
+        spanChunkBo.getSpanOwner().setApplicationName(span.getApplicationName());
         spanChunkBo.setApplicationServiceType(span.getApplicationServiceType());
         spanChunkBo.setCollectorAcceptTime(span.getCollectorAcceptTime());
         spanChunkBo.setEndPoint(span.getEndPoint());

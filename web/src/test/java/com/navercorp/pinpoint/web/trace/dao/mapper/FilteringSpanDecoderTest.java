@@ -230,7 +230,7 @@ public class FilteringSpanDecoderTest {
             spanBo.setElapsed(createElapsed());
 
             if (applicationName != null) {
-                spanBo.setApplicationName("appName");
+                spanBo.getSpanOwner().setApplicationName("appName");
             }
 
             return spanBo;

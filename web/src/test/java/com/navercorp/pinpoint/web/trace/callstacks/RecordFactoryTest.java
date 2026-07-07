@@ -289,12 +289,12 @@ public class RecordFactoryTest {
 
     private static SpanBo newSpanBo(SpanEventBo spanEventBo1) {
         SpanBo spanBo = new SpanBo();
-        spanBo.setAgentId("express-node-sample-id");
-        spanBo.setAgentName("");
-        spanBo.setApplicationName("express-node-sample-name");
-        spanBo.setServiceName("express-node-sample-service");
-        spanBo.setServiceUid(() -> ServiceUid.of(100));
-        spanBo.setAgentStartTime(1670293953108L);
+        spanBo.getSpanOwner().setAgentId("express-node-sample-id");
+        spanBo.getSpanOwner().setAgentName("");
+        spanBo.getSpanOwner().setApplicationName("express-node-sample-name");
+        spanBo.getSpanOwner().setServiceName("express-node-sample-service");
+        spanBo.getSpanOwner().setServiceUid(() -> ServiceUid.of(100));
+        spanBo.getSpanOwner().setAgentStartTime(1670293953108L);
         spanBo.setTransactionId(new PinpointServerTraceId("express-node-sample-id", 1670293953108L, 30));
         spanBo.setSpanId(8174884636707391L);
         spanBo.setParentSpanId(-1);

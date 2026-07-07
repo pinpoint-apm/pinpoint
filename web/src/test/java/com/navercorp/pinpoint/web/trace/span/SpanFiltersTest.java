@@ -47,7 +47,7 @@ public class SpanFiltersTest {
         Predicate<SpanBo> filter = SpanFilters.spanFilter(spanId, agentId, collectorAcceptTime);
         SpanBo spanBo = new SpanBo();
         spanBo.setCollectorAcceptTime(collectorAcceptTime);
-        spanBo.setAgentId(agentId);
+        spanBo.getSpanOwner().setAgentId(agentId);
         spanBo.setSpanId(spanId);
         Assertions.assertTrue(filter.test(spanBo));
     }
@@ -57,7 +57,7 @@ public class SpanFiltersTest {
         Predicate<SpanBo> filter = SpanFilters.spanFilter(-1, agentId, collectorAcceptTime);
         SpanBo spanBo = new SpanBo();
         spanBo.setCollectorAcceptTime(collectorAcceptTime);
-        spanBo.setAgentId(agentId);
+        spanBo.getSpanOwner().setAgentId(agentId);
         spanBo.setSpanId(1234);
         Assertions.assertTrue(filter.test(spanBo));
     }
