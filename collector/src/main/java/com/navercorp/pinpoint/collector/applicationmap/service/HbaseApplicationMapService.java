@@ -24,12 +24,14 @@ import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
@@ -239,10 +241,21 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     }
 
     private void logInvalidSpan(SpanBo span, InvalidSpanReason reason) {
-        logger.info("Invalid span found. reason:{} span {}/{}/{}", reason, span.getServiceName(), span.getApplicationName(), span.getAgentId());
+        // OTel-sourced spans routinely lack Pinpoint parent-app context (upstream does not
+        // propagate a pp= tracestate entry), so an invalid span is expected noise rather than
+        // an anomaly here. Keep it at debug for OTel and at info for native Pinpoint spans,
+        // where the same reason genuinely signals lost propagation.
+        final Level level = resolveInvalidSpanLevel(span);
+        if (logger.isEnabled(level)) {
+            logger.log(level, "Invalid span found. reason:{} span {}/{}/{}", reason, span.getServiceName(), span.getApplicationName(), span.getAgentId());
+        }
         if (logger.isDebugEnabled()) {
             logger.debug("Invalid span found. reason:{} detailed span {}", reason, span);
         }
+    }
+
+    private Level resolveInvalidSpanLevel(SpanBo span) {
+        return span.getTraceSourceType() == TraceSourceType.OPENTELEMETRY ? Level.DEBUG : Level.INFO;
     }
 
     private enum InvalidSpanReason {
