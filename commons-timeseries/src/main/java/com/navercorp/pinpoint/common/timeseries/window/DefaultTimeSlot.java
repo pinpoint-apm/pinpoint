@@ -43,4 +43,9 @@ public class DefaultTimeSlot implements TimeSlot {
         return (time / resolution) * resolution;
     }
 
+    @Override
+    public long getResolution() {
+        return resolution;
+    }
+
 }

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.collector.util.AtomicLongUpdateMap;
+import com.navercorp.pinpoint.collector.util.DedupCache;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -51,20 +51,22 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private final HostLinkFactory hostLinkFactory;
 
 
-    // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
-    private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
+    // dedup: write each (parent, self, host) row at most once per time slot.
+    private final DedupCache<HostLinkKey> updater;
 
 
     public HbaseHostApplicationMapDao(HbaseOperations hbaseTemplate,
                                       HbaseColumnFamily table,
                                       TableNameProvider tableNameProvider,
                                       HostLinkFactory hostLinkFactory,
+                                      DedupCache<HostLinkKey> updater,
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.table = Objects.requireNonNull(table, "table");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
 
         this.hostLinkFactory = Objects.requireNonNull(hostLinkFactory, "hostLinkFactory");
+        this.updater = Objects.requireNonNull(updater, "updater");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
@@ -80,8 +82,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         final long statisticsRowSlot = timeSlot.getTimeSlot(requestTime);
 
-        final CacheKey cacheKey = new CacheKey(parentVertex, selfVertex, host);
-        final boolean needUpdate = updater.update(cacheKey, statisticsRowSlot);
+        final HostLinkKey cacheKey = new HostLinkKey(parentVertex, selfVertex, host, statisticsRowSlot);
+        final boolean needUpdate = updater.update(cacheKey);
         if (needUpdate) {
             insertHostVer2(statisticsRowSlot, parentVertex, selfVertex, host);
         }
@@ -106,12 +108,12 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     }
 
-    private record CacheKey(Vertex parent, Vertex self, String host) {
+    public record HostLinkKey(Vertex parent, Vertex self, String host, long timeSlot) {
 
-            private CacheKey {
-                Objects.requireNonNull(parent, "parent");
-                Objects.requireNonNull(self, "self");
-                Objects.requireNonNull(host, "host");
-            }
+        public HostLinkKey {
+            Objects.requireNonNull(parent, "parent");
+            Objects.requireNonNull(self, "self");
+            Objects.requireNonNull(host, "host");
+        }
     }
 }
