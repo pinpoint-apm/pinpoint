@@ -75,11 +75,10 @@ public class SpanDecoderV0 implements SpanDecoder {
 
     private SpanChunkBo readSpanChunk(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext,
                                       TraceSourceType traceSourceType) {
-        final SpanChunkBo spanChunk = new SpanChunkBo();
+        final SpanChunkBo spanChunk = new SpanChunkBo(traceSourceType);
 
         final ServerTraceId transactionId = decodingContext.getTransactionId();
         spanChunk.setTransactionId(transactionId);
-        spanChunk.setTraceSourceType(traceSourceType);
         spanChunk.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
 
@@ -93,11 +92,10 @@ public class SpanDecoderV0 implements SpanDecoder {
 
     private SpanBo readSpan(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext,
                             TraceSourceType traceSourceType) {
-        final SpanBo span = new SpanBo();
+        final SpanBo span = new SpanBo(traceSourceType);
 
         final ServerTraceId transactionId = decodingContext.getTransactionId();
         span.setTransactionId(transactionId);
-        span.setTraceSourceType(traceSourceType);
         span.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
         readQualifier(span, qualifier, decodingContext);

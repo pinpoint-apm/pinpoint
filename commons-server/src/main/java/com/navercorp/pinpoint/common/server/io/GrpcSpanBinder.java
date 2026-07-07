@@ -90,7 +90,10 @@ public class GrpcSpanBinder {
 
     // for test
     SpanBo newSpanBo(PSpan pSpan, ServerHeader serverHeader, long requestTime) {
-        final SpanBo spanBo = new SpanBo();
+        return bind(new SpanBo(), pSpan, serverHeader, requestTime);
+    }
+
+    public SpanBo bind(SpanBo spanBo, PSpan pSpan, ServerHeader serverHeader, long requestTime) {
         spanBo.setAgentId(serverHeader.getAgentId());
         spanBo.setAgentName(serverHeader.getAgentName());
         spanBo.setApplicationName(serverHeader.getApplicationName());
@@ -279,7 +282,10 @@ public class GrpcSpanBinder {
 
     // for test
     SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
-        final SpanChunkBo spanChunkBo = new SpanChunkBo();
+        return bind(new SpanChunkBo(), pSpanChunk, serverHeader, requestTime);
+    }
+
+    public SpanChunkBo bind(SpanChunkBo spanChunkBo, PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
         spanChunkBo.setAgentId(serverHeader.getAgentId());
         spanChunkBo.setAgentName(serverHeader.getAgentName());
         spanChunkBo.setApplicationName(serverHeader.getApplicationName());

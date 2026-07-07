@@ -42,6 +42,9 @@ public class SpanBo implements BasicSpan {
     // version 0 means that the type of prefix's size is int
     private byte version = 0;
 
+    @NonNull
+    private final TraceSourceType traceSourceType;
+
     //  private AgentKeyBo agentKeyBo;
     @NonNull
     private String agentId;
@@ -57,8 +60,6 @@ public class SpanBo implements BasicSpan {
     private long agentStartTime;
 
     private ServerTraceId transactionId;
-
-    private TraceSourceType traceSourceType = TraceSourceType.PINPOINT;
 
     private long spanId;
     private long parentSpanId;
@@ -97,6 +98,11 @@ public class SpanBo implements BasicSpan {
     private List<AttributeBo> attributeBoList = new ArrayList<>();
 
     public SpanBo() {
+        this(TraceSourceType.PINPOINT);
+    }
+
+    public SpanBo(TraceSourceType traceSourceType) {
+        this.traceSourceType = Objects.requireNonNull(traceSourceType, "traceSourceType");
     }
 
     @Override
@@ -112,6 +118,12 @@ public class SpanBo implements BasicSpan {
         this.version = ByteUtils.toUnsignedByte(version);
     }
 
+    @NonNull
+    @Override
+    public TraceSourceType getTraceSourceType() {
+        return traceSourceType;
+    }
+
     @Override
     public ServerTraceId getTransactionId() {
         return this.transactionId;
@@ -119,16 +131,6 @@ public class SpanBo implements BasicSpan {
 
     public void setTransactionId(ServerTraceId transactionId) {
         this.transactionId = transactionId;
-    }
-
-    @Override
-    public TraceSourceType getTraceSourceType() {
-        return traceSourceType;
-    }
-
-    @Override
-    public void setTraceSourceType(TraceSourceType traceSourceType) {
-        this.traceSourceType = Objects.requireNonNull(traceSourceType, "traceSourceType");
     }
 
     @NonNull
@@ -521,6 +523,7 @@ public class SpanBo implements BasicSpan {
     public String toString() {
         return "SpanBo{" +
                 "version=" + version +
+                ", traceSourceType=" + traceSourceType +
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
@@ -528,7 +531,6 @@ public class SpanBo implements BasicSpan {
                 ", serviceUid='" + serviceUidSupplier.get() + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
-                ", traceSourceType=" + traceSourceType +
                 ", spanId=" + spanId +
                 ", parentSpanId=" + parentSpanId +
                 ", parentApplication=" + parentApplication +

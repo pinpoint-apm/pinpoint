@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;
 
@@ -27,6 +28,9 @@ import java.util.function.Supplier;
 public interface BasicSpan {
 
     int getVersion();
+
+    @NonNull
+    TraceSourceType getTraceSourceType();
 
     String getAgentId();
     void setAgentId(String agentId);
@@ -51,9 +55,6 @@ public interface BasicSpan {
 
     ServerTraceId getTransactionId();
 //    void setTransactionId(TransactionId transactionId);
-
-    TraceSourceType getTraceSourceType();
-    void setTraceSourceType(TraceSourceType traceSourceType);
 
     int getApplicationServiceType();
     void setApplicationServiceType(int applicationServiceType);

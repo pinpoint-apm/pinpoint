@@ -91,7 +91,7 @@ class SpanDecoderV0Test {
     }
 
     private SpanBo newMinimalSpan(TraceSourceType type) {
-        SpanBo span = new SpanBo();
+        SpanBo span = new SpanBo(type);
         span.setAgentId("agent");
         span.setApplicationName("app");
         span.setAgentStartTime(100L);
@@ -100,18 +100,16 @@ class SpanDecoderV0Test {
         span.setServiceType((short) 1000);
         span.setTraceTime(SpanVersion.TRACE_V2, System.currentTimeMillis(), 0);
         span.setCollectorAcceptTime(System.currentTimeMillis());
-        span.setTraceSourceType(type);
         return span;
     }
 
     private SpanChunkBo newMinimalSpanChunk(TraceSourceType type) {
-        SpanChunkBo chunk = new SpanChunkBo();
+        SpanChunkBo chunk = new SpanChunkBo(type);
         chunk.setAgentId("agent");
         chunk.setApplicationName("app");
         chunk.setAgentStartTime(100L);
         chunk.setSpanId(1L);
         chunk.setCollectorAcceptTime(System.currentTimeMillis());
-        chunk.setTraceSourceType(type);
         return chunk;
     }
 

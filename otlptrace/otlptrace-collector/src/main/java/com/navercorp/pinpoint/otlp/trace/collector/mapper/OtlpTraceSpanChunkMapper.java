@@ -42,8 +42,7 @@ public class OtlpTraceSpanChunkMapper {
     }
 
     SpanChunkBo map(IdAndName idAndName, Span span) {
-        SpanChunkBo spanChunkBo = new SpanChunkBo();
-        spanChunkBo.setTraceSourceType(TraceSourceType.OPENTELEMETRY);
+        SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.OPENTELEMETRY);
 
         spanChunkBo.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {

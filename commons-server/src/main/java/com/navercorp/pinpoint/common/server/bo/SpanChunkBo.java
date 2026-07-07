@@ -39,6 +39,8 @@ public class SpanChunkBo implements BasicSpan {
     private static final int UNDEFINED = ServiceType.UNDEFINED.getCode();
 
     private byte version = 0;
+    @NonNull
+    private final TraceSourceType traceSourceType;
 
     @NonNull
     private String agentId;
@@ -52,8 +54,6 @@ public class SpanChunkBo implements BasicSpan {
     private long agentStartTime;
 
     private ServerTraceId transactionId;
-
-    private TraceSourceType traceSourceType = TraceSourceType.PINPOINT;
 
     private long spanId;
     private String endPoint;
@@ -69,6 +69,11 @@ public class SpanChunkBo implements BasicSpan {
 
 
     public SpanChunkBo() {
+        this(TraceSourceType.PINPOINT);
+    }
+
+    public SpanChunkBo(TraceSourceType traceSourceType) {
+        this.traceSourceType = Objects.requireNonNull(traceSourceType, "traceSourceType");
     }
 
     @Override
@@ -78,6 +83,12 @@ public class SpanChunkBo implements BasicSpan {
 
     public void setVersion(int version) {
         this.version = ByteUtils.toUnsignedByte(version);
+    }
+
+    @NonNull
+    @Override
+    public TraceSourceType getTraceSourceType() {
+        return traceSourceType;
     }
 
     @Override
@@ -145,16 +156,6 @@ public class SpanChunkBo implements BasicSpan {
 
     public void setTransactionId(ServerTraceId transactionId) {
         this.transactionId = transactionId;
-    }
-
-    @Override
-    public TraceSourceType getTraceSourceType() {
-        return traceSourceType;
-    }
-
-    @Override
-    public void setTraceSourceType(TraceSourceType traceSourceType) {
-        this.traceSourceType = Objects.requireNonNull(traceSourceType, "traceSourceType");
     }
 
     @Override
@@ -260,6 +261,7 @@ public class SpanChunkBo implements BasicSpan {
     public String toString() {
         return "SpanChunkBo{" +
                 "version=" + version +
+                ", traceSourceType=" + traceSourceType +
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
@@ -267,7 +269,6 @@ public class SpanChunkBo implements BasicSpan {
                 ", serviceUid='" + serviceUidSupplier.get() + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
-                ", traceSourceType=" + traceSourceType +
                 ", spanId=" + spanId +
                 ", endPoint='" + endPoint + '\'' +
                 ", applicationServiceType=" + applicationServiceType +
