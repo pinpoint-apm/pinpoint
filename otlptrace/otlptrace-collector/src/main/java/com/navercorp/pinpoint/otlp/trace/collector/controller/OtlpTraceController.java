@@ -16,129 +16,36 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.controller;
 
-import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
-import com.navercorp.pinpoint.collector.service.TraceService;
-import com.navercorp.pinpoint.common.cache.LRUCache;
-import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
-import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
-import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
-import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
-import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
-import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
-import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpAgentInfoService;
-import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpApplicationIndexV2Service;
-import io.opentelemetry.proto.collector.trace.v1.ExportTracePartialSuccess;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportResult;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
-import jakarta.validation.constraints.NotNull;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 @RestController
 public class OtlpTraceController {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @NotNull
-    private final TraceService[] traceService;
-    private final HbaseOtlpAgentInfoService agentInfoService;
-    private final HbaseOtlpApplicationIndexV2Service applicationIndexV2Service;
-    @NotNull
-    private final OtlpTraceMapper otlpTraceMapper;
-    private final ExceptionMetaDataService exceptionMetaDataService;
-    private final LRUCache<String, Boolean> agentIdCache = new LRUCache<>(10000);
+    private final OtlpTraceExportService exportService;
 
-    public OtlpTraceController(TraceService[] traceServiceList, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper, Optional<ExceptionMetaDataService> exceptionMetaDataService) {
-        this.traceService = traceServiceList;
-        this.agentInfoService = agentInfoService;
-        this.applicationIndexV2Service = applicationIndexV2Service;
-        this.otlpTraceMapper = otlpTraceMapper;
-        this.exceptionMetaDataService = exceptionMetaDataService.orElse(null);
+    public OtlpTraceController(OtlpTraceExportService exportService) {
+        this.exportService = Objects.requireNonNull(exportService, "exportService");
     }
 
     @PostMapping(value = "/v1/traces", consumes = "application/x-protobuf")
     public ResponseEntity<Void> saveOtlpMetric(@RequestBody ExportTraceServiceRequest request) {
         final List<ResourceSpans> resourceSpanList = request.getResourceSpansList();
-        final OtlpTraceCollectorRejectedSpan rejectedSpan = export(resourceSpanList);
+        final OtlpTraceExportResult result = exportService.export(resourceSpanList);
 
-        if (rejectedSpan.count() > 0) {
-            final ExportTracePartialSuccess.Builder builder = ExportTracePartialSuccess.newBuilder();
-            builder.setErrorMessage(rejectedSpan.getMessage());
-            builder.setRejectedSpans(rejectedSpan.count());
-        }
-
+        // NOTE (M-1, out of scope for this change): the HTTP path currently returns 200 regardless of
+        // outcome and sends no ExportTraceServiceResponse body. result.serverErrorCount() /
+        // result.clientRejected() are now available here to implement proper OTLP/HTTP response
+        // semantics (5xx on server error, ExportTracePartialSuccess body on client rejects) later.
         return ResponseEntity.ok().build();
-    }
-
-    private OtlpTraceCollectorRejectedSpan export(List<ResourceSpans> resourceSpanList) {
-        final OtlpTraceMapperData otlpTraceMapperData = otlpTraceMapper.map(resourceSpanList);
-        int errorCount = 0;
-        for (SpanBo spanBo : otlpTraceMapperData.getSpanBoList()) {
-            for (TraceService traceService : traceService) {
-                try {
-                    traceService.insertSpan(spanBo);
-                } catch (Exception e) {
-                    errorCount++;
-                    logger.warn("Failed to insert spanBo", e);
-                }
-            }
-        }
-
-        for (SpanChunkBo spanChunkBo : otlpTraceMapperData.getSpanChunkBoList()) {
-            for (TraceService traceService : traceService) {
-                try {
-                    traceService.insertSpanChunk(spanChunkBo);
-                } catch (Exception e) {
-                    errorCount++;
-                    logger.warn("Failed to insert spanChunkBo", e);
-                }
-            }
-        }
-
-        if (errorCount > 0) {
-            OtlpTraceCollectorRejectedSpan rejectedSpan = otlpTraceMapperData.getRejectedSpan();
-            rejectedSpan.putMessage("insert error (" + errorCount + ")");
-            rejectedSpan.addCount(errorCount);
-        }
-
-        int agentInfoErrorCount = 0;
-        for (AgentInfoBo agentInfoBo : otlpTraceMapperData.getAgentInfoBoList()) {
-            if (agentIdCache.get(agentInfoBo.getAgentId()) == null) {
-                try {
-                    agentInfoService.insert(agentInfoBo);
-                    applicationIndexV2Service.insert(GrpcOtlpTraceService.DEFAULT_SERVICE_UID, agentInfoBo);
-                    agentIdCache.put(agentInfoBo.getAgentId(), true);
-                } catch (Exception e) {
-                    agentInfoErrorCount++;
-                    logger.warn("Failed to insert agentInfoBo", e);
-                }
-            }
-        }
-
-        if (agentInfoErrorCount > 0) {
-            OtlpTraceCollectorRejectedSpan rejectedSpan = otlpTraceMapperData.getRejectedSpan();
-            rejectedSpan.putMessage("agentInfo error (" + agentInfoErrorCount + ")");
-            rejectedSpan.addCount(agentInfoErrorCount);
-        }
-
-        if (exceptionMetaDataService != null) {
-            for (ExceptionMetaDataBo exceptionMetaDataBo : otlpTraceMapperData.getExceptionMetaDataBoList()) {
-                try {
-                    exceptionMetaDataService.save(exceptionMetaDataBo);
-                } catch (Exception e) {
-                    logger.warn("Failed to insert exceptionMetaData", e);
-                }
-            }
-        }
-
-        return otlpTraceMapperData.getRejectedSpan();
     }
 }

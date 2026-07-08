@@ -24,16 +24,14 @@ import com.navercorp.pinpoint.collector.heatmap.HeatmapCollectorModule;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
-import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
-import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
-import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
-import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpAgentInfoService;
-import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpApplicationIndexV2Service;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
@@ -51,7 +49,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
 @Configuration
@@ -80,11 +77,21 @@ public class OtlpTraceCollectorModule {
         return ObjectNameVersion.getVersion(version);
     }
 
+    // Shared, thread-safe, bounded dedup of already-persisted agentIds. Injected into the single
+    // OtlpTraceExportService so gRPC and HTTP transports share one cache (dedup is effective across
+    // both) instead of the former per-instance, non-thread-safe LRUCache.
     @Bean
-    public ServerServiceDefinition serverServiceDefinition(TraceService[] traceServiceList, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper, Optional<ExceptionMetaDataService> exceptionMetaDataService, @Qualifier("grpcOtlpTraceWorkerExecutor") Executor workerExecutor,
+    public Cache<String, Boolean> otlpAgentIdCache(
+            @Value("${pinpoint.collector.otlptrace.agent-id-cache.max-size:10000}") int maxSize) {
+        return Caffeine.newBuilder().maximumSize(maxSize).build();
+    }
+
+    @Bean
+    public ServerServiceDefinition serverServiceDefinition(OtlpTraceExportService exportService,
+                                                           @Qualifier("grpcOtlpTraceWorkerExecutor") Executor workerExecutor,
                                                            @Value("${pinpoint.collector.otlptrace.admission.max-in-flight-bytes:67108864}") int maxInFlightBytes,
                                                            MeterRegistry meterRegistry) {
-        BindableService spanService = new GrpcOtlpTraceService(traceServiceList, agentInfoService, applicationIndexV2Service, mapper, exceptionMetaDataService.orElse(null), workerExecutor, maxInFlightBytes);
+        BindableService spanService = new GrpcOtlpTraceService(exportService, workerExecutor, maxInFlightBytes);
         // gRPC server metrics (request count / latency / status code) for the OTLP trace endpoint,
         // tagged service=otlptrace to match the agent/stat/span receivers' metrics.
         final ServerInterceptor metricInterceptor = new MetricCollectingServerInterceptor(meterRegistry,

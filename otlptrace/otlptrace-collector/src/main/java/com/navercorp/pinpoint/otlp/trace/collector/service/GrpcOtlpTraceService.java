@@ -16,17 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.service;
 
-import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
-import com.navercorp.pinpoint.collector.service.TraceService;
-import com.navercorp.pinpoint.common.cache.LRUCache;
-import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
-import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
-import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
-import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
 import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -35,18 +25,16 @@ import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.proto.collector.trace.v1.TraceServiceGrpc;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
-import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
-import java.util.function.Supplier;
 
 public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase {
-    public static final Supplier<ServiceUid> DEFAULT_SERVICE_UID = () -> ServiceUid.DEFAULT;
 
     // UNAVAILABLE (not RESOURCE_EXHAUSTED): OTLP exporters retry UNAVAILABLE unconditionally,
     // whereas RESOURCE_EXHAUSTED is retried only when a RetryInfo is attached. Using UNAVAILABLE
@@ -56,28 +44,17 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @NotNull
-    private final TraceService[] traceServiceList;
-    private final HbaseOtlpAgentInfoService agentInfoService;
-    private final HbaseOtlpApplicationIndexV2Service applicationIndexV2Service;
-    @NotNull
-    private final OtlpTraceMapper otlpTraceMapper;
-    private final ExceptionMetaDataService exceptionMetaDataService;
+    private final OtlpTraceExportService exportService;
     // Worker pool that runs the mapping/insert work, keeping it off the gRPC handler (server.executor).
     private final Executor workerExecutor;
     // Global byte-based admission: caps the total in-flight (queued + processing) request wire bytes
     // so concurrent requests cannot exhaust the heap regardless of request count or connection count.
     private final Semaphore admissionBytes;
     private final int maxInFlightBytes;
-    private final LRUCache<String, Boolean> agentIdCache = new LRUCache<>(10000);
 
-    public GrpcOtlpTraceService(TraceService[] traceServiceList, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper, ExceptionMetaDataService exceptionMetaDataService, Executor workerExecutor, int maxInFlightBytes) {
-        this.traceServiceList = traceServiceList;
-        this.agentInfoService = agentInfoService;
-        this.applicationIndexV2Service = applicationIndexV2Service;
-        this.otlpTraceMapper = otlpTraceMapper;
-        this.exceptionMetaDataService = exceptionMetaDataService;
-        this.workerExecutor = workerExecutor;
+    public GrpcOtlpTraceService(OtlpTraceExportService exportService, Executor workerExecutor, int maxInFlightBytes) {
+        this.exportService = Objects.requireNonNull(exportService, "exportService");
+        this.workerExecutor = Objects.requireNonNull(workerExecutor, "workerExecutor");
         this.maxInFlightBytes = maxInFlightBytes;
         this.admissionBytes = new Semaphore(maxInFlightBytes);
     }
@@ -129,7 +106,7 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
     }
 
     private void handleExport(List<ResourceSpans> resourceSpanList, StreamObserver<ExportTraceServiceResponse> responseObserver) {
-        final ExportResult result = export(resourceSpanList);
+        final OtlpTraceExportResult result = exportService.export(resourceSpanList);
 
         if (result.serverErrorCount() > 0) {
             // Server-side / transient failures (HBase insert, agentInfo): ask the client to retry
@@ -174,76 +151,4 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         }
     }
 
-    private ExportResult export(List<ResourceSpans> resourceSpanList) {
-        final OtlpTraceMapperData otlpTraceMapperData = otlpTraceMapper.map(resourceSpanList);
-        // Mapping rejects (invalid ids, unlinkable/orphan spans) are client-side data faults.
-        final OtlpTraceCollectorRejectedSpan clientRejected = otlpTraceMapperData.getRejectedSpan();
-
-        int insertErrorCount = 0;
-        for (SpanBo spanBo : otlpTraceMapperData.getSpanBoList()) {
-            for (TraceService traceService : traceServiceList) {
-                try {
-                    traceService.insertSpan(spanBo);
-                } catch (Exception e) {
-                    insertErrorCount++;
-                    logger.warn("Failed to insert spanBo", e);
-                }
-            }
-        }
-
-        for (SpanChunkBo spanChunkBo : otlpTraceMapperData.getSpanChunkBoList()) {
-            for (TraceService traceService : traceServiceList) {
-                try {
-                    traceService.insertSpanChunk(spanChunkBo);
-                } catch (Exception e) {
-                    insertErrorCount++;
-                    logger.warn("Failed to insert spanChunkBo", e);
-                }
-            }
-        }
-
-        int agentInfoErrorCount = 0;
-        for (AgentInfoBo agentInfoBo : otlpTraceMapperData.getAgentInfoBoList()) {
-            if (agentIdCache.get(agentInfoBo.getAgentId()) == null) {
-                try {
-                    agentInfoService.insert(agentInfoBo);
-                    applicationIndexV2Service.insert(DEFAULT_SERVICE_UID, agentInfoBo);
-                    agentIdCache.put(agentInfoBo.getAgentId(), true);
-                } catch (Exception e) {
-                    agentInfoErrorCount++;
-                    logger.warn("Failed to insert agentInfoBo", e);
-                }
-            }
-        }
-
-        if (exceptionMetaDataService != null) {
-            for (ExceptionMetaDataBo exceptionMetaDataBo : otlpTraceMapperData.getExceptionMetaDataBoList()) {
-                try {
-                    exceptionMetaDataService.save(exceptionMetaDataBo);
-                } catch (Exception e) {
-                    logger.warn("Failed to insert exceptionMetaData", e);
-                }
-            }
-        }
-
-        final int serverErrorCount = insertErrorCount + agentInfoErrorCount;
-        return new ExportResult(clientRejected, serverErrorCount, buildServerMessage(insertErrorCount, agentInfoErrorCount));
-    }
-
-    private static String buildServerMessage(int insertErrorCount, int agentInfoErrorCount) {
-        final StringBuilder sb = new StringBuilder();
-        if (insertErrorCount > 0) {
-            sb.append("insert error (").append(insertErrorCount).append(')');
-        }
-        if (agentInfoErrorCount > 0) {
-            if (!sb.isEmpty()) {
-                sb.append(", ");
-            }
-            sb.append("agentInfo error (").append(agentInfoErrorCount).append(')');
-        }
-        return sb.toString();
-    }
-
-    private record ExportResult(OtlpTraceCollectorRejectedSpan clientRejected, int serverErrorCount, String serverMessage) {
-    }
 }

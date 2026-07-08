@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
@@ -89,7 +90,7 @@ class OtlpTraceMapperTest {
                 8192);
         OtlpTraceSpanChunkMapper spanChunkMapper = new OtlpTraceSpanChunkMapper(spanEventMapper);
         return new OtlpTraceMapper(spanMapper, spanEventMapper, spanChunkMapper,
-                new OtlpAgentInfoMapper(), new OtlpExceptionMapper(), false);
+                new OtlpAgentInfoMapper(), new OtlpExceptionMapper(8192, 256, 2048, new SimpleMeterRegistry()), false);
     }
 
     private static Span.Event exceptionEvent(String type) {

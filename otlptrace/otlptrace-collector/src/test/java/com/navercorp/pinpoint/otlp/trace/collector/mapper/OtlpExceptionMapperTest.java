@@ -19,16 +19,19 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionWrapperBo;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.kv;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.strVal;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OtlpExceptionMapperTest {
 
@@ -39,7 +42,12 @@ class OtlpExceptionMapperTest {
     private static final long EXCEPTION_SPAN_ID_LONG = OtlpTraceMapperUtils.getSpanId(ByteString.copyFrom(EXCEPTION_SPAN_ID));
     private static final long ROOT_SPAN_ID_LONG = OtlpTraceMapperUtils.getSpanId(ByteString.copyFrom(ROOT_SPAN_ID));
 
-    private final OtlpExceptionMapper mapper = new OtlpExceptionMapper();
+    private static final int MESSAGE_MAX_BYTES = 8192;
+    private static final int STACKTRACE_MAX_DEPTH = 256;
+    private static final int FRAME_MAX_BYTES = 2048;
+
+    private final OtlpExceptionMapper mapper =
+            new OtlpExceptionMapper(MESSAGE_MAX_BYTES, STACKTRACE_MAX_DEPTH, FRAME_MAX_BYTES, new SimpleMeterRegistry());
 
     private static IdAndName id() {
         return new IdAndName("agent-1", "agent-1", "app-1", "default");
@@ -213,6 +221,89 @@ class OtlpExceptionMapperTest {
         assertThat(wrapper.getStackTraceElements()).hasSize(2);
         assertThat(wrapper.getStackTraceElements().get(0).getClassName()).isEqualTo("com.example.Service");
         assertThat(wrapper.getStackTraceElements().get(0).getMethodName()).isEqualTo("handle");
+    }
+
+    // =======================================================================
+    // truncation caps (message bytes / stacktrace frame count / per-frame value bytes)
+    // =======================================================================
+
+    @Test
+    void map_truncatesOverLongMessage() {
+        final String longMessage = "x".repeat(MESSAGE_MAX_BYTES + 100);
+        Span span = spanBuilder(EXCEPTION_SPAN_ID)
+                .addEvents(exceptionEvent(exceptionType("java.lang.RuntimeException"),
+                        kv("exception.message", strVal(longMessage))))
+                .build();
+
+        ExceptionWrapperBo wrapper = mapper.map(id(), span, ROOT_SPAN_ID_LONG, "/api/orders")
+                .orElseThrow().getExceptionWrapperBos().get(0);
+
+        // ASCII → 1 byte/char, so the UTF-8 byte cap equals the char count here.
+        assertThat(wrapper.getExceptionMessage()).hasSize(MESSAGE_MAX_BYTES);
+        assertThat(wrapper.getExceptionMessage().getBytes(StandardCharsets.UTF_8).length)
+                .isLessThanOrEqualTo(MESSAGE_MAX_BYTES);
+    }
+
+    @Test
+    void map_messageWithinLimitPreserved() {
+        Span span = spanBuilder(EXCEPTION_SPAN_ID)
+                .addEvents(exceptionEvent(exceptionType("java.lang.RuntimeException"),
+                        kv("exception.message", strVal("short"))))
+                .build();
+
+        ExceptionWrapperBo wrapper = mapper.map(id(), span, ROOT_SPAN_ID_LONG, "/api/orders")
+                .orElseThrow().getExceptionWrapperBos().get(0);
+
+        assertThat(wrapper.getExceptionMessage()).isEqualTo("short");
+    }
+
+    @Test
+    void map_capsStackTraceFrameCount() {
+        StringBuilder sb = new StringBuilder("java.lang.RuntimeException: boom\n");
+        final int frames = STACKTRACE_MAX_DEPTH + 50;
+        for (int i = 0; i < frames; i++) {
+            sb.append("\tat com.example.Service.m").append(i).append("(Service.java:").append(i + 1).append(")\n");
+        }
+        Span span = spanBuilder(EXCEPTION_SPAN_ID)
+                .addEvents(exceptionEvent(exceptionType("java.lang.RuntimeException"),
+                        kv("exception.stacktrace", strVal(sb.toString()))))
+                .build();
+
+        ExceptionWrapperBo wrapper = mapper.map(id(), span, ROOT_SPAN_ID_LONG, "/api/orders")
+                .orElseThrow().getExceptionWrapperBos().get(0);
+
+        assertThat(wrapper.getStackTraceElements()).hasSize(STACKTRACE_MAX_DEPTH);
+    }
+
+    @Test
+    void constructor_rejectsNonPositiveByteCaps() {
+        // A 0/negative byte cap would truncate every frame value to "" and make
+        // StackTraceElementWrapperBo throw on className/methodName — fail fast at construction instead.
+        assertThatThrownBy(() -> new OtlpExceptionMapper(0, STACKTRACE_MAX_DEPTH, FRAME_MAX_BYTES, new SimpleMeterRegistry()))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new OtlpExceptionMapper(MESSAGE_MAX_BYTES, STACKTRACE_MAX_DEPTH, 0, new SimpleMeterRegistry()))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void map_frameValueNeverEmptyWhenCapSmallerThanLeadingMultiByteChar() {
+        // frame-max-bytes=1 with a leading multi-byte (Korean) class-name char: Utf8.truncate would
+        // yield "", which StackTraceElementWrapperBo rejects. cap() must keep the original instead.
+        OtlpExceptionMapper tinyFrameMapper =
+                new OtlpExceptionMapper(MESSAGE_MAX_BYTES, STACKTRACE_MAX_DEPTH, 1, new SimpleMeterRegistry());
+        String stackTrace = "java.lang.RuntimeException: boom\n"
+                + "\tat 클래스.메서드(파일.java:42)\n";
+        Span span = spanBuilder(EXCEPTION_SPAN_ID)
+                .addEvents(exceptionEvent(exceptionType("java.lang.RuntimeException"),
+                        kv("exception.stacktrace", strVal(stackTrace))))
+                .build();
+
+        ExceptionWrapperBo wrapper = tinyFrameMapper.map(id(), span, ROOT_SPAN_ID_LONG, "/api/orders")
+                .orElseThrow().getExceptionWrapperBos().get(0);
+
+        assertThat(wrapper.getStackTraceElements()).hasSize(1);
+        assertThat(wrapper.getStackTraceElements().get(0).getClassName()).isEqualTo("클래스");
+        assertThat(wrapper.getStackTraceElements().get(0).getMethodName()).isEqualTo("메서드");
     }
 
     @Test
