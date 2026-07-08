@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.SpanVersion;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -43,19 +44,11 @@ public class OtlpTraceSpanChunkMapper {
     }
 
     SpanChunkBo map(IdAndName idAndName, Span span) {
-        SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.OPENTELEMETRY);
+        final SpanOwner owner = newSpanOwner(idAndName);
 
-        final SpanOwner owner = spanChunkBo.getSpanOwner();
-        owner.setAgentId(idAndName.agentId());
-        if (idAndName.agentName() != null) {
-            owner.setAgentName(idAndName.agentName());
-        }
-        owner.setApplicationName(idAndName.applicationName());
-        owner.setServiceName(idAndName.serviceName());
+        SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.OPENTELEMETRY, owner);
 
         final long startTimeNanos = span.getStartTimeUnixNano();
-        // The sequence value is 0, so make a difference with the agentStartTime value.
-        owner.setAgentStartTime(generateAgentStartTime());
         spanChunkBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
         spanChunkBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getParentSpanId()));
         // spanChunkBo.setEndPoint();
@@ -67,6 +60,20 @@ public class OtlpTraceSpanChunkMapper {
         spanChunkBo.setTraceTime(SpanVersion.TRACE_V3, startTimeNanos);
 
         return spanChunkBo;
+    }
+
+    private @NonNull SpanOwner newSpanOwner(IdAndName idAndName) {
+        final SpanOwner owner = new SpanOwner();
+
+        owner.setServiceName(idAndName.serviceName());
+        owner.setApplicationName(idAndName.applicationName());
+        owner.setAgentId(idAndName.agentId());
+        if (idAndName.agentName() != null) {
+            owner.setAgentName(idAndName.agentName());
+        }
+        // The sequence value is 0, so make a difference with the agentStartTime value.
+        owner.setAgentStartTime(generateAgentStartTime());
+        return owner;
     }
 
     public long generateAgentStartTime() {

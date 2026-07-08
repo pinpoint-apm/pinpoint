@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
@@ -72,8 +73,15 @@ public class GrpcSpanBinder {
 
     private static final AnnotationFactory<PAnnotation> annotationFactory = new AnnotationFactory<>(new GrpcAnnotationHandler());
 
+    private final TraceSourceType traceSourceType;
 
     public GrpcSpanBinder() {
+        this(TraceSourceType.PINPOINT);
+    }
+
+
+    public GrpcSpanBinder(TraceSourceType traceSourceType) {
+        this.traceSourceType = Objects.requireNonNull(traceSourceType, "traceSourceType");
     }
 
 
@@ -89,13 +97,14 @@ public class GrpcSpanBinder {
         }
     }
 
-    // for test
-    SpanBo newSpanBo(PSpan pSpan, ServerHeader serverHeader, long requestTime) {
-        return bind(new SpanBo(), pSpan, serverHeader, requestTime);
+    // Creates a SpanBo pre-populated with SpanOwner derived from the ServerHeader.
+    public SpanBo newSpanBo(PSpan pSpan, ServerHeader serverHeader, long requestTime) {
+        SpanOwner spanOwner = SpanOwner.from(serverHeader);
+        SpanBo spanBo = new SpanBo(traceSourceType, spanOwner);
+        return bind(spanBo, pSpan, requestTime);
     }
 
-    public SpanBo bind(SpanBo spanBo, PSpan pSpan, ServerHeader serverHeader, long requestTime) {
-        spanBo.setSpanOwner(SpanOwner.from(serverHeader));
+    public SpanBo bind(SpanBo spanBo, PSpan pSpan, long requestTime) {
         spanBo.setCollectorAcceptTime(requestTime);
 
         if (!pSpan.hasTransactionId()) {
@@ -149,8 +158,9 @@ public class GrpcSpanBinder {
                 // If root node, parentApplicationName is null
                 if (StringUtils.hasLength(parentApplicationName)) {
                     if (!IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
+                        SpanOwner owner = spanBo.getSpanOwner();
                         throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName
-                                + " agent:" + serverHeader.getApplicationName() + "/" + serverHeader.getAgentId());
+                                + " agent:" + owner.getServiceName() + "/" + owner.getApplicationName() + "/" + owner.getAgentId());
                     }
                     final String parentServiceName = parentInfo.getParentServiceName();
                     final int parentApplicationType = parentInfo.getParentApplicationType();
@@ -275,13 +285,14 @@ public class GrpcSpanBinder {
     }
 
 
-    // for test
-    SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
-        return bind(new SpanChunkBo(), pSpanChunk, serverHeader, requestTime);
+    // Creates a SpanChunkBo pre-populated with SpanOwner derived from the ServerHeader.
+    public SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
+        SpanOwner owner = SpanOwner.from(serverHeader);
+        SpanChunkBo spanChunkBo = new SpanChunkBo(traceSourceType, owner);
+        return bind(spanChunkBo, pSpanChunk, requestTime);
     }
 
-    public SpanChunkBo bind(SpanChunkBo spanChunkBo, PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
-        spanChunkBo.setSpanOwner(SpanOwner.from(serverHeader));
+    public SpanChunkBo bind(SpanChunkBo spanChunkBo, PSpanChunk pSpanChunk, long requestTime) {
         spanChunkBo.setCollectorAcceptTime(requestTime);
 
         spanChunkBo.setApplicationServiceType((short) pSpanChunk.getApplicationServiceType());
@@ -292,7 +303,8 @@ public class GrpcSpanBinder {
             spanChunkBo.setTransactionId(transactionId);
         } else {
             if (logger.isWarnEnabled()) {
-                logger.warn("PTransactionId is not set {}/{}/{}", serverHeader.getServiceName(), serverHeader.getApplicationName(), serverHeader.getAgentId());
+                SpanOwner owner = spanChunkBo.getSpanOwner();
+                logger.warn("PTransactionId is not set {}/{}/{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
             }
             throw new IllegalStateException("PTransactionId is not set");
         }

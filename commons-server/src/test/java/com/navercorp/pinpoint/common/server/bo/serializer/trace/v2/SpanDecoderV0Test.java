@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
@@ -91,10 +92,12 @@ class SpanDecoderV0Test {
     }
 
     private SpanBo newMinimalSpan(TraceSourceType type) {
-        SpanBo span = new SpanBo(type);
-        span.getSpanOwner().setAgentId("agent");
-        span.getSpanOwner().setApplicationName("app");
-        span.getSpanOwner().setAgentStartTime(100L);
+        SpanOwner spanOwner = new SpanOwner();
+        spanOwner.setAgentId("agent");
+        spanOwner.setApplicationName("app");
+        spanOwner.setAgentStartTime(100L);
+
+        SpanBo span = new SpanBo(type, spanOwner);
         span.setSpanId(1L);
         span.setParentSpanId(-1L);
         span.setServiceType((short) 1000);
@@ -104,10 +107,12 @@ class SpanDecoderV0Test {
     }
 
     private SpanChunkBo newMinimalSpanChunk(TraceSourceType type) {
-        SpanChunkBo chunk = new SpanChunkBo(type);
-        chunk.getSpanOwner().setAgentId("agent");
-        chunk.getSpanOwner().setApplicationName("app");
-        chunk.getSpanOwner().setAgentStartTime(100L);
+        SpanOwner spanOwner = new SpanOwner();
+        spanOwner.setAgentId("agent");
+        spanOwner.setApplicationName("app");
+        spanOwner.setAgentStartTime(100L);
+
+        SpanChunkBo chunk = new SpanChunkBo(type, spanOwner);
         chunk.setSpanId(1L);
         chunk.setCollectorAcceptTime(System.currentTimeMillis());
         return chunk;

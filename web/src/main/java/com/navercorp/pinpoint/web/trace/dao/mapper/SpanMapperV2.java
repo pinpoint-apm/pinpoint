@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
@@ -220,10 +221,12 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 return false;
             }
         }
-        if (!Strings.CS.equals(spanBo.getAgentId(), spanChunkBo.getAgentId())) {
+        final SpanOwner spanOwner = spanBo.getSpanOwner();
+        final SpanOwner chunkOwner = spanChunkBo.getSpanOwner();
+        if (!Strings.CS.equals(spanOwner.getAgentId(), chunkOwner.getAgentId())) {
             return false;
         }
-        if (!Strings.CS.equals(spanBo.getApplicationName(), spanChunkBo.getApplicationName())) {
+        if (!Strings.CS.equals(spanOwner.getApplicationName(), chunkOwner.getApplicationName())) {
             return false;
         }
         return true;
@@ -256,7 +259,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
 
     private AgentKey newAgentKey(BasicSpan basicSpan) {
-        return new AgentKey(basicSpan.getApplicationName(), basicSpan.getAgentId(), basicSpan.getSpanId());
+        final SpanOwner owner = basicSpan.getSpanOwner();
+        return new AgentKey(owner.getApplicationName(), owner.getAgentId(), basicSpan.getSpanId());
     }
 
     private record AgentKey(String applicationName, String agentId, long spanId) {

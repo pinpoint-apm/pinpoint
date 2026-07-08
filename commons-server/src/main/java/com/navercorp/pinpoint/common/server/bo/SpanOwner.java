@@ -53,11 +53,11 @@ public class SpanOwner {
         Objects.requireNonNull(header, "header");
 
         final SpanOwner owner = new SpanOwner();
-        owner.setAgentId(header.getAgentId());
-        owner.setAgentName(header.getAgentName());
-        owner.setApplicationName(header.getApplicationName());
         owner.setServiceName(header.getServiceName());
         owner.setServiceUid(header.getServiceUid());
+        owner.setApplicationName(header.getApplicationName());
+        owner.setAgentId(header.getAgentId());
+        owner.setAgentName(header.getAgentName());
         owner.setAgentStartTime(header.getAgentStartTime());
         return owner;
     }
