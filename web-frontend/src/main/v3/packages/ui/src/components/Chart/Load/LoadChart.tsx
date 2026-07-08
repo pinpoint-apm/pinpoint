@@ -8,6 +8,10 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { cn } from '../../../lib/utils';
 import { colors } from '@pinpoint-fe/ui/src/constants';
 import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import { buildBottomLegend, getGridBottom } from '../../../lib/charts/echartsLegendLayout';
+import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
+import { formatAxisTooltip } from '../../../lib/charts/echartsTimeSeriesFormat';
+import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 
 echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
 
@@ -49,30 +53,7 @@ export const LoadChart = ({
 }: LoadChartProps) => {
   const [timezone] = useTimezone();
   const chartData = typeof datas === 'function' ? datas?.(chartColors) : datas;
-  const chartRef = React.useRef<HTMLDivElement>(null);
-  const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
-  // console.log('datas11', chartData);
-
-  // 차트 초기화
-  React.useEffect(() => {
-    if (!chartRef.current) return;
-
-    const chart = echarts.init(chartRef.current);
-    chartInstanceRef.current = chart;
-
-    // chart resize
-    const wrapperElement = chartRef.current;
-    if (!wrapperElement) return;
-    const resizeObserver = new ResizeObserver(() => {
-      chart.resize();
-    });
-    resizeObserver.observe(wrapperElement);
-
-    return () => {
-      resizeObserver.disconnect();
-      chart.dispose();
-    };
-  }, []);
+  const { chartRef, chartInstanceRef, renderRef } = useEChartsInstance();
 
   // 데이터 변경 시 차트 업데이트
   React.useEffect(() => {
@@ -89,13 +70,9 @@ export const LoadChart = ({
     const series = dataKeys.map((key) => ({
       name: key,
       type: 'line' as const,
-      // 데이터 값이 0임에도 stacked area chart 에 표현되는 버그가 있음
-      // 그래서 0인 값은 아예 그려지지 않도록 null 로 변환
-      // (https://github.com/apache/echarts/issues/16739)
-      // data: chartData[key]?.map((value) => (value === 0 ? null : value)) || [],
-      data: chartData[key]?.map((value, index) => {
-        return [dates[index], value === 0 ? null : value];
-      }),
+      // 데이터 값이 0임에도 stacked area chart 에 표현되는 버그가 있어 0인 값은 아예 그려지지 않도록
+      // null 로 변환한다. (https://github.com/apache/echarts/issues/16739)
+      data: chartData[key]?.map((value, index) => [dates[index], value === 0 ? null : value]),
       stack: 'total',
       areaStyle: {},
       smooth: false,
@@ -108,108 +85,92 @@ export const LoadChart = ({
         color: chartColors[key] || colors.fast,
       },
       emphasis: {
-        focus: 'series',
+        focus: 'series' as const,
       },
     }));
 
-    chartInstanceRef.current.setOption({
-      legend: {
-        data: dataKeys,
-        bottom: 0,
-        icon: 'square',
-        itemWidth: 10,
-        itemHeight: 10,
-        itemGap: 15,
-      },
-      grid: {
-        top: 20,
-        bottom: 60,
-        right: 25,
-        left: 0,
-      },
-      xAxis: {
-        type: 'time',
-        boundaryGap: false,
-        splitNumber: 4,
-        axisLabel: {
-          showMinLabel: true,
-          showMaxLabel: true,
-          fontSize: 10,
-          formatter: (value: number) => {
-            try {
-              return `${formatInTimeZone(value, timezone, 'MM.dd')}\n${formatInTimeZone(
-                value,
-                timezone,
-                'HH:mm',
-              )}`;
-            } catch (error) {
-              return '';
-            }
+    const render = () => {
+      const chart = chartInstanceRef.current;
+      if (!chart) return;
+
+      const containerWidth = chartRef.current?.clientWidth ?? 0;
+      const gridBottom = getGridBottom(dataKeys, containerWidth);
+
+      chart.setOption({
+        legend: buildBottomLegend(dataKeys),
+        grid: {
+          top: 20,
+          bottom: gridBottom,
+          right: 25,
+          left: 0,
+        },
+        xAxis: {
+          type: 'time',
+          boundaryGap: false,
+          splitNumber: 4,
+          axisLabel: {
+            showMinLabel: true,
+            showMaxLabel: true,
+            fontSize: 10,
+            formatter: (value: number) => {
+              try {
+                return `${formatInTimeZone(value, timezone, 'MM.dd')}\n${formatInTimeZone(
+                  value,
+                  timezone,
+                  'HH:mm',
+                )}`;
+              } catch (error) {
+                return '';
+              }
+            },
+          },
+          zlevel: 1,
+        },
+        yAxis: {
+          type: 'value',
+          min: 0,
+          axisLine: {
+            show: true,
+          },
+          zlevel: 1,
+          splitNumber: 2,
+          axisLabel: {
+            formatter: (value: number): string => abbreviateNumber(value, ['', 'K', 'M', 'G']),
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed',
+            },
           },
         },
-        zlevel: 1,
-      },
-      yAxis: {
-        type: 'value',
-        min: 0,
-        axisLine: {
-          show: true,
-        },
-        zlevel: 1,
-        splitNumber: 2,
-        axisLabel: {
-          formatter: (value: number): string => abbreviateNumber(value, ['', 'K', 'M', 'G']),
-        },
-        splitLine: {
-          show: true,
-          lineStyle: {
-            type: 'dashed',
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'line',
           },
+          // 0 은 stacked area 버그 때문에 null 로 치환돼 있으므로 tooltip 에선 0 으로 표시하고,
+          // 날짜 헤더는 사용자 지정 타임존을 반영한다.
+          formatter: (params: unknown) =>
+            formatAxisTooltip(params, (value) => addCommas(String(value)), {
+              nullBehavior: 'zero',
+              formatDate: (axisValue) => {
+                try {
+                  return formatInTimeZone(axisValue, timezone, 'MM.dd HH:mm');
+                } catch (error) {
+                  return '';
+                }
+              },
+            }),
         },
-      },
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'line',
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: (params: any) => {
-          if (!Array.isArray(params) || params.length === 0) return '';
-          const firstParam = params[0];
-          const dateIndex = firstParam.dataIndex;
-          const date = dates[dateIndex];
-          const dateStr = date
-            ? `${formatInTimeZone(new Date(date), timezone, 'MM.dd HH:mm')}`
-            : '';
-          const rows = params
-            .map((param: { value: [number, number]; color: string; seriesName: string }) => {
-              const value = addCommas(param.value?.[1]?.toString() || '0');
-              const color = param.color;
-              return `<div style="display: flex; align-items: center; gap: 8px;">
-                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${color};"></span>
-                <span>${param.seriesName}: ${value}</span>
-              </div>`;
-            })
-            .join('');
-          return `<div style="margin-bottom: 4px;">${dateStr}</div>${rows}`;
-        },
-      },
-      series,
-      graphic: [
-        {
-          type: 'text',
-          left: 'center',
-          top: '30%',
-          style: {
-            text: hasData ? '' : emptyMessage,
-            fontSize: 14,
-            fill: '#999',
-            textAlign: 'center',
-          },
-        },
-      ],
-    });
-  }, [chartData, chartColors, timezone, emptyMessage]);
+        series,
+        graphic: buildEmptyMessageGraphic(hasData, emptyMessage, { fontSize: 14, top: '30%' }),
+      });
+    };
+
+    renderRef.current = render;
+    render();
+  }, [chartData, chartColors, timezone, emptyMessage, chartInstanceRef, chartRef, renderRef]);
 
   return (
     <div className="w-full h-full">

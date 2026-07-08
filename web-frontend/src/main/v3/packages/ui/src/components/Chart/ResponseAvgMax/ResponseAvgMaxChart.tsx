@@ -5,6 +5,8 @@ import { GridComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { abbreviateNumber, getMaxTickValue } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '../../../lib';
+import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
+import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 
 echarts.use([BarChartEcharts, GridComponent, CanvasRenderer]);
 
@@ -28,32 +30,11 @@ export const ResponseAvgMaxChart = ({
   className,
   emptyMessage = 'No Data',
 }: ResponseAvgMaxChartProps) => {
-  const chartRef = React.useRef<HTMLDivElement>(null);
-  const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
+  const { chartRef, chartInstanceRef } = useEChartsInstance();
   const chartData = React.useMemo(
     () => (typeof data === 'function' ? data(categories) : data || []),
     [data, categories],
   );
-
-  // 차트 초기화
-  React.useEffect(() => {
-    if (!chartRef.current) return;
-
-    const chart = echarts.init(chartRef.current);
-    chartInstanceRef.current = chart;
-
-    const wrapperElement = chartRef.current;
-    if (!wrapperElement) return;
-    const resizeObserver = new ResizeObserver(() => {
-      chart.resize();
-    });
-    resizeObserver.observe(wrapperElement);
-
-    return () => {
-      resizeObserver.disconnect();
-      chart.dispose();
-    };
-  }, []);
 
   // 데이터/옵션 변경 시 차트 업데이트
   React.useEffect(() => {
@@ -113,21 +94,9 @@ export const ResponseAvgMaxChart = ({
           },
         },
       ],
-      graphic: [
-        {
-          type: 'text',
-          left: 'center',
-          top: 'middle',
-          style: {
-            text: chartData.length === 0 ? emptyMessage : '',
-            fontSize: 14,
-            fill: '#999',
-            textAlign: 'center',
-          },
-        },
-      ],
+      graphic: buildEmptyMessageGraphic(chartData.length > 0, emptyMessage, { fontSize: 14 }),
     });
-  }, [chartData, categories, colors, emptyMessage]);
+  }, [chartData, categories, colors, emptyMessage, chartInstanceRef]);
 
   return (
     <div className="w-full h-full">

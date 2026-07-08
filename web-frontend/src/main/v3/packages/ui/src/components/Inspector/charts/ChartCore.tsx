@@ -11,11 +11,8 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { cn, DEFAULT_CHART_CONFIG, InspectorChartOptions } from '../../../lib';
 import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/ui/src/constants';
 import { getFormat } from '@pinpoint-fe/ui/src/utils';
-import {
-  getGridBottom,
-  LEGEND_ICON_WIDTH,
-  LEGEND_ITEM_GAP,
-} from '../../../lib/charts/echartsLegendLayout';
+import { buildBottomLegend, getGridBottom } from '../../../lib/charts/echartsLegendLayout';
+import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
 import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 import {
   formatAxisTooltip,
@@ -147,15 +144,7 @@ export const ChartCore = ({
       chart.setOption(
         {
           animation: false,
-          legend: {
-            show: legendShow,
-            data: legendNames,
-            bottom: 0,
-            icon: 'square',
-            itemWidth: LEGEND_ICON_WIDTH,
-            itemHeight: 10,
-            itemGap: LEGEND_ITEM_GAP,
-          },
+          legend: buildBottomLegend(legendNames, { show: legendShow }),
           grid: {
             top: DEFAULT_CHART_CONFIG.GRID_TOP,
             bottom: gridBottom,
@@ -184,21 +173,7 @@ export const ChartCore = ({
               ((params: unknown) => formatAxisTooltip(params, getFormat(yAxisList[0].unit))),
           },
           series,
-          graphic: !hasData
-            ? [
-                {
-                  type: 'text',
-                  left: 'center',
-                  top: 'middle',
-                  style: {
-                    text: emptyMessage,
-                    fontSize: 18,
-                    fill: '#999',
-                    textAlign: 'center',
-                  },
-                },
-              ]
-            : [],
+          graphic: buildEmptyMessageGraphic(hasData, emptyMessage),
         },
         // agent/시간/지표 변경으로 series 나 y축 수가 줄어도 이전 것이 잔존하지 않도록 항상 교체한다.
         { replaceMerge: ['series', 'yAxis'] },

@@ -5,11 +5,8 @@ import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/compon
 import { CanvasRenderer } from 'echarts/renderers';
 import { UrlStatChartType as UrlStatChartApi } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../../lib';
-import {
-  getGridBottom,
-  LEGEND_ICON_WIDTH,
-  LEGEND_ITEM_GAP,
-} from '../../../lib/charts/echartsLegendLayout';
+import { buildBottomLegend, getGridBottom } from '../../../lib/charts/echartsLegendLayout';
+import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
 import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 import {
   formatAxisTooltip,
@@ -103,14 +100,7 @@ export const UrlStatEChartsChart = ({
       chart.setOption(
         {
           animation: false,
-          legend: {
-            data: legendNames,
-            bottom: 0,
-            icon: 'square',
-            itemWidth: LEGEND_ICON_WIDTH,
-            itemHeight: 10,
-            itemGap: LEGEND_ITEM_GAP,
-          },
+          legend: buildBottomLegend(legendNames),
           grid: {
             top: 20,
             bottom: gridBottom,
@@ -158,21 +148,7 @@ export const UrlStatEChartsChart = ({
               formatAxisTooltip(params, formatter ?? ((value: number) => String(value))),
           },
           series,
-          graphic: !hasData
-            ? [
-                {
-                  type: 'text',
-                  left: 'center',
-                  top: 'middle',
-                  style: {
-                    text: emptyMessage,
-                    fontSize: 18,
-                    fill: '#999',
-                    textAlign: 'center',
-                  },
-                },
-              ]
-            : [],
+          graphic: buildEmptyMessageGraphic(!!hasData, emptyMessage),
         },
         // chartType/data 변경(예: bar→line 탭 전환)으로 series 수가 줄어도
         // 이전 series가 병합되어 잔존하지 않도록 series는 항상 교체한다.

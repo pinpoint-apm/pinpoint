@@ -24,6 +24,10 @@ jest.mock('../../../lib/charts/echartsLegendLayout', () => ({
   getGridBottom: () => 60,
   LEGEND_ICON_WIDTH: 10,
   LEGEND_ITEM_GAP: 8,
+  buildBottomLegend: (names: string[], extra?: Record<string, unknown>) => ({
+    data: names,
+    ...extra,
+  }),
 }));
 jest.mock('../../../lib/charts/useEChartsInstance', () => ({
   useEChartsInstance: () => ({
@@ -111,9 +115,7 @@ describe('ChartCore', () => {
     expect(msAxis.min).toBe(0); // not -10: no symmetric/centered range
     expect(msAxis.max).toBe(10);
 
-    const gcSeries = option.series.find(
-      (s: { name: string }) => s.name === 'gcTime',
-    );
+    const gcSeries = option.series.find((s: { name: string }) => s.name === 'gcTime');
     expect(gcSeries.data).toEqual([0, 0, 0]); // real 0s drawn at the baseline, not filled/nulled
     expect(gcSeries.lineStyle.type).toBeUndefined(); // not forced dashed
   });
@@ -126,11 +128,13 @@ describe('ChartCore', () => {
     expect(option.graphic[0].style.text).toBe('No Data');
   });
 
-  it('renders no empty-message graphic when data exists', () => {
+  it('blanks the empty-message graphic text when data exists', () => {
     const { option } = renderChart(
       makeData([{ fieldName: 'cpu', unit: 'percent', chartType: 'line', valueList: [0, 1, 2] }]),
     );
-    expect(option.graphic).toEqual([]);
+    // graphic 요소는 항상 하나 유지하되(잔존 방지), 데이터가 있으면 텍스트를 비운다.
+    expect(option.graphic).toHaveLength(1);
+    expect(option.graphic[0].style.text).toBe('');
   });
 
   it('marks a series dashed when seriesOption.dashed is set', () => {

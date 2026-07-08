@@ -4,6 +4,8 @@ import { LineChart } from 'echarts/charts';
 import { GridComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { cn } from '../../../lib';
+import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
+import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 
 echarts.use([LineChart, GridComponent, CanvasRenderer]);
 
@@ -16,27 +18,7 @@ export const UrlStatDefaultChart = ({
   className,
   emptyMessage = 'No Data',
 }: UrlStatDefaultChartProps) => {
-  const chartRef = React.useRef<HTMLDivElement>(null);
-  const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
-
-  React.useEffect(() => {
-    if (!chartRef.current) return;
-
-    const chart = echarts.init(chartRef.current);
-    chartInstanceRef.current = chart;
-
-    const wrapperElement = chartRef.current;
-    const resizeObserver = new ResizeObserver(() => {
-      chart.resize();
-    });
-    resizeObserver.observe(wrapperElement);
-
-    return () => {
-      resizeObserver.disconnect();
-      chart.dispose();
-      chartInstanceRef.current = null;
-    };
-  }, []);
+  const { chartRef, chartInstanceRef } = useEChartsInstance();
 
   React.useEffect(() => {
     if (!chartInstanceRef.current) return;
@@ -76,21 +58,9 @@ export const UrlStatDefaultChart = ({
           lineStyle: { width: 0 },
         },
       ],
-      graphic: [
-        {
-          type: 'text',
-          left: 'center',
-          top: 'middle',
-          style: {
-            text: emptyMessage,
-            fontSize: 18,
-            fill: '#999',
-            textAlign: 'center',
-          },
-        },
-      ],
+      graphic: buildEmptyMessageGraphic(false, emptyMessage),
     });
-  }, [emptyMessage]);
+  }, [emptyMessage, chartInstanceRef]);
 
   return <div className={cn('w-full h-full', className)} ref={chartRef} />;
 };

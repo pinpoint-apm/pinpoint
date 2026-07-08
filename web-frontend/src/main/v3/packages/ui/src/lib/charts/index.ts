@@ -1,3 +1,4 @@
+export * from './echartsCommonOptions';
 export * from './echartsLegendLayout';
 export * from './echartsTimeSeriesFormat';
 export * from './useEChartsInstance';

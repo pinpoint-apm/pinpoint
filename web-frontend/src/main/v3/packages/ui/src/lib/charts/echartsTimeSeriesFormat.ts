@@ -11,6 +11,15 @@ export const formatCategoryDateLabel = (value: number | string) => {
   return String(value);
 };
 
+interface AxisTooltipOptions {
+  // 날짜 헤더 포맷을 주입한다. 기본은 브라우저 로컬 타임존 기준(formatNewLinedDateString).
+  // 사용자 지정 타임존을 반영해야 하는 차트는 여기서 timezone 기반 포맷터를 넘긴다.
+  formatDate?: (axisValue: number) => string;
+  // 값이 null 인 시리즈 처리. 'hide'(기본): 행을 숨긴다(미수집=선 끊김 차트용).
+  // 'zero': 0 으로 표시한다(0 을 렌더링 이슈로 null 치환한 차트용).
+  nullBehavior?: 'hide' | 'zero';
+}
+
 // trigger: 'axis' 툴팁의 공통 포맷터. 날짜 헤더 + 시리즈별 색상 스와치/값 행을 그린다.
 // 값 포맷은 차트마다 다르므로 formatValue 로 주입받는다.
 export const formatAxisTooltip = (
@@ -18,13 +27,16 @@ export const formatAxisTooltip = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: any,
   formatValue: (value: number) => string,
+  { formatDate, nullBehavior = 'hide' }: AxisTooltipOptions = {},
 ) => {
   if (!Array.isArray(params) || params.length === 0) return '';
   const axisValue = params[0].axisValue;
   const axisValueNum = typeof axisValue === 'number' ? axisValue : Number(axisValue);
-  const dateStr = isValid(new Date(axisValueNum))
-    ? formatNewLinedDateString(axisValueNum).replace('\n', ' ')
-    : String(axisValue);
+  const dateStr = formatDate
+    ? formatDate(axisValueNum)
+    : isValid(new Date(axisValueNum))
+      ? formatNewLinedDateString(axisValueNum).replace('\n', ' ')
+      : String(axisValue);
   const rows = params
     .map(
       (param: {
@@ -32,7 +44,8 @@ export const formatAxisTooltip = (
         seriesName?: string;
         color?: string;
       }) => {
-        const yValue = typeof param.value === 'number' ? param.value : param.value?.[1];
+        const rawValue = typeof param.value === 'number' ? param.value : param.value?.[1];
+        const yValue = rawValue == null && nullBehavior === 'zero' ? 0 : rawValue;
         if (yValue == null) return null;
         return `<div style="display: flex; justify-content: space-between; gap: 12px; align-items: center;">
                   <div style="display: flex; gap: 5px; align-items: center;">

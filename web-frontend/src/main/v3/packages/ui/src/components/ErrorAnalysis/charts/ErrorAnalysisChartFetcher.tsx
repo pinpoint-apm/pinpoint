@@ -6,11 +6,8 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { useGetErrorAnalysisChartData } from '@pinpoint-fe/ui/src/hooks';
 import { abbreviateNumber } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '../../../lib';
-import {
-  getGridBottom,
-  LEGEND_ICON_WIDTH,
-  LEGEND_ITEM_GAP,
-} from '../../../lib/charts/echartsLegendLayout';
+import { buildBottomLegend, getGridBottom } from '../../../lib/charts/echartsLegendLayout';
+import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
 import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 import {
   formatAxisTooltip,
@@ -69,14 +66,7 @@ export const ErrorAnalysisChartFetcher = ({
       chart.setOption(
         {
           animation: false,
-          legend: {
-            data: legendNames,
-            bottom: 0,
-            icon: 'square',
-            itemWidth: LEGEND_ICON_WIDTH,
-            itemHeight: 10,
-            itemGap: LEGEND_ITEM_GAP,
-          },
+          legend: buildBottomLegend(legendNames),
           grid: {
             top: 20,
             bottom: gridBottom,
@@ -122,21 +112,7 @@ export const ErrorAnalysisChartFetcher = ({
             formatter: (params: unknown) => formatAxisTooltip(params, formatErrorCount),
           },
           series,
-          graphic: !hasData
-            ? [
-                {
-                  type: 'text',
-                  left: 'center',
-                  top: 'middle',
-                  style: {
-                    text: emptyMessage,
-                    fontSize: 18,
-                    fill: '#999',
-                    textAlign: 'center',
-                  },
-                },
-              ]
-            : [],
+          graphic: buildEmptyMessageGraphic(hasData, emptyMessage),
         },
         // groupBy 변경 등으로 series 수가 줄어도 이전 series가 병합되어 잔존하지 않도록 항상 교체한다.
         { replaceMerge: ['series'] },

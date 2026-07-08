@@ -35,6 +35,18 @@ const getLegendRowCount = (names: string[], availableWidth: number) => {
   return rows;
 };
 
+// 하단(bottom) legend 의 공통 설정. names(=legend 항목)만 넘기면 icon/itemWidth/itemGap 등 스타일은
+// 모든 차트에서 동일한 값을 쓴다. show 같은 차트별 옵션은 extra 로 덮어쓴다.
+export const buildBottomLegend = (names: string[], extra?: Record<string, unknown>) => ({
+  data: names,
+  bottom: 0,
+  icon: 'square' as const,
+  itemWidth: LEGEND_ICON_WIDTH,
+  itemHeight: 10,
+  itemGap: LEGEND_ITEM_GAP,
+  ...extra,
+});
+
 export const getGridBottom = (names: string[], containerWidth: number) => {
   // 시리즈(=legend 항목)가 없으면(빈/No Data 상태) legend 공간을 예약하지 않는다.
   if (names.length === 0) return X_AXIS_LABEL_HEIGHT;
@@ -42,7 +54,6 @@ export const getGridBottom = (names: string[], containerWidth: number) => {
   const rows = getLegendRowCount(names, availableWidth);
   // 실제 legend 높이: 줄 높이 * 줄 수 + 줄 사이 간격 * (줄 수 - 1). 마지막 줄엔 trailing gap 이 없으므로
   // rows * (줄높이 + gap) 로 잡으면 gap 하나만큼 과다 예약되어 x축과의 간격이 필요 이상 벌어진다.
-  const legendHeight =
-    rows * LEGEND_ROW_CONTENT_HEIGHT + Math.max(0, rows - 1) * LEGEND_ITEM_GAP;
+  const legendHeight = rows * LEGEND_ROW_CONTENT_HEIGHT + Math.max(0, rows - 1) * LEGEND_ITEM_GAP;
   return X_AXIS_LABEL_HEIGHT + BOTTOM_GAP + legendHeight;
 };
