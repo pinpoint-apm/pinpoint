@@ -164,20 +164,12 @@ public class OtlpTraceSpanMapper {
         if (droppedAttributes == 0 && droppedEvents == 0 && droppedLinks == 0) {
             return;
         }
-        StringBuilder sb = new StringBuilder();
-        appendDroppedCount(sb, "attributes", droppedAttributes);
-        appendDroppedCount(sb, "events", droppedEvents);
-        appendDroppedCount(sb, "links", droppedLinks);
-        sink.accept(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_DROPPED.getCode(), sb.toString()));
-    }
-
-    private static void appendDroppedCount(StringBuilder sb, String label, int count) {
-        if (count > 0) {
-            if (!sb.isEmpty()) {
-                sb.append(' ');
-            }
-            sb.append(label).append('=').append(count);
-        }
+        String label = new DroppedCounts()
+                .attributes(droppedAttributes)
+                .events(droppedEvents)
+                .links(droppedLinks)
+                .toString();
+        sink.accept(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_DROPPED.getCode(), label));
     }
 
     /**
@@ -191,12 +183,13 @@ public class OtlpTraceSpanMapper {
         if (truncatedAttributes == 0 && truncatedSql == 0 && truncatedEvents == 0 && truncatedLinks == 0) {
             return;
         }
-        StringBuilder sb = new StringBuilder();
-        appendDroppedCount(sb, "attributes", truncatedAttributes);
-        appendDroppedCount(sb, "sql", truncatedSql);
-        appendDroppedCount(sb, "events", truncatedEvents);
-        appendDroppedCount(sb, "links", truncatedLinks);
-        sink.accept(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_TRUNCATED.getCode(), sb.toString()));
+        String label = new TruncatedCounts()
+                .attributes(truncatedAttributes)
+                .sql(truncatedSql)
+                .events(truncatedEvents)
+                .links(truncatedLinks)
+                .toString();
+        sink.accept(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_TRUNCATED.getCode(), label));
     }
 
     /**
