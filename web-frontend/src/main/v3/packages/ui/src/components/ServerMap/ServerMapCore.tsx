@@ -38,15 +38,6 @@ import cytoscape from 'cytoscape';
 import { cn } from '../../lib';
 import { Input } from '../ui/input';
 
-const XML_ESCAPE_MAP: Record<string, string> = {
-  '<': '&lt;',
-  '>': '&gt;',
-  '&': '&amp;',
-  '"': '&quot;',
-  "'": '&apos;',
-};
-const escapeXmlText = (s: string) => s.replace(/[<>&"']/g, (c) => XML_ESCAPE_MAP[c] ?? c);
-
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
   isLoading?: boolean;
@@ -684,13 +675,18 @@ export const ServerMapCore = ({
                 <ServerMapComponent
                   baseNodeId={baseNodeId}
                   data={serverMapData}
-                  renderNode={(node, transactionStatusSVGString) => {
+                  renderNode={(node, transactionStatusSVGString, isSelected) => {
                     if (node?.subNodesCount !== undefined) {
-                      const serviceName = escapeXmlText(node.label ?? '');
+                      // 서비스 그룹 노드: 이름은 동그라미 하단(라벨)에 두고, 원은 이중선으로 표현한다.
+                      // 두 원 모두 SVG로 직접 그려(바깥 테두리는 숨김) 굵기·간격·색을 제어한다.
+                      // 가운데를 가르던 가로선은 없애고 노드 개수를 원 중앙에 배치한다.
+                      // 기본은 회색(#ddd), 선택 시에는 하이라이트색(#4A61D1)을 사용한다.
+                      // 바깥 원(r=48)은 얇게(1.5), 안쪽 원(r=44)은 굵기 3.
+                      const ringColor = isSelected ? '#4A61D1' : '#ddd';
                       return `
-                  <text x="50" y="44" font-size="16" font-weight="bold" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif">${serviceName}</text>
-                  <line x1="4" y1="58" x2="96" y2="58" stroke="#999" stroke-width="1" />
-                  <text x="50" y="74" font-size="18" dominant-baseline="middle" text-anchor="middle" font-family="Arial, Helvetica, sans-serif">${node.subNodesCount}</text>
+                  <circle cx="50" cy="50" r="48" fill="none" stroke="${ringColor}" stroke-width="1.5" />
+                  <circle cx="50" cy="50" r="44" fill="none" stroke="${ringColor}" stroke-width="3" />
+                  <text x="50" y="50" font-size="22" font-weight="bold" dominant-baseline="central" text-anchor="middle" font-family="Arial, Helvetica, sans-serif">${node.subNodesCount}</text>
                 `;
                     }
                     return `
@@ -708,9 +704,6 @@ export const ServerMapCore = ({
                 `;
                   }}
                   renderNodeLabel={(node) => {
-                    if (node?.subNodesCount !== undefined) {
-                      return '';
-                    }
                     return node?.label ?? '';
                   }}
                   renderEdgeLabel={(edge: MergedEdge) => {
