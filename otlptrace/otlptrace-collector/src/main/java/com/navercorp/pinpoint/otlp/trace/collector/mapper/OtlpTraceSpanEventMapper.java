@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.server.util.Utf8;
@@ -129,6 +130,14 @@ public class OtlpTraceSpanEventMapper {
                     : ServiceType.INTERNAL_METHOD.getCode());
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.INTERNAL_METHOD_NAME)));
         }
+        // error status → SpanEvent exception (mirrors the root SpanBo error rule). A SpanEventBo
+        // has no transaction-level errCode flag, so exceptionInfo is the only error marker.
+        final ExceptionInfo exceptionInfo = OtlpTraceSpanMapper.resolveErrorExceptionInfo(span, attributes);
+        if (exceptionInfo != null) {
+            spanEventBo.setExceptionInfo(exceptionInfo);
+        }
+        final boolean skipExceptionEvent = OtlpTraceSpanMapper.isExceptionClassCaptured(exceptionInfo);
+
         // api
         spanEventBo.setApiId(0);
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode(), OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
@@ -143,6 +152,11 @@ public class OtlpTraceSpanEventMapper {
         }
         // event
         for (Span.Event event : span.getEventsList()) {
+            // The exception event's class name is captured into exceptionInfo and its message/
+            // stacktrace into exception-trace metadata, so skip its (redundant) annotation.
+            if (skipExceptionEvent && OtlpTraceConstants.EVENT_NAME_EXCEPTION.equals(event.getName())) {
+                continue;
+            }
             truncatedEvents += eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation);
         }
         // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0.

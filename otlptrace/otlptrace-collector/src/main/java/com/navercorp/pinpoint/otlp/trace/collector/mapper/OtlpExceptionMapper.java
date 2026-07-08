@@ -33,11 +33,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_ERROR_TYPE;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_EXCEPTION_MESSAGE;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_EXCEPTION_STACKTRACE;
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.ATTRIBUTE_KEY_EXCEPTION_TYPE;
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants.EVENT_NAME_EXCEPTION;
 
 @Component
 public class OtlpExceptionMapper {
@@ -59,17 +56,14 @@ public class OtlpExceptionMapper {
      * exceptionId discriminator instead.
      */
     public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span exceptionSpan, long rootSpanId, String uriTemplate) {
-        Span.Event exceptionEvent = findExceptionEvent(exceptionSpan);
+        Span.Event exceptionEvent = ExceptionAttributeUtils.findExceptionEvent(exceptionSpan);
         if (exceptionEvent == null) {
             return Optional.empty();
         }
 
         final Map<String, AttributeValue> eventAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionEvent.getAttributesList());
-        String exceptionType = AttributeUtils.getAttributeStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_TYPE, null);
-        if (exceptionType == null) {
-            final Map<String, AttributeValue> spanAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionSpan.getAttributesList());
-            exceptionType = AttributeUtils.getAttributeStringValue(spanAttrs, ATTRIBUTE_KEY_ERROR_TYPE, null);
-        }
+        final Map<String, AttributeValue> spanAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionSpan.getAttributesList());
+        final String exceptionType = ExceptionAttributeUtils.resolveExceptionType(eventAttrs, spanAttrs);
         if (!StringUtils.hasLength(exceptionType)) {
             return Optional.empty();
         }
@@ -107,15 +101,6 @@ public class OtlpExceptionMapper {
         );
         bo.setExceptionWrapperBos(List.of(wrapper));
         return Optional.of(bo);
-    }
-
-    private Span.Event findExceptionEvent(Span span) {
-        for (Span.Event event : span.getEventsList()) {
-            if (EVENT_NAME_EXCEPTION.equals(event.getName())) {
-                return event;
-            }
-        }
-        return null;
     }
 
     List<StackTraceElementWrapperBo> parseStackTrace(String stackTrace) {

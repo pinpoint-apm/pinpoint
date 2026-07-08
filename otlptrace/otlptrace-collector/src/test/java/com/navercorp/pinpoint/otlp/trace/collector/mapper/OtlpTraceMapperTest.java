@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -26,6 +28,7 @@ import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
+import io.opentelemetry.proto.trace.v1.Status;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -221,5 +224,51 @@ class OtlpTraceMapperTest {
 
         assertThat(data.getExceptionMetaDataBoList()).isEmpty();
         assertThat(data.getSpanChunkBoList()).isNotEmpty();
+    }
+
+    // =======================================================================
+    // exception-trace deep-link annotation (EXCEPTION_CHAIN_ID) — linked only
+    // =======================================================================
+
+    private static Long exceptionChainId(SpanEventBo event) {
+        return event.getAnnotationBoList().stream()
+                .filter(a -> a.getKey() == AnnotationKey.EXCEPTION_CHAIN_ID.getCode())
+                .map(a -> (Long) a.getValue())
+                .findFirst()
+                .orElse(null);
+    }
+
+    // status ERROR triggers the inline exceptionInfo, which the deep-link annotation attaches to.
+    private static Span withError(Span span) {
+        return span.toBuilder()
+                .setStatus(Status.newBuilder().setCode(Status.StatusCode.STATUS_CODE_ERROR))
+                .build();
+    }
+
+    @Test
+    void linkedChildException_emitsExceptionChainIdMatchingExceptionId() {
+        Span root = serverRoot(ROOT_A, "/api/orders", false);
+        Span child = withError(clientChild(CHILD, ROOT_A, true));
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root, child));
+
+        SpanEventBo childEvent = data.getSpanBoList().get(0).getSpanEventBoList().get(0);
+        // deep-link id equals the stored exceptiontrace exceptionId (the child span id)
+        assertThat(exceptionChainId(childEvent)).isEqualTo(spanId(CHILD));
+        assertThat(data.getExceptionMetaDataBoList().get(0)
+                .getExceptionWrapperBos().get(0).getExceptionId()).isEqualTo(spanId(CHILD));
+    }
+
+    @Test
+    void orphanChunkException_doesNotEmitExceptionChainId() {
+        // orphan chunk has no exceptiontrace row → must not carry a (dead) deep-link
+        Span orphan = withError(clientChild(ORPHAN, ABSENT_PARENT, true));
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(orphan));
+
+        SpanEventBo orphanEvent = data.getSpanChunkBoList().get(0).getSpanEventBoList().get(0);
+        assertThat(exceptionChainId(orphanEvent)).isNull();
+        // but the inline exception marker is still present
+        assertThat(orphanEvent.hasException()).isTrue();
     }
 }

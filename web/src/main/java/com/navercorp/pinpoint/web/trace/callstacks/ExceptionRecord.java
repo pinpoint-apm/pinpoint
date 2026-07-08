@@ -30,6 +30,11 @@ import java.util.Objects;
  */
 public class ExceptionRecord extends BaseRecord {
 
+    // Fallback title for an OTel error that carries no exception class name (status ERROR
+    // without an exception event). "ERROR" is OpenTelemetry's language-agnostic term for a
+    // general failure, unlike the language-specific "Exception".
+    static final String OTEL_UNKNOWN_EXCEPTION_TITLE = "ERROR";
+
     public ExceptionRecord(
             final int tab, final int id, final int parentId, final Align align,
             ServiceType applicationServiceType
@@ -41,7 +46,10 @@ public class ExceptionRecord extends BaseRecord {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
-        this.title = toSimpleExceptionName(align.getExceptionClass());
+        final String simpleName = toSimpleExceptionName(align.getExceptionClass());
+        this.title = (align.isOpenTelemetry() && simpleName.isEmpty())
+                ? OTEL_UNKNOWN_EXCEPTION_TITLE
+                : simpleName;
         this.arguments = buildArgument(align);
         this.isAuthorized = true;
         this.hasException = !align.isSpan();
@@ -77,6 +85,11 @@ public class ExceptionRecord extends BaseRecord {
         final ExceptionInfo exceptionInfo = align.getExceptionInfo();
         if (exceptionInfo == null) {
             return "";
+        }
+        if (align.isOpenTelemetry()) {
+            // OTel encodes "<className>:<message>" in exceptionInfo.message; the class name is
+            // shown as the title, so the argument is only the message part.
+            return Objects.toString(ExceptionInfo.otelMessageBody(exceptionInfo.message()), "");
         }
         return Objects.toString(exceptionInfo.message(), "");
     }

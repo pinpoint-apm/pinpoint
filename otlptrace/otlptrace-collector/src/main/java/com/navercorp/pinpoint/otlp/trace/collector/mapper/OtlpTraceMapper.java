@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
@@ -308,11 +310,20 @@ public class OtlpTraceMapper {
     }
 
     List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth) {
-        // Orphan/spanChunk traversal: no exception processing (no root span to link against).
-        return findLinkSpan(startTime, childSpanList, parentSpanId, depth, span -> {});
+        // Orphan/spanChunk traversal: no exception processing (no root span to link against) and
+        // no exception-trace deep-link annotation — orphan spans have no stored exceptiontrace row
+        // to link to (see recordException skip in the caller).
+        return findLinkSpan(startTime, childSpanList, parentSpanId, depth, span -> {}, false);
     }
 
     List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth, Consumer<Span> spanConsumer) {
+        // Root-linked traversal: exceptions are recorded to exception-trace here, so emit the
+        // deep-link annotation on the exception-bearing SpanEvent.
+        return findLinkSpan(startTime, childSpanList, parentSpanId, depth, spanConsumer, true);
+    }
+
+    private List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth,
+                                           Consumer<Span> spanConsumer, boolean emitExceptionLink) {
         List<SpanEventBo> spanEventList = new ArrayList<>();
         if (depth > 99) {
             // defensive check
@@ -334,9 +345,17 @@ public class OtlpTraceMapper {
         for (Span span : linkSpanList) {
             spanConsumer.accept(span);
             final SpanEventBo spanEventBo = spanEventMapper.map(startTime, span, depth);
+            // Link the SpanEvent's inline exception to its exceptiontrace record. The id matches
+            // OtlpExceptionMapper's ExceptionWrapperBo.exceptionId (getSpanId of the same span);
+            // only emitted on the root-linked path where an exceptiontrace row actually exists.
+            if (emitExceptionLink && OtlpTraceSpanMapper.isExceptionClassCaptured(spanEventBo.getExceptionInfo())) {
+                spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.EXCEPTION_CHAIN_ID.getCode(),
+                        OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
+            }
             spanEventList.add(spanEventBo);
-            List<SpanEventBo> list = findLinkSpan(startTime, childSpanList, span.getSpanId(), depth + 1, spanConsumer);
+            List<SpanEventBo> list = findLinkSpan(startTime, childSpanList, span.getSpanId(), depth + 1, spanConsumer, emitExceptionLink);
             spanEventList.addAll(list);
+
         }
 
         return spanEventList;

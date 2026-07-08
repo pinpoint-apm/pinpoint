@@ -103,6 +103,39 @@ public class RecordFactoryTest {
 
 
     @Test
+    public void getException_otel_blankClassName_fallsBackToError() {
+        final RecordFactory factory = newRecordFactory();
+
+        SpanBo spanBo = new SpanBo();
+        spanBo.setTransactionId(new PinpointServerTraceId("test", 0, 0));
+        // OTel message-only encoding: empty class-name prefix (leading delimiter)
+        spanBo.setExceptionInfo(new ExceptionInfo(ExceptionInfo.OTEL_EXCEPTION_ID, ":Connection refused"));
+        Align align = new SpanAlign(spanBo, false, true); // openTelemetry = true
+
+        Record exceptionRecord = factory.getException(0, 0, align);
+
+        assertThat(exceptionRecord.getTitle()).isEqualTo("ERROR");
+        assertThat(exceptionRecord.getArguments()).isEqualTo("Connection refused");
+    }
+
+    @Test
+    public void getException_otel_withClassName_usesSimpleName() {
+        final RecordFactory factory = newRecordFactory();
+
+        SpanBo spanBo = new SpanBo();
+        spanBo.setTransactionId(new PinpointServerTraceId("test", 0, 0));
+        spanBo.setExceptionInfo(new ExceptionInfo(ExceptionInfo.OTEL_EXCEPTION_ID, "java.io.IOException:disk full"));
+        // exceptionClass is populated by SpanServiceImpl.transitionException from the message prefix
+        spanBo.setExceptionClass("java.io.IOException");
+        Align align = new SpanAlign(spanBo, false, true); // openTelemetry = true
+
+        Record exceptionRecord = factory.getException(0, 0, align);
+
+        assertThat(exceptionRecord.getTitle()).isEqualTo("IOException");
+        assertThat(exceptionRecord.getArguments()).isEqualTo("disk full");
+    }
+
+    @Test
     public void getParameter_check_argument() {
 
         final RecordFactory factory = newRecordFactory();

@@ -672,6 +672,14 @@ public class SpanServiceImpl implements SpanService {
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
                 if (align.hasException()) {
                     ExceptionInfo exceptionInfo = align.getExceptionInfo();
+                    if (align.isOpenTelemetry()) {
+                        // OTel has no StringMetaData for the exception class name; it is encoded
+                        // into exceptionInfo.message as "<className>:<message>" (empty className
+                        // when unknown). Resolve the class name from the prefix and skip the
+                        // (always-missing) StringMetaData lookup.
+                        align.setExceptionClass(ExceptionInfo.otelClassName(exceptionInfo.message()));
+                        return;
+                    }
                     StringMetaDataBo stringMetaData = selectStringMetaData(align.getAgentId(), exceptionInfo.id(), align.getAgentStartTime());
                     align.setExceptionClass(stringMetaData.getStringValue());
                 }

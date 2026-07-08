@@ -12,6 +12,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
+import io.opentelemetry.proto.trace.v1.Status;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -784,5 +785,138 @@ class OtlpTraceSpanMapperTest {
         assertThat(bo.getParentApplication())
                 .isEqualTo(new ParentApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, "upstream-app",
                         ServiceType.OPENTELEMETRY_SERVER.getCode()));
+    }
+
+    // =======================================================================
+    // map() — error status → SpanBo exceptionInfo (className:message encoding)
+    // =======================================================================
+
+    private static Span.Event exceptionEvent(KeyValue... attrs) {
+        Span.Event.Builder event = Span.Event.newBuilder().setName("exception");
+        for (KeyValue attr : attrs) {
+            event.addAttributes(attr);
+        }
+        return event.build();
+    }
+
+    private static Span errorServerSpan(Status.StatusCode code, String statusMessage, KeyValue[] attrs, Span.Event... events) {
+        Span.Builder builder = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
+                .setStatus(Status.newBuilder().setCode(code).setMessage(statusMessage == null ? "" : statusMessage));
+        for (KeyValue attr : attrs) {
+            builder.addAttributes(attr);
+        }
+        for (Span.Event event : events) {
+            builder.addEvents(event);
+        }
+        return builder.build();
+    }
+
+    private static long countEventAnnotations(SpanBo bo) {
+        return bo.getAnnotationBoList().stream()
+                .filter(a -> a.getKey() == AnnotationKey.OPENTELEMETRY_EVENT.getCode())
+                .count();
+    }
+
+    @Test
+    void map_error_exceptionEvent_encodesClassAndMessage_andSkipsEventAnnotation() {
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "ignored status", new KeyValue[]{},
+                exceptionEvent(kv("exception.type", strVal("java.io.IOException")),
+                        kv("exception.message", strVal("disk full"))));
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getErrCode()).isEqualTo(1);
+        assertThat(bo.getExceptionInfo().id()).isEqualTo(0);
+        assertThat(bo.getExceptionInfo().message()).isEqualTo("java.io.IOException:disk full");
+        // exception event is captured into exceptionInfo → its annotation is skipped
+        assertThat(countEventAnnotations(bo)).isZero();
+    }
+
+    @Test
+    void map_error_exceptionEvent_typeFromEventPreferredOverErrorType() {
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "",
+                new KeyValue[]{kv("error.type", strVal("500"))},
+                exceptionEvent(kv("exception.type", strVal("java.lang.RuntimeException")),
+                        kv("exception.message", strVal("boom"))));
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getExceptionInfo().message()).isEqualTo("java.lang.RuntimeException:boom");
+    }
+
+    @Test
+    void map_error_exceptionEvent_typeFallsBackToErrorType_whenEventTypeMissing() {
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "",
+                new KeyValue[]{kv("error.type", strVal("java.net.SocketTimeoutException"))},
+                exceptionEvent(kv("exception.message", strVal("timeout"))));
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getExceptionInfo().message()).isEqualTo("java.net.SocketTimeoutException:timeout");
+        assertThat(countEventAnnotations(bo)).isZero();
+    }
+
+    @Test
+    void map_error_noEvent_statusMessageAndErrorType_emptyClassPrefix() {
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "Connection refused",
+                new KeyValue[]{kv("error.type", strVal("500"))});
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getErrCode()).isEqualTo(1);
+        // empty class-name prefix (leading delimiter) → message-only
+        assertThat(bo.getExceptionInfo().message()).isEqualTo(":Connection refused (500)");
+    }
+
+    @Test
+    void map_error_noEvent_statusMessageOnly() {
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "Connection refused: host", new KeyValue[]{});
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getExceptionInfo().message()).isEqualTo(":Connection refused: host");
+    }
+
+    @Test
+    void map_error_noSignal_setsErrCodeButNoExceptionInfo() {
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "", new KeyValue[]{});
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getErrCode()).isEqualTo(1);
+        assertThat(bo.getExceptionInfo()).isNull();
+    }
+
+    @Test
+    void map_okStatus_noErrorRecorded() {
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_OK, "should be ignored",
+                new KeyValue[]{kv("error.type", strVal("500"))},
+                exceptionEvent(kv("exception.type", strVal("java.lang.RuntimeException"))));
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getErrCode()).isEqualTo(0);
+        assertThat(bo.getExceptionInfo()).isNull();
+        // not an error → exception event is kept as an annotation
+        assertThat(countEventAnnotations(bo)).isEqualTo(1);
+    }
+
+    @Test
+    void map_error_messageTruncatedTo256() {
+        String longMessage = "x".repeat(300);
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "",
+                new KeyValue[]{},
+                exceptionEvent(kv("exception.type", strVal("E")),
+                        kv("exception.message", strVal(longMessage))));
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        String message = bo.getExceptionInfo().message();
+        assertThat(message).startsWith("E:" + "x".repeat(256));
+        assertThat(message).contains("...(300)");
     }
 }
