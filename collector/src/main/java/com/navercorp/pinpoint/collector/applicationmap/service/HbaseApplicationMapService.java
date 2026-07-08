@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
@@ -73,18 +74,19 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         if (CollectionUtils.isEmpty(spanEventList)) {
             return;
         }
+        final SpanOwner owner = spanChunkBo.getSpanOwner();
         if (logger.isDebugEnabled()) {
-            logger.debug("handle insertSpanChunk {}/{}/{} size:{}", spanChunkBo.getServiceName(), spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), spanEventList.size());
+            logger.debug("handle insertSpanChunk {}/{}/{} size:{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId(), spanEventList.size());
         }
         Vertex selfVertex = getSelfVertex(spanChunkBo);
         // TODO need to batch update later.
-        insertSpanEventList(spanEventList, selfVertex, spanChunkBo.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
+        insertSpanEventList(spanEventList, selfVertex, owner.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
     }
 
     private Vertex getSelfVertex(BasicSpan basicSpan) {
         final ServiceType applicationServiceType = getApplicationServiceType(basicSpan);
-        ServiceUid serviceUid = basicSpan.getServiceUid();
-        return Vertex.of(serviceUid.getUid(), basicSpan.getApplicationName(), applicationServiceType);
+        final SpanOwner owner = basicSpan.getSpanOwner();
+        return Vertex.of(owner.getServiceUid().getUid(), owner.getApplicationName(), applicationServiceType);
     }
 
     private ServiceType getApplicationServiceType(BasicSpan basicSpan) {
@@ -122,15 +124,16 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     private void insertAcceptorHost(SpanBo span, Vertex selfVertex) {
         // save host application map
         // acceptor host is set at profiler module only when the span is not the kind of root span
+        final SpanOwner owner = span.getSpanOwner();
         final String acceptorHost = span.getAcceptorHost();
         if (acceptorHost == null) {
-            logger.debug("acceptorHost is null agent: {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
+            logger.debug("acceptorHost is null agent: {}/{}/{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
             return;
         }
 
         final ParentApplication parentApplication = span.getParentApplication();
         if (parentApplication == null) {
-            logger.debug("parentApplication is null agent: {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
+            logger.debug("parentApplication is null agent: {}/{}/{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
             return;
         }
         final Vertex parentVertex = getParentVertex(parentApplication);
@@ -138,7 +141,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         if (spanServiceType.isQueue()) {
             final String host = span.getEndPoint();
             if (host == null) {
-                logger.debug("endPoint is null agent: {}/{}/{}", span.getServiceName(), span.getApplicationName(), span.getAgentId());
+                logger.debug("endPoint is null agent: {}/{}/{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
                 return;
             }
             hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex, selfVertex, host);
@@ -247,7 +250,8 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         // where the same reason genuinely signals lost propagation.
         final Level level = resolveInvalidSpanLevel(span);
         if (logger.isEnabled(level)) {
-            logger.log(level, "Invalid span found. reason:{} span {}/{}/{}", reason, span.getServiceName(), span.getApplicationName(), span.getAgentId());
+            final SpanOwner owner = span.getSpanOwner();
+            logger.log(level, "Invalid span found. reason:{} span {}/{}/{}", reason, owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
         }
         if (logger.isDebugEnabled()) {
             logger.debug("Invalid span found. reason:{} detailed span {}", reason, span);
@@ -278,12 +282,13 @@ public class HbaseApplicationMapService implements ApplicationMapService {
         if (CollectionUtils.isEmpty(spanEventList)) {
             return;
         }
+        SpanOwner owner = span.getSpanOwner();
         if (logger.isDebugEnabled()) {
-            logger.debug("handle insertSpanEventStat {}/{}/{} size:{}", span.getServiceName(), span.getApplicationName(), span.getAgentId(), spanEventList.size());
+            logger.debug("handle insertSpanEventStat {}/{}/{} size:{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId(), spanEventList.size());
         }
 
         // TODO need to batch update later.
-        insertSpanEventList(spanEventList, selfVertex, span.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
+        insertSpanEventList(spanEventList, selfVertex, owner.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, Vertex selfVertex,

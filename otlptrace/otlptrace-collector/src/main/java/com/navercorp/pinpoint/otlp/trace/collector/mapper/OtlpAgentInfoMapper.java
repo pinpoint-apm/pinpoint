@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import org.springframework.stereotype.Component;
@@ -28,14 +29,15 @@ import java.util.Map;
 public class OtlpAgentInfoMapper {
 
     public AgentInfoBo map(SpanBo spanBo, Map<String, AttributeValue> resourceAttributeMap) {
+        final SpanOwner owner = spanBo.getSpanOwner();
         final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
-        builder.setAgentId(spanBo.getAgentId());
-        if (spanBo.getAgentName() != null) {
-            builder.setAgentName(spanBo.getAgentName());
+        builder.setAgentId(owner.getAgentId());
+        if (owner.getAgentName() != null) {
+            builder.setAgentName(owner.getAgentName());
         }
-        builder.setApplicationName(spanBo.getApplicationName());
+        builder.setApplicationName(owner.getApplicationName());
         builder.setServiceTypeCode(spanBo.getServiceType());
-        builder.setStartTime(spanBo.getAgentStartTime());
+        builder.setStartTime(owner.getAgentStartTime());
 
         final String hostName = AttributeUtils.getAttributeStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_HOST_NAME, null);
         if (hostName != null) {

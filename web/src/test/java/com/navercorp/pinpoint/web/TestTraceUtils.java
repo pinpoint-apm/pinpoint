@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -170,9 +172,11 @@ public class TestTraceUtils {
         }
 
         public SpanBo build() {
-            SpanBo spanBo = new SpanBo();
-            spanBo.getSpanOwner().setApplicationName(applicationName);
-            spanBo.getSpanOwner().setAgentId(agentId);
+            SpanOwner spanOwner = new SpanOwner();
+            spanOwner.setApplicationName(applicationName);
+            spanOwner.setAgentId(agentId);
+
+            SpanBo spanBo = new SpanBo(TraceSourceType.PINPOINT, spanOwner);
             long spanId = this.spanId;
             if (spanId == SpanId.NULL) {
                 spanId = random.nextLong();

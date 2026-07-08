@@ -43,19 +43,19 @@ public class OtlpTraceSpanChunkMapper {
     }
 
     SpanChunkBo map(IdAndName idAndName, Span span) {
-        SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.OPENTELEMETRY);
-
-        final SpanOwner owner = spanChunkBo.getSpanOwner();
+        final SpanOwner owner = new SpanOwner();
         owner.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {
             owner.setAgentName(idAndName.agentName());
         }
         owner.setApplicationName(idAndName.applicationName());
         owner.setServiceName(idAndName.serviceName());
-
-        final long startTimeNanos = span.getStartTimeUnixNano();
         // The sequence value is 0, so make a difference with the agentStartTime value.
         owner.setAgentStartTime(generateAgentStartTime());
+
+        SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.OPENTELEMETRY, owner);
+
+        final long startTimeNanos = span.getStartTimeUnixNano();
         spanChunkBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
         spanChunkBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getParentSpanId()));
         // spanChunkBo.setEndPoint();

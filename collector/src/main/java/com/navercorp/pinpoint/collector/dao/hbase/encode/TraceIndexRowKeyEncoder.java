@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.collector.dao.hbase.encode;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.TraceIndexRowKeyUtils;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 import java.util.Objects;
 
@@ -44,19 +44,19 @@ public class TraceIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
     @Override
     public byte[] encodeRowKey(SpanBo span) {
-        ServiceUid serviceUid = span.getServiceUid();
+        final SpanOwner owner = span.getSpanOwner();
         return encodeRowKey(hasher.getSaltKey().size(),
-                serviceUid.getUid(), span.getApplicationName(), span.getApplicationServiceType(),
-                span.getCollectorAcceptTime(), span.getAgentId(),
+                owner.getServiceUid().getUid(), owner.getApplicationName(), span.getApplicationServiceType(),
+                span.getCollectorAcceptTime(), owner.getAgentId(),
                 span.getSpanId(), span.getElapsed(), span.getErrCode());
     }
 
     @Override
     public byte[] encodeRowKey(int saltKeySize, SpanBo span) {
-        ServiceUid serviceUid = span.getServiceUid();
+        final SpanOwner owner = span.getSpanOwner();
         return encodeRowKey(saltKeySize,
-                serviceUid.getUid(), span.getApplicationName(), span.getApplicationServiceType(),
-                span.getCollectorAcceptTime(), span.getAgentId(),
+                owner.getServiceUid().getUid(), owner.getApplicationName(), span.getApplicationServiceType(),
+                span.getCollectorAcceptTime(), owner.getAgentId(),
                 span.getSpanId(), span.getElapsed(), span.getErrCode());
     }
 }

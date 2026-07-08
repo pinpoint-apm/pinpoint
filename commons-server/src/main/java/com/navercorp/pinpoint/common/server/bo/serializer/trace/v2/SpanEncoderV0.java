@@ -12,6 +12,7 @@ import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
@@ -60,11 +61,12 @@ public class SpanEncoderV0 implements SpanEncoder {
     }
 
     private ByteBuffer encodeQualifier(byte type, BasicSpan basicSpan, SpanEventBo firstEvent, LocalAsyncIdBo localAsyncId) {
+        final SpanOwner owner = basicSpan.getSpanOwner();
         final Buffer buffer = new AutomaticBuffer(128);
         buffer.putByte(type);
-        buffer.putPrefixedString(basicSpan.getApplicationName());
-        buffer.putPrefixedString(basicSpan.getAgentId());
-        buffer.putVLong(basicSpan.getAgentStartTime());
+        buffer.putPrefixedString(owner.getApplicationName());
+        buffer.putPrefixedString(owner.getAgentId());
+        buffer.putVLong(owner.getAgentStartTime());
         buffer.putLong(basicSpan.getSpanId());
 
         if (firstEvent != null) {

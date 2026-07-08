@@ -3,6 +3,8 @@ package com.navercorp.pinpoint.web.filter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -70,6 +72,19 @@ public class LinkFilterTest {
         return new FilterDescriptor.Node(FilterDescriptor.Node.NodeType.SELF, DEFAULT_SERVICE, null, null, null);
     }
 
+    private static SpanBo newSpanBo(String applicationName) {
+        SpanOwner owner = new SpanOwner();
+        owner.setApplicationName(applicationName);
+        return new SpanBo(TraceSourceType.PINPOINT, owner);
+    }
+
+    private static SpanBo newSpanBo(String applicationName, String agentId) {
+        SpanOwner owner = new SpanOwner();
+        owner.setApplicationName(applicationName);
+        owner.setAgentId(agentId);
+        return new SpanBo(TraceSourceType.PINPOINT, owner);
+    }
+
     @Test
     public void fromToFilterTest() {
         ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
@@ -89,23 +104,16 @@ public class LinkFilterTest {
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug("{}", linkFilter);
 
-        SpanBo fromSpanBo = new SpanBo();
-        fromSpanBo.getSpanOwner().setApplicationName("APP_A");
-
+        SpanBo fromSpanBo = newSpanBo("APP_A", "AGENT_A");
         fromSpanBo.setServiceType(tomcatServiceType);
-        fromSpanBo.getSpanOwner().setAgentId("AGENT_A");
         fromSpanBo.setSpanId(100);
 
-        SpanBo toSpanBO = new SpanBo();
-        toSpanBO.getSpanOwner().setApplicationName("APP_B");
+        SpanBo toSpanBO = newSpanBo("APP_B", "AGENT_B");
         toSpanBO.setServiceType(tomcatServiceType);
-        toSpanBO.getSpanOwner().setAgentId("AGENT_B");
         toSpanBO.setParentSpanId(100);
 
-        SpanBo spanBoC = new SpanBo();
-        spanBoC.getSpanOwner().setApplicationName("APP_C");
+        SpanBo spanBoC = newSpanBo("APP_C", "AGENT_C");
         spanBoC.setServiceType(tomcatServiceType);
-        spanBoC.getSpanOwner().setAgentId("AGENT_C");
 
         Assertions.assertTrue(linkFilter.include(List.of(fromSpanBo, toSpanBO)));
         Assertions.assertFalse(linkFilter.include(List.of(fromSpanBo, spanBoC)));
@@ -129,23 +137,16 @@ public class LinkFilterTest {
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug("{}", linkFilter);
 
-        SpanBo fromSpanBo = new SpanBo();
-        fromSpanBo.getSpanOwner().setApplicationName("APP_A");
-
+        SpanBo fromSpanBo = newSpanBo("APP_A", "AGENT_A");
         fromSpanBo.setServiceType(tomcatServiceType);
-        fromSpanBo.getSpanOwner().setAgentId("AGENT_A");
         fromSpanBo.setSpanId(100);
 
-        SpanBo toSpanBO = new SpanBo();
-        toSpanBO.getSpanOwner().setApplicationName("APP_B");
+        SpanBo toSpanBO = newSpanBo("APP_B", "AGENT_B");
         toSpanBO.setServiceType(tomcatServiceType);
-        toSpanBO.getSpanOwner().setAgentId("AGENT_B");
         toSpanBO.setParentSpanId(100);
 
-        SpanBo spanBoC = new SpanBo();
-        spanBoC.getSpanOwner().setApplicationName("APP_C");
+        SpanBo spanBoC = newSpanBo("APP_C", "AGENT_C");
         spanBoC.setServiceType(tomcatServiceType);
-        spanBoC.getSpanOwner().setAgentId("AGENT_C");
 
         Assertions.assertTrue(linkFilter.include(List.of(fromSpanBo, toSpanBO)));
         Assertions.assertFalse(linkFilter.include(List.of(fromSpanBo, spanBoC)));
@@ -168,20 +169,17 @@ public class LinkFilterTest {
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug("{}", linkFilter);
 
-        SpanBo user_appA = new SpanBo();
+        SpanBo user_appA = newSpanBo("APP_A");
         user_appA.setSpanId(1);
         user_appA.setParentSpanId(-1);
-        user_appA.getSpanOwner().setApplicationName("APP_A");
         user_appA.setApplicationServiceType(tomcat.getCode());
-        SpanBo appA_appB = new SpanBo();
+        SpanBo appA_appB = newSpanBo("APP_B");
         appA_appB.setSpanId(2);
         appA_appB.setParentSpanId(1);
-        appA_appB.getSpanOwner().setApplicationName("APP_B");
         appA_appB.setApplicationServiceType(tomcat.getCode());
-        SpanBo appB_appA = new SpanBo();
+        SpanBo appB_appA = newSpanBo("APP_A");
         appB_appA.setSpanId(3);
         appB_appA.setParentSpanId(2);
-        appB_appA.getSpanOwner().setApplicationName("APP_A");
         appB_appA.setApplicationServiceType(tomcat.getCode());
 
         Assertions.assertTrue(linkFilter.include(List.of(user_appA)));
@@ -216,10 +214,9 @@ public class LinkFilterTest {
         logger.debug("{}", linkFilter);
 
         // Reject - no rpc span event
-        SpanBo spanBo = new SpanBo();
+        SpanBo spanBo = newSpanBo("APP_A");
         spanBo.setSpanId(1);
         spanBo.setParentSpanId(-1);
-        spanBo.getSpanOwner().setApplicationName("APP_A");
         spanBo.setApplicationServiceType(tomcat.getCode());
         Assertions.assertFalse(linkFilter.include(List.of(spanBo)));
 
@@ -250,15 +247,13 @@ public class LinkFilterTest {
         logger.debug("{}", linkFilter);
 
         // Accept - perfect match
-        SpanBo user_appA = new SpanBo();
+        SpanBo user_appA = newSpanBo("APP_A");
         user_appA.setSpanId(1);
         user_appA.setParentSpanId(-1);
-        user_appA.getSpanOwner().setApplicationName("APP_A");
         user_appA.setApplicationServiceType(tomcat.getCode());
-        SpanBo appA_appB = new SpanBo();
+        SpanBo appA_appB = newSpanBo("APP_B");
         appA_appB.setSpanId(2);
         appA_appB.setParentSpanId(1);
-        appA_appB.getSpanOwner().setApplicationName("APP_B");
         appA_appB.setApplicationServiceType(tomcat.getCode());
         Assertions.assertTrue(linkFilter.include(List.of(user_appA, appA_appB)));
     }
@@ -280,28 +275,24 @@ public class LinkFilterTest {
         logger.debug("{}", linkFilter);
 
         // Reject - fromNode different
-        SpanBo user_appC = new SpanBo();
+        SpanBo user_appC = newSpanBo("APP_C");
         user_appC.setSpanId(1);
         user_appC.setParentSpanId(-1);
-        user_appC.getSpanOwner().setApplicationName("APP_C");
         user_appC.setApplicationServiceType(tomcat.getCode());
-        SpanBo appC_appB = new SpanBo();
+        SpanBo appC_appB = newSpanBo("APP_B");
         appC_appB.setSpanId(2);
         appC_appB.setParentSpanId(1);
-        appC_appB.getSpanOwner().setApplicationName("APP_B");
         appC_appB.setApplicationServiceType(tomcat.getCode());
         Assertions.assertFalse(linkFilter.include(List.of(user_appC, appC_appB)));
 
         // Reject - toNode different
-        SpanBo user_appA = new SpanBo();
+        SpanBo user_appA = newSpanBo("APP_A");
         user_appA.setSpanId(1);
         user_appA.setParentSpanId(-1);
-        user_appA.getSpanOwner().setApplicationName("APP_A");
         user_appA.setApplicationServiceType(tomcat.getCode());
-        SpanBo appA_appC = new SpanBo();
+        SpanBo appA_appC = newSpanBo("APP_C");
         appA_appC.setSpanId(2);
         appA_appC.setParentSpanId(1);
-        appA_appC.getSpanOwner().setApplicationName("APP_C");
         appA_appC.setApplicationServiceType(tomcat.getCode());
         Assertions.assertFalse(linkFilter.include(List.of(user_appA, appA_appC)));
     }
@@ -336,10 +327,9 @@ public class LinkFilterTest {
         logger.debug("unmatchingHintLinkFilter : {}", unmatchingHintLinkFilter.toString());
         logger.debug("matchingHintLinkFilter : {}", matchingHintLinkFilter.toString());
 
-        SpanBo fromSpan = new SpanBo();
+        SpanBo fromSpan = newSpanBo("APP_A");
         fromSpan.setSpanId(1);
         fromSpan.setParentSpanId(-1);
-        fromSpan.getSpanOwner().setApplicationName("APP_A");
         fromSpan.setApplicationServiceType(tomcat.getCode());
         AnnotationBo rpcAnnotation = AnnotationBo.of(RPC_ANNOTATION_CODE, rpcUrl);
         SpanEventBo rpcSpanEvent = new SpanEventBo();
@@ -387,8 +377,7 @@ public class LinkFilterTest {
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug("{}", linkFilter);
 
-        SpanBo matchingSpan = new SpanBo();
-        matchingSpan.getSpanOwner().setApplicationName("APP_A");
+        SpanBo matchingSpan = newSpanBo("APP_A");
         matchingSpan.setApplicationServiceType(tomcat.getCode());
         SpanEventBo spanEventDestinationA = new SpanEventBo();
         spanEventDestinationA.setDestinationId(destinationA);
@@ -396,8 +385,7 @@ public class LinkFilterTest {
         matchingSpan.addSpanEvent(spanEventDestinationA);
         Assertions.assertTrue(linkFilter.include(List.of(matchingSpan)));
 
-        SpanBo unmatchingSpan = new SpanBo();
-        unmatchingSpan.getSpanOwner().setApplicationName("APP_A");
+        SpanBo unmatchingSpan = newSpanBo("APP_A");
         unmatchingSpan.setApplicationServiceType(tomcat.getCode());
         SpanEventBo spanEventDestinationB = new SpanEventBo();
         spanEventDestinationB.setDestinationId(destinationB);
@@ -407,8 +395,7 @@ public class LinkFilterTest {
 
         Assertions.assertTrue(linkFilter.include(List.of(matchingSpan, unmatchingSpan)));
 
-        SpanBo bothSpan = new SpanBo();
-        bothSpan.getSpanOwner().setApplicationName("APP_A");
+        SpanBo bothSpan = newSpanBo("APP_A");
         bothSpan.setApplicationServiceType(tomcat.getCode());
         bothSpan.addSpanEventBoList(List.of(spanEventDestinationA, spanEventDestinationB));
         Assertions.assertTrue(linkFilter.include(List.of(bothSpan)));
@@ -434,8 +421,7 @@ public class LinkFilterTest {
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug("{}", linkFilter);
 
-        SpanBo matchingSpan = new SpanBo();
-        matchingSpan.getSpanOwner().setApplicationName("APP_A");
+        SpanBo matchingSpan = newSpanBo("APP_A");
         matchingSpan.setApplicationServiceType(tomcat.getCode());
         SpanEventBo spanEventDestinationA = new SpanEventBo();
         spanEventDestinationA.setDestinationId(messageQueueA);
@@ -443,8 +429,7 @@ public class LinkFilterTest {
         matchingSpan.addSpanEvent(spanEventDestinationA);
         Assertions.assertTrue(linkFilter.include(List.of(matchingSpan)));
 
-        SpanBo unmatchingSpan = new SpanBo();
-        unmatchingSpan.getSpanOwner().setApplicationName("APP_A");
+        SpanBo unmatchingSpan = newSpanBo("APP_A");
         unmatchingSpan.setApplicationServiceType(tomcat.getCode());
         SpanEventBo spanEventDestinationB = new SpanEventBo();
         spanEventDestinationB.setDestinationId(messageQueueB);
@@ -454,8 +439,7 @@ public class LinkFilterTest {
 
         Assertions.assertTrue(linkFilter.include(List.of(matchingSpan, unmatchingSpan)));
 
-        SpanBo bothSpan = new SpanBo();
-        bothSpan.getSpanOwner().setApplicationName("APP_A");
+        SpanBo bothSpan = newSpanBo("APP_A");
         bothSpan.setApplicationServiceType(tomcat.getCode());
         bothSpan.addSpanEventBoList(List.of(spanEventDestinationA, spanEventDestinationB));
         Assertions.assertTrue(linkFilter.include(List.of(bothSpan)));
@@ -481,14 +465,12 @@ public class LinkFilterTest {
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug("{}", linkFilter);
 
-        SpanBo matchingSpan = new SpanBo();
-        matchingSpan.getSpanOwner().setApplicationName("APP_A");
+        SpanBo matchingSpan = newSpanBo("APP_A");
         matchingSpan.setApplicationServiceType(tomcat.getCode());
         matchingSpan.setAcceptorHost(messageQueueA);
         Assertions.assertTrue(linkFilter.include(List.of(matchingSpan)));
 
-        SpanBo unmatchingSpan = new SpanBo();
-        unmatchingSpan.getSpanOwner().setApplicationName("APP_A");
+        SpanBo unmatchingSpan = newSpanBo("APP_A");
         unmatchingSpan.setApplicationServiceType(tomcat.getCode());
         unmatchingSpan.setAcceptorHost(messageQueueB);
         Assertions.assertFalse(linkFilter.include(List.of(unmatchingSpan)));

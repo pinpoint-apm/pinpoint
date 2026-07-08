@@ -115,7 +115,7 @@ public class SpanEncoderTest {
 
     @RepeatedTest(REPEAT_COUNT)
     public void testEncodeSpanChunk_otelSource_qualifierByteAndRoundTrip() {
-        SpanChunkBo spanChunkBo = randomComplexSpanChunk(TraceSourceType.OPENTELEMETRY);
+        SpanChunkBo spanChunkBo = randomComplexSpanChunk();
 
         SpanEncodingContext<SpanChunkBo> ctx = new SpanEncodingContext<>(spanChunkBo);
         ByteBuffer qualifier = spanEncoder.encodeSpanChunkQualifier(ctx);
@@ -188,10 +188,6 @@ public class SpanEncoderTest {
     }
 
     public SpanChunkBo randomComplexSpanChunk() {
-        return randomComplexSpanChunk(TraceSourceType.PINPOINT);
-    }
-
-    public SpanChunkBo randomComplexSpanChunk(TraceSourceType traceSourceType) {
         PSpanChunk.Builder spanChunk = randomTSpan.randomTSpanChunk();
         PSpanEvent spanEvent1 = randomTSpan.randomTSpanEvent((short) 1);
         PSpanEvent spanEvent2 = randomTSpan.randomTSpanEvent((short) 2);
@@ -200,7 +196,7 @@ public class SpanEncoderTest {
 
         spanChunk.addAllSpanEvent(List.of(spanEvent1, spanEvent2, spanEvent3, spanEvent4));
         PSpanChunk chunk = spanChunk.build();
-        SpanChunkBo spanChunkBo = grpcSpanBinder.bind(new SpanChunkBo(traceSourceType), chunk, header, requestTime);
+        SpanChunkBo spanChunkBo = grpcSpanBinder.bind(new SpanChunkBo(), chunk, header, requestTime);
         spanChunkBo.addSpanEventBoList(grpcSpanBinder.bindSpanEventBoList(chunk.getSpanEventList()));
         return spanChunkBo;
     }

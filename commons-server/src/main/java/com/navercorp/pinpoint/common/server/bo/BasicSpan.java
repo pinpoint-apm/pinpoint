@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import org.jspecify.annotations.NonNull;
 
-import java.util.function.Supplier;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -33,7 +31,6 @@ public interface BasicSpan {
     TraceSourceType getTraceSourceType();
 
     SpanOwner getSpanOwner();
-    void setSpanOwner(SpanOwner owner);
 
     String getAgentId();
 

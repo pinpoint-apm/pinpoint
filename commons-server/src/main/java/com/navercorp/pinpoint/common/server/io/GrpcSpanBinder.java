@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
@@ -91,11 +92,12 @@ public class GrpcSpanBinder {
 
     // for test
     SpanBo newSpanBo(PSpan pSpan, ServerHeader serverHeader, long requestTime) {
-        return bind(new SpanBo(), pSpan, serverHeader, requestTime);
+        SpanOwner spanOwner = SpanOwner.from(serverHeader);
+        SpanBo spanBo = new SpanBo(TraceSourceType.PINPOINT, spanOwner);
+        return bind(spanBo, pSpan, serverHeader, requestTime);
     }
 
     public SpanBo bind(SpanBo spanBo, PSpan pSpan, ServerHeader serverHeader, long requestTime) {
-        spanBo.setSpanOwner(SpanOwner.from(serverHeader));
         spanBo.setCollectorAcceptTime(requestTime);
 
         if (!pSpan.hasTransactionId()) {
@@ -277,11 +279,12 @@ public class GrpcSpanBinder {
 
     // for test
     SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
-        return bind(new SpanChunkBo(), pSpanChunk, serverHeader, requestTime);
+        SpanOwner owner = SpanOwner.from(serverHeader);
+        SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.PINPOINT, owner);
+        return bind(spanChunkBo, pSpanChunk, serverHeader, requestTime);
     }
 
     public SpanChunkBo bind(SpanChunkBo spanChunkBo, PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
-        spanChunkBo.setSpanOwner(SpanOwner.from(serverHeader));
         spanChunkBo.setCollectorAcceptTime(requestTime);
 
         spanChunkBo.setApplicationServiceType((short) pSpanChunk.getApplicationServiceType());

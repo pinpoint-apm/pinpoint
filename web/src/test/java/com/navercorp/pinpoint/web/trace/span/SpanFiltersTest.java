@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -45,9 +47,11 @@ public class SpanFiltersTest {
     public void buildViewPointFilter() {
 
         Predicate<SpanBo> filter = SpanFilters.spanFilter(spanId, agentId, collectorAcceptTime);
-        SpanBo spanBo = new SpanBo();
+        SpanOwner owner = new SpanOwner();
+        owner.setAgentId(agentId);
+
+        SpanBo spanBo = new SpanBo(TraceSourceType.PINPOINT, owner);
         spanBo.setCollectorAcceptTime(collectorAcceptTime);
-        spanBo.getSpanOwner().setAgentId(agentId);
         spanBo.setSpanId(spanId);
         Assertions.assertTrue(filter.test(spanBo));
     }
@@ -55,9 +59,12 @@ public class SpanFiltersTest {
     @Test
     public void buildViewPointFilter_empty_spanId() {
         Predicate<SpanBo> filter = SpanFilters.spanFilter(-1, agentId, collectorAcceptTime);
-        SpanBo spanBo = new SpanBo();
+
+        SpanOwner owner = new SpanOwner();
+        owner.setAgentId(agentId);
+
+        SpanBo spanBo = new SpanBo(TraceSourceType.PINPOINT, owner);
         spanBo.setCollectorAcceptTime(collectorAcceptTime);
-        spanBo.getSpanOwner().setAgentId(agentId);
         spanBo.setSpanId(1234);
         Assertions.assertTrue(filter.test(spanBo));
     }
