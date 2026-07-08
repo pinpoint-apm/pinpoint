@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.trace.span;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.junit.jupiter.api.Test;
 
@@ -312,11 +314,16 @@ public class CallTreeTest {
         return makeSpanAlign(0, 0);
     }
 
+    private static SpanBo newSpanBo(String applicationName, String agentId) {
+        SpanOwner owner = new SpanOwner();
+        owner.setApplicationName(applicationName);
+        owner.setAgentId(agentId);
+        return new SpanBo(TraceSourceType.PINPOINT, owner);
+    }
+
     private Align makeSpanAlign(long startTime, int elapsed) {
-        SpanBo span = new SpanBo();
+        SpanBo span = newSpanBo("applicationId", "agentId");
         span.setTraceTime(SpanVersion.TRACE_V1, startTime, elapsed);
-        span.getSpanOwner().setAgentId("agentId");
-        span.getSpanOwner().setApplicationName("applicationId");
 
         return new SpanAlign(span);
     }
@@ -326,9 +333,7 @@ public class CallTreeTest {
     }
 
     private Align makeSpanAlign(final boolean async, final short sequence, final int nextAsyncId, final int asyncId) {
-        SpanBo span = new SpanBo();
-        span.getSpanOwner().setAgentId("agentId");
-        span.getSpanOwner().setApplicationName("applicationName");
+        SpanBo span = newSpanBo("applicationName", "agentId");
         return makeSpanAlign(span, async, sequence, nextAsyncId, asyncId, -1, -1);
     }
 
@@ -344,13 +349,17 @@ public class CallTreeTest {
             return new SpanEventAlign(span, event);
         }
 
-        SpanChunkBo spanChunkBo = new SpanChunkBo();
+        SpanOwner spanOwner = span.getSpanOwner();
+        SpanOwner chunkOwner = new SpanOwner();
+        chunkOwner.setAgentId(spanOwner.getAgentId());
+        chunkOwner.setAgentName(spanOwner.getAgentName());
+        chunkOwner.setApplicationName(spanOwner.getApplicationName());
+        chunkOwner.setAgentStartTime(spanOwner.getAgentStartTime());
+
+        SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.PINPOINT, chunkOwner);
         spanChunkBo.setVersion(span.getVersion());
         spanChunkBo.setTransactionId(span.getTransactionId());
         spanChunkBo.setSpanId(span.getSpanId());
-        spanChunkBo.getSpanOwner().setAgentId(span.getAgentId());
-        spanChunkBo.getSpanOwner().setAgentName(span.getAgentName());
-        spanChunkBo.getSpanOwner().setApplicationName(span.getApplicationName());
         spanChunkBo.setApplicationServiceType(span.getApplicationServiceType());
         spanChunkBo.setCollectorAcceptTime(span.getCollectorAcceptTime());
         spanChunkBo.setEndPoint(span.getEndPoint());

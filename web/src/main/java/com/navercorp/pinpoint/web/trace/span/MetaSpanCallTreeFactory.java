@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -43,10 +45,12 @@ public class MetaSpanCallTreeFactory {
     private final long timeoutMillisec = DEFAULT_TIMEOUT_MILLISEC;
 
     public CallTree unknown(final long startTimeMillis) {
-        final SpanBo rootSpan = new SpanBo();
+        SpanOwner spanOwner = new SpanOwner();
+        spanOwner.setAgentId(UNKNOWN_AGENT_ID);
+        spanOwner.setApplicationName("UNKNOWN");
+
+        final SpanBo rootSpan = new SpanBo(TraceSourceType.PINPOINT, spanOwner);
         rootSpan.setTransactionId(new PinpointServerTraceId(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
-        rootSpan.getSpanOwner().setAgentId(UNKNOWN_AGENT_ID);
-        rootSpan.getSpanOwner().setApplicationName("UNKNOWN");
         rootSpan.setTraceTime(SpanVersion.TRACE_V1, startTimeMillis, 0);
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
@@ -65,14 +69,16 @@ public class MetaSpanCallTreeFactory {
     }
 
     public SpanCallTree corrupted(final String title, final long parentSpanId, final long spanId, final long startTimeMillis) {
-        final SpanBo rootSpan = new SpanBo();
+        SpanOwner spanOwner = new SpanOwner();
+        spanOwner.setAgentId(CORRUPTED_AGENT_ID);
+        spanOwner.setApplicationName("CORRUPTED");
+
+        final SpanBo rootSpan = new SpanBo(TraceSourceType.PINPOINT, spanOwner);
         rootSpan.setParentSpanId(parentSpanId);
         rootSpan.setSpanId(spanId);
         rootSpan.setTraceTime(SpanVersion.TRACE_V1, startTimeMillis, 0);
 
         rootSpan.setTransactionId(new PinpointServerTraceId(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
-        rootSpan.getSpanOwner().setAgentId(CORRUPTED_AGENT_ID);
-        rootSpan.getSpanOwner().setApplicationName("CORRUPTED");
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,

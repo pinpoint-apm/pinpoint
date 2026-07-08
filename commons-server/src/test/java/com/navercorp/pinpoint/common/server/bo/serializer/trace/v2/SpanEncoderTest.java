@@ -66,6 +66,8 @@ public class SpanEncoderTest {
             "agentId", "agentName", "applicationName", ServiceUid.DEFAULT_SERVICE_UID_NAME, () -> ServiceUid.DEFAULT, 88, 100, false);
 
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
+    private final GrpcSpanBinder grpcOtelSpanBinder = new GrpcSpanBinder(TraceSourceType.OPENTELEMETRY);
+
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);
 
@@ -102,7 +104,7 @@ public class SpanEncoderTest {
 
     @RepeatedTest(REPEAT_COUNT)
     public void testEncodeSpan_otelSource_qualifierByteAndRoundTrip() {
-        SpanBo spanBo = randomComplexSpan(TraceSourceType.OPENTELEMETRY);
+        SpanBo spanBo = randomComplexSpan(grpcOtelSpanBinder);
 
         SpanEncodingContext<SpanBo> ctx = new SpanEncodingContext<>(spanBo);
         ByteBuffer qualifier = spanEncoder.encodeSpanQualifier(ctx);
@@ -115,7 +117,7 @@ public class SpanEncoderTest {
 
     @RepeatedTest(REPEAT_COUNT)
     public void testEncodeSpanChunk_otelSource_qualifierByteAndRoundTrip() {
-        SpanChunkBo spanChunkBo = randomComplexSpanChunk(TraceSourceType.OPENTELEMETRY);
+        SpanChunkBo spanChunkBo = randomComplexSpanChunk(grpcOtelSpanBinder);
 
         SpanEncodingContext<SpanChunkBo> ctx = new SpanEncodingContext<>(spanChunkBo);
         ByteBuffer qualifier = spanEncoder.encodeSpanChunkQualifier(ctx);
@@ -165,10 +167,10 @@ public class SpanEncoderTest {
     }
 
     public SpanBo randomComplexSpan() {
-        return randomComplexSpan(TraceSourceType.PINPOINT);
+        return randomComplexSpan(grpcSpanBinder);
     }
 
-    public SpanBo randomComplexSpan(TraceSourceType traceSourceType) {
+    public SpanBo randomComplexSpan(GrpcSpanBinder grpcSpanBinder) {
         PSpan.Builder pSpan = randomTSpan.randomPSpan();
         PSpanEvent spanEvent1 = randomTSpan.randomTSpanEvent((short) 1);
         PSpanEvent spanEvent2 = randomTSpan.randomTSpanEvent((short) 2);
@@ -177,7 +179,7 @@ public class SpanEncoderTest {
 
         pSpan.addAllSpanEvent(List.of(spanEvent1, spanEvent2, spanEvent3, spanEvent4));
         PSpan span = pSpan.build();
-        SpanBo spanBo = grpcSpanBinder.bind(new SpanBo(traceSourceType), span, header, requestTime);
+        SpanBo spanBo = grpcSpanBinder.newSpanBo(span, header, requestTime);
         spanBo.addSpanEventBoList(grpcSpanBinder.bindSpanEventBoList(span.getSpanEventList()));
         return spanBo;
     }
@@ -188,10 +190,10 @@ public class SpanEncoderTest {
     }
 
     public SpanChunkBo randomComplexSpanChunk() {
-        return randomComplexSpanChunk(TraceSourceType.PINPOINT);
+        return randomComplexSpanChunk(grpcSpanBinder);
     }
 
-    public SpanChunkBo randomComplexSpanChunk(TraceSourceType traceSourceType) {
+    public SpanChunkBo randomComplexSpanChunk(GrpcSpanBinder grpcSpanBinder) {
         PSpanChunk.Builder spanChunk = randomTSpan.randomTSpanChunk();
         PSpanEvent spanEvent1 = randomTSpan.randomTSpanEvent((short) 1);
         PSpanEvent spanEvent2 = randomTSpan.randomTSpanEvent((short) 2);
@@ -200,7 +202,7 @@ public class SpanEncoderTest {
 
         spanChunk.addAllSpanEvent(List.of(spanEvent1, spanEvent2, spanEvent3, spanEvent4));
         PSpanChunk chunk = spanChunk.build();
-        SpanChunkBo spanChunkBo = grpcSpanBinder.bind(new SpanChunkBo(traceSourceType), chunk, header, requestTime);
+        SpanChunkBo spanChunkBo = grpcSpanBinder.newSpanChunkBo(chunk, header, requestTime);
         spanChunkBo.addSpanEventBoList(grpcSpanBinder.bindSpanEventBoList(chunk.getSpanEventList()));
         return spanChunkBo;
     }

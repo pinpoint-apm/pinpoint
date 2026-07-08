@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +29,10 @@ public class SpanCallTreeTest {
 
     @Test
     public void hasFocusSpan1() {
-        SpanBo root = new SpanBo();
-        root.getSpanOwner().setAgentId("root");
+        SpanOwner spanOwner = new SpanOwner();
+        spanOwner.setAgentId("root");
+
+        SpanBo root = new SpanBo(TraceSourceType.PINPOINT, spanOwner);
         Align rootAlign = new SpanAlign(root);
 
         SpanCallTree callTreeNodes = new SpanCallTree(rootAlign);
@@ -39,8 +43,10 @@ public class SpanCallTreeTest {
 
     @Test
     public void hasFocusSpan2() {
-        SpanBo root = new SpanBo();
-        root.getSpanOwner().setAgentId("root");
+        SpanOwner spanOwner = new SpanOwner();
+        spanOwner.setAgentId("root");
+
+        SpanBo root = new SpanBo(TraceSourceType.PINPOINT, spanOwner);
         Align rootAlign = new SpanAlign(root);
 
         SpanCallTree callTreeNodes = new SpanCallTree(rootAlign);

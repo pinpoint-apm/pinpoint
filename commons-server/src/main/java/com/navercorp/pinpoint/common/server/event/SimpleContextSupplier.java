@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.event;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 
 import java.util.Map;
 
@@ -25,12 +26,14 @@ public class SimpleContextSupplier implements ContextSupplier {
 
     @Override
     public ContextData applyAsContext(SpanBo spanBo) {
-        return new ContextData(spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getStartTimeMillis(), Map.of());
+        SpanOwner owner = spanBo.getSpanOwner();
+        return new ContextData(owner.getApplicationName(), owner.getAgentId(), spanBo.getStartTimeMillis(), Map.of());
     }
 
     @Override
     public ContextData applyAsContext(SpanChunkBo spanChunkBo) {
-        return new ContextData(spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), -1, Map.of());
+        SpanOwner owner = spanChunkBo.getSpanOwner();
+        return new ContextData(owner.getApplicationName(), owner.getAgentId(), -1, Map.of());
     }
 
 }

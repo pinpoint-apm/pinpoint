@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 /**
  * @author emeroad
@@ -43,7 +42,7 @@ public class SpanBo implements BasicSpan {
     @NonNull
     private final TraceSourceType traceSourceType;
 
-    private SpanOwner owner = new SpanOwner();
+    private final SpanOwner owner;
 
     private ServerTraceId transactionId;
 
@@ -84,11 +83,16 @@ public class SpanBo implements BasicSpan {
     private List<AttributeBo> attributeBoList = new ArrayList<>();
 
     public SpanBo() {
-        this(TraceSourceType.PINPOINT);
+        this(TraceSourceType.PINPOINT, new SpanOwner());
     }
 
     public SpanBo(TraceSourceType traceSourceType) {
+        this(traceSourceType, new SpanOwner());
+    }
+
+    public SpanBo(TraceSourceType traceSourceType, SpanOwner owner) {
         this.traceSourceType = Objects.requireNonNull(traceSourceType, "traceSourceType");
+        this.owner = Objects.requireNonNull(owner, "owner");
     }
 
     @Override
@@ -122,11 +126,6 @@ public class SpanBo implements BasicSpan {
     @Override
     public SpanOwner getSpanOwner() {
         return owner;
-    }
-
-    @Override
-    public void setSpanOwner(SpanOwner owner) {
-        this.owner = Objects.requireNonNull(owner, "owner");
     }
 
     @NonNull
