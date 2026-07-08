@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
+import io.opentelemetry.proto.trace.v1.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -541,5 +542,82 @@ class OtlpTraceSpanEventMapperTest {
         assertThat(event.getAnnotationBoList())
                 .extracting(com.navercorp.pinpoint.common.server.bo.AnnotationBo::getKey)
                 .doesNotContain(com.navercorp.pinpoint.common.trace.AnnotationKey.OPENTELEMETRY_DROPPED.getCode());
+    }
+
+    // =======================================================================
+    // map() — error status → SpanEvent exceptionInfo (className:message encoding)
+    // =======================================================================
+
+    private static Span.Event exceptionEvent(KeyValue... attrs) {
+        Span.Event.Builder event = Span.Event.newBuilder().setName("exception");
+        for (KeyValue attr : attrs) {
+            event.addAttributes(attr);
+        }
+        return event.build();
+    }
+
+    private static Span errorClientSpan(Status.StatusCode code, String statusMessage, KeyValue[] attrs, Span.Event... events) {
+        Span.Builder builder = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_CLIENT_VALUE)
+                .setStatus(Status.newBuilder().setCode(code).setMessage(statusMessage == null ? "" : statusMessage));
+        for (KeyValue attr : attrs) {
+            builder.addAttributes(attr);
+        }
+        for (Span.Event event : events) {
+            builder.addEvents(event);
+        }
+        return builder.build();
+    }
+
+    private static long countEventAnnotations(SpanEventBo event) {
+        return event.getAnnotationBoList().stream()
+                .filter(a -> a.getKey() == com.navercorp.pinpoint.common.trace.AnnotationKey.OPENTELEMETRY_EVENT.getCode())
+                .count();
+    }
+
+    @Test
+    void map_error_exceptionEvent_setsExceptionInfo_andSkipsEventAnnotation() {
+        Span span = errorClientSpan(Status.StatusCode.STATUS_CODE_ERROR, "ignored", new KeyValue[]{},
+                exceptionEvent(kv("exception.type", strVal("java.io.IOException")),
+                        kv("exception.message", strVal("disk full"))));
+
+        SpanEventBo event = mapSingle(span);
+
+        assertThat(event.hasException()).isTrue();
+        assertThat(event.getExceptionInfo().id()).isEqualTo(0);
+        assertThat(event.getExceptionInfo().message()).isEqualTo("java.io.IOException:disk full");
+        assertThat(countEventAnnotations(event)).isZero();
+    }
+
+    @Test
+    void map_error_noEvent_statusMessageOnly_emptyClassPrefix() {
+        Span span = errorClientSpan(Status.StatusCode.STATUS_CODE_ERROR, "Connection refused: host", new KeyValue[]{});
+
+        SpanEventBo event = mapSingle(span);
+
+        assertThat(event.getExceptionInfo().message()).isEqualTo(":Connection refused: host");
+    }
+
+    @Test
+    void map_error_noSignal_noExceptionInfo() {
+        Span span = errorClientSpan(Status.StatusCode.STATUS_CODE_ERROR, "", new KeyValue[]{});
+
+        SpanEventBo event = mapSingle(span);
+
+        assertThat(event.hasException()).isFalse();
+    }
+
+    @Test
+    void map_okStatus_noExceptionInfo_keepsEventAnnotation() {
+        Span span = errorClientSpan(Status.StatusCode.STATUS_CODE_UNSET, "", new KeyValue[]{},
+                exceptionEvent(kv("exception.type", strVal("java.lang.RuntimeException"))));
+
+        SpanEventBo event = mapSingle(span);
+
+        assertThat(event.hasException()).isFalse();
+        assertThat(countEventAnnotations(event)).isEqualTo(1);
     }
 }

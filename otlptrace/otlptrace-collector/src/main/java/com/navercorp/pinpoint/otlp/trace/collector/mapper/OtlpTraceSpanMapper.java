@@ -46,6 +46,11 @@ import java.util.function.Consumer;
 
 @Component
 public class OtlpTraceSpanMapper {
+    // Upper bound for the exception message body stored inline on SpanBo/SpanEventBo, mirroring
+    // the native agent's 256-char abbreviation. The class-name prefix is not counted (it is
+    // naturally bounded) and survives truncation because it precedes the body.
+    static final int EXCEPTION_MESSAGE_MAX_LENGTH = 256;
+
     private final OtlpTraceEventMapper eventMapper;
     private final OtlpTraceLinkMapper linkMapper;
     private final OtlpMessagingTypeResolver messagingTypeResolver;
@@ -106,15 +111,16 @@ public class OtlpTraceSpanMapper {
             }
         }
 
+        // errCode is the transaction-level error flag and is set whenever the (root) span status
+        // is ERROR, independently of whether an exceptionInfo can be built.
+        final ExceptionInfo exceptionInfo = resolveErrorExceptionInfo(span, attributes);
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
             spanBo.setErrCode(1);
-            final String errorType = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_ERROR_TYPE, null);
-            if (StringUtils.hasLength(errorType)) {
-                spanBo.setExceptionInfo(new ExceptionInfo(1, errorType));
-            } else if (StringUtils.hasLength(span.getStatus().getMessage())) {
-                spanBo.setExceptionInfo(new ExceptionInfo(1, span.getStatus().getMessage()));
+            if (exceptionInfo != null) {
+                spanBo.setExceptionInfo(exceptionInfo);
             }
         }
+        final boolean skipExceptionEvent = isExceptionClassCaptured(exceptionInfo);
         // response
         final int responseStatusCode = (int) getServerSpanToResponseStatusCode(attributes);
         if (responseStatusCode != -1) {
@@ -133,6 +139,11 @@ public class OtlpTraceSpanMapper {
         // event
         int truncatedEvents = 0;
         for (Span.Event event : span.getEventsList()) {
+            // The exception event's class name is captured into exceptionInfo and its message/
+            // stacktrace into exception-trace metadata, so skip its (redundant) annotation.
+            if (skipExceptionEvent && OtlpTraceConstants.EVENT_NAME_EXCEPTION.equals(event.getName())) {
+                continue;
+            }
             truncatedEvents += eventMapper.addEventToAnnotation(event, spanBo::addAnnotation);
         }
         // link
@@ -149,6 +160,84 @@ public class OtlpTraceSpanMapper {
                 span.getDroppedLinksCount());
 
         return spanBo;
+    }
+
+    /**
+     * Builds the SpanBo/SpanEventBo {@link ExceptionInfo} for an OTel span whose status is ERROR,
+     * or {@code null} when the span is not ERROR (or is ERROR but carries no usable signal).
+     *
+     * <p>Shared by {@link OtlpTraceSpanMapper} (root → SpanBo) and {@link OtlpTraceSpanEventMapper}
+     * (non-root → SpanEventBo) so both apply the identical rule. When an {@code exception} event is
+     * present, its type ({@code exception.type} → {@code error.type}) is treated as the exception
+     * class name; otherwise the free-form status message (with {@code error.type} appended) is used.
+     *
+     * <p>OTel has no {@code StringMetaData} for the class name, so both the class name and the
+     * message are encoded into the single {@link ExceptionInfo#message()} field as
+     * {@code "<className><delimiter><message>"} — the class-name prefix is always present (empty
+     * when unknown). See {@link ExceptionInfo#OTEL_MESSAGE_DELIMITER}.
+     */
+    static ExceptionInfo resolveErrorExceptionInfo(Span span, Map<String, AttributeValue> attributes) {
+        if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() != span.getStatus().getCodeValue()) {
+            return null;
+        }
+
+        final Span.Event exceptionEvent = ExceptionAttributeUtils.findExceptionEvent(span);
+        if (exceptionEvent != null) {
+            final Map<String, AttributeValue> eventAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionEvent.getAttributesList());
+            final String className = ExceptionAttributeUtils.resolveExceptionType(eventAttrs, attributes);
+            if (StringUtils.hasLength(className)) {
+                final String message = ExceptionAttributeUtils.getExceptionMessage(eventAttrs);
+                return buildOtelExceptionInfo(className, message);
+            }
+        }
+
+        // No exception event (or unresolved type): use the free-form message. This is a plain
+        // message, so the class-name prefix stays empty.
+        final String errorType = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_ERROR_TYPE, null);
+        final String messageBody = buildExceptionMessageBody(span.getStatus().getMessage(), errorType);
+        if (!StringUtils.hasLength(messageBody)) {
+            return null;
+        }
+        return buildOtelExceptionInfo("", messageBody);
+    }
+
+    /**
+     * Combines the OTel status message and {@code error.type} into a single message body,
+     * status message first: {@code "status (error.type)"} when both are present, otherwise
+     * whichever is present, or {@code null} when neither is.
+     */
+    static String buildExceptionMessageBody(String statusMessage, String errorType) {
+        final boolean hasMessage = StringUtils.hasLength(statusMessage);
+        final boolean hasType = StringUtils.hasLength(errorType);
+        if (hasMessage && hasType) {
+            return statusMessage + " (" + errorType + ")";
+        }
+        if (hasMessage) {
+            return statusMessage;
+        }
+        if (hasType) {
+            return errorType;
+        }
+        return null;
+    }
+
+    private static ExceptionInfo buildOtelExceptionInfo(String className, String messageBody) {
+        final String body = (messageBody == null) ? "" : StringUtils.abbreviate(messageBody, EXCEPTION_MESSAGE_MAX_LENGTH);
+        final String message = className + ExceptionInfo.OTEL_MESSAGE_DELIMITER + body;
+        return new ExceptionInfo(ExceptionInfo.OTEL_EXCEPTION_ID, message);
+    }
+
+    /**
+     * True when {@code exceptionInfo} carries a non-empty exception class name prefix — i.e. the
+     * span's {@code exception} event was captured. The exception event annotation is then skipped
+     * to avoid duplicating what exceptionInfo + exception-trace metadata already hold.
+     */
+    static boolean isExceptionClassCaptured(ExceptionInfo exceptionInfo) {
+        if (exceptionInfo == null || exceptionInfo.message() == null) {
+            return false;
+        }
+        // className is the prefix before the first delimiter; index > 0 ⇒ non-empty class name.
+        return exceptionInfo.message().indexOf(ExceptionInfo.OTEL_MESSAGE_DELIMITER) > 0;
     }
 
     /**
