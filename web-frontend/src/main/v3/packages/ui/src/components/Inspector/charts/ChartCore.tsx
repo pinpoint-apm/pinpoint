@@ -101,9 +101,10 @@ export const ChartCore = ({
           ...(dashed ? { type: 'dashed' as const } : {}),
         },
         ...(seriesOption?.color ? { itemStyle: { color: seriesOption.color } } : {}),
-        // hover 시 다른 시리즈를 흐리게 하지 않는다.
+        // 그래프 또는 legend 항목에 hover 하면 다른 시리즈를 흐리게 해 hover 한 값을 강조한다.
+        // (SystemMetric 차트와 동일한 동작)
         emphasis: {
-          focus: 'none' as const,
+          focus: 'series' as const,
         },
       };
     });
