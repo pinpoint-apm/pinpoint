@@ -183,4 +183,11 @@ describe('ChartCore', () => {
     expect(option.legend.data).toEqual([]);
     expect(option.series).toHaveLength(1); // series still drawn
   });
+
+  it('focuses the hovered series so the others dim on hover (like SystemMetric charts)', () => {
+    const { option } = renderChart(
+      makeData([{ fieldName: 'cpu', unit: 'percent', chartType: 'line', valueList: [1, 2, 3] }]),
+    );
+    expect(option.series[0].emphasis.focus).toBe('series');
+  });
 });
