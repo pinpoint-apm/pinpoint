@@ -184,9 +184,16 @@ public class OtlpTraceSpanMapper {
         if (exceptionEvent != null) {
             final Map<String, AttributeValue> eventAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionEvent.getAttributesList());
             final String className = ExceptionAttributeUtils.resolveExceptionType(eventAttrs, attributes);
+            final String message = ExceptionAttributeUtils.getExceptionMessage(eventAttrs);
             if (StringUtils.hasLength(className)) {
-                final String message = ExceptionAttributeUtils.getExceptionMessage(eventAttrs);
                 return buildOtelExceptionInfo(className, message);
+            }
+            // OTel allows an exception event with only exception.message (no exception.type /
+            // error.type). Keep that message rather than dropping it and falling back to the
+            // (often empty) status message — the empty class-name prefix lets the web side render
+            // it under the "ERROR" fallback title.
+            if (StringUtils.hasLength(message)) {
+                return buildOtelExceptionInfo("", message);
             }
         }
 
