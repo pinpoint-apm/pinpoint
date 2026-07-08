@@ -10,6 +10,8 @@ public interface ServiceRegistryService {
 
     List<String> getServiceNames();
 
+    List<ServiceEntity> getServiceList(int limit);
+
     ServiceEntity getService(String name);
 
     ServiceEntity getService(int uid);

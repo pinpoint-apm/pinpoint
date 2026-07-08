@@ -46,6 +46,12 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ServiceEntity> getServiceList(int limit) {
+        return serviceRegistryDao.selectServiceList(limit);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public ServiceEntity getService(String name) {
         Objects.requireNonNull(name, "name");
         return serviceRegistryDao.selectService(name);
