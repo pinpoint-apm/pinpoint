@@ -861,6 +861,35 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
+    void map_error_exceptionEvent_messageOnly_keepsMessageWithEmptyClassPrefix() {
+        // OTel permits an exception event with only exception.message (no exception.type),
+        // and here no error.type either. The event message is the only error signal and must
+        // not be dropped; it is encoded with an empty class-name prefix.
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "", new KeyValue[]{},
+                exceptionEvent(kv("exception.message", strVal("something broke"))));
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getErrCode()).isEqualTo(1);
+        assertThat(bo.getExceptionInfo().id()).isEqualTo(0);
+        assertThat(bo.getExceptionInfo().message()).isEqualTo(":something broke");
+        // empty class-name prefix → not treated as "captured", so the event annotation is kept
+        assertThat(countEventAnnotations(bo)).isEqualTo(1);
+    }
+
+    @Test
+    void map_error_exceptionEvent_messageOnly_fallsBackToStatusMessageWhenEventMessageEmpty() {
+        // Exception event present but carrying neither type nor message: fall through to the
+        // free-form status message rather than fabricating an empty exceptionInfo.
+        Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "status fallback",
+                new KeyValue[]{}, exceptionEvent());
+
+        SpanBo bo = newMapper().map(id(), span);
+
+        assertThat(bo.getExceptionInfo().message()).isEqualTo(":status fallback");
+    }
+
+    @Test
     void map_error_noEvent_statusMessageAndErrorType_emptyClassPrefix() {
         Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "Connection refused",
                 new KeyValue[]{kv("error.type", strVal("500"))});
