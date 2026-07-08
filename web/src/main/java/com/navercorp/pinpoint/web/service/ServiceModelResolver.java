@@ -3,11 +3,9 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.service.vo.ServiceEntity;
 import com.navercorp.pinpoint.web.vo.Service;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
-@Component
 public class ServiceModelResolver {
 
     private final ServiceRegistryService serviceRegistryService;
@@ -23,12 +21,11 @@ public class ServiceModelResolver {
         if (Service.TEST_SERVICE.getServiceUid() == serviceUid) {
             return Service.TEST_SERVICE;
         }
-        ServiceEntity entity = serviceRegistryService.getService(serviceUid);
-        if (entity == null) {
+        Service service = resolveService(serviceUid);
+        if (service == null) {
             return Service.DEFAULT;
         }
-
-        return new Service(entity.getName(), entity.getUid());
+        return service;
     }
 
     public Service getService(String serviceName) {
@@ -38,11 +35,25 @@ public class ServiceModelResolver {
         if (Service.TEST_SERVICE.getServiceName().equals(serviceName)) {
             return Service.TEST_SERVICE;
         }
-        ServiceEntity entity = serviceRegistryService.getService(serviceName);
-        if (entity == null) {
+        Service service = resolveService(serviceName);
+        if (service == null) {
             return Service.DEFAULT;
         }
+        return service;
+    }
 
+    protected Service resolveService(int serviceUid) {
+        return toService(serviceRegistryService.getService(serviceUid));
+    }
+
+    protected Service resolveService(String serviceName) {
+        return toService(serviceRegistryService.getService(serviceName));
+    }
+
+    protected static Service toService(ServiceEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return new Service(entity.getName(), entity.getUid());
     }
 }
