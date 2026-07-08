@@ -22,11 +22,8 @@ import {
   SelectItem,
   Separator,
 } from '../../ui';
-import {
-  getGridBottom,
-  LEGEND_ICON_WIDTH,
-  LEGEND_ITEM_GAP,
-} from '../../../lib/charts/echartsLegendLayout';
+import { buildBottomLegend, getGridBottom } from '../../../lib/charts/echartsLegendLayout';
+import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
 import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 import {
   formatAxisTooltip,
@@ -108,14 +105,7 @@ export const SystemMetricChartFetcher = ({
       chart.setOption(
         {
           animation: false,
-          legend: {
-            data: legendNames,
-            bottom: 0,
-            icon: 'square',
-            itemWidth: LEGEND_ICON_WIDTH,
-            itemHeight: 10,
-            itemGap: LEGEND_ITEM_GAP,
-          },
+          legend: buildBottomLegend(legendNames),
           grid: {
             top: 20,
             bottom: gridBottom,
@@ -158,21 +148,7 @@ export const SystemMetricChartFetcher = ({
             formatter: (params: unknown) => formatAxisTooltip(params, formatValue),
           },
           series,
-          graphic: !hasData
-            ? [
-                {
-                  type: 'text',
-                  left: 'center',
-                  top: 'middle',
-                  style: {
-                    text: emptyMessage,
-                    fontSize: 18,
-                    fill: '#999',
-                    textAlign: 'center',
-                  },
-                },
-              ]
-            : [],
+          graphic: buildEmptyMessageGraphic(hasData, emptyMessage),
         },
         // tag/metric 변경으로 series 수가 줄어도 이전 series가 병합되어 잔존하지 않도록 항상 교체한다.
         { replaceMerge: ['series'] },

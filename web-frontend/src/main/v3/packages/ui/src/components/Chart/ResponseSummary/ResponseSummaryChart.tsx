@@ -7,6 +7,8 @@ import { AxisBreak } from 'echarts/features';
 import { GridComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { cn } from '../../../lib';
+import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
+import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 
 echarts.use([BarChartEcharts, AxisBreak, GridComponent, CanvasRenderer]);
 
@@ -41,8 +43,7 @@ export const ResponseSummaryChart = ({
   emptyMessage = 'No Data',
   disabledBreak,
 }: ResponseSummaryChartProps) => {
-  const chartRef = React.useRef(null);
-  const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
+  const { chartRef, chartInstanceRef } = useEChartsInstance();
   const chartData = React.useMemo(
     () => (typeof data === 'function' ? data(categories) : data || []),
     [data, categories],
@@ -100,27 +101,6 @@ export const ResponseSummaryChart = ({
 
     return breakArr;
   }, [chartData, disabledBreak]);
-
-  // 차트 초기화
-  React.useEffect(() => {
-    if (!chartRef.current) return;
-
-    const chart = echarts.init(chartRef.current);
-    chartInstanceRef.current = chart;
-
-    // chart resize
-    const wrapperElement = chartRef.current;
-    if (!wrapperElement) return;
-    const resizeObserver = new ResizeObserver(() => {
-      chart.resize();
-    });
-    resizeObserver.observe(wrapperElement);
-
-    return () => {
-      resizeObserver.disconnect();
-      chart.dispose();
-    };
-  }, []);
 
   // data 변경 시 업데이트
   React.useEffect(() => {
@@ -185,21 +165,9 @@ export const ResponseSummaryChart = ({
           },
         },
       ],
-      graphic: [
-        {
-          type: 'text',
-          left: 'center',
-          top: 'middle',
-          style: {
-            text: chartData.length === 0 ? emptyMessage : '',
-            fontSize: 14,
-            fill: '#999',
-            textAlign: 'center',
-          },
-        },
-      ],
+      graphic: buildEmptyMessageGraphic(chartData.length > 0, emptyMessage, { fontSize: 14 }),
     });
-  }, [categories, chartData, colors, breakConfig, emptyMessage]);
+  }, [categories, chartData, colors, breakConfig, emptyMessage, chartInstanceRef]);
 
   return (
     <div className="w-full h-full">
