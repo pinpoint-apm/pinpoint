@@ -52,9 +52,9 @@ export const TransactionCharts = () => {
   const toDate = addMinutes(focusTimestamp, 10);
 
   return (
-    <div ref={containerRef} className="h-full p-3">
+    <div ref={containerRef} className="h-full px-8 py-3">
       {isAboveXl && (
-        <div className="grid h-full grid-cols-3 gap-4 text-xs">
+        <div className="grid h-full grid-cols-3 gap-12 text-xs">
           {chartIdList.map((chartId) => (
             <ErrorBoundary key={chartId}>
               <React.Suspense
