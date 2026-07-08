@@ -123,6 +123,9 @@ export const ResponseSummaryChart = ({
       yAxis: {
         type: 'value',
         min: 0,
+        // 데이터가 없거나 전부 0이면 값축 범위가 [0,0]으로 붕괴돼 x축(하단 선)이 사라진다.
+        // 이때만 기본 최대값을 줘서 축이 정상적으로 그려지게 한다. (값이 있으면 auto-scale)
+        max: chartData.some((v) => v > 0) ? undefined : 1,
         axisLine: {
           show: true,
         },
