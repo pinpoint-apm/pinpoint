@@ -184,6 +184,26 @@ describe('getMergedData', () => {
     });
   });
 
+  describe('배경 이미지 변형(imgArrHighlight)', () => {
+    it('imgArrHighlight는 서비스 그룹 노드(subNodesCount)에만 생성되고 일반 노드에는 없어야 함', () => {
+      const nodes: Node[] = [
+        { id: 'n1', label: 'WAS', type: 'WAS' },
+        { id: 'sg1', label: 'ServiceGroup', type: 'DB', subNodesCount: 3 },
+      ];
+      const edges: Edge[] = [{ id: 'e1', source: 'n1', target: 'sg1' }];
+
+      const result = getMergedData({ nodes, edges });
+
+      const serviceGroupNode = result.nodes.find((n) => n.data.id === 'sg1');
+      const normalNode = result.nodes.find((n) => n.data.id === 'n1');
+
+      // 서비스 그룹 노드: 선택 시 하이라이트할 별도 이미지가 있어야 함
+      expect(serviceGroupNode?.data.imgArrHighlight).toBeDefined();
+      // 일반 노드: 하이라이트 이미지가 없어야 함(스타일시트가 background-image를 관리하도록)
+      expect(normalNode?.data.imgArrHighlight).toBeUndefined();
+    });
+  });
+
   describe('엣지 데이터 구조', () => {
     it('병합된 엣지는 edges 배열을 포함해야 함', () => {
       const nodes: Node[] = [

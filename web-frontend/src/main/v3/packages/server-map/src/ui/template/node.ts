@@ -9,7 +9,11 @@ const MIN_ARC_RATIO = 0.05;
 const RADIUS = 47;
 const DIAMETER = 2 * Math.PI * RADIUS;
 
-export const getNodeSVGString = (nodeData: Node, renderNode?: ServerMapProps['renderNode']) => {
+export const getNodeSVGString = (
+  nodeData: Node,
+  renderNode?: ServerMapProps['renderNode'],
+  isSelected = false,
+) => {
   const { transactionInfo, timeSeriesApdexInfo } = nodeData;
 
   // timeSeriesApdexInfo가 있을 때는 새로운 Apdex SVG를 사용
@@ -21,7 +25,7 @@ export const getNodeSVGString = (nodeData: Node, renderNode?: ServerMapProps['re
     'data:image/svg+xml;charset=utf-8,' +
     encodeURIComponent(`
     <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" xmlns:xlink="http://www.w3.org/1999/xlink">
-      ${renderNode ? renderNode(nodeData, statusSVGString) : statusSVGString}
+      ${renderNode ? renderNode(nodeData, statusSVGString, isSelected) : statusSVGString}
     </svg>
   `)
   );

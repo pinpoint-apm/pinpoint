@@ -33,7 +33,7 @@ export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'c
   onDataMerged?: (mergeInfo: MergeInfo) => void;
   renderNodeLabel?: (node: MergedNode) => string | undefined;
   renderEdgeLabel?: (edge: MergedEdge) => string | undefined;
-  renderNode?: (node: MergedNode, transactionStatusSVGString: string) => string;
+  renderNode?: (node: MergedNode, transactionStatusSVGString: string, isSelected?: boolean) => string;
   cy?: (cy: cytoscape.Core) => void;
 }
 
@@ -373,13 +373,53 @@ export const ServerMap = ({
     }
   }, [onClickNode, onClickEdge, onClickBackground]);
 
+  // 서비스 그룹 노드의 배경 이미지를 기본(imgArr)으로 되돌린다.
+  // 인라인 background-image는 서비스 그룹 노드에만 지정한다. 일반 노드는 스타일시트가
+  // background-image(cy.data 기반)를 관리하도록 두어야, 데이터 갱신 시 상태 링이 최신으로 유지된다.
+  const resetNodeImages = () => {
+    const cy = cyRef.current!;
+    cy.nodes().forEach((node) => {
+      const nodeData = cy.data(node.id())?.data;
+      if (nodeData?.subNodesCount !== undefined && nodeData?.imgArr) {
+        node.style('background-image', nodeData.imgArr);
+      }
+    });
+  };
+
+  // 대상 노드를 하이라이트 이미지(imgArrHighlight)로 전환한다.
+  // imgArrHighlight는 서비스 그룹 노드에만 존재하므로, 일반 노드는 자연히 건드리지 않는다.
+  const highlightNodeImage = (target: cytoscape.NodeCollection) => {
+    const cy = cyRef.current!;
+    target.forEach((node) => {
+      const nodeData = cy.data(node.id())?.data;
+      if (nodeData?.imgArrHighlight) {
+        node.style('background-image', nodeData.imgArrHighlight);
+      }
+    });
+  };
+
+  // 서비스 그룹 노드는 두 원을 SVG로 그리므로 cytoscape 테두리를 숨긴다.
+  // 하이라이트 로직이 모든 노드 테두리를 기본값(굵기 3)으로 되돌리므로, 이후 서비스 노드만 다시 0으로 맞춘다.
+  const hideServiceNodeBorder = () => {
+    const cy = cyRef.current!;
+    cy.nodes().forEach((node) => {
+      const nodeData = cy.data(node.id())?.data;
+      if (nodeData?.subNodesCount !== undefined) {
+        node.style('border-width', 0);
+      }
+    });
+  };
+
   const highlightNode = (target: cytoscape.CollectionReturnValue) => {
     const cy = cyRef.current!;
     /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
     cy.nodes().style(serverMapTheme.node?.default!);
     cy.edges().style(serverMapTheme.edge?.default!);
+    resetNodeImages();
+    hideServiceNodeBorder();
     cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
     target.style(serverMapTheme.node?.highlight!);
+    highlightNodeImage(target.nodes());
     target.connectedEdges().style(serverMapTheme.edge?.highlight!);
     /* eslint-enable @typescript-eslint/no-non-null-asserted-optional-chain */
   };
@@ -390,8 +430,12 @@ export const ServerMap = ({
     /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
     cy.nodes().style(serverMapTheme.node?.default!);
     cy.edges().style(serverMapTheme.edge?.default!);
+    resetNodeImages();
+    hideServiceNodeBorder();
     cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
-    target.connectedNodes().style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
+    const connectedNodes = target.connectedNodes();
+    connectedNodes.style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
+    highlightNodeImage(connectedNodes);
     target.style(serverMapTheme.edge?.highlight!);
     /* eslint-enable @typescript-eslint/no-non-null-asserted-optional-chain */
   };

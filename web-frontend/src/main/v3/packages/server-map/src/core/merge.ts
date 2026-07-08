@@ -214,12 +214,21 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
   return {
     nodes: [
       ...finalData.nodes.map((node) => {
+        const nodeSVGString = getNodeSVGString(node, renderNode);
+        const imgArr = node?.imgPath ? [node.imgPath, nodeSVGString] : [nodeSVGString];
+        // 선택 시 하이라이트 이미지는 서비스 그룹 노드(subNodesCount)에만 필요하다.
+        // 일반 노드는 생성하지 않아(undefined) 불필요한 메모리 사용과 이미지 교체를 막는다.
+        const imgArrHighlight =
+          node?.subNodesCount !== undefined
+            ? node?.imgPath
+              ? [node.imgPath, getNodeSVGString(node, renderNode, true)]
+              : [getNodeSVGString(node, renderNode, true)]
+            : undefined;
         return {
           data: {
             ...node,
-            imgArr: node?.imgPath
-              ? [node.imgPath, getNodeSVGString(node, renderNode)]
-              : [getNodeSVGString(node, renderNode)],
+            imgArr,
+            imgArrHighlight,
           },
         };
       }),
