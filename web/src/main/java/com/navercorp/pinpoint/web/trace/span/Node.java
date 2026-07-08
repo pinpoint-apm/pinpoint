@@ -84,8 +84,8 @@ public class Node {
 
     @Override
     public String toString() {
-        return "Node{" + "applicationName" + span.getApplicationName() +
-                ", agentId=" + span.getAgentId() +
+        return "Node{" +
+                span.getServiceName() + '/' + span.getApplicationName() + '/' + span.getAgentId() +
                 ", parentSpanId=" + span.getParentSpanId() +
                 ", spanId=" + span.getSpanId() +
                 ", startTimeMillis=" + span.getStartTimeMillis() +
