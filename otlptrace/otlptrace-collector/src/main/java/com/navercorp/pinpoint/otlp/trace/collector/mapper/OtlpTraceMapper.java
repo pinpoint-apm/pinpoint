@@ -348,7 +348,7 @@ public class OtlpTraceMapper {
             // Link the SpanEvent's inline exception to its exceptiontrace record. The id matches
             // OtlpExceptionMapper's ExceptionWrapperBo.exceptionId (getSpanId of the same span);
             // only emitted on the root-linked path where an exceptiontrace row actually exists.
-            if (emitExceptionLink && OtlpTraceSpanMapper.isExceptionClassCaptured(spanEventBo.getExceptionInfo())) {
+            if (emitExceptionLink && OtlpExceptionInfoResolver.isExceptionClassCaptured(spanEventBo.getExceptionInfo())) {
                 spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.EXCEPTION_CHAIN_ID.getCode(),
                         OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
             }

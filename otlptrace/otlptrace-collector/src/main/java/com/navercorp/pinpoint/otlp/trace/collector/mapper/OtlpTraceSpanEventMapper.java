@@ -132,11 +132,11 @@ public class OtlpTraceSpanEventMapper {
         }
         // error status → SpanEvent exception (mirrors the root SpanBo error rule). A SpanEventBo
         // has no transaction-level errCode flag, so exceptionInfo is the only error marker.
-        final ExceptionInfo exceptionInfo = OtlpTraceSpanMapper.resolveErrorExceptionInfo(span, attributes);
+        final ExceptionInfo exceptionInfo = OtlpExceptionInfoResolver.resolveErrorExceptionInfo(span, attributes);
         if (exceptionInfo != null) {
             spanEventBo.setExceptionInfo(exceptionInfo);
         }
-        final boolean skipExceptionEvent = OtlpTraceSpanMapper.isExceptionClassCaptured(exceptionInfo);
+        final boolean skipExceptionEvent = OtlpExceptionInfoResolver.isExceptionClassCaptured(exceptionInfo);
 
         // api
         spanEventBo.setApiId(0);
