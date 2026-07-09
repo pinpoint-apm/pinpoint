@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -34,15 +35,13 @@ import java.util.Map;
  * <p>Shared by {@link OtlpTraceSpanMapper} (root → SpanBo) and {@link OtlpTraceSpanEventMapper}
  * (non-root → SpanEventBo) so both apply the identical rule.
  */
-public final class OtlpExceptionInfoResolver {
+@Component
+public class OtlpExceptionInfoResolver {
 
     // Upper bound for the exception message body stored inline on SpanBo/SpanEventBo, mirroring
     // the native agent's 256-char abbreviation. The class-name prefix is not counted (it is
     // naturally bounded) and survives truncation because it precedes the body.
     static final int EXCEPTION_MESSAGE_MAX_LENGTH = 256;
-
-    private OtlpExceptionInfoResolver() {
-    }
 
     /**
      * Builds the SpanBo/SpanEventBo {@link ExceptionInfo} for an OTel span whose status is ERROR,
@@ -57,7 +56,7 @@ public final class OtlpExceptionInfoResolver {
      * {@code "<className><delimiter><message>"} — the class-name prefix is always present (empty
      * when unknown). See {@link ExceptionInfo#OTEL_MESSAGE_DELIMITER}.
      */
-    static ExceptionInfo resolveErrorExceptionInfo(Span span, Map<String, AttributeValue> attributes) {
+    ExceptionInfo resolveErrorExceptionInfo(Span span, Map<String, AttributeValue> attributes) {
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() != span.getStatus().getCodeValue()) {
             return null;
         }
@@ -94,7 +93,7 @@ public final class OtlpExceptionInfoResolver {
      * status message first: {@code "status (error.type)"} when both are present, otherwise
      * whichever is present, or {@code null} when neither is.
      */
-    static String buildExceptionMessageBody(String statusMessage, String errorType) {
+    String buildExceptionMessageBody(String statusMessage, String errorType) {
         final boolean hasMessage = StringUtils.hasLength(statusMessage);
         final boolean hasType = StringUtils.hasLength(errorType);
         if (hasMessage && hasType) {
@@ -109,7 +108,7 @@ public final class OtlpExceptionInfoResolver {
         return null;
     }
 
-    private static ExceptionInfo buildOtelExceptionInfo(String className, String messageBody) {
+    private ExceptionInfo buildOtelExceptionInfo(String className, String messageBody) {
         final String body = (messageBody == null) ? "" : StringUtils.abbreviate(messageBody, EXCEPTION_MESSAGE_MAX_LENGTH);
         final String message = className + ExceptionInfo.OTEL_MESSAGE_DELIMITER + body;
         return new ExceptionInfo(ExceptionInfo.OTEL_EXCEPTION_ID, message);
@@ -120,7 +119,7 @@ public final class OtlpExceptionInfoResolver {
      * span's {@code exception} event was captured. The exception event annotation is then skipped
      * to avoid duplicating what exceptionInfo + exception-trace metadata already hold.
      */
-    static boolean isExceptionClassCaptured(ExceptionInfo exceptionInfo) {
+    boolean isExceptionClassCaptured(ExceptionInfo exceptionInfo) {
         if (exceptionInfo == null || exceptionInfo.message() == null) {
             return false;
         }

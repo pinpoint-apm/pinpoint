@@ -75,22 +75,26 @@ class OtlpTraceMapperTest {
     private static OtlpTraceMapper newMapper() {
         ObjectMapper json = new ObjectMapper();
         OtlpTraceEventMapper eventMapper = new OtlpTraceEventMapper(json, 8192);
+        OtlpExceptionInfoResolver exceptionInfoResolver = new OtlpExceptionInfoResolver();
         OtlpTraceSpanMapper spanMapper = new OtlpTraceSpanMapper(
                 eventMapper,
                 new OtlpTraceLinkMapper(json, 8192),
                 new OtlpMessagingTypeResolver(REGISTRY),
                 new OtlpServerTypeResolver(REGISTRY),
+                exceptionInfoResolver,
                 8192);
         OtlpTraceSpanEventMapper spanEventMapper = new OtlpTraceSpanEventMapper(
                 eventMapper,
                 REGISTRY,
                 new OtlpMessagingTypeResolver(REGISTRY),
                 new OtlpClientTypeResolver(REGISTRY),
+                exceptionInfoResolver,
                 8192,
                 8192);
         OtlpTraceSpanChunkMapper spanChunkMapper = new OtlpTraceSpanChunkMapper(spanEventMapper);
         return new OtlpTraceMapper(spanMapper, spanEventMapper, spanChunkMapper,
-                new OtlpAgentInfoMapper(), new OtlpExceptionMapper(8192, 256, 2048, new SimpleMeterRegistry()), false);
+                new OtlpAgentInfoMapper(), new OtlpExceptionMapper(8192, 256, 2048, new SimpleMeterRegistry()),
+                exceptionInfoResolver, false);
     }
 
     private static Span.Event exceptionEvent(String type) {
