@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
@@ -58,15 +59,17 @@ public class OtlpTraceMapper {
     private final OtlpTraceSpanChunkMapper spanChunkMapper;
     private final OtlpAgentInfoMapper agentInfoMapper;
     private final OtlpExceptionMapper exceptionMapper;
+    private final OtlpUriStatMapper uriStatMapper;
     private final boolean allowApplicationNameFallback;
 
-    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpExceptionMapper exceptionMapper,
+    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpExceptionMapper exceptionMapper, OtlpUriStatMapper uriStatMapper,
                            @Value("${pinpoint.collector.otlptrace.application-name-fallback.enabled:false}") boolean allowApplicationNameFallback) {
         this.spanMapper = spanMapper;
         this.spanEventMapper = spanEventMapper;
         this.spanChunkMapper = spanChunkMapper;
         this.agentInfoMapper = agentInfoMapper;
         this.exceptionMapper = exceptionMapper;
+        this.uriStatMapper = uriStatMapper;
         this.allowApplicationNameFallback = allowApplicationNameFallback;
     }
 
@@ -75,6 +78,9 @@ public class OtlpTraceMapper {
     // link span, find parentSpanId
     public OtlpTraceMapperData map(List<ResourceSpans> resourceSpanList) {
         final OtlpTraceMapperData mapperData = new OtlpTraceMapperData();
+        // Per-export aggregator: root spans across all ResourceSpans roll up into per-URI
+        // response-time histograms, materialized into AgentUriStatBo list at the end of mapping.
+        final OtlpUriStatMapper.Aggregator uriStatAggregator = uriStatMapper.newAggregator();
         int errorCount = 0;
         for (ResourceSpans resourceSpan : resourceSpanList) {
             final Map<String, AttributeValue> resourceAttributeMap = OtlpTraceMapperUtils.getAttributeValueMap(resourceSpan.getResource().getAttributesList());
@@ -107,6 +113,9 @@ public class OtlpTraceMapper {
 
                         // root span's own exception
                         recordException(mapperData, idAndName, rootSpan, rootSpanId, rootUriTemplate);
+
+                        // Entry-point uri-stat: each root span is one request against its URI.
+                        recordUriStat(uriStatAggregator, idAndName, rootUriTemplate, spanBo);
 
                         // Exceptions on linked child spans are recorded as findLinkSpan traverses the
                         // original OTel spans (where the full stacktrace is still available). Orphan
@@ -147,6 +156,15 @@ public class OtlpTraceMapper {
             }
         }
 
+        try {
+            for (AgentUriStatBo agentUriStatBo : uriStatAggregator.build()) {
+                mapperData.addAgentUriStatBo(agentUriStatBo);
+            }
+        } catch (Exception e) {
+            // uri-stat is a secondary aggregate; never let it fail the whole mapping.
+            logMappingError("Failed to build uriStat", e);
+        }
+
         if (errorCount > 0) {
             OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
             rejectedSpan.putMessage("mapping error (" + errorCount + ")");
@@ -182,6 +200,19 @@ public class OtlpTraceMapper {
                     .ifPresent(mapperData::addExceptionMetaDataBo);
         } catch (Exception e) {
             logMappingError("Failed to map exception", e);
+        }
+    }
+
+    /**
+     * Aggregates a single root (entry-point) span into per-URI response-time stats. Uses the mapped
+     * {@link SpanBo} for the elapsed/error signal and start time so uri-stat stays consistent with the
+     * stored span. Failures are isolated so a uri-stat problem never aborts span/trace mapping.
+     */
+    private void recordUriStat(OtlpUriStatMapper.Aggregator uriStatAggregator, IdAndName idAndName, String uriTemplate, SpanBo spanBo) {
+        try {
+            uriStatAggregator.add(idAndName, uriTemplate, spanBo.getElapsed(), spanBo.getErrCode() != 0, spanBo.getStartTimeMillis());
+        } catch (Exception e) {
+            logMappingError("Failed to aggregate uriStat", e);
         }
     }
 
