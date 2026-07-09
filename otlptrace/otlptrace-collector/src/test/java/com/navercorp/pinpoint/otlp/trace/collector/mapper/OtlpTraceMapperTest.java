@@ -23,8 +23,14 @@ import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.ActiveMQMessagingConsumerHandler;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.KafkaMessagingConsumerHandler;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.OtlpMessagingConsumerResolver;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.OtlpMessagingTypeResolver;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.PulsarMessagingConsumerHandler;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RabbitMQMessagingConsumerHandler;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RocketMQMessagingConsumerHandler;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
@@ -76,12 +82,18 @@ class OtlpTraceMapperTest {
         ObjectMapper json = new ObjectMapper();
         OtlpTraceEventMapper eventMapper = new OtlpTraceEventMapper(json, 8192);
         OtlpExceptionInfoResolver exceptionInfoResolver = new OtlpExceptionInfoResolver();
+        OtlpMessagingTypeResolver messagingTypeResolver = new OtlpMessagingTypeResolver(REGISTRY);
         OtlpTraceSpanMapper spanMapper = new OtlpTraceSpanMapper(
                 eventMapper,
                 new OtlpTraceLinkMapper(json, 8192),
-                new OtlpMessagingTypeResolver(REGISTRY),
                 new OtlpServerTypeResolver(REGISTRY),
                 exceptionInfoResolver,
+                new OtlpMessagingConsumerResolver(List.of(
+                        new KafkaMessagingConsumerHandler(),
+                        new RabbitMQMessagingConsumerHandler(),
+                        new PulsarMessagingConsumerHandler(),
+                        new RocketMQMessagingConsumerHandler(),
+                        new ActiveMQMessagingConsumerHandler()), messagingTypeResolver),
                 8192);
         OtlpTraceSpanEventMapper spanEventMapper = new OtlpTraceSpanEventMapper(
                 eventMapper,

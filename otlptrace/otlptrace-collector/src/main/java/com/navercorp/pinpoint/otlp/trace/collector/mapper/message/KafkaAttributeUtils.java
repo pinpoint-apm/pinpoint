@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.trace.collector.mapper;
+package com.navercorp.pinpoint.otlp.trace.collector.mapper.message;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 
 import java.util.Map;

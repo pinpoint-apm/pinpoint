@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.otlp.trace.collector.mapper;
+package com.navercorp.pinpoint.otlp.trace.collector.mapper.message;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;

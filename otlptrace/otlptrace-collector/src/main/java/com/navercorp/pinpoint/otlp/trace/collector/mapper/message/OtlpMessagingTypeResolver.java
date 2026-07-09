@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.trace.collector.mapper;
+package com.navercorp.pinpoint.otlp.trace.collector.mapper.message;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
