@@ -21,7 +21,9 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Shared helpers for reading the OTel {@code exception} span event and its attributes.
@@ -38,8 +40,16 @@ public final class ExceptionAttributeUtils {
      * Returns the first {@code exception} event on the span, or {@code null} when absent.
      */
     public static Span.Event findExceptionEvent(Span span) {
-        for (Span.Event event : span.getEventsList()) {
-            if (OtlpTraceConstants.EVENT_NAME_EXCEPTION.equals(event.getName())) {
+        return findEvent(span.getEventsList(), OtlpTraceConstants.EVENT_NAME_EXCEPTION);
+    }
+
+    /**
+     * Returns the first event whose name equals {@code name}, or {@code null} when none match.
+     */
+    public static Span.Event findEvent(List<Span.Event> events, String name) {
+        Objects.requireNonNull(name, "name");
+        for (Span.Event event : events) {
+            if (name.equals(event.getName())) {
                 return event;
             }
         }
