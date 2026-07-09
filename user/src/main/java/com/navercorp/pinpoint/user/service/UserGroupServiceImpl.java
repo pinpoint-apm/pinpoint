@@ -30,9 +30,12 @@ import com.navercorp.pinpoint.user.vo.exception.PinpointUserGroupException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,14 +59,28 @@ public class UserGroupServiceImpl implements UserGroupService {
 
     private final UserService userService;
 
+    private final List<UserGroupDeletionListener> userGroupDeletionListeners;
+
     public UserGroupServiceImpl(@Qualifier("mysqlUserGroupDao") UserGroupDao userGroupDao,
                                 Optional<UserInfoDecoder> userInfoDecoder,
                                 UserConfigProperties userConfigProperties,
                                 UserService userService) {
+        this(userGroupDao, userInfoDecoder, userConfigProperties, userService, List.of());
+    }
+
+    @Autowired
+    public UserGroupServiceImpl(@Qualifier("mysqlUserGroupDao") UserGroupDao userGroupDao,
+                                Optional<UserInfoDecoder> userInfoDecoder,
+                                UserConfigProperties userConfigProperties,
+                                UserService userService,
+                                List<UserGroupDeletionListener> userGroupDeletionListeners) {
         this.userGroupDao = Objects.requireNonNull(userGroupDao, "userGroupDao");
         this.userInfoDecoder = Objects.requireNonNull(userInfoDecoder, "userInfoDecoder").orElse(DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER);
         this.userConfigProperties = Objects.requireNonNull(userConfigProperties, "userConfigProperties");
         this.userService = Objects.requireNonNull(userService, "userService");
+        this.userGroupDeletionListeners = List.copyOf(
+                Objects.requireNonNull(userGroupDeletionListeners, "userGroupDeletionListeners")
+        );
     }
 
     @Override
@@ -111,9 +128,11 @@ public class UserGroupServiceImpl implements UserGroupService {
 
     @Override
     public void deleteUserGroup(UserGroup userGroup) throws PinpointUserGroupException {
+        Objects.requireNonNull(userGroup, "userGroup");
         userGroupDao.deleteUserGroup(userGroup);
         userGroupDao.deleteMemberByUserGroupId(userGroup.getId());
         userGroupDao.deleteRuleByUserGroupId(userGroup.getId());
+        notifyUserGroupDeletedAfterCommit(userGroup);
     }
 
     @Transactional(readOnly = true)
@@ -214,5 +233,33 @@ public class UserGroupServiceImpl implements UserGroupService {
         }
         
         return false;
+    }
+
+    private void notifyUserGroupDeleted(UserGroup userGroup) {
+        for (UserGroupDeletionListener listener : userGroupDeletionListeners) {
+            try {
+                listener.onUserGroupDeleted(userGroup);
+            } catch (RuntimeException e) {
+                logger.warn("Failed to notify user group deletion listener. listener={}, userGroupId={}",
+                        listener.getClass().getName(), userGroup.getId(), e);
+            }
+        }
+    }
+
+    private void notifyUserGroupDeletedAfterCommit(UserGroup userGroup) {
+        if (userGroupDeletionListeners.isEmpty()) {
+            return;
+        }
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            notifyUserGroupDeleted(userGroup);
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                notifyUserGroupDeleted(userGroup);
+            }
+        });
     }
 }

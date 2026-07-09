@@ -38,14 +38,12 @@ import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfig
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
 /**
  * @author minwoo.jung
  */
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {
-        TransactionAutoConfiguration.class,
         SecurityAutoConfiguration.class,
         SpringDataWebAutoConfiguration.class,
         RedisAutoConfiguration.class,
