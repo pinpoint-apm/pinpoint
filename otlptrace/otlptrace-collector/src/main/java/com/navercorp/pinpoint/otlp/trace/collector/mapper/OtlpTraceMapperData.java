@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class OtlpTraceMapperData {
     private final List<SpanChunkBo> spanChunkBoList = new ArrayList<>();
     private final List<AgentInfoBo> agentInfoBoList = new ArrayList<>();
     private final List<ExceptionMetaDataBo> exceptionMetaDataBoList = new ArrayList<>();
+    private final List<AgentUriStatBo> agentUriStatBoList = new ArrayList<>();
     private final OtlpTraceCollectorRejectedSpan rejectedSpan = new OtlpTraceCollectorRejectedSpan();
 
     public List<SpanBo> getSpanBoList() {
@@ -63,6 +65,14 @@ public class OtlpTraceMapperData {
 
     public void addExceptionMetaDataBo(ExceptionMetaDataBo exceptionMetaDataBo) {
         exceptionMetaDataBoList.add(exceptionMetaDataBo);
+    }
+
+    public List<AgentUriStatBo> getAgentUriStatBoList() {
+        return agentUriStatBoList;
+    }
+
+    public void addAgentUriStatBo(AgentUriStatBo agentUriStatBo) {
+        agentUriStatBoList.add(agentUriStatBo);
     }
 
     public OtlpTraceCollectorRejectedSpan getRejectedSpan() {

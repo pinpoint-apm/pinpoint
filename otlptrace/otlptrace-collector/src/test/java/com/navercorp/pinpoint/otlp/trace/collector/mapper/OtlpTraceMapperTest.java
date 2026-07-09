@@ -90,7 +90,8 @@ class OtlpTraceMapperTest {
                 8192);
         OtlpTraceSpanChunkMapper spanChunkMapper = new OtlpTraceSpanChunkMapper(spanEventMapper);
         return new OtlpTraceMapper(spanMapper, spanEventMapper, spanChunkMapper,
-                new OtlpAgentInfoMapper(), new OtlpExceptionMapper(8192, 256, 2048, new SimpleMeterRegistry()), false);
+                new OtlpAgentInfoMapper(), new OtlpExceptionMapper(8192, 256, 2048, new SimpleMeterRegistry()),
+                new OtlpUriStatMapper(30000), false);
     }
 
     private static Span.Event exceptionEvent(String type) {

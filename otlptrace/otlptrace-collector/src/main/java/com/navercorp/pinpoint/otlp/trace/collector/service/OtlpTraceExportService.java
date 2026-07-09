@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.trace.collector.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
@@ -24,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
@@ -44,7 +46,7 @@ import java.util.function.Supplier;
 
 /**
  * Transport-agnostic OTLP trace ingestion: maps the incoming {@link ResourceSpans} into
- * SpanBo/SpanChunkBo/AgentInfoBo/ExceptionMetaDataBo and writes them to storage.
+ * SpanBo/SpanChunkBo/AgentInfoBo/ExceptionMetaDataBo/AgentUriStatBo and writes them to storage.
  * <p>
  * Shared by both the gRPC ({@code GrpcOtlpTraceService}) and HTTP ({@code OtlpTraceController})
  * transports so the mapping/insert logic — and the agentId dedup cache — live in a single place
@@ -72,6 +74,7 @@ public class OtlpTraceExportService {
     @NotNull
     private final OtlpTraceMapper otlpTraceMapper;
     private final ExceptionMetaDataService exceptionMetaDataService;
+    private final AgentUriStatService agentUriStatService;
     // Thread-safe, bounded dedup of already-persisted agentIds. Shared across transports so an
     // agentId first seen on gRPC is not re-inserted when it later arrives over HTTP (and vice versa).
     private final Cache<String, Boolean> agentIdCache;
@@ -80,12 +83,14 @@ public class OtlpTraceExportService {
     private final Counter spanChunkInsertErrorCounter;
     private final Counter agentInfoInsertErrorCounter;
     private final Counter exceptionInsertErrorCounter;
+    private final Counter uriStatInsertErrorCounter;
 
     public OtlpTraceExportService(TraceService[] traceServiceList,
                                   @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService,
                                   @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service,
                                   OtlpTraceMapper otlpTraceMapper,
                                   Optional<ExceptionMetaDataService> exceptionMetaDataService,
+                                  Optional<AgentUriStatService> agentUriStatService,
                                   @Qualifier("otlpAgentIdCache") Cache<String, Boolean> agentIdCache,
                                   MeterRegistry meterRegistry) {
         this.traceServiceList = Objects.requireNonNull(traceServiceList, "traceServiceList");
@@ -93,12 +98,14 @@ public class OtlpTraceExportService {
         this.applicationIndexV2Service = Objects.requireNonNull(applicationIndexV2Service, "applicationIndexV2Service");
         this.otlpTraceMapper = Objects.requireNonNull(otlpTraceMapper, "otlpTraceMapper");
         this.exceptionMetaDataService = exceptionMetaDataService.orElse(null);
+        this.agentUriStatService = agentUriStatService.orElse(null);
         this.agentIdCache = Objects.requireNonNull(agentIdCache, "agentIdCache");
         Objects.requireNonNull(meterRegistry, "meterRegistry");
         this.spanInsertErrorCounter = insertErrorCounter(meterRegistry, "span");
         this.spanChunkInsertErrorCounter = insertErrorCounter(meterRegistry, "spanChunk");
         this.agentInfoInsertErrorCounter = insertErrorCounter(meterRegistry, "agentInfo");
         this.exceptionInsertErrorCounter = insertErrorCounter(meterRegistry, "exception");
+        this.uriStatInsertErrorCounter = insertErrorCounter(meterRegistry, "uriStat");
     }
 
     private static Counter insertErrorCounter(MeterRegistry meterRegistry, String op) {
@@ -160,6 +167,17 @@ public class OtlpTraceExportService {
                 } catch (Exception e) {
                     exceptionInsertErrorCounter.increment();
                     throttledLogger.warn("Failed to insert exceptionMetaData", e);
+                }
+            }
+        }
+
+        if (agentUriStatService != null) {
+            for (AgentUriStatBo agentUriStatBo : otlpTraceMapperData.getAgentUriStatBoList()) {
+                try {
+                    agentUriStatService.save(agentUriStatBo);
+                } catch (Exception e) {
+                    uriStatInsertErrorCounter.increment();
+                    throttledLogger.warn("Failed to insert uriStat", e);
                 }
             }
         }
