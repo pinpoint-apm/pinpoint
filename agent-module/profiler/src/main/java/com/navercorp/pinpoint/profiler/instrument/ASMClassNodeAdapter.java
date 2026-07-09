@@ -298,17 +298,10 @@ public class ASMClassNodeAdapter {
     public ASMFieldNodeAdapter getField(final String fieldName, final String fieldDesc) {
         Objects.requireNonNull(fieldName, "fieldName");
 
-        final List<FieldNode> fields = this.classNode.fields;
-        if (fields == null) {
-            return null;
+        final ASMFieldNodeAdapter declaredFieldNode = getDeclaredField(fieldName, fieldDesc);
+        if (declaredFieldNode != null) {
+            return declaredFieldNode;
         }
-
-        for (FieldNode fieldNode : fields) {
-            if (StringMatchUtils.equals(fieldNode.name, fieldName) && (fieldDesc == null || (StringMatchUtils.equals(fieldNode.desc, fieldDesc)))) {
-                return new ASMFieldNodeAdapter(fieldNode);
-            }
-        }
-
 
         // find interface.
         final List<String> interfaces = this.classNode.interfaces;
@@ -343,9 +336,31 @@ public class ASMClassNodeAdapter {
         return null;
     }
 
+    public ASMFieldNodeAdapter getDeclaredField(final String fieldName, final String fieldDesc) {
+        Objects.requireNonNull(fieldName, "fieldName");
+
+        final List<FieldNode> fields = this.classNode.fields;
+        if (fields == null) {
+            return null;
+        }
+
+        for (FieldNode fieldNode : fields) {
+            if (StringMatchUtils.equals(fieldNode.name, fieldName) && (fieldDesc == null || (StringMatchUtils.equals(fieldNode.desc, fieldDesc)))) {
+                return new ASMFieldNodeAdapter(fieldNode);
+            }
+        }
+
+        return null;
+    }
+
     public ASMFieldNodeAdapter addField(final String fieldName, final String fieldDesc) {
         Objects.requireNonNull(fieldName, "fieldName");
         Objects.requireNonNull(fieldDesc, "fieldDesc");
+        // a duplicate field declaration in a single class file causes ClassFormatError
+        final ASMFieldNodeAdapter declaredFieldNode = getDeclaredField(fieldName, fieldDesc);
+        if (declaredFieldNode != null) {
+            return declaredFieldNode;
+        }
         final FieldNode fieldNode = new FieldNode(getFieldAccessFlags(), fieldName, fieldDesc, null, null);
         addFieldNode0(fieldNode);
 
@@ -385,13 +400,18 @@ public class ASMClassNodeAdapter {
         return superMethodNodeExceptions.toArray(EMPTY_STRING_ARRAY);
     }
 
-    public void addGetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {
+    public boolean addGetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {
         Objects.requireNonNull(methodName, "methodName");
         Objects.requireNonNull(fieldNode, "fieldNode");
 
 
         // no argument is ().
         final String desc = "()" + fieldNode.getDesc();
+        // a duplicate method declaration in a single class file causes ClassFormatError.
+        // declared-only check - a method inherited from an instrumented super class must still be added.
+        if (hasDeclaredMethod(methodName, desc)) {
+            return false;
+        }
         final MethodNode methodNode = new MethodNode(Opcodes.ACC_PUBLIC, methodName, desc, null, null);
         final InsnList instructions = getInsnList(methodNode);
         // load this.
@@ -403,6 +423,7 @@ public class ASMClassNodeAdapter {
         instructions.add(new InsnNode(type.getOpcode(Opcodes.IRETURN)));
 
         addMethodNode0(methodNode);
+        return true;
     }
 
     private void addMethodNode0(MethodNode methodNode) {
@@ -412,13 +433,18 @@ public class ASMClassNodeAdapter {
         this.classNode.methods.add(methodNode);
     }
 
-    public void addSetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {
+    public boolean addSetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {
         Objects.requireNonNull(methodName, "methodName");
         Objects.requireNonNull(fieldNode, "fieldNode");
 
 
         // void is V.
         final String desc = "(" + fieldNode.getDesc() + ")V";
+        // a duplicate method declaration in a single class file causes ClassFormatError.
+        // declared-only check - a method inherited from an instrumented super class must still be added.
+        if (hasDeclaredMethod(methodName, desc)) {
+            return false;
+        }
         final MethodNode methodNode = new MethodNode(Opcodes.ACC_PUBLIC, methodName, desc, null, null);
         final InsnList instructions = getInsnList(methodNode);
         // load this.
@@ -431,6 +457,7 @@ public class ASMClassNodeAdapter {
         instructions.add(new InsnNode(Opcodes.RETURN));
 
         addMethodNode0(methodNode);
+        return true;
     }
 
     private InsnList getInsnList(MethodNode methodNode) {
@@ -440,13 +467,19 @@ public class ASMClassNodeAdapter {
         return methodNode.instructions;
     }
 
-    public void addInterface(final String interfaceName) {
+    public boolean addInterface(final String interfaceName) {
         Objects.requireNonNull(interfaceName, "interfaceName");
 
         if (this.classNode.interfaces == null) {
             this.classNode.interfaces = new ArrayList<>();
         }
-        this.classNode.interfaces.add(JavaAssistUtils.javaNameToJvmName(interfaceName));
+        final String interfaceInternalName = JavaAssistUtils.javaNameToJvmName(interfaceName);
+        // a duplicate interface declaration in a single class file causes ClassFormatError
+        if (this.classNode.interfaces.contains(interfaceInternalName)) {
+            return false;
+        }
+        this.classNode.interfaces.add(interfaceInternalName);
+        return true;
     }
 
     public void copyMethod(final ASMMethodNodeAdapter methodNode) {

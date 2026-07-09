@@ -220,6 +220,66 @@ public class ASMClassNodeAdapterTest {
         logger.debug("{}", result);
     }
 
+    @Test
+    public void addField_alreadyDeclared() throws Exception {
+        // simulates a CGLIB proxy that copied the injected accessor members of an instrumented class.
+        // duplicate member declarations cause ClassFormatError at defineClass. issue #13864, #11012
+        final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.ProxyLikeClass";
+        final String accessorClassName = "com.navercorp.pinpoint.profiler.instrument.mock.accessor.IntAccessor";
+        final String fieldName = "_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName);
+        final ASMClassNodeLoader.TestClassLoader classLoader = ASMClassNodeLoader.getClassLoader();
+        classLoader.setTargetClassName(targetClassName);
+        classLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
+            @Override
+            public void handle(ClassNode classNode) {
+                ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginClassInputStreamProvider, null, getClass().getProtectionDomain(), classNode);
+                ASMFieldNodeAdapter fieldNode = classNodeAdapter.addField(fieldName, Type.getDescriptor(int.class));
+                assertFalse(classNodeAdapter.addInterface(accessorClassName));
+                assertFalse(classNodeAdapter.addGetterMethod("_$PINPOINT$_getTraceInt", fieldNode));
+                assertFalse(classNodeAdapter.addSetterMethod("_$PINPOINT$_setTraceInt", fieldNode));
+            }
+        });
+        Class<?> clazz = classLoader.loadClass(targetClassName);
+        assertEquals(1, clazz.getInterfaces().length);
+        Object instance = clazz.newInstance();
+
+        Method setMethod = clazz.getDeclaredMethod("_$PINPOINT$_setTraceInt", int.class);
+        setMethod.invoke(instance, 10);
+
+        Method getMethod = clazz.getDeclaredMethod("_$PINPOINT$_getTraceInt");
+        assertEquals(10, getMethod.invoke(instance));
+    }
+
+    @Test
+    public void addField_declaredOnlyInSuper() throws Exception {
+        // members inherited from an instrumented super class must still be added to the child class
+        final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.ProxyLikeChildClass";
+        final String accessorClassName = "com.navercorp.pinpoint.profiler.instrument.mock.accessor.IntAccessor";
+        final String fieldName = "_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName);
+        final ASMClassNodeLoader.TestClassLoader classLoader = ASMClassNodeLoader.getClassLoader();
+        classLoader.setTargetClassName(targetClassName);
+        classLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
+            @Override
+            public void handle(ClassNode classNode) {
+                ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginClassInputStreamProvider, null, getClass().getProtectionDomain(), classNode);
+                ASMFieldNodeAdapter fieldNode = classNodeAdapter.addField(fieldName, Type.getDescriptor(int.class));
+                assertNotNull(fieldNode);
+                assertTrue(classNodeAdapter.addInterface(accessorClassName));
+                assertTrue(classNodeAdapter.addGetterMethod("_$PINPOINT$_getTraceInt", fieldNode));
+                assertTrue(classNodeAdapter.addSetterMethod("_$PINPOINT$_setTraceInt", fieldNode));
+            }
+        });
+        Class<?> clazz = classLoader.loadClass(targetClassName);
+        Object instance = clazz.newInstance();
+
+        // methods must be declared in the child class itself
+        Method setMethod = clazz.getDeclaredMethod("_$PINPOINT$_setTraceInt", int.class);
+        setMethod.invoke(instance, 10);
+
+        Method getMethod = clazz.getDeclaredMethod("_$PINPOINT$_getTraceInt");
+        assertEquals(10, getMethod.invoke(instance));
+    }
+
 
     @Test
     public void hasAnnotation() {

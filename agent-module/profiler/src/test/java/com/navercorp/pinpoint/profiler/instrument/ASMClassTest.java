@@ -92,6 +92,7 @@ import org.mockito.stubbing.Answer;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -429,6 +430,35 @@ public class ASMClassTest {
         clazz.addField(ThrowExceptionAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTraceDefaultStr", "java.lang.String"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTraceDefaultStr"));
+    }
+
+    @Test
+    public void addFieldDuplicated() throws Exception {
+        // duplicate injection must not produce duplicate member declarations. issue #13864
+        final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.BaseClass";
+        final ASMClassNodeLoader.TestClassLoader classLoader = ASMClassNodeLoader.getClassLoader();
+        classLoader.setTargetClassName(targetClassName);
+        classLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
+            @Override
+            public void handle(ClassNode classNode) {
+                ASMClass clazz = ASMClass.load(engineComponent, pluginContext, classLoader, getClass().getProtectionDomain(), classNode);
+                try {
+                    clazz.addField(ObjectAccessor.class);
+                    clazz.addField(ObjectAccessor.class);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        // duplicate members would cause ClassFormatError at defineClass
+        Class<?> clazz = classLoader.loadClass(targetClassName);
+        Object instance = clazz.newInstance();
+
+        Method setMethod = clazz.getDeclaredMethod("_$PINPOINT$_setTraceObject", Object.class);
+        setMethod.invoke(instance, "foo");
+
+        Method getMethod = clazz.getDeclaredMethod("_$PINPOINT$_getTraceObject");
+        assertEquals("foo", getMethod.invoke(instance));
     }
 
     @Test
