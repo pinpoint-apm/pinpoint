@@ -24,32 +24,11 @@ import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.actuate.autoconfigure.metrics.export.otlp.OtlpMetricsExportAutoConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
-import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.shell.boot.ApplicationRunnerAutoConfiguration;
 
 import java.util.Arrays;
 
 @SpringBootConfiguration
-@EnableAutoConfiguration(exclude = {
-        DataSourceAutoConfiguration.class,
-        TransactionAutoConfiguration.class,
-        SpringDataWebAutoConfiguration.class,
-        RedisAutoConfiguration.class,
-        RedisRepositoriesAutoConfiguration.class,
-        RedisReactiveAutoConfiguration.class,
-        KafkaAutoConfiguration.class,
-        ApplicationRunnerAutoConfiguration.class,
-        OtlpMetricsExportAutoConfiguration.class
-})
 public class PinpointCollectorStarter {
     private static final ServerBootLogger logger = ServerBootLogger.getLogger(PinpointCollectorStarter.class);
 

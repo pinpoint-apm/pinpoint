@@ -24,10 +24,10 @@ management:
   health:
     defaults:
       enabled: false
-    diskspace:
-      enabled: true
   endpoint:
     health:
+      probes:
+        enabled: true
       show-details: always
       access: read_only
     beans:
