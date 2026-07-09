@@ -72,12 +72,28 @@ public interface InstrumentClass {
     void weave(String adviceClassName) throws InstrumentException;
 
 
+    /**
+     * Adds a field, an accessor interface and its getter/setter methods to this class.
+     * <p>
+     * Idempotent - members already declared in this class are skipped so that re-instrumentation
+     * (e.g. a CGLIB proxy that copied the injected members of an instrumented class, or duplicate
+     * injection by multiple plugins) does not produce a duplicate declaration({@link ClassFormatError}).
+     * Members declared only in a super class are still added.
+     */
     void addField(Class<?> accessorClass) throws InstrumentException;
 
 
+    /**
+     * Adds a getter interface and its getter method for an existing field to this class.
+     * Idempotent - see {@link #addField(Class)}.
+     */
     void addGetter(Class<?> getterClass, String fieldName) throws InstrumentException;
 
 
+    /**
+     * Adds a setter interface and its setter method for an existing field to this class.
+     * Idempotent - see {@link #addField(Class)}.
+     */
     void addSetter(Class<?> setterClass, String fieldName) throws InstrumentException;
 
     void addSetter(Class<?> setterClass, String fieldName, boolean removeFinal) throws InstrumentException;
