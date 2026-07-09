@@ -3,8 +3,8 @@
 * See: https://spring.io/
 * See: [Web on Reactive Stack](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html)
 * See: [Spring Boot - Servlet Containers](https://spring.io/projects/spring-boot)
-* Range: org.springframework/spring-webflux [5.0.0.RELEASE, 5.3.max]
-* Range: org.springframework.boot/spring-boot-starter [2.0.0.RELEASE, 2.7.max]
+* Range: org.springframework/spring-webflux [5.0.0.RELEASE, 7.0.max]
+* Range: org.springframework.boot/spring-boot-starter [2.0.0.RELEASE, 4.1.max]
   * Netty server is not supported in spring boot starter 2.0.x version.
 
 ### Pinpoint Configuration

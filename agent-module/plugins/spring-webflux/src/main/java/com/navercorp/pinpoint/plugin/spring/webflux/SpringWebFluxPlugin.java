@@ -150,7 +150,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             if (invokerHandlerMethod != null) {
                 invokerHandlerMethod.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class, va(this.uriStatEnable, Boolean.FALSE));
             }
-            // 6.x
+            // 6.x, 7.x
             final InstrumentMethod handleRequestWithMethod = target.getDeclaredMethod("handleRequestWith", "org.springframework.web.server.ServerWebExchange", "java.lang.Object");
             if (handleRequestWithMethod != null) {
                 handleRequestWithMethod.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class, va(this.uriStatEnable, Boolean.FALSE));
@@ -160,7 +160,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             if (handleResultMethod != null) {
                 handleResultMethod.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class, va(this.uriStatEnable, this.uriStatUseUserInput));
             }
-            // 6.x
+            // 6.x, 7.x
             final InstrumentMethod handleResultMethod2 = target.getDeclaredMethod("handleResult", "org.springframework.web.server.ServerWebExchange", "org.springframework.web.reactive.HandlerResult", "java.lang.String");
             if (handleResultMethod2 != null) {
                 handleResultMethod2.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class, va(this.uriStatEnable, this.uriStatUseUserInput));

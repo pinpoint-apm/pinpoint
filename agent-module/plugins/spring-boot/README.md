@@ -1,7 +1,7 @@
 ## Spring Boot
 * Since: Pinpoint 1.5.0
 * See: https://spring.io/projects/spring-boot
-* Range: org.springframework.boot/spring-boot [1.2, 2.max]
+* Range: org.springframework.boot/spring-boot [1.2, 4.1.max]
 
 ### Pinpoint Configuration
 pinpoint.config

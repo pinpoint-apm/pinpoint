@@ -30,6 +30,7 @@ public class HttpStatusProviderFactory {
             case SpringVersion.SPRING_VERSION_5:
                 return new Spring5HttpStatusProvider();
             case SpringVersion.SPRING_VERSION_6:
+            case SpringVersion.SPRING_VERSION_7:
                 return new Spring6HttpStatusProvider();
             default:
                 return new UnsupportedHttpStatusProvider();
