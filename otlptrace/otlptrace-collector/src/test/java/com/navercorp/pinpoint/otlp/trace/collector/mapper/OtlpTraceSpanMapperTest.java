@@ -10,6 +10,13 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.ActiveMQMessagingConsumerHandler;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.KafkaMessagingConsumerHandler;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.OtlpMessagingConsumerResolver;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.OtlpMessagingTypeResolver;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.PulsarMessagingConsumerHandler;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RabbitMQMessagingConsumerHandler;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RocketMQMessagingConsumerHandler;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
@@ -25,6 +32,8 @@ import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFac
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OtlpTraceSpanMapperTest {
+
+    static ObjectMapper json = new ObjectMapper();
 
     // =======================================================================
     // extractHostAndPort
@@ -176,13 +185,18 @@ class OtlpTraceSpanMapperTest {
     }
 
     private static OtlpTraceSpanMapper newMapper() {
-        ObjectMapper json = new ObjectMapper();
+        OtlpMessagingTypeResolver messagingTypeResolver = new OtlpMessagingTypeResolver(MESSAGING_REGISTRY);
         return new OtlpTraceSpanMapper(
                 new OtlpTraceEventMapper(json, 8192),
                 new OtlpTraceLinkMapper(json, 8192),
-                new OtlpMessagingTypeResolver(MESSAGING_REGISTRY),
                 new OtlpServerTypeResolver(MESSAGING_REGISTRY),
                 new OtlpExceptionInfoResolver(),
+                new OtlpMessagingConsumerResolver(List.of(
+                        new KafkaMessagingConsumerHandler(),
+                        new RabbitMQMessagingConsumerHandler(),
+                        new PulsarMessagingConsumerHandler(),
+                        new RocketMQMessagingConsumerHandler(),
+                        new ActiveMQMessagingConsumerHandler()), messagingTypeResolver),
                 8192);
     }
 
