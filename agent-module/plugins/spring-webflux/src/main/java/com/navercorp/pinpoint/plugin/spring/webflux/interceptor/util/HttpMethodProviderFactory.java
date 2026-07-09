@@ -27,6 +27,7 @@ public class HttpMethodProviderFactory {
             case SpringVersion.SPRING_VERSION_5:
                 return new Spring5HttpMethodProvider();
             case SpringVersion.SPRING_VERSION_6:
+            case SpringVersion.SPRING_VERSION_7:
                 return new Spring6HttpMethodProvider();
             default:
                 return new UnsupportedHttpMethodProvider();

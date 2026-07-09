@@ -24,12 +24,21 @@ public class SpringVersion {
     public static final int SPRING_VERSION_UNKNOWN = -1;
     public static final int SPRING_VERSION_5 = 5_00_00;
     public static final int SPRING_VERSION_6 = 6_00_00;
+    public static final int SPRING_VERSION_7 = 7_00_00;
 
     static final String SPRING5_HTTP_STATUS_INTERFACE_NAME = "org.springframework.http.HttpStatus";
     static final String SPRING6_HTTP_STATUS_INTERFACE_NAME = "org.springframework.http.HttpStatusCode";
+    // spring-core class introduced in 7.0, absent in 6.x (not to be confused with org.springframework.retry.support.RetryTemplate of spring-retry)
+    static final String SPRING7_RETRY_TEMPLATE_CLASS_NAME = "org.springframework.core.retry.RetryTemplate";
 
 
     public static int getVersion(ClassLoader classLoader) {
+        // Spring 7.0 + (boot 4.0 + )
+        final Class<?> retryTemplate = getClass(classLoader, SPRING7_RETRY_TEMPLATE_CLASS_NAME);
+        if (retryTemplate != null) {
+            return SpringVersion.SPRING_VERSION_7;
+        }
+
         // Spring 6.0 + (boot 3.0 + )
         final Class<?> httpStatusCode = getClass(classLoader, SPRING6_HTTP_STATUS_INTERFACE_NAME);
         if (httpStatusCode != null) {

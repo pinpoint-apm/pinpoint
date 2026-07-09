@@ -10,22 +10,29 @@
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-spring-boot4-plugin-testweb</artifactId>
+    <artifactId>pinpoint-spring-boot4-webflux-plugin-testweb</artifactId>
+
     <packaging>jar</packaging>
 
     <properties>
+        <jdk.version>17</jdk.version>
+        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
+        <test.jdk.home>${env.JAVA_17_HOME}</test.jdk.home>
+
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
-            -Dprofiler.uri.stat.spring.webmvc.enable=true
+            -Dprofiler.spring.webflux.client.enable=true
+            -Dprofiler.uri.stat.spring.webflux.enable=true
             -Dprofiler.uri.stat.collect.http.method=true
         </pinpoint.agent.jvmargument>
 
-        <jdk.version>17</jdk.version>
-        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
         <spring.version>${spring7.version}</spring.version>
         <spring-boot.version>${spring-boot4.version}</spring-boot.version>
         <jakarta.annotation-api.version>${jakarta.annotation-api2.version}</jakarta.annotation-api.version>
         <jaxb.version>${jaxb4.version}</jaxb.version>
+        <jakarta.validation-api.version>${jakarta.validation-api3.version}</jakarta.validation-api.version>
+        <!-- Spring Boot 4.1 / reactor-netty 1.3.x requires Netty 4.2 -->
+        <netty4.version>4.2.15.Final</netty4.version>
 
         <spring-boot-build-skip>true</spring-boot-build-skip>
     </properties>
@@ -44,26 +51,26 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-agent-testweb-commons</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-testweb-commons</artifactId>
         </dependency>
     </dependencies>
 
@@ -76,5 +83,4 @@
 <!--            </plugin>-->
         </plugins>
     </build>
-
 </project>

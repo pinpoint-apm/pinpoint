@@ -1,7 +1,7 @@
 ## Spring Framework
 * Since: Pinpoint 1.5.0
 * See: https://spring.io/
-* Range: org.springframework/spring-context [3.0, 5.3]
+* Range: org.springframework/spring-context [3.0, 7.0.max]
 
 ### Pinpoint Configuration
 pinpoint.config
