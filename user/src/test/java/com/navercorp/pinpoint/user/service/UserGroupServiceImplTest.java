@@ -22,9 +22,12 @@ import com.navercorp.pinpoint.user.config.UserConfigProperties;
 import com.navercorp.pinpoint.user.dao.UserGroupDao;
 import com.navercorp.pinpoint.user.util.UserInfoDecoder;
 import com.navercorp.pinpoint.user.vo.User;
+import com.navercorp.pinpoint.user.vo.UserGroup;
 import com.navercorp.pinpoint.user.vo.UserPhoneInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,7 +37,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -177,6 +184,85 @@ public class UserGroupServiceImplTest {
 
         assertThat(phoneNumberList).hasSize(2)
                 .containsExactly("user01@navercorp.com", "user02@navercorp.com");
+    }
+
+    @Test
+    public void deleteUserGroupNotifiesDeletionListenersTest() throws Exception {
+        UserGroupDeletionListener listener = mock(UserGroupDeletionListener.class);
+        UserGroupServiceImpl userGroupService = new UserGroupServiceImpl(
+                userGroupDao,
+                Optional.empty(),
+                new UserConfigProperties(),
+                userService,
+                List.of(listener)
+        );
+        UserGroup userGroup = new UserGroup("1", "test_group");
+
+        userGroupService.deleteUserGroup(userGroup);
+
+        verify(userGroupDao).deleteUserGroup(userGroup);
+        verify(userGroupDao).deleteMemberByUserGroupId("test_group");
+        verify(userGroupDao).deleteRuleByUserGroupId("test_group");
+        verify(listener).onUserGroupDeleted(userGroup);
+    }
+
+    @Test
+    public void deleteUserGroupNotifiesDeletionListenersAfterCommitTest() throws Exception {
+        UserGroupDeletionListener listener = mock(UserGroupDeletionListener.class);
+        UserGroupServiceImpl userGroupService = new UserGroupServiceImpl(
+                userGroupDao,
+                Optional.empty(),
+                new UserConfigProperties(),
+                userService,
+                List.of(listener)
+        );
+        UserGroup userGroup = new UserGroup("1", "test_group");
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userGroupService.deleteUserGroup(userGroup);
+
+            verify(listener, never()).onUserGroupDeleted(userGroup);
+
+            for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
+                synchronization.afterCommit();
+            }
+
+            verify(listener).onUserGroupDeleted(userGroup);
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test
+    public void deleteUserGroupContinuesWhenDeletionListenerFailsAfterCommitTest() throws Exception {
+        UserGroupDeletionListener failedListener = userGroup -> {
+            throw new RuntimeException("test failure");
+        };
+        UserGroupDeletionListener listener = mock(UserGroupDeletionListener.class);
+        UserGroupServiceImpl userGroupService = new UserGroupServiceImpl(
+                userGroupDao,
+                Optional.empty(),
+                new UserConfigProperties(),
+                userService,
+                List.of(failedListener, listener)
+        );
+        UserGroup userGroup = new UserGroup("1", "test_group");
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userGroupService.deleteUserGroup(userGroup);
+
+            assertDoesNotThrow(() -> {
+                for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
+                    synchronization.afterCommit();
+                }
+            });
+
+            verify(listener).onUserGroupDeleted(userGroup);
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     private final static String CHANGED_PHONE_NUMBER = "123-4567-8900";
