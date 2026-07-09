@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * Shared helpers for reading the OTel {@code exception} span event and its attributes.
  * Used both by {@link OtlpExceptionMapper} (exception-trace metadata) and by
- * {@link OtlpTraceSpanMapper#resolveErrorExceptionInfo} (SpanBo/SpanEventBo exceptionInfo),
+ * {@link OtlpExceptionInfoResolver#resolveErrorExceptionInfo} (SpanBo/SpanEventBo exceptionInfo),
  * so the exception class-name resolution stays consistent between the two.
  */
 public final class ExceptionAttributeUtils {
