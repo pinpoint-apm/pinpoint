@@ -270,11 +270,21 @@ public class ASMClass implements InstrumentClass {
             final Type type = accessorDetails.getFieldType();
             final String accessorTypeName = accessorClass.getName();
             final String fieldName = FIELD_PREFIX + JavaAssistUtils.javaClassNameToVariableName(accessorTypeName);
-            final ASMFieldNodeAdapter fieldNode = this.classNode.addField(fieldName, type.getDescriptor());
-            this.classNode.addInterface(accessorTypeName);
-            this.classNode.addGetterMethod(accessorDetails.getGetter().getName(), fieldNode);
-            this.classNode.addSetterMethod(accessorDetails.getSetter().getName(), fieldNode);
-            setModified(true);
+            // skip members already declared in this class. e.g. a CGLIB proxy copies the injected members of an instrumented class
+            boolean modified = false;
+            ASMFieldNodeAdapter fieldNode = this.classNode.getDeclaredField(fieldName, type.getDescriptor());
+            if (fieldNode == null) {
+                fieldNode = this.classNode.addField(fieldName, type.getDescriptor());
+                modified = true;
+            }
+            modified |= this.classNode.addInterface(accessorTypeName);
+            modified |= this.classNode.addGetterMethod(accessorDetails.getGetter().getName(), fieldNode);
+            modified |= this.classNode.addSetterMethod(accessorDetails.getSetter().getName(), fieldNode);
+            if (modified) {
+                setModified(true);
+            } else if (logger.isDebugEnabled()) {
+                logger.debug("Skip addField, accessor already declared. class={}, accessor={}", getName(), accessorTypeName);
+            }
         } catch (Exception e) {
             throw new InstrumentException("Failed to add field with accessor [" + accessorClass.getName() + "]. Cause:" + e.getMessage(), e);
         }
@@ -296,9 +306,13 @@ public class ASMClass implements InstrumentClass {
                 throw new IllegalArgumentException("different return type. return=" + fieldType + ", field=" + fieldNode.getJavaType());
             }
 
-            this.classNode.addGetterMethod(getterDetails.getGetter().getName(), fieldNode);
-            this.classNode.addInterface(getterClass.getName());
-            setModified(true);
+            boolean modified = this.classNode.addGetterMethod(getterDetails.getGetter().getName(), fieldNode);
+            modified |= this.classNode.addInterface(getterClass.getName());
+            if (modified) {
+                setModified(true);
+            } else if (logger.isDebugEnabled()) {
+                logger.debug("Skip addGetter, getter already declared. class={}, getter={}", getName(), getterClass.getName());
+            }
         } catch (Exception e) {
             throw new InstrumentException("Failed to add getter: " + getterClass.getName(), e);
         }
@@ -341,9 +355,14 @@ public class ASMClass implements InstrumentClass {
             }
 
             try {
-                this.classNode.addSetterMethod(setterDetails.getSetter().getName(), fieldNode);
-                this.classNode.addInterface(setterClass.getName());
-                setModified(true);
+                boolean modified = finalRemoved;
+                modified |= this.classNode.addSetterMethod(setterDetails.getSetter().getName(), fieldNode);
+                modified |= this.classNode.addInterface(setterClass.getName());
+                if (modified) {
+                    setModified(true);
+                } else if (logger.isDebugEnabled()) {
+                    logger.debug("Skip addSetter, setter already declared. class={}, setter={}", getName(), setterClass.getName());
+                }
             } catch (Exception e) {
                 if (finalRemoved) {
                     fieldNode.setAccess(original);
