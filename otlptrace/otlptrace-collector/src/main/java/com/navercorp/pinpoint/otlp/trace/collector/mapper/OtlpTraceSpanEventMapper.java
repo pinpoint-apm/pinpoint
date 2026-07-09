@@ -47,6 +47,7 @@ public class OtlpTraceSpanEventMapper {
     private final OtlpDbSystemTypeResolver dbSystemTypeResolver;
     private final OtlpMessagingTypeResolver messagingTypeResolver;
     private final OtlpClientTypeResolver clientTypeResolver;
+    private final OtlpExceptionInfoResolver exceptionInfoResolver;
     private final int attributeValueMaxBytes;
     private final int sqlMaxBytes;
 
@@ -54,6 +55,7 @@ public class OtlpTraceSpanEventMapper {
                                     ServiceTypeRegistryService serviceTypeRegistryService,
                                     OtlpMessagingTypeResolver messagingTypeResolver,
                                     OtlpClientTypeResolver clientTypeResolver,
+                                    OtlpExceptionInfoResolver exceptionInfoResolver,
                                     @Value("${pinpoint.collector.otlptrace.attribute.value-max-bytes:8192}") int attributeValueMaxBytes,
                                     @Value("${pinpoint.collector.otlptrace.sql.max-bytes:8192}") int sqlMaxBytes) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
@@ -61,6 +63,7 @@ public class OtlpTraceSpanEventMapper {
                 Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService"));
         this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
         this.clientTypeResolver = Objects.requireNonNull(clientTypeResolver, "clientTypeResolver");
+        this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
         this.attributeValueMaxBytes = attributeValueMaxBytes;
         this.sqlMaxBytes = sqlMaxBytes;
     }
@@ -132,11 +135,11 @@ public class OtlpTraceSpanEventMapper {
         }
         // error status → SpanEvent exception (mirrors the root SpanBo error rule). A SpanEventBo
         // has no transaction-level errCode flag, so exceptionInfo is the only error marker.
-        final ExceptionInfo exceptionInfo = OtlpExceptionInfoResolver.resolveErrorExceptionInfo(span, attributes);
+        final ExceptionInfo exceptionInfo = exceptionInfoResolver.resolveErrorExceptionInfo(span, attributes);
         if (exceptionInfo != null) {
             spanEventBo.setExceptionInfo(exceptionInfo);
         }
-        final boolean skipExceptionEvent = OtlpExceptionInfoResolver.isExceptionClassCaptured(exceptionInfo);
+        final boolean skipExceptionEvent = exceptionInfoResolver.isExceptionClassCaptured(exceptionInfo);
 
         // api
         spanEventBo.setApiId(0);

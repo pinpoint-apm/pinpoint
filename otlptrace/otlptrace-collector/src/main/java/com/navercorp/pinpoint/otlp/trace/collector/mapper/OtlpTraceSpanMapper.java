@@ -50,17 +50,20 @@ public class OtlpTraceSpanMapper {
     private final OtlpTraceLinkMapper linkMapper;
     private final OtlpMessagingTypeResolver messagingTypeResolver;
     private final OtlpServerTypeResolver serverTypeResolver;
+    private final OtlpExceptionInfoResolver exceptionInfoResolver;
     private final int attributeValueMaxBytes;
 
     public OtlpTraceSpanMapper(OtlpTraceEventMapper eventMapper,
                                OtlpTraceLinkMapper linkMapper,
                                OtlpMessagingTypeResolver messagingTypeResolver,
                                OtlpServerTypeResolver serverTypeResolver,
+                               OtlpExceptionInfoResolver exceptionInfoResolver,
                                @Value("${pinpoint.collector.otlptrace.attribute.value-max-bytes:8192}") int attributeValueMaxBytes) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
         this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
         this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
         this.serverTypeResolver = Objects.requireNonNull(serverTypeResolver, "serverTypeResolver");
+        this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
         this.attributeValueMaxBytes = attributeValueMaxBytes;
     }
 
@@ -109,14 +112,14 @@ public class OtlpTraceSpanMapper {
 
         // errCode is the transaction-level error flag and is set whenever the (root) span status
         // is ERROR, independently of whether an exceptionInfo can be built.
-        final ExceptionInfo exceptionInfo = OtlpExceptionInfoResolver.resolveErrorExceptionInfo(span, attributes);
+        final ExceptionInfo exceptionInfo = exceptionInfoResolver.resolveErrorExceptionInfo(span, attributes);
         if (Status.StatusCode.STATUS_CODE_ERROR.getNumber() == span.getStatus().getCodeValue()) {
             spanBo.setErrCode(1);
             if (exceptionInfo != null) {
                 spanBo.setExceptionInfo(exceptionInfo);
             }
         }
-        final boolean skipExceptionEvent = OtlpExceptionInfoResolver.isExceptionClassCaptured(exceptionInfo);
+        final boolean skipExceptionEvent = exceptionInfoResolver.isExceptionClassCaptured(exceptionInfo);
         // response
         final int responseStatusCode = (int) getServerSpanToResponseStatusCode(attributes);
         if (responseStatusCode != -1) {

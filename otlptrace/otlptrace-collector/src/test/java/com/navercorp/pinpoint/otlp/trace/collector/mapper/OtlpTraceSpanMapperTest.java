@@ -182,6 +182,7 @@ class OtlpTraceSpanMapperTest {
                 new OtlpTraceLinkMapper(json, 8192),
                 new OtlpMessagingTypeResolver(MESSAGING_REGISTRY),
                 new OtlpServerTypeResolver(MESSAGING_REGISTRY),
+                new OtlpExceptionInfoResolver(),
                 8192);
     }
 

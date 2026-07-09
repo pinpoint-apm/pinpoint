@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -58,15 +59,18 @@ public class OtlpTraceMapper {
     private final OtlpTraceSpanChunkMapper spanChunkMapper;
     private final OtlpAgentInfoMapper agentInfoMapper;
     private final OtlpExceptionMapper exceptionMapper;
+    private final OtlpExceptionInfoResolver exceptionInfoResolver;
     private final boolean allowApplicationNameFallback;
 
     public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpExceptionMapper exceptionMapper,
+                           OtlpExceptionInfoResolver exceptionInfoResolver,
                            @Value("${pinpoint.collector.otlptrace.application-name-fallback.enabled:false}") boolean allowApplicationNameFallback) {
         this.spanMapper = spanMapper;
         this.spanEventMapper = spanEventMapper;
         this.spanChunkMapper = spanChunkMapper;
         this.agentInfoMapper = agentInfoMapper;
         this.exceptionMapper = exceptionMapper;
+        this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
         this.allowApplicationNameFallback = allowApplicationNameFallback;
     }
 
@@ -348,7 +352,7 @@ public class OtlpTraceMapper {
             // Link the SpanEvent's inline exception to its exceptiontrace record. The id matches
             // OtlpExceptionMapper's ExceptionWrapperBo.exceptionId (getSpanId of the same span);
             // only emitted on the root-linked path where an exceptiontrace row actually exists.
-            if (emitExceptionLink && OtlpExceptionInfoResolver.isExceptionClassCaptured(spanEventBo.getExceptionInfo())) {
+            if (emitExceptionLink && exceptionInfoResolver.isExceptionClassCaptured(spanEventBo.getExceptionInfo())) {
                 spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.EXCEPTION_CHAIN_ID.getCode(),
                         OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
             }
