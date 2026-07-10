@@ -41,6 +41,7 @@ import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.trace.span.Align;
 import com.navercorp.pinpoint.web.trace.span.CallTreeNode;
 import com.navercorp.pinpoint.web.util.OtelLinkValue;
+import com.navercorp.pinpoint.web.util.OtelLinkValueSerde;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -235,7 +236,7 @@ public class RecordFactory {
     private String augmentOtelLink(String arguments, Align align) {
         // traceId/spanId in the raw annotation point to the OTel Link target (upstream).
         // Augment with linkTraceId/linkSpanId of the current (downstream) span where the Link annotation lives.
-        final OtelLinkValue value = OtelLinkValue.parse(arguments);
+        final OtelLinkValue value = OtelLinkValueSerde.parse(arguments);
         if (value == null) {
             return arguments;
         }
@@ -245,8 +246,8 @@ public class RecordFactory {
         } catch (RuntimeException e) {
             return arguments;
         }
-        return value.withDownstream(linkTraceId, align.getSpanId(), align.getCollectorAcceptTime())
-                .toJson();
+        final OtelLinkValue downstream = value.withDownstream(linkTraceId, align.getSpanId(), align.getCollectorAcceptTime());
+        return OtelLinkValueSerde.toJson(downstream);
     }
 
     public Record getAttribute(final int depth, final int parentId, Align align) {
