@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web.trace;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.config.SpanSerializeConfiguration;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 import com.navercorp.pinpoint.web.trace.callstacks.AnnotationRecordFormatter;
+import com.navercorp.pinpoint.web.trace.callstacks.AttributeBoWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -59,6 +61,13 @@ public class TraceConfiguration {
                 builder.addProxyHeaderAnnotationHeader(proxyRequestTypeRegistryService.get());
             }
             return builder.build();
+        }
+
+        // RecorderFactoryProvider (scanned above) requires this bean; keep it in this nested config
+        // so contexts importing only TraceServiceConfiguration (e.g. batch) can start.
+        @Bean
+        public AttributeBoWriter attributeBoWriter(ObjectMapper mapper) {
+            return new AttributeBoWriter(mapper);
         }
     }
 }

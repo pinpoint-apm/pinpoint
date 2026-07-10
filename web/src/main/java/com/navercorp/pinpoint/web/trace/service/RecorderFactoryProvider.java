@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.trace.callstacks.AnnotationRecordFormatter;
+import com.navercorp.pinpoint.web.trace.callstacks.AttributeBoWriter;
 import com.navercorp.pinpoint.web.trace.callstacks.RecordFactory;
 import org.springframework.stereotype.Component;
 
@@ -39,19 +40,23 @@ public class RecorderFactoryProvider {
 
     private final ApiParserProvider apiParserProvider;
 
+    private final AttributeBoWriter attributeBoWriter;
+
     public RecorderFactoryProvider(ServiceTypeRegistryService registry,
                                    AnnotationKeyMatcherService annotationKeyMatcherService,
                                    AnnotationKeyRegistryService annotationKeyRegistryService,
                                    AnnotationRecordFormatter annotationRecordFormatter,
-                                   ApiParserProvider apiParserProvider) {
+                                   ApiParserProvider apiParserProvider,
+                                   AttributeBoWriter attributeBoWriter) {
         this.registry = Objects.requireNonNull(registry, "registry");
         this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
         this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService");
         this.annotationRecordFormatter = Objects.requireNonNull(annotationRecordFormatter, "annotationRecordFormatter");
         this.apiParserProvider = Objects.requireNonNull(apiParserProvider, "apiParserRegistry");
+        this.attributeBoWriter = Objects.requireNonNull(attributeBoWriter, "attributeBoWriter");
     }
 
     public RecordFactory getRecordFactory()  {
-        return new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService, annotationRecordFormatter, apiParserProvider);
+        return new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService, annotationRecordFormatter, apiParserProvider, attributeBoWriter);
     }
 }

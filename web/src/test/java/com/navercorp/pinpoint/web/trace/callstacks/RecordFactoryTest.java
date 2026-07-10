@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.trace.callstacks;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
@@ -80,8 +81,10 @@ public class RecordFactoryTest {
     private ApiParserProvider apiParserProvider;
 
     private RecordFactory newRecordFactory() {
+        AttributeBoWriter attributeBoWriter = new AttributeBoWriter(new ObjectMapper());
         RecorderFactoryProvider recorderFactoryProvider = new RecorderFactoryProvider(mockServiceTypeRegistryService,
-                mockAnnotationKeyMatcherService, mockAnnotationKeyRegistryService, mockAnnotationRecordFormatter, apiParserProvider);
+                mockAnnotationKeyMatcherService, mockAnnotationKeyRegistryService, mockAnnotationRecordFormatter, apiParserProvider,
+                attributeBoWriter);
         return recorderFactoryProvider.getRecordFactory();
     }
 
@@ -271,7 +274,10 @@ public class RecordFactoryTest {
         ServiceTypeRegistryService mockedRegistry = mock(ServiceTypeRegistryService.class);
         AnnotationRecordFormatter annotationRecordFormatter = mock(AnnotationRecordFormatter.class);
         ApiParserProvider mockedApiParserProvider = new ApiParserProvider();
-        when(mockedProvider.getRecordFactory()).thenReturn(new RecordFactory(mockedAnnotationKeyMatcherService, mockedRegistry, mockedAnnotationKeyRegistryService, annotationRecordFormatter, mockedApiParserProvider));
+        AttributeBoWriter attributeBoWriter = new AttributeBoWriter(new ObjectMapper());
+        when(mockedProvider.getRecordFactory()).thenReturn(
+                new RecordFactory(mockedAnnotationKeyMatcherService, mockedRegistry, mockedAnnotationKeyRegistryService, annotationRecordFormatter, mockedApiParserProvider, attributeBoWriter)
+        );
 
         TransactionInfoService dut = new TransactionInfoServiceImpl(mockedAnnotationKeyMatcherService, Optional.empty(), mockedProvider, mockServiceTypeRegistryService);
 
