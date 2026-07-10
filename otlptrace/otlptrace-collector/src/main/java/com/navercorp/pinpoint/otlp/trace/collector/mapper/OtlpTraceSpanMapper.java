@@ -38,7 +38,6 @@ import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -54,20 +53,20 @@ public class OtlpTraceSpanMapper {
     private final OtlpServerTypeResolver serverTypeResolver;
     private final OtlpExceptionInfoResolver exceptionInfoResolver;
     private final OtlpMessagingConsumerResolver messagingConsumerResolver;
-    private final int attributeValueMaxBytes;
+    private final OtlpAttributeBoMapper attributeBoMapper;
 
     public OtlpTraceSpanMapper(OtlpTraceEventMapper eventMapper,
                                OtlpTraceLinkMapper linkMapper,
                                OtlpServerTypeResolver serverTypeResolver,
                                OtlpExceptionInfoResolver exceptionInfoResolver,
                                OtlpMessagingConsumerResolver messagingConsumerResolver,
-                               @Value("${pinpoint.collector.otlptrace.attribute.value-max-bytes:8192}") int attributeValueMaxBytes) {
+                               OtlpAttributeBoMapper attributeBoMapper) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
         this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
         this.serverTypeResolver = Objects.requireNonNull(serverTypeResolver, "serverTypeResolver");
         this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
         this.messagingConsumerResolver = Objects.requireNonNull(messagingConsumerResolver, "messagingConsumerResolver");
-        this.attributeValueMaxBytes = attributeValueMaxBytes;
+        this.attributeBoMapper = Objects.requireNonNull(attributeBoMapper, "attributeBoMapper");
     }
 
     SpanBo map(IdAndName idAndName, Span span) {
@@ -131,10 +130,10 @@ public class OtlpTraceSpanMapper {
         // attributes
         int truncatedAttributes = 0;
         if (!attributes.isEmpty()) {
-            final TransformContext context = new TransformContext(attributeValueMaxBytes);
-            List<AttributeBo> attributeBoList = OtlpTraceMapperUtils.toAttributeBoList(
-                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, context);
-            truncatedAttributes = context.truncatedCount();
+            final TruncationCounter counter = new TruncationCounter();
+            List<AttributeBo> attributeBoList = attributeBoMapper.toAttributeBoList(
+                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, counter);
+            truncatedAttributes = counter.truncatedCount();
             spanBo.setAttributeBoList(attributeBoList);
         }
 

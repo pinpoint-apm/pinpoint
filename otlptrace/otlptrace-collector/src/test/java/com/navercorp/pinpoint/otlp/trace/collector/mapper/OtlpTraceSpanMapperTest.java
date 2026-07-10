@@ -197,7 +197,7 @@ class OtlpTraceSpanMapperTest {
                         new PulsarMessagingConsumerHandler(),
                         new RocketMQMessagingConsumerHandler(),
                         new ActiveMQMessagingConsumerHandler()), messagingTypeResolver),
-                8192);
+                new OtlpAttributeBoMapper(8192));
     }
 
     private static IdAndName id() {

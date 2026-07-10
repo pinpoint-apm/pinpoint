@@ -55,7 +55,7 @@ public class OtlpTraceSpanEventMapper {
     private final OtlpMessagingTypeResolver messagingTypeResolver;
     private final OtlpClientTypeResolver clientTypeResolver;
     private final OtlpExceptionInfoResolver exceptionInfoResolver;
-    private final int attributeValueMaxBytes;
+    private final OtlpAttributeBoMapper attributeBoMapper;
     private final int sqlMaxBytes;
 
     public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper,
@@ -63,7 +63,7 @@ public class OtlpTraceSpanEventMapper {
                                     OtlpMessagingTypeResolver messagingTypeResolver,
                                     OtlpClientTypeResolver clientTypeResolver,
                                     OtlpExceptionInfoResolver exceptionInfoResolver,
-                                    @Value("${pinpoint.collector.otlptrace.attribute.value-max-bytes:8192}") int attributeValueMaxBytes,
+                                    OtlpAttributeBoMapper attributeBoMapper,
                                     @Value("${pinpoint.collector.otlptrace.sql.max-bytes:8192}") int sqlMaxBytes) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
         this.dbSystemTypeResolver = new OtlpDbSystemTypeResolver(
@@ -71,7 +71,7 @@ public class OtlpTraceSpanEventMapper {
         this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
         this.clientTypeResolver = Objects.requireNonNull(clientTypeResolver, "clientTypeResolver");
         this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
-        this.attributeValueMaxBytes = attributeValueMaxBytes;
+        this.attributeBoMapper = Objects.requireNonNull(attributeBoMapper, "attributeBoMapper");
         this.sqlMaxBytes = sqlMaxBytes;
     }
 
@@ -154,10 +154,10 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
         // attributes
         if (!attributes.isEmpty()) {
-            final TransformContext context = new TransformContext(attributeValueMaxBytes);
-            List<AttributeBo> attributeBoList = OtlpTraceMapperUtils.toAttributeBoList(
-                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, context);
-            truncatedAttributes = context.truncatedCount();
+            final TruncationCounter counter = new TruncationCounter();
+            List<AttributeBo> attributeBoList = attributeBoMapper.toAttributeBoList(
+                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, counter);
+            truncatedAttributes = counter.truncatedCount();
             spanEventBo.setAttributeBoList(attributeBoList);
         }
         // event
