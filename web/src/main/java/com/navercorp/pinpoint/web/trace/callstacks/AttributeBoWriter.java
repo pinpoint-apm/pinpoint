@@ -27,9 +27,9 @@ import com.navercorp.pinpoint.common.trace.attribute.AttributeValueBytes;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValueDouble;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValueLong;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValueString;
+import org.apache.commons.io.output.StringBuilderWriter;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +50,7 @@ public class AttributeBoWriter {
     }
 
     public String toJson(List<AttributeBo> attributeBoList) {
-        StringWriter writer = new StringWriter();
+        StringBuilderWriter writer = new StringBuilderWriter();
         try (JsonGenerator gen = mapper.createGenerator(writer)) {
             gen.writeStartObject();
             for (AttributeBo attr : attributeBoList) {
