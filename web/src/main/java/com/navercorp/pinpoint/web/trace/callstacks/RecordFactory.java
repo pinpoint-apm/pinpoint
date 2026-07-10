@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.web.trace.callstacks;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
@@ -30,11 +28,6 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ErrorCategorySet;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValueList;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeValueArray;
-import com.navercorp.pinpoint.common.trace.attribute.AttributeValueBytes;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
@@ -44,8 +37,6 @@ import com.navercorp.pinpoint.web.util.OtelLinkValue;
 import com.navercorp.pinpoint.web.util.OtelLinkValueSerde;
 
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,8 +45,6 @@ import java.util.Objects;
  * @author minwoo.jung
  */
 public class RecordFactory {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     // spans with id = 0 are regarded as root - start at 1
     private int idGen = 1;
@@ -67,17 +56,21 @@ public class RecordFactory {
 
     private final ApiParserProvider apiParserProvider;
 
+    private final AttributeBoWriter attributeBoWriter;
+
     public RecordFactory(final AnnotationKeyMatcherService annotationKeyMatcherService,
                          final ServiceTypeRegistryService registry,
                          final AnnotationKeyRegistryService annotationKeyRegistryService,
                          final AnnotationRecordFormatter annotationRecordFormatter,
-                         final ApiParserProvider apiParserProvider) {
+                         final ApiParserProvider apiParserProvider,
+                         final AttributeBoWriter attributeBoWriter) {
         this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService");
 
         this.annotationRecordFormatter = Objects.requireNonNull(annotationRecordFormatter, "annotationRecordFormatter");
         this.apiParserProvider = Objects.requireNonNull(apiParserProvider, "apiParserRegistry");
+        this.attributeBoWriter = Objects.requireNonNull(attributeBoWriter, "attributeBoWriter");
     }
 
     public Record get(final CallTreeNode node) {
@@ -255,45 +248,8 @@ public class RecordFactory {
         if (attributeBoList == null || attributeBoList.isEmpty()) {
             return null;
         }
-        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-        for (AttributeBo attr : attributeBoList) {
-            map.put(attr.getKey(), toPlainObject(attr.getValue()));
-        }
-        try {
-            String arguments = OBJECT_MAPPER.writeValueAsString(map);
-            return new AnnotationRecord(depth, getNextId(), parentId, "Attribute", arguments, true);
-        } catch (JsonProcessingException e) {
-            return new AnnotationRecord(depth, getNextId(), parentId, "Attribute", "json processing error", true);
-        }
-    }
-
-    private static Object toPlainObject(AttributeValue value) {
-        if (value == null) {
-            return null;
-        }
-        return switch (value.getType()) {
-            case STRING, BOOLEAN, LONG, DOUBLE -> value.getValue();
-            case BYTES -> {
-                byte[] bytesValue = ((AttributeValueBytes) value).getRawBytesValue();
-                yield Base64.getEncoder().encodeToString(bytesValue);
-            }
-            case ARRAY -> {
-                List<AttributeValue> list = ((AttributeValueArray) value).getArrayValue();
-                List<Object> plainList = new ArrayList<>(list.size());
-                for (AttributeValue item : list) {
-                    plainList.add(toPlainObject(item));
-                }
-                yield plainList;
-            }
-            case KEY_VALUE_LIST -> {
-                List<AttributeKeyValue> kvList = ((AttributeKeyValueList) value).getKeyValueListValue();
-                LinkedHashMap<String, Object> kvMap = new LinkedHashMap<>();
-                for (AttributeKeyValue kv : kvList) {
-                    kvMap.put(kv.getKey(), toPlainObject(kv.getValue()));
-                }
-                yield kvMap;
-            }
-        };
+        String arguments = attributeBoWriter.toJson(attributeBoList);
+        return new AnnotationRecord(depth, getNextId(), parentId, "Attribute", arguments, true);
     }
 
     public Record getParameter(final int depth, final int parentId, final String method, final String argument) {
