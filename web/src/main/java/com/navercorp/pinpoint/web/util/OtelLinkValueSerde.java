@@ -20,10 +20,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import org.apache.commons.io.output.StringBuilderWriter;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.StringWriter;
 
 /**
  * Serializes and parses the {@code OPENTELEMETRY_LINK} annotation value, which is persisted
@@ -101,7 +101,7 @@ public final class OtelLinkValueSerde {
     }
 
     public static String toJson(OtelLinkValue value) {
-        final StringWriter writer = new StringWriter();
+        final StringBuilderWriter writer = new StringBuilderWriter();
         try (JsonGenerator gen = OBJECT_MAPPER.createGenerator(writer)) {
             gen.writeStartObject();
             if (value.traceId() != null) {
