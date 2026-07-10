@@ -43,12 +43,13 @@ public class OtlpTraceLinkMapper {
      *
      * <p>Skips entirely when both traceId and spanId are empty — OTel spec requires links to
      * carry a non-empty SpanContext, so a fully-empty link is invalid input we drop silently.</p>
+     *
+     * <p>{@code onTruncated} is invoked once per truncated value (traceState or attribute leaf).</p>
      */
-    public int addLinkToAnnotation(Span.Link link, AnnotationWriter annotationWriter) {
+    public void addLinkToAnnotation(Span.Link link, AnnotationWriter annotationWriter, TruncationListener onTruncated) {
         if (link.getTraceId().isEmpty() && link.getSpanId().isEmpty()) {
-            return 0;
+            return;
         }
-        int truncated = 0;
         try {
             Map<String, Object> map = new HashMap<>();
             if (!link.getTraceId().isEmpty()) {
@@ -68,14 +69,12 @@ public class OtlpTraceLinkMapper {
                 final String truncatedTraceState = Utf8.truncate(traceState, valueMaxBytes);
                 if (truncatedTraceState != null) {
                     traceState = truncatedTraceState;
-                    truncated++;
+                    onTruncated.truncated();
                 }
                 map.put("traceState", traceState);
             }
             if (link.getAttributesCount() > 0) {
-                final TruncationCounter counter = new TruncationCounter();
-                final Map<String, Object> linkAttributes = getAttributeToMap(link.getAttributesList(), valueMaxBytes, counter);
-                truncated += counter.truncatedCount();
+                final Map<String, Object> linkAttributes = getAttributeToMap(link.getAttributesList(), valueMaxBytes, onTruncated);
                 map.put("attributes", linkAttributes);
             }
             // SDK-side data-loss counter for link attributes. Same convention as Span/SpanEvent
@@ -88,6 +87,5 @@ public class OtlpTraceLinkMapper {
         } catch (JsonProcessingException e) {
             annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), "json processing error"));
         }
-        return truncated;
     }
 }

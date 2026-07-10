@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,7 +35,7 @@ class OtlpAttributeBoMapperTest {
     void toAttributeBoList_emptyMap_returnsEmptyList() {
         OtlpAttributeBoMapper mapper = new OtlpAttributeBoMapper(NO_TRUNCATION_MAX_BYTES);
 
-        List<AttributeBo> result = mapper.toAttributeBoList(Map.of(), key -> false, new TruncationCounter());
+        List<AttributeBo> result = mapper.toAttributeBoList(Map.of(), key -> false, () -> {});
 
         assertThat(result).isEmpty();
     }
@@ -46,7 +47,7 @@ class OtlpAttributeBoMapperTest {
         attrs.put("k1", AttributeValue.of("v1"));
         attrs.put("k2", AttributeValue.of(42L));
 
-        List<AttributeBo> result = mapper.toAttributeBoList(attrs, key -> false, new TruncationCounter());
+        List<AttributeBo> result = mapper.toAttributeBoList(attrs, key -> false, () -> {});
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(AttributeBo::getKey).containsExactlyInAnyOrder("k1", "k2");
@@ -59,7 +60,7 @@ class OtlpAttributeBoMapperTest {
         attrs.put("keep", AttributeValue.of("ok"));
         attrs.put("drop", AttributeValue.of("bye"));
 
-        List<AttributeBo> result = mapper.toAttributeBoList(attrs, key -> key.equals("drop"), new TruncationCounter());
+        List<AttributeBo> result = mapper.toAttributeBoList(attrs, key -> key.equals("drop"), () -> {});
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getKey()).isEqualTo("keep");
@@ -70,39 +71,39 @@ class OtlpAttributeBoMapperTest {
     // single-pass truncation
     // =======================================================================
 
-    private static List<AttributeBo> truncate(int maxBytes, TruncationCounter counter, AttributeValue value) {
+    private static List<AttributeBo> truncate(int maxBytes, AtomicInteger counter, AttributeValue value) {
         final Map<String, AttributeValue> attrs = new LinkedHashMap<>();
         attrs.put("k", value);
-        return new OtlpAttributeBoMapper(maxBytes).toAttributeBoList(attrs, key -> false, counter);
+        return new OtlpAttributeBoMapper(maxBytes).toAttributeBoList(attrs, key -> false, counter::incrementAndGet);
     }
 
     @Test
     void truncateAttributeValues_emptyMap_returnsZero() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
-        List<AttributeBo> result = new OtlpAttributeBoMapper(8).toAttributeBoList(Map.of(), key -> false, counter);
+        List<AttributeBo> result = new OtlpAttributeBoMapper(8).toAttributeBoList(Map.of(), key -> false, counter::incrementAndGet);
 
         assertThat(result).isEmpty();
-        assertThat(counter.truncatedCount()).isZero();
+        assertThat(counter.get()).isZero();
     }
 
     @Test
     void truncateAttributeValues_shortString_unchanged() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         List<AttributeBo> list = truncate(64, counter, AttributeValue.of("ok"));
 
-        assertThat(counter.truncatedCount()).isZero();
+        assertThat(counter.get()).isZero();
         assertThat(list.get(0).getValue().getValue()).isEqualTo("ok");
     }
 
     @Test
     void truncateAttributeValues_overLongString_truncatedAndCounted() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         List<AttributeBo> list = truncate(10, counter, AttributeValue.of("a".repeat(100)));
 
-        assertThat(counter.truncatedCount()).isEqualTo(1);
+        assertThat(counter.get()).isEqualTo(1);
         AttributeValue value = list.get(0).getValue();
         assertThat(value.getType()).isEqualTo(AttributeValueType.STRING);
         assertThat((String) value.getValue()).isEqualTo("a".repeat(10));
@@ -110,16 +111,16 @@ class OtlpAttributeBoMapperTest {
 
     @Test
     void truncateAttributeValues_numericAndBoolean_neverTruncated() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
         Map<String, AttributeValue> attrs = new LinkedHashMap<>();
         attrs.put("i", AttributeValue.of(1234567890L));
         attrs.put("d", AttributeValue.of(3.14159d));
         attrs.put("b", AttributeValue.of(true));
 
         // maxBytes=1: would truncate any string, but numbers/booleans are exempt per OTel spec
-        List<AttributeBo> list = new OtlpAttributeBoMapper(1).toAttributeBoList(attrs, key -> false, counter);
+        List<AttributeBo> list = new OtlpAttributeBoMapper(1).toAttributeBoList(attrs, key -> false, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isZero();
+        assertThat(counter.get()).isZero();
         assertThat(list.get(0).getValue().getValue()).isEqualTo(1234567890L);
         assertThat(list.get(1).getValue().getValue()).isEqualTo(3.14159d);
         assertThat(list.get(2).getValue().getValue()).isEqualTo(true);
@@ -131,11 +132,11 @@ class OtlpAttributeBoMapperTest {
         for (int i = 0; i < payload.length; i++) {
             payload[i] = (byte) i;
         }
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         List<AttributeBo> list = truncate(16, counter, AttributeValue.of(payload));
 
-        assertThat(counter.truncatedCount()).isEqualTo(1);
+        assertThat(counter.get()).isEqualTo(1);
         AttributeValue value = list.get(0).getValue();
         assertThat(value.getType()).isEqualTo(AttributeValueType.BYTES);
         assertThat((byte[]) value.getValue()).hasSize(16)
@@ -145,11 +146,11 @@ class OtlpAttributeBoMapperTest {
     @Test
     void truncateAttributeValues_bytesWithinLimit_unchanged() {
         byte[] payload = new byte[]{1, 2, 3};
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         List<AttributeBo> list = truncate(16, counter, AttributeValue.of(payload));
 
-        assertThat(counter.truncatedCount()).isZero();
+        assertThat(counter.get()).isZero();
         assertThat((byte[]) list.get(0).getValue().getValue()).containsExactly(1, 2, 3);
     }
 
@@ -160,12 +161,12 @@ class OtlpAttributeBoMapperTest {
                 AttributeValue.of("short"),
                 AttributeValue.of("b".repeat(100))
         );
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         List<AttributeBo> list = truncate(10, counter, array);
 
         // two over-long leaves truncated, the "short" one untouched
-        assertThat(counter.truncatedCount()).isEqualTo(2);
+        assertThat(counter.get()).isEqualTo(2);
         @SuppressWarnings("unchecked")
         List<AttributeValue> result = (List<AttributeValue>) list.get(0).getValue().getValue();
         assertThat(result).extracting(AttributeValue::getValue)
@@ -175,11 +176,11 @@ class OtlpAttributeBoMapperTest {
     @Test
     void truncateAttributeValues_array_noOverLongLeaf_unchanged() {
         AttributeValue array = AttributeValue.of(AttributeValue.of("x"), AttributeValue.of("y"));
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         List<AttributeBo> list = truncate(10, counter, array);
 
-        assertThat(counter.truncatedCount()).isZero();
+        assertThat(counter.get()).isZero();
         @SuppressWarnings("unchecked")
         List<AttributeValue> result = (List<AttributeValue>) list.get(0).getValue().getValue();
         assertThat(result).extracting(AttributeValue::getValue).containsExactly("x", "y");
@@ -191,11 +192,11 @@ class OtlpAttributeBoMapperTest {
                 AttributeKeyValue.of("big", AttributeValue.of("a".repeat(100))),
                 AttributeKeyValue.of("small", AttributeValue.of("ok"))
         );
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         List<AttributeBo> list = truncate(10, counter, kvList);
 
-        assertThat(counter.truncatedCount()).isEqualTo(1);
+        assertThat(counter.get()).isEqualTo(1);
         @SuppressWarnings("unchecked")
         List<AttributeKeyValue> result = (List<AttributeKeyValue>) list.get(0).getValue().getValue();
         assertThat(result.get(0).getKey()).isEqualTo("big");
@@ -210,11 +211,11 @@ class OtlpAttributeBoMapperTest {
                         AttributeValue.of("a".repeat(100)),
                         AttributeValue.of("b".repeat(100))))
         );
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         List<AttributeBo> list = truncate(10, counter, kvList);
 
-        assertThat(counter.truncatedCount()).isEqualTo(2);
+        assertThat(counter.get()).isEqualTo(2);
         @SuppressWarnings("unchecked")
         List<AttributeKeyValue> outer = (List<AttributeKeyValue>) list.get(0).getValue().getValue();
         @SuppressWarnings("unchecked")
@@ -225,15 +226,15 @@ class OtlpAttributeBoMapperTest {
 
     @Test
     void truncateAttributeValues_multipleBos_sumsTruncations() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
         Map<String, AttributeValue> attrs = new LinkedHashMap<>();
         attrs.put("a", AttributeValue.of("a".repeat(100)));
         attrs.put("b", AttributeValue.of("ok"));
         attrs.put("c", AttributeValue.of("c".repeat(100)));
 
-        List<AttributeBo> list = new OtlpAttributeBoMapper(10).toAttributeBoList(attrs, key -> false, counter);
+        List<AttributeBo> list = new OtlpAttributeBoMapper(10).toAttributeBoList(attrs, key -> false, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isEqualTo(2);
+        assertThat(counter.get()).isEqualTo(2);
         assertThat(list.get(0).getValue().getValue()).isEqualTo("a".repeat(10));
         assertThat(list.get(1).getValue().getValue()).isEqualTo("ok");
         assertThat(list.get(2).getValue().getValue()).isEqualTo("c".repeat(10));

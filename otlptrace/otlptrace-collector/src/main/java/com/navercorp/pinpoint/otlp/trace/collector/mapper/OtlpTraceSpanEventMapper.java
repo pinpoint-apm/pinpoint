@@ -72,6 +72,9 @@ public class OtlpTraceSpanEventMapper {
         this.clientTypeResolver = Objects.requireNonNull(clientTypeResolver, "clientTypeResolver");
         this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
         this.attributeBoMapper = Objects.requireNonNull(attributeBoMapper, "attributeBoMapper");
+        if (sqlMaxBytes < 0) {
+            throw new IllegalArgumentException("sqlMaxBytes must be >= 0: " + sqlMaxBytes);
+        }
         this.sqlMaxBytes = sqlMaxBytes;
     }
 
@@ -92,9 +95,7 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.setTraceTime(SpanVersion.TRACE_V3, eventStartTimeNanos, eventEndTimeNanos, startElapsed);
 
         final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
-        int truncatedAttributes = 0;
-        int truncatedSql = 0;
-        int truncatedEvents = 0;
+        final TruncatedCounts truncatedCounts = new TruncatedCounts();
 
         // Keep the order
         if (isDatabase(attributes)) {
@@ -108,7 +109,7 @@ public class OtlpTraceSpanEventMapper {
                 final String truncatedStatement = (statement == null) ? null : Utf8.truncate(statement, sqlMaxBytes);
                 if (truncatedStatement != null) {
                     statement = truncatedStatement;
-                    truncatedSql = 1;
+                    truncatedCounts.sql();
                 }
                 spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.SQL.getCode(), statement));
             }
@@ -154,10 +155,8 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
         // attributes
         if (!attributes.isEmpty()) {
-            final TruncationCounter counter = new TruncationCounter();
             List<AttributeBo> attributeBoList = attributeBoMapper.toAttributeBoList(
-                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, counter);
-            truncatedAttributes = counter.truncatedCount();
+                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, truncatedCounts::attribute);
             spanEventBo.setAttributeBoList(attributeBoList);
         }
         // event
@@ -167,7 +166,7 @@ public class OtlpTraceSpanEventMapper {
             if (skipExceptionEvent && OtlpTraceConstants.EVENT_NAME_EXCEPTION.equals(event.getName())) {
                 continue;
             }
-            truncatedEvents += eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation);
+            eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation, truncatedCounts::event);
         }
         // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0.
         OtlpTraceSpanMapper.addDroppedAnnotations(spanEventBo::addAnnotation,
@@ -182,7 +181,10 @@ public class OtlpTraceSpanEventMapper {
             spanEventBo.setNextSpanId(nextSpanId);
         }
 
-        OtlpTraceSpanMapper.addTruncatedAnnotation(spanEventBo::addAnnotation, truncatedAttributes, truncatedSql, truncatedEvents, 0);
+        final AnnotationBo truncatedAnnotation = OtlpTraceSpanMapper.toTruncatedAnnotation(truncatedCounts);
+        if (truncatedAnnotation != null) {
+            spanEventBo.addAnnotation(truncatedAnnotation);
+        }
 
         return spanEventBo;
     }

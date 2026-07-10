@@ -42,24 +42,22 @@ public class OtlpTraceEventMapper {
      * <pre>{@code {"<event.name>": {"time": <unix_nano>, "attributes": {...}}}}</pre>
      * The {@code attributes} field is omitted when the event has none, so empty events
      * produce {@code {"<event.name>": {"time": N}}} (no longer a heterogeneous string/object
-     * value). Emitted under {@link AnnotationKey#OPENTELEMETRY_EVENT}.
+     * value). Emitted under {@link AnnotationKey#OPENTELEMETRY_EVENT}. {@code onTruncated} is
+     * invoked once per truncated attribute leaf.
      */
-    public int addEventToAnnotation(Span.Event event, AnnotationWriter annotationWriter) {
+    public void addEventToAnnotation(Span.Event event, AnnotationWriter annotationWriter, TruncationListener onTruncated) {
         if (StringUtils.isEmpty(event.getName())) {
-            return 0;
+            return;
         }
 
-        int truncated = 0;
         try {
             Map<String, Object> inner = new HashMap<>(2);
             inner.put(FIELD_TIME, event.getTimeUnixNano());
             if (event.getAttributesCount() > 0) {
                 // Cap over-long string values (notably exception.stacktrace, which is also kept in
                 // full in exception metadata) so a single event cannot bloat the span row.
-                final TruncationCounter counter = new TruncationCounter();
                 final Map<String, Object> eventAttributes =
-                        getAttributeToMap(event.getAttributesList(), valueMaxBytes, counter);
-                truncated = counter.truncatedCount();
+                        getAttributeToMap(event.getAttributesList(), valueMaxBytes, onTruncated);
                 inner.put(FIELD_ATTRIBUTES, eventAttributes);
             }
             Map<String, Object> map = Map.of(event.getName(), inner);
@@ -68,7 +66,6 @@ public class OtlpTraceEventMapper {
         } catch (JsonProcessingException e) {
             annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), "json processing error"));
         }
-        return truncated;
     }
 
 }

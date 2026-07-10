@@ -221,24 +221,24 @@ public class OtlpTraceMapperUtils {
     }
 
     public static Map<String, Object> getAttributeToMap(List<KeyValue> keyValueList) {
-        // no counter: plain conversion without truncation (maxBytes is never read on that path)
+        // no listener: plain conversion without truncation (maxBytes is never read on that path)
         return getAttributeToMap(keyValueList, 0, null);
     }
 
     /**
      * Converts OTel attributes to a JSON-serializable map, recursing into nested arrays/maps. When
-     * {@code counter} is non-null, over-long string / byte leaf values are truncated to
-     * {@code maxBytes} (bytes on their hex form) in the same pass and the count accumulates in the
-     * counter; a {@code null} counter renders without truncation.
+     * {@code onTruncated} is non-null, over-long string / byte leaf values are truncated to
+     * {@code maxBytes} (bytes on their hex form) in the same pass, invoking the listener once per
+     * truncated leaf; a {@code null} listener renders without truncation.
      */
-    public static Map<String, Object> getAttributeToMap(List<KeyValue> keyValueList, int maxBytes, @Nullable TruncationCounter counter) {
+    public static Map<String, Object> getAttributeToMap(List<KeyValue> keyValueList, int maxBytes, @Nullable TruncationListener onTruncated) {
         final int size = keyValueList.size();
         if (size == 0) {
             return Map.of();
         }
         Map<String, Object> map = new HashMap<>(size);
         for (KeyValue kv : keyValueList) {
-            map.put(kv.getKey(), getAttributeValueToValue(kv.getValue(), maxBytes, counter));
+            map.put(kv.getKey(), getAttributeValueToValue(kv.getValue(), maxBytes, onTruncated));
         }
         return map;
     }
@@ -263,7 +263,7 @@ public class OtlpTraceMapperUtils {
         return getArrayValueToList(arrayValue, 0, null);
     }
 
-    public static List<Object> getArrayValueToList(ArrayValue arrayValue, int maxBytes, @Nullable TruncationCounter counter) {
+    public static List<Object> getArrayValueToList(ArrayValue arrayValue, int maxBytes, @Nullable TruncationListener onTruncated) {
         final int size = arrayValue.getValuesCount();
         if (size == 0) {
             return List.of();
@@ -272,7 +272,7 @@ public class OtlpTraceMapperUtils {
         final List<AnyValue> valuesList = arrayValue.getValuesList();
         List<Object> list = new ArrayList<>(valuesList.size());
         for (AnyValue anyValue : valuesList) {
-            list.add(getAttributeValueToValue(anyValue, maxBytes, counter));
+            list.add(getAttributeValueToValue(anyValue, maxBytes, onTruncated));
         }
         return list;
     }
@@ -281,38 +281,38 @@ public class OtlpTraceMapperUtils {
         return getAttributeValueToValue(anyValue, 0, null);
     }
 
-    public static Object getAttributeValueToValue(AnyValue anyValue, int maxBytes, @Nullable TruncationCounter counter) {
+    public static Object getAttributeValueToValue(AnyValue anyValue, int maxBytes, @Nullable TruncationListener onTruncated) {
         return switch (anyValue.getValueCase()) {
             case INT_VALUE -> anyValue.getIntValue();
             case DOUBLE_VALUE -> anyValue.getDoubleValue();
             case BOOL_VALUE -> anyValue.getBoolValue();
-            case STRING_VALUE -> transformString(anyValue.getStringValue(), maxBytes, counter);
-            case BYTES_VALUE -> transformBytes(anyValue.getBytesValue(), maxBytes, counter);
-            case ARRAY_VALUE -> getArrayValueToList(anyValue.getArrayValue(), maxBytes, counter);
-            case KVLIST_VALUE -> getAttributeToMap(anyValue.getKvlistValue().getValuesList(), maxBytes, counter);
+            case STRING_VALUE -> transformString(anyValue.getStringValue(), maxBytes, onTruncated);
+            case BYTES_VALUE -> transformBytes(anyValue.getBytesValue(), maxBytes, onTruncated);
+            case ARRAY_VALUE -> getArrayValueToList(anyValue.getArrayValue(), maxBytes, onTruncated);
+            case KVLIST_VALUE -> getAttributeToMap(anyValue.getKvlistValue().getValuesList(), maxBytes, onTruncated);
             default -> null;
         };
     }
 
-    private static String transformString(String value, int maxBytes, @Nullable TruncationCounter counter) {
-        if (counter == null) {
+    private static String transformString(String value, int maxBytes, @Nullable TruncationListener onTruncated) {
+        if (onTruncated == null) {
             return value;
         }
         final String truncated = Utf8.truncate(value, maxBytes);
         if (truncated != null) {
-            counter.truncated();
+            onTruncated.truncated();
             return truncated;
         }
         return value;
     }
 
-    private static Object transformBytes(ByteString bytes, int maxBytes, @Nullable TruncationCounter counter) {
+    private static Object transformBytes(ByteString bytes, int maxBytes, @Nullable TruncationListener onTruncated) {
         // empty bytes -> "" (Base16 of an empty array), symmetric with the empty STRING case
-        if (counter == null) {
+        if (onTruncated == null) {
             return ByteStringUtils.encodeBase16(bytes);
         }
         if (Base16Utils.encodedLength(bytes.size()) > maxBytes) {
-            counter.truncated();
+            onTruncated.truncated();
         }
         return ByteStringUtils.encodeBase16(bytes, maxBytes);
     }
