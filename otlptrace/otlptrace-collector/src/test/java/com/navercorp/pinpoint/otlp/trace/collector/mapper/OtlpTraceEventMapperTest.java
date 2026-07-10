@@ -46,7 +46,7 @@ class OtlpTraceEventMapperTest {
                 .setTimeUnixNano(1716200000000000000L)
                 .build();
 
-        mapper.addEventToAnnotation(event, writer);
+        mapper.addEventToAnnotation(event, writer, () -> {});
 
         assertThat(annotations).hasSize(1);
         AnnotationBo bo = annotations.get(0);
@@ -77,7 +77,7 @@ class OtlpTraceEventMapperTest {
                 .addAllAttributes(attrs)
                 .build();
 
-        mapper.addEventToAnnotation(event, writer);
+        mapper.addEventToAnnotation(event, writer, () -> {});
 
         assertThat(annotations).hasSize(1);
         ObjectMapper om = new ObjectMapper();
@@ -107,7 +107,7 @@ class OtlpTraceEventMapperTest {
                 .addAllAttributes(attrs)
                 .build();
 
-        mapper.addEventToAnnotation(event, writer);
+        mapper.addEventToAnnotation(event, writer, () -> {});
 
         assertThat(annotations).hasSize(1);
         String json = (String) annotations.get(0).getValue();
@@ -142,7 +142,7 @@ class OtlpTraceEventMapperTest {
                 .addAttributes(kv("tags", AnyValue.newBuilder().setArrayValue(arrayValue).build()))
                 .build();
 
-        mapper.addEventToAnnotation(event, writer);
+        mapper.addEventToAnnotation(event, writer, () -> {});
 
         assertThat(annotations).hasSize(1);
         String json = (String) annotations.get(0).getValue();
@@ -167,7 +167,7 @@ class OtlpTraceEventMapperTest {
     void annotationKey_isOpentelemetryEvent() {
         Span.Event event = Span.Event.newBuilder().setName("check").build();
 
-        mapper.addEventToAnnotation(event, writer);
+        mapper.addEventToAnnotation(event, writer, () -> {});
 
         assertThat(annotations.get(0).getKey())
                 .isEqualTo(AnnotationKey.OPENTELEMETRY_EVENT.getCode());

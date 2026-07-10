@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 /**
  * Per-label counts of span data truncated by the collector, for the
- * OPENTELEMETRY_TRUNCATED annotation value. {@link #toString()} formats them
+ * OPENTELEMETRY_TRUNCATED annotation value. Each category is incremented through a no-arg
+ * method so it can be handed out as a {@link TruncationListener} method reference
+ * (e.g. {@code truncatedCounts::attribute}). {@link #toString()} formats the counts
  * as space-separated {@code label=count} pairs in declaration order
- * (e.g. {@code "attributes=3 sql=1"}); non-positive counts are omitted.
+ * (e.g. {@code "attributes=3 sql=1"}); zero counts are omitted.
  */
 final class TruncatedCounts {
 
@@ -29,24 +31,24 @@ final class TruncatedCounts {
     private int events;
     private int links;
 
-    TruncatedCounts attributes(int count) {
-        this.attributes = count;
-        return this;
+    void attribute() {
+        attributes++;
     }
 
-    TruncatedCounts sql(int count) {
-        this.sql = count;
-        return this;
+    void sql() {
+        sql++;
     }
 
-    TruncatedCounts events(int count) {
-        this.events = count;
-        return this;
+    void event() {
+        events++;
     }
 
-    TruncatedCounts links(int count) {
-        this.links = count;
-        return this;
+    void link() {
+        links++;
+    }
+
+    boolean isEmpty() {
+        return attributes == 0 && sql == 0 && events == 0 && links == 0;
     }
 
     @Override

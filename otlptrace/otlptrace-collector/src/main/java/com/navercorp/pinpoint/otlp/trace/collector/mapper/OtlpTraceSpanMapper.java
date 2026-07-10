@@ -127,32 +127,31 @@ public class OtlpTraceSpanMapper {
         if (responseStatusCode != -1) {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatusCode));
         }
+        final TruncatedCounts truncatedCounts = new TruncatedCounts();
         // attributes
-        int truncatedAttributes = 0;
         if (!attributes.isEmpty()) {
-            final TruncationCounter counter = new TruncationCounter();
             List<AttributeBo> attributeBoList = attributeBoMapper.toAttributeBoList(
-                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, counter);
-            truncatedAttributes = counter.truncatedCount();
+                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, truncatedCounts::attribute);
             spanBo.setAttributeBoList(attributeBoList);
         }
 
         // event
-        int truncatedEvents = 0;
         for (Span.Event event : span.getEventsList()) {
             // The exception event's class name is captured into exceptionInfo and its message/
             // stacktrace into exception-trace metadata, so skip its (redundant) annotation.
             if (skipExceptionEvent && OtlpTraceConstants.EVENT_NAME_EXCEPTION.equals(event.getName())) {
                 continue;
             }
-            truncatedEvents += eventMapper.addEventToAnnotation(event, spanBo::addAnnotation);
+            eventMapper.addEventToAnnotation(event, spanBo::addAnnotation, truncatedCounts::event);
         }
         // link
-        int truncatedLinks = 0;
         for (Span.Link link : span.getLinksList()) {
-            truncatedLinks += linkMapper.addLinkToAnnotation(link, spanBo::addAnnotation);
+            linkMapper.addLinkToAnnotation(link, spanBo::addAnnotation, truncatedCounts::link);
         }
-        addTruncatedAnnotation(spanBo::addAnnotation, truncatedAttributes, 0, truncatedEvents, truncatedLinks);
+        final AnnotationBo truncatedAnnotation = toTruncatedAnnotation(truncatedCounts);
+        if (truncatedAnnotation != null) {
+            spanBo.addAnnotation(truncatedAnnotation);
+        }
         // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0 so
         // well-behaved spans stay annotation-free.
         addDroppedAnnotations(spanBo::addAnnotation,
@@ -186,23 +185,17 @@ public class OtlpTraceSpanMapper {
     }
 
     /**
-     * Emits a single OPENTELEMETRY_TRUNCATED annotation when the collector truncated over-long
+     * Builds the single OPENTELEMETRY_TRUNCATED annotation when the collector truncated over-long
      * attribute values or SQL on this span. Value format mirrors OPENTELEMETRY_DROPPED:
      * space-separated {@code label=count} pairs (e.g. {@code "attributes=3 sql=1"}); zero
-     * components are omitted and the annotation is suppressed when nothing was truncated. Shared
+     * components are omitted and {@code null} is returned when nothing was truncated. Shared
      * by {@link OtlpTraceSpanMapper} (root spans) and {@link OtlpTraceSpanEventMapper} (child spans).
      */
-    static void addTruncatedAnnotation(Consumer<AnnotationBo> sink, int truncatedAttributes, int truncatedSql, int truncatedEvents, int truncatedLinks) {
-        if (truncatedAttributes == 0 && truncatedSql == 0 && truncatedEvents == 0 && truncatedLinks == 0) {
-            return;
+    static @Nullable AnnotationBo toTruncatedAnnotation(TruncatedCounts truncatedCounts) {
+        if (truncatedCounts.isEmpty()) {
+            return null;
         }
-        String label = new TruncatedCounts()
-                .attributes(truncatedAttributes)
-                .sql(truncatedSql)
-                .events(truncatedEvents)
-                .links(truncatedLinks)
-                .toString();
-        sink.accept(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_TRUNCATED.getCode(), label));
+        return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_TRUNCATED.getCode(), truncatedCounts.toString());
     }
 
     /**

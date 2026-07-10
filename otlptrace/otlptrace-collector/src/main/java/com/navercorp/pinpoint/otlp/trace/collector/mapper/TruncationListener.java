@@ -17,19 +17,13 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 /**
- * Accumulates the number of leaf values truncated across a single attribute-tree transform pass
- * (including nested ARRAY / KVLIST values). Create one instance per pass — truncation totals are
- * reported per category (attributes / sql / events / links), so a counter must not be reused
- * across categories or spans. Not thread-safe.
+ * Invoked once per leaf value truncated during an attribute transform pass (including nested
+ * ARRAY / KVLIST values). Callers typically hand out a category increment of
+ * {@code TruncatedCounts} as a method reference (e.g. {@code truncatedCounts::attribute}) so
+ * truncations are counted per category (attributes / sql / events / links) for the per-span
+ * {@code OPENTELEMETRY_TRUNCATED} summary.
  */
-public final class TruncationCounter {
-    private int truncatedCount;
-
-    public void truncated() {
-        truncatedCount++;
-    }
-
-    public int truncatedCount() {
-        return truncatedCount;
-    }
+@FunctionalInterface
+public interface TruncationListener {
+    void truncated();
 }

@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.arrayVal;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.boolVal;
@@ -917,35 +918,35 @@ class OtlpTraceMapperUtilsTest {
     }
 
     // =======================================================================
-    // getAttributeToMap(List<KeyValue>, int, TruncationCounter) — single-pass truncation
+    // getAttributeToMap(List<KeyValue>, int, TruncationListener) — single-pass truncation
     // =======================================================================
 
     @SuppressWarnings("unchecked")
     @Test
     void truncatingTransform_overLongString_truncatedAndCounted() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
                 kv("big", strVal("a".repeat(100))),
                 kv("small", strVal("ok"))
-        ), 10, counter);
+        ), 10, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isEqualTo(1);
+        assertThat(counter.get()).isEqualTo(1);
         assertThat(map).containsEntry("big", "a".repeat(10));
         assertThat(map).containsEntry("small", "ok");
     }
 
     @Test
     void truncatingTransform_nonStringValues_untouched() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
                 kv("i", intVal(1234567890L)),
                 kv("b", boolVal(true)),
                 kv("d", doubleVal(3.14d))
-        ), 1, counter);
+        ), 1, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isZero();
+        assertThat(counter.get()).isZero();
         assertThat(map).containsEntry("i", 1234567890L);
         assertThat(map).containsEntry("b", true);
         assertThat(map).containsEntry("d", 3.14d);
@@ -954,65 +955,65 @@ class OtlpTraceMapperUtilsTest {
     @SuppressWarnings("unchecked")
     @Test
     void truncatingTransform_nestedMapAndList_recurses() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
                 kv("map", kvlistVal(kv("inner", strVal("a".repeat(100))))),
                 kv("list", arrayVal(strVal("b".repeat(100)), strVal("ok")))
-        ), 10, counter);
+        ), 10, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isEqualTo(2);
+        assertThat(counter.get()).isEqualTo(2);
         assertThat((Map<String, Object>) map.get("map")).containsEntry("inner", "a".repeat(10));
         assertThat((List<Object>) map.get("list")).containsExactly("b".repeat(10), "ok");
     }
 
     @Test
     void truncatingTransform_withinLimit_countsZero() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
                 kv("k", strVal("short"))
-        ), 64, counter);
+        ), 64, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isZero();
+        assertThat(counter.get()).isZero();
         assertThat(map).containsEntry("k", "short");
     }
 
     @SuppressWarnings("unchecked")
     @Test
     void truncatingTransform_arrayOverLongStrings_truncatedInPlace() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
                 kv("list", arrayVal(strVal("a".repeat(100)), strVal("ok"), strVal("b".repeat(100))))
-        ), 10, counter);
+        ), 10, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isEqualTo(2);
+        assertThat(counter.get()).isEqualTo(2);
         assertThat((List<Object>) map.get("list")).containsExactly("a".repeat(10), "ok", "b".repeat(10));
     }
 
     @Test
     void truncatingTransform_bytesWithinLimit_notTruncated() {
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
                 kv("bin", bytesVal(new byte[]{0x0a, (byte) 0xbc})) // 2 bytes -> 4 hex chars
-        ), 64, counter);
+        ), 64, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isZero();
+        assertThat(counter.get()).isZero();
         assertThat((String) map.get("bin")).hasSize(4);
     }
 
     @Test
     void truncatingTransform_bytesHexString_truncated() {
         // BYTES values are rendered as a hex string and subject to the same cap.
-        TruncationCounter counter = new TruncationCounter();
+        AtomicInteger counter = new AtomicInteger();
 
         Map<String, Object> map = OtlpTraceMapperUtils.getAttributeToMap(List.of(
                 kv("bin", bytesVal(new byte[16])) // 16 bytes -> 32 hex chars, exceeds 10
-        ), 10, counter);
+        ), 10, counter::incrementAndGet);
 
-        assertThat(counter.truncatedCount()).isEqualTo(1);
+        assertThat(counter.get()).isEqualTo(1);
         assertThat((String) map.get("bin")).hasSize(10);
     }
 

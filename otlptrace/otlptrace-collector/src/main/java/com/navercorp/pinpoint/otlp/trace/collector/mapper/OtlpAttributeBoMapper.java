@@ -46,12 +46,12 @@ public class OtlpAttributeBoMapper {
      * Converts attributes to an {@link AttributeBo} list, applying {@code excludeFilter} and
      * truncating over-long string (UTF-8 byte length) and byte (raw byte length) values in the
      * same pass, recursing into ARRAY / KVLIST. Numeric and boolean values are left untouched,
-     * matching the OTel spec (only string and byte values are length-limited). The truncated leaf
-     * count accumulates in {@code counter} so the caller can emit a single per-span
+     * matching the OTel spec (only string and byte values are length-limited). {@code onTruncated}
+     * is invoked once per truncated leaf so the caller can emit a single per-span
      * {@code OPENTELEMETRY_TRUNCATED} summary.
      */
-    public List<AttributeBo> toAttributeBoList(Map<String, AttributeValue> attributes, Predicate<String> excludeFilter, TruncationCounter counter) {
-        Objects.requireNonNull(counter, "counter");
+    public List<AttributeBo> toAttributeBoList(Map<String, AttributeValue> attributes, Predicate<String> excludeFilter, TruncationListener onTruncated) {
+        Objects.requireNonNull(onTruncated, "onTruncated");
         if (attributes.isEmpty()) {
             return List.of();
         }
@@ -60,21 +60,21 @@ public class OtlpAttributeBoMapper {
             if (excludeFilter.test(entry.getKey())) {
                 continue;
             }
-            final AttributeValue value = truncateValue(entry.getValue(), counter);
+            final AttributeValue value = truncateValue(entry.getValue(), onTruncated);
             result.add(new AttributeBo(entry.getKey(), value));
         }
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    private AttributeValue truncateValue(AttributeValue value, TruncationCounter counter) {
+    private AttributeValue truncateValue(AttributeValue value, TruncationListener onTruncated) {
         switch (value.getType()) {
             case STRING: {
                 final String truncated = Utf8.truncate((String) value.getValue(), attributeValueMaxBytes);
                 if (truncated == null) {
                     return value;
                 }
-                counter.truncated();
+                onTruncated.truncated();
                 return AttributeValue.of(truncated);
             }
             case BYTES: {
@@ -82,7 +82,7 @@ public class OtlpAttributeBoMapper {
                 if (bytes.length <= attributeValueMaxBytes) {
                     return value;
                 }
-                counter.truncated();
+                onTruncated.truncated();
                 return AttributeValue.of(Arrays.copyOf(bytes, attributeValueMaxBytes));
             }
             case ARRAY: {
@@ -90,7 +90,7 @@ public class OtlpAttributeBoMapper {
                 boolean changed = false;
                 final List<AttributeValue> result = new ArrayList<>(array.size());
                 for (AttributeValue item : array) {
-                    final AttributeValue newItem = truncateValue(item, counter);
+                    final AttributeValue newItem = truncateValue(item, onTruncated);
                     result.add(newItem);
                     changed |= (newItem != item);
                 }
@@ -102,7 +102,7 @@ public class OtlpAttributeBoMapper {
                 final AttributeKeyValue[] result = new AttributeKeyValue[kvList.size()];
                 for (int i = 0; i < kvList.size(); i++) {
                     final AttributeKeyValue entry = kvList.get(i);
-                    final AttributeValue newValue = truncateValue(entry.getValue(), counter);
+                    final AttributeValue newValue = truncateValue(entry.getValue(), onTruncated);
                     final boolean entryChanged = newValue != entry.getValue();
                     result[i] = entryChanged ? AttributeKeyValue.of(entry.getKey(), newValue) : entry;
                     changed |= entryChanged;

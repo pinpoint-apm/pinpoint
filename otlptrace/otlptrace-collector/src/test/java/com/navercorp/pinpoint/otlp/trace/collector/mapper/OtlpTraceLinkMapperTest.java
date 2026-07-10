@@ -42,7 +42,7 @@ class OtlpTraceLinkMapperTest {
                 .setSpanId(ByteString.copyFrom(SPAN_ID))
                 .build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         assertThat(annotations).hasSize(1);
         AnnotationBo bo = annotations.get(0);
@@ -66,7 +66,7 @@ class OtlpTraceLinkMapperTest {
                 .setTraceState("aws=t61rcWkgMzE,dd=s:1;o:rum")
                 .build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
@@ -81,7 +81,7 @@ class OtlpTraceLinkMapperTest {
                 .setSpanId(ByteString.copyFrom(SPAN_ID))
                 .build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
@@ -97,7 +97,7 @@ class OtlpTraceLinkMapperTest {
                 .addAttributes(kv("link.kind", strVal("follows_from")))
                 .build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
@@ -115,7 +115,7 @@ class OtlpTraceLinkMapperTest {
                 .setDroppedAttributesCount(5)
                 .build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
@@ -130,7 +130,7 @@ class OtlpTraceLinkMapperTest {
                 .setSpanId(ByteString.copyFrom(SPAN_ID))
                 .build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
@@ -143,7 +143,7 @@ class OtlpTraceLinkMapperTest {
         // Both traceId and spanId empty — OTel spec violation, skip silently.
         Span.Link link = Span.Link.newBuilder().build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         assertThat(annotations).isEmpty();
     }
@@ -156,7 +156,7 @@ class OtlpTraceLinkMapperTest {
                 .addAttributes(kv("orphan", strVal("yes")))
                 .build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         assertThat(annotations).isEmpty();
     }
@@ -171,7 +171,7 @@ class OtlpTraceLinkMapperTest {
                 .setDroppedAttributesCount(2)
                 .build();
 
-        mapper.addLinkToAnnotation(link, writer);
+        mapper.addLinkToAnnotation(link, writer, () -> {});
 
         ObjectMapper om = new ObjectMapper();
         @SuppressWarnings("unchecked")
