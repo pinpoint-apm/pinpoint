@@ -43,6 +43,7 @@ import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.DotExtractor;
 import com.navercorp.pinpoint.web.util.OpenTelemetryAnnotationValueUtils;
 import com.navercorp.pinpoint.web.util.OtelLinkValue;
+import com.navercorp.pinpoint.web.util.OtelLinkValueSerde;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.Service;
@@ -120,7 +121,7 @@ public class FilteredMapBuilder {
                     if (annotation.getKey() != AnnotationKey.OPENTELEMETRY_LINK.getCode()) {
                         continue;
                     }
-                    final OtelLinkValue value = OtelLinkValue.parse(annotation.getValue());
+                    final OtelLinkValue value = OtelLinkValueSerde.parse(annotation.getValue());
                     if (value == null || value.traceId() == null || value.spanId() == null) {
                         continue;
                     }
