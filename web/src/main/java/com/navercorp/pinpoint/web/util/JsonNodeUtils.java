@@ -1,6 +1,7 @@
-package com.navercorp.pinpoint.web.filter;
+package com.navercorp.pinpoint.web.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jspecify.annotations.Nullable;
 
 public final class JsonNodeUtils {
 
@@ -35,7 +36,7 @@ public final class JsonNodeUtils {
         return node.asBoolean();
     }
 
-    private static boolean isNull(JsonNode node) {
-        return node == null || node.isNull();
+    public static boolean isNull(@Nullable JsonNode node) {
+        return node == null || node.isNull() || node.isMissingNode();
     }
 }

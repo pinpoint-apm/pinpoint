@@ -72,7 +72,7 @@ public final class OtelLinkValueSerde {
     }
 
     private static @Nullable String readText(@Nullable JsonNode node) {
-        if (node == null || node.isMissingNode() || node.isNull() || !node.isTextual()) {
+        if (JsonNodeUtils.isNull(node) || !node.isTextual()) {
             return null;
         }
         final String text = node.asText();
@@ -80,7 +80,7 @@ public final class OtelLinkValueSerde {
     }
 
     private static @Nullable Long readLong(@Nullable JsonNode node) {
-        if (node == null || node.isMissingNode() || node.isNull()) {
+        if (JsonNodeUtils.isNull(node)) {
             return null;
         }
         if (node.isNumber()) {
@@ -97,7 +97,7 @@ public final class OtelLinkValueSerde {
     }
 
     private static @Nullable JsonNode extractNode(@Nullable JsonNode node) {
-        return (node != null && !node.isMissingNode() && !node.isNull()) ? node : null;
+        return JsonNodeUtils.isNull(node) ? null : node;
     }
 
     public static String toJson(OtelLinkValue value) {
