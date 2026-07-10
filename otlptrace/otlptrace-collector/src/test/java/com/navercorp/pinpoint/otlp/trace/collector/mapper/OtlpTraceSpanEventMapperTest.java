@@ -65,7 +65,7 @@ class OtlpTraceSpanEventMapperTest {
                 new OtlpMessagingTypeResolver(TEST_REGISTRY),
                 new OtlpClientTypeResolver(TEST_REGISTRY),
                 new OtlpExceptionInfoResolver(),
-                8192,
+                new OtlpAttributeBoMapper(8192),
                 8192);
     }
 

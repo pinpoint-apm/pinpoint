@@ -17,24 +17,13 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 /**
- * Carries the byte limit and accumulates the number of leaf values truncated across a single
- * attribute-tree transform pass (including nested ARRAY / KVLIST values). Create one instance per
- * pass; not thread-safe.
+ * Accumulates the number of leaf values truncated across a single attribute-tree transform pass
+ * (including nested ARRAY / KVLIST values). Create one instance per pass — truncation totals are
+ * reported per category (attributes / sql / events / links), so a counter must not be reused
+ * across categories or spans. Not thread-safe.
  */
-public final class TransformContext {
-    private final int maxBytes;
+public final class TruncationCounter {
     private int truncatedCount;
-
-    public TransformContext(int maxBytes) {
-        if (maxBytes < 0) {
-            throw new IllegalArgumentException("maxBytes must be >= 0: " + maxBytes);
-        }
-        this.maxBytes = maxBytes;
-    }
-
-    public int maxBytes() {
-        return maxBytes;
-    }
 
     public void truncated() {
         truncatedCount++;

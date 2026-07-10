@@ -31,6 +31,9 @@ public class OtlpTraceEventMapper {
                                 @Value("${pinpoint.collector.otlptrace.event.value-max-bytes:8192}") int valueMaxBytes) {
         Objects.requireNonNull(objectMapper, "objectMapper");
         this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
+        if (valueMaxBytes < 0) {
+            throw new IllegalArgumentException("valueMaxBytes must be >= 0: " + valueMaxBytes);
+        }
         this.valueMaxBytes = valueMaxBytes;
     }
 
@@ -53,10 +56,10 @@ public class OtlpTraceEventMapper {
             if (event.getAttributesCount() > 0) {
                 // Cap over-long string values (notably exception.stacktrace, which is also kept in
                 // full in exception metadata) so a single event cannot bloat the span row.
-                final TransformContext context = new TransformContext(valueMaxBytes);
+                final TruncationCounter counter = new TruncationCounter();
                 final Map<String, Object> eventAttributes =
-                        getAttributeToMap(event.getAttributesList(), context);
-                truncated = context.truncatedCount();
+                        getAttributeToMap(event.getAttributesList(), valueMaxBytes, counter);
+                truncated = counter.truncatedCount();
                 inner.put(FIELD_ATTRIBUTES, eventAttributes);
             }
             Map<String, Object> map = Map.of(event.getName(), inner);

@@ -94,14 +94,14 @@ class OtlpTraceMapperTest {
                         new PulsarMessagingConsumerHandler(),
                         new RocketMQMessagingConsumerHandler(),
                         new ActiveMQMessagingConsumerHandler()), messagingTypeResolver),
-                8192);
+                new OtlpAttributeBoMapper(8192));
         OtlpTraceSpanEventMapper spanEventMapper = new OtlpTraceSpanEventMapper(
                 eventMapper,
                 REGISTRY,
                 new OtlpMessagingTypeResolver(REGISTRY),
                 new OtlpClientTypeResolver(REGISTRY),
                 exceptionInfoResolver,
-                8192,
+                new OtlpAttributeBoMapper(8192),
                 8192);
         OtlpTraceSpanChunkMapper spanChunkMapper = new OtlpTraceSpanChunkMapper(spanEventMapper);
         return new OtlpTraceMapper(spanMapper, spanEventMapper, spanChunkMapper,

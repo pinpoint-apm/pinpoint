@@ -29,6 +29,9 @@ public class OtlpTraceLinkMapper {
                                @Value("${pinpoint.collector.otlptrace.link.value-max-bytes:8192}") int valueMaxBytes) {
         Objects.requireNonNull(objectMapper, "objectMapper");
         this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
+        if (valueMaxBytes < 0) {
+            throw new IllegalArgumentException("valueMaxBytes must be >= 0: " + valueMaxBytes);
+        }
         this.valueMaxBytes = valueMaxBytes;
     }
 
@@ -70,9 +73,9 @@ public class OtlpTraceLinkMapper {
                 map.put("traceState", traceState);
             }
             if (link.getAttributesCount() > 0) {
-                final TransformContext context = new TransformContext(valueMaxBytes);
-                final Map<String, Object> linkAttributes = getAttributeToMap(link.getAttributesList(), context);
-                truncated += context.truncatedCount();
+                final TruncationCounter counter = new TruncationCounter();
+                final Map<String, Object> linkAttributes = getAttributeToMap(link.getAttributesList(), valueMaxBytes, counter);
+                truncated += counter.truncatedCount();
                 map.put("attributes", linkAttributes);
             }
             // SDK-side data-loss counter for link attributes. Same convention as Span/SpanEvent
