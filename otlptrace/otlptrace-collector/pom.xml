@@ -22,6 +22,10 @@
             <artifactId>pinpoint-collector</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-pinot-kafka</artifactId>
         </dependency>
