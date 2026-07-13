@@ -141,7 +141,10 @@ public class OtlpTraceSpanMapper {
             if (skipExceptionEvent && OtlpTraceConstants.EVENT_NAME_EXCEPTION.equals(event.getName())) {
                 continue;
             }
-            eventMapper.addEventToAnnotation(event, spanBo::addAnnotation, truncatedCounts::event);
+            final AnnotationBo eventAnnotation = eventMapper.toAnnotation(event, truncatedCounts::event);
+            if (eventAnnotation != null) {
+                spanBo.addAnnotation(eventAnnotation);
+            }
         }
         // link
         for (Span.Link link : span.getLinksList()) {

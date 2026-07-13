@@ -1,22 +1,20 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.apache.commons.io.output.StringBuilderWriter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.Objects;
 
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils.getAttributeToMap;
 
 @Component
 public class OtlpTraceEventMapper {
@@ -24,13 +22,13 @@ public class OtlpTraceEventMapper {
     private static final String FIELD_TIME = "time";
     private static final String FIELD_ATTRIBUTES = "attributes";
 
-    private final ObjectWriter mapWriter;
+    private final JsonFactory jsonFactory;
     private final int valueMaxBytes;
 
     public OtlpTraceEventMapper(ObjectMapper objectMapper,
                                 @Value("${pinpoint.collector.otlptrace.event.value-max-bytes:8192}") int valueMaxBytes) {
         Objects.requireNonNull(objectMapper, "objectMapper");
-        this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
+        this.jsonFactory = objectMapper.getFactory();
         if (valueMaxBytes < 0) {
             throw new IllegalArgumentException("valueMaxBytes must be >= 0: " + valueMaxBytes);
         }
@@ -38,34 +36,50 @@ public class OtlpTraceEventMapper {
     }
 
     /**
-     * Serializes an OTel {@link Span.Event} as JSON wrapped in the parent event name:
-     * <pre>{@code {"<event.name>": {"time": <unix_nano>, "attributes": {...}}}}</pre>
-     * The {@code attributes} field is omitted when the event has none, so empty events
-     * produce {@code {"<event.name>": {"time": N}}} (no longer a heterogeneous string/object
-     * value). Emitted under {@link AnnotationKey#OPENTELEMETRY_EVENT}. {@code onTruncated} is
-     * invoked once per truncated attribute leaf.
+     * Serializes an OTel {@link Span.Event} as {@link OtelEvent} JSON into an
+     * {@link AnnotationKey#OPENTELEMETRY_EVENT} annotation.
+     *
+     * <p>Returns {@code null} when the event name is empty — such an event is invalid input
+     * we drop silently.</p>
+     *
+     * <p>{@code onTruncated} is invoked once per truncated attribute leaf.</p>
      */
-    public void addEventToAnnotation(Span.Event event, AnnotationWriter annotationWriter, TruncationListener onTruncated) {
+    public @Nullable AnnotationBo toAnnotation(Span.Event event, TruncationListener onTruncated) {
         if (StringUtils.isEmpty(event.getName())) {
-            return;
+            return null;
         }
-
         try {
-            Map<String, Object> inner = new HashMap<>(2);
-            inner.put(FIELD_TIME, event.getTimeUnixNano());
-            if (event.getAttributesCount() > 0) {
+            final OtelEvent otelEvent = toOtelEvent(event);
+            final String value = toJson(otelEvent, onTruncated);
+            return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), value);
+        } catch (IOException e) {
+            return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), "json processing error");
+        }
+    }
+
+    private OtelEvent toOtelEvent(Span.Event event) {
+        return new OtelEvent(event.getName(), event.getTimeUnixNano(), event.getAttributesList());
+    }
+
+    private String toJson(OtelEvent otelEvent, TruncationListener onTruncated) throws IOException {
+        final StringBuilderWriter buffer = new StringBuilderWriter();
+        try (JsonGenerator generator = jsonFactory.createGenerator(buffer)) {
+            generator.writeStartObject();
+            generator.writeFieldName(otelEvent.name());
+
+            generator.writeStartObject();
+            generator.writeNumberField(FIELD_TIME, otelEvent.time());
+            if (!otelEvent.attributes().isEmpty()) {
                 // Cap over-long string values (notably exception.stacktrace, which is also kept in
                 // full in exception metadata) so a single event cannot bloat the span row.
-                final Map<String, Object> eventAttributes =
-                        getAttributeToMap(event.getAttributesList(), valueMaxBytes, onTruncated);
-                inner.put(FIELD_ATTRIBUTES, eventAttributes);
+                generator.writeFieldName(FIELD_ATTRIBUTES);
+                OtlpTraceMapperUtils.writeAttributes(generator, otelEvent.attributes(), valueMaxBytes, onTruncated);
             }
-            Map<String, Object> map = Map.of(event.getName(), inner);
-            final String value = mapWriter.writeValueAsString(map);
-            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), value));
-        } catch (JsonProcessingException e) {
-            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), "json processing error"));
+            generator.writeEndObject();
+
+            generator.writeEndObject();
         }
+        return buffer.toString();
     }
 
 }
