@@ -34,6 +34,7 @@ class OtlpTraceSpanEventMapperTest {
         Map<String, ServiceType> byName = new HashMap<>();
         byName.put("GRPC",                   ServiceTypeFactory.of(9160, "GRPC",                   "GRPC"));
         byName.put("APACHE_DUBBO_CONSUMER",  ServiceTypeFactory.of(9997, "APACHE_DUBBO_CONSUMER",  "APACHE_DUBBO_CONSUMER"));
+        byName.put("ENVOY_EGRESS",           ServiceTypeFactory.of(9302, "ENVOY_EGRESS",           "ENVOY_EGRESS"));
         return new ServiceTypeRegistryService() {
             @Override
             public ServiceType findServiceType(int serviceType) {
@@ -64,6 +65,7 @@ class OtlpTraceSpanEventMapperTest {
                 TEST_REGISTRY,
                 new OtlpMessagingTypeResolver(TEST_REGISTRY),
                 new OtlpClientTypeResolver(TEST_REGISTRY),
+                new OtlpEnvoyTypeResolver(TEST_REGISTRY),
                 new OtlpExceptionInfoResolver(),
                 new OtlpAttributeBoMapper(8192),
                 8192);
@@ -463,6 +465,81 @@ class OtlpTraceSpanEventMapperTest {
 
         SpanEventBo event = mapSingle(span);
         assertThat(event.getServiceType()).isEqualTo((short) 9160);
+    }
+
+    @Test
+    void map_client_envoy_setsEnvoyEgressAndUpstreamClusterAnnotation() {
+        // Envoy egress leg over OTLP: upstream_cluster tags trigger the Envoy branch, which
+        // overrides the generic OPENTELEMETRY_CLIENT with ENVOY_EGRESS and records the
+        // upstream.cluster / envoy.operation annotations.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("response_flags", strVal("-")),
+                kv("http.status_code", strVal("200")),
+                kv("upstream_cluster", strVal("frontend")),
+                kv("upstream_cluster.name", strVal("frontend")),
+                kv("upstream_address", strVal("172.18.0.27:8080")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getServiceType()).isEqualTo((short) 9302); // ENVOY_EGRESS
+        assertThat(event.getEndPoint()).isEqualTo("172.18.0.27:8080");
+        assertThat(event.getDestinationId()).isEqualTo("frontend");
+        assertThat(annotationValue(event.getAnnotationBoList(), OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER))
+                .isEqualTo("frontend");
+        assertThat(annotationValue(event.getAnnotationBoList(), OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION))
+                .isEqualTo("Egress");
+    }
+
+    @Test
+    void map_client_envoy_absentEnvoyType_fallsBackToOpenTelemetryClient() {
+        // A collector without the envoy-type-provider still ingests the span; it just keeps the
+        // generic OPENTELEMETRY_CLIENT type (resolver fallback), never failing.
+        OtlpTraceSpanEventMapper noEnvoy = new OtlpTraceSpanEventMapper(
+                new OtlpTraceEventMapper(new ObjectMapper(), 8192),
+                TEST_REGISTRY,
+                new OtlpMessagingTypeResolver(TEST_REGISTRY),
+                new OtlpClientTypeResolver(TEST_REGISTRY),
+                new OtlpEnvoyTypeResolver(buildRegistryWithout("ENVOY_EGRESS")),
+                new OtlpExceptionInfoResolver(),
+                new OtlpAttributeBoMapper(8192),
+                8192);
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("upstream_cluster.name", strVal("frontend")));
+
+        SpanEventBo event = noEnvoy.map(0L, span).get(0);
+        assertThat(event.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+    }
+
+    private static Object annotationValue(List<com.navercorp.pinpoint.common.server.bo.AnnotationBo> annotations, int key) {
+        return annotations.stream()
+                .filter(a -> a.getKey() == key)
+                .map(com.navercorp.pinpoint.common.server.bo.AnnotationBo::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static ServiceTypeRegistryService buildRegistryWithout(String excludedName) {
+        Map<String, ServiceType> byName = new HashMap<>();
+        byName.put("GRPC", ServiceTypeFactory.of(9160, "GRPC", "GRPC"));
+        byName.remove(excludedName);
+        return new ServiceTypeRegistryService() {
+            @Override
+            public ServiceType findServiceType(int serviceType) {
+                return byName.values().stream()
+                        .filter(t -> t.getCode() == serviceType)
+                        .findFirst()
+                        .orElse(ServiceType.UNDEFINED);
+            }
+
+            @Override
+            public ServiceType findServiceTypeByName(String typeName) {
+                return byName.getOrDefault(typeName, ServiceType.UNDEFINED);
+            }
+
+            @Override
+            public List<ServiceType> findDesc(String desc) {
+                return List.of();
+            }
+        };
     }
 
     @Test
