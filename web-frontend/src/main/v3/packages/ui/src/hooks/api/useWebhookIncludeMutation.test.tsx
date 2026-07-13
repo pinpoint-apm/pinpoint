@@ -2,7 +2,7 @@ import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { useWebhookIncludeMutaion } from './useWebhookIncludeMutaion';
+import { useWebhookIncludeMutation } from './useWebhookIncludeMutation';
 
 const createWrapper = () => {
   const client = new QueryClient({
@@ -13,7 +13,7 @@ const createWrapper = () => {
   );
 };
 
-describe('useWebhookIncludeMutaion', () => {
+describe('useWebhookIncludeMutation', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
   });
@@ -28,7 +28,7 @@ describe('useWebhookIncludeMutaion', () => {
       json: async () => ({ result: 'SUCCESS' }),
     });
 
-    const { result } = renderHook(() => useWebhookIncludeMutaion(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useWebhookIncludeMutation(), { wrapper: createWrapper() });
 
     const params = { ruleId: 'r1', webhookIds: ['w1'] } as never;
     const data = await result.current.mutateAsync({ params, method: 'POST' });
@@ -50,7 +50,7 @@ describe('useWebhookIncludeMutaion', () => {
       json: async () => ({ result: 'FAIL' }),
     });
 
-    const { result } = renderHook(() => useWebhookIncludeMutaion(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useWebhookIncludeMutation(), { wrapper: createWrapper() });
 
     await expect(
       result.current.mutateAsync({ params: {} as never, method: 'PUT' }),

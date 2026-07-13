@@ -10,7 +10,7 @@ import {
   useGetAlarmRuleChecker,
   useGetUserGroup,
   useGetWebhook,
-  useWebhookIncludeMutaion,
+  useWebhookIncludeMutation,
 } from '@pinpoint-fe/ui/src/hooks';
 import {
   Form,
@@ -180,7 +180,7 @@ export const AlarmDetail = ({
   const { mutate: alarmRuleMutate } = useAlarmRuleMutation({
     onSuccess: handleMutationSuccess,
   });
-  const { mutate: includeWebhookMutate } = useWebhookIncludeMutaion({
+  const { mutate: includeWebhookMutate } = useWebhookIncludeMutation({
     onSuccess: handleMutationSuccess,
   });
 
