@@ -169,10 +169,13 @@ public class OtlpTraceSpanEventMapper {
             eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation, truncatedCounts::event);
         }
         // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0.
-        OtlpTraceSpanMapper.addDroppedAnnotations(spanEventBo::addAnnotation,
+        final AnnotationBo droppedAnnotation = OtlpTraceSpanMapper.toDroppedAnnotation(
                 span.getDroppedAttributesCount(),
                 span.getDroppedEventsCount(),
                 span.getDroppedLinksCount());
+        if (droppedAnnotation != null) {
+            spanEventBo.addAnnotation(droppedAnnotation);
+        }
 
         spanEventBo.setDepth(depth);
 
