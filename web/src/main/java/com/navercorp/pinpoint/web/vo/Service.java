@@ -27,8 +27,8 @@ public class Service {
         return serviceName;
     }
 
-    public int getServiceUid() {
-        return serviceUid.getUid();
+    public ServiceUid getServiceUid() {
+        return serviceUid;
     }
 
     @Override

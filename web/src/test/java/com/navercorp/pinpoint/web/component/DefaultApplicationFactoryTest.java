@@ -31,7 +31,7 @@ class DefaultApplicationFactoryTest {
     @BeforeEach
     void setUp() {
         lenient().when(mockRegistry.findServiceType(ServiceType.TEST.getCode())).thenReturn(ServiceType.TEST);
-        lenient().when(mockServiceModelResolver.getService(Service.DEFAULT.getServiceUid())).thenReturn(Service.DEFAULT);
+        lenient().when(mockServiceModelResolver.getService(Service.DEFAULT.getServiceUid().getUid())).thenReturn(Service.DEFAULT);
 
         defaultApplicationFactory = new DefaultApplicationFactory(mockRegistry, mockServiceModelResolver);
     }
@@ -63,7 +63,7 @@ class DefaultApplicationFactoryTest {
         int serviceType = ServiceType.TEST.getCode();
 
         // When
-        Application application = defaultApplicationFactory.createApplication(service.getServiceUid(), applicationName, serviceType);
+        Application application = defaultApplicationFactory.createApplication(service.getServiceUid().getUid(), applicationName, serviceType);
 
         // Then
         assertNotNull(application);

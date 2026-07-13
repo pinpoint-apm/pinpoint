@@ -70,7 +70,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     public List<Application> selectAllApplications(Service service) {
         if (readV2) {
-            return this.applicationDao.getApplications(service.getServiceUid());
+            return this.applicationDao.getApplications(service.getServiceUid().getUid());
         }
         return this.applicationIndexDao.selectAllApplicationNames();
     }
@@ -159,7 +159,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         if (v2TableEnabled) {
             List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
             for (Application application : applicationList) {
-                batchDeleteAgentIdsV2(application.getService().getServiceUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
+                batchDeleteAgentIdsV2(application.getService().getServiceUid().getUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
             }
         }
         if (v1TableEnabled) {

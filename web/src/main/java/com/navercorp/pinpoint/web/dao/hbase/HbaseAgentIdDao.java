@@ -116,7 +116,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     public void delete(List<AgentIdEntry> agentIdEntryList) {
         List<Delete> deletes = new ArrayList<>(agentIdEntryList.size());
         for (AgentIdEntry agentIdEntry : agentIdEntryList) {
-            byte[] rowKey = AgentIdRowKeyUtils.createRow(agentIdEntry.getService().getServiceUid(), agentIdEntry.getApplicationName(), agentIdEntry.getServiceTypeCode(), agentIdEntry.getAgentId(), agentIdEntry.getAgentStartTime());
+            byte[] rowKey = AgentIdRowKeyUtils.createRow(agentIdEntry.getService().getServiceUid().getUid(), agentIdEntry.getApplicationName(), agentIdEntry.getServiceTypeCode(), agentIdEntry.getAgentId(), agentIdEntry.getAgentStartTime());
             deletes.add(new Delete(rowKey));
         }
         TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
@@ -188,7 +188,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
         Scan scan = new Scan();
         if (lastAgentIdEntry != null) {
             byte[] startRow = AgentIdRowKeyUtils.createRow(
-                    lastAgentIdEntry.getService().getServiceUid(),
+                    lastAgentIdEntry.getService().getServiceUid().getUid(),
                     lastAgentIdEntry.getApplicationName(),
                     lastAgentIdEntry.getServiceTypeCode(),
                     lastAgentIdEntry.getAgentId(),

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -130,7 +129,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
     private ServerGroupList createServerGroupListV2(Node node, Range range) {
         Application application = node.getApplication();
         List<AgentIdEntry> agentIdEntries = agentListV2Service.getActiveAgentList(
-                ServiceUid.DEFAULT, application.getApplicationName(), application.getServiceType(), range);
+                application.getService(), application.getApplicationName(), application.getServiceType(), range);
 
         if (CollectionUtils.isEmpty(agentIdEntries)) {
             logger.info("agentIdEntry not found. application:{}", application);

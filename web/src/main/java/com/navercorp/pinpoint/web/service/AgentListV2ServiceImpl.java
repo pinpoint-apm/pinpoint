@@ -17,24 +17,23 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-@Service
+@org.springframework.stereotype.Service
 public class AgentListV2ServiceImpl implements AgentListV2Service {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -50,24 +49,24 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
     }
 
     @Override
-    public List<AgentIdEntry> getAllAgentList(ServiceUid serviceUid, String applicationName, ServiceType serviceType) {
-        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid.getUid(), applicationName, serviceType.getCode());
+    public List<AgentIdEntry> getAllAgentList(Service service, String applicationName, ServiceType serviceType) {
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(service.getServiceUid().getUid(), applicationName, serviceType.getCode());
         return dedupeConsecutiveAgentId(agentIdEntryList);
     }
 
     @Override
-    public List<AgentIdEntry> getActiveAgentList(ServiceUid serviceUid, String applicationName, ServiceType serviceType, Range range) {
+    public List<AgentIdEntry> getActiveAgentList(Service service, String applicationName, ServiceType serviceType, Range range) {
         if (agentProperties.getStatisticsCheckServiceTypeCodes().contains((int) serviceType.getCode())) {
-            return getActiveAgentListByStatistics(serviceUid, applicationName, serviceType, range);
+            return getActiveAgentListByStatistics(service, applicationName, serviceType, range);
         }
-        return getActiveAgentListByStatus(serviceUid, applicationName, serviceType, range);
+        return getActiveAgentListByStatus(service, applicationName, serviceType, range);
     }
 
     /**
      * For service types that may not send steady pings — fetch all entries, then filter by span statistics.
      */
-    private List<AgentIdEntry> getActiveAgentListByStatistics(ServiceUid serviceUid, String applicationName, ServiceType serviceType, Range range) {
-        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid.getUid(), applicationName, serviceType.getCode());
+    private List<AgentIdEntry> getActiveAgentListByStatistics(Service service, String applicationName, ServiceType serviceType, Range range) {
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(service.getServiceUid().getUid(), applicationName, serviceType.getCode());
         agentIdEntryList = filterByAgentStartTime(agentIdEntryList, range);
         agentIdEntryList = dedupeConsecutiveAgentId(agentIdEntryList);
 
@@ -82,8 +81,8 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
     /**
      * For service types that send pings — filter by status timestamp.
      */
-    private List<AgentIdEntry> getActiveAgentListByStatus(ServiceUid serviceUid, String applicationName, ServiceType serviceType, Range range) {
-        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntryByMinStateTimestamp(serviceUid.getUid(), applicationName, serviceType.getCode(), range.getFrom());
+    private List<AgentIdEntry> getActiveAgentListByStatus(Service service, String applicationName, ServiceType serviceType, Range range) {
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntryByMinStateTimestamp(service.getServiceUid().getUid(), applicationName, serviceType.getCode(), range.getFrom());
         agentIdEntryList = filterByAgentStartTime(agentIdEntryList, range);
         agentIdEntryList = dedupeConsecutiveAgentId(agentIdEntryList);
         return agentIdEntryList;

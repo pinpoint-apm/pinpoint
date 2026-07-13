@@ -27,7 +27,7 @@ public class HostScanKeyFactoryV3 implements HostScanKeyFactory {
     @Override
     public byte[] scanKey(Application parentApplication, long timestamp) {
         return UidAppRowKey.makeRowKey(saltKeySize,
-                parentApplication.getService().getServiceUid(),
+                parentApplication.getService().getServiceUid().getUid(),
                 parentApplication.getApplicationName(),
                 parentApplication.getServiceTypeCode(),
                 timestamp);

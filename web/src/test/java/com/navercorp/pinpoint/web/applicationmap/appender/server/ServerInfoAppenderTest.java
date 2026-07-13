@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -251,7 +251,7 @@ public class ServerInfoAppenderTest {
 
         Application app = wasNode.getApplication();
         AgentIdEntry agentIdEntry = new AgentIdEntry(app, "agent1", 1000L, "agent1", AgentLifeCycleState.RUNNING, 500L);
-        when(agentListV2ServiceMock.getActiveAgentList(any(ServiceUid.class), anyString(), any(ServiceType.class), any(Range.class)))
+        when(agentListV2ServiceMock.getActiveAgentList(any(Service.class), anyString(), any(ServiceType.class), any(Range.class)))
                 .thenReturn(List.of(agentIdEntry));
 
         when(agentInfoServiceMock.getAgentInfos(anyList())).thenAnswer(invocation -> {
@@ -291,7 +291,7 @@ public class ServerInfoAppenderTest {
 
         Application app = wasNode.getApplication();
         AgentIdEntry agentIdEntry = new AgentIdEntry(app, "agent1", 1000L, "agent1", AgentLifeCycleState.RUNNING, 500L);
-        when(agentListV2ServiceMock.getActiveAgentList(any(ServiceUid.class), anyString(), any(ServiceType.class), any(Range.class)))
+        when(agentListV2ServiceMock.getActiveAgentList(any(Service.class), anyString(), any(ServiceType.class), any(Range.class)))
                 .thenReturn(List.of(agentIdEntry));
 
         when(agentInfoServiceMock.getAgentInfos(anyList())).thenAnswer(invocation -> {
@@ -324,7 +324,7 @@ public class ServerInfoAppenderTest {
 
         AgentInfoService agentInfoServiceMock = mock(AgentInfoService.class);
         AgentListV2Service agentListV2ServiceMock = mock(AgentListV2Service.class);
-        when(agentListV2ServiceMock.getActiveAgentList(any(ServiceUid.class), anyString(), any(ServiceType.class), any(Range.class)))
+        when(agentListV2ServiceMock.getActiveAgentList(any(Service.class), anyString(), any(ServiceType.class), any(Range.class)))
                 .thenReturn(List.of());
 
         AgentInfoServerGroupListDataSource v2DataSource = new AgentInfoServerGroupListDataSource(agentInfoServiceMock, agentListV2ServiceMock, true);

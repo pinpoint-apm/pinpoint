@@ -89,7 +89,7 @@ public final class Application {
 
     @Override
     public String toString() {
-        return service.getServiceName() + "(" + service.getServiceUid() + ")/"
+        return service.getServiceName() + "(" + service.getServiceUid().getUid() + ")/"
                 + applicationName + "(" + serviceType.getDesc() + ":" + serviceType.getCode() + ")";
     }
 
