@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,6 +55,32 @@ class ServiceRegistryServiceImplTest {
     void insertService_nullName() {
         assertThatThrownBy(() -> serviceRegistryService.insertService(null))
                 .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void insertService_duplicateName_notRetryable() {
+        ServiceUid serviceUid = ServiceUid.of(12345);
+        when(serviceUidGenerator.generate()).thenReturn(serviceUid);
+        when(serviceRegistryDao.insertService(12345, "my-service")).thenThrow(new DuplicateKeyException("duplicate"));
+        ServiceEntity existing = new ServiceEntity();
+        existing.setUid(99999);
+        existing.setName("my-service");
+        when(serviceRegistryDao.selectService("my-service")).thenReturn(existing);
+
+        assertThatThrownBy(() -> serviceRegistryService.insertService("my-service"))
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .isNotInstanceOf(DuplicateKeyException.class);
+    }
+
+    @Test
+    void insertService_uidCollision_retryable() {
+        ServiceUid serviceUid = ServiceUid.of(12345);
+        when(serviceUidGenerator.generate()).thenReturn(serviceUid);
+        when(serviceRegistryDao.insertService(12345, "my-service")).thenThrow(new DuplicateKeyException("duplicate"));
+        when(serviceRegistryDao.selectService("my-service")).thenReturn(null);
+
+        assertThatThrownBy(() -> serviceRegistryService.insertService("my-service"))
+                .isInstanceOf(DuplicateKeyException.class);
     }
 
     @Test
