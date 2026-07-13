@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Component
 public class OtlpTraceSpanMapper {
@@ -154,34 +153,36 @@ public class OtlpTraceSpanMapper {
         }
         // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0 so
         // well-behaved spans stay annotation-free.
-        addDroppedAnnotations(spanBo::addAnnotation,
+        final AnnotationBo droppedAnnotation = toDroppedAnnotation(
                 span.getDroppedAttributesCount(),
                 span.getDroppedEventsCount(),
                 span.getDroppedLinksCount());
+        if (droppedAnnotation != null) {
+            spanBo.addAnnotation(droppedAnnotation);
+        }
 
         return spanBo;
     }
 
     /**
-     * Emits a single OPENTELEMETRY_DROPPED annotation summarizing SDK-side drops when at
-     * least one count is non-zero. Value format: space-separated {@code label=count} pairs
-     * (e.g. {@code "attributes=12 events=5 links=3"}); zero components are omitted. Shared
-     * between {@link OtlpTraceSpanMapper} (root spans) and {@link OtlpTraceSpanEventMapper}
-     * (child spans) — both expose {@code addAnnotation(AnnotationBo)} as a method reference.
+     * Builds the single OPENTELEMETRY_DROPPED annotation summarizing SDK-side drops, or
+     * {@code null} when every count is zero. Value format: space-separated {@code label=count}
+     * pairs (e.g. {@code "attributes=12 events=5 links=3"}); zero components are omitted.
+     * Shared between {@link OtlpTraceSpanMapper} (root spans) and
+     * {@link OtlpTraceSpanEventMapper} (child spans).
      */
-    static void addDroppedAnnotations(Consumer<AnnotationBo> sink,
-                                      int droppedAttributes,
-                                      int droppedEvents,
-                                      int droppedLinks) {
+    static @Nullable AnnotationBo toDroppedAnnotation(int droppedAttributes,
+                                                      int droppedEvents,
+                                                      int droppedLinks) {
         if (droppedAttributes == 0 && droppedEvents == 0 && droppedLinks == 0) {
-            return;
+            return null;
         }
         String label = new DroppedCounts()
                 .attributes(droppedAttributes)
                 .events(droppedEvents)
                 .links(droppedLinks)
                 .toString();
-        sink.accept(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_DROPPED.getCode(), label));
+        return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_DROPPED.getCode(), label);
     }
 
     /**
