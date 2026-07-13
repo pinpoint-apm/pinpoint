@@ -87,7 +87,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
-        final Scan scan = scanFactory.createScan("MOutLink", outApplication.getService().getServiceUid(), outApplication, timeWindow.getWindowRange(), table.getName());
+        final Scan scan = scanFactory.createScan("MOutLink", outApplication.getService().getServiceUid().getUid(), outApplication, timeWindow.getWindowRange(), table.getName());
         final LinkDataMap linkDataMap = selectOutLink(scan, table.getTable(), resultExtractor, NUM_PARTITIONS);
         if (logger.isDebugEnabled()) {
             logger.debug("selectOutLink {} {}", outApplication, linkDataMap.getLinkDataSize());

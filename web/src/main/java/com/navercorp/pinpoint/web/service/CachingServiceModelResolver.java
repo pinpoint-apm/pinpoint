@@ -108,7 +108,7 @@ public class CachingServiceModelResolver extends ServiceModelResolver implements
             for (ServiceEntity entity : serviceList) {
                 Service service = toService(entity);
                 serviceByNameCache.put(service.getServiceName(), service);
-                serviceByUidCache.put(service.getServiceUid(), service);
+                serviceByUidCache.put(service.getServiceUid().getUid(), service);
             }
             return serviceList.size();
         } catch (Exception e) {

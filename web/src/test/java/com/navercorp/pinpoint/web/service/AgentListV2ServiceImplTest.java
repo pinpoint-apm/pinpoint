@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
@@ -80,7 +80,7 @@ public class AgentListV2ServiceImplTest {
                 new AgentIdEntry(testApplication, agentId2, agentStartTime, null, RUNNING, currentTime)
         ));
 
-        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(ServiceUid.DEFAULT, testApplication.getApplicationName(), testApplication.getServiceType(), range);
+        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(Service.DEFAULT, testApplication.getApplicationName(), testApplication.getServiceType(), range);
 
         verify(agentIdDao, times(1)).getAgentIdEntryByMinStateTimestamp(anyInt(), any(), anyInt(), anyLong());
         Assertions.assertThat(agentList).hasSize(2);
@@ -103,7 +103,7 @@ public class AgentListV2ServiceImplTest {
                 new AgentIdEntry(testApplication, agentId2, newAgentStartTime, null, RUNNING, currentTime)
         ));
 
-        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(ServiceUid.DEFAULT, testApplication.getApplicationName(), testApplication.getServiceType(), range);
+        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(Service.DEFAULT, testApplication.getApplicationName(), testApplication.getServiceType(), range);
 
         Assertions.assertThat(agentList).hasSize(1);
         Assertions.assertThat(agentList.get(0).getAgentId()).isEqualTo(agentId);
@@ -125,7 +125,7 @@ public class AgentListV2ServiceImplTest {
                 new AgentIdEntry(testApplication, agentId, previousAgentStartTime, null, RUNNING, currentTime)
         ));
 
-        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(ServiceUid.DEFAULT, testApplication.getApplicationName(), testApplication.getServiceType(), range);
+        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(Service.DEFAULT, testApplication.getApplicationName(), testApplication.getServiceType(), range);
 
         Assertions.assertThat(agentList).hasSize(1);
         Assertions.assertThat(agentList.get(0).getAgentId()).isEqualTo(agentId);
@@ -149,7 +149,7 @@ public class AgentListV2ServiceImplTest {
                 new AgentIdEntry(testApplication, agentId2, agentStartTime, null, UNKNOWN, 0)
         ));
 
-        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(ServiceUid.DEFAULT, testApplication.getApplicationName(), testApplication.getServiceType(), range);
+        List<AgentIdEntry> agentList = agentListV2Service.getActiveAgentList(Service.DEFAULT, testApplication.getApplicationName(), testApplication.getServiceType(), range);
 
         Assertions.assertThat(agentList).hasSize(1);
         Assertions.assertThat(agentList.get(0).getAgentId()).isEqualTo(agentId);

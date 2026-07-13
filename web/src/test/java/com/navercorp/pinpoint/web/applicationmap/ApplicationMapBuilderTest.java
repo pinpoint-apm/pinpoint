@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
@@ -145,7 +145,7 @@ public class ApplicationMapBuilderTest {
             }
         }).when(agentInfoService).getAgentStatus(any());
 
-        when(agentListV2Service.getActiveAgentList(any(ServiceUid.class), anyString(), any(ServiceType.class), any(Range.class))).thenAnswer(invocation -> {
+        when(agentListV2Service.getActiveAgentList(any(Service.class), anyString(), any(ServiceType.class), any(Range.class))).thenAnswer(invocation -> {
             String applicationName = invocation.getArgument(1);
             ServiceType serviceType = invocation.getArgument(2);
             Range range = invocation.getArgument(3);

@@ -15,10 +15,10 @@ public class ServiceModelResolver {
     }
 
     public Service getService(int serviceUid) {
-        if (Service.DEFAULT.getServiceUid() == serviceUid) {
+        if (Service.DEFAULT.getServiceUid().getUid() == serviceUid) {
             return Service.DEFAULT;
         }
-        if (Service.TEST_SERVICE.getServiceUid() == serviceUid) {
+        if (Service.TEST_SERVICE.getServiceUid().getUid() == serviceUid) {
             return Service.TEST_SERVICE;
         }
         Service service = resolveService(serviceUid);
