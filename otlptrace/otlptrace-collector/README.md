@@ -157,3 +157,76 @@ whether a failure **surfaces before the response**:
 | spanChunk put failure | **Fully ignored** — future discarded + success event always published |
 | scatter index failure | future discarded, no metric — loss that is invisible in scatter |
 | server-map stats | Up to 5s of increments lost on process death (acceptable by design) |
+
+---
+
+## 5. ServiceType Resolution (OTLP → Pinpoint)
+
+An OTLP span carries no Pinpoint ServiceType, so the mapper derives one. The **primary key is
+`span.kind`**; attributes refine it. All resolvers look up the target code by ServiceType **name**
+in the registry, so a plugin re-mapping its code is followed automatically and a missing plugin
+falls back to the generic `OPENTELEMETRY_*` type instead of failing.
+
+### Node vs. call — why the category matters
+
+`ServiceTypeCategory` maps a code range to a role:
+
+| Code range | Category | Role on the ServerMap |
+|---|---|---|
+| 1000–1999 | SERVER | **node** (a box) |
+| 2000–2999 | DATABASE | node |
+| 8000–8799 | CACHE/MESSAGE_BROKER | node |
+| 9000–9999 | RPC | **call** (an outgoing arc / SpanEvent) |
+
+A SERVER-kind span becomes a **root SpanBo** — it *is* the node — so it must carry a SERVER-category
+type. A CLIENT/PRODUCER span becomes a **SpanEventBo** — an outgoing call — so it carries an
+RPC/messaging-category type. Assigning a call-category code to a node (or vice versa) miscategorizes
+the ServerMap element.
+
+### Dispatch table
+
+| span.kind | Target BO | Resolver | Attribute key | Default (fallback) |
+|---|---|---|---|---|
+| SERVER | root SpanBo (node) | `OtlpServerTypeResolver` | `rpc.system` → `GRPC_SERVER` / `APACHE_DUBBO_PROVIDER` | `OPENTELEMETRY_SERVER` (1220) |
+| SERVER + Envoy tags | root SpanBo (node) | `OtlpEnvoyTypeResolver` | Envoy gate (below) | `ENVOY` (1550) → `OPENTELEMETRY_SERVER` |
+| CLIENT | SpanEventBo (call) | `OtlpClientTypeResolver` | `rpc.system` → `GRPC` / `APACHE_DUBBO_CONSUMER` | `OPENTELEMETRY_CLIENT` (9310) |
+| CLIENT + Envoy tags | SpanEventBo (call) | `OtlpEnvoyTypeResolver` | Envoy gate (below) | `ENVOY_EGRESS` (9302) → `OPENTELEMETRY_CLIENT` |
+| CLIENT + `db.system` | SpanEventBo (call) | `OtlpDbSystemTypeResolver` | `db.system` / `db.system.name` | per DB system |
+| PRODUCER | SpanEventBo (call) | `OtlpMessagingTypeResolver` | `messaging.system` | `OPENTELEMETRY_CLIENT` |
+| INTERNAL / other | SpanEventBo | — | — | `OPENTELEMETRY_INTERNAL` (1221) / `INTERNAL_METHOD` |
+
+HTTP client/server *framework* (Tomcat, OkHttp, …) cannot be derived from OTel attributes, so plain
+HTTP spans stay on the `OPENTELEMETRY_SERVER` / `OPENTELEMETRY_CLIENT` generics.
+
+### Envoy proxy spans
+
+`OtlpEnvoyTypeResolver` detects Envoy spans and overrides the generic OTel types with the dedicated
+Envoy types, mirroring the native pinpoint-cpp Envoy tracer.
+
+- **Detection gate**: presence of `upstream_cluster`, `upstream_cluster.name`, or `response_flags`
+  (Envoy-only tags). `component=proxy` is intentionally **not** used — it is deprecated in OTel
+  semconv and set by other proxies, so it has no reliable discriminating power on its own.
+- **Direction**: `span.kind` SERVER → ingress node, CLIENT → egress call.
+- **Annotations**: `envoy.operation` (9441, `Ingress`/`Egress`) and `upstream.cluster` (9442).
+- Hooks: `OtlpTraceSpanMapper#recordServer` (server) and `OtlpTraceSpanEventMapper` client branch.
+
+| span.kind | ServiceType | Category | Note |
+|---|---|---|---|
+| SERVER (ingress) | `ENVOY` (1550) | SERVER (node) | ingress node |
+| CLIENT (egress) | `ENVOY_EGRESS` (9302) | RPC (call) | egress call to the upstream cluster |
+
+### Why `ENVOY_INGRESS` (9301) is not used
+
+The native pinpoint-cpp tracer models one Envoy request as **one span plus child SpanEvents**: the
+span (the node) is `ENVOY` (1550), and it carries an `ENVOY_INGRESS` (9301) SpanEvent for the received
+request and an `ENVOY_EGRESS` (9302) SpanEvent for the upstream call. `ENVOY_INGRESS` and
+`ENVOY_EGRESS` are both **RPC-category (9000–9999) *call* types**, not node types.
+
+The OTLP model is different: **one span per request with an explicit `span.kind`**, and a SERVER-kind
+ingress span maps to a **root SpanBo — which is already the ServerMap node**. A node must carry a
+SERVER-category type, so the ingress node uses `ENVOY` (1550), exactly as a generic OTLP server node
+uses `OPENTELEMETRY_SERVER` (1220). Assigning the RPC-category `ENVOY_INGRESS` (9301) to a root node
+would miscategorize it (`NodeCategory.UNKNOWN`). There is no separate ingress SpanEvent in the OTLP
+mapping for `ENVOY_INGRESS` to attach to, so it is intentionally left unused; the ingress direction is
+still recorded via the `envoy.operation=Ingress` annotation. `ENVOY_EGRESS` (9302), being a call type,
+is category-correct for the CLIENT-kind egress SpanEvent and is used as-is.

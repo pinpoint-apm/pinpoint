@@ -54,6 +54,7 @@ public class OtlpTraceSpanEventMapper {
     private final OtlpDbSystemTypeResolver dbSystemTypeResolver;
     private final OtlpMessagingTypeResolver messagingTypeResolver;
     private final OtlpClientTypeResolver clientTypeResolver;
+    private final OtlpEnvoyTypeResolver envoyTypeResolver;
     private final OtlpExceptionInfoResolver exceptionInfoResolver;
     private final OtlpAttributeBoMapper attributeBoMapper;
     private final int sqlMaxBytes;
@@ -62,6 +63,7 @@ public class OtlpTraceSpanEventMapper {
                                     ServiceTypeRegistryService serviceTypeRegistryService,
                                     OtlpMessagingTypeResolver messagingTypeResolver,
                                     OtlpClientTypeResolver clientTypeResolver,
+                                    OtlpEnvoyTypeResolver envoyTypeResolver,
                                     OtlpExceptionInfoResolver exceptionInfoResolver,
                                     OtlpAttributeBoMapper attributeBoMapper,
                                     @Value("${pinpoint.collector.otlptrace.sql.max-bytes:8192}") int sqlMaxBytes) {
@@ -70,6 +72,7 @@ public class OtlpTraceSpanEventMapper {
                 Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService"));
         this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
         this.clientTypeResolver = Objects.requireNonNull(clientTypeResolver, "clientTypeResolver");
+        this.envoyTypeResolver = Objects.requireNonNull(envoyTypeResolver, "envoyTypeResolver");
         this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
         this.attributeBoMapper = Objects.requireNonNull(attributeBoMapper, "attributeBoMapper");
         if (sqlMaxBytes < 0) {
@@ -117,10 +120,16 @@ public class OtlpTraceSpanEventMapper {
         } else if (isClient(span)) {
             spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes));
             spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes));
-            // rpc.system dispatch: grpc → GRPC, apache_dubbo → APACHE_DUBBO_CONSUMER.
+            // An Envoy egress span (detected via Envoy-specific tags) maps to ENVOY_EGRESS;
+            // otherwise rpc.system dispatch: grpc → GRPC, apache_dubbo → APACHE_DUBBO_CONSUMER.
             // HTTP clients emit no rpc.system → OPENTELEMETRY_CLIENT fallback.
-            final String rpcSystem = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null);
-            spanEventBo.setServiceType(clientTypeResolver.resolveClientServiceType(rpcSystem));
+            if (envoyTypeResolver.isEnvoy(attributes)) {
+                spanEventBo.setServiceType(envoyTypeResolver.resolveEgressServiceType());
+                envoyTypeResolver.recordAnnotations(spanEventBo::addAnnotation, attributes, false);
+            } else {
+                final String rpcSystem = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null);
+                spanEventBo.setServiceType(clientTypeResolver.resolveClientServiceType(rpcSystem));
+            }
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
         } else if (isProducer(span)) {
             final String messagingSystem = MessagingAttributeUtils.getSystem(attributes);
