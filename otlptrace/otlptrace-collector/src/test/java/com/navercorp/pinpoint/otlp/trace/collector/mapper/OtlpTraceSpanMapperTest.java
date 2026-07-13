@@ -163,7 +163,6 @@ class OtlpTraceSpanMapperTest {
         byName.put("ACTIVEMQ_CLIENT",       ServiceTypeFactory.of(8310, "ACTIVEMQ_CLIENT",       "ACTIVEMQ_CLIENT"));
         byName.put("GRPC_SERVER",           ServiceTypeFactory.of(1130, "GRPC_SERVER",           "GRPC_SERVER"));
         byName.put("APACHE_DUBBO_PROVIDER", ServiceTypeFactory.of(1999, "APACHE_DUBBO_PROVIDER", "APACHE_DUBBO_PROVIDER"));
-        byName.put("ENVOY",                 ServiceTypeFactory.of(1550, "ENVOY",                 "ENVOY"));
         return new ServiceTypeRegistryService() {
             @Override
             public ServiceType findServiceType(int code) {
@@ -191,7 +190,6 @@ class OtlpTraceSpanMapperTest {
                 new OtlpTraceEventMapper(json, 8192),
                 new OtlpTraceLinkMapper(json, 8192),
                 new OtlpServerTypeResolver(MESSAGING_REGISTRY),
-                new OtlpEnvoyTypeResolver(MESSAGING_REGISTRY),
                 new OtlpExceptionInfoResolver(),
                 new OtlpMessagingConsumerResolver(List.of(
                         new KafkaMessagingConsumerHandler(),
@@ -537,29 +535,6 @@ class OtlpTraceSpanMapperTest {
                 kv("network.protocol.name", strVal("http")));
         SpanBo bo = newMapper().map(id(), span);
         assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
-    }
-
-    @Test
-    void map_server_envoy_setsEnvoyNodeAndUpstreamClusterAnnotation() {
-        // Envoy ingress span over OTLP becomes a ServerMap node, so it maps to the SERVER-category
-        // ENVOY (1550) node type — not the RPC-category ENVOY_INGRESS (9301) — overriding the
-        // generic OPENTELEMETRY_SERVER and recording the upstream.cluster / envoy.operation annotations.
-        Span span = serverSpan(
-                kv("response_flags", strVal("-")),
-                kv("upstream_cluster", strVal("frontend")),
-                kv("upstream_cluster.name", strVal("frontend")));
-        SpanBo bo = newMapper().map(id(), span);
-        assertThat(bo.getServiceType()).isEqualTo((short) 1550); // ENVOY (SERVER-category node)
-        assertThat(annotationValue(bo, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isEqualTo("frontend");
-        assertThat(annotationValue(bo, OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION)).isEqualTo("Ingress");
-    }
-
-    private static Object annotationValue(SpanBo spanBo, int key) {
-        return spanBo.getAnnotationBoList().stream()
-                .filter(a -> a.getKey() == key)
-                .map(com.navercorp.pinpoint.common.server.bo.AnnotationBo::getValue)
-                .findFirst()
-                .orElse(null);
     }
 
     @Test

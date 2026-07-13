@@ -87,7 +87,6 @@ class OtlpTraceMapperTest {
                 eventMapper,
                 new OtlpTraceLinkMapper(json, 8192),
                 new OtlpServerTypeResolver(REGISTRY),
-                new OtlpEnvoyTypeResolver(REGISTRY),
                 exceptionInfoResolver,
                 new OtlpMessagingConsumerResolver(List.of(
                         new KafkaMessagingConsumerHandler(),
@@ -101,7 +100,6 @@ class OtlpTraceMapperTest {
                 REGISTRY,
                 new OtlpMessagingTypeResolver(REGISTRY),
                 new OtlpClientTypeResolver(REGISTRY),
-                new OtlpEnvoyTypeResolver(REGISTRY),
                 exceptionInfoResolver,
                 new OtlpAttributeBoMapper(8192),
                 8192);
