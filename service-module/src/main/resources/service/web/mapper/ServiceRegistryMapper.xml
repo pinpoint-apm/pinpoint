@@ -3,7 +3,7 @@
 
 <mapper namespace="com.navercorp.pinpoint.service.dao.ServiceRegistryDao">
 
-    <insert id="insertService" parameterType="ServiceParam" useGeneratedKeys="true" keyProperty="uid">
+    <insert id="insertService" parameterType="ServiceParam">
         INSERT INTO service (uid, name)
         VALUES (#{uid}, #{name})
     </insert>

@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.service.dao.ServiceRegistryDao;
 import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,14 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
     public ServiceEntity insertService(String name) {
         Objects.requireNonNull(name, "name");
         int uid = serviceUidGenerator.generate().getUid();
-        serviceRegistryDao.insertService(uid, name);
+        try {
+            serviceRegistryDao.insertService(uid, name);
+        } catch (DuplicateKeyException e) {
+            if (serviceRegistryDao.selectService(name) != null) {
+                throw new DataIntegrityViolationException("Duplicate service name: " + name, e);
+            }
+            throw e;
+        }
 
         ServiceEntity entity = new ServiceEntity();
         entity.setUid(uid);
