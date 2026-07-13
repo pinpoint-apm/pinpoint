@@ -6,7 +6,7 @@ type WebhookIncludeMutationVariable = {
   method: 'POST' | 'PUT';
 };
 
-export const useWebhookIncludeMutaion = (
+export const useWebhookIncludeMutation = (
   options?: UseMutationOptions<
     WebhookInclude.Response,
     ErrorResponse,

@@ -60,5 +60,5 @@ export * from './usePatchOtlpMetricDefUserDefined';
 export * from './usePostBind';
 export * from './usePostTransactionMetaData';
 export * from './usePostOtlpMetricData';
-export * from './useWebhookIncludeMutaion';
+export * from './useWebhookIncludeMutation';
 export * from './useWebhookMutation';
