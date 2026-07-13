@@ -60,7 +60,8 @@ class MapStructUtilsTest {
         ObjectMapper mapper = Jackson.newMapper();
         MapStructUtils mapStructUtils = new MapStructUtils(mapper);
 
-        List<Map<String, String>> maps = mapStructUtils.jsonToStringMapList("[{\"key\": \"value\"}, {\"key2\": \"value2\"}, {\"key3\": \"value3\"}]");
+        List<Map<String, String>> maps = mapStructUtils.jsonToStringMapList("""
+                [{"key": "value"}, {"key2": "value2"}, {"key3": "value3"}]""");
         assertThat(maps).containsExactlyInAnyOrder(
                 Map.of("key", "value"),
                 Map.of("key2", "value2"),
