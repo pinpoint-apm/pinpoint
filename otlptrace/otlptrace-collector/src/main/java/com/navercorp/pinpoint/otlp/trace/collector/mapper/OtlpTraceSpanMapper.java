@@ -145,7 +145,10 @@ public class OtlpTraceSpanMapper {
         }
         // link
         for (Span.Link link : span.getLinksList()) {
-            linkMapper.addLinkToAnnotation(link, spanBo::addAnnotation, truncatedCounts::link);
+            final AnnotationBo linkAnnotation = linkMapper.toAnnotation(link, truncatedCounts::link);
+            if (linkAnnotation != null) {
+                spanBo.addAnnotation(linkAnnotation);
+            }
         }
         final AnnotationBo truncatedAnnotation = toTruncatedAnnotation(truncatedCounts);
         if (truncatedAnnotation != null) {

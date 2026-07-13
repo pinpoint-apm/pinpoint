@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
@@ -32,6 +33,7 @@ import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -294,6 +296,39 @@ public class OtlpTraceMapperUtils {
         };
     }
 
+    /**
+     * Streams OTel attributes as a JSON object directly to {@code generator}, recursing into
+     * nested arrays/maps — the streaming counterpart of
+     * {@link #getAttributeToMap(List, int, TruncationListener)} with the same truncation semantics.
+     */
+    public static void writeAttributes(JsonGenerator generator, List<KeyValue> keyValueList, int maxBytes, @Nullable TruncationListener onTruncated) throws IOException {
+        generator.writeStartObject();
+        for (KeyValue kv : keyValueList) {
+            generator.writeFieldName(kv.getKey());
+            writeAnyValue(generator, kv.getValue(), maxBytes, onTruncated);
+        }
+        generator.writeEndObject();
+    }
+
+    public static void writeAnyValue(JsonGenerator generator, AnyValue anyValue, int maxBytes, @Nullable TruncationListener onTruncated) throws IOException {
+        switch (anyValue.getValueCase()) {
+            case INT_VALUE -> generator.writeNumber(anyValue.getIntValue());
+            case DOUBLE_VALUE -> generator.writeNumber(anyValue.getDoubleValue());
+            case BOOL_VALUE -> generator.writeBoolean(anyValue.getBoolValue());
+            case STRING_VALUE -> generator.writeString(transformString(anyValue.getStringValue(), maxBytes, onTruncated));
+            case BYTES_VALUE -> generator.writeString(transformBytes(anyValue.getBytesValue(), maxBytes, onTruncated));
+            case ARRAY_VALUE -> {
+                generator.writeStartArray();
+                for (AnyValue element : anyValue.getArrayValue().getValuesList()) {
+                    writeAnyValue(generator, element, maxBytes, onTruncated);
+                }
+                generator.writeEndArray();
+            }
+            case KVLIST_VALUE -> writeAttributes(generator, anyValue.getKvlistValue().getValuesList(), maxBytes, onTruncated);
+            default -> generator.writeNull();
+        }
+    }
+
     private static String transformString(String value, int maxBytes, @Nullable TruncationListener onTruncated) {
         if (onTruncated == null) {
             return value;
@@ -306,7 +341,7 @@ public class OtlpTraceMapperUtils {
         return value;
     }
 
-    private static Object transformBytes(ByteString bytes, int maxBytes, @Nullable TruncationListener onTruncated) {
+    private static String transformBytes(ByteString bytes, int maxBytes, @Nullable TruncationListener onTruncated) {
         // empty bytes -> "" (Base16 of an empty array), symmetric with the empty STRING case
         if (onTruncated == null) {
             return ByteStringUtils.encodeBase16(bytes);

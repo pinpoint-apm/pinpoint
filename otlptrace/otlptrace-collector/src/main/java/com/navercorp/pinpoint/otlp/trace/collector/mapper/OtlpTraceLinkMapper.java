@@ -1,34 +1,39 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.server.util.Utf8;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.apache.commons.io.output.StringBuilderWriter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.Objects;
 
-import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils.getAttributeToMap;
+import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils.writeAttributes;
 
 @Component
 public class OtlpTraceLinkMapper {
 
-    private final ObjectWriter mapWriter;
+    private static final String FIELD_TRACE_ID = "traceId";
+    private static final String FIELD_SPAN_ID = "spanId";
+    private static final String FIELD_TRACE_STATE = "traceState";
+    private static final String FIELD_ATTRIBUTES = "attributes";
+    private static final String FIELD_DROPPED = "dropped";
+
+    private final JsonFactory jsonFactory;
     private final int valueMaxBytes;
 
     public OtlpTraceLinkMapper(ObjectMapper objectMapper,
                                @Value("${pinpoint.collector.otlptrace.link.value-max-bytes:8192}") int valueMaxBytes) {
         Objects.requireNonNull(objectMapper, "objectMapper");
-        this.mapWriter = objectMapper.writerFor(new TypeReference<Map<String, Object>>() {});
+        this.jsonFactory = objectMapper.getFactory();
         if (valueMaxBytes < 0) {
             throw new IllegalArgumentException("valueMaxBytes must be >= 0: " + valueMaxBytes);
         }
@@ -36,56 +41,66 @@ public class OtlpTraceLinkMapper {
     }
 
     /**
-     * Serializes an OTel {@link Span.Link} as JSON under {@link AnnotationKey#OPENTELEMETRY_LINK}.
-     * Fields: {@code traceId} (hex), {@code spanId} (decimal string — see inline note),
-     * {@code traceState} (W3C tracestate, only when non-empty), {@code attributes} (only when
-     * non-empty), {@code dropped} (link-level dropped_attributes_count, only when > 0).
+     * Serializes an OTel {@link Span.Link} as {@link OtelLink} JSON into an
+     * {@link AnnotationKey#OPENTELEMETRY_LINK} annotation.
      *
-     * <p>Skips entirely when both traceId and spanId are empty — OTel spec requires links to
-     * carry a non-empty SpanContext, so a fully-empty link is invalid input we drop silently.</p>
+     * <p>Returns {@code null} when both traceId and spanId are empty — OTel spec requires links
+     * to carry a non-empty SpanContext, so a fully-empty link is invalid input we drop silently.</p>
      *
      * <p>{@code onTruncated} is invoked once per truncated value (traceState or attribute leaf).</p>
      */
-    public void addLinkToAnnotation(Span.Link link, AnnotationWriter annotationWriter, TruncationListener onTruncated) {
+    public @Nullable AnnotationBo toAnnotation(Span.Link link, TruncationListener onTruncated) {
         if (link.getTraceId().isEmpty() && link.getSpanId().isEmpty()) {
-            return;
+            return null;
         }
         try {
-            Map<String, Object> map = new HashMap<>();
-            if (!link.getTraceId().isEmpty()) {
-                map.put("traceId", ByteStringUtils.encodeBase16(link.getTraceId()));
+            final OtelLink otelLink = toOtelLink(link);
+            final String value = toJson(otelLink, onTruncated);
+            return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), value);
+        } catch (IOException e) {
+            return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), "json processing error");
+        }
+    }
+
+    private String toJson(OtelLink otelLink, TruncationListener onTruncated) throws IOException {
+        final StringBuilderWriter buffer = new StringBuilderWriter();
+        try (JsonGenerator generator = jsonFactory.createGenerator(buffer)) {
+            generator.writeStartObject();
+            if (!otelLink.traceId().isEmpty()) {
+                generator.writeStringField(FIELD_TRACE_ID, ByteStringUtils.encodeBase16(otelLink.traceId()));
             }
-            if (!link.getSpanId().isEmpty()) {
-                // Stored as decimal String to avoid JS Number precision loss for any consumer that
-                // reads the raw annotation JSON directly. Java readers (OtelLinkValue.readLong)
-                // accept both number and decimal-string forms, preserving backward compatibility.
-                map.put("spanId", String.valueOf(ByteStringUtils.parseLong(link.getSpanId())));
+            if (otelLink.spanId() != 0) {
+                generator.writeStringField(FIELD_SPAN_ID, String.valueOf(otelLink.spanId()));
             }
-            // W3C tracestate (vendor propagation context — AWS, Datadog, Sentry, etc.). Only
-            // emit when non-empty to keep well-behaved links compact. Capped like attribute values
-            // since chained vendor entries can grow long.
-            if (!link.getTraceState().isEmpty()) {
-                String traceState = link.getTraceState();
+            // Only emit traceState when non-empty to keep well-behaved links compact. Capped like
+            // attribute values since chained vendor entries can grow long.
+            if (!otelLink.traceState().isEmpty()) {
+                String traceState = otelLink.traceState();
                 final String truncatedTraceState = Utf8.truncate(traceState, valueMaxBytes);
                 if (truncatedTraceState != null) {
                     traceState = truncatedTraceState;
                     onTruncated.truncated();
                 }
-                map.put("traceState", traceState);
+                generator.writeStringField(FIELD_TRACE_STATE, traceState);
             }
-            if (link.getAttributesCount() > 0) {
-                final Map<String, Object> linkAttributes = getAttributeToMap(link.getAttributesList(), valueMaxBytes, onTruncated);
-                map.put("attributes", linkAttributes);
+            if (!otelLink.attributes().isEmpty()) {
+                // Attribute values are capped at write time, invoking onTruncated per truncated leaf.
+                generator.writeFieldName(FIELD_ATTRIBUTES);
+                writeAttributes(generator, otelLink.attributes(), valueMaxBytes, onTruncated);
             }
-            // SDK-side data-loss counter for link attributes. Same convention as Span/SpanEvent
-            // OPENTELEMETRY_DROPPED — only included when > 0.
-            if (link.getDroppedAttributesCount() > 0) {
-                map.put("dropped", link.getDroppedAttributesCount());
+            if (otelLink.dropped() > 0) {
+                generator.writeNumberField(FIELD_DROPPED, otelLink.dropped());
             }
-            final String value = mapWriter.writeValueAsString(map);
-            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), value));
-        } catch (JsonProcessingException e) {
-            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), "json processing error"));
+            generator.writeEndObject();
         }
+        return buffer.toString();
+    }
+
+    private OtelLink toOtelLink(Span.Link link) {
+        long spanId = 0;
+        if (!link.getSpanId().isEmpty()) {
+            spanId = ByteStringUtils.parseLong(link.getSpanId());
+        }
+        return new OtelLink(link.getTraceId(), spanId, link.getTraceState(), link.getAttributesList(), link.getDroppedAttributesCount());
     }
 }
