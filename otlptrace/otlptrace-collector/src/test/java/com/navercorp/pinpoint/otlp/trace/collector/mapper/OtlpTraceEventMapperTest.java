@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
@@ -26,13 +25,18 @@ class OtlpTraceEventMapperTest {
 
     private OtlpTraceEventMapper mapper;
     private List<AnnotationBo> annotations;
-    private AnnotationWriter writer;
 
     @BeforeEach
     void setUp() {
         mapper = new OtlpTraceEventMapper(new ObjectMapper(), 8192);
         annotations = new ArrayList<>();
-        writer = annotations::add;
+    }
+
+    private void addEvent(Span.Event event) {
+        AnnotationBo annotation = mapper.toAnnotation(event, () -> {});
+        if (annotation != null) {
+            annotations.add(annotation);
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -46,7 +50,7 @@ class OtlpTraceEventMapperTest {
                 .setTimeUnixNano(1716200000000000000L)
                 .build();
 
-        mapper.addEventToAnnotation(event, writer, () -> {});
+        addEvent(event);
 
         assertThat(annotations).hasSize(1);
         AnnotationBo bo = annotations.get(0);
@@ -77,7 +81,7 @@ class OtlpTraceEventMapperTest {
                 .addAllAttributes(attrs)
                 .build();
 
-        mapper.addEventToAnnotation(event, writer, () -> {});
+        addEvent(event);
 
         assertThat(annotations).hasSize(1);
         ObjectMapper om = new ObjectMapper();
@@ -107,7 +111,7 @@ class OtlpTraceEventMapperTest {
                 .addAllAttributes(attrs)
                 .build();
 
-        mapper.addEventToAnnotation(event, writer, () -> {});
+        addEvent(event);
 
         assertThat(annotations).hasSize(1);
         String json = (String) annotations.get(0).getValue();
@@ -142,7 +146,7 @@ class OtlpTraceEventMapperTest {
                 .addAttributes(kv("tags", AnyValue.newBuilder().setArrayValue(arrayValue).build()))
                 .build();
 
-        mapper.addEventToAnnotation(event, writer, () -> {});
+        addEvent(event);
 
         assertThat(annotations).hasSize(1);
         String json = (String) annotations.get(0).getValue();
@@ -167,7 +171,7 @@ class OtlpTraceEventMapperTest {
     void annotationKey_isOpentelemetryEvent() {
         Span.Event event = Span.Event.newBuilder().setName("check").build();
 
-        mapper.addEventToAnnotation(event, writer, () -> {});
+        addEvent(event);
 
         assertThat(annotations.get(0).getKey())
                 .isEqualTo(AnnotationKey.OPENTELEMETRY_EVENT.getCode());
