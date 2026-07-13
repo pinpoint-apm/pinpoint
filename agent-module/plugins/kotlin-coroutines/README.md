@@ -1,7 +1,7 @@
 ## Kotlin Corutines
 * Since: Pinpoint 2.4.0
 * See: https://github.com/Kotlin/kotlinx.coroutines
-* Range: log4j/log4j [1.0.1,]
+* Range: org.jetbrains.kotlinx/kotlinx-coroutines-core [1.0.1,]
 
 ### Pinpoint Configuration
 pinpoint.config
