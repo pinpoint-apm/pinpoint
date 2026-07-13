@@ -1,7 +1,7 @@
 import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { VirtualList, VirtualSearchList } from '../VirtualList';
 import { getTimeSeriesApdexInfo } from '@pinpoint-fe/ui/src/utils';
-import { colorMap, getApdexGrade } from '@pinpoint-fe/server-map/src/ui/template/node';
+import { colorMap, getApdexGrade } from '@pinpoint-fe/server-map';
 import { RankColorClassNameMap, getRank } from '../ApdexScore/ApdexScoreFetcher';
 
 export interface MergedServerSearchListProps {

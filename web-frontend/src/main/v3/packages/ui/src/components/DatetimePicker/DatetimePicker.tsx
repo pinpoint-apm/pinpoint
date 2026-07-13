@@ -8,6 +8,8 @@ import {
   RichDatetimePicker,
   RichDatetimePickerProps,
   TimeUnitFormat,
+  convertToMilliseconds,
+  convertToTimeUnit,
 } from '@pinpoint-fe/datetime-picker';
 import Marquee from 'react-fast-marquee';
 
@@ -26,10 +28,6 @@ import {
   useSearchParameters,
   useTimezone,
 } from '@pinpoint-fe/ui/src/hooks';
-import {
-  convertToMilliseconds,
-  convertToTimeUnit,
-} from '@pinpoint-fe/datetime-picker/src/utils/date';
 
 export type DateState = {
   dates?: {
