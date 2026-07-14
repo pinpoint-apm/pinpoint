@@ -100,6 +100,12 @@ public class OtlpTraceConstants {
     // the Pinpoint agent's SpanRecorder.recordUriTemplate. Emitted by framework instrumentations
     // (Spring WebMVC/WebFlux, JAX-RS, etc.); absent for unrouted requests, where url.path is the fallback.
     public static final String ATTRIBUTE_KEY_HTTP_ROUTE = "http.route";
+    // Next.js built-in OTel instrumentation emits next.route as the low-cardinality route template
+    // (e.g. "/api/products/[productId]/index") on its SERVER span (next.span_type=BaseServer.handleRequest).
+    // It is http.route's vendor equivalent — Next.js does NOT emit http.route, so this is the only
+    // route-template source for Next.js. Promoted to the rpc field just below http.route in
+    // getServerSpanToRpc so the endpoint groups by pattern instead of the raw http.target path.
+    public static final String ATTRIBUTE_KEY_NEXT_ROUTE = "next.route";
     public static final String ATTRIBUTE_KEY_URL_PATH = "url.path";
     public static final String ATTRIBUTE_KEY_HTTP_URL = "http.url";
     public static final String ATTRIBUTE_KEY_HTTP_TARGET = "http.target";
@@ -166,6 +172,7 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY,
             ATTRIBUTE_KEY_MESSAGING_MESSAGE_ID,
             ATTRIBUTE_KEY_HTTP_ROUTE,
+            ATTRIBUTE_KEY_NEXT_ROUTE,
             ATTRIBUTE_KEY_URL_PATH,
             ATTRIBUTE_KEY_MESSAGING_CLIENT_ID,
             ATTRIBUTE_KEY_SERVER_PORT,

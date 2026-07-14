@@ -315,6 +315,13 @@ public class OtlpTraceSpanMapper {
             if (httpRoute != null) {
                 return httpRoute;
             }
+            // next.route is Next.js's route template (http.route's vendor equivalent). Next.js does
+            // not emit http.route, so prefer next.route over the raw url.path/http.url/http.target
+            // to keep the rpc field low-cardinality (e.g. "/api/products/[productId]/index").
+            final String nextRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE, null);
+            if (nextRoute != null) {
+                return nextRoute;
+            }
             final String urlPath = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
                 return urlPath;
