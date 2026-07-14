@@ -116,6 +116,12 @@ public class OtlpTraceConstants {
     // resolves them. Attached by OtlpEnvoyTypeResolver when an Envoy span is detected.
     public static final int ANNOTATION_KEY_ENVOY_OPERATION = 9441;
     public static final int ANNOTATION_KEY_UPSTREAM_CLUSTER = 9442;
+
+    // AnnotationKey mirrored from agent-module/plugins/grpc type-provider.yml (code 160,
+    // name 'grpc.status', viewInRecordSet). The native gRPC client plugin records the status
+    // NAME (io.grpc Status.getCode().name()); the OTel numeric code is translated accordingly
+    // by OtlpGrpcStatusResolver.
+    public static final int ANNOTATION_KEY_GRPC_STATUS = 160;
     // OTel HTTP server semconv: the matched route template (low-cardinality, e.g. "/users/{id}").
     // Takes precedence over url.path/http.url/http.target so the rpc field groups by endpoint
     // pattern instead of the raw, high-cardinality request path. This is the OTel equivalent of
@@ -138,6 +144,11 @@ public class OtlpTraceConstants {
     // grpc-1.6 GrpcRpcAttributesGetter / apache-dubbo-2.7 DubboRpcAttributesGetter).
     public static final String RPC_SYSTEM_GRPC = "grpc";
     public static final String RPC_SYSTEM_APACHE_DUBBO = "apache_dubbo";
+    // gRPC result status code (0-16). Standard OTel RPC semconv: rpc.grpc.status_code (int);
+    // nonstandard variant grpc.status_code (numeric string) emitted by e.g. the ASP.NET Core
+    // gRPC instrumentation. Promoted to the grpc.status annotation via OtlpGrpcStatusResolver.
+    public static final String ATTRIBUTE_KEY_RPC_GRPC_STATUS_CODE = "rpc.grpc.status_code";
+    public static final String ATTRIBUTE_KEY_GRPC_STATUS_CODE = "grpc.status_code";
     public static final String ATTRIBUTE_KEY_MESSAGING_CLIENT_ID = "messaging.client_id";
     public static final String ATTRIBUTE_KEY_SERVER_PORT = "server.port";
     public static final String ATTRIBUTE_KEY_SERVER_ADDRESS = "server.address";
@@ -255,4 +266,9 @@ public class OtlpTraceConstants {
     // Same consumedKeys handling as the status keys: only the consumed variant is filtered.
     public static final List<String> HTTP_METHOD_KEYS =
             List.of(ATTRIBUTE_KEY_HTTP_REQUEST_METHOD, ATTRIBUTE_KEY_HTTP_METHOD);
+
+    // gRPC status resolution order: standard RPC semconv before the nonstandard variant.
+    // Same consumedKeys handling: only the consumed variant is filtered.
+    public static final List<String> GRPC_STATUS_CODE_KEYS =
+            List.of(ATTRIBUTE_KEY_RPC_GRPC_STATUS_CODE, ATTRIBUTE_KEY_GRPC_STATUS_CODE);
 }

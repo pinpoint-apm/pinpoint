@@ -551,6 +551,43 @@ class OtlpTraceSpanEventMapperTest {
     }
 
     @Test
+    void map_client_grpcStatus_promotedToAnnotation_andConsumedKeyFiltered() {
+        // Mirrors the native gRPC client plugin: the numeric OTel code is translated to the
+        // status NAME (Status.getCode().name()) and recorded as the grpc.status (160) annotation;
+        // the consumed raw key is filtered.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.grpc.status_code", intVal(0)));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("OK");
+        assertThat(attributeKeys(event)).doesNotContain("rpc.grpc.status_code");
+    }
+
+    @Test
+    void map_client_grpcStatus_failureCode_translated() {
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.grpc.status_code", intVal(14)));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("UNAVAILABLE");
+    }
+
+    @Test
+    void map_client_grpcStatus_bothKeys_onlyConsumedKeyRemoved() {
+        // Standard rpc.grpc.status_code wins; the non-consumed nonstandard variant stays raw.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.grpc.status_code", intVal(0)),
+                kv("grpc.status_code", strVal("0")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("OK");
+        assertThat(attributeKeys(event)).doesNotContain("rpc.grpc.status_code");
+        assertThat(attributeKeys(event)).contains("grpc.status_code");
+    }
+
+    @Test
     void map_internal_httpStatusCode_promotedToAnnotation() {
         // A Next.js INTERNAL span (Node.runHandler) carries http.status_code; it is promoted to the
         // HTTP_STATUS_CODE annotation just like the client path (uniform: status present → surfaced).

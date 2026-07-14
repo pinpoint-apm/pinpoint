@@ -686,6 +686,40 @@ class OtlpTraceSpanMapperTest {
         assertThat(attributeKeys(bo)).contains("rpc.system");
     }
 
+    // =======================================================================
+    // map() — gRPC status promotion (grpc.status, 160)
+    // =======================================================================
+
+    @Test
+    void map_server_grpcStatus_nonstandardStringVariant_promoted() {
+        // ASP.NET Core gRPC server emits the nonstandard grpc.status_code as a numeric string
+        // ("0"). The native agent has no gRPC server plugin, so this root-span promotion is
+        // OTel-only added value; the value mirrors the native name representation.
+        Span span = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("grpc.status_code", strVal("0")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("OK");
+        assertThat(attributeKeys(bo)).doesNotContain("grpc.status_code");
+    }
+
+    @Test
+    void map_server_grpcStatus_outOfRangeCode_recordedAsNumber() {
+        // Codes outside the spec range (0-16) have no canonical name — record the raw number.
+        Span span = serverSpan(kv("rpc.grpc.status_code", intVal(99)));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("99");
+    }
+
+    @Test
+    void map_server_grpcStatus_nonNumeric_noAnnotationAndKeptRaw() {
+        // A non-numeric status is not promoted; the raw attribute survives (consumedKeys rule).
+        Span span = serverSpan(kv("grpc.status_code", strVal("OK")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isNull();
+        assertThat(attributeKeys(bo)).contains("grpc.status_code");
+    }
+
     @Test
     void map_server_envoy_upstreamClusterName_consumed_filtered() {
         // The Envoy ingress branch promotes upstream_cluster.name to the upstream.cluster
