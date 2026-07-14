@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RabbitMQAttrib
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RocketMQAttributeUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -255,12 +256,26 @@ public class OtlpTraceSpanEventMapper {
     }
 
     String getClientSpanToEndPoint(Map<String, AttributeValue> attributes) {
+        // Logical names first (better ServerMap grouping than socket IPs), then URL-derived
+        // host:port, then the socket address, then the proxy tag.
         final String serverAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
             final long serverPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
-        // socket-level fallback when server.* attributes are not emitted by the SDK
+        // legacy (semconv 1.x) equivalent of server.address — otel-js gRPC/HTTP clients emit
+        // only net.peer.name/net.peer.port, which previously left endPoint/destinationId null.
+        final String netPeerName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, null);
+        if (netPeerName != null) {
+            final long netPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, 0L);
+            return HostAndPort.toHostAndPortString(netPeerName, (int) netPeerPort, 0);
+        }
+        // host:port extracted from the request URL — url.full (new semconv) / http.url (legacy)
+        final String urlHostAndPort = getUrlToHostAndPort(attributes);
+        if (urlHostAndPort != null) {
+            return urlHostAndPort;
+        }
+        // socket-level fallback when no application-level address is emitted by the SDK
         final String networkPeerIp = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, null);
         if (networkPeerIp != null) {
             final long networkPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, 0L);
@@ -268,6 +283,23 @@ public class OtlpTraceSpanEventMapper {
         }
         // proxy
         return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+    }
+
+    /**
+     * Extracts {@code host[:port]} from the HTTP client request URL — {@code url.full}
+     * (new semconv) before {@code http.url} (legacy). Returns {@code null} when neither is
+     * present or the URL has no extractable host (e.g. a bare {@code "https://"}).
+     */
+    static @Nullable String getUrlToHostAndPort(Map<String, AttributeValue> attributes) {
+        String url = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_FULL, null);
+        if (url == null) {
+            url = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
+        }
+        final String hostAndPort = OtlpTraceSpanMapper.extractHostAndPort(url);
+        if (hostAndPort == null || hostAndPort.isEmpty()) {
+            return null;
+        }
+        return hostAndPort;
     }
 
     String getClientSpanToDestinationId(Map<String, AttributeValue> attributes) {
@@ -304,6 +336,17 @@ public class OtlpTraceSpanEventMapper {
         if (serverAddress != null) {
             final long serverPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
+        }
+        // legacy (semconv 1.x) equivalent of server.address — see getClientSpanToEndPoint
+        final String netPeerName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, null);
+        if (netPeerName != null) {
+            final long netPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, 0L);
+            return HostAndPort.toHostAndPortString(netPeerName, (int) netPeerPort, 0);
+        }
+        // host:port from the request URL — url.full (new semconv) / http.url (legacy)
+        final String urlHostAndPort = getUrlToHostAndPort(attributes);
+        if (urlHostAndPort != null) {
+            return urlHostAndPort;
         }
         final String networkPeerIp = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, null);
         if (networkPeerIp != null) {

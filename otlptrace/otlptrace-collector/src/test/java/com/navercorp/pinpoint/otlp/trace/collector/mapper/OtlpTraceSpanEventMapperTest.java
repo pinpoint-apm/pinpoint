@@ -216,6 +216,76 @@ class OtlpTraceSpanEventMapperTest {
         assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("proxy:9000");
     }
 
+    @Test
+    void getClientSpanToEndPoint_fallsBackToNetPeerName() {
+        // Legacy semconv client (e.g. otel-js gRPC) emits only net.peer.name/net.peer.port —
+        // previously resolved to null, dropping the ServerMap node.
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cart"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, AttributeValue.of(7070L)
+        );
+        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("cart:7070");
+    }
+
+    @Test
+    void getClientSpanToEndPoint_netPeerNameWithoutPort() {
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cart")
+        );
+        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("cart");
+    }
+
+    @Test
+    void getClientSpanToEndPoint_serverAddressPreferredOverNetPeerName() {
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, AttributeValue.of("cart.svc"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, AttributeValue.of(7070L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cart"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, AttributeValue.of(9999L)
+        );
+        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("cart.svc:7070");
+    }
+
+    @Test
+    void getClientSpanToEndPoint_fallsBackToHttpUrl() {
+        // Legacy HTTP client emitting only http.url (seen from python-requests instrumentations).
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, AttributeValue.of("http://frontend-proxy:8080/api/cart")
+        );
+        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("frontend-proxy:8080");
+    }
+
+    @Test
+    void getClientSpanToEndPoint_urlFullPreferredOverHttpUrl() {
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_URL_FULL, AttributeValue.of("https://api.example.com/users?id=1"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, AttributeValue.of("http://legacy.example.com/users")
+        );
+        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("api.example.com");
+    }
+
+    @Test
+    void getClientSpanToEndPoint_urlPreferredOverSocketAddress() {
+        // URL-derived logical host groups the ServerMap better than the socket IP.
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_URL_FULL, AttributeValue.of("http://api.example.com:8080/v1"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, AttributeValue.of("10.0.0.1"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, AttributeValue.of(8080L)
+        );
+        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("api.example.com:8080");
+    }
+
+    @Test
+    void getClientSpanToEndPoint_hostlessUrl_fallsThrough() {
+        // A malformed URL with no extractable host must not shadow later fallbacks.
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_URL_FULL, AttributeValue.of("https://"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, AttributeValue.of("10.0.0.1"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, AttributeValue.of(8080L)
+        );
+        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("10.0.0.1:8080");
+    }
+
     // =======================================================================
     // getClientSpanToDestinationId
     // =======================================================================
@@ -311,6 +381,35 @@ class OtlpTraceSpanEventMapperTest {
         assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("10.0.0.1:5432");
     }
 
+    @Test
+    void getClientSpanToDestinationId_fallsBackToNetPeerName() {
+        // Legacy semconv gRPC client — destinationId mirrors the endPoint fallback.
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cart"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, AttributeValue.of(7070L)
+        );
+        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("cart:7070");
+    }
+
+    @Test
+    void getClientSpanToDestinationId_fallsBackToUrl() {
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, AttributeValue.of("http://frontend-proxy:8080/api/cart")
+        );
+        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("frontend-proxy:8080");
+    }
+
+    @Test
+    void getClientSpanToDestinationId_dbSystemPreferredOverNetPeerName() {
+        // DB destination grouping (db.system) must not be shadowed by the new fallbacks.
+        Map<String, AttributeValue> attrs = Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM, AttributeValue.of("redis"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cache-01"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, AttributeValue.of(6379L)
+        );
+        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("redis");
+    }
+
     // =======================================================================
     // map() — producer / internal endPoint & destinationId resolution
     // =======================================================================
@@ -352,6 +451,36 @@ class OtlpTraceSpanEventMapperTest {
 
     private static final int HTTP_STATUS_CODE =
             com.navercorp.pinpoint.common.trace.AnnotationKey.HTTP_STATUS_CODE.getCode();
+
+    @Test
+    void map_client_legacyGrpc_netPeerName_setsEndPointAndDestinationId_andFiltersRawKeys() {
+        // End-to-end: a legacy-semconv gRPC client span (net.peer.name/net.peer.port only, as
+        // emitted by otel-js) resolves endPoint/destinationId instead of dropping the node, and
+        // the consumed keys are filtered from the raw attribute list (mirroring server.address).
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.service", strVal("oteldemo.CartService")),
+                kv("net.peer.name", strVal("cart")),
+                kv("net.peer.port", intVal(7070)));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getEndPoint()).isEqualTo("cart:7070");
+        assertThat(event.getDestinationId()).isEqualTo("cart:7070");
+        assertThat(attributeKeys(event)).doesNotContain("net.peer.name", "net.peer.port");
+    }
+
+    @Test
+    void map_client_httpUrlOnly_setsEndPoint_andKeepsRawUrl() {
+        // Legacy HTTP client emitting only http.url — endPoint is derived from the URL host,
+        // while the raw URL attribute is retained (path/query carry extra information).
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("http.url", strVal("http://frontend-proxy:8080/api/cart")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getEndPoint()).isEqualTo("frontend-proxy:8080");
+        assertThat(event.getDestinationId()).isEqualTo("frontend-proxy:8080");
+        assertThat(attributeKeys(event)).contains("http.url");
+    }
 
     @Test
     void map_client_httpStatusCode_promotedToAnnotation_andConsumedKeyFiltered() {
