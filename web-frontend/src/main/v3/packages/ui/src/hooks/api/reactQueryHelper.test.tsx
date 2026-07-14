@@ -1,14 +1,16 @@
-import { toast } from 'react-toastify';
 import type { Query } from '@tanstack/react-query';
-import { handleGlobalQueryError, showGlobalErrorToast } from './reactQueryHelper';
 
 // ErrorToast transitively pulls the ECharts (ESM) stack that babel-jest does not
-// transform, so stub it out — we only assert on the toast options here.
+// transform, so stub it out. These mocks must run before reactQueryHelper (and the
+// mocked react-toastify) are imported, so those imports are placed after them.
 jest.mock('../../components/Error/ErrorToast', () => ({ ErrorToast: () => null }));
 jest.mock('react-toastify', () => ({ toast: { error: jest.fn() } }));
 jest.mock('@pinpoint-fe/ui/src/atoms', () => ({
   toastCountAtom: { toString: () => 'toastCountAtom' },
 }));
+
+import { toast } from 'react-toastify';
+import { handleGlobalQueryError, showGlobalErrorToast } from './reactQueryHelper';
 
 const makeQuery = (over: Partial<Query> = {}) =>
   ({ queryHash: '["/api/test",""]', meta: undefined, ...over }) as unknown as Query;
