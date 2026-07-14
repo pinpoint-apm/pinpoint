@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -173,7 +174,6 @@ public class OtlpTraceConstants {
 
     public static final Set<String> FILTERED_ATTRIBUTE_KEY_SET = Set.of(
             ATTRIBUTE_KEY_CLIENT_ADDRESS,
-            ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE,
             ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET,
             ATTRIBUTE_KEY_MESSAGING_KAFKA_OFFSET,
             ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID,
@@ -207,4 +207,13 @@ public class OtlpTraceConstants {
     );
 
     public static final Predicate<String> FILTERED_ATTRIBUTE_KEY = FILTERED_ATTRIBUTE_KEY_SET::contains;
+
+    // HTTP status code keys are intentionally NOT in the base filter. On the root (SERVER/
+    // CONSUMER/INTERNAL) path OtlpTraceSpanMapper promotes one of them to the HTTP_STATUS_CODE
+    // annotation and then dynamically excludes only that consumed key from the raw attributes —
+    // so a non-promoted variant (or a non-numeric value that could not be promoted) is retained
+    // instead of blanket-dropped. On the SpanEvent path (client/producer/internal) they are never
+    // promoted, so they stay as raw attributes. Precedence order: new semconv before legacy.
+    public static final List<String> RESPONSE_STATUS_CODE_KEYS =
+            List.of(ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, ATTRIBUTE_KEY_HTTP_STATUS_CODE);
 }

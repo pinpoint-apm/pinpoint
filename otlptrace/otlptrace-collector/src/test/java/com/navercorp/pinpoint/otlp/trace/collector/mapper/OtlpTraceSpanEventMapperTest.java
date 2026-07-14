@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
@@ -332,6 +333,73 @@ class OtlpTraceSpanEventMapperTest {
 
     private SpanEventBo mapSingle(Span span) {
         return mapper.map(0L, span).get(0);
+    }
+
+    private static List<String> attributeKeys(SpanEventBo event) {
+        return event.getAttributeBoList().stream()
+                .map(AttributeBo::getKey)
+                .toList();
+    }
+
+    private static Object findAnnotation(SpanEventBo event, int code) {
+        return event.getAnnotationBoList().stream()
+                .filter(a -> a.getKey() == code)
+                .map(com.navercorp.pinpoint.common.server.bo.AnnotationBo::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static final int HTTP_STATUS_CODE =
+            com.navercorp.pinpoint.common.trace.AnnotationKey.HTTP_STATUS_CODE.getCode();
+
+    @Test
+    void map_client_httpStatusCode_promotedToAnnotation_andConsumedKeyFiltered() {
+        // Mirrors native HTTP client plugins: the client SpanEvent promotes the status to the
+        // HTTP_STATUS_CODE annotation and the consumed raw key is removed (no duplicate).
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("http.status_code", intVal(200)));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_STATUS_CODE)).isEqualTo(200);
+        assertThat(attributeKeys(event)).doesNotContain("http.status_code");
+    }
+
+    @Test
+    void map_client_bothStatusKeys_onlyConsumedKeyRemoved() {
+        // http.response.status_code wins (precedence) and is promoted + removed; the non-consumed
+        // legacy http.status_code is retained as a raw attribute.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("http.response.status_code", intVal(500)),
+                kv("http.status_code", intVal(500)));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_STATUS_CODE)).isEqualTo(500);
+        assertThat(attributeKeys(event)).doesNotContain("http.response.status_code");
+        assertThat(attributeKeys(event)).contains("http.status_code");
+    }
+
+    @Test
+    void map_client_grpc_noHttpStatusAnnotation() {
+        // gRPC clients carry rpc.grpc.status_code, not an http.* status → no HTTP_STATUS_CODE
+        // annotation is promoted.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.grpc.status_code", intVal(0)));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_STATUS_CODE)).isNull();
+    }
+
+    @Test
+    void map_internal_httpStatusCode_promotedToAnnotation() {
+        // A Next.js INTERNAL span (Node.runHandler) carries http.status_code; it is promoted to the
+        // HTTP_STATUS_CODE annotation just like the client path (uniform: status present → surfaced).
+        Span span = span(Span.SpanKind.SPAN_KIND_INTERNAL,
+                kv("http.status_code", intVal(200)));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_STATUS_CODE)).isEqualTo(200);
+        assertThat(attributeKeys(event)).doesNotContain("http.status_code");
     }
 
     @Test

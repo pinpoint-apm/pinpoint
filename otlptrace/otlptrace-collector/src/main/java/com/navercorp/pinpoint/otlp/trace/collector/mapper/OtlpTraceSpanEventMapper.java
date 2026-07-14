@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @Component
 public class OtlpTraceSpanEventMapper {
@@ -162,10 +163,21 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.setApiId(0);
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode(), OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
+        // HTTP response status → HTTP_STATUS_CODE annotation, mirroring the native HTTP client
+        // plugins (okhttp / httpclient / resttemplate / ...) which record it on the SpanEvent via
+        // SpanEventRecorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, ...). Only the consumed
+        // raw key is excluded below, so a non-promoted variant survives. Fires only when an HTTP
+        // status attribute is present (gRPC clients carry rpc.grpc.status_code instead → no-op).
+        final OtlpHttpStatusResolver.ResponseStatus responseStatus = OtlpHttpStatusResolver.resolve(attributes);
+        Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY;
+        if (responseStatus != null) {
+            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatus.code()));
+            attributeFilter = attributeFilter.or(responseStatus.sourceKey()::equals);
+        }
         // attributes
         if (!attributes.isEmpty()) {
             List<AttributeBo> attributeBoList = attributeBoMapper.toAttributeBoList(
-                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, truncatedCounts::attribute);
+                    attributes, attributeFilter, truncatedCounts::attribute);
             spanEventBo.setAttributeBoList(attributeBoList);
         }
         // event
