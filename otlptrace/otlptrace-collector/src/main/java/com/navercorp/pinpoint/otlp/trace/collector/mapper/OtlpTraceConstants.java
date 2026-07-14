@@ -174,9 +174,8 @@ public class OtlpTraceConstants {
     // W3C tracestate vendor entry that carries upstream Pinpoint context. Conforms to other
     // APM vendors' 2-letter key convention (dd, nr, dt, ot). Sub-keys inside the value use the
     // OTel/Datadog style: ';' separates sub-keys, ':' separates sub-key name and value.
-    // Format: pp=svc:<parentServiceName>;app:<parentApplicationName>[;type:<serviceTypeCode>]
-    // The 'type' sub-key is optional; when absent the upstream is assumed to be another
-    // OTel-instrumented service and OPENTELEMETRY_SERVER is used as the parent service type.
+    // Format: pp=svc:<parentServiceName>;app:<parentApplicationName>;type:<serviceTypeCode>
+    // The 'svc', 'app', and 'type' sub-keys are required.
     public static final String TRACESTATE_KEY_PINPOINT = "pp";
     public static final String TRACESTATE_SUBKEY_PARENT_SERVICE_NAME = "svc";
     public static final String TRACESTATE_SUBKEY_PARENT_APPLICATION_NAME = "app";
