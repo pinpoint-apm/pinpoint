@@ -144,6 +144,14 @@ public class OtlpTraceSpanMapper {
         if (httpMethod != null) {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_METHOD.getCode(), httpMethod));
         }
+        // gRPC status → grpc.status (160) annotation. The native agent has no gRPC server
+        // plugin, so this root-span promotion is OTel-only added value (the value form mirrors
+        // the native client plugin's status-name representation).
+        final OtlpGrpcStatusResolver.GrpcStatus grpcStatus = OtlpGrpcStatusResolver.resolve(attributes);
+        if (grpcStatus != null) {
+            spanBo.addAnnotation(AnnotationBo.of(OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS, grpcStatus.name()));
+            consumedKeys.add(grpcStatus.sourceKey());
+        }
         final Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY.or(consumedKeys::contains);
         final TruncatedCounts truncatedCounts = new TruncatedCounts();
         // attributes

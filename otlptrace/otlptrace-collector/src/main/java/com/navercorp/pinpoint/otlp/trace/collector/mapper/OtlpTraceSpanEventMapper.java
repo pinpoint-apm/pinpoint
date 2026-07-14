@@ -188,6 +188,13 @@ public class OtlpTraceSpanEventMapper {
         if (httpMethod != null) {
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_METHOD.getCode(), httpMethod));
         }
+        // gRPC status → grpc.status (160) annotation, mirroring the native gRPC client plugin
+        // (ListenerClosedInterceptor records Status.getCode().name() on the client SpanEvent).
+        final OtlpGrpcStatusResolver.GrpcStatus grpcStatus = OtlpGrpcStatusResolver.resolve(attributes);
+        if (grpcStatus != null) {
+            spanEventBo.addAnnotation(AnnotationBo.of(OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS, grpcStatus.name()));
+            consumedKeys.add(grpcStatus.sourceKey());
+        }
         // attributes
         if (!attributes.isEmpty()) {
             final Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY.or(consumedKeys::contains);
