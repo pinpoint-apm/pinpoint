@@ -53,7 +53,7 @@ public class OtlpTraceSpanMapper {
     private final OtlpTraceEventMapper eventMapper;
     private final OtlpTraceLinkMapper linkMapper;
     private final OtlpServerTypeResolver serverTypeResolver;
-    private final OtlpEnvoyTypeResolver envoyTypeResolver;
+    private final OtlpEnvoyRecorder envoyRecorder;
     private final OtlpExceptionInfoResolver exceptionInfoResolver;
     private final OtlpMessagingConsumerResolver messagingConsumerResolver;
     private final OtlpAttributeBoMapper attributeBoMapper;
@@ -61,14 +61,14 @@ public class OtlpTraceSpanMapper {
     public OtlpTraceSpanMapper(OtlpTraceEventMapper eventMapper,
                                OtlpTraceLinkMapper linkMapper,
                                OtlpServerTypeResolver serverTypeResolver,
-                               OtlpEnvoyTypeResolver envoyTypeResolver,
+                               OtlpEnvoyRecorder envoyRecorder,
                                OtlpExceptionInfoResolver exceptionInfoResolver,
                                OtlpMessagingConsumerResolver messagingConsumerResolver,
                                OtlpAttributeBoMapper attributeBoMapper) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
         this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
         this.serverTypeResolver = Objects.requireNonNull(serverTypeResolver, "serverTypeResolver");
-        this.envoyTypeResolver = Objects.requireNonNull(envoyTypeResolver, "envoyTypeResolver");
+        this.envoyRecorder = Objects.requireNonNull(envoyRecorder, "envoyRecorder");
         this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
         this.messagingConsumerResolver = Objects.requireNonNull(messagingConsumerResolver, "messagingConsumerResolver");
         this.attributeBoMapper = Objects.requireNonNull(attributeBoMapper, "attributeBoMapper");
@@ -275,24 +275,23 @@ public class OtlpTraceSpanMapper {
             spanBo.setAcceptorHost(spanBo.getEndPoint());
         }
 
-        // SERVER kind only: an Envoy ingress span (detected via Envoy-specific tags) becomes a
-        // ServerMap node, so it maps to the SERVER-category ENVOY (1550) node type — NOT the
-        // RPC-category ENVOY_INGRESS (9301), which the native tracer uses on a child SpanEvent.
-        // Otherwise dispatch ServiceType via rpc.system (grpc → GRPC_SERVER, apache_dubbo →
-        // APACHE_DUBBO_PROVIDER). INTERNAL and unsupported-messaging consumer fallthrough stay on
-        // OPENTELEMETRY_SERVER. HTTP server framework cannot be derived from OTel attributes.
+        // SERVER kind only: dispatch ServiceType via rpc.system (grpc → GRPC_SERVER,
+        // apache_dubbo → APACHE_DUBBO_PROVIDER). INTERNAL and unsupported-messaging consumer
+        // fallthrough stay on OPENTELEMETRY_SERVER. HTTP server framework cannot be derived
+        // from OTel attributes.
         final boolean isServerKind = span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE;
-        if (isServerKind && envoyTypeResolver.isEnvoy(attributes)) {
-            spanBo.setServiceType(envoyTypeResolver.resolveNodeServiceType());
-            envoyTypeResolver.recordAnnotations(spanBo::addAnnotation, attributes, true, consumedKeys);
-        } else {
-            final String rpcSystem = isServerKind
-                    ? AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null)
-                    : null;
-            if (rpcSystem != null) {
-                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM);
-            }
-            spanBo.setServiceType(serverTypeResolver.resolveServerServiceType(rpcSystem));
+        final String rpcSystem = isServerKind
+                ? AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null)
+                : null;
+        if (rpcSystem != null) {
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM);
+        }
+        spanBo.setServiceType(serverTypeResolver.resolveServerServiceType(rpcSystem));
+        // Envoy ingress detection → identification annotations only. The ServiceType is NOT
+        // overridden (see OtlpEnvoyRecorder Javadoc: mixing ENVOY(1550) with
+        // OPENTELEMETRY_SERVER under one applicationName caused node-type conflicts).
+        if (isServerKind && envoyRecorder.isEnvoy(attributes)) {
+            envoyRecorder.recordAnnotations(spanBo::addAnnotation, attributes, true, consumedKeys);
         }
 
         final String apiName = isConsumer(span) ? OtlpTraceMapper.CONSUMER_METHOD_NAME : OtlpTraceMapper.SERVER_METHOD_NAME;
