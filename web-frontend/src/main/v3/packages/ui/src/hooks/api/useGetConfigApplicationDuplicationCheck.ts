@@ -25,5 +25,8 @@ export const useGetConfigApplicationDuplicationCheck = ({
     queryFn: queryFn(`${END_POINTS.CONFIG_APPLICATION_DUPLICATION_CHECK}${queryString}`),
     enabled: !!queryString,
     retry: false,
+    // A failing response is an expected validation outcome (duplicate/invalid name) surfaced
+    // inline by the caller, not a system error — suppress the global error toast.
+    meta: { ignoreGlobalError: true },
   });
 };
