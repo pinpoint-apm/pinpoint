@@ -24,6 +24,16 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_CLIENT_ADDRESS = "client.address";
     public static final String ATTRIBUTE_KEY_PEER_ADDRESS = "peer.address";
     public static final String ATTRIBUTE_KEY_NET_PEER_IP = "net.peer.ip";
+    // Legacy (semconv 1.x) client peer: application-level logical name/port of the remote
+    // service. The new-semconv equivalent is server.address/server.port. Emitted by older SDK
+    // instrumentations (e.g. otel-js grpc/http) that predate the HTTP semconv stabilization —
+    // without this fallback such client spans lose their endPoint/destinationId entirely.
+    public static final String ATTRIBUTE_KEY_NET_PEER_NAME = "net.peer.name";
+    public static final String ATTRIBUTE_KEY_NET_PEER_PORT = "net.peer.port";
+    // Full request URL of an HTTP client span. New semconv: url.full; legacy: http.url
+    // (ATTRIBUTE_KEY_HTTP_URL). Host:port is extracted as an endPoint/destinationId fallback;
+    // the raw attribute is kept (path/query carry information beyond the extracted host).
+    public static final String ATTRIBUTE_KEY_URL_FULL = "url.full";
     public static final String ATTRIBUTE_KEY_NETWORK_PEER_IP = "network.peer.address";
     public static final String ATTRIBUTE_KEY_NETWORK_PEER_PORT = "network.peer.port";
     public static final String ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE = "http.response.status_code";
@@ -197,6 +207,11 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_MESSAGING_CLIENT_ID,
             ATTRIBUTE_KEY_SERVER_PORT,
             ATTRIBUTE_KEY_SERVER_ADDRESS,
+            // legacy equivalents of server.address/server.port — consumed the same way (client
+            // endPoint/destinationId), so filtered symmetrically. url.full / http.url are NOT
+            // filtered: only host:port is consumed and the raw URL retains path/query info.
+            ATTRIBUTE_KEY_NET_PEER_NAME,
+            ATTRIBUTE_KEY_NET_PEER_PORT,
             ATTRIBUTE_KEY_DB_NAME,
             ATTRIBUTE_KEY_DB_NAMESPACE,
             ATTRIBUTE_KEY_DB_STATEMENT,
