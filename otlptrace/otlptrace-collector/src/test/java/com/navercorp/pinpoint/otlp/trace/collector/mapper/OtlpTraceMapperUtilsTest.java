@@ -82,19 +82,20 @@ class OtlpTraceMapperUtilsTest {
     @Test
     void filteredAttributeKeySet_removesKnownKeys() {
         List<KeyValue> attrs = List.of(
-                kv("http.method", strVal("POST")),
+                kv("custom.attr", strVal("keep-me")),
                 kv(OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, strVal("/save")),
                 kv(OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, strVal("INSERT INTO t")),
+                kv(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_METHOD, strVal("POST")),
                 // http.status_code / http.response.status_code are intentionally NOT in the base
-                // filter (only in SERVER_FILTERED) so client SpanEvents retain them as raw
-                // attributes; the base predicate must leave this one untouched.
+                // filter (they are excluded dynamically, only when promoted) so client SpanEvents
+                // retain them as raw attributes; the base predicate must leave this one untouched.
                 kv(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, strVal("201"))
         );
 
         Map<String, Object> result = OtlpTraceMapperUtils.getAttributeToMap(
                 attrs, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
 
-        assertThat(result).containsOnlyKeys("http.method", OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE);
+        assertThat(result).containsOnlyKeys("custom.attr", OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE);
     }
 
     @Test

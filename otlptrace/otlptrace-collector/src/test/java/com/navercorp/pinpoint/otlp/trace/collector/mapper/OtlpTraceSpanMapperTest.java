@@ -695,6 +695,31 @@ class OtlpTraceSpanMapperTest {
     }
 
     // =======================================================================
+    // map() — HTTP method promotion
+    // =======================================================================
+
+    @Test
+    void map_server_httpMethod_legacy_promotedAndFiltered() {
+        // Legacy http.method is promoted to the HTTP_METHOD annotation and removed from the raw
+        // attribute list (no duplicate).
+        Span span = serverSpan(kv("http.method", strVal("GET")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.HTTP_METHOD.getCode())).isEqualTo("GET");
+        assertThat(attributeKeys(bo)).doesNotContain("http.method");
+    }
+
+    @Test
+    void map_server_httpRequestMethod_newSemconv_preferredOverLegacy() {
+        // New semconv http.request.method wins over legacy http.method (both carry the method).
+        Span span = serverSpan(
+                kv("http.request.method", strVal("POST")),
+                kv("http.method", strVal("POST")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.HTTP_METHOD.getCode())).isEqualTo("POST");
+        assertThat(attributeKeys(bo)).doesNotContain("http.request.method", "http.method");
+    }
+
+    // =======================================================================
     // map() — SDK-side dropped count annotations
     // =======================================================================
 
