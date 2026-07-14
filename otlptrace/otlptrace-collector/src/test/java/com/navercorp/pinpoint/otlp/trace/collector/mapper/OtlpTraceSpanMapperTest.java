@@ -607,6 +607,99 @@ class OtlpTraceSpanMapperTest {
         assertThat(bo.getRpc()).isEqualTo("/api/users/123");
     }
 
+    // =======================================================================
+    // map() — consumedKeys: filter only what was actually promoted
+    // =======================================================================
+
+    @Test
+    void map_server_rpcRace_onlyWinningKeyFiltered() {
+        // http.route wins the rpc precedence race — only the consumed key is filtered;
+        // the losing url.path stays in the raw attribute list instead of being blanket-dropped.
+        Span span = serverSpan(
+                kv("http.route", strVal("/api/users/{id}")),
+                kv("url.path", strVal("/api/users/123")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(attributeKeys(bo)).doesNotContain("http.route");
+        assertThat(attributeKeys(bo)).contains("url.path");
+    }
+
+    @Test
+    void map_server_httpTarget_consumedAsRpc_filtered() {
+        Span span = serverSpan(kv("http.target", strVal("/api/cart?x=1")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getRpc()).isEqualTo("/api/cart?x=1");
+        assertThat(attributeKeys(bo)).doesNotContain("http.target");
+    }
+
+    @Test
+    void map_server_rpcServiceAndMethod_consumed_filtered() {
+        // rpc.service → endPoint, rpc.method → rpc; both consumed → both filtered.
+        Span span = serverSpan(
+                kv("rpc.service", strVal("oteldemo.CartService")),
+                kv("rpc.method", strVal("AddItem")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getRpc()).isEqualTo("AddItem");
+        assertThat(bo.getEndPoint()).isEqualTo("oteldemo.CartService");
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.service", "rpc.method");
+    }
+
+    @Test
+    void map_server_peerAddress_consumedAsRemoteAddr_filtered() {
+        // peer.address (Envoy-style) resolves remoteAddr — previously it survived as a raw
+        // duplicate because it was missing from the static filter set.
+        Span span = serverSpan(kv("peer.address", strVal("172.18.0.25")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getRemoteAddr()).isEqualTo("172.18.0.25");
+        assertThat(attributeKeys(bo)).doesNotContain("peer.address");
+    }
+
+    @Test
+    void map_server_httpUrl_partialConsumption_keptRaw() {
+        // http.url feeds both rpc (path) and endPoint (host:port) but retains query information —
+        // partial consumption keeps the raw attribute.
+        Span span = serverSpan(kv("http.url", strVal("http://shop:8080/api/cart?x=1")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getRpc()).isEqualTo("/api/cart");
+        assertThat(bo.getEndPoint()).isEqualTo("shop:8080");
+        assertThat(attributeKeys(bo)).contains("http.url");
+    }
+
+    @Test
+    void map_server_rpcSystem_consumed_filtered() {
+        Span span = serverSpan(kv("rpc.system", strVal("grpc")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.system");
+    }
+
+    @Test
+    void map_internal_rpcSystem_notConsumed_keptRaw() {
+        // INTERNAL spans do not dispatch ServiceType via rpc.system — the key is not consumed,
+        // so it stays in the raw attribute list instead of being silently dropped.
+        Span span = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
+                .addAttributes(kv("rpc.system", strVal("grpc")))
+                .build();
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(attributeKeys(bo)).contains("rpc.system");
+    }
+
+    @Test
+    void map_server_envoy_upstreamClusterName_consumed_filtered() {
+        // The Envoy ingress branch promotes upstream_cluster.name to the upstream.cluster
+        // annotation — the consumed key is filtered; response_flags is only a detection gate
+        // (never promoted) and stays raw.
+        Span span = serverSpan(
+                kv("upstream_cluster.name", strVal("frontend")),
+                kv("response_flags", strVal("-")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isEqualTo("frontend");
+        assertThat(attributeKeys(bo)).doesNotContain("upstream_cluster.name");
+        assertThat(attributeKeys(bo)).contains("response_flags");
+    }
+
     @Test
     void map_server_nextRoute_preferredOverRawPath() {
         // Next.js emits next.route (route template) but not http.route. It must win over the raw
@@ -710,13 +803,16 @@ class OtlpTraceSpanMapperTest {
 
     @Test
     void map_server_httpRequestMethod_newSemconv_preferredOverLegacy() {
-        // New semconv http.request.method wins over legacy http.method (both carry the method).
+        // New semconv http.request.method wins over legacy http.method. Only the consumed
+        // variant is filtered — the non-consumed legacy twin stays as a raw attribute
+        // (same consumedKeys rule as the status keys).
         Span span = serverSpan(
                 kv("http.request.method", strVal("POST")),
                 kv("http.method", strVal("POST")));
         SpanBo bo = newMapper().map(id(), span);
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_METHOD.getCode())).isEqualTo("POST");
-        assertThat(attributeKeys(bo)).doesNotContain("http.request.method", "http.method");
+        assertThat(attributeKeys(bo)).doesNotContain("http.request.method");
+        assertThat(attributeKeys(bo)).contains("http.method");
     }
 
     // =======================================================================

@@ -40,9 +40,11 @@ import io.opentelemetry.proto.trace.v1.Status;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -98,12 +100,16 @@ public class OtlpTraceSpanMapper {
         spanBo.setApiId(0);
 
         final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
+        // Keys promoted to a 1st-class field/annotation are collected here and excluded from the
+        // raw attribute list below — "filter only what was actually consumed". Keys consumed by
+        // the messaging/db collaborators are covered by the static FILTERED_ATTRIBUTE_KEY_SET.
+        final Set<String> consumedKeys = new HashSet<>();
         final String messagingSystem = isConsumer(span) ? MessagingAttributeUtils.getSystem(attributes) : null;
         final MessageConsumerRecorder messageConsumerRecorder = messagingConsumerResolver.resolve(messagingSystem);
         if (messageConsumerRecorder != null) {
             messageConsumerRecorder.recordMessagingConsumer(spanBo, attributes);
         } else {
-            recordServer(spanBo, span, attributes);
+            recordServer(spanBo, span, attributes, consumedKeys);
         }
 
         // Apply Pinpoint context propagated via tracestate from an upstream OTel-traced service.
@@ -129,16 +135,16 @@ public class OtlpTraceSpanMapper {
         // Only the raw attribute key actually consumed here is excluded from the attribute list below,
         // so a non-promoted status variant (or a non-numeric value that could not be promoted) survives.
         final OtlpHttpStatusResolver.ResponseStatus responseStatus = OtlpHttpStatusResolver.resolve(attributes);
-        Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY;
         if (responseStatus != null) {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatus.code()));
-            attributeFilter = attributeFilter.or(responseStatus.sourceKey()::equals);
+            consumedKeys.add(responseStatus.sourceKey());
         }
         // http method → HTTP_METHOD annotation (surfaced as a 1st-class field in the web UI)
-        final String httpMethod = getHttpMethod(attributes);
+        final String httpMethod = getHttpMethod(attributes, consumedKeys);
         if (httpMethod != null) {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_METHOD.getCode(), httpMethod));
         }
+        final Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY.or(consumedKeys::contains);
         final TruncatedCounts truncatedCounts = new TruncatedCounts();
         // attributes
         if (!attributes.isEmpty()) {
@@ -252,10 +258,10 @@ public class OtlpTraceSpanMapper {
      * to the server-style mapping). acceptorHost is only set when the span has a parent
      * (i.e. is not a trace root), since a root server span has no upstream caller.
      */
-    private void recordServer(SpanBo spanBo, Span span, Map<String, AttributeValue> attributes) {
-        spanBo.setRpc(getServerSpanToRpc(span, attributes));
-        spanBo.setEndPoint(getServerSpanToEndPoint(span, attributes));
-        spanBo.setRemoteAddr(getServerSpanToRemoteAddress(span, attributes));
+    private void recordServer(SpanBo spanBo, Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
+        spanBo.setRpc(getServerSpanToRpc(span, attributes, consumedKeys));
+        spanBo.setEndPoint(getServerSpanToEndPoint(span, attributes, consumedKeys));
+        spanBo.setRemoteAddr(getServerSpanToRemoteAddress(span, attributes, consumedKeys));
 
         if (spanBo.getParentSpanId() != -1) {
             spanBo.setAcceptorHost(spanBo.getEndPoint());
@@ -270,11 +276,14 @@ public class OtlpTraceSpanMapper {
         final boolean isServerKind = span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE;
         if (isServerKind && envoyTypeResolver.isEnvoy(attributes)) {
             spanBo.setServiceType(envoyTypeResolver.resolveNodeServiceType());
-            envoyTypeResolver.recordAnnotations(spanBo::addAnnotation, attributes, true);
+            envoyTypeResolver.recordAnnotations(spanBo::addAnnotation, attributes, true, consumedKeys);
         } else {
             final String rpcSystem = isServerKind
                     ? AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null)
                     : null;
+            if (rpcSystem != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM);
+            }
             spanBo.setServiceType(serverTypeResolver.resolveServerServiceType(rpcSystem));
         }
 
@@ -282,20 +291,25 @@ public class OtlpTraceSpanMapper {
         spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), apiName));
     }
 
-    String getServerSpanToEndPoint(Span span, Map<String, AttributeValue> attributes) {
+    String getServerSpanToEndPoint(Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             // HTTP Server
             final String serverAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
             if (serverAddress != null) {
                 final long serverPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS);
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT);
                 return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
             }
+            // http.url is deliberately NOT collected: only host:port is consumed and the raw URL
+            // retains path/query information beyond the promoted field.
             final String httpUrl = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
             if (httpUrl != null) {
                 return extractHostAndPort(httpUrl);
             }
             final String rpcService = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SERVICE, null);
             if (rpcService != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SERVICE);
                 return rpcService;
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
@@ -330,13 +344,22 @@ public class OtlpTraceSpanMapper {
         return url.substring(start, end); // "host" or "host:port"
     }
 
+    /**
+     * Consumption-free variant for callers that only need the value (e.g. the exception-trace
+     * uriTemplate in {@link OtlpTraceMapper}) — consumed keys are collected into a throwaway set.
+     */
     String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes) {
+        return getServerSpanToRpc(span, attributes, new HashSet<>());
+    }
+
+    String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             // http.route is the matched route template ("/users/{id}") — prefer it over the raw
             // url.path ("/users/12345") so the rpc field stays low-cardinality, matching the agent's
             // recordUriTemplate behavior. Falls through to url.path when the request is unrouted.
             final String httpRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE, null);
             if (httpRoute != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE);
                 return httpRoute;
             }
             // next.route is Next.js's route template (http.route's vendor equivalent). Next.js does
@@ -344,22 +367,28 @@ public class OtlpTraceSpanMapper {
             // to keep the rpc field low-cardinality (e.g. "/api/products/[productId]/index").
             final String nextRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE, null);
             if (nextRoute != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE);
                 return nextRoute;
             }
             final String urlPath = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH);
                 return urlPath;
             }
+            // http.url is deliberately NOT collected — only the path is consumed here (and the
+            // host by getServerSpanToEndPoint); the raw URL retains the rest.
             final String httpUrl = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
             if (httpUrl != null) {
                 return extractPath(httpUrl);
             }
             final String httpTarget = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_TARGET, null);
             if (httpTarget != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_TARGET);
                 return httpTarget;
             }
             final String rpcMethod = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD, null);
             if (rpcMethod != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD);
                 return rpcMethod;
             }
         }
@@ -400,23 +429,28 @@ public class OtlpTraceSpanMapper {
         return span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE;
     }
 
-    String getServerSpanToRemoteAddress(Span span, Map<String, AttributeValue> attributes) {
+    String getServerSpanToRemoteAddress(Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             String remoteAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_CLIENT_ADDRESS, null);
             if (remoteAddress != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_CLIENT_ADDRESS);
                 return remoteAddress;
             }
             remoteAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_PEER_ADDRESS, null);
             if (remoteAddress != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_PEER_ADDRESS);
                 return remoteAddress;
             }
             remoteAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_IP, null);
             if (remoteAddress != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_IP);
                 return remoteAddress;
             }
             final String networkPeerIp = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, null);
             if (networkPeerIp != null) {
                 final long networkPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, 0L);
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP);
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT);
                 return HostAndPort.toHostAndPortString(networkPeerIp, (int) networkPeerPort, 0);
             }
             return null;
@@ -429,12 +463,14 @@ public class OtlpTraceSpanMapper {
     /**
      * Resolves the HTTP request method (new semconv {@code http.request.method} before legacy
      * {@code http.method}) for promotion to the HTTP_METHOD annotation, or {@code null} when
-     * absent. Shared by the root-span and SpanEvent paths.
+     * absent. Shared by the root-span and SpanEvent paths. Only the consumed variant is
+     * collected, so a non-consumed legacy/new twin stays in the raw attribute list.
      */
-    static @Nullable String getHttpMethod(Map<String, AttributeValue> attributes) {
+    static @Nullable String getHttpMethod(Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
         for (String key : OtlpTraceConstants.HTTP_METHOD_KEYS) {
             final String method = AttributeUtils.getAttributeStringValue(attributes, key, null);
             if (method != null) {
+                consumedKeys.add(key);
                 return method;
             }
         }
