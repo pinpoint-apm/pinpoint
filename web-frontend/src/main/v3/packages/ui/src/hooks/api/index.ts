@@ -42,7 +42,7 @@ export * from './useGetServiceMap';
 export * from './useDeleteService';
 export * from './useGetServices';
 export * from './usePostService';
-export * from './useGetSeverTime';
+export * from './useGetServerTime';
 export * from './useGetSystemMetricChartData';
 export * from './useGetSystemMetricHostData';
 export * from './useGetSystemMetricHostGroupData';

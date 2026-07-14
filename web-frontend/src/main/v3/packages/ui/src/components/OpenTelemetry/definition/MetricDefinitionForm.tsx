@@ -4,7 +4,7 @@ import { ErrorBoundary } from '../..';
 import {
   MetricDefinitionFormFetcher,
   MetricDefinitionFormFetcherProps,
-} from './MeticDefinitionFormFetcher';
+} from './MetricDefinitionFormFetcher';
 import { ListItemSkeleton } from '../../VirtualList';
 
 export const MetricDefinitionForm = ({ ...props }: MetricDefinitionFormFetcherProps) => {
