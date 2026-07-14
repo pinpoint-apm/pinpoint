@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
@@ -400,6 +401,18 @@ class OtlpTraceSpanEventMapperTest {
         SpanEventBo event = mapSingle(span);
         assertThat(findAnnotation(event, HTTP_STATUS_CODE)).isEqualTo(200);
         assertThat(attributeKeys(event)).doesNotContain("http.status_code");
+    }
+
+    @Test
+    void map_client_httpMethod_promotedToAnnotation_andFiltered() {
+        // HTTP client SpanEvent: the request method is promoted to the HTTP_METHOD annotation and
+        // removed from the raw attributes.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("http.request.method", strVal("GET")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, AnnotationKey.HTTP_METHOD.getCode())).isEqualTo("GET");
+        assertThat(attributeKeys(event)).doesNotContain("http.request.method");
     }
 
     @Test

@@ -134,6 +134,11 @@ public class OtlpTraceSpanMapper {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatus.code()));
             attributeFilter = attributeFilter.or(responseStatus.sourceKey()::equals);
         }
+        // http method → HTTP_METHOD annotation (surfaced as a 1st-class field in the web UI)
+        final String httpMethod = getHttpMethod(attributes);
+        if (httpMethod != null) {
+            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_METHOD.getCode(), httpMethod));
+        }
         final TruncatedCounts truncatedCounts = new TruncatedCounts();
         // attributes
         if (!attributes.isEmpty()) {
@@ -421,4 +426,18 @@ public class OtlpTraceSpanMapper {
         return null;
     }
 
+    /**
+     * Resolves the HTTP request method (new semconv {@code http.request.method} before legacy
+     * {@code http.method}) for promotion to the HTTP_METHOD annotation, or {@code null} when
+     * absent. Shared by the root-span and SpanEvent paths.
+     */
+    static @Nullable String getHttpMethod(Map<String, AttributeValue> attributes) {
+        for (String key : OtlpTraceConstants.HTTP_METHOD_KEYS) {
+            final String method = AttributeUtils.getAttributeStringValue(attributes, key, null);
+            if (method != null) {
+                return method;
+            }
+        }
+        return null;
+    }
 }

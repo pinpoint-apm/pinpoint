@@ -174,6 +174,11 @@ public class OtlpTraceSpanEventMapper {
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatus.code()));
             attributeFilter = attributeFilter.or(responseStatus.sourceKey()::equals);
         }
+        // http method → HTTP_METHOD annotation (e.g. an HTTP client SpanEvent's request method)
+        final String httpMethod = OtlpTraceSpanMapper.getHttpMethod(attributes);
+        if (httpMethod != null) {
+            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_METHOD.getCode(), httpMethod));
+        }
         // attributes
         if (!attributes.isEmpty()) {
             List<AttributeBo> attributeBoList = attributeBoMapper.toAttributeBoList(

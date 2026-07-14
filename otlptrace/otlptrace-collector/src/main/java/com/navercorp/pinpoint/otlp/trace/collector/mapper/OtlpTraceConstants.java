@@ -28,6 +28,11 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_NETWORK_PEER_PORT = "network.peer.port";
     public static final String ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE = "http.response.status_code";
     public static final String ATTRIBUTE_KEY_HTTP_STATUS_CODE = "http.status_code";
+    // HTTP request method. New semconv: http.request.method; legacy 1.x: http.method. Promoted to
+    // the HTTP_METHOD annotation on both the root span and SpanEvents; both keys are filtered from
+    // the raw attributes once promoted (the two are the same value in different semconv versions).
+    public static final String ATTRIBUTE_KEY_HTTP_REQUEST_METHOD = "http.request.method";
+    public static final String ATTRIBUTE_KEY_HTTP_METHOD = "http.method";
     // Kafka message offset
     public static final String ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET = "messaging.kafka.message.offset"; // legacy
     public static final String ATTRIBUTE_KEY_MESSAGING_KAFKA_OFFSET = "messaging.kafka.offset";                 // OTel semconv ≥ stable
@@ -187,6 +192,8 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_HTTP_ROUTE,
             ATTRIBUTE_KEY_NEXT_ROUTE,
             ATTRIBUTE_KEY_URL_PATH,
+            ATTRIBUTE_KEY_HTTP_REQUEST_METHOD,
+            ATTRIBUTE_KEY_HTTP_METHOD,
             ATTRIBUTE_KEY_MESSAGING_CLIENT_ID,
             ATTRIBUTE_KEY_SERVER_PORT,
             ATTRIBUTE_KEY_SERVER_ADDRESS,
@@ -216,4 +223,8 @@ public class OtlpTraceConstants {
     // promoted, so they stay as raw attributes. Precedence order: new semconv before legacy.
     public static final List<String> RESPONSE_STATUS_CODE_KEYS =
             List.of(ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, ATTRIBUTE_KEY_HTTP_STATUS_CODE);
+
+    // HTTP method resolution order: new semconv (http.request.method) before legacy (http.method).
+    public static final List<String> HTTP_METHOD_KEYS =
+            List.of(ATTRIBUTE_KEY_HTTP_REQUEST_METHOD, ATTRIBUTE_KEY_HTTP_METHOD);
 }
