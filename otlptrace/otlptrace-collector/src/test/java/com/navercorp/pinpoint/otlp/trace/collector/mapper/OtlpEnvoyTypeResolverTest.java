@@ -112,7 +112,7 @@ class OtlpEnvoyTypeResolverTest {
         attrs.put(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER, AttributeValue.of("legacy"));
 
         List<AnnotationBo> out = new ArrayList<>();
-        resolver.recordAnnotations(out::add, attrs, false);
+        resolver.recordAnnotations(out::add, attrs, false, new java.util.HashSet<>());
 
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isEqualTo("frontend");
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION)).isEqualTo("Egress");
@@ -124,7 +124,7 @@ class OtlpEnvoyTypeResolverTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER, AttributeValue.of("frontend"));
 
         List<AnnotationBo> out = new ArrayList<>();
-        resolver.recordAnnotations(out::add, attrs, true);
+        resolver.recordAnnotations(out::add, attrs, true, new java.util.HashSet<>());
 
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isEqualTo("frontend");
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION)).isEqualTo("Ingress");
@@ -134,7 +134,7 @@ class OtlpEnvoyTypeResolverTest {
     void recordAnnotations_noCluster_onlyOperationRecorded() {
         // response_flags-only Envoy span: no cluster annotation, but operation is still tagged.
         List<AnnotationBo> out = new ArrayList<>();
-        resolver.recordAnnotations(out::add, Map.of(), false);
+        resolver.recordAnnotations(out::add, Map.of(), false, new java.util.HashSet<>());
 
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isNull();
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION)).isEqualTo("Egress");

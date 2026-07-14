@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -185,7 +186,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, AttributeValue.of("db.example.com"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, AttributeValue.of(5432L)
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("db.example.com:5432");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("db.example.com:5432");
     }
 
     @Test
@@ -194,7 +195,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, AttributeValue.of("10.0.0.1"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, AttributeValue.of(5432L)
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("10.0.0.1:5432");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("10.0.0.1:5432");
     }
 
     @Test
@@ -205,7 +206,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, AttributeValue.of("10.0.0.1"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, AttributeValue.of(9999L)
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("db.example.com:5432");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("db.example.com:5432");
     }
 
     @Test
@@ -213,7 +214,7 @@ class OtlpTraceSpanEventMapperTest {
         Map<String, AttributeValue> attrs = Map.of(
                 OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, AttributeValue.of("proxy:9000")
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("proxy:9000");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("proxy:9000");
     }
 
     @Test
@@ -224,7 +225,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cart"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, AttributeValue.of(7070L)
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("cart:7070");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("cart:7070");
     }
 
     @Test
@@ -232,7 +233,7 @@ class OtlpTraceSpanEventMapperTest {
         Map<String, AttributeValue> attrs = Map.of(
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cart")
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("cart");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("cart");
     }
 
     @Test
@@ -243,7 +244,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cart"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, AttributeValue.of(9999L)
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("cart.svc:7070");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("cart.svc:7070");
     }
 
     @Test
@@ -252,7 +253,7 @@ class OtlpTraceSpanEventMapperTest {
         Map<String, AttributeValue> attrs = Map.of(
                 OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, AttributeValue.of("http://frontend-proxy:8080/api/cart")
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("frontend-proxy:8080");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("frontend-proxy:8080");
     }
 
     @Test
@@ -261,7 +262,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_URL_FULL, AttributeValue.of("https://api.example.com/users?id=1"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, AttributeValue.of("http://legacy.example.com/users")
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("api.example.com");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("api.example.com");
     }
 
     @Test
@@ -272,7 +273,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, AttributeValue.of("10.0.0.1"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, AttributeValue.of(8080L)
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("api.example.com:8080");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("api.example.com:8080");
     }
 
     @Test
@@ -283,7 +284,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, AttributeValue.of("10.0.0.1"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, AttributeValue.of(8080L)
         );
-        assertThat(mapper.getClientSpanToEndPoint(attrs)).isEqualTo("10.0.0.1:8080");
+        assertThat(mapper.getClientSpanToEndPoint(attrs, new HashSet<>())).isEqualTo("10.0.0.1:8080");
     }
 
     // =======================================================================
@@ -297,7 +298,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, AttributeValue.of("legacy_db"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM, AttributeValue.of("postgresql")
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("shop_db");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("shop_db");
     }
 
     @Test
@@ -306,7 +307,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, AttributeValue.of("legacy_db"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM, AttributeValue.of("mysql")
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("legacy_db");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("legacy_db");
     }
 
     @Test
@@ -317,7 +318,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, AttributeValue.of("cache-01.example.com"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, AttributeValue.of(6379L)
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("redis");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("redis");
     }
 
     @Test
@@ -326,7 +327,7 @@ class OtlpTraceSpanEventMapperTest {
         Map<String, AttributeValue> attrs = Map.of(
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM, AttributeValue.of("elasticsearch")
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("elasticsearch");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("elasticsearch");
     }
 
     @Test
@@ -341,7 +342,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, AttributeValue.of("cache-01.example.com"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, AttributeValue.of(6379L)
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("redis");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("redis");
     }
 
     @Test
@@ -351,7 +352,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM, AttributeValue.of("redis"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, AttributeValue.of("0")
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("redis");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("redis");
     }
 
     @Test
@@ -360,7 +361,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM_NAME, AttributeValue.of("Redis"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAMESPACE, AttributeValue.of("0")
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("Redis");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("Redis");
     }
 
     @Test
@@ -369,7 +370,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, AttributeValue.of("svc.example.com"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, AttributeValue.of(8080L)
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("svc.example.com:8080");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("svc.example.com:8080");
     }
 
     @Test
@@ -378,7 +379,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, AttributeValue.of("10.0.0.1"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, AttributeValue.of(5432L)
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("10.0.0.1:5432");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("10.0.0.1:5432");
     }
 
     @Test
@@ -388,7 +389,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cart"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, AttributeValue.of(7070L)
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("cart:7070");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("cart:7070");
     }
 
     @Test
@@ -396,7 +397,7 @@ class OtlpTraceSpanEventMapperTest {
         Map<String, AttributeValue> attrs = Map.of(
                 OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, AttributeValue.of("http://frontend-proxy:8080/api/cart")
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("frontend-proxy:8080");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("frontend-proxy:8080");
     }
 
     @Test
@@ -407,7 +408,7 @@ class OtlpTraceSpanEventMapperTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, AttributeValue.of("cache-01"),
                 OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, AttributeValue.of(6379L)
         );
-        assertThat(mapper.getClientSpanToDestinationId(attrs)).isEqualTo("redis");
+        assertThat(mapper.getClientSpanToDestinationId(attrs, new HashSet<>())).isEqualTo("redis");
     }
 
     // =======================================================================
@@ -480,6 +481,35 @@ class OtlpTraceSpanEventMapperTest {
         assertThat(event.getEndPoint()).isEqualTo("frontend-proxy:8080");
         assertThat(event.getDestinationId()).isEqualTo("frontend-proxy:8080");
         assertThat(attributeKeys(event)).contains("http.url");
+    }
+
+    @Test
+    void map_client_envoyEgress_consumedKeysFiltered() {
+        // Envoy egress: upstream_cluster.name is promoted (destinationId + upstream.cluster
+        // annotation) and upstream_address resolves the endPoint — both consumed → filtered.
+        // response_flags is only the detection gate and stays raw.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("upstream_cluster.name", strVal("frontend")),
+                kv("upstream_address", strVal("172.18.0.27:8080")),
+                kv("response_flags", strVal("-")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getDestinationId()).isEqualTo("frontend");
+        assertThat(event.getEndPoint()).isEqualTo("172.18.0.27:8080");
+        assertThat(attributeKeys(event)).doesNotContain("upstream_cluster.name", "upstream_address");
+        assertThat(attributeKeys(event)).contains("response_flags");
+    }
+
+    @Test
+    void map_internal_netPeerName_notConsumed_keptRaw() {
+        // INTERNAL spans resolve no endPoint/destinationId — net.peer.name is not consumed,
+        // so it stays in the raw attribute list instead of being silently dropped.
+        Span span = span(Span.SpanKind.SPAN_KIND_INTERNAL,
+                kv("net.peer.name", strVal("cart")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getEndPoint()).isNull();
+        assertThat(attributeKeys(event)).contains("net.peer.name");
     }
 
     @Test

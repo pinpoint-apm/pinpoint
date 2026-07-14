@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -107,12 +108,19 @@ public class OtlpEnvoyTypeResolver {
 
     /**
      * Attaches the Envoy annotations (upstream.cluster + envoy.operation) to a Span/SpanEvent.
-     * upstream_cluster.name is preferred over the legacy upstream_cluster tag.
+     * upstream_cluster.name is preferred over the legacy upstream_cluster tag. The consumed
+     * cluster key is collected into {@code consumedKeys} so it is excluded from the raw
+     * attribute list; response_flags is only a detection gate (never promoted) and stays raw.
      */
-    public void recordAnnotations(Consumer<AnnotationBo> sink, Map<String, AttributeValue> attributes, boolean ingress) {
+    public void recordAnnotations(Consumer<AnnotationBo> sink, Map<String, AttributeValue> attributes, boolean ingress, Set<String> consumedKeys) {
         String cluster = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
-        if (cluster == null) {
+        if (cluster != null) {
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME);
+        } else {
             cluster = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER, null);
+            if (cluster != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER);
+            }
         }
         if (cluster != null) {
             sink.accept(AnnotationBo.of(OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER, cluster));

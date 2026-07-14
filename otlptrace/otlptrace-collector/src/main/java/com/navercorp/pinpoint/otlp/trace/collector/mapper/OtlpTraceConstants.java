@@ -187,8 +187,26 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_PROCESS_RUNTIME_DESCRIPTION = "process.runtime.description";
     public static final String ATTRIBUTE_KEY_TELEMETRY_SDK_VERSION = "telemetry.sdk.version";
 
+    // Raw-attribute filtering follows one rule: "filter only what was promoted, on the path
+    // that promoted it, only when it actually was promoted". Most keys are therefore excluded
+    // DYNAMICALLY — the mapper collects the keys it actually consumed into a per-span
+    // consumedKeys set and composes the final filter as FILTERED_ATTRIBUTE_KEY.or(consumedKeys::
+    // contains). A key that was present but not consumed (wrong span kind, lost the precedence
+    // race, unparsable value) stays in the raw attribute list instead of being silently dropped.
+    //
+    // This STATIC base set is the documented exception: domain-gated key groups whose
+    // consumption is spread across many collaborators (messaging handlers/utils, the DB branch,
+    // the exception resolver), where threading the consumedKeys collector through every
+    // signature is not worth the churn. They are consumed whenever a span of their domain is
+    // mapped, so a blanket filter is a close approximation. Migrating them to the dynamic
+    // mechanism is a candidate follow-up.
+    //
+    // url.full / http.url are neither filtered nor collected: only host:port (or the path) is
+    // consumed, and the raw URL retains query/path information beyond the promoted field.
     public static final Set<String> FILTERED_ATTRIBUTE_KEY_SET = Set.of(
-            ATTRIBUTE_KEY_CLIENT_ADDRESS,
+            // messaging.* — consumed by OtlpMessagingConsumerResolver handlers (root CONSUMER
+            // spans) and recordMessagingProducerAnnotations / MessagingAttributeUtils (PRODUCER
+            // SpanEvents).
             ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET,
             ATTRIBUTE_KEY_MESSAGING_KAFKA_OFFSET,
             ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID,
@@ -199,19 +217,16 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_MESSAGING_KAFKA_CONSUMER_GROUP,
             ATTRIBUTE_KEY_MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY,
             ATTRIBUTE_KEY_MESSAGING_MESSAGE_ID,
-            ATTRIBUTE_KEY_HTTP_ROUTE,
-            ATTRIBUTE_KEY_NEXT_ROUTE,
-            ATTRIBUTE_KEY_URL_PATH,
-            ATTRIBUTE_KEY_HTTP_REQUEST_METHOD,
-            ATTRIBUTE_KEY_HTTP_METHOD,
             ATTRIBUTE_KEY_MESSAGING_CLIENT_ID,
-            ATTRIBUTE_KEY_SERVER_PORT,
+            // shared network endpoint keys — consumed by the root/SpanEvent endPoint chains AND
+            // by MessagingAttributeUtils.resolveEndPoint, so they stay in the static set until
+            // the messaging paths join the consumedKeys mechanism.
             ATTRIBUTE_KEY_SERVER_ADDRESS,
-            // legacy equivalents of server.address/server.port — consumed the same way (client
-            // endPoint/destinationId), so filtered symmetrically. url.full / http.url are NOT
-            // filtered: only host:port is consumed and the raw URL retains path/query info.
-            ATTRIBUTE_KEY_NET_PEER_NAME,
-            ATTRIBUTE_KEY_NET_PEER_PORT,
+            ATTRIBUTE_KEY_SERVER_PORT,
+            ATTRIBUTE_KEY_NETWORK_PEER_IP,
+            ATTRIBUTE_KEY_NETWORK_PEER_PORT,
+            // db.* — consumed by the DB branch of OtlpTraceSpanEventMapper (destinationId,
+            // ServiceType dispatch, SQL annotation).
             ATTRIBUTE_KEY_DB_NAME,
             ATTRIBUTE_KEY_DB_NAMESPACE,
             ATTRIBUTE_KEY_DB_STATEMENT,
@@ -223,23 +238,21 @@ public class OtlpTraceConstants {
             // filtering would drop them entirely. Keep them in the attribute list so the web
             // UI surfaces vendor error codes (ORA-02813, 08P01, WRONGTYPE), table/collection
             // names, and DB operation kind (INSERT/SELECT/findAndModify).
-            ATTRIBUTE_KEY_ERROR_TYPE,
-            ATTRIBUTE_KEY_NETWORK_PEER_IP,
-            ATTRIBUTE_KEY_RPC_SYSTEM
+            // error.type — consumed by OtlpExceptionInfoResolver on both paths.
+            ATTRIBUTE_KEY_ERROR_TYPE
     );
 
     public static final Predicate<String> FILTERED_ATTRIBUTE_KEY = FILTERED_ATTRIBUTE_KEY_SET::contains;
 
-    // HTTP status code keys are intentionally NOT in the base filter. On the root (SERVER/
-    // CONSUMER/INTERNAL) path OtlpTraceSpanMapper promotes one of them to the HTTP_STATUS_CODE
-    // annotation and then dynamically excludes only that consumed key from the raw attributes —
-    // so a non-promoted variant (or a non-numeric value that could not be promoted) is retained
-    // instead of blanket-dropped. On the SpanEvent path (client/producer/internal) they are never
-    // promoted, so they stay as raw attributes. Precedence order: new semconv before legacy.
+    // HTTP status code keys resolve via the consumedKeys mechanism: both paths promote one of
+    // them to the HTTP_STATUS_CODE annotation and only the consumed key is excluded from the raw
+    // attributes — a non-promoted variant (or a non-numeric value that could not be promoted) is
+    // retained instead of blanket-dropped. Precedence order: new semconv before legacy.
     public static final List<String> RESPONSE_STATUS_CODE_KEYS =
             List.of(ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, ATTRIBUTE_KEY_HTTP_STATUS_CODE);
 
     // HTTP method resolution order: new semconv (http.request.method) before legacy (http.method).
+    // Same consumedKeys handling as the status keys: only the consumed variant is filtered.
     public static final List<String> HTTP_METHOD_KEYS =
             List.of(ATTRIBUTE_KEY_HTTP_REQUEST_METHOD, ATTRIBUTE_KEY_HTTP_METHOD);
 }

@@ -42,9 +42,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -101,11 +103,15 @@ public class OtlpTraceSpanEventMapper {
 
         final Map<String, AttributeValue> attributes = OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList());
         final TruncatedCounts truncatedCounts = new TruncatedCounts();
+        // Keys promoted to a 1st-class field/annotation are collected here and excluded from the
+        // raw attribute list below — "filter only what was actually consumed". Keys consumed by
+        // the messaging/db collaborators are covered by the static FILTERED_ATTRIBUTE_KEY_SET.
+        final Set<String> consumedKeys = new HashSet<>();
 
         // Keep the order
         if (isDatabase(attributes)) {
-            spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes));
-            spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes));
+            spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes, consumedKeys));
+            spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes, consumedKeys));
             final String dbSystem = getDbSystem(attributes);
             spanEventBo.setServiceType(dbSystemTypeResolver.resolveBaseCode(dbSystem));
             if (isDatabaseExecuteQuery(attributes)) {
@@ -120,16 +126,19 @@ public class OtlpTraceSpanEventMapper {
             }
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
         } else if (isClient(span)) {
-            spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes));
-            spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes));
+            spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes, consumedKeys));
+            spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes, consumedKeys));
             // An Envoy egress span (detected via Envoy-specific tags) maps to ENVOY_EGRESS;
             // otherwise rpc.system dispatch: grpc → GRPC, apache_dubbo → APACHE_DUBBO_CONSUMER.
             // HTTP clients emit no rpc.system → OPENTELEMETRY_CLIENT fallback.
             if (envoyTypeResolver.isEnvoy(attributes)) {
                 spanEventBo.setServiceType(envoyTypeResolver.resolveEgressServiceType());
-                envoyTypeResolver.recordAnnotations(spanEventBo::addAnnotation, attributes, false);
+                envoyTypeResolver.recordAnnotations(spanEventBo::addAnnotation, attributes, false, consumedKeys);
             } else {
                 final String rpcSystem = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null);
+                if (rpcSystem != null) {
+                    consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM);
+                }
                 spanEventBo.setServiceType(clientTypeResolver.resolveClientServiceType(rpcSystem));
             }
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
@@ -170,18 +179,18 @@ public class OtlpTraceSpanEventMapper {
         // raw key is excluded below, so a non-promoted variant survives. Fires only when an HTTP
         // status attribute is present (gRPC clients carry rpc.grpc.status_code instead → no-op).
         final OtlpHttpStatusResolver.ResponseStatus responseStatus = OtlpHttpStatusResolver.resolve(attributes);
-        Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY;
         if (responseStatus != null) {
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatus.code()));
-            attributeFilter = attributeFilter.or(responseStatus.sourceKey()::equals);
+            consumedKeys.add(responseStatus.sourceKey());
         }
         // http method → HTTP_METHOD annotation (e.g. an HTTP client SpanEvent's request method)
-        final String httpMethod = OtlpTraceSpanMapper.getHttpMethod(attributes);
+        final String httpMethod = OtlpTraceSpanMapper.getHttpMethod(attributes, consumedKeys);
         if (httpMethod != null) {
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_METHOD.getCode(), httpMethod));
         }
         // attributes
         if (!attributes.isEmpty()) {
+            final Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY.or(consumedKeys::contains);
             List<AttributeBo> attributeBoList = attributeBoMapper.toAttributeBoList(
                     attributes, attributeFilter, truncatedCounts::attribute);
             spanEventBo.setAttributeBoList(attributeBoList);
@@ -255,12 +264,14 @@ public class OtlpTraceSpanEventMapper {
         return statement;
     }
 
-    String getClientSpanToEndPoint(Map<String, AttributeValue> attributes) {
+    String getClientSpanToEndPoint(Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
         // Logical names first (better ServerMap grouping than socket IPs), then URL-derived
         // host:port, then the socket address, then the proxy tag.
         final String serverAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
             final long serverPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
         // legacy (semconv 1.x) equivalent of server.address — otel-js gRPC/HTTP clients emit
@@ -268,9 +279,13 @@ public class OtlpTraceSpanEventMapper {
         final String netPeerName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, null);
         if (netPeerName != null) {
             final long netPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, 0L);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT);
             return HostAndPort.toHostAndPortString(netPeerName, (int) netPeerPort, 0);
         }
-        // host:port extracted from the request URL — url.full (new semconv) / http.url (legacy)
+        // host:port extracted from the request URL — url.full (new semconv) / http.url (legacy).
+        // The URL keys are deliberately NOT collected: only host:port is consumed and the raw
+        // URL retains path/query information beyond the promoted field.
         final String urlHostAndPort = getUrlToHostAndPort(attributes);
         if (urlHostAndPort != null) {
             return urlHostAndPort;
@@ -279,10 +294,16 @@ public class OtlpTraceSpanEventMapper {
         final String networkPeerIp = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, null);
         if (networkPeerIp != null) {
             final long networkPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, 0L);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT);
             return HostAndPort.toHostAndPortString(networkPeerIp, (int) networkPeerPort, 0);
         }
         // proxy
-        return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+        final String upstreamAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+        if (upstreamAddress != null) {
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS);
+        }
+        return upstreamAddress;
     }
 
     /**
@@ -302,11 +323,12 @@ public class OtlpTraceSpanEventMapper {
         return hostAndPort;
     }
 
-    String getClientSpanToDestinationId(Map<String, AttributeValue> attributes) {
+    String getClientSpanToDestinationId(Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
         // Resolve db.system up front — OTel Redis spec defines db.namespace (and legacy
         // db.name) as the numeric DB index (0-15), not a logical namespace. For Redis we
         // skip those keys so destinationId falls through to db.system ("redis"), keeping
         // ServerMap grouped at the system level instead of fanning out per index.
+        // db.* keys are covered by the static FILTERED_ATTRIBUTE_KEY_SET, not collected here.
         final String dbSystem = getDbSystem(attributes);
         final boolean isRedis = OtlpTraceConstants.DB_SYSTEM_REDIS.equalsIgnoreCase(dbSystem);
         if (!isRedis) {
@@ -329,21 +351,27 @@ public class OtlpTraceSpanEventMapper {
 
         final String upstreamClusterName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, null);
         if (upstreamClusterName != null) {
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME);
             return upstreamClusterName;
         }
 
         final String serverAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
             final long serverPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT);
             return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
         // legacy (semconv 1.x) equivalent of server.address — see getClientSpanToEndPoint
         final String netPeerName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME, null);
         if (netPeerName != null) {
             final long netPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT, 0L);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_NAME);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_PEER_PORT);
             return HostAndPort.toHostAndPortString(netPeerName, (int) netPeerPort, 0);
         }
-        // host:port from the request URL — url.full (new semconv) / http.url (legacy)
+        // host:port from the request URL — url.full (new semconv) / http.url (legacy).
+        // URL keys are deliberately NOT collected (partial consumption, see getClientSpanToEndPoint).
         final String urlHostAndPort = getUrlToHostAndPort(attributes);
         if (urlHostAndPort != null) {
             return urlHostAndPort;
@@ -351,11 +379,17 @@ public class OtlpTraceSpanEventMapper {
         final String networkPeerIp = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP, null);
         if (networkPeerIp != null) {
             final long networkPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT, 0L);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP);
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT);
             return HostAndPort.toHostAndPortString(networkPeerIp, (int) networkPeerPort, 0);
         }
 
         // proxy
-        return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+        final String upstreamAddress = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS, null);
+        if (upstreamAddress != null) {
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS);
+        }
+        return upstreamAddress;
     }
 
     String getSpanNameOrDefault(Span span, String defaultName) {
