@@ -113,7 +113,7 @@ public class OtlpTraceConstants {
 
     // AnnotationKey codes mirrored from agent-module/plugins/external envoy-type-provider.yml.
     // Display names ("envoy.operation", "upstream.cluster") are registered there so the web UI
-    // resolves them. Attached by OtlpEnvoyTypeResolver when an Envoy span is detected.
+    // resolves them. Attached by OtlpEnvoyRecorder when an Envoy span is detected.
     public static final int ANNOTATION_KEY_ENVOY_OPERATION = 9441;
     public static final int ANNOTATION_KEY_UPSTREAM_CLUSTER = 9442;
     // OTel HTTP server semconv: the matched route template (low-cardinality, e.g. "/users/{id}").
@@ -147,7 +147,7 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME = "upstream_cluster.name";
     // Envoy-specific span tags. upstream_cluster (no ".name" suffix) is the legacy Zipkin-style
     // tag; response_flags is Envoy's connection/response flag string ("-" when none). Both are
-    // emitted only by Envoy, so they serve as the Envoy detection gate in OtlpEnvoyTypeResolver.
+    // emitted only by Envoy, so they serve as the Envoy detection gate in OtlpEnvoyRecorder.
     // component=proxy is intentionally NOT used — it is deprecated in OTel semconv and set by
     // other proxies too, so it has no reliable discriminating power on its own.
     public static final String ATTRIBUTE_KEY_UPSTREAM_CLUSTER = "upstream_cluster";

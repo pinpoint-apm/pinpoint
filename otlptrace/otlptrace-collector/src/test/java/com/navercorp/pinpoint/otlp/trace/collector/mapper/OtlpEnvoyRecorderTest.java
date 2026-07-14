@@ -17,29 +17,21 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class OtlpEnvoyTypeResolverTest {
+class OtlpEnvoyRecorderTest {
 
-    private static final short ENVOY_NODE_CODE = 1550;
-    private static final short ENVOY_EGRESS_CODE = 9302;
-
-    private static final ServiceTypeRegistryService FULL_REGISTRY = buildRegistry(Map.of(
-            "ENVOY", ENVOY_NODE_CODE,
-            "ENVOY_EGRESS", ENVOY_EGRESS_CODE));
-
-    private final OtlpEnvoyTypeResolver resolver = new OtlpEnvoyTypeResolver(FULL_REGISTRY);
+    private final OtlpEnvoyRecorder recorder = new OtlpEnvoyRecorder();
 
     // =======================================================================
     // isEnvoy — detection gate
@@ -47,19 +39,19 @@ class OtlpEnvoyTypeResolverTest {
 
     @Test
     void isEnvoy_true_whenUpstreamCluster() {
-        assertThat(resolver.isEnvoy(Map.of(
+        assertThat(recorder.isEnvoy(Map.of(
                 OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER, AttributeValue.of("frontend")))).isTrue();
     }
 
     @Test
     void isEnvoy_true_whenUpstreamClusterName() {
-        assertThat(resolver.isEnvoy(Map.of(
+        assertThat(recorder.isEnvoy(Map.of(
                 OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME, AttributeValue.of("frontend")))).isTrue();
     }
 
     @Test
     void isEnvoy_true_whenResponseFlags() {
-        assertThat(resolver.isEnvoy(Map.of(
+        assertThat(recorder.isEnvoy(Map.of(
                 OtlpTraceConstants.ATTRIBUTE_KEY_RESPONSE_FLAGS, AttributeValue.of("-")))).isTrue();
     }
 
@@ -69,36 +61,12 @@ class OtlpEnvoyTypeResolverTest {
         Map<String, AttributeValue> attrs = new HashMap<>();
         attrs.put("component", AttributeValue.of("proxy"));
         attrs.put(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, AttributeValue.of("http://x/y"));
-        assertThat(resolver.isEnvoy(attrs)).isFalse();
+        assertThat(recorder.isEnvoy(attrs)).isFalse();
     }
 
     @Test
     void isEnvoy_false_whenEmpty() {
-        assertThat(resolver.isEnvoy(Map.of())).isFalse();
-    }
-
-    // =======================================================================
-    // resolve — ServiceType codes
-    // =======================================================================
-
-    @Test
-    void resolveNode_returnsEnvoy() {
-        // SERVER-kind ingress span → SERVER-category ENVOY (1550) node type, not ENVOY_INGRESS.
-        assertThat(resolver.resolveNodeServiceType()).isEqualTo(ENVOY_NODE_CODE);
-    }
-
-    @Test
-    void resolveEgress_returnsEnvoyEgress() {
-        assertThat(resolver.resolveEgressServiceType()).isEqualTo(ENVOY_EGRESS_CODE);
-    }
-
-    @Test
-    void resolve_pluginMissingFromRegistry_fallsBackToOtel() {
-        // Collector without the envoy-type-provider on its classpath: degrade to the generic
-        // OpenTelemetry server/client types instead of failing.
-        OtlpEnvoyTypeResolver r = new OtlpEnvoyTypeResolver(buildRegistry(Map.of()));
-        assertThat(r.resolveNodeServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
-        assertThat(r.resolveEgressServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+        assertThat(recorder.isEnvoy(Map.of())).isFalse();
     }
 
     // =======================================================================
@@ -112,10 +80,13 @@ class OtlpEnvoyTypeResolverTest {
         attrs.put(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER, AttributeValue.of("legacy"));
 
         List<AnnotationBo> out = new ArrayList<>();
-        resolver.recordAnnotations(out::add, attrs, false, new java.util.HashSet<>());
+        Set<String> consumedKeys = new HashSet<>();
+        recorder.recordAnnotations(out::add, attrs, false, consumedKeys);
 
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isEqualTo("frontend");
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION)).isEqualTo("Egress");
+        // only the consumed cluster key is collected
+        assertThat(consumedKeys).containsExactly(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER_NAME);
     }
 
     @Test
@@ -124,17 +95,19 @@ class OtlpEnvoyTypeResolverTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER, AttributeValue.of("frontend"));
 
         List<AnnotationBo> out = new ArrayList<>();
-        resolver.recordAnnotations(out::add, attrs, true, new java.util.HashSet<>());
+        Set<String> consumedKeys = new HashSet<>();
+        recorder.recordAnnotations(out::add, attrs, true, consumedKeys);
 
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isEqualTo("frontend");
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION)).isEqualTo("Ingress");
+        assertThat(consumedKeys).containsExactly(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_CLUSTER);
     }
 
     @Test
     void recordAnnotations_noCluster_onlyOperationRecorded() {
         // response_flags-only Envoy span: no cluster annotation, but operation is still tagged.
         List<AnnotationBo> out = new ArrayList<>();
-        resolver.recordAnnotations(out::add, Map.of(), false, new java.util.HashSet<>());
+        recorder.recordAnnotations(out::add, Map.of(), false, new HashSet<>());
 
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isNull();
         assertThat(annotationValue(out, OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION)).isEqualTo("Egress");
@@ -146,29 +119,5 @@ class OtlpEnvoyTypeResolverTest {
                 .map(AnnotationBo::getValue)
                 .findFirst()
                 .orElse(null);
-    }
-
-    private static ServiceTypeRegistryService buildRegistry(Map<String, Short> entries) {
-        Map<String, ServiceType> byName = new HashMap<>();
-        entries.forEach((name, code) -> byName.put(name, ServiceTypeFactory.of(code, name, name)));
-        return new ServiceTypeRegistryService() {
-            @Override
-            public ServiceType findServiceType(int code) {
-                return byName.values().stream()
-                        .filter(t -> t.getCode() == code)
-                        .findFirst()
-                        .orElse(ServiceType.UNDEFINED);
-            }
-
-            @Override
-            public ServiceType findServiceTypeByName(String typeName) {
-                return byName.getOrDefault(typeName, ServiceType.UNDEFINED);
-            }
-
-            @Override
-            public List<ServiceType> findDesc(String desc) {
-                return List.of();
-            }
-        };
     }
 }
