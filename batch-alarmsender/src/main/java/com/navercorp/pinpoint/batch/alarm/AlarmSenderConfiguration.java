@@ -10,13 +10,18 @@ import com.navercorp.pinpoint.web.service.UserGroupService;
 import com.navercorp.pinpoint.web.service.UserService;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * JavaMailSenderImpl Properties
@@ -33,8 +38,10 @@ public class AlarmSenderConfiguration {
     @Bean
     public MailSender springMailSender(AlarmSenderProperties alarmSenderProperties,
                                        UserGroupService userGroupService,
-                                       JavaMailSenderImpl mailSender) {
-        return new SpringSmtpMailSender(alarmSenderProperties, userGroupService, mailSender);
+                                       JavaMailSenderImpl mailSender,
+                                       @Value("classpath:/templates/alarm/pinpoint-logo-base64.txt") Resource logoResource) throws IOException {
+        String logoBase64 = logoResource.getContentAsString(StandardCharsets.UTF_8);
+        return new SpringSmtpMailSender(alarmSenderProperties, userGroupService, mailSender, logoBase64);
     }
 
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.batch.alarm.sender;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmCheckerInterface;
 import com.navercorp.pinpoint.web.vo.RuleInterface;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,6 +32,7 @@ public class AlarmMailTemplate {
     private static final String LINE_FEED = "<br>";
     private static final String LINK_FORMAT = "<a href=\"%s\" >pinpoint site</a>";
     private static final String SCATTER_CHART_LINK_FORMAT = "<a href=\"%s/serverMap/%s@%s?%s\" >scatter chart of %s</a>";
+    private static final String LOGO_FORMAT = "<img src=\"data:image/png;base64,%s\" alt=\"pinpoint\" />";
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss");
 
@@ -38,12 +40,14 @@ public class AlarmMailTemplate {
     private final AlarmCheckerInterface checker;
     private final String batchEnv;
     private final int sequenceCount;
+    private final String logoBase64;
 
-    public AlarmMailTemplate(AlarmCheckerInterface checker, String pinpointUrl, String batchEnv, int sequenceCount) {
+    public AlarmMailTemplate(AlarmCheckerInterface checker, String pinpointUrl, String batchEnv, int sequenceCount, String logoBase64) {
         this.checker = Objects.requireNonNull(checker, "checker");
         this.pinpointUrl = Objects.requireNonNull(pinpointUrl, "pinpointUrl");
         this.batchEnv = Objects.requireNonNull(batchEnv, "batchEnv");
         this.sequenceCount = sequenceCount;
+        this.logoBase64 = logoBase64;
     }
 
     public String createSubject() {
@@ -67,6 +71,10 @@ public class AlarmMailTemplate {
 
     private String newBody(String subject, String rule, String applicationName, String serviceType, String currentTime) {
         StringBuilder body = new StringBuilder();
+        if (StringUtils.hasLength(logoBase64)) {
+            body.append(String.format(LOGO_FORMAT, logoBase64));
+            body.append(LINE_FEED);
+        }
         body.append("<strong>").append(subject).append("</strong>");
         body.append(LINE_FEED);
         body.append(LINE_FEED);

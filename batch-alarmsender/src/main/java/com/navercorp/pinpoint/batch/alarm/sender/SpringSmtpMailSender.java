@@ -46,10 +46,12 @@ public class SpringSmtpMailSender implements MailSender, InitializingBean {
     private final String pinpointUrl;
     private final String senderEmailAddress;
     private final JavaMailSenderImpl springMailSender;
+    private final String logoBase64;
 
     public SpringSmtpMailSender(AlarmSenderProperties alarmSenderProperties,
                                 UserGroupService userGroupService,
-                                JavaMailSenderImpl springMailSender) {
+                                JavaMailSenderImpl springMailSender,
+                                String logoBase64) {
         Objects.requireNonNull(alarmSenderProperties, "alarmSenderProperties");
         this.pinpointUrl = alarmSenderProperties.getPinpointUrl();
         this.batchEnv = alarmSenderProperties.getBatchEnv();
@@ -58,6 +60,7 @@ public class SpringSmtpMailSender implements MailSender, InitializingBean {
         this.springMailSender = Objects.requireNonNull(springMailSender, "springMailSender");
 
         this.senderEmailAddress = springMailSender.getJavaMailProperties().getProperty(FROM_KEY);
+        this.logoBase64 = logoBase64;
     }
 
 
@@ -86,7 +89,7 @@ public class SpringSmtpMailSender implements MailSender, InitializingBean {
         }
 
         try {
-            AlarmMailTemplate mailTemplate = new AlarmMailTemplate(checker, pinpointUrl, batchEnv, sequenceCount);
+            AlarmMailTemplate mailTemplate = new AlarmMailTemplate(checker, pinpointUrl, batchEnv, sequenceCount, logoBase64);
 
             final MimeMessage message = newMimeMessage(mailTemplate, receivers);
 
@@ -117,7 +120,7 @@ public class SpringSmtpMailSender implements MailSender, InitializingBean {
         }
 
         try {
-            PinotAlarmMailTemplate mailTemplate = new PinotAlarmMailTemplate(pinpointUrl, batchEnv, checker, index);
+            PinotAlarmMailTemplate mailTemplate = new PinotAlarmMailTemplate(pinpointUrl, batchEnv, checker, index, logoBase64);
             MimeMessage message = springMailSender.createMimeMessage();
             message.setFrom(senderEmailAddress);
             message.setRecipients(Message.RecipientType.TO, getReceivers(receivers));

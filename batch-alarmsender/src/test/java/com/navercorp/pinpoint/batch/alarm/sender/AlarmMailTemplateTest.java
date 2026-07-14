@@ -47,7 +47,7 @@ class AlarmMailTemplateTest {
         when(checker.getRule()).thenReturn(rule);
         when(checker.getEmailMessage(anyString(), anyString(), anyString(), anyString())).thenReturn("ERROR RATE is 25 % (Threshold: 10 %)<br>");
 
-        AlarmMailTemplate alarmMailTemplate = new AlarmMailTemplate(checker, "http://pinpoint.com", "batchEnv", 1);
+        AlarmMailTemplate alarmMailTemplate = new AlarmMailTemplate(checker, "http://pinpoint.com", "batchEnv", 1, "logoBase64");
         alarmMailTemplate.createBody();
     }
 }
