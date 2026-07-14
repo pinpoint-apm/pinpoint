@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
@@ -226,6 +227,12 @@ class OtlpTraceSpanMapperTest {
                 .map(AnnotationBo::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private static List<String> attributeKeys(SpanBo bo) {
+        return bo.getAttributeBoList().stream()
+                .map(AttributeBo::getKey)
+                .toList();
     }
 
     @Test
@@ -598,6 +605,36 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(kv("url.path", strVal("/api/users/123")));
         SpanBo bo = newMapper().map(id(), span);
         assertThat(bo.getRpc()).isEqualTo("/api/users/123");
+    }
+
+    @Test
+    void map_server_nextRoute_preferredOverRawPath() {
+        // Next.js emits next.route (route template) but not http.route. It must win over the raw
+        // http.target so the rpc field groups by endpoint pattern instead of the concrete path.
+        Span span = serverSpan(
+                kv("next.route", strVal("/api/products/[productId]/index")),
+                kv("http.target", strVal("/api/products/66VCHSJNUP")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getRpc()).isEqualTo("/api/products/[productId]/index");
+    }
+
+    @Test
+    void map_server_httpRoute_preferredOverNextRoute() {
+        // Standard http.route (when present) still wins over the vendor next.route.
+        Span span = serverSpan(
+                kv("http.route", strVal("/api/users/{id}")),
+                kv("next.route", strVal("/api/users/[id]")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(bo.getRpc()).isEqualTo("/api/users/{id}");
+    }
+
+    @Test
+    void map_server_nextRoute_notStoredAsRawAttribute() {
+        // Promoted to the rpc field on the root path, so it must not also leak as a raw
+        // attribute (mirrors http.route / url.path).
+        Span span = serverSpan(kv("next.route", strVal("/api/cart")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(attributeKeys(bo)).doesNotContain("next.route");
     }
 
     // =======================================================================
