@@ -5,9 +5,7 @@ import {
   ErrorBoundaryProps as ErrorBoundaryPropsWithRender,
 } from 'react-error-boundary';
 import { ErrorDetailDialog } from './ErrorDetailDialog';
-import { useReactToastifyToast } from '../Toast';
 import { ErrorLike } from '@pinpoint-fe/ui/src/constants';
-import { ErrorToast } from './ErrorToast';
 import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 
 export type ErrorBoundaryProps = Partial<ErrorBoundaryPropsWithRender> & {
@@ -22,18 +20,12 @@ export const ErrorBoundary = ({
 }: ErrorBoundaryProps) => {
   const { t } = useTranslation();
   const { search } = useSearchParameters();
-  const toast = useReactToastifyToast();
 
   return (
+    // 에러 토스트는 QueryCache/MutationCache의 글로벌 onError(reactQueryHelper)가
+    // 단일 출처로 담당한다. ErrorBoundary는 인라인 fallback UI만 렌더한다(토스트 중복 방지).
     <ErrorBoundaryComponent
       resetKeys={[search, ...(resetKeys || [])]}
-      onError={(props) => {
-        const error = props as unknown as ErrorLike;
-        toast.error(<ErrorToast error={error} />, {
-          bodyClassName: '!items-start',
-          autoClose: false,
-        });
-      }}
       fallbackRender={({ error, resetErrorBoundary }) => {
         if (fallbackRender) {
           return fallbackRender({ error, resetErrorBoundary });
