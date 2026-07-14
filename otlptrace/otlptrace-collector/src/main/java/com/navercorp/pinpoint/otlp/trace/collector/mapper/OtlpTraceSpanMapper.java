@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 @Component
 public class OtlpTraceSpanMapper {
@@ -124,16 +125,20 @@ public class OtlpTraceSpanMapper {
             }
         }
         final boolean skipExceptionEvent = exceptionInfoResolver.isExceptionClassCaptured(exceptionInfo);
-        // response
-        final int responseStatusCode = (int) getServerSpanToResponseStatusCode(attributes);
-        if (responseStatusCode != -1) {
-            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatusCode));
+        // response — promote the HTTP status code (int, or Envoy's numeric string) to an annotation.
+        // Only the raw attribute key actually consumed here is excluded from the attribute list below,
+        // so a non-promoted status variant (or a non-numeric value that could not be promoted) survives.
+        final OtlpHttpStatusResolver.ResponseStatus responseStatus = OtlpHttpStatusResolver.resolve(attributes);
+        Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY;
+        if (responseStatus != null) {
+            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatus.code()));
+            attributeFilter = attributeFilter.or(responseStatus.sourceKey()::equals);
         }
         final TruncatedCounts truncatedCounts = new TruncatedCounts();
         // attributes
         if (!attributes.isEmpty()) {
             List<AttributeBo> attributeBoList = attributeBoMapper.toAttributeBoList(
-                    attributes, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY, truncatedCounts::attribute);
+                    attributes, attributeFilter, truncatedCounts::attribute);
             spanBo.setAttributeBoList(attributeBoList);
         }
 
@@ -409,11 +414,4 @@ public class OtlpTraceSpanMapper {
         return null;
     }
 
-    long getServerSpanToResponseStatusCode(Map<String, AttributeValue> attributes) {
-        long httpStatusCode = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, -1L);
-        if (httpStatusCode != -1) {
-            return httpStatusCode;
-        }
-        return AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_STATUS_CODE, -1L);
-    }
 }

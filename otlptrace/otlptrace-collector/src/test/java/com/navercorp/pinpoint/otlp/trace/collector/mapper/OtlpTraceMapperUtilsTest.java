@@ -85,13 +85,16 @@ class OtlpTraceMapperUtilsTest {
                 kv("http.method", strVal("POST")),
                 kv(OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, strVal("/save")),
                 kv(OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, strVal("INSERT INTO t")),
+                // http.status_code / http.response.status_code are intentionally NOT in the base
+                // filter (only in SERVER_FILTERED) so client SpanEvents retain them as raw
+                // attributes; the base predicate must leave this one untouched.
                 kv(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, strVal("201"))
         );
 
         Map<String, Object> result = OtlpTraceMapperUtils.getAttributeToMap(
                 attrs, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
 
-        assertThat(result).containsOnlyKeys("http.method");
+        assertThat(result).containsOnlyKeys("http.method", OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE);
     }
 
     @Test

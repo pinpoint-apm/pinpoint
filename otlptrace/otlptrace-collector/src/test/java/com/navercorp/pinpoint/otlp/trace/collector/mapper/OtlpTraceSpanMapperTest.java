@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
@@ -226,6 +227,12 @@ class OtlpTraceSpanMapperTest {
                 .map(AnnotationBo::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private static List<String> attributeKeys(SpanBo bo) {
+        return bo.getAttributeBoList().stream()
+                .map(AttributeBo::getKey)
+                .toList();
     }
 
     @Test
@@ -598,6 +605,63 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(kv("url.path", strVal("/api/users/123")));
         SpanBo bo = newMapper().map(id(), span);
         assertThat(bo.getRpc()).isEqualTo("/api/users/123");
+    }
+
+    // =======================================================================
+    // map() — HTTP status code promotion + root-only raw-attribute filtering
+    // =======================================================================
+
+    @Test
+    void map_server_httpStatusCode_int_promotedAndFilteredFromAttributes() {
+        // Legacy http.status_code (int) is promoted to the HTTP_STATUS_CODE annotation and removed
+        // from the raw attribute list on the root path so there is no duplicate.
+        Span span = serverSpan(kv("http.status_code", intVal(200)));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isEqualTo(200);
+        assertThat(attributeKeys(bo)).doesNotContain("http.status_code");
+    }
+
+    @Test
+    void map_server_httpResponseStatusCode_promotedAndFilteredFromAttributes() {
+        // New semconv http.response.status_code — same promotion + root-path filtering.
+        Span span = serverSpan(kv("http.response.status_code", intVal(404)));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isEqualTo(404);
+        assertThat(attributeKeys(bo)).doesNotContain("http.response.status_code");
+    }
+
+    @Test
+    void map_server_httpStatusCode_string_promoted() {
+        // Envoy emits http.status_code as a string ("200"); it must still be promoted to the
+        // HTTP_STATUS_CODE annotation (int-only extraction would have dropped it).
+        Span span = serverSpan(kv("http.status_code", strVal("200")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isEqualTo(200);
+    }
+
+    @Test
+    void map_server_httpStatusCode_nonNumericString_noAnnotationAndPreservedAsRawAttribute() {
+        // A non-numeric status string yields no HTTP_STATUS_CODE annotation rather than throwing.
+        // Because it was not promoted, the consumed-key filter leaves it untouched — the raw value
+        // survives instead of being blanket-dropped by a fixed status-key filter.
+        Span span = serverSpan(kv("http.status_code", strVal("OK")));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isNull();
+        assertThat(attributeKeys(bo)).contains("http.status_code");
+    }
+
+    @Test
+    void map_server_bothStatusKeys_onlyConsumedKeyRemoved() {
+        // When both keys are present, http.response.status_code wins and is promoted + removed;
+        // the non-consumed legacy http.status_code is retained as a raw attribute (only the key
+        // actually read is filtered, not a fixed pair).
+        Span span = serverSpan(
+                kv("http.response.status_code", intVal(200)),
+                kv("http.status_code", intVal(200)));
+        SpanBo bo = newMapper().map(id(), span);
+        assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isEqualTo(200);
+        assertThat(attributeKeys(bo)).doesNotContain("http.response.status_code");
+        assertThat(attributeKeys(bo)).contains("http.status_code");
     }
 
     // =======================================================================
