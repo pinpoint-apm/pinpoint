@@ -1,5 +1,30 @@
 import { colors } from '@pinpoint-fe/ui/src/constants';
 
+// 다중 시리즈 차트에서 시리즈 색상을 순서대로 배정할 때 쓰는 공용 팔레트.
+// (recharts/echarts 등 렌더러와 무관하게 재사용하기 위해 여기에 둔다.)
+export const CHART_SERIES_COLORS = [
+  colors.blue[600],
+  colors.blue[200],
+  colors.orange[500],
+  colors.orange[200],
+  colors.green[600],
+  colors.green[300],
+  colors.red[600],
+  colors.red[300],
+  colors.purple[500],
+  colors.purple[300],
+  colors.stone[700],
+  colors.stone[400],
+  colors.pink[400],
+  colors.pink[200],
+  colors.gray[500],
+  colors.gray[300],
+  colors.lime[500],
+  colors.yellow[200],
+  colors.cyan[500],
+  colors.cyan[200],
+];
+
 export const getRandomColor = () => {
   const random = (Math.random() * 0xfffff * 1000000).toString(16);
   return `#${random.slice(0, 6)}`;
