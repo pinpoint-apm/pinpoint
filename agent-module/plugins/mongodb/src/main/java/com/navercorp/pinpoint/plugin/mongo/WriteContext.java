@@ -87,6 +87,9 @@ class WriteContext {
     static final int DEFAULT_ABBREVIATE_MAX_WIDTH = 8;
     static final String UNTRACED = "Unsupported-trace";
 
+    // withoutPadding() allocates a new Encoder on every call; the encoder is immutable
+    private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder().withoutPadding();
+
     public WriteContext(List<String> jsonParameterAppender, boolean decimal128Enabled, boolean traceBsonBindValue) {
         this.jsonParameter = Objects.requireNonNull(jsonParameterAppender, "jsonParameterAppender");
         this.decimal128Enabled = decimal128Enabled;
@@ -633,17 +636,16 @@ class WriteContext {
 
         final byte[] binary = bsonBinary.getData();
         final int binaryLength = binary.length;
-        final Base64.Encoder encoder = Base64.getEncoder().withoutPadding();
         if (binaryLength > DEFAULT_ABBREVIATE_MAX_WIDTH) {
             byte[] limitedBytes = Arrays.copyOf(binary, DEFAULT_ABBREVIATE_MAX_WIDTH);
             StringBuilder buffer = new StringBuilder();
-            buffer.append(new String(encoder.encode(limitedBytes), StandardCharsets.ISO_8859_1));
+            buffer.append(new String(BASE64_ENCODER.encode(limitedBytes), StandardCharsets.ISO_8859_1));
             buffer.append("...(");
             buffer.append(binaryLength);
             buffer.append(")");
             return buffer.toString();
         } else {
-            return new String(encoder.encode(binary), StandardCharsets.ISO_8859_1);
+            return new String(BASE64_ENCODER.encode(binary), StandardCharsets.ISO_8859_1);
         }
     }
 
