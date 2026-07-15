@@ -54,7 +54,7 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
   return (
     <div className="relative w-full h-full">
       {error && (
-        <div className="absolute inset-0 z-[1000] flex items-center justify-center">
+        <div className="absolute left-0 right-0 z-[1000] flex items-center justify-center top-[20px] bottom-[100px]">
           <div className="absolute inset-0 opacity-50 bg-background"></div>
           <div className="z-10 text-red-500">
             {t('SERVER_MAP.HEATMAP_API_ERROR_MESSAGE')
