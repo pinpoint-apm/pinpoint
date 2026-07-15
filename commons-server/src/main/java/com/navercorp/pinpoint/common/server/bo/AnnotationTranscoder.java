@@ -101,6 +101,11 @@ public class AnnotationTranscoder {
         };
     }
 
+    /**
+     * @deprecated Since 4.0.0. Use {@link #getEncoder(Object)}, which resolves
+     * the type code and the encoding logic with a single type dispatch.
+     */
+    @Deprecated
     public byte getTypeCode(Object o) {
         if (o == null) {
             return CODE_NULL;
@@ -149,6 +154,299 @@ public class AnnotationTranscoder {
         return CODE_TOSTRING;
     }
 
+    /**
+     * Per-type encoder resolved by a single type dispatch — writes the wire
+     * type code, the length prefix and the encoded value into the buffer, so
+     * callers do not have to look up the type twice
+     * ({@link #getTypeCode(Object)} then {@link #encode(Object, int)}) nor
+     * know the wire layout.
+     */
+    public interface ValueEncoder {
+        void encode(Buffer buffer, Object value);
+    }
+
+    private static abstract class AbstractValueEncoder implements ValueEncoder {
+        private final byte typeCode;
+
+        private AbstractValueEncoder(byte typeCode) {
+            this.typeCode = typeCode;
+        }
+
+        @Override
+        public final void encode(Buffer buffer, Object value) {
+            buffer.putByte(typeCode);
+            encodeValue(buffer, value);
+        }
+
+        /**
+         * Writes the length-prefixed value; must produce the same bytes as
+         * {@code buffer.putPrefixedBytes(encode(value, typeCode))}.
+         */
+        abstract void encodeValue(Buffer buffer, Object value);
+    }
+
+    private static void putPrefixedSVar32(Buffer buffer, int value) {
+        buffer.putSVInt(BytesUtils.computeSVar32Size(value));
+        buffer.putSVInt(value);
+    }
+
+    /**
+     * Size of {@code putPrefixedBytes(bytes)}: {@code putSVInt(NULL)} for null
+     * is a single byte, otherwise the svarint length prefix plus the payload.
+     */
+    private static int prefixedBytesSize(byte[] bytes) {
+        if (bytes == null) {
+            return 1;
+        }
+        return BytesUtils.computeSVar32Size(bytes.length) + bytes.length;
+    }
+
+    /**
+     * Size of {@code putVInt(value)}: a negative int is written as a
+     * sign-extended var64 (10 bytes).
+     */
+    private static int vIntSize(int value) {
+        if (value >= 0) {
+            return BytesUtils.computeVar32Size(value);
+        }
+        return BytesUtils.computeVar64Size(value);
+    }
+
+    private static final ValueEncoder STRING_ENCODER = new AbstractValueEncoder(CODE_STRING) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putPrefixedString((String) value);
+        }
+    };
+    private static final ValueEncoder NULL_ENCODER = new AbstractValueEncoder(CODE_NULL) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putPrefixedBytes(null);
+        }
+    };
+    private static final ValueEncoder INT_ENCODER = new AbstractValueEncoder(CODE_INT) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            putPrefixedSVar32(buffer, (Integer) value);
+        }
+    };
+    private static final ValueEncoder LONG_ENCODER = new AbstractValueEncoder(CODE_LONG) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            // zigzag once: putVLong(zigZag) writes the same bytes as putSVLong(value)
+            final long zigZagValue = BytesUtils.longToZigZag((Long) value);
+            buffer.putSVInt(BytesUtils.computeVar64Size(zigZagValue));
+            buffer.putVLong(zigZagValue);
+        }
+    };
+    private static final ValueEncoder BOOLEAN_TRUE_ENCODER = new AbstractValueEncoder(CODE_BOOLEAN_TRUE) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putPrefixedBytes(EMPTY_BYTE_ARRAY);
+        }
+    };
+    private static final ValueEncoder BOOLEAN_FALSE_ENCODER = new AbstractValueEncoder(CODE_BOOLEAN_FALSE) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putPrefixedBytes(EMPTY_BYTE_ARRAY);
+        }
+    };
+    private static final ValueEncoder BYTEARRAY_ENCODER = new AbstractValueEncoder(CODE_BYTEARRAY) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putPrefixedBytes((byte[]) value);
+        }
+    };
+    private static final ValueEncoder BYTE_ENCODER = new AbstractValueEncoder(CODE_BYTE) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putSVInt(1);
+            buffer.putByte((Byte) value);
+        }
+    };
+    private static final ValueEncoder SHORT_ENCODER = new AbstractValueEncoder(CODE_SHORT) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            putPrefixedSVar32(buffer, (Short) value);
+        }
+    };
+    private static final ValueEncoder FLOAT_ENCODER = new AbstractValueEncoder(CODE_FLOAT) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putSVInt(BytesUtils.INT_BYTE_LENGTH);
+            buffer.putInt(Float.floatToRawIntBits((Float) value));
+        }
+    };
+    private static final ValueEncoder DOUBLE_ENCODER = new AbstractValueEncoder(CODE_DOUBLE) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putSVInt(BytesUtils.LONG_BYTE_LENGTH);
+            buffer.putLong(Double.doubleToRawLongBits((Double) value));
+        }
+    };
+    private static final ValueEncoder TOSTRING_ENCODER = new AbstractValueEncoder(CODE_TOSTRING) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            buffer.putPrefixedString(value.toString());
+        }
+    };
+    private static final ValueEncoder INT_STRING_ENCODER = new AbstractValueEncoder(CODE_INT_STRING) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            final IntStringValue intString = (IntStringValue) value;
+            final byte[] stringValue = BytesUtils.toBytes(intString.getStringValue());
+
+            buffer.putSVInt(BytesUtils.computeSVar32Size(intString.getIntValue())
+                    + prefixedBytesSize(stringValue));
+            buffer.putSVInt(intString.getIntValue());
+            buffer.putPrefixedBytes(stringValue);
+        }
+    };
+    private static final ValueEncoder INT_STRING_STRING_ENCODER = new AbstractValueEncoder(CODE_INT_STRING_STRING) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            final IntStringStringValue intStringString = (IntStringStringValue) value;
+            final byte[] stringValue1 = BytesUtils.toBytes(intStringString.getStringValue1());
+            final byte[] stringValue2 = BytesUtils.toBytes(intStringString.getStringValue2());
+
+            buffer.putSVInt(BytesUtils.computeSVar32Size(intStringString.getIntValue())
+                    + prefixedBytesSize(stringValue1) + prefixedBytesSize(stringValue2));
+            buffer.putSVInt(intStringString.getIntValue());
+            buffer.putPrefixedBytes(stringValue1);
+            buffer.putPrefixedBytes(stringValue2);
+        }
+    };
+    private static final ValueEncoder STRING_STRING_ENCODER = new AbstractValueEncoder(CODE_STRING_STRING) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            final StringStringValue stringString = (StringStringValue) value;
+            final byte[] stringValue1 = BytesUtils.toBytes(stringString.getStringValue1());
+            final byte[] stringValue2 = BytesUtils.toBytes(stringString.getStringValue2());
+
+            buffer.putSVInt(prefixedBytesSize(stringValue1) + prefixedBytesSize(stringValue2));
+            buffer.putPrefixedBytes(stringValue1);
+            buffer.putPrefixedBytes(stringValue2);
+        }
+    };
+    private static final ValueEncoder LONG_INT_INT_BYTE_BYTE_STRING_ENCODER = new AbstractValueEncoder(CODE_LONG_INT_INT_BYTE_BYTE_STRING) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            final LongIntIntByteByteStringValue longValue = (LongIntIntByteByteStringValue) value;
+            final byte[] stringValue = BytesUtils.toBytes(longValue.getStringValue());
+
+            int length = 1 + BytesUtils.computeVar64Size(longValue.getLongValue())
+                    + vIntSize(longValue.getIntValue1());
+            if (isSetIntValue2(longValue)) {
+                length += vIntSize(longValue.getIntValue2());
+            }
+            if (isSetByteValue1(longValue)) {
+                length += 1;
+            }
+            if (isSetByteValue2(longValue)) {
+                length += 1;
+            }
+            if (isSetStringValue(longValue)) {
+                length += prefixedBytesSize(stringValue);
+            }
+            buffer.putSVInt(length);
+
+            buffer.putByte(newBitField(longValue));
+            buffer.putVLong(longValue.getLongValue());
+            buffer.putVInt(longValue.getIntValue1());
+            if (isSetIntValue2(longValue)) {
+                buffer.putVInt(longValue.getIntValue2());
+            }
+            if (isSetByteValue1(longValue)) {
+                buffer.putByte(longValue.getByteValue1());
+            }
+            if (isSetByteValue2(longValue)) {
+                buffer.putByte(longValue.getByteValue2());
+            }
+            if (isSetStringValue(longValue)) {
+                buffer.putPrefixedBytes(stringValue);
+            }
+        }
+    };
+    private static final ValueEncoder INT_BOOLEAN_INT_BOOLEAN_ENCODER = new AbstractValueEncoder(CODE_INT_BOOLEAN_INT_BOOLEAN) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            final IntBooleanIntBooleanValue intBoolean = (IntBooleanIntBooleanValue) value;
+
+            buffer.putSVInt(vIntSize(intBoolean.getIntValue1()) + 1
+                    + vIntSize(intBoolean.getIntValue2()) + 1);
+            buffer.putVInt(intBoolean.getIntValue1());
+            buffer.putBoolean(intBoolean.isBooleanValue1());
+            buffer.putVInt(intBoolean.getIntValue2());
+            buffer.putBoolean(intBoolean.isBooleanValue2());
+        }
+    };
+    private static final ValueEncoder BYTES_STRING_STRING_ENCODER = new AbstractValueEncoder(CODE_BYTES_STRING_STRING) {
+        @Override
+        void encodeValue(Buffer buffer, Object value) {
+            final BytesStringStringValue bytesStringString = (BytesStringStringValue) value;
+            final byte[] bytesValue = bytesStringString.getBytesValue();
+            final byte[] stringValue1 = BytesUtils.toBytes(bytesStringString.getStringValue1());
+            final byte[] stringValue2 = BytesUtils.toBytes(bytesStringString.getStringValue2());
+
+            buffer.putSVInt(prefixedBytesSize(bytesValue)
+                    + prefixedBytesSize(stringValue1) + prefixedBytesSize(stringValue2));
+            buffer.putPrefixedBytes(bytesValue);
+            buffer.putPrefixedBytes(stringValue1);
+            buffer.putPrefixedBytes(stringValue2);
+        }
+    };
+
+    /**
+     * Resolves the {@link ValueEncoder} for the value with a single type
+     * dispatch; mirrors {@link #getTypeCode(Object)}.
+     */
+    public ValueEncoder getEncoder(Object o) {
+        if (o == null) {
+            return NULL_ENCODER;
+        }
+        if (o instanceof Number) {
+            if (o instanceof Long) {
+                return LONG_ENCODER;
+            } else if (o instanceof Integer) {
+                return INT_ENCODER;
+            } else if (o instanceof Short) {
+                return SHORT_ENCODER;
+            } else if (o instanceof Float) {
+                return FLOAT_ENCODER;
+            } else if (o instanceof Double) {
+                return DOUBLE_ENCODER;
+            } else if (o instanceof Byte) {
+                return BYTE_ENCODER;
+            }
+        }
+        if (o instanceof String) {
+            return STRING_ENCODER;
+        } else if (o instanceof Boolean) {
+            if (Boolean.TRUE.equals(o)) {
+                return BOOLEAN_TRUE_ENCODER;
+            }
+            return BOOLEAN_FALSE_ENCODER;
+        } else if (o instanceof byte[]) {
+            return BYTEARRAY_ENCODER;
+        }
+        if (o instanceof DataType) {
+            if (o instanceof IntStringValue) {
+                return INT_STRING_ENCODER;
+            } else if (o instanceof IntStringStringValue) {
+                return INT_STRING_STRING_ENCODER;
+            } else if (o instanceof StringStringValue) {
+                return STRING_STRING_ENCODER;
+            } else if (o instanceof LongIntIntByteByteStringValue) {
+                return LONG_INT_INT_BYTE_BYTE_STRING_ENCODER;
+            } else if (o instanceof IntBooleanIntBooleanValue) {
+                return INT_BOOLEAN_INT_BOOLEAN_ENCODER;
+            } else if (o instanceof BytesStringStringValue) {
+                return BYTES_STRING_STRING_ENCODER;
+            }
+        }
+        return TOSTRING_ENCODER;
+    }
+
     public AnnotationBo decodeAnnotation(int key, final byte dataType, final byte[] data) {
         return switch (dataType) {
             case CODE_STRING -> new StringAnnotationBo(key, decodeString(data));
@@ -175,6 +473,11 @@ public class AnnotationTranscoder {
         };
     }
 
+    /**
+     * @deprecated Since 4.0.0. Use {@link #getEncoder(Object)}, which writes
+     * the value into a {@code Buffer} without the intermediate byte array.
+     */
+    @Deprecated
     public byte[] encode(Object o, int typeCode) {
         switch (typeCode) {
             case CODE_STRING:
@@ -241,7 +544,7 @@ public class AnnotationTranscoder {
     }
 
 
-    private byte[] encodeIntStringValue(Object value) {
+    private static byte[] encodeIntStringValue(Object value) {
         final IntStringValue tIntStringValue = (IntStringValue) value;
         final int intValue = tIntStringValue.getIntValue();
         final byte[] stringValue = BytesUtils.toBytes(tIntStringValue.getStringValue());
@@ -253,7 +556,7 @@ public class AnnotationTranscoder {
         return buffer.getBuffer();
     }
 
-    private int getBufferSize(byte[] stringValue, int reserve) {
+    private static int getBufferSize(byte[] stringValue, int reserve) {
         if (stringValue == null) {
             return reserve;
         } else {
@@ -277,7 +580,7 @@ public class AnnotationTranscoder {
         return new BytesStringStringValue(bytesValue, stringValue1, stringValue2);
     }
 
-    private byte[] encodeIntStringStringValue(Object o) {
+    private static byte[] encodeIntStringStringValue(Object o) {
         final IntStringStringValue tIntStringStringValue = (IntStringStringValue) o;
         final int intValue = tIntStringStringValue.getIntValue();
         final byte[] stringValue1 = BytesUtils.toBytes(tIntStringStringValue.getStringValue1());
@@ -291,7 +594,7 @@ public class AnnotationTranscoder {
         return buffer.getBuffer();
     }
 
-    private byte[] encodeBytesStringStringValue(Object o) {
+    private static byte[] encodeBytesStringStringValue(Object o) {
         final BytesStringStringValue tBytesStringStringValue = (BytesStringStringValue) o;
         final byte[] bytesValue = tBytesStringStringValue.getBytesValue();
         final byte[] stringValue1 = BytesUtils.toBytes(tBytesStringStringValue.getStringValue1());
@@ -304,7 +607,7 @@ public class AnnotationTranscoder {
         return buffer.getBuffer();
     }
 
-    private int getBufferSize(byte[] bytesValue, byte[] stringValue1, byte[] stringValue2) {
+    private static int getBufferSize(byte[] bytesValue, byte[] stringValue1, byte[] stringValue2) {
         int length = 0;
         if (bytesValue != null) {
             length += bytesValue.length;
@@ -318,7 +621,7 @@ public class AnnotationTranscoder {
         return length;
     }
 
-    private int getBufferSize(byte[] stringValue1, byte[] stringValue2, int reserve) {
+    private static int getBufferSize(byte[] stringValue1, byte[] stringValue2, int reserve) {
         int length = 0;
         if (stringValue1 != null) {
             length += stringValue1.length;
@@ -355,7 +658,7 @@ public class AnnotationTranscoder {
         return new LongIntIntByteByteStringValue(longValue, intValue1, intValue2, byteValue1, byteValue2, stringValue);
     }
 
-    private byte[] encodeLongIntIntByteByteStringValue(Object o) {
+    private static byte[] encodeLongIntIntByteByteStringValue(Object o) {
         final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) o;
         byte bitField = 0;
         bitField = newBitField(value);
@@ -382,7 +685,7 @@ public class AnnotationTranscoder {
         return buffer.getBuffer();
     }
 
-    private byte newBitField(LongIntIntByteByteStringValue value) {
+    private static byte newBitField(LongIntIntByteByteStringValue value) {
 
         byte bitField = BitFieldUtils.setBit((byte)0, 0, isSetIntValue2(value));
         bitField = BitFieldUtils.setBit(bitField, 1, isSetByteValue1(value));
@@ -391,19 +694,19 @@ public class AnnotationTranscoder {
         return bitField;
     }
 
-    private boolean isSetStringValue(LongIntIntByteByteStringValue value) {
+    private static boolean isSetStringValue(LongIntIntByteByteStringValue value) {
         return value.getStringValue() != null;
     }
 
-    private boolean isSetByteValue2(LongIntIntByteByteStringValue value) {
+    private static boolean isSetByteValue2(LongIntIntByteByteStringValue value) {
         return value.getByteValue2() != 0;
     }
 
-    private boolean isSetByteValue1(LongIntIntByteByteStringValue value) {
+    private static boolean isSetByteValue1(LongIntIntByteByteStringValue value) {
         return value.getByteValue1() != 0;
     }
 
-    private boolean isSetIntValue2(LongIntIntByteByteStringValue value) {
+    private static boolean isSetIntValue2(LongIntIntByteByteStringValue value) {
         return value.getIntValue2() != 0;
     }
 
@@ -417,7 +720,7 @@ public class AnnotationTranscoder {
         return new IntBooleanIntBooleanValue(intValue1, booleanValue1, intValue2, booleanValue2);
     }
 
-    private byte[] encodeIntBooleanIntBooleanValue(Object o) {
+    private static byte[] encodeIntBooleanIntBooleanValue(Object o) {
         final IntBooleanIntBooleanValue value = (IntBooleanIntBooleanValue) o;
 
         // int + int
@@ -436,7 +739,7 @@ public class AnnotationTranscoder {
         return new StringStringValue(stringValue1, stringValue2);
     }
 
-    private byte[] encodeStringStringValue(Object o) {
+    private static byte[]  encodeStringStringValue(Object o) {
         final StringStringValue tStringStringValue = (StringStringValue) o;
         final byte[] stringValue1 = BytesUtils.toBytes(tStringStringValue.getStringValue1());
         final byte[] stringValue2 = BytesUtils.toBytes(tStringStringValue.getStringValue2());
@@ -448,7 +751,7 @@ public class AnnotationTranscoder {
         return buffer.getBuffer();
     }
 
-    private int getBufferSize(byte[] stringValue1, byte[] stringValue2) {
+    private static int getBufferSize(byte[] stringValue1, byte[] stringValue2) {
         int length = 0;
         if (stringValue1 != null) {
             length += stringValue1.length;
