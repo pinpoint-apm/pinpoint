@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -31,6 +33,7 @@ import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.PulsarMessagin
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RabbitMQMessagingConsumerHandler;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RocketMQMessagingConsumerHandler;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
@@ -289,5 +292,109 @@ class OtlpTraceMapperTest {
         assertThat(exceptionChainId(orphanEvent)).isNull();
         // but the inline exception marker is still present
         assertThat(orphanEvent.hasException()).isTrue();
+    }
+
+    // =======================================================================
+    // instrumentation scope → OPENTELEMETRY_SCOPE annotation (end-to-end)
+    // =======================================================================
+
+    private static List<ResourceSpans> resourceSpansWithScope(InstrumentationScope scope, Span... spans) {
+        Resource resource = Resource.newBuilder()
+                .addAttributes(kv("pinpoint.applicationName", strVal("app-1")))
+                .addAttributes(kv("pinpoint.agentId", strVal("agent-1")))
+                .build();
+        ScopeSpans.Builder scopeSpans = ScopeSpans.newBuilder().setScope(scope);
+        for (Span span : spans) {
+            scopeSpans.addSpans(span);
+        }
+        return List.of(ResourceSpans.newBuilder()
+                .setResource(resource)
+                .addScopeSpans(scopeSpans)
+                .build());
+    }
+
+    private static Object scopeAnnotation(List<AnnotationBo> annotations) {
+        return annotations.stream()
+                .filter(a -> a.getKey() == AnnotationKey.OPENTELEMETRY_SCOPE.getCode())
+                .map(AnnotationBo::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static Span consumerSpan(byte[] spanId, byte[] parentSpanId, long startTimeNanos) {
+        Span.Builder builder = Span.newBuilder()
+                .setName("orders process")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(spanId))
+                .setKindValue(Span.SpanKind.SPAN_KIND_CONSUMER_VALUE)
+                .setStartTimeUnixNano(startTimeNanos)
+                .setEndTimeUnixNano(startTimeNanos + 1_000_000_000L);
+        if (parentSpanId != null) {
+            builder.setParentSpanId(ByteString.copyFrom(parentSpanId));
+        }
+        return builder.build();
+    }
+
+    @Test
+    void scope_propagatesToRootSpanAndChildSpanEvent() {
+        InstrumentationScope scope = InstrumentationScope.newBuilder()
+                .setName("io.opentelemetry.spring-webmvc-6.0")
+                .setVersion("2.5.0")
+                .build();
+        Span root = serverRoot(ROOT_A, "/api/orders", false);
+        Span child = clientChild(CHILD, ROOT_A, false);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpansWithScope(scope, root, child));
+
+        SpanBo spanBo = data.getSpanBoList().get(0);
+        assertThat(scopeAnnotation(spanBo.getAnnotationBoList()))
+                .isEqualTo("io.opentelemetry.spring-webmvc-6.0@2.5.0");
+        SpanEventBo childEvent = spanBo.getSpanEventBoList().get(0);
+        assertThat(scopeAnnotation(childEvent.getAnnotationBoList()))
+                .isEqualTo("io.opentelemetry.spring-webmvc-6.0@2.5.0");
+    }
+
+    @Test
+    void scope_unset_noScopeAnnotation() {
+        // resourceSpans() builds ScopeSpans without a scope (proto default, empty name) —
+        // the pre-scope wire shape; no OPENTELEMETRY_SCOPE annotation may appear.
+        Span root = serverRoot(ROOT_A, "/api/orders", false);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root));
+
+        assertThat(scopeAnnotation(data.getSpanBoList().get(0).getAnnotationBoList())).isNull();
+    }
+
+    @Test
+    void scope_propagatesToOrphanSpanChunk() {
+        InstrumentationScope scope = InstrumentationScope.newBuilder()
+                .setName("io.opentelemetry.okhttp-3.0")
+                .build();
+        Span orphan = clientChild(ORPHAN, ABSENT_PARENT, false);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpansWithScope(scope, orphan));
+
+        SpanEventBo orphanEvent = data.getSpanChunkBoList().get(0).getSpanEventBoList().get(0);
+        assertThat(scopeAnnotation(orphanEvent.getAnnotationBoList()))
+                .isEqualTo("io.opentelemetry.okhttp-3.0");
+    }
+
+    @Test
+    void scope_survivesWrapperRootRealignment() {
+        // CONSUMER→CONSUMER wrapper: alignWrapperRoots rebuilds the wrapper span
+        // (start realigned, kind→SERVER); the rebuilt ScopedSpan must retain its scope.
+        InstrumentationScope scope = InstrumentationScope.newBuilder()
+                .setName("io.opentelemetry.kafka-clients-2.6")
+                .build();
+        Span wrapper = consumerSpan(ROOT_A, null, 2_000_000_000L);      // late start → realigned
+        Span inner = consumerSpan(CHILD, ROOT_A, 1_000_000_000L);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpansWithScope(scope, wrapper, inner));
+
+        assertThat(data.getSpanBoList()).isNotEmpty();
+        for (SpanBo spanBo : data.getSpanBoList()) {
+            assertThat(scopeAnnotation(spanBo.getAnnotationBoList()))
+                    .isEqualTo("io.opentelemetry.kafka-clients-2.6");
+        }
     }
 }

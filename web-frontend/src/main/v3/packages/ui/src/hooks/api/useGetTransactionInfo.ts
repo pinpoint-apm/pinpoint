@@ -86,9 +86,9 @@ const convertToTree = (
     const result: TransactionInfo.CallStackKeyValueMap[] = [];
 
     for (const item of childrenByParentId.get(pId) ?? []) {
-      // The backend emits a separate "Attribute" child row per node. Lift its JSON
-      // onto the parent method row (rendered as an icon) and drop the standalone row.
-      if (item.title === 'Attribute') {
+      // The backend emits separate "Attribute" / "Scope" child rows per node. Lift their
+      // values onto the parent method row (rendered as icons) and drop the standalone rows.
+      if (item.title === 'Attribute' || item.title === 'Scope') {
         continue;
       }
 
@@ -101,6 +101,11 @@ const convertToTree = (
       );
       if (attributeChild) {
         newItem.attributes = attributeChild.arguments;
+      }
+
+      const scopeChild = (childrenByParentId.get(item.id) ?? []).find((i) => i.title === 'Scope');
+      if (scopeChild) {
+        newItem.scope = scopeChild.arguments;
       }
 
       const subRows = build(item.id);

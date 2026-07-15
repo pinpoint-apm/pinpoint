@@ -70,5 +70,10 @@ export namespace TransactionInfoType {
 
   export type CallStackKeyValueMap = {
     [K in keyof CallStackIndex]: any;
-  } & { subRows?: CallStackKeyValueMap[]; attributedAgent?: string; attributes?: string };
+  } & {
+    subRows?: CallStackKeyValueMap[];
+    attributedAgent?: string;
+    attributes?: string;
+    scope?: string;
+  };
 }

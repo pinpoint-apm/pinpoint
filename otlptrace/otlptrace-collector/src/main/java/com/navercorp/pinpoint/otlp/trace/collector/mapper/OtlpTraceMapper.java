@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
@@ -89,16 +90,17 @@ public class OtlpTraceMapper {
             }
 
             final List<ScopeSpans> scopeSpanList = resourceSpan.getScopeSpansList();
-            final Map<ByteString, List<Span>> spanMap = getSpanMap(scopeSpanList);
+            final Map<ByteString, List<ScopedSpan>> spanMap = getSpanMap(scopeSpanList);
 
             // find root span, server type, no parentSpanId
-            for (Map.Entry<ByteString, List<Span>> entry : spanMap.entrySet()) {
-                List<Span> rootSpanList = new ArrayList<>();
-                List<Span> childSpanList = new ArrayList<>();
+            for (Map.Entry<ByteString, List<ScopedSpan>> entry : spanMap.entrySet()) {
+                List<ScopedSpan> rootSpanList = new ArrayList<>();
+                List<ScopedSpan> childSpanList = new ArrayList<>();
                 initRootAndChild(entry.getValue(), rootSpanList, childSpanList);
 
-                for (Span rootSpan : rootSpanList) {
+                for (ScopedSpan rootScopedSpan : rootSpanList) {
                     try {
+                        final Span rootSpan = rootScopedSpan.span();
                         // Resolve URI and root span id per root: each exception in this root's
                         // subtree is attributed to the correct entry-point URI and linked back to
                         // the stored transaction (root SpanBo) via (transactionId, rootSpanId).
@@ -107,7 +109,7 @@ public class OtlpTraceMapper {
                         final String rootUriTemplate = spanMapper.getServerSpanToRpc(rootSpan, rootAttributes);
                         final long rootSpanId = OtlpTraceMapperUtils.getSpanId(rootSpan.getSpanId());
 
-                        final SpanBo spanBo = spanMapper.map(idAndName, rootSpan);
+                        final SpanBo spanBo = spanMapper.map(idAndName, rootSpan, rootScopedSpan.scope());
 
                         // root span's own exception
                         recordException(mapperData, idAndName, rootSpan, rootSpanId, rootUriTemplate);
@@ -205,30 +207,34 @@ public class OtlpTraceMapper {
         rejectedSpan.addCount(spansCount);
     }
 
-    Map<ByteString, List<Span>> getSpanMap(List<ScopeSpans> scopeSpanList) {
-        Map<ByteString, List<Span>> spanMap = new HashMap<>();
+    Map<ByteString, List<ScopedSpan>> getSpanMap(List<ScopeSpans> scopeSpanList) {
+        Map<ByteString, List<ScopedSpan>> spanMap = new HashMap<>();
         for (ScopeSpans scopeSpan : scopeSpanList) {
+            // The scope→span association only exists on this container — capture it here
+            // (see ScopedSpan) so the mappers can emit the OPENTELEMETRY_SCOPE annotation.
+            final InstrumentationScope scope = scopeSpan.getScope();
             List<Span> spansList = scopeSpan.getSpansList();
             for (Span span : spansList) {
-                spanMap.computeIfAbsent(span.getTraceId(), k -> new ArrayList<>()).add(span);
+                spanMap.computeIfAbsent(span.getTraceId(), k -> new ArrayList<>()).add(new ScopedSpan(span, scope));
             }
         }
         return spanMap;
     }
 
-    void initRootAndChild(List<Span> spanList, List<Span> rootSpanList, List<Span> childSpanList) {
-        for (Span span : spanList) {
+    void initRootAndChild(List<ScopedSpan> spanList, List<ScopedSpan> rootSpanList, List<ScopedSpan> childSpanList) {
+        for (ScopedSpan scopedSpan : spanList) {
+            final Span span = scopedSpan.span();
             if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
-                rootSpanList.add(span);
+                rootSpanList.add(scopedSpan);
             } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-                rootSpanList.add(span);
+                rootSpanList.add(scopedSpan);
             } else {
                 // client, producer, internal
                 if (span.getParentSpanId().isEmpty()) {
                     // even the client type can be root if there is no parentSpanId value.
-                    rootSpanList.add(span);
+                    rootSpanList.add(scopedSpan);
                 } else {
-                    childSpanList.add(span);
+                    childSpanList.add(scopedSpan);
                 }
             }
         }
@@ -246,14 +252,15 @@ public class OtlpTraceMapper {
     // The wrapper span itself is preserved so links and attributes stay intact.
     // Applied only when the wrapper itself has no upstream parent — a strong heuristic for
     // local poll/wrapper patterns rather than legitimate distributed-trace consumers.
-    void alignWrapperRoots(List<Span> rootSpanList) {
+    void alignWrapperRoots(List<ScopedSpan> rootSpanList) {
         Map<ByteString, Span> rootById = new HashMap<>();
-        for (Span s : rootSpanList) {
-            rootById.put(s.getSpanId(), s);
+        for (ScopedSpan s : rootSpanList) {
+            rootById.put(s.span().getSpanId(), s.span());
         }
 
         Map<ByteString, Long> minChildStartByParent = new HashMap<>();
-        for (Span child : rootSpanList) {
+        for (ScopedSpan scopedChild : rootSpanList) {
+            Span child = scopedChild.span();
             ByteString pid = child.getParentSpanId();
             if (pid.isEmpty()) {
                 continue;
@@ -287,7 +294,8 @@ public class OtlpTraceMapper {
         }
 
         for (int i = 0; i < rootSpanList.size(); i++) {
-            Span s = rootSpanList.get(i);
+            ScopedSpan scopedSpan = rootSpanList.get(i);
+            Span s = scopedSpan.span();
             Long newStart = minChildStartByParent.get(s.getSpanId());
             if (newStart == null) {
                 continue;
@@ -309,24 +317,25 @@ public class OtlpTraceMapper {
             if (retypeToServer) {
                 builder.setKind(Span.SpanKind.SPAN_KIND_SERVER);
             }
-            rootSpanList.set(i, builder.build());
+            // rebuild keeps the original scope — realignment must not drop the scope identity
+            rootSpanList.set(i, new ScopedSpan(builder.build(), scopedSpan.scope()));
         }
     }
 
-    List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth) {
+    List<SpanEventBo> findLinkSpan(long startTime, List<ScopedSpan> childSpanList, ByteString parentSpanId, int depth) {
         // Orphan/spanChunk traversal: no exception processing (no root span to link against) and
         // no exception-trace deep-link annotation — orphan spans have no stored exceptiontrace row
         // to link to (see recordException skip in the caller).
         return findLinkSpan(startTime, childSpanList, parentSpanId, depth, span -> {}, false);
     }
 
-    List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth, Consumer<Span> spanConsumer) {
+    List<SpanEventBo> findLinkSpan(long startTime, List<ScopedSpan> childSpanList, ByteString parentSpanId, int depth, Consumer<Span> spanConsumer) {
         // Root-linked traversal: exceptions are recorded to exception-trace here, so emit the
         // deep-link annotation on the exception-bearing SpanEvent.
         return findLinkSpan(startTime, childSpanList, parentSpanId, depth, spanConsumer, true);
     }
 
-    private List<SpanEventBo> findLinkSpan(long startTime, List<Span> childSpanList, ByteString parentSpanId, int depth,
+    private List<SpanEventBo> findLinkSpan(long startTime, List<ScopedSpan> childSpanList, ByteString parentSpanId, int depth,
                                            Consumer<Span> spanConsumer, boolean emitExceptionLink) {
         List<SpanEventBo> spanEventList = new ArrayList<>();
         if (depth > 99) {
@@ -336,19 +345,20 @@ public class OtlpTraceMapper {
 
         // Collect matching spans and remove them from childSpanList in a single O(n) pass,
         // avoiding the O(n*m) cost of a separate removeAll call.
-        List<Span> linkSpanList = new ArrayList<>();
-        Iterator<Span> iterator = childSpanList.iterator();
+        List<ScopedSpan> linkSpanList = new ArrayList<>();
+        Iterator<ScopedSpan> iterator = childSpanList.iterator();
         while (iterator.hasNext()) {
-            Span span = iterator.next();
-            if (parentSpanId.equals(span.getParentSpanId())) {
-                linkSpanList.add(span);
+            ScopedSpan scopedSpan = iterator.next();
+            if (parentSpanId.equals(scopedSpan.span().getParentSpanId())) {
+                linkSpanList.add(scopedSpan);
                 iterator.remove();
             }
         }
 
-        for (Span span : linkSpanList) {
+        for (ScopedSpan scopedSpan : linkSpanList) {
+            final Span span = scopedSpan.span();
             spanConsumer.accept(span);
-            final SpanEventBo spanEventBo = spanEventMapper.map(startTime, span, depth);
+            final SpanEventBo spanEventBo = spanEventMapper.map(startTime, span, scopedSpan.scope(), depth);
             // Link the SpanEvent's inline exception to its exceptiontrace record. The id matches
             // OtlpExceptionMapper's ExceptionWrapperBo.exceptionId (getSpanId of the same span);
             // only emitted on the root-linked path where an exceptiontrace row actually exists.
@@ -365,17 +375,17 @@ public class OtlpTraceMapper {
         return spanEventList;
     }
 
-    List<SpanChunkBo> findLinkSpanChunk(IdAndName idAndName, List<Span> childSpanList) {
+    List<SpanChunkBo> findLinkSpanChunk(IdAndName idAndName, List<ScopedSpan> childSpanList) {
         // Collect all spanIds for quick lookup
         List<SpanChunkBo> spanChunkList = new ArrayList<>();
         Set<ByteString> spanIdSet = new HashSet<>();
-        for (Span s : childSpanList) {
-            spanIdSet.add(s.getSpanId());
+        for (ScopedSpan s : childSpanList) {
+            spanIdSet.add(s.span().getSpanId());
         }
         // Identify local roots: parentSpanId is empty or not present in current set
-        List<Span> localRootSpanList = new ArrayList<>();
-        for (Span s : childSpanList) {
-            if (!spanIdSet.contains(s.getParentSpanId())) {
+        List<ScopedSpan> localRootSpanList = new ArrayList<>();
+        for (ScopedSpan s : childSpanList) {
+            if (!spanIdSet.contains(s.span().getParentSpanId())) {
                 localRootSpanList.add(s);
             }
         }
@@ -384,12 +394,13 @@ public class OtlpTraceMapper {
             localRootSpanList.addAll(childSpanList);
         }
         // Remove all local roots at once in O(n) using Set, instead of O(n*k) repeated remove calls.
-        Set<Span> localRootSet = new HashSet<>(localRootSpanList);
+        Set<ScopedSpan> localRootSet = new HashSet<>(localRootSpanList);
         childSpanList.removeIf(localRootSet::contains);
 
-        for (Span localRootSpan : localRootSpanList) {
+        for (ScopedSpan localRootScopedSpan : localRootSpanList) {
+            final Span localRootSpan = localRootScopedSpan.span();
             // Map root as SpanChunk (attached to its parentSpanId if present)
-            SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, localRootSpan);
+            SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, localRootSpan, localRootScopedSpan.scope());
             long rootStartTime = localRootSpan.getStartTimeUnixNano();
             // Recursively attach children as events
             List<SpanEventBo> childrenEvents = findLinkSpan(rootStartTime, childSpanList, localRootSpan.getSpanId(), 2);

@@ -16,6 +16,7 @@ import {
   FaExclamationTriangle,
   FaLink,
   FaListUl,
+  FaPuzzlePiece,
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { Button } from '../..';
@@ -43,7 +44,9 @@ import {
 
 export interface CallTreeTableColumnsProps {
   metaData: TransactionInfo.Response;
-  onClickDetailView?: (data: TransactionInfo.CallStackKeyValueMap) => void;
+  // detailType distinguishes icons on the same row: the Scope icon passes 'scope';
+  // the Attribute/SQL icons omit it (the handler infers the type from the row data).
+  onClickDetailView?: (data: TransactionInfo.CallStackKeyValueMap, detailType?: 'scope') => void;
   mapData?: TransactionInfo.CallStackKeyValueMap[];
 }
 
@@ -558,6 +561,19 @@ const MethodCell = (props: {
           }}
         >
           <FaListUl />
+        </Button>
+      )}
+      {rowData.scope && (
+        <Button
+          className="flex-none w-4 h-4 p-0 ml-1.5 text-xs bg-indigo-500 text-white hover:bg-indigo-600"
+          title="Scope"
+          aria-label="Scope"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClickDetailView?.(rowData, 'scope');
+          }}
+        >
+          <FaPuzzlePiece />
         </Button>
       )}
     </>

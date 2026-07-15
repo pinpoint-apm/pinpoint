@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.MessageConsume
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.MessagingAttributeUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.OtlpMessagingConsumerResolver;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.jspecify.annotations.Nullable;
@@ -74,7 +75,7 @@ public class OtlpTraceSpanMapper {
         this.attributeBoMapper = Objects.requireNonNull(attributeBoMapper, "attributeBoMapper");
     }
 
-    SpanBo map(IdAndName idAndName, Span span) {
+    SpanBo map(IdAndName idAndName, Span span, InstrumentationScope scope) {
         final long startTimeNanos = span.getStartTimeUnixNano();
 
         final SpanOwner owner = new SpanOwner();
@@ -192,6 +193,12 @@ public class OtlpTraceSpanMapper {
                 span.getDroppedLinksCount());
         if (droppedAnnotation != null) {
             spanBo.addAnnotation(droppedAnnotation);
+        }
+        // instrumentation scope identity ("name@version") — omitted when the SDK left the
+        // scope name unset, so scope-less spans stay annotation-free.
+        final String scopeValue = OtlpTraceMapperUtils.formatScope(scope);
+        if (scopeValue != null) {
+            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SCOPE.getCode(), scopeValue));
         }
 
         return spanBo;

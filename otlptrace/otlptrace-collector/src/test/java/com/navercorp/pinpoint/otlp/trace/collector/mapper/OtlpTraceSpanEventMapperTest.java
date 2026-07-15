@@ -10,6 +10,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.OtlpMessagingTypeResolver;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
@@ -432,7 +433,11 @@ class OtlpTraceSpanEventMapperTest {
     }
 
     private SpanEventBo mapSingle(Span span) {
-        return mapper.map(0L, span).get(0);
+        return mapper.map(0L, span, InstrumentationScope.getDefaultInstance()).get(0);
+    }
+
+    private SpanEventBo mapSingle(Span span, InstrumentationScope scope) {
+        return mapper.map(0L, span, scope).get(0);
     }
 
     private static List<String> attributeKeys(SpanEventBo event) {
@@ -451,6 +456,38 @@ class OtlpTraceSpanEventMapperTest {
 
     private static final int HTTP_STATUS_CODE =
             com.navercorp.pinpoint.common.trace.AnnotationKey.HTTP_STATUS_CODE.getCode();
+
+    private static final int OPENTELEMETRY_SCOPE =
+            com.navercorp.pinpoint.common.trace.AnnotationKey.OPENTELEMETRY_SCOPE.getCode();
+
+    // =======================================================================
+    // map() — OPENTELEMETRY_SCOPE annotation
+    // =======================================================================
+
+    @Test
+    void map_scope_nameAndVersion_recordsScopeAnnotation() {
+        InstrumentationScope scope = InstrumentationScope.newBuilder()
+                .setName("io.opentelemetry.jdbc")
+                .setVersion("2.5.0")
+                .build();
+        SpanEventBo event = mapSingle(span(Span.SpanKind.SPAN_KIND_CLIENT), scope);
+        assertThat(findAnnotation(event, OPENTELEMETRY_SCOPE)).isEqualTo("io.opentelemetry.jdbc@2.5.0");
+    }
+
+    @Test
+    void map_scope_nameOnly_omitsVersionSuffix() {
+        InstrumentationScope scope = InstrumentationScope.newBuilder()
+                .setName("my-custom-tracer")
+                .build();
+        SpanEventBo event = mapSingle(span(Span.SpanKind.SPAN_KIND_CLIENT), scope);
+        assertThat(findAnnotation(event, OPENTELEMETRY_SCOPE)).isEqualTo("my-custom-tracer");
+    }
+
+    @Test
+    void map_scope_unset_noScopeAnnotation() {
+        SpanEventBo event = mapSingle(span(Span.SpanKind.SPAN_KIND_CLIENT));
+        assertThat(findAnnotation(event, OPENTELEMETRY_SCOPE)).isNull();
+    }
 
     @Test
     void map_client_legacyGrpc_netPeerName_setsEndPointAndDestinationId_andFiltersRawKeys() {

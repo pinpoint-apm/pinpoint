@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.SpanVersion;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,7 @@ public class OtlpTraceSpanChunkMapper {
         this.spanEventMapper = Objects.requireNonNull(spanEventMapper, "spanEventMapper");
     }
 
-    SpanChunkBo map(IdAndName idAndName, Span span) {
+    SpanChunkBo map(IdAndName idAndName, Span span, InstrumentationScope scope) {
         final SpanOwner owner = newSpanOwner(idAndName);
 
         SpanChunkBo spanChunkBo = new SpanChunkBo(TraceSourceType.OPENTELEMETRY, owner);
@@ -53,7 +54,7 @@ public class OtlpTraceSpanChunkMapper {
         spanChunkBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getParentSpanId()));
         // spanChunkBo.setEndPoint();
         spanChunkBo.setApplicationServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
-        final List<SpanEventBo> spanEventBoList = spanEventMapper.map(startTimeNanos, span);
+        final List<SpanEventBo> spanEventBoList = spanEventMapper.map(startTimeNanos, span, scope);
         spanChunkBo.addSpanEventBoList(spanEventBoList);
         spanChunkBo.setCollectorAcceptTime(System.currentTimeMillis());
         // spanChunkBo.setLocalAsyncId();
