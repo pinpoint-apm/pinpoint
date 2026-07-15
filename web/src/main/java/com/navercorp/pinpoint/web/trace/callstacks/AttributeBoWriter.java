@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.trace.attribute.AttributeValueString;
 import org.apache.commons.io.output.StringBuilderWriter;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,10 +73,9 @@ public class AttributeBoWriter {
             case BOOLEAN -> gen.writeBoolean(((AttributeValueBoolean) value).getBooleanValue());
             case LONG -> gen.writeNumber(((AttributeValueLong) value).getLongValue());
             case DOUBLE -> gen.writeNumber(((AttributeValueDouble) value).getDoubleValue());
-            case BYTES -> {
-                byte[] bytesValue = ((AttributeValueBytes) value).getRawBytesValue();
-                gen.writeString(Base64.getEncoder().encodeToString(bytesValue));
-            }
+            // writeBinary encodes with the generator's default MIME_NO_LINEFEEDS variant,
+            // which matches Base64.getEncoder() output
+            case BYTES -> gen.writeBinary(((AttributeValueBytes) value).getRawBytesValue());
             case ARRAY -> {
                 gen.writeStartArray();
                 for (AttributeValue item : ((AttributeValueArray) value).getArrayValue()) {
