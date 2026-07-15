@@ -364,7 +364,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
   const rightSection = (
     <>
       <div className="flex items-center justify-between gap-4 pr-2 pl-6 h-10 text-sm">
-        <span className="opacity-50">{item.rightSectionTitle ?? item.name}</span>
+        <span className="opacity-50 truncate min-w-0">{item.rightSectionTitle ?? item.name}</span>
         {typeof item.headerAction === 'function' ? item.headerAction(close) : item.headerAction}
       </div>
       <Separator className="mb-2 opacity-50" />
