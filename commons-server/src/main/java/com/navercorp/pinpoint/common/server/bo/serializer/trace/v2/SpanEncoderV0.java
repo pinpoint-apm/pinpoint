@@ -418,12 +418,7 @@ public class SpanEncoderV0 implements SpanEncoder {
                 // first annotation
                 buffer.putSVInt(current.getKey());
 
-                Object value = current.getValue();
-                byte valueTypeCode = transcoder.getTypeCode(value);
-                byte[] valueBytes = transcoder.encode(value, valueTypeCode);
-
-                buffer.putByte(valueTypeCode);
-                buffer.putPrefixedBytes(valueBytes);
+                writeAnnotationValue(buffer, current.getValue());
 //                else {
 //                    writeDeltaAnnotationBo(buffer, prev, current);
 //                }
@@ -444,12 +439,12 @@ public class SpanEncoderV0 implements SpanEncoder {
         final int currentKey = current.getKey();
         buffer.putSVInt(currentKey - prevKey);
 
-        Object value = current.getValue();
-        byte valueTypeCode = transcoder.getTypeCode(value);
-        byte[] valueBytes = transcoder.encode(value, valueTypeCode);
+        writeAnnotationValue(buffer, current.getValue());
+    }
 
-        buffer.putByte(valueTypeCode);
-        buffer.putPrefixedBytes(valueBytes);
+    private void writeAnnotationValue(Buffer buffer, Object value) {
+        final AnnotationTranscoder.ValueEncoder valueEncoder = transcoder.getEncoder(value);
+        valueEncoder.encode(buffer, value);
     }
 
 

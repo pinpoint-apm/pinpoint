@@ -17,10 +17,15 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
+import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringStringValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -71,6 +76,98 @@ public class AnnotationTranscoderTest {
 
         typeBinaryCode(new byte[]{12, 3, 4, 1, 23, 4, 1, 2, 3, 4, 4});
 
+    }
+
+    @Test
+    public void getEncoder_consistentWithTypeCodeAndEncode() {
+        Object[] values = {
+                "string", "", null,
+                0, 1, -1212, Integer.MIN_VALUE, Integer.MAX_VALUE,
+                (short) 4, Short.MIN_VALUE, Short.MAX_VALUE,
+                0L, 2L, 268435456L, Long.MIN_VALUE, Long.MAX_VALUE,
+                123.3f, Float.NaN, Float.MIN_VALUE,
+                -124D, Double.NaN, Double.MAX_VALUE,
+                (byte) -14, Byte.MIN_VALUE, Byte.MAX_VALUE,
+                Boolean.TRUE, Boolean.FALSE,
+                new byte[]{12, 3, 4},
+                new Date(), // CODE_TOSTRING fallback
+                new IntStringValue(1, "a"),
+                new IntStringValue(-1, null),
+                new IntStringStringValue(1, "a", "b"),
+                new IntStringStringValue(-1, null, "b"),
+                new StringStringValue("a", "b"),
+                new StringStringValue(null, null),
+                new LongIntIntByteByteStringValue(1L, 2, 3, (byte) 4, (byte) 5, "s"),
+                // unset optional fields and a negative putVInt (10-byte var64 form)
+                new LongIntIntByteByteStringValue(-1L, -2, 0, (byte) 0, (byte) 0, null),
+                new IntBooleanIntBooleanValue(1, true, 2, false),
+                new IntBooleanIntBooleanValue(-1, true, Integer.MIN_VALUE, false),
+                new BytesStringStringValue(new byte[]{1}, "a", "b"),
+        };
+
+        AnnotationTranscoder transcoder = new AnnotationTranscoder();
+        for (Object value : values) {
+            byte typeCode = transcoder.getTypeCode(value);
+            Buffer expected = new AutomaticBuffer();
+            expected.putByte(typeCode);
+            expected.putPrefixedBytes(transcoder.encode(value, typeCode));
+
+            Buffer actual = new AutomaticBuffer();
+            transcoder.getEncoder(value).encode(actual, value);
+
+            Assertions.assertArrayEquals(expected.getBuffer(), actual.getBuffer(), String.valueOf(value));
+        }
+    }
+
+    @Test
+    public void getEncoder_roundTrip() {
+        encoderRoundTrip("string");
+        encoderRoundTrip("");
+        encoderRoundTrip(null);
+
+        encoderRoundTrip(0);
+        encoderRoundTrip(-1212);
+        encoderRoundTrip(Integer.MIN_VALUE);
+        encoderRoundTrip(Integer.MAX_VALUE);
+        encoderRoundTrip((short) 4);
+        encoderRoundTrip(Short.MIN_VALUE);
+        encoderRoundTrip(0L);
+        encoderRoundTrip(268435456L);
+        encoderRoundTrip(Long.MIN_VALUE);
+        encoderRoundTrip(Long.MAX_VALUE);
+        encoderRoundTrip((byte) -14);
+        encoderRoundTrip(123.3f);
+        encoderRoundTrip(Float.NaN);
+        encoderRoundTrip(-124D);
+        encoderRoundTrip(Double.MAX_VALUE);
+        encoderRoundTrip(Boolean.TRUE);
+        encoderRoundTrip(Boolean.FALSE);
+
+        byte[] binary = {12, 3, 4};
+        Assertions.assertArrayEquals(binary, (byte[]) encodeAndDecode(binary));
+
+        // CODE_TOSTRING fallback decodes to its string form
+        Date date = new Date();
+        Assertions.assertEquals(date.toString(), encodeAndDecode(date));
+
+        IntStringValue intString = (IntStringValue) encodeAndDecode(new IntStringValue(1, "a"));
+        Assertions.assertEquals(1, intString.getIntValue());
+        Assertions.assertEquals("a", intString.getStringValue());
+    }
+
+    private void encoderRoundTrip(Object value) {
+        Assertions.assertEquals(value, encodeAndDecode(value), String.valueOf(value));
+    }
+
+    private Object encodeAndDecode(Object value) {
+        AnnotationTranscoder transcoder = new AnnotationTranscoder();
+        Buffer buffer = new AutomaticBuffer();
+        transcoder.getEncoder(value).encode(buffer, value);
+
+        Buffer reader = new FixedBuffer(buffer.getBuffer());
+        byte typeCode = reader.readByte();
+        byte[] valueBytes = reader.readPrefixedBytes();
+        return transcoder.decode(typeCode, valueBytes);
     }
 
     private void typeCode(Object value) {
