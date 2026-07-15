@@ -52,7 +52,6 @@ import org.bson.BsonRegularExpression;
 import org.bson.BsonString;
 import org.bson.BsonSymbol;
 import org.bson.BsonTimestamp;
-import org.bson.BsonType;
 import org.bson.BsonValue;
 import org.bson.BsonWriter;
 import org.bson.Document;
@@ -457,156 +456,160 @@ class WriteContext {
     }
 
     private void writeBsonValueObject(BsonValue arg) {
-
-        BsonType bsonType = arg.getBsonType();
-
         //write with same format of JsonWriter(JsonMode.STRICT)
-        if (bsonType.equals(BsonType.DOUBLE)) {
+        switch (arg.getBsonType()) {
+            case DOUBLE: {
+                BsonDouble bsonDouble = arg.asDouble();
+                writeDouble(bsonDouble.getValue());
+                break;
+            }
+            case STRING: {
+                BsonString bsonString = arg.asString();
+                writeString(bsonString.getValue());
+                break;
+            }
+            case BINARY: {
+                BsonBinary bsonBinary = (BsonBinary) arg;
+                String abbreviatedBinary = binaryAbbreviationForMongo(bsonBinary);
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$binary");
+                writeString(abbreviatedBinary);
 
-            BsonDouble bsonDouble = arg.asDouble();
-            writeDouble(bsonDouble.getValue());
+                bsonWriter.writeName("$type");
+                writeString(String.format("%02X", bsonBinary.getType()));
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case OBJECT_ID: {
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$oid");
+                writeString(String.valueOf(arg.asObjectId().getValue()));
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case BOOLEAN: {
+                BsonBoolean bsonBoolean = arg.asBoolean();
+                writeBoolean(bsonBoolean.getValue());
+                break;
+            }
+            case DATE_TIME: {
+                BsonDateTime bsonDateTime = arg.asDateTime();
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$date");
+                writeInt64(bsonDateTime.getValue());
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case REGULAR_EXPRESSION: {
+                BsonRegularExpression bsonRegularExpression = arg.asRegularExpression();
 
-        } else if (bsonType.equals(BsonType.STRING)) {
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$regex");
+                writeString(bsonRegularExpression.getPattern());
+                bsonWriter.writeName("$options");
+                writeString(bsonRegularExpression.getOptions());
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case DB_POINTER: {
+                BsonDbPointer bsonDbPointer = arg.asDBPointer();
 
-            BsonString bsonString = arg.asString();
-            writeString(bsonString.getValue());
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$ref");
+                writeString(bsonDbPointer.getNamespace());
+                bsonWriter.writeName("$id");
 
-        } else if (bsonType.equals(BsonType.BINARY)) {
-            BsonBinary bsonBinary = (BsonBinary) arg;
-            String abbreviatedBinary = binaryAbbreviationForMongo(bsonBinary);
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$binary");
-            writeString(abbreviatedBinary);
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$oid");
+                writeString(String.valueOf(bsonDbPointer.getId()));
+                bsonWriter.writeEndDocument();
 
-            bsonWriter.writeName("$type");
-            writeString(String.valueOf(String.format("%02X", bsonBinary.getType())));
-            bsonWriter.writeEndDocument();
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case JAVASCRIPT: {
+                BsonJavaScript bsonJavaScript = arg.asJavaScript();
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$code");
+                writeString(bsonJavaScript.getCode());
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case SYMBOL: {
+                final BsonSymbol bsonSymbol = arg.asSymbol();
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$symbol");
+                writeString(bsonSymbol.getSymbol());
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case JAVASCRIPT_WITH_SCOPE: {
+                final BsonJavaScriptWithScope bsonJavaScript = arg.asJavaScriptWithScope();
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$code");
+                writeString(bsonJavaScript.getCode());
+                bsonWriter.writeName("$scope");
+                writeValue(bsonJavaScript.getScope());
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case INT32: {
+                BsonInt32 int32 = arg.asInt32();
+                writeInt32(int32.getValue());
+                break;
+            }
+            case TIMESTAMP: {
+                BsonTimestamp bsonTimestamp = arg.asTimestamp();
 
-        } else if (bsonType.equals(BsonType.OBJECT_ID)) {
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$timestamp");
 
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$oid");
-            writeString(String.valueOf(arg.asObjectId().getValue()));
-            bsonWriter.writeEndDocument();
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("t");
+                writeInt32(bsonTimestamp.getTime());
+                bsonWriter.writeName("i");
+                writeInt32(bsonTimestamp.getInc());
+                bsonWriter.writeEndDocument();
 
-        } else if (bsonType.equals(BsonType.BOOLEAN)) {
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case INT64: {
+                BsonInt64 bsonInt64 = arg.asInt64();
 
-            BsonBoolean bsonBoolean = arg.asBoolean();
-            writeBoolean(bsonBoolean.getValue());
-
-        } else if (bsonType.equals(BsonType.DATE_TIME)) {
-
-            BsonDateTime bsonDateTime = arg.asDateTime();
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$date");
-            writeInt64(bsonDateTime.getValue());
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.REGULAR_EXPRESSION)) {
-
-            BsonRegularExpression bsonRegularExpression = arg.asRegularExpression();
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$regex");
-            writeString(bsonRegularExpression.getPattern());
-            bsonWriter.writeName("$options");
-            writeString(bsonRegularExpression.getOptions());
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.DB_POINTER)) {
-
-            BsonDbPointer bsonDbPointer = arg.asDBPointer();
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$ref");
-            writeString(bsonDbPointer.getNamespace());
-            bsonWriter.writeName("$id");
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$oid");
-            writeString(String.valueOf(bsonDbPointer.getId()));
-            bsonWriter.writeEndDocument();
-
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.JAVASCRIPT)) {
-
-            BsonJavaScript bsonJavaScript = arg.asJavaScript();
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$code");
-            writeString(bsonJavaScript.getCode());
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.SYMBOL)) {
-
-            final BsonSymbol bsonSymbol = arg.asSymbol();
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$symbol");
-            writeString(bsonSymbol.getSymbol());
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.JAVASCRIPT_WITH_SCOPE)) {
-
-            final BsonJavaScriptWithScope bsonJavaScript = arg.asJavaScriptWithScope();
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$code");
-            writeString(bsonJavaScript.getCode());
-            bsonWriter.writeName("$scope");
-            writeValue(bsonJavaScript.getScope());
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.INT32)) {
-
-            BsonInt32 int32 = arg.asInt32();
-            writeInt32(int32.getValue());
-
-        } else if (bsonType.equals(BsonType.TIMESTAMP)) {
-            BsonTimestamp bsonTimestamp = arg.asTimestamp();
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$timestamp");
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("t");
-            writeInt32(bsonTimestamp.getTime());
-            bsonWriter.writeName("i");
-            writeInt32(bsonTimestamp.getInc());
-            bsonWriter.writeEndDocument();
-
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.INT64)) {
-
-            BsonInt64 bsonInt64 = arg.asInt64();
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$numberLong");
-            writeInt64(bsonInt64.getValue());
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.UNDEFINED)) {
-
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$undefined");
-            writeBoolean(true);
-            bsonWriter.writeEndDocument();
-
-        } else if (bsonType.equals(BsonType.NULL)) {
-
-            writeNull();
-
-        } else if (decimal128Enabled && bsonType.equals(BsonType.DECIMAL128)) {
-
-            //since Mongo Java Driver 3.4
-            bsonWriter.writeStartDocument();
-            bsonWriter.writeName("$numberDecimal");
-            writeString(String.valueOf(arg.asDecimal128().getValue()));
-            bsonWriter.writeEndDocument();
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$numberLong");
+                writeInt64(bsonInt64.getValue());
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case UNDEFINED: {
+                bsonWriter.writeStartDocument();
+                bsonWriter.writeName("$undefined");
+                writeBoolean(true);
+                bsonWriter.writeEndDocument();
+                break;
+            }
+            case NULL: {
+                writeNull();
+                break;
+            }
+            case DECIMAL128: {
+                if (decimal128Enabled) {
+                    //since Mongo Java Driver 3.4
+                    bsonWriter.writeStartDocument();
+                    bsonWriter.writeName("$numberDecimal");
+                    writeString(String.valueOf(arg.asDecimal128().getValue()));
+                    bsonWriter.writeEndDocument();
+                }
+                break;
+            }
+            default:
+                // BsonType.DOCUMENT //taken care of in Bson
+                // BsonType.ARRAY //taken care of in collection
+                // BsonType.END_OF_DOCUMENT //do nothing
+                break;
         }
-//        BsonType.DOCUMENT //taken care of in Bson
-//        BsonType.ARRAY //taken care of in collection
-//        BsonType.END_OF_DOCUMENT //do nothing
-
     }
 
     private Map<String, ?> getBsonKeyValueMap(Bson bson) {
