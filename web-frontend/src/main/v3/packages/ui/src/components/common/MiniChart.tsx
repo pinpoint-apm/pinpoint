@@ -80,6 +80,8 @@ export const MiniChart = ({ chart }: MiniChartProps) => {
 
       chartInstance.setOption(
         {
+          // 행마다 그려지는 미니 차트라 다른 echarts 차트들과 동일하게 애니메이션을 끈다.
+          animation: false,
           grid: { top: 6, right: 60, bottom: 6, left: 2 },
           xAxis: {
             type: 'time',
