@@ -371,6 +371,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     recordList.add(attribute);
                 }
 
+                // add OTel instrumentation-scope record (lifted to a row icon by the frontend).
+                final Record scope = factory.getScope(record.getTab() + 1, record.getId(), align);
+                if (scope != null) {
+                    recordList.add(scope);
+                }
+
                 // add remote record.(span only)
                 if (align.getRemoteAddr() != null) {
                     final Record remoteAddressRecord = factory.getParameter(record.getTab() + 1, record.getId(), "REMOTE_ADDRESS", align.getRemoteAddr());

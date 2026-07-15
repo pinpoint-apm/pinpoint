@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.OtlpMessagingT
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.PulsarMessagingConsumerHandler;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RabbitMQMessagingConsumerHandler;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RocketMQMessagingConsumerHandler;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
@@ -206,6 +207,14 @@ class OtlpTraceSpanMapperTest {
         return new IdAndName("agent-1", "agent-1", "app-1", "default");
     }
 
+    // scope-less default: SDKs that don't populate the InstrumentationScope send the proto
+    // default instance (empty name), which must not produce an OPENTELEMETRY_SCOPE annotation.
+    private static final InstrumentationScope NO_SCOPE = InstrumentationScope.getDefaultInstance();
+
+    private static InstrumentationScope scope(String name, String version) {
+        return InstrumentationScope.newBuilder().setName(name).setVersion(version).build();
+    }
+
     private static Span consumerKafkaSpan(KeyValue... extraAttrs) {
         Span.Builder builder = Span.newBuilder()
                 .setName("orders process")
@@ -234,10 +243,37 @@ class OtlpTraceSpanMapperTest {
                 .toList();
     }
 
+    // =======================================================================
+    // map() — OPENTELEMETRY_SCOPE annotation
+    // =======================================================================
+
+    @Test
+    void map_scope_nameAndVersion_recordsScopeAnnotation() {
+        Span span = consumerKafkaSpan();
+        SpanBo bo = newMapper().map(id(), span, scope("io.opentelemetry.kafka-clients-2.6", "2.5.0"));
+        assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_SCOPE.getCode()))
+                .isEqualTo("io.opentelemetry.kafka-clients-2.6@2.5.0");
+    }
+
+    @Test
+    void map_scope_nameOnly_omitsVersionSuffix() {
+        Span span = consumerKafkaSpan();
+        SpanBo bo = newMapper().map(id(), span, scope("my-custom-tracer", ""));
+        assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_SCOPE.getCode()))
+                .isEqualTo("my-custom-tracer");
+    }
+
+    @Test
+    void map_scope_unset_noScopeAnnotation() {
+        Span span = consumerKafkaSpan();
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_SCOPE.getCode())).isNull();
+    }
+
     @Test
     void map_consumer_kafka_setsKafkaServiceType() {
         Span span = consumerKafkaSpan();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 8660); // KAFKA_CLIENT
     }
 
@@ -247,7 +283,7 @@ class OtlpTraceSpanMapperTest {
                 kv("messaging.kafka.destination.partition", intVal(0)),
                 kv("messaging.kafka.message.offset", intVal(12345))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("kafka://topic=orders?partition=0&offset=12345");
     }
 
@@ -257,7 +293,7 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerKafkaSpan(
                 kv("messaging.kafka.destination.partition", intVal(0))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_KAFKA_PARTITION))
                 .isEqualTo(0);
         assertThat(bo.getRpc()).contains("partition=0");
@@ -268,7 +304,7 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerKafkaSpan(
                 kv("messaging.kafka.message.offset", intVal(0))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_KAFKA_OFFSET))
                 .isEqualTo(0L);
         assertThat(bo.getRpc()).contains("offset=0");
@@ -279,7 +315,7 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerKafkaSpan(
                 kv("messaging.kafka.message.offset", intVal(-1001))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_KAFKA_OFFSET))
                 .isNull();
         assertThat(bo.getRpc()).doesNotContain("offset=");
@@ -291,7 +327,7 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerKafkaSpan(
                 kv("messaging.destination.partition.id", strVal("7"))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_KAFKA_PARTITION))
                 .isEqualTo(7);
         assertThat(bo.getRpc()).contains("partition=7");
@@ -304,7 +340,7 @@ class OtlpTraceSpanMapperTest {
                 kv("messaging.kafka.message.offset", intVal(42)),
                 kv("messaging.kafka.consumer.group", strVal("accounting"))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_KAFKA_TOPIC))
                 .isEqualTo("orders");
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_KAFKA_PARTITION))
@@ -322,7 +358,7 @@ class OtlpTraceSpanMapperTest {
                 kv("server.port", intVal(9092)),
                 kv("messaging.client_id", strVal("rdkafka#consumer-1"))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getEndPoint()).isEqualTo("broker1.example.com:9092");
         assertThat(bo.getRemoteAddr()).isEqualTo("broker1.example.com:9092");
     }
@@ -332,7 +368,7 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerKafkaSpan(
                 kv("messaging.client_id", strVal("rdkafka#consumer-1"))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getEndPoint()).isEqualTo("rdkafka#consumer-1");
         assertThat(bo.getRemoteAddr()).isNull();
     }
@@ -343,7 +379,7 @@ class OtlpTraceSpanMapperTest {
                 kv("server.address", strVal("broker1.example.com")),
                 kv("server.port", intVal(9092))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getAcceptorHost()).isEqualTo("broker1.example.com:9092");
     }
 
@@ -357,7 +393,7 @@ class OtlpTraceSpanMapperTest {
                 .setKindValue(Span.SpanKind.SPAN_KIND_CONSUMER_VALUE)
                 .addAttributes(kv("messaging.system", strVal("aws_sqs")))
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
         // No system-specific annotations added.
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_KAFKA_TOPIC)).isNull();
@@ -385,7 +421,7 @@ class OtlpTraceSpanMapperTest {
     @Test
     void map_consumer_rabbitmq_setsRabbitMQServiceType() {
         Span span = consumerRabbitMQSpan();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 8300); // RABBITMQ_CLIENT
     }
 
@@ -394,14 +430,14 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerRabbitMQSpan(
                 kv("messaging.rabbitmq.destination.routing_key", strVal("order.created"))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("rabbitmq://exchange=orders.exchange?routingkey=order.created");
     }
 
     @Test
     void map_consumer_rabbitmq_rpcWithoutRoutingKey() {
         Span span = consumerRabbitMQSpan();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("rabbitmq://exchange=orders.exchange");
     }
 
@@ -410,7 +446,7 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerRabbitMQSpan(
                 kv("messaging.rabbitmq.destination.routing_key", strVal("order.created"))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_RABBITMQ_EXCHANGE))
                 .isEqualTo("orders.exchange");
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_RABBITMQ_ROUTING_KEY))
@@ -425,7 +461,7 @@ class OtlpTraceSpanMapperTest {
                 kv("server.address", strVal("rabbit1.example.com")),
                 kv("server.port", intVal(5672))
         );
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getEndPoint()).isEqualTo("rabbit1.example.com:5672");
         assertThat(bo.getRemoteAddr()).isEqualTo("rabbit1.example.com:5672");
         assertThat(bo.getAcceptorHost()).isEqualTo("rabbit1.example.com:5672");
@@ -454,7 +490,7 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerSpan("pulsar", "persistent://public/default/orders",
                 kv("messaging.destination.partition.id", strVal("2")),
                 kv("messaging.message.id", strVal("3:42:0")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 8670); // PULSAR_CLIENT
         assertThat(bo.getRpc()).isEqualTo("pulsar://topic=persistent://public/default/orders?partition=2&messageId=3:42:0");
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_PULSAR_TOPIC))
@@ -471,7 +507,7 @@ class OtlpTraceSpanMapperTest {
                 kv("messaging.destination.partition.id", strVal("4")),
                 kv("server.address", strVal("rmq1.example.com")),
                 kv("server.port", intVal(10911)));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 8400); // ROCKETMQ_CLIENT
         assertThat(bo.getRpc()).isEqualTo("rocketmq://topic=orders?queue=4");
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_ROCKETMQ_TOPIC))
@@ -487,7 +523,7 @@ class OtlpTraceSpanMapperTest {
         Span span = consumerSpan("activemq", "orders.queue",
                 kv("server.address", strVal("amq1.example.com")),
                 kv("server.port", intVal(61616)));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 8310); // ACTIVEMQ_CLIENT
         assertThat(bo.getRpc()).isEqualTo("activemq://queue=orders.queue");
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_MESSAGE_QUEUE_URI))
@@ -519,7 +555,7 @@ class OtlpTraceSpanMapperTest {
                 kv("rpc.system", strVal("grpc")),
                 kv("rpc.service", strVal("orders.OrderService")),
                 kv("rpc.method", strVal("PlaceOrder")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 1130); // GRPC_SERVER
     }
 
@@ -529,7 +565,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("rpc.system", strVal("apache_dubbo")),
                 kv("rpc.service", strVal("com.example.UserService")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 1999); // APACHE_DUBBO_PROVIDER
     }
 
@@ -541,7 +577,7 @@ class OtlpTraceSpanMapperTest {
                 kv("http.request.method", strVal("GET")),
                 kv("url.path", strVal("/api/users/123")),
                 kv("network.protocol.name", strVal("http")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
     }
 
@@ -555,7 +591,7 @@ class OtlpTraceSpanMapperTest {
                 kv("response_flags", strVal("-")),
                 kv("upstream_cluster", strVal("frontend")),
                 kv("upstream_cluster.name", strVal("frontend")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
         assertThat(annotationValue(bo, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isEqualTo("frontend");
         assertThat(annotationValue(bo, OtlpTraceConstants.ANNOTATION_KEY_ENVOY_OPERATION)).isEqualTo("Ingress");
@@ -573,14 +609,14 @@ class OtlpTraceSpanMapperTest {
     void map_server_unsupportedRpcSystem_keepsOpenTelemetryServer() {
         // OTel-spec values without a Pinpoint counterpart (java_rmi, connect_rpc, dotnet_wcf).
         Span span = serverSpan(kv("rpc.system", strVal("java_rmi")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
     }
 
     @Test
     void map_server_grpc_caseInsensitive() {
         Span span = serverSpan(kv("rpc.system", strVal("GRPC")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 1130); // GRPC_SERVER
     }
 
@@ -595,7 +631,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("http.route", strVal("/api/users/{id}")),
                 kv("url.path", strVal("/api/users/123")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("/api/users/{id}");
     }
 
@@ -603,7 +639,7 @@ class OtlpTraceSpanMapperTest {
     void map_server_urlPath_usedWhenHttpRouteAbsent() {
         // Unrouted request (no http.route) falls back to url.path.
         Span span = serverSpan(kv("url.path", strVal("/api/users/123")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("/api/users/123");
     }
 
@@ -618,7 +654,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("http.route", strVal("/api/users/{id}")),
                 kv("url.path", strVal("/api/users/123")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(attributeKeys(bo)).doesNotContain("http.route");
         assertThat(attributeKeys(bo)).contains("url.path");
     }
@@ -626,7 +662,7 @@ class OtlpTraceSpanMapperTest {
     @Test
     void map_server_httpTarget_consumedAsRpc_filtered() {
         Span span = serverSpan(kv("http.target", strVal("/api/cart?x=1")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("/api/cart?x=1");
         assertThat(attributeKeys(bo)).doesNotContain("http.target");
     }
@@ -637,7 +673,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("rpc.service", strVal("oteldemo.CartService")),
                 kv("rpc.method", strVal("AddItem")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("AddItem");
         assertThat(bo.getEndPoint()).isEqualTo("oteldemo.CartService");
         assertThat(attributeKeys(bo)).doesNotContain("rpc.service", "rpc.method");
@@ -648,7 +684,7 @@ class OtlpTraceSpanMapperTest {
         // peer.address (Envoy-style) resolves remoteAddr — previously it survived as a raw
         // duplicate because it was missing from the static filter set.
         Span span = serverSpan(kv("peer.address", strVal("172.18.0.25")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRemoteAddr()).isEqualTo("172.18.0.25");
         assertThat(attributeKeys(bo)).doesNotContain("peer.address");
     }
@@ -658,7 +694,7 @@ class OtlpTraceSpanMapperTest {
         // http.url feeds both rpc (path) and endPoint (host:port) but retains query information —
         // partial consumption keeps the raw attribute.
         Span span = serverSpan(kv("http.url", strVal("http://shop:8080/api/cart?x=1")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("/api/cart");
         assertThat(bo.getEndPoint()).isEqualTo("shop:8080");
         assertThat(attributeKeys(bo)).contains("http.url");
@@ -667,7 +703,7 @@ class OtlpTraceSpanMapperTest {
     @Test
     void map_server_rpcSystem_consumed_filtered() {
         Span span = serverSpan(kv("rpc.system", strVal("grpc")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(attributeKeys(bo)).doesNotContain("rpc.system");
     }
 
@@ -682,7 +718,7 @@ class OtlpTraceSpanMapperTest {
                 .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
                 .addAttributes(kv("rpc.system", strVal("grpc")))
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(attributeKeys(bo)).contains("rpc.system");
     }
 
@@ -698,7 +734,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("rpc.system", strVal("grpc")),
                 kv("grpc.status_code", strVal("0")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("OK");
         assertThat(attributeKeys(bo)).doesNotContain("grpc.status_code");
     }
@@ -707,7 +743,7 @@ class OtlpTraceSpanMapperTest {
     void map_server_grpcStatus_outOfRangeCode_recordedAsNumber() {
         // Codes outside the spec range (0-16) have no canonical name — record the raw number.
         Span span = serverSpan(kv("rpc.grpc.status_code", intVal(99)));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("99");
     }
 
@@ -715,7 +751,7 @@ class OtlpTraceSpanMapperTest {
     void map_server_grpcStatus_nonNumeric_noAnnotationAndKeptRaw() {
         // A non-numeric status is not promoted; the raw attribute survives (consumedKeys rule).
         Span span = serverSpan(kv("grpc.status_code", strVal("OK")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isNull();
         assertThat(attributeKeys(bo)).contains("grpc.status_code");
     }
@@ -728,7 +764,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("upstream_cluster.name", strVal("frontend")),
                 kv("response_flags", strVal("-")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER)).isEqualTo("frontend");
         assertThat(attributeKeys(bo)).doesNotContain("upstream_cluster.name");
         assertThat(attributeKeys(bo)).contains("response_flags");
@@ -741,7 +777,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("next.route", strVal("/api/products/[productId]/index")),
                 kv("http.target", strVal("/api/products/66VCHSJNUP")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("/api/products/[productId]/index");
     }
 
@@ -751,7 +787,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("http.route", strVal("/api/users/{id}")),
                 kv("next.route", strVal("/api/users/[id]")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("/api/users/{id}");
     }
 
@@ -760,7 +796,7 @@ class OtlpTraceSpanMapperTest {
         // Promoted to the rpc field on the root path, so it must not also leak as a raw
         // attribute (mirrors http.route / url.path).
         Span span = serverSpan(kv("next.route", strVal("/api/cart")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(attributeKeys(bo)).doesNotContain("next.route");
     }
 
@@ -773,7 +809,7 @@ class OtlpTraceSpanMapperTest {
         // Legacy http.status_code (int) is promoted to the HTTP_STATUS_CODE annotation and removed
         // from the raw attribute list on the root path so there is no duplicate.
         Span span = serverSpan(kv("http.status_code", intVal(200)));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isEqualTo(200);
         assertThat(attributeKeys(bo)).doesNotContain("http.status_code");
     }
@@ -782,7 +818,7 @@ class OtlpTraceSpanMapperTest {
     void map_server_httpResponseStatusCode_promotedAndFilteredFromAttributes() {
         // New semconv http.response.status_code — same promotion + root-path filtering.
         Span span = serverSpan(kv("http.response.status_code", intVal(404)));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isEqualTo(404);
         assertThat(attributeKeys(bo)).doesNotContain("http.response.status_code");
     }
@@ -792,7 +828,7 @@ class OtlpTraceSpanMapperTest {
         // Envoy emits http.status_code as a string ("200"); it must still be promoted to the
         // HTTP_STATUS_CODE annotation (int-only extraction would have dropped it).
         Span span = serverSpan(kv("http.status_code", strVal("200")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isEqualTo(200);
     }
 
@@ -802,7 +838,7 @@ class OtlpTraceSpanMapperTest {
         // Because it was not promoted, the consumed-key filter leaves it untouched — the raw value
         // survives instead of being blanket-dropped by a fixed status-key filter.
         Span span = serverSpan(kv("http.status_code", strVal("OK")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isNull();
         assertThat(attributeKeys(bo)).contains("http.status_code");
     }
@@ -815,7 +851,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("http.response.status_code", intVal(200)),
                 kv("http.status_code", intVal(200)));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_STATUS_CODE.getCode())).isEqualTo(200);
         assertThat(attributeKeys(bo)).doesNotContain("http.response.status_code");
         assertThat(attributeKeys(bo)).contains("http.status_code");
@@ -830,7 +866,7 @@ class OtlpTraceSpanMapperTest {
         // Legacy http.method is promoted to the HTTP_METHOD annotation and removed from the raw
         // attribute list (no duplicate).
         Span span = serverSpan(kv("http.method", strVal("GET")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_METHOD.getCode())).isEqualTo("GET");
         assertThat(attributeKeys(bo)).doesNotContain("http.method");
     }
@@ -843,7 +879,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("http.request.method", strVal("POST")),
                 kv("http.method", strVal("POST")));
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.HTTP_METHOD.getCode())).isEqualTo("POST");
         assertThat(attributeKeys(bo)).doesNotContain("http.request.method");
         assertThat(attributeKeys(bo)).contains("http.method");
@@ -866,7 +902,7 @@ class OtlpTraceSpanMapperTest {
                 .setDroppedLinksCount(2)
                 .build();
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_DROPPED.getCode()))
                 .isEqualTo("attributes=7 events=3 links=2");
     }
@@ -881,7 +917,7 @@ class OtlpTraceSpanMapperTest {
                 .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
                 .build();
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_DROPPED.getCode())).isNull();
     }
 
@@ -896,7 +932,7 @@ class OtlpTraceSpanMapperTest {
                 .setDroppedAttributesCount(5)
                 .build();
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_DROPPED.getCode()))
                 .isEqualTo("attributes=5");
     }
@@ -913,7 +949,7 @@ class OtlpTraceSpanMapperTest {
                 .setDroppedLinksCount(1)
                 .build();
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, AnnotationKey.OPENTELEMETRY_DROPPED.getCode()))
                 .isEqualTo("events=4 links=1");
     }
@@ -930,7 +966,7 @@ class OtlpTraceSpanMapperTest {
                 .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
                 .addAttributes(kv("rpc.system", strVal("grpc")))
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
     }
 
@@ -953,7 +989,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication())
                 .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
                         (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
@@ -964,7 +1000,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpanBuilder()
                 .setTraceState("dd=s:1;t.dm:-4,pp=svc:upstream-svc;app:upstream-app,nr=opaque")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication())
                 .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
                         (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
@@ -978,7 +1014,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=svc:upstream-svc")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication()).isNull();
     }
 
@@ -987,7 +1023,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=app:upstream-app")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication())
                 .isEqualTo(new ParentApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, "upstream-app",
                         (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
@@ -1000,14 +1036,14 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=svc:upstream-svc;app:한글앱")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication()).isNull();
     }
 
     @Test
     void map_tracestate_emptyHeader_noParentFields() {
         Span span = serverSpanBuilder().build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication()).isNull();
     }
 
@@ -1022,7 +1058,7 @@ class OtlpTraceSpanMapperTest {
                 .setKindValue(Span.SpanKind.SPAN_KIND_SERVER_VALUE)
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication()).isNull();
     }
 
@@ -1039,7 +1075,7 @@ class OtlpTraceSpanMapperTest {
                 .addAttributes(kv("messaging.destination.name", strVal("orders")))
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication())
                 .isEqualTo(new ParentApplication("upstream-svc", "upstream-app",
                         (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
@@ -1051,7 +1087,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app;type:1010")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication().applicationServiceType()).isEqualTo((short) 1010);
     }
 
@@ -1060,7 +1096,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=svc:upstream-svc;app:upstream-app")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication().applicationServiceType())
                 .isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
     }
@@ -1070,7 +1106,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpanBuilder()
                 .setTraceState("pp=app:upstream-app;type:tomcat")
                 .build();
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getParentApplication())
                 .isEqualTo(new ParentApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, "upstream-app",
                         ServiceType.OPENTELEMETRY_SERVER.getCode()));
@@ -1116,7 +1152,7 @@ class OtlpTraceSpanMapperTest {
                 exceptionEvent(kv("exception.type", strVal("java.io.IOException")),
                         kv("exception.message", strVal("disk full"))));
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getErrCode()).isEqualTo(1);
         assertThat(bo.getExceptionInfo().id()).isEqualTo(0);
@@ -1132,7 +1168,7 @@ class OtlpTraceSpanMapperTest {
                 exceptionEvent(kv("exception.type", strVal("java.lang.RuntimeException")),
                         kv("exception.message", strVal("boom"))));
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getExceptionInfo().message()).isEqualTo("java.lang.RuntimeException:boom");
     }
@@ -1143,7 +1179,7 @@ class OtlpTraceSpanMapperTest {
                 new KeyValue[]{kv("error.type", strVal("java.net.SocketTimeoutException"))},
                 exceptionEvent(kv("exception.message", strVal("timeout"))));
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getExceptionInfo().message()).isEqualTo("java.net.SocketTimeoutException:timeout");
         assertThat(countEventAnnotations(bo)).isZero();
@@ -1157,7 +1193,7 @@ class OtlpTraceSpanMapperTest {
         Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "", new KeyValue[]{},
                 exceptionEvent(kv("exception.message", strVal("something broke"))));
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getErrCode()).isEqualTo(1);
         assertThat(bo.getExceptionInfo().id()).isEqualTo(0);
@@ -1173,7 +1209,7 @@ class OtlpTraceSpanMapperTest {
         Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "status fallback",
                 new KeyValue[]{}, exceptionEvent());
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getExceptionInfo().message()).isEqualTo(":status fallback");
     }
@@ -1183,7 +1219,7 @@ class OtlpTraceSpanMapperTest {
         Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "Connection refused",
                 new KeyValue[]{kv("error.type", strVal("500"))});
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getErrCode()).isEqualTo(1);
         // empty class-name prefix (leading delimiter) → message-only
@@ -1194,7 +1230,7 @@ class OtlpTraceSpanMapperTest {
     void map_error_noEvent_statusMessageOnly() {
         Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "Connection refused: host", new KeyValue[]{});
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getExceptionInfo().message()).isEqualTo(":Connection refused: host");
     }
@@ -1203,7 +1239,7 @@ class OtlpTraceSpanMapperTest {
     void map_error_noSignal_setsErrCodeButNoExceptionInfo() {
         Span span = errorServerSpan(Status.StatusCode.STATUS_CODE_ERROR, "", new KeyValue[]{});
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getErrCode()).isEqualTo(1);
         assertThat(bo.getExceptionInfo()).isNull();
@@ -1215,7 +1251,7 @@ class OtlpTraceSpanMapperTest {
                 new KeyValue[]{kv("error.type", strVal("500"))},
                 exceptionEvent(kv("exception.type", strVal("java.lang.RuntimeException"))));
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         assertThat(bo.getErrCode()).isEqualTo(0);
         assertThat(bo.getExceptionInfo()).isNull();
@@ -1231,7 +1267,7 @@ class OtlpTraceSpanMapperTest {
                 exceptionEvent(kv("exception.type", strVal("E")),
                         kv("exception.message", strVal(longMessage))));
 
-        SpanBo bo = newMapper().map(id(), span);
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
 
         String message = bo.getExceptionInfo().message();
         assertThat(message).startsWith("E:" + "x".repeat(256));

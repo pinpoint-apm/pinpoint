@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.PulsarAttribut
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RabbitMQAttributeUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.message.RocketMQAttributeUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
@@ -85,14 +86,14 @@ public class OtlpTraceSpanEventMapper {
         this.sqlMaxBytes = sqlMaxBytes;
     }
 
-    List<SpanEventBo> map(long spanStartTimeNanos, Span span) {
+    List<SpanEventBo> map(long spanStartTimeNanos, Span span, InstrumentationScope scope) {
         // Delegate to depth-aware mapper with default depth=1
         List<SpanEventBo> list = new ArrayList<>();
-        list.add(map(spanStartTimeNanos, span, 1));
+        list.add(map(spanStartTimeNanos, span, scope, 1));
         return list;
     }
 
-    SpanEventBo map(long spanStartTimeNanos, Span span, int depth) {
+    SpanEventBo map(long spanStartTimeNanos, Span span, InstrumentationScope scope, int depth) {
         SpanEventBo spanEventBo = new SpanEventBo();
         spanEventBo.setSequence((short) 0);
         final long eventStartTimeNanos = span.getStartTimeUnixNano();
@@ -172,6 +173,12 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.setApiId(0);
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SPAN_ID.getCode(), OtlpTraceMapperUtils.getSpanId(span.getSpanId())));
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_PARENT_SPAN_ID.getCode(), OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId())));
+        // instrumentation scope identity ("name@version") — omitted when the SDK left the
+        // scope name unset, so scope-less spans stay annotation-free.
+        final String scopeValue = OtlpTraceMapperUtils.formatScope(scope);
+        if (scopeValue != null) {
+            spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SCOPE.getCode(), scopeValue));
+        }
         // HTTP response status → HTTP_STATUS_CODE annotation, mirroring the native HTTP client
         // plugins (okhttp / httpclient / resttemplate / ...) which record it on the SpanEvent via
         // SpanEventRecorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, ...). Only the consumed

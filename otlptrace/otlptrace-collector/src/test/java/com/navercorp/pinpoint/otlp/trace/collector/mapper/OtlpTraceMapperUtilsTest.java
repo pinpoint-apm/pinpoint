@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +29,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OtlpTraceMapperUtilsTest {
+
+    // =======================================================================
+    // formatScope
+    // =======================================================================
+
+    @Test
+    void formatScope_nameAndVersion() {
+        InstrumentationScope scope = InstrumentationScope.newBuilder()
+                .setName("io.opentelemetry.jdbc")
+                .setVersion("2.5.0")
+                .build();
+        assertThat(OtlpTraceMapperUtils.formatScope(scope)).isEqualTo("io.opentelemetry.jdbc@2.5.0");
+    }
+
+    @Test
+    void formatScope_nameOnly() {
+        InstrumentationScope scope = InstrumentationScope.newBuilder()
+                .setName("my-tracer")
+                .build();
+        assertThat(OtlpTraceMapperUtils.formatScope(scope)).isEqualTo("my-tracer");
+    }
+
+    @Test
+    void formatScope_emptyName_returnsNull() {
+        assertThat(OtlpTraceMapperUtils.formatScope(InstrumentationScope.getDefaultInstance())).isNull();
+    }
+
+    @Test
+    void formatScope_null_returnsNull() {
+        assertThat(OtlpTraceMapperUtils.formatScope(null)).isNull();
+    }
 
     // =======================================================================
     // getAttributeToMapExcluding(List<KeyValue>, Predicate)

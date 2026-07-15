@@ -269,4 +269,9 @@ public interface AnnotationKey {
     // truncated to the configured byte limits. Composite value e.g. "attributes=3 sql=1";
     // suppressed when nothing was truncated.
     AnnotationKey OPENTELEMETRY_TRUNCATED = AnnotationKeyFactory.of(407, "Truncated", VIEW_IN_RECORD_SET);
+    // OTel InstrumentationScope identity ("name@version", or bare "name") — which instrumentation
+    // library produced the span. Deliberately NOT VIEW_IN_RECORD_SET: nearly every OTel span
+    // carries one, so a call-tree child row per span would be pure noise. The web surfaces it as
+    // a dedicated Scope row (RecordFactory.getScope) that the frontend lifts into a row icon.
+    AnnotationKey OPENTELEMETRY_SCOPE = AnnotationKeyFactory.of(408, "Scope");
 }

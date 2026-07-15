@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
+import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import org.jspecify.annotations.Nullable;
@@ -97,6 +98,27 @@ public class OtlpTraceMapperUtils {
         }
 
         return applicationName;
+    }
+
+    /**
+     * Formats an {@link InstrumentationScope} identity for the OPENTELEMETRY_SCOPE annotation:
+     * {@code "name@version"}, or bare {@code "name"} when the version is absent. Returns
+     * {@code null} when the scope name is empty (SDK did not populate the scope) so callers
+     * omit the annotation entirely.
+     */
+    public static @Nullable String formatScope(@Nullable InstrumentationScope scope) {
+        if (scope == null) {
+            return null;
+        }
+        final String name = scope.getName();
+        if (name.isEmpty()) {
+            return null;
+        }
+        final String version = scope.getVersion();
+        if (version.isEmpty()) {
+            return name;
+        }
+        return name + '@' + version;
     }
 
     private record AgentAuth(String agentId, String agentName) {

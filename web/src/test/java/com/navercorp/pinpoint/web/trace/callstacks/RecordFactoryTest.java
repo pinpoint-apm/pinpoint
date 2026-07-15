@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
@@ -146,6 +147,33 @@ public class RecordFactoryTest {
         com.navercorp.pinpoint.web.trace.callstacks.Record exceptionRecord = factory.getParameter(0, 0, "testMethod", null);
 
         Assertions.assertEquals("null", exceptionRecord.getArguments());
+    }
+
+    @Test
+    public void getScope_returnsScopeRow() {
+        final RecordFactory factory = newRecordFactory();
+
+        SpanBo spanBo = new SpanBo();
+        spanBo.setTransactionId(new PinpointServerTraceId("test", 0, 0));
+        spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_SCOPE.getCode(), "io.opentelemetry.jdbc@2.5.0"));
+        Align align = new SpanAlign(spanBo);
+
+        Record scopeRecord = factory.getScope(1, 0, align);
+
+        assertThat(scopeRecord).isNotNull();
+        assertThat(scopeRecord.getTitle()).isEqualTo("Scope");
+        assertThat(scopeRecord.getArguments()).isEqualTo("io.opentelemetry.jdbc@2.5.0");
+    }
+
+    @Test
+    public void getScope_withoutAnnotation_returnsNull() {
+        final RecordFactory factory = newRecordFactory();
+
+        SpanBo spanBo = new SpanBo();
+        spanBo.setTransactionId(new PinpointServerTraceId("test", 0, 0));
+        Align align = new SpanAlign(spanBo);
+
+        assertThat(factory.getScope(1, 0, align)).isNull();
     }
 
     // 0 = {parent = null, child = 1 reference, sibling = null

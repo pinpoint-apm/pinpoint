@@ -252,6 +252,22 @@ public class RecordFactory {
         return new AnnotationRecord(depth, getNextId(), parentId, "Attribute", arguments, true);
     }
 
+    /**
+     * Builds the "Scope" child row from the OPENTELEMETRY_SCOPE annotation (OTel instrumentation
+     * scope identity, {@code "name@version"}). Returns {@code null} for spans without one —
+     * native Pinpoint spans, or OTel spans whose SDK left the scope unset. Deliberately separate
+     * from {@link #getAnnotations}: the key is not VIEW_IN_RECORD_SET (a child row on nearly
+     * every OTel span would be noise); the frontend lifts this row onto its parent as a row icon
+     * instead, the same way the "Attribute" row is lifted.
+     */
+    public Record getScope(final int depth, final int parentId, final Align align) {
+        final AnnotationBo scope = AnnotationUtils.findAnnotation(align.getAnnotationBoList(), AnnotationKey.OPENTELEMETRY_SCOPE);
+        if (scope == null) {
+            return null;
+        }
+        return new AnnotationRecord(depth, getNextId(), parentId, "Scope", String.valueOf(scope.getValue()), scope.isAuthorized());
+    }
+
     public Record getParameter(final int depth, final int parentId, final String method, final String argument) {
         return new ParameterRecord(depth, getNextId(), parentId, method, argument);
     }
