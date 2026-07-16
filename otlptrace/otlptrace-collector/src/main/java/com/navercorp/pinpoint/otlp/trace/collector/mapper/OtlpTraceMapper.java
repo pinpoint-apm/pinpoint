@@ -29,6 +29,7 @@ import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
+import io.opentelemetry.proto.trace.v1.SpanFlags;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +55,9 @@ public class OtlpTraceMapper {
     public static final String CONSUMER_METHOD_NAME = "Consumer";
     public static final String INTERNAL_METHOD_NAME = "Internal";
     public static final String LINK_METHOD_NAME = "Link";
+
+    // W3C trace-flags sampled bit, carried in the low 8 bits of Span.flags.
+    private static final int W3C_SAMPLED_FLAG = 0x01;
 
     private final OtlpTraceSpanMapper spanMapper;
     private final OtlpTraceSpanEventMapper spanEventMapper;
@@ -90,7 +94,7 @@ public class OtlpTraceMapper {
             }
 
             final List<ScopeSpans> scopeSpanList = resourceSpan.getScopeSpansList();
-            final Map<ByteString, List<ScopedSpan>> spanMap = getSpanMap(scopeSpanList);
+            final Map<ByteString, List<ScopedSpan>> spanMap = getSpanMap(scopeSpanList, mapperData.getRejectedSpan());
 
             // find root span, server type, no parentSpanId
             for (Map.Entry<ByteString, List<ScopedSpan>> entry : spanMap.entrySet()) {
@@ -207,18 +211,45 @@ public class OtlpTraceMapper {
         rejectedSpan.addCount(spansCount);
     }
 
-    Map<ByteString, List<ScopedSpan>> getSpanMap(List<ScopeSpans> scopeSpanList) {
+    Map<ByteString, List<ScopedSpan>> getSpanMap(List<ScopeSpans> scopeSpanList, OtlpTraceCollectorRejectedSpan rejectedSpan) {
         Map<ByteString, List<ScopedSpan>> spanMap = new HashMap<>();
+        int unsampledCount = 0;
         for (ScopeSpans scopeSpan : scopeSpanList) {
             // The scope→span association only exists on this container — capture it here
             // (see ScopedSpan) so the mappers can emit the OPENTELEMETRY_SCOPE annotation.
             final InstrumentationScope scope = scopeSpan.getScope();
             List<Span> spansList = scopeSpan.getSpansList();
             for (Span span : spansList) {
+                if (isUnsampled(span)) {
+                    unsampledCount++;
+                    continue;
+                }
                 spanMap.computeIfAbsent(span.getTraceId(), k -> new ArrayList<>()).add(new ScopedSpan(span, scope));
             }
         }
+        if (unsampledCount > 0) {
+            // Unsampled spans carry no complete trace and would skew ServerMap/response-time
+            // stats. Reflected to the client via the rejected-span count (same policy as the
+            // orphan-span drop); debug-level log only — a client-data shape issue, and dumping
+            // every span would risk log flooding.
+            rejectedSpan.putMessage("unsampled span (" + unsampledCount + ")");
+            rejectedSpan.addCount(unsampledCount);
+            logger.debug("Dropped unsampled spans count={}", unsampledCount);
+        }
         return spanMap;
+    }
+
+    // Span.flags == 0 is ambiguous: exporters predating the flags field (opentelemetry-proto
+    // < 1.1) leave it unset, which is indistinguishable from an explicit all-clear — and unlike
+    // the is_remote bits there is no "has trace flags" validity bit. Treat 0 as "not populated"
+    // and keep the span; only a non-zero flags value with the W3C sampled bit clear identifies
+    // a definitively unsampled span.
+    static boolean isUnsampled(Span span) {
+        final int flags = span.getFlags();
+        if (flags == 0) {
+            return false;
+        }
+        return (flags & SpanFlags.SPAN_FLAGS_TRACE_FLAGS_MASK_VALUE & W3C_SAMPLED_FLAG) == 0;
     }
 
     void initRootAndChild(List<ScopedSpan> spanList, List<ScopedSpan> rootSpanList, List<ScopedSpan> childSpanList) {
