@@ -15,6 +15,7 @@
         version
         FROM uriStat
         WHERE tenantId = #{tenantId}
+        AND serviceName = #{serviceName}
         AND applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}
@@ -61,6 +62,7 @@
         version
         FROM uriStat
         WHERE tenantId = #{tenantId}
+        AND serviceName = #{serviceName}
         AND applicationName = #{applicationName}
         <if test="agentId != null">
             AND agentId = #{agentId}

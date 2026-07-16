@@ -30,6 +30,7 @@
         FROM uriStat
         WHERE
             tenantId = #{tenantId}
+            AND serviceName = #{serviceName}
             AND applicationName = #{applicationName}
             <if test="agentId != null">
                 AND agentId = #{agentId}
@@ -57,6 +58,7 @@
         FROM uriStat
         WHERE
             tenantId = #{tenantId}
+            AND serviceName = #{serviceName}
             AND applicationName = #{applicationName}
             <if test="agentId != null">
                 AND agentId = #{agentId}
@@ -78,6 +80,7 @@
         FROM uriStat
         WHERE
             tenantId = #{tenantId}
+            AND serviceName = #{serviceName}
             AND applicationName = #{applicationName}
             <if test="agentId != null">
                 AND agentId = #{agentId}
@@ -100,6 +103,7 @@
         FROM uriStat
         WHERE
             tenantId = #{tenantId}
+            AND serviceName = #{serviceName}
             AND applicationName = #{applicationName}
             <if test="agentId != null">
                 AND agentId = #{agentId}
