@@ -51,11 +51,7 @@ public class TagListSerializer {
         try {
             final StringBuilderWriter buffer = new StringBuilderWriter();
             try (JsonGenerator generator = jsonFactory.createGenerator(buffer)) {
-                generator.writeStartObject();
-                for (Tag tag : tagList) {
-                    generator.writeStringField(tag.getName(), tag.getValue());
-                }
-                generator.writeEndObject();
+                TagSerializer.writeTags(generator, tagList);
             }
             return buffer.toString();
         } catch (IOException e) {

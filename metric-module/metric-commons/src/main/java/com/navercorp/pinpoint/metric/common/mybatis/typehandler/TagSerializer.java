@@ -23,16 +23,24 @@ import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.Tags;
 
 import java.io.IOException;
+import java.util.List;
 
 public class TagSerializer extends JsonSerializer<Tags> {
 
     @Override
     public void serialize(Tags tags, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        writeTags(gen, tags.getTags());
+    }
+
+    /**
+     * Writes the tag list as a {@code {"name":"value"}} JSON object; shared
+     * with {@link TagListSerializer}.
+     */
+    public static void writeTags(JsonGenerator gen, List<Tag> tags) throws IOException {
         gen.writeStartObject();
-        for (Tag tag : tags.getTags()) {
+        for (Tag tag : tags) {
             gen.writeStringField(tag.getName(), tag.getValue());
         }
         gen.writeEndObject();
     }
-
 }
