@@ -1,5 +1,24 @@
-import { isValid } from 'date-fns';
-import { escapeHTMLEntities, formatNewLinedDateString } from '@pinpoint-fe/ui/src/utils';
+import { isValid, isThisYear, isToday } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+import {
+  escapeHTMLEntities,
+  formatNewLinedDateString,
+  getTimezone,
+} from '@pinpoint-fe/ui/src/utils';
+
+// 사용자 지정 타임존 기준의 x축 라벨/tooltip 헤더 포맷터. 오늘이면 시:분:초, 올해면 월.일 + 시:분:초,
+// 그 외에는 연.월.일 + 시:분:초를 두 줄('\n')로 반환한다. (Heatmap tooltip 과 OpenTelemetry 차트가 공유)
+export const defaultTickFormatter = (value: number) => {
+  const timezone = getTimezone();
+
+  if (isToday(value)) {
+    return formatInTimeZone(value, timezone, 'HH:mm:ss');
+  }
+  if (isThisYear(value)) {
+    return `${formatInTimeZone(value, timezone, 'MM.dd')}\n${formatInTimeZone(value, timezone, 'HH:mm:ss')}`;
+  }
+  return `${formatInTimeZone(value, timezone, 'yyyy.MM.dd')}\n${formatInTimeZone(value, timezone, 'HH:mm:ss')}`;
+};
 
 // category x축(timestamp) 라벨을 2줄짜리 날짜/시간 문자열로 포맷한다.
 export const formatCategoryDateLabel = (value: number | string) => {

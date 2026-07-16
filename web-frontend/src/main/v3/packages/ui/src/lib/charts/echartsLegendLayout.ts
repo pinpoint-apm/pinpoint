@@ -47,13 +47,19 @@ export const buildBottomLegend = (names: string[], extra?: Record<string, unknow
   ...extra,
 });
 
+// 하단 legend 자체의 높이(px). 줄바꿈된 줄 수를 반영한다. 마지막 줄엔 trailing gap 이 없으므로
+// rows * (줄높이 + gap) 로 잡으면 gap 하나만큼 과다 예약된다.
+export const getLegendHeight = (names: string[], containerWidth: number) => {
+  if (names.length === 0) return 0;
+  const availableWidth = containerWidth - LEGEND_PADDING * 2;
+  const rows = getLegendRowCount(names, availableWidth);
+  return rows * LEGEND_ROW_CONTENT_HEIGHT + Math.max(0, rows - 1) * LEGEND_ITEM_GAP;
+};
+
+// containLabel 을 쓰지 않는 차트(ChartCore 등)용 grid.bottom. x축 2줄 라벨 높이 + legend 높이를
+// 함께 예약한다. containLabel 을 쓰는 차트는 x축 라벨이 grid 안에서 처리되므로 getLegendHeight 만 쓰면 된다.
 export const getGridBottom = (names: string[], containerWidth: number) => {
   // 시리즈(=legend 항목)가 없으면(빈/No Data 상태) legend 공간을 예약하지 않는다.
   if (names.length === 0) return X_AXIS_LABEL_HEIGHT;
-  const availableWidth = containerWidth - LEGEND_PADDING * 2;
-  const rows = getLegendRowCount(names, availableWidth);
-  // 실제 legend 높이: 줄 높이 * 줄 수 + 줄 사이 간격 * (줄 수 - 1). 마지막 줄엔 trailing gap 이 없으므로
-  // rows * (줄높이 + gap) 로 잡으면 gap 하나만큼 과다 예약되어 x축과의 간격이 필요 이상 벌어진다.
-  const legendHeight = rows * LEGEND_ROW_CONTENT_HEIGHT + Math.max(0, rows - 1) * LEGEND_ITEM_GAP;
-  return X_AXIS_LABEL_HEIGHT + BOTTOM_GAP + legendHeight;
+  return X_AXIS_LABEL_HEIGHT + BOTTOM_GAP + getLegendHeight(names, containerWidth);
 };
