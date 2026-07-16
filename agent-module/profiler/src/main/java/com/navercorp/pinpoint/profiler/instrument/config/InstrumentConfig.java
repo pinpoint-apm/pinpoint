@@ -23,9 +23,6 @@ import java.util.List;
 public interface InstrumentConfig {
     String INSTRUMENT_ENGINE_ASM = "ASM";
 
-    int getInterceptorRegistrySize();
-    int getInterceptorRegistryBootstrapSize();
-
     List<String> getAllowJdkClassName();
 
     String getPinpointBasePackage();

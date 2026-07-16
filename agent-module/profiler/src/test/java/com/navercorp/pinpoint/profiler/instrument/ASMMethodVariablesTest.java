@@ -79,14 +79,14 @@ public class ASMMethodVariablesTest {
 
     @Test
     public void hasInterceptor() throws Exception {
-        InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
+        InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator();
         int interceptorId = interceptorHolderIdGenerator.getId();
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(ArgsArrayInterceptor.class);
 
         final ClassNode classNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
         List<MethodNode> methodNodes = classNode.methods;
         for (MethodNode methodNode : methodNodes) {
-            ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
+            ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId);
             ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
             assertEquals(false, methodNodeAdapter.hasInterceptor());
             methodNodeAdapter.addBeforeInterceptor(interceptorHolder, interceptorDefinition, -1);
@@ -102,11 +102,11 @@ public class ASMMethodVariablesTest {
         assertNull(variables.getEnterInsnNode());
         assertNull(variables.getEnterInsnNode());
 
-        InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
+        InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator();
         int interceptorId = interceptorHolderIdGenerator.getId();
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(ArgsArrayInterceptor.class);
 
-        ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
+        ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId);
         InsnList instructions = new InsnList();
         boolean first = variables.initInterceptorLocalVariables(instructions, interceptorHolder, interceptorDefinition, -1);
         assertEquals(true, first);

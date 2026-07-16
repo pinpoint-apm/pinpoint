@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 public class ASMMethodNodeTest {
 
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
-    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator();
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
     private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
