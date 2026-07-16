@@ -104,6 +104,7 @@ public class UriStatController {
 
         UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
+                .setServiceName(serviceName.getName())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(range)
@@ -139,6 +140,7 @@ public class UriStatController {
         TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
         UriStatChartQueryParameter query = new UriStatChartQueryParameter.Builder()
                 .setTenantId(tenantProvider.getTenantId())
+                .setServiceName(serviceName.getName())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setUri(uri)

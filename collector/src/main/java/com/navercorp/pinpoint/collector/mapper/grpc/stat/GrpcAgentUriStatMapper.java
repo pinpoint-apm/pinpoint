@@ -34,9 +34,8 @@ import java.util.List;
 @Component
 public class GrpcAgentUriStatMapper {
 
-    private static final String DEFAULT_SERVICE_NAME = "DEFAULT";
-
     public AgentUriStatBo map(ServerHeader header, final PAgentUriStat agentUriStat) {
+        final String serviceName = header.getServiceName();
         final String agentId = header.getAgentId();
         final String applicationName = header.getApplicationName();
 
@@ -51,7 +50,7 @@ public class GrpcAgentUriStatMapper {
 
         return new AgentUriStatBo(
                 (byte) bucketVersion,
-                DEFAULT_SERVICE_NAME,
+                serviceName,
                 applicationName,
                 agentId, list);
     }
