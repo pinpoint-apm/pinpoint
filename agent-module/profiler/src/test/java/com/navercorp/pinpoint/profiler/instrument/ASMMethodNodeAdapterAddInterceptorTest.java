@@ -54,7 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ASMMethodNodeAdapterAddInterceptorTest {
-    private final static InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(1000, 100);
+    private final static InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator();
     private ASMClassNodeLoader.TestClassLoader classLoader;
     private AtomicInteger interceptorIdCounter = new AtomicInteger();
 

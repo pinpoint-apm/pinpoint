@@ -28,7 +28,7 @@ import org.objectweb.asm.tree.MethodNode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ASMMethodNodeAdapterTest {
-    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator();
     private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
     @Test
@@ -42,7 +42,7 @@ public class ASMMethodNodeAdapterTest {
         ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(targetClassName), methodNode);
         assertEquals(false, adapter.hasInterceptor());
 
-        ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
+        ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId);
         adapter.addBeforeInterceptor(interceptorHolder, interceptorDefinition, -1);
         assertEquals(true, adapter.hasInterceptor());
     }
