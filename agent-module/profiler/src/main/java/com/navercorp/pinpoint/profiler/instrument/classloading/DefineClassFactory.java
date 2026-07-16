@@ -41,7 +41,7 @@ public final class DefineClassFactory {
             }
         }
 
-        return new ReflectionDefineClass();
+        return new Java8DefineClass();
     }
 
     public static DefineClass getDefineClass() {
