@@ -1,38 +1,42 @@
 import { formatInTimeZone } from 'date-fns-tz';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
-import { type ChartConfig } from '../../ui/chart';
 import { useAtomValue } from 'jotai';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
 import { userMetricConfigAtom } from '@pinpoint-fe/ui/src/atoms';
-import { getFormat } from '@pinpoint-fe/ui/src/utils';
-import { COLORS } from './constant';
-import { OpenTelemetryChart } from './OpenTelemetryChart';
+import { Chart } from '@pinpoint-fe/ui/src/constants';
 import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import { OpenTelemetryMetricChart } from './OpenTelemetryMetricChart';
 
 const now = new Date();
 const duration = 300 * 1000; // 5min
 const tickCount = 5;
-
-const chartConfig = {
-  value: {
-    label: 'Sample Value',
-    color: COLORS[1],
-  },
-} satisfies ChartConfig;
 
 export interface PreviewChartProps {}
 
 export const PreviewChart = () => {
   const { chartType = 'line', unit = '', title } = useAtomValue(userMetricConfigAtom);
   const [timezone] = useTimezone();
-  const chartData = Array(tickCount)
+
+  const samples = Array(tickCount)
     .fill(now)
-    .map((now, i) => {
-      return {
-        timestamp: now - (duration / (tickCount - 1)) * i,
-        value: Math.floor(Math.random() * 100),
-      };
-    })
+    .map((n: Date, i) => ({
+      timestamp: +n - (duration / (tickCount - 1)) * i,
+      value: Math.floor(Math.random() * 100),
+    }))
     .reverse();
+
+  // 미리보기 샘플을 실제 메트릭 차트와 동일한 Chart 형태로 만들어 OpenTelemetryMetricChart 로 렌더한다.
+  const chartData: Chart = {
+    title: '',
+    timestamp: samples.map((s) => s.timestamp),
+    metricValueGroups: [
+      {
+        groupName: '',
+        chartType,
+        unit,
+        metricValues: [{ fieldName: 'Sample Value', values: samples.map((s) => s.value) }],
+      },
+    ],
+  };
 
   return (
     <Card className="border-none rounded-none shadow-none">
@@ -40,24 +44,11 @@ export const PreviewChart = () => {
         <CardTitle className="font-medium">Metric Preview</CardTitle>
         <CardDescription>{title}</CardDescription>
       </CardHeader>
-      <CardContent className="w-full h-48 px-0">
-        <OpenTelemetryChart
-          chartType={chartType}
+      <CardContent className="w-full h-48 px-6">
+        <OpenTelemetryMetricChart
           chartData={chartData}
-          chartDataConfig={chartConfig}
-          xAxisConfig={{
-            dataKey: 'timestamp',
-            tickFormatter: (value) => `${formatInTimeZone(value, timezone, 'HH:mm')}`,
-          }}
-          yAxisConfig={{
-            tickFormatter: (value) => getFormat(unit)(value),
-            label: {
-              value: unit,
-              position: 'insideLeft',
-              angle: -90,
-              style: { fontSize: '0.75rem' },
-            },
-          }}
+          unit={unit}
+          xAxisTickFormatter={(value) => formatInTimeZone(value, timezone, 'HH:mm')}
         />
       </CardContent>
     </Card>
