@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { colors, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
-import { defaultTickFormatter } from '@pinpoint-fe/ui/src/components/ReChart';
+import { defaultTickFormatter } from '@pinpoint-fe/ui/src/lib/charts';
 import { capitalize } from 'lodash';
 import { HeatmapSettingType } from './HeatmapSetting';
 import { formatInTimeZone } from 'date-fns-tz';

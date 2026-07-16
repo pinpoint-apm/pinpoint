@@ -33,7 +33,6 @@ export * from './Popper';
 export * from './Popup';
 export * from './ProgressBar';
 export * from './Realtime';
-export * from './ReChart';
 export * from './ScatterChart';
 export * from './ServerList';
 export * from './ServerMap';

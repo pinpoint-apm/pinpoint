@@ -4,7 +4,7 @@ import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoi
 import { toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import React from 'react';
 import { assign } from 'lodash';
-import { ReChart } from '../../../components/ReChart';
+import { OpenTelemetryMetricChart } from './OpenTelemetryMetricChart';
 import { useInView } from 'react-intersection-observer';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui';
 import { ErrorDetailDialog } from '../../Error/ErrorDetailDialog';
@@ -110,7 +110,7 @@ export const OpenTelemetryMetricFetcher = ({
     }
 
     return (
-      <ReChart
+      <OpenTelemetryMetricChart
         syncId={dashboardId}
         chartData={{
           title: '',
