@@ -57,7 +57,7 @@ import static org.mockito.Mockito.mock;
  */
 public class MethodInterfaceTest {
     private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator();
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 

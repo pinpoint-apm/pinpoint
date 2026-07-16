@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorLazyLoa
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorSupplier;
 import com.navercorp.pinpoint.profiler.interceptor.factory.InterceptorFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -45,9 +43,14 @@ public class ASMInterceptorHolder {
     private static final String INTERCEPTOR_HOLDER_CLASS = "com/navercorp/pinpoint/profiler/instrument/interceptor/InterceptorHolder.class";
     private static final String INTERCEPTOR_HOLDER_INNER_CLASS = "com/navercorp/pinpoint/profiler/instrument/interceptor/InterceptorHolder$LazyLoading.class";
     private static final String CLASS_NAME = "com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolder$$";
-    private static final String BOOTSTRAP_CLASS_NAME = "com.navercorp.pinpoint.bootstrap.interceptor.holder.InterceptorHolder$$";
     private static final String REFLECTION_CLASS_LOADER_CLASS_NAME = "jdk.internal.reflect.DelegatingClassLoader";
-    private static final int EMPTY_ID = -1;
+    // JDK 8
+    private static final String REFLECTION_CLASS_LOADER_CLASS_NAME_JDK8 = "sun.reflect.DelegatingClassLoader";
+
+    static boolean isReflectionDelegatingClassLoader(ClassLoader classLoader) {
+        final String className = classLoader.getClass().getName();
+        return REFLECTION_CLASS_LOADER_CLASS_NAME.equals(className) || REFLECTION_CLASS_LOADER_CLASS_NAME_JDK8.equals(className);
+    }
 
     public static ASMInterceptorHolder create(InterceptorHolderIdGenerator interceptorHolderIdGenerator, ClassLoader classLoader, InterceptorFactory interceptorFactory, Class<? extends Interceptor> interceptorClass, Object[] providedArguments, ScopeInfo scopeInfo, MethodDescriptor methodDescriptor) throws InstrumentException {
         Builder builder = new Builder(interceptorHolderIdGenerator);
@@ -66,13 +69,9 @@ public class ASMInterceptorHolder {
     private final String className;
     private final String innerClassName;
 
-    public ASMInterceptorHolder(int interceptorId, boolean bootstrap) {
+    public ASMInterceptorHolder(int interceptorId) {
         this.interceptorId = interceptorId;
-        if (bootstrap) {
-            this.className = BOOTSTRAP_CLASS_NAME + interceptorId;
-        } else {
-            this.className = CLASS_NAME + interceptorId;
-        }
+        this.className = CLASS_NAME + interceptorId;
         this.innerClassName = className + "$LazyLoading";
     }
 
@@ -84,13 +83,9 @@ public class ASMInterceptorHolder {
         return className;
     }
 
-    public boolean isEmpty() {
-        return interceptorId == EMPTY_ID;
-    }
-
     public Class<? extends Interceptor> loadInterceptorClass(ClassLoader classLoader) throws InstrumentException {
         try {
-            final Class<?> clazz = loadClass(Boolean.FALSE, classLoader);
+            final Class<?> clazz = loadClass(classLoader);
             if (clazz == null) {
                 // defense code
                 throw new InstrumentException("not found interceptorHolderClass, className=" + className);
@@ -133,9 +128,9 @@ public class ASMInterceptorHolder {
         }
     }
 
-    public Class<?> loadClass(boolean initialize, ClassLoader classLoader) throws InstrumentException {
+    public Class<?> loadClass(ClassLoader classLoader) throws InstrumentException {
         try {
-            return Class.forName(className, initialize, classLoader);
+            return Class.forName(className, false, classLoader);
         } catch (ClassNotFoundException e) {
             throw new InstrumentException("not found InterceptorHolderClass, className=" + className);
         }
@@ -198,9 +193,7 @@ public class ASMInterceptorHolder {
     }
 
     static class Builder {
-        private final Logger logger = LogManager.getLogger(this.getClass());
         private final InterceptorHolderIdGenerator interceptorHolderIdGenerator;
-        private int interceptorId;
         private ClassLoader classLoader;
         private InterceptorFactory interceptorFactory;
         private Class<? extends Interceptor> interceptorClass;
@@ -230,30 +223,16 @@ public class ASMInterceptorHolder {
         }
 
         public ASMInterceptorHolder build() throws InstrumentException {
-            ASMInterceptorHolder holder;
-            Class<?> clazz;
-            if (classLoader == null || REFLECTION_CLASS_LOADER_CLASS_NAME.equals(classLoader.getClass().getName())) {
-                try {
-                    interceptorId = interceptorHolderIdGenerator.getBootstrapId();
-                } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
-                    logger.warn("Failed to generate bootstrap interceptorHolder id, cause={}", indexOutOfBoundsException.getMessage());
-                    return new ASMInterceptorHolder(EMPTY_ID, Boolean.TRUE);
-                }
-                holder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
-                // load and initialize
-                clazz = holder.loadClass(Boolean.TRUE, classLoader);
+            final int interceptorId = interceptorHolderIdGenerator.getId();
+            final ASMInterceptorHolder holder = new ASMInterceptorHolder(interceptorId);
+            final Class<?> clazz;
+            if (classLoader == null || isReflectionDelegatingClassLoader(classLoader)) {
+                // define into the bootstrap classloader, eagerly create the interceptor
+                clazz = holder.defineClass(null);
                 if (interceptor == null && interceptorFactory != null) {
                     interceptor = interceptorFactory.newInterceptor(interceptorClass, providedArguments, scopeInfo, methodDescriptor);
                 }
             } else {
-                try {
-                    interceptorId = interceptorHolderIdGenerator.getId();
-                } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
-                    logger.warn("Failed to generate interceptorHolder id, cause={}", indexOutOfBoundsException.getMessage());
-                    return new ASMInterceptorHolder(EMPTY_ID, Boolean.FALSE);
-                }
-                holder = new ASMInterceptorHolder(interceptorId, Boolean.FALSE);
-                // define class
                 clazz = holder.defineClass(classLoader);
             }
             // exception handling.

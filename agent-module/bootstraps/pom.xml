@@ -36,7 +36,6 @@
         <module>bootstrap-java9-internal</module>
         <module>bootstrap-java15</module>
         <module>bootstrap-java16</module>
-        <module>bootstrap-interceptor</module>
     </modules>
 
     <dependencies>
@@ -73,12 +72,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-java16</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap-interceptor</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>

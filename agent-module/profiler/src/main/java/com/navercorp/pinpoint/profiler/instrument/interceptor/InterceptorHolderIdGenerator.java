@@ -19,46 +19,9 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InterceptorHolderIdGenerator {
-    private final static int DEFAULT_MAX_ID_SIZE = 10000;
-    private final static int DEFAULT_MAX_BOOTSTRAP_ID_SIZE = 100;
+    private final AtomicInteger idCounter = new AtomicInteger();
 
-    private final int maxIdSize;
-    private final int maxBootstrapIdSize;
-    private final AtomicInteger idCounter;
-    private final AtomicInteger bootstrapIdCounter;
-
-    public InterceptorHolderIdGenerator(int maxIdSize, int maxBootstrapIdSize) {
-        this.maxIdSize = maxIdSize > 0 ? maxIdSize : DEFAULT_MAX_ID_SIZE;
-        this.maxBootstrapIdSize = maxBootstrapIdSize > 0 ? maxBootstrapIdSize : DEFAULT_MAX_BOOTSTRAP_ID_SIZE;
-        this.idCounter = new AtomicInteger(maxBootstrapIdSize);
-        this.bootstrapIdCounter = new AtomicInteger(0);
-    }
-
-    // application classloader interceptor id
     public int getId() {
-        return checkMaxIdSize(idCounter.getAndIncrement());
-    }
-
-    int checkMaxIdSize(int id) {
-        if (id >= maxIdSize) {
-            throw new IndexOutOfBoundsException("interceptor registry size exceeded. check the \"profiler.interceptorregistry.size\" setting. size=" + maxIdSize + " id=" + id);
-        }
-        return id;
-    }
-
-    // bootstrap classloader interceptor id
-    public int getBootstrapId() {
-        return checkMaxBootstrapIdSize(bootstrapIdCounter.getAndIncrement());
-    }
-
-    int checkMaxBootstrapIdSize(int id) {
-        if (id >= maxBootstrapIdSize) {
-            throw new IndexOutOfBoundsException("interceptor registry bootstrap size exceeded. check the \"profiler.interceptorregistry.bootstrap.size\" setting. size=" + maxBootstrapIdSize + " id=" + id);
-        }
-        return id;
-    }
-
-    public boolean isBootstrapInterceptorHolder(int interceptorId) {
-        return interceptorId >= 0 && interceptorId < maxBootstrapIdSize;
+        return idCounter.getAndIncrement();
     }
 }

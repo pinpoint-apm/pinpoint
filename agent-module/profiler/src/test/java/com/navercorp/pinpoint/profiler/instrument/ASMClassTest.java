@@ -126,7 +126,7 @@ public class ASMClassTest {
             customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory, requestRecorderFactory);
     private final ScopeFactory scopeFactory = new ScopeFactory();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
-    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator();
 
     private final EngineComponent engineComponent = new DefaultEngineComponent(objectBinderFactory, interceptorDefinitionFactory, apiMetaDataService, scopeFactory, interceptorHolderIdGenerator);
 
