@@ -38,6 +38,7 @@ import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
+import io.opentelemetry.proto.trace.v1.SpanFlags;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.junit.jupiter.api.Test;
 
@@ -396,5 +397,76 @@ class OtlpTraceMapperTest {
             assertThat(scopeAnnotation(spanBo.getAnnotationBoList()))
                     .isEqualTo("io.opentelemetry.kafka-clients-2.6");
         }
+    }
+
+    // =======================================================================
+    // sampled flag — explicitly unsampled spans are dropped and counted as rejected
+    // =======================================================================
+
+    private static Span withFlags(Span span, int flags) {
+        return span.toBuilder().setFlags(flags).build();
+    }
+
+    @Test
+    void isUnsampled_flagRules() {
+        Span base = serverRoot(ROOT_A, "/api/orders", false);
+        // flags unset (pre-1.1 exporter): ambiguous — keep
+        assertThat(OtlpTraceMapper.isUnsampled(withFlags(base, 0))).isFalse();
+        // sampled bit set, remote bits unset
+        assertThat(OtlpTraceMapper.isUnsampled(withFlags(base, 0x01))).isFalse();
+        // populated flags (has_is_remote bit) with the sampled bit clear: definitively unsampled
+        assertThat(OtlpTraceMapper.isUnsampled(
+                withFlags(base, SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE))).isTrue();
+        // populated flags with the sampled bit set
+        assertThat(OtlpTraceMapper.isUnsampled(
+                withFlags(base, SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE | 0x01))).isFalse();
+    }
+
+    @Test
+    void unsampledSpan_droppedAndCountedAsRejected() {
+        Span unsampledRoot = withFlags(serverRoot(ROOT_A, "/api/orders", false),
+                SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(unsampledRoot));
+
+        assertThat(data.getSpanBoList()).isEmpty();
+        assertThat(data.getRejectedSpan().count()).isEqualTo(1);
+        assertThat(data.getRejectedSpan().getMessage()).contains("unsampled span (1)");
+    }
+
+    @Test
+    void sampledSpan_kept() {
+        Span sampledRoot = withFlags(serverRoot(ROOT_A, "/api/orders", false),
+                SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE | 0x01);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(sampledRoot));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getRejectedSpan().count()).isZero();
+    }
+
+    @Test
+    void zeroFlags_treatedAsLegacyAndKept() {
+        // serverRoot() never sets flags — the pre-flags wire shape must keep flowing unchanged
+        Span legacyRoot = serverRoot(ROOT_A, "/api/orders", false);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(legacyRoot));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getRejectedSpan().count()).isZero();
+    }
+
+    @Test
+    void unsampledChild_droppedButSampledRootKept() {
+        // per-span drop: the sampled root survives; the explicitly unsampled child is rejected
+        Span root = serverRoot(ROOT_A, "/api/orders", false);
+        Span unsampledChild = withFlags(clientChild(CHILD, ROOT_A, false),
+                SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root, unsampledChild));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getSpanBoList().get(0).getSpanEventBoList()).isEmpty();
+        assertThat(data.getRejectedSpan().count()).isEqualTo(1);
     }
 }
