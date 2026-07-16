@@ -7,10 +7,10 @@
     <select id="uriStatSummary" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
         SELECT
         uri,
-        sum(apdexRaw) as apdexRaw,
+        sum(apdexRaw) as totalApdexRaw,
         sum("count") as totalCount,
         max(maxLatencyMs) as maxTimeMs,
-        sum(totalTimeMs) as totalTimeMs,
+        sum(totalTimeMs) as sumOfTotalTimeMs,
         sum(failureCount) as failureCount,
         version
         FROM uriStat
