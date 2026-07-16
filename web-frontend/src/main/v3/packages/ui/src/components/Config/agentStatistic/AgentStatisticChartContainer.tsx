@@ -26,7 +26,7 @@ export function AgentStatisticContainer({ data }: { data?: AgentOverview.Respons
   const agentVersionChartData = useVersionChartData(data, 'agentVersion');
 
   return (
-    <div className="flex min-w-full gap-5 max-h-[40%]">
+    <div className="flex min-w-full gap-5 h-[40%] min-h-0">
       <AgentStatisticChart type="vmVersion" chartData={vmVersionChartData as ChartData[]} />
       <AgentStatisticChart type="agentVersion" chartData={agentVersionChartData as ChartData[]} />
     </div>
