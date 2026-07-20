@@ -112,6 +112,34 @@ public class StringUtilsTest {
 
 
     @Test
+    public void abbreviate_surrogatePair() {
+        // "ab" + emoji(high surrogate + low surrogate) + "cd"
+        String string = "ab😀cd";
+
+        // cutting at maxWidth=3 would split the surrogate pair - drop the high surrogate
+        Assertions.assertEquals("ab...(6)", StringUtils.abbreviate(string, 3));
+        // maxWidth=4 keeps the pair intact
+        Assertions.assertEquals("ab😀...(6)", StringUtils.abbreviate(string, 4));
+
+        String highSurrogateFirst = "😀abc";
+        Assertions.assertEquals("...(5)", StringUtils.abbreviate(highSurrogateFirst, 1));
+        Assertions.assertEquals("😀...(5)", StringUtils.abbreviate(highSurrogateFirst, 2));
+    }
+
+    @Test
+    public void appendAbbreviate_surrogatePair() {
+        String string = "ab😀cd";
+
+        StringBuilder buffer = new StringBuilder();
+        StringUtils.appendAbbreviate(buffer, string, 3);
+        Assertions.assertEquals("ab...(6)", buffer.toString());
+
+        buffer.setLength(0);
+        StringUtils.appendAbbreviate(buffer, string, 4);
+        Assertions.assertEquals("ab😀...(6)", buffer.toString());
+    }
+
+    @Test
     public void testAbbreviate1() {
         String string = "abc";
         String drop = StringUtils.abbreviate(string, 1);
