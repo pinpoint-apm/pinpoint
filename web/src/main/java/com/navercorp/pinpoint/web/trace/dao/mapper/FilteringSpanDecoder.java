@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanHeader;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -46,14 +46,17 @@ public class FilteringSpanDecoder implements SpanDecoder {
             return null;
         }
         final byte type = qualifier.getByte(0);
-        if (SpanEncoder.TYPE_SPAN == type || SpanEncoder.TYPE_OTEL_SPAN == type) {
-            BasicSpan spanBo = delegate.decode(qualifier, columnValue, decodingContext);
-            if (spanBo != null ) {
-                if (spanFilter.test((SpanBo) spanBo)) {
-                    return spanBo;
-                }
-            }
+        final SpanHeader header = SpanHeader.of(type);
+        if (header == null || header.isSpanChunk()) {
             return null;
+        }
+        // span
+        BasicSpan spanBo = delegate.decode(qualifier, columnValue, decodingContext);
+        if (spanBo == null) {
+            return null;
+        }
+        if (spanFilter.test((SpanBo) spanBo)) {
+            return spanBo;
         }
         return null;
     }

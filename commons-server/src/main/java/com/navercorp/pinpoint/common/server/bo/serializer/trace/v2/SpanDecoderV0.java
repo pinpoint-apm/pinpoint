@@ -60,18 +60,15 @@ public class SpanDecoderV0 implements SpanDecoder {
     public BasicSpan decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
         final byte type = qualifier.readByte();
 
-        if (SpanEncoder.TYPE_SPAN == type) {
-            return readSpan(qualifier, columnValue, decodingContext, TraceSourceType.PINPOINT);
-        } else if (SpanEncoder.TYPE_OTEL_SPAN == type) {
-            return readSpan(qualifier, columnValue, decodingContext, TraceSourceType.OPENTELEMETRY);
-        } else if (SpanEncoder.TYPE_SPAN_CHUNK == type) {
-            return readSpanChunk(qualifier, columnValue, decodingContext, TraceSourceType.PINPOINT);
-        } else if (SpanEncoder.TYPE_OTEL_SPAN_CHUNK == type) {
-            return readSpanChunk(qualifier, columnValue, decodingContext, TraceSourceType.OPENTELEMETRY);
-        } else {
+        final SpanHeader header = SpanHeader.of(type);
+        if (header == null) {
             logger.warn("Unknown span type {}", type);
             return null;
         }
+        if (header.isSpanChunk()) {
+            return readSpanChunk(qualifier, columnValue, decodingContext, header.getTraceSourceType());
+        }
+        return readSpan(qualifier, columnValue, decodingContext, header.getTraceSourceType());
     }
 
     private SpanChunkBo readSpanChunk(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext,
