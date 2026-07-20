@@ -239,17 +239,23 @@ public class OtlpTraceMapper {
         return spanMap;
     }
 
-    // Span.flags == 0 is ambiguous: exporters predating the flags field (opentelemetry-proto
-    // < 1.1) leave it unset, which is indistinguishable from an explicit all-clear — and unlike
-    // the is_remote bits there is no "has trace flags" validity bit. Treat 0 as "not populated"
-    // and keep the span; only a non-zero flags value with the W3C sampled bit clear identifies
-    // a definitively unsampled span.
+    // Only the low trace-flags byte (bits 0-7, W3C sampled = bit 0) carries the sampling
+    // decision. The is_remote metadata bits (bits 8-9) are set by modern SDKs on *every* span,
+    // so the whole flags int being non-zero does NOT mean the trace-flags byte was populated —
+    // reading it that way dropped spans that only carried is_remote metadata (e.g. a locust
+    // load-generator's root spans, exported with is_remote set but the sampled bit clear).
+    //
+    // A trace-flags byte of 0 is ambiguous: an exporter predating the flags field
+    // (opentelemetry-proto < 1.1), or one that populated only is_remote metadata, is
+    // indistinguishable from an explicit all-clear, and there is no "has trace flags" validity
+    // bit. Be conservative and keep the span. Only a trace-flags byte that is itself populated
+    // (non-zero) yet has the sampled bit clear identifies a definitively unsampled span.
     static boolean isUnsampled(Span span) {
-        final int flags = span.getFlags();
-        if (flags == 0) {
+        final int traceFlags = span.getFlags() & SpanFlags.SPAN_FLAGS_TRACE_FLAGS_MASK_VALUE;
+        if (traceFlags == 0) {
             return false;
         }
-        return (flags & SpanFlags.SPAN_FLAGS_TRACE_FLAGS_MASK_VALUE & W3C_SAMPLED_FLAG) == 0;
+        return (traceFlags & W3C_SAMPLED_FLAG) == 0;
     }
 
     void initRootAndChild(List<ScopedSpan> spanList, List<ScopedSpan> rootSpanList, List<ScopedSpan> childSpanList) {
