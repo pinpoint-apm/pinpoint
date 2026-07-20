@@ -36,7 +36,10 @@ public class OtlpAgentInfoMapper {
             builder.setAgentName(owner.getAgentName());
         }
         builder.setApplicationName(owner.getApplicationName());
-        builder.setServiceTypeCode(spanBo.getServiceType());
+        // Register the agent/application under the application-level type, not the span-level
+        // serviceType — a specialized root (e.g. a kafka CONSUMER as the first-seen span) must
+        // not decide the application's registered type.
+        builder.setServiceTypeCode(spanBo.getApplicationServiceType());
         builder.setStartTime(owner.getAgentStartTime());
 
         final String hostName = AttributeUtils.getAttributeStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_HOST_NAME, null);

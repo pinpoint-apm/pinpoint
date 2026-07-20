@@ -278,6 +278,16 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
+    void map_consumer_kafka_applicationServiceTypeStaysOtelServer() {
+        // The span-level KAFKA_CLIENT specialization must not leak into the
+        // application-level type used by application-keyed storage (trace index v2
+        // row key, server-map self vertex, application registration).
+        Span span = consumerKafkaSpan();
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getApplicationServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
+    }
+
+    @Test
     void map_consumer_kafka_rpcFormat() {
         Span span = consumerKafkaSpan(
                 kv("messaging.kafka.destination.partition", intVal(0)),
@@ -557,6 +567,22 @@ class OtlpTraceSpanMapperTest {
                 kv("rpc.method", strVal("PlaceOrder")));
         SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getServiceType()).isEqualTo((short) 1130); // GRPC_SERVER
+    }
+
+    @Test
+    void map_server_grpc_applicationServiceTypeStaysOtelServer() {
+        // The span-level GRPC_SERVER specialization must not leak into the
+        // application-level type used by application-keyed storage.
+        Span span = serverSpan(kv("rpc.system", strVal("grpc")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getApplicationServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
+    }
+
+    @Test
+    void map_server_http_applicationServiceTypeIsOtelServer() {
+        Span span = serverSpan(kv("url.path", strVal("/api/users/123")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getApplicationServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_SERVER.getCode());
     }
 
     @Test
