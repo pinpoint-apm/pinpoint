@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.MapView;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOptio
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.trace.callstacks.RecordSet;
@@ -83,6 +85,7 @@ public class TransactionController {
     private final HyperLinkFactory hyperLinkFactory;
     private final LogLinkBuilder logLinkBuilder;
     private final ScatterChartService scatterChartService;
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     @Value("${web.callstack.selectSpans.limit:-1}")
     private int callstackSelectSpansLimit;
@@ -94,7 +97,8 @@ public class TransactionController {
                                  FilteredMapService filteredMapService,
                                  HyperLinkFactory hyperLinkFactory,
                                  LogLinkBuilder logLinkBuilder,
-                                 ScatterChartService scatterChartService) {
+                                 ScatterChartService scatterChartService,
+                                 ServiceTypeRegistryService serviceTypeRegistryService) {
         this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.transactionInfoService = Objects.requireNonNull(transactionInfoService, "transactionInfoService");
@@ -102,6 +106,7 @@ public class TransactionController {
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.logLinkBuilder = Objects.requireNonNull(logLinkBuilder, "logLinkBuilder");
         this.scatterChartService = Objects.requireNonNull(scatterChartService, "scatterChartService");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }
 
     @GetMapping(value = "/trace")
@@ -320,7 +325,7 @@ public class TransactionController {
             spans = filterSpanId(spans, spanId);
         }
 
-        final TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel(spans);
+        final TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel(spans, this::findServiceTypeName);
         return new MetadataView(viewModel.getMetadata());
     }
 
@@ -338,6 +343,14 @@ public class TransactionController {
         public MetadataView(List<? extends DotMetaDataView> metadata) {
             this(metadata, true, 0);
         }
+    }
+
+    private String findServiceTypeName(int serviceTypeCode) {
+        final ServiceType serviceType = serviceTypeRegistryService.findServiceType(serviceTypeCode);
+        if (serviceType == null) {
+            return null;
+        }
+        return serviceType.getName();
     }
 
     private static long focusSpanId(long spanId, String linkTraceId, long linkSpanId) {

@@ -93,7 +93,7 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
         }
 
         final List<SpanBo> metadata = scatterChartService.selectTransactionMetadata(selectTraceInfoList);
-        return new TransactionMetaDataViewModel(metadata);
+        return new TransactionMetaDataViewModel(metadata, this::findServiceTypeName);
     }
 
     /**
@@ -162,5 +162,13 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
             }
         }
         throw new IllegalArgumentException("application serviceType not found. code:" + serviceTypeCode + ", name:" + serviceTypeName);
+    }
+
+    private String findServiceTypeName(int serviceTypeCode) {
+        final ServiceType serviceType = serviceTypeRegistryService.findServiceType(serviceTypeCode);
+        if (serviceType == null) {
+            return null;
+        }
+        return serviceType.getName();
     }
 }

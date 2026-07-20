@@ -36,6 +36,7 @@ export const FILTERED_SERVER_MAP_DATA = `${LOCAL_API_PATH}/servermap/filterServe
 // export const = '/getAgentEvents';
 // export const = '/getAgentInfo';
 export const TRANSACTION_META_DATA = `${LOCAL_API_PATH}/transactionmetadata`;
+export const TRANSACTION_TRACE_METADATA = `${LOCAL_API_PATH}/transaction/metadata`;
 export const TRANSACTION_INFO = `${LOCAL_API_PATH}/transaction/trace`;
 export const TRANSACTION_INFO_LINK = `${LOCAL_API_PATH}/transaction/trace/link`;
 export const TRANSACTION_TRACE_SERVER_MAP = `${LOCAL_API_PATH}/transaction/traceServerMap`;

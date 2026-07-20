@@ -9,13 +9,14 @@ import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 import { PiStackDuotone } from 'react-icons/pi';
 import { TransactionListProgressBar } from '../components/Transaction/transaction-list/TransactionListProgressBar';
 import { TransactionListByFilterMap } from '../components/Transaction/transaction-list/TransactionListByFilterMap';
+import { TransactionListByTrace } from '../components/Transaction/transaction-list/TransactionListByTrace';
 
 export interface TransactionListPageProps {
   transactionInfoProps?: TransactionInfoProps;
 }
 
 export const TransactionListPage = ({ transactionInfoProps }: TransactionListPageProps) => {
-  const { application, withFilter } = useTransactionSearchParameters();
+  const { application, withFilter, traceInfo } = useTransactionSearchParameters();
   const [nextX2, setNextX2] = React.useState<number>();
   const [nextDataIndex, setNextDataIndex] = React.useState<number>(99);
   const transactionListData = useAtomValue(transactionListDatasAtom);
@@ -41,8 +42,22 @@ export const TransactionListPage = ({ transactionInfoProps }: TransactionListPag
         }
       >
         <ApplicationCombinedList selectedApplication={application} disabled />
+        {!traceInfo && (
+          <TransactionListProgressBar
+            className="hidden ml-10 xl:flex"
+            onClickResume={() => {
+              handleClickResume();
+            }}
+          >
+            {({ isComplete, completeRenderer, resumeRenderer }) =>
+              isComplete ? completeRenderer : resumeRenderer
+            }
+          </TransactionListProgressBar>
+        )}
+      </MainHeader>
+      {!traceInfo && (
         <TransactionListProgressBar
-          className="hidden ml-10 xl:flex"
+          className="flex mx-2 xl:hidden"
           onClickResume={() => {
             handleClickResume();
           }}
@@ -51,24 +66,16 @@ export const TransactionListPage = ({ transactionInfoProps }: TransactionListPag
             isComplete ? completeRenderer : resumeRenderer
           }
         </TransactionListProgressBar>
-      </MainHeader>
-      <TransactionListProgressBar
-        className="flex mx-2 xl:hidden"
-        onClickResume={() => {
-          handleClickResume();
-        }}
-      >
-        {({ isComplete, completeRenderer, resumeRenderer }) =>
-          isComplete ? completeRenderer : resumeRenderer
-        }
-      </TransactionListProgressBar>
+      )}
       <Separator />
       <ResizablePanelGroup
         direction="vertical"
         autoSaveId={APP_SETTING_KEYS.TRANSACTION_LIST_RESIZABLE}
       >
         <ResizablePanel minSize={10} maxSize={90}>
-          {withFilter ? (
+          {traceInfo ? (
+            <TransactionListByTrace />
+          ) : withFilter ? (
             <TransactionListByFilterMap nextDataIndex={nextDataIndex} />
           ) : (
             <TransactionList params={{ x2: nextX2 }} />

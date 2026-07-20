@@ -22,31 +22,49 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.IntFunction;
 
 /**
  * @author jaehong.kim
  */
 public class TransactionMetaDataViewModel {
     private final List<SpanBo> spanBoList;
+    private final IntFunction<String> serviceTypeNameResolver;
 
     public TransactionMetaDataViewModel() {
-        this(Collections.emptyList());
+        this(Collections.emptyList(), code -> null);
     }
 
-    public TransactionMetaDataViewModel(List<SpanBo> spanBoList) {
+    public TransactionMetaDataViewModel(List<SpanBo> spanBoList, IntFunction<String> serviceTypeNameResolver) {
         this.spanBoList = Objects.requireNonNull(spanBoList, "spanBoList");
+        this.serviceTypeNameResolver = Objects.requireNonNull(serviceTypeNameResolver, "serviceTypeNameResolver");
     }
 
     @JsonProperty("metadata")
     public List<MetaData> getMetadata() {
-        return Lists.transform(spanBoList, MetaData::new);
+        return Lists.transform(spanBoList, span -> new MetaData(span, serviceTypeNameResolver));
     }
 
     public static class MetaData implements DotMetaDataView {
         private final SpanBo span;
+        private final IntFunction<String> serviceTypeNameResolver;
 
-        public MetaData(SpanBo span) {
+        public MetaData(SpanBo span, IntFunction<String> serviceTypeNameResolver) {
             this.span = span;
+            this.serviceTypeNameResolver = serviceTypeNameResolver;
+        }
+
+        // applicationName/serviceType identify the application the span belongs to so a
+        // consumer can build application-scoped routes (e.g. /transactionList/{name}@{type})
+        // from a bare traceId lookup. The "application" field stays rpc for compatibility.
+        @JsonProperty("applicationName")
+        public String getApplicationName() {
+            return span.getApplicationName();
+        }
+
+        @JsonProperty("serviceType")
+        public String getServiceTypeName() {
+            return serviceTypeNameResolver.apply(span.getApplicationServiceType());
         }
 
         @Override

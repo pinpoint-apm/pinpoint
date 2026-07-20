@@ -50,6 +50,7 @@ export * from './Transaction';
 export * from './TransactionInfo';
 export * from './TransactionTraceServerMap';
 export * from './TransactionMetaData';
+export * from './TransactionTraceMetadata';
 export * from './UrlStatChart';
 export * from './UrlStatSummary';
 export * from './UserGroup';

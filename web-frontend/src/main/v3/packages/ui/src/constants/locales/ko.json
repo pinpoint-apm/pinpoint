@@ -80,6 +80,9 @@
   },
   "TRANSACTION_LIST": {
     "CALL_TREE_TIMELINE": "타임라인",
+    "JUMP": "Jump",
+    "LINKED_TRANSACTION_NOT_FOUND": "링크된 Transaction을 찾을 수 없습니다.",
+    "OPEN_IN_TRANSACTION_LIST": "Transaction 목록에서 열기",
     "SELECT_TRANSACTION": "Transaction을 선택하세요.",
     "TRANSACTION_RETRIEVE_ERROR": "Transaction 정보가 없습니다.",
     "TRANSACTION_RETRIEVE_ERROR_DESC": "Servermap/Filtered 페이지에서 다시 시도해 주세요. (이 창을 닫으면 Servermap 페이지로 이동합니다)",
