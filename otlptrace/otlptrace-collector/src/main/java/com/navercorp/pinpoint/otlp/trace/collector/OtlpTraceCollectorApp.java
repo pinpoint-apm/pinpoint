@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.actuate.autoconfigure.metrics.export.otlp.OtlpMetricsExportAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
@@ -27,6 +28,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoCo
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
@@ -41,7 +43,15 @@ import org.springframework.context.annotation.Import;
         RedisRepositoriesAutoConfiguration.class,
         RedisReactiveAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class,
-        OtlpMetricsExportAutoConfiguration.class
+        OtlpMetricsExportAutoConfiguration.class,
+        // The OTLP trace ingestion servlet (POST /v1/traces on the HTTP port) is an internal,
+        // unauthenticated endpoint. Exclude servlet security auto-config defensively: if
+        // spring-security reaches the classpath (e.g. transitively in a downstream deploy),
+        // the default SecurityFilterChain would otherwise reject every HTTP request with 401
+        // while gRPC ingestion — which bypasses the servlet filter chain — kept working,
+        // silently dropping OTLP/HTTP exporters (e.g. .NET services).
+        SecurityAutoConfiguration.class,
+        ManagementWebSecurityAutoConfiguration.class
 })
 @Import({
         OtlpTraceCollectorModule.class,
