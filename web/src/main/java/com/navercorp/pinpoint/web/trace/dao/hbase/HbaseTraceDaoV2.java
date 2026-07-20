@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.hbase.rowmapper.ResultSizeMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RowMapperResultAdaptor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanHeader;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.dao.hbase.HBaseUtils;
 import com.navercorp.pinpoint.web.service.FetchResult;
@@ -250,9 +250,9 @@ public class HbaseTraceDaoV2 implements TraceDao {
         // Keep span cells only (drop span-chunk cells). TYPE_SPAN marks Pinpoint-origin spans,
         // TYPE_OTEL_SPAN marks OpenTelemetry-origin spans — both are full Span rows.
         Filter pinpointSpan = new QualifierFilter(CompareOperator.EQUAL,
-                new BinaryPrefixComparator(new byte[]{SpanEncoder.TYPE_SPAN}));
+                new BinaryPrefixComparator(new byte[]{SpanHeader.SPAN.getCode()}));
         Filter otelSpan = new QualifierFilter(CompareOperator.EQUAL,
-                new BinaryPrefixComparator(new byte[]{SpanEncoder.TYPE_OTEL_SPAN}));
+                new BinaryPrefixComparator(new byte[]{SpanHeader.OTEL_SPAN.getCode()}));
         return new FilterList(FilterList.Operator.MUST_PASS_ONE, pinpointSpan, otelSpan);
     }
 

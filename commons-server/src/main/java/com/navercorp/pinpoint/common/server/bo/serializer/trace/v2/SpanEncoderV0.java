@@ -13,7 +13,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanOwner;
-import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventQualifierBitField;
@@ -42,9 +41,8 @@ public class SpanEncoderV0 implements SpanEncoder {
         final List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
         final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
 
-        final byte type = (spanBo.getTraceSourceType() == TraceSourceType.OPENTELEMETRY)
-                ? TYPE_OTEL_SPAN : TYPE_SPAN;
-        return encodeQualifier(type, spanBo, firstEvent, null);
+        final SpanHeader header = SpanHeader.span(spanBo.getTraceSourceType());
+        return encodeQualifier(header, spanBo, firstEvent, null);
     }
 
     @Override
@@ -55,15 +53,14 @@ public class SpanEncoderV0 implements SpanEncoder {
         final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
 
         LocalAsyncIdBo localAsyncId = spanChunkBo.getLocalAsyncId();
-        final byte type = (spanChunkBo.getTraceSourceType() == TraceSourceType.OPENTELEMETRY)
-                ? TYPE_OTEL_SPAN_CHUNK : TYPE_SPAN_CHUNK;
-        return encodeQualifier(type, spanChunkBo, firstEvent, localAsyncId);
+        final SpanHeader header = SpanHeader.spanChunk(spanChunkBo.getTraceSourceType());
+        return encodeQualifier(header, spanChunkBo, firstEvent, localAsyncId);
     }
 
-    private ByteBuffer encodeQualifier(byte type, BasicSpan basicSpan, SpanEventBo firstEvent, LocalAsyncIdBo localAsyncId) {
+    private ByteBuffer encodeQualifier(SpanHeader header, BasicSpan basicSpan, SpanEventBo firstEvent, LocalAsyncIdBo localAsyncId) {
         final SpanOwner owner = basicSpan.getSpanOwner();
         final Buffer buffer = new AutomaticBuffer(128);
-        buffer.putByte(type);
+        buffer.putByte(header.getCode());
         buffer.putPrefixedString(owner.getApplicationName());
         buffer.putPrefixedString(owner.getAgentId());
         buffer.putVLong(owner.getAgentStartTime());
