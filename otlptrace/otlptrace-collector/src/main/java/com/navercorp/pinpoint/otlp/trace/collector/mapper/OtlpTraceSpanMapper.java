@@ -88,6 +88,11 @@ public class OtlpTraceSpanMapper {
         owner.setAgentStartTime(TimeUnit.NANOSECONDS.toMillis(startTimeNanos));
 
         SpanBo spanBo = new SpanBo(TraceSourceType.OPENTELEMETRY, owner);
+        // Application-level type is always the generic OTel server type. The span-level
+        // serviceType assigned below may specialize (GRPC_SERVER, KAFKA_CLIENT, ...) without
+        // leaking into application-keyed storage via the applicationServiceType fallback
+        // (trace index v2 row key, server-map self vertex, application registration).
+        spanBo.setApplicationServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
         spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
         spanBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getSpanId()));
         spanBo.setParentSpanId(OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId()));
