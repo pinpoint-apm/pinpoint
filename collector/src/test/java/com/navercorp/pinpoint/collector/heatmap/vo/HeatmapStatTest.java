@@ -28,32 +28,42 @@ class HeatmapStatTest {
 
     @Test
     public void elapsedTimeTest() {
-        HeatmapStat heatmapStat = new HeatmapStat("applicationName", "agentId", 1000, 1000, 0);
+        HeatmapStat heatmapStat = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 1000, 0);
         assertEquals(1000, heatmapStat.getElapsedTime());
 
-        HeatmapStat heatmapStat2 = new HeatmapStat("applicationName", "agentId", 1000, 200, 0);
+        HeatmapStat heatmapStat2 = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 200, 0);
         assertEquals(200, heatmapStat2.getElapsedTime());
 
-        HeatmapStat heatmapStat3 = new HeatmapStat("applicationName", "agentId", 1000, 201, 0);
+        HeatmapStat heatmapStat3 = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 201, 0);
         assertEquals(400, heatmapStat3.getElapsedTime());
 
-        HeatmapStat heatmapStat4 = new HeatmapStat("applicationName", "agentId", 1000, 199, 0);
+        HeatmapStat heatmapStat4 = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 199, 0);
         assertEquals(200, heatmapStat4.getElapsedTime());
 
-        HeatmapStat heatmapStat5 = new HeatmapStat("applicationName", "agentId", 1000, 100, 0);
+        HeatmapStat heatmapStat5 = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 100, 0);
         assertEquals(200, heatmapStat5.getElapsedTime());
 
-        HeatmapStat heatmapStat6 = new HeatmapStat("applicationName", "agentId", 1000, 300, 0);
+        HeatmapStat heatmapStat6 = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 300, 0);
         assertEquals(400, heatmapStat6.getElapsedTime());
 
-        HeatmapStat heatmapStat7 = new HeatmapStat("applicationName", "agentId", 1000, 399, 0);
+        HeatmapStat heatmapStat7 = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 399, 0);
         assertEquals(400, heatmapStat7.getElapsedTime());
 
-        HeatmapStat heatmapStat8 = new HeatmapStat("applicationName", "agentId", 1000, 400, 0);
+        HeatmapStat heatmapStat8 = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 400, 0);
         assertEquals(400, heatmapStat8.getElapsedTime());
 
-        HeatmapStat heatmapStat9 = new HeatmapStat("applicationName", "agentId", 1000, 401, 0);
+        HeatmapStat heatmapStat9 = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 401, 0);
         assertEquals(600, heatmapStat9.getElapsedTime());
+    }
+
+    @Test
+    public void sortKeyTest() {
+        HeatmapStat successStat = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 100, 0);
+        assertEquals("serviceName", successStat.getServiceName());
+        assertEquals("serviceName#applicationName#suc", successStat.getSortKey());
+
+        HeatmapStat failureStat = new HeatmapStat("serviceName", "applicationName", "agentId", 1000, 100, 1);
+        assertEquals("serviceName#applicationName#fal", failureStat.getSortKey());
     }
 
 }

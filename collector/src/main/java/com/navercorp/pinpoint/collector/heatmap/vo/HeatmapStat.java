@@ -26,7 +26,7 @@ import java.util.Objects;
  */
 public class HeatmapStat {
 
-    private static final String DEFAULT_SERVICE_NAME = "DEFAULT";
+    private final String serviceName;
     private final String applicationName;
     private final String agentId;
     private final String sortKey;
@@ -34,14 +34,19 @@ public class HeatmapStat {
     private final int elapsedTime;
     private final Boolean isSuccess;
 
-    public HeatmapStat(String applicationName, String agentId, long eventTime, int elapsedTime, int errCode) {
+    public HeatmapStat(String serviceName, String applicationName, String agentId, long eventTime, int elapsedTime, int errCode) {
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.eventTime = eventTime;
         this.elapsedTime = (((elapsedTime - 1) / 200) + 1) * 200;
         this.isSuccess = errCode == 0;
-        String sortKeyPrefix = DEFAULT_SERVICE_NAME + "#" + applicationName;
+        String sortKeyPrefix = serviceName + "#" + applicationName;
         this.sortKey = HashmapSortKeyUtils.generateKey(sortKeyPrefix, isSuccess);
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getApplicationName() {
@@ -71,7 +76,8 @@ public class HeatmapStat {
     @Override
     public String toString() {
         return "HeatmapStat{" +
-                "applicationName='" + applicationName + '\'' +
+                "serviceName='" + serviceName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", sortKey='" + sortKey + '\'' +
                 ", eventTime=" + eventTime +
