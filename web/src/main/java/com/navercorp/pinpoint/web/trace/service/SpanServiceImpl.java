@@ -64,10 +64,12 @@ import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -162,7 +164,7 @@ public class SpanServiceImpl implements SpanService {
         final CallTreeIterator callTreeIterator = result.callTree();
         final List<Align> values = callTreeIterator.values();
 
-        annotationCallback.replacement(values);
+        annotationCallback.replacement(values, prefetchMetaData(values));
 
         // TODO need to at least show the row data when root span is not found.
         return result;
@@ -209,7 +211,7 @@ public class SpanServiceImpl implements SpanService {
 
         final CallTreeIterator callTreeIterator = mainTree.iterator();
         final List<Align> values = callTreeIterator.values();
-        annotationCallback.replacement(values);
+        annotationCallback.replacement(values, prefetchMetaData(values));
 
         return new SpanResult(matchType, callTreeIterator);
     }
@@ -324,7 +326,7 @@ public class SpanServiceImpl implements SpanService {
             this.callbacks = callbacks;
         }
 
-        public void replacement(List<Align> spans) {
+        public void replacement(List<Align> spans, MetadataAccessor metadataAccessor) {
             for (Align align : spans) {
                 List<AnnotationBo> annotationBoList = align.getAnnotationBoList();
                 if (annotationBoList == null) {
@@ -332,7 +334,7 @@ public class SpanServiceImpl implements SpanService {
                     align.setAnnotationBoList(annotationBoList);
                 }
                 for (AnnotationReplacementCallback callback : callbacks) {
-                    callback.replacement(align, annotationBoList);
+                    callback.replacement(align, annotationBoList, metadataAccessor);
                 }
             }
         }
@@ -382,7 +384,7 @@ public class SpanServiceImpl implements SpanService {
     private AnnotationReplacementCallback transitionSqlId() {
         return new AnnotationReplacementCallback() {
             @Override
-            public void replacement(Align align, List<AnnotationBo> annotationBoList) {
+            public void replacement(Align align, List<AnnotationBo> annotationBoList, MetadataAccessor metadataAccessor) {
                 AnnotationBo sqlIdAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
                 if (sqlIdAnnotation == null) {
                     return;
@@ -399,7 +401,7 @@ public class SpanServiceImpl implements SpanService {
                 final String sqlParam = sqlValue.getStringValue1();
                 final String bindValue = sqlValue.getStringValue2();
 
-                List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(align.getAgentId(), align.getAgentStartTime(), sqlId);
+                List<SqlMetaDataBo> sqlMetaDataList = metadataAccessor.getSqlMetaData(align.getAgentId(), align.getAgentStartTime(), sqlId);
 
                 final int size = sqlMetaDataList.size();
                 if (size == 0) {
@@ -449,7 +451,7 @@ public class SpanServiceImpl implements SpanService {
     private AnnotationReplacementCallback transitionSqlUid() {
         return new AnnotationReplacementCallback() {
             @Override
-            public void replacement(Align align, List<AnnotationBo> annotationBoList) {
+            public void replacement(Align align, List<AnnotationBo> annotationBoList, MetadataAccessor metadataAccessor) {
                 AnnotationBo sqlUidAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_UID.getCode());
                 if (sqlUidAnnotation == null) {
                     return;
@@ -466,7 +468,7 @@ public class SpanServiceImpl implements SpanService {
                 final String sqlParam = sqlValue.getStringValue1();
                 final String bindValue = sqlValue.getStringValue2();
 
-                List<SqlUidMetaDataBo> sqlUidMetaDataList = sqlUidMetaDataDao.getSqlUidMetaData(align.getAgentId(), align.getAgentStartTime(), sqlUid);
+                List<SqlUidMetaDataBo> sqlUidMetaDataList = metadataAccessor.getSqlUidMetaData(align.getAgentId(), align.getAgentStartTime(), sqlUid);
 
                 final int size = sqlUidMetaDataList.size();
                 if (size == 0) {
@@ -516,7 +518,7 @@ public class SpanServiceImpl implements SpanService {
     private AnnotationReplacementCallback transitionMongoJson() {
         return new AnnotationReplacementCallback() {
             @Override
-            public void replacement(Align align, List<AnnotationBo> annotationBoList) {
+            public void replacement(Align align, List<AnnotationBo> annotationBoList, MetadataAccessor metadataAccessor) {
 
                 for (int i = 0; i < annotationBoList.size(); i++) {
                     final AnnotationBo annotationBo = annotationBoList.get(i);
@@ -568,7 +570,7 @@ public class SpanServiceImpl implements SpanService {
     private AnnotationReplacementCallback transitionDynamicApiId() {
         return new AnnotationReplacementCallback() {
             @Override
-            public void replacement(Align align, List<AnnotationBo> annotationBoList) {
+            public void replacement(Align align, List<AnnotationBo> annotationBoList, MetadataAccessor metadataAccessor) {
 
                 final int apiId = align.getApiId();
                 if (apiId == 0) {
@@ -632,7 +634,7 @@ public class SpanServiceImpl implements SpanService {
     private AnnotationReplacementCallback transitionCachedString() {
         return new AnnotationReplacementCallback() {
             @Override
-            public void replacement(Align align, List<AnnotationBo> annotationBoList) {
+            public void replacement(Align align, List<AnnotationBo> annotationBoList, MetadataAccessor metadataAccessor) {
 
                 List<AnnotationBo> cachedStringAnnotation = AnnotationUtils.findAnnotations(annotationBoList,
                         e -> AnnotationKeyUtils.isCachedArgsKey(e.getKey()));
@@ -642,7 +644,7 @@ public class SpanServiceImpl implements SpanService {
                 for (AnnotationBo annotationBo : cachedStringAnnotation) {
                     final int cachedArgsKey = annotationBo.getKey();
                     int stringMetaDataId = (Integer) annotationBo.getValue();
-                    List<StringMetaDataBo> stringMetaList = stringMetaDataDao.getStringMetaData(align.getAgentId(), align.getAgentStartTime(), stringMetaDataId);
+                    List<StringMetaDataBo> stringMetaList = metadataAccessor.getStringMetaData(align.getAgentId(), align.getAgentStartTime(), stringMetaDataId);
                     int size = stringMetaList.size();
                     if (size == 0) {
                         logger.warn("StringMetaData not Found {}/{}/{}", align.getAgentId(), stringMetaDataId, align.getAgentStartTime());
@@ -669,7 +671,7 @@ public class SpanServiceImpl implements SpanService {
     private AnnotationReplacementCallback transitionException() {
         return new AnnotationReplacementCallback() {
             @Override
-            public void replacement(Align align, List<AnnotationBo> annotationBoList) {
+            public void replacement(Align align, List<AnnotationBo> annotationBoList, MetadataAccessor metadataAccessor) {
                 if (align.hasException()) {
                     ExceptionInfo exceptionInfo = align.getExceptionInfo();
                     if (align.isOpenTelemetry()) {
@@ -680,15 +682,15 @@ public class SpanServiceImpl implements SpanService {
                         align.setExceptionClass(ExceptionInfo.otelClassName(exceptionInfo.message()));
                         return;
                     }
-                    StringMetaDataBo stringMetaData = selectStringMetaData(align.getAgentId(), exceptionInfo.id(), align.getAgentStartTime());
+                    StringMetaDataBo stringMetaData = selectStringMetaData(metadataAccessor, align.getAgentId(), exceptionInfo.id(), align.getAgentStartTime());
                     align.setExceptionClass(stringMetaData.getStringValue());
                 }
             }
         };
     }
 
-    private StringMetaDataBo selectStringMetaData(String agentId, int cacheId, long agentStartTime) {
-        final List<StringMetaDataBo> metaDataList = stringMetaDataDao.getStringMetaData(agentId, agentStartTime, cacheId);
+    private StringMetaDataBo selectStringMetaData(MetadataAccessor metadataAccessor, String agentId, int cacheId, long agentStartTime) {
+        final List<StringMetaDataBo> metaDataList = metadataAccessor.getStringMetaData(agentId, agentStartTime, cacheId);
         if (CollectionUtils.isEmpty(metaDataList)) {
             logger.warn("StringMetaData not Found agent:{}, cacheId{}, agentStartTime:{}", agentId, cacheId, agentStartTime);
             return new StringMetaDataBo(agentId, agentStartTime, cacheId, "STRING-META-DATA-NOT-FOUND");
@@ -730,7 +732,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     public interface AnnotationReplacementCallback {
-        void replacement(Align align, List<AnnotationBo> annotationBoList);
+        void replacement(Align align, List<AnnotationBo> annotationBoList, MetadataAccessor metadataAccessor);
     }
 
     private SpanResult order(List<SpanBo> spans, Predicate<SpanBo> filter, boolean isReachedLimit) {
@@ -757,6 +759,143 @@ public class SpanServiceImpl implements SpanService {
     private record AgentIdStartTimeKey(String agentId, long agentStartTime) {
         private AgentIdStartTimeKey {
             Objects.requireNonNull(agentId, "agentId");
+        }
+    }
+
+    /**
+     * Collects every SQL/SQL-UID/String metadata lookup needed to resolve the given aligns and
+     * loads them in a single batch per metadata type, instead of issuing one HBase Get per align.
+     * The {@link AnnotationReplacementCallback}s then read the resolved metadata from the returned
+     * {@link MetadataAccessor} rather than calling the DAOs one row at a time (N+1).
+     */
+    private MetadataAccessor prefetchMetaData(List<Align> aligns) {
+        // insertion-ordered so the DAO input list stays index-aligned with the lookup keys
+        Map<UidLookupKey, SqlUidMetaDataDao.SqlUidMetaDataKey> sqlUidQueries = new LinkedHashMap<>();
+        Map<IntLookupKey, SqlMetaDataDao.SqlMetaDataKey> sqlQueries = new LinkedHashMap<>();
+        Map<IntLookupKey, StringMetaDataDao.StringMetaDataKey> stringQueries = new LinkedHashMap<>();
+
+        for (Align align : aligns) {
+            final String agentId = align.getAgentId();
+            final long agentStartTime = align.getAgentStartTime();
+
+            final List<AnnotationBo> annotationBoList = align.getAnnotationBoList();
+            if (annotationBoList != null && !isSqlMetaDataFiltered(align)) {
+                AnnotationBo sqlUidAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_UID.getCode());
+                if (sqlUidAnnotation != null) {
+                    final byte[] sqlUid = ((BytesStringStringValue) sqlUidAnnotation.getValue()).getBytesValue();
+                    sqlUidQueries.putIfAbsent(new UidLookupKey(agentId, agentStartTime, ByteBuffer.wrap(sqlUid)),
+                            new SqlUidMetaDataDao.SqlUidMetaDataKey(agentId, agentStartTime, sqlUid));
+                }
+
+                AnnotationBo sqlIdAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
+                if (sqlIdAnnotation != null) {
+                    final int sqlId = ((IntStringStringValue) sqlIdAnnotation.getValue()).getIntValue();
+                    sqlQueries.putIfAbsent(new IntLookupKey(agentId, agentStartTime, sqlId),
+                            new SqlMetaDataDao.SqlMetaDataKey(agentId, agentStartTime, sqlId));
+                }
+            }
+
+            if (annotationBoList != null) {
+                List<AnnotationBo> cachedStringAnnotations = AnnotationUtils.findAnnotations(annotationBoList,
+                        e -> AnnotationKeyUtils.isCachedArgsKey(e.getKey()));
+                for (AnnotationBo annotationBo : cachedStringAnnotations) {
+                    addStringQuery(stringQueries, agentId, agentStartTime, (Integer) annotationBo.getValue());
+                }
+            }
+
+            // exception class name is resolved via StringMetaData (legacy, non-OTel spans only)
+            if (align.hasException() && !align.isOpenTelemetry()) {
+                addStringQuery(stringQueries, agentId, agentStartTime, align.getExceptionInfo().id());
+            }
+        }
+
+        return new MetadataAccessor(
+                batchSqlUidMetaData(sqlUidQueries),
+                batchSqlMetaData(sqlQueries),
+                batchStringMetaData(stringQueries));
+    }
+
+    private boolean isSqlMetaDataFiltered(Align align) {
+        return metaDataFilter != null && metaDataFilter.filter(align, MetaData.SQL);
+    }
+
+    private void addStringQuery(Map<IntLookupKey, StringMetaDataDao.StringMetaDataKey> stringQueries,
+                                String agentId, long agentStartTime, int stringId) {
+        stringQueries.putIfAbsent(new IntLookupKey(agentId, agentStartTime, stringId),
+                new StringMetaDataDao.StringMetaDataKey(agentId, agentStartTime, stringId));
+    }
+
+    private Map<UidLookupKey, List<SqlUidMetaDataBo>> batchSqlUidMetaData(Map<UidLookupKey, SqlUidMetaDataDao.SqlUidMetaDataKey> queries) {
+        if (queries.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<UidLookupKey> lookupKeys = new ArrayList<>(queries.keySet());
+        List<List<SqlUidMetaDataBo>> results = sqlUidMetaDataDao.getSqlUidMetaData(new ArrayList<>(queries.values()));
+        return zip(lookupKeys, results);
+    }
+
+    private Map<IntLookupKey, List<SqlMetaDataBo>> batchSqlMetaData(Map<IntLookupKey, SqlMetaDataDao.SqlMetaDataKey> queries) {
+        if (queries.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<IntLookupKey> lookupKeys = new ArrayList<>(queries.keySet());
+        List<List<SqlMetaDataBo>> results = sqlMetaDataDao.getSqlMetaData(new ArrayList<>(queries.values()));
+        return zip(lookupKeys, results);
+    }
+
+    private Map<IntLookupKey, List<StringMetaDataBo>> batchStringMetaData(Map<IntLookupKey, StringMetaDataDao.StringMetaDataKey> queries) {
+        if (queries.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<IntLookupKey> lookupKeys = new ArrayList<>(queries.keySet());
+        List<List<StringMetaDataBo>> results = stringMetaDataDao.getStringMetaData(new ArrayList<>(queries.values()));
+        return zip(lookupKeys, results);
+    }
+
+    private static <K, V> Map<K, List<V>> zip(List<K> keys, List<List<V>> values) {
+        if (keys.size() != values.size()) {
+            throw new IllegalStateException("batch metadata result size mismatch keys:" + keys.size() + " values:" + values.size());
+        }
+        Map<K, List<V>> map = new HashMap<>(keys.size());
+        for (int i = 0; i < keys.size(); i++) {
+            map.put(keys.get(i), values.get(i));
+        }
+        return map;
+    }
+
+    private record UidLookupKey(String agentId, long agentStartTime, ByteBuffer sqlUid) {
+    }
+
+    private record IntLookupKey(String agentId, long agentStartTime, int id) {
+    }
+
+    /**
+     * Request-scoped view over metadata prefetched by {@link #prefetchMetaData(List)}.
+     * A missing key resolves to an empty list, matching the single-row DAO semantics.
+     */
+    public static final class MetadataAccessor {
+        private final Map<UidLookupKey, List<SqlUidMetaDataBo>> sqlUidMetaData;
+        private final Map<IntLookupKey, List<SqlMetaDataBo>> sqlMetaData;
+        private final Map<IntLookupKey, List<StringMetaDataBo>> stringMetaData;
+
+        private MetadataAccessor(Map<UidLookupKey, List<SqlUidMetaDataBo>> sqlUidMetaData,
+                                 Map<IntLookupKey, List<SqlMetaDataBo>> sqlMetaData,
+                                 Map<IntLookupKey, List<StringMetaDataBo>> stringMetaData) {
+            this.sqlUidMetaData = sqlUidMetaData;
+            this.sqlMetaData = sqlMetaData;
+            this.stringMetaData = stringMetaData;
+        }
+
+        List<SqlUidMetaDataBo> getSqlUidMetaData(String agentId, long time, byte[] sqlUid) {
+            return sqlUidMetaData.getOrDefault(new UidLookupKey(agentId, time, ByteBuffer.wrap(sqlUid)), Collections.emptyList());
+        }
+
+        List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int sqlId) {
+            return sqlMetaData.getOrDefault(new IntLookupKey(agentId, time, sqlId), Collections.emptyList());
+        }
+
+        List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
+            return stringMetaData.getOrDefault(new IntLookupKey(agentId, time, stringId), Collections.emptyList());
         }
     }
 }

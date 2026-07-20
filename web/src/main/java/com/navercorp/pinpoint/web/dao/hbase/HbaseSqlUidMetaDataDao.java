@@ -30,6 +30,7 @@ import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,6 +67,25 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
 
         TableName sqlUidMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.get(sqlUidMetaDataTableName, get, sqlUidMetaDataMapper);
+    }
+
+    @Override
+    public List<List<SqlUidMetaDataBo>> getSqlUidMetaData(List<SqlUidMetaDataKey> keys) {
+        Objects.requireNonNull(keys, "keys");
+        if (keys.isEmpty()) {
+            return List.of();
+        }
+
+        List<Get> gets = new ArrayList<>(keys.size());
+        for (SqlUidMetaDataKey key : keys) {
+            UidMetaDataRowKey uidMetaDataRowKey = new DefaultUidMetaDataRowKey(key.agentId(), key.agentStartTime(), key.sqlUid());
+            Get get = new Get(rowKeyEncoder.encodeRowKey(uidMetaDataRowKey));
+            get.addFamily(DESCRIPTOR.getName());
+            gets.add(get);
+        }
+
+        TableName sqlUidMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return hbaseOperations.get(sqlUidMetaDataTableName, gets, sqlUidMetaDataMapper);
     }
 
 }

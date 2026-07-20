@@ -30,6 +30,7 @@ import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,6 +73,25 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
         TableName stringMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.get(stringMetaDataTableName, get, stringMetaDataMapper);
+    }
+
+    @Override
+    public List<List<StringMetaDataBo>> getStringMetaData(List<StringMetaDataKey> keys) {
+        Objects.requireNonNull(keys, "keys");
+        if (keys.isEmpty()) {
+            return List.of();
+        }
+
+        List<Get> gets = new ArrayList<>(keys.size());
+        for (StringMetaDataKey key : keys) {
+            MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(key.agentId(), key.agentStartTime(), key.stringId());
+            Get get = new Get(rowKeyEncoder.encodeRowKey(metaDataRowKey));
+            get.addFamily(DESCRIPTOR.getName());
+            gets.add(get);
+        }
+
+        TableName stringMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return hbaseOperations.get(stringMetaDataTableName, gets, stringMetaDataMapper);
     }
 
 }
