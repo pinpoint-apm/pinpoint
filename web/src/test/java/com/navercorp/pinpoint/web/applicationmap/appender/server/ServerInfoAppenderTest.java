@@ -267,7 +267,7 @@ public class ServerInfoAppenderTest {
             return result;
         });
 
-        AgentInfoServerGroupListDataSource v2DataSource = new AgentInfoServerGroupListDataSource(agentInfoServiceMock, agentListV2ServiceMock, true);
+        AgentInfoServerGroupListDataSource v2DataSource = new AgentInfoServerGroupListDataSource(agentInfoServiceMock, agentListV2ServiceMock);
         ServerGroupListFactory v2Factory = new DefaultServerGroupListFactory(v2DataSource);
         ServerInfoAppender v2Appender = serverInfoAppenderFactory.create(v2Factory);
         // When
@@ -303,7 +303,7 @@ public class ServerInfoAppenderTest {
             return result;
         });
 
-        AgentInfoServerGroupListDataSource v2DataSource = new AgentInfoServerGroupListDataSource(agentInfoServiceMock, agentListV2ServiceMock, true);
+        AgentInfoServerGroupListDataSource v2DataSource = new AgentInfoServerGroupListDataSource(agentInfoServiceMock, agentListV2ServiceMock);
         ServerGroupListFactory v2Factory = new DefaultServerGroupListFactory(v2DataSource);
         ServerInfoAppender v2Appender = serverInfoAppenderFactory.create(v2Factory);
         // When
@@ -327,7 +327,7 @@ public class ServerInfoAppenderTest {
         when(agentListV2ServiceMock.getActiveAgentList(any(Service.class), anyString(), any(ServiceType.class), any(Range.class)))
                 .thenReturn(List.of());
 
-        AgentInfoServerGroupListDataSource v2DataSource = new AgentInfoServerGroupListDataSource(agentInfoServiceMock, agentListV2ServiceMock, true);
+        AgentInfoServerGroupListDataSource v2DataSource = new AgentInfoServerGroupListDataSource(agentInfoServiceMock, agentListV2ServiceMock);
         ServerGroupListFactory v2Factory = new DefaultServerGroupListFactory(v2DataSource);
         ServerInfoAppender v2Appender = serverInfoAppenderFactory.create(v2Factory);
         // When

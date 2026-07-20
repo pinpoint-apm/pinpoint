@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
 import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
-import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
 import com.navercorp.pinpoint.batch.service.BatchServiceConfig;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
@@ -43,7 +42,6 @@ import com.navercorp.pinpoint.web.trace.TraceConfiguration;
 import com.navercorp.pinpoint.web.uid.WebUidConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -66,7 +64,6 @@ import java.util.List;
         BatchJavaConfigModule.class,
 
         AgentCountJobConfig.class,
-        CleanupInactiveApplicationsJobConfig.class,
         CleanupAgentAndApplicationJobConfig.class,
 
         WebServiceConfig.CommonConfig.class,
