@@ -1,4 +1,4 @@
-import { isValid, isThisYear, isToday } from 'date-fns';
+import { isValid } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import {
   escapeHTMLEntities,
@@ -10,11 +10,19 @@ import {
 // 그 외에는 연.월.일 + 시:분:초를 두 줄('\n')로 반환한다. (Heatmap tooltip 과 OpenTelemetry 차트가 공유)
 export const defaultTickFormatter = (value: number) => {
   const timezone = getTimezone();
+  const now = new Date();
+  // 오늘/올해 판정도 라벨 포맷과 동일하게 선택 타임존 기준으로 한다. date-fns 의 isToday/isThisYear 는
+  // 브라우저 로컬 타임존 기준이라, 선택 타임존이 다르면 날짜/연 경계에서 형식이 잘못 분류될 수 있다.
+  const sameDay =
+    formatInTimeZone(value, timezone, 'yyyy-MM-dd') ===
+    formatInTimeZone(now, timezone, 'yyyy-MM-dd');
+  const sameYear =
+    formatInTimeZone(value, timezone, 'yyyy') === formatInTimeZone(now, timezone, 'yyyy');
 
-  if (isToday(value)) {
+  if (sameDay) {
     return formatInTimeZone(value, timezone, 'HH:mm:ss');
   }
-  if (isThisYear(value)) {
+  if (sameYear) {
     return `${formatInTimeZone(value, timezone, 'MM.dd')}\n${formatInTimeZone(value, timezone, 'HH:mm:ss')}`;
   }
   return `${formatInTimeZone(value, timezone, 'yyyy.MM.dd')}\n${formatInTimeZone(value, timezone, 'HH:mm:ss')}`;

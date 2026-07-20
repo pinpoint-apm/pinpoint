@@ -48,7 +48,7 @@ const tooltipRow = (color: string | undefined, name: string, value: string, name
        <div style="width: 10px; height: 10px; background: ${color}; flex-shrink: 0;"></div>
        <span style="display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: ${nameMaxWidth}px; vertical-align: middle;">${escapeHTMLEntities(name)}</span>
      </div>
-     <div style="flex-shrink: 0;">${value}</div>
+     <div style="flex-shrink: 0;">${escapeHTMLEntities(value)}</div>
    </div>`;
 
 export const OpenTelemetryMetricChart = ({
@@ -249,17 +249,21 @@ export const OpenTelemetryMetricChart = ({
             {seriesMeta.map((s, i) => (
               <Tooltip key={`${s.name}-${i}`}>
                 <TooltipTrigger asChild>
-                  <div
-                    className="inline-flex items-center max-w-full min-w-0 gap-1 cursor-default"
+                  {/* 키보드 사용자도 hover 와 동일하게 강조/전체이름 tooltip 을 쓸 수 있도록 focus 가능한 button 으로 둔다. */}
+                  <button
+                    type="button"
+                    className="inline-flex items-center max-w-full min-w-0 gap-1 cursor-default border-0 bg-transparent p-0"
                     onMouseEnter={() => highlightSeries(s.name, true)}
                     onMouseLeave={() => highlightSeries(s.name, false)}
+                    onFocus={() => highlightSeries(s.name, true)}
+                    onBlur={() => highlightSeries(s.name, false)}
                   >
                     <span
                       className="h-2 w-2 shrink-0 rounded-[2px]"
                       style={{ backgroundColor: s.color }}
                     />
                     <span className="text-xs truncate text-muted-foreground">{s.name}</span>
-                  </div>
+                  </button>
                 </TooltipTrigger>
                 <TooltipPortal>
                   <TooltipContent>

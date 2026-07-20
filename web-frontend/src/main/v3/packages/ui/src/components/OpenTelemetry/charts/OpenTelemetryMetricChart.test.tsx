@@ -155,11 +155,11 @@ describe('OpenTelemetryMetricChart', () => {
     expect(option.legend).toBeUndefined();
   });
 
-  it('renders a custom legend carrying the full (untruncated) series name in the DOM', () => {
+  it('renders each legend item as a focusable button carrying the full series name', () => {
     const longName = 'telemetry.sdk.language:java,spring.security.reached.filter.name:none';
     renderChart(makeChart([makeGroup('line', [makeMetricValue(longName, [1, 2, 3])])]));
-    // CSS 로만 말줄임되므로 DOM 에는 전체 이름이 그대로 있어, hover 시 전체를 볼 수 있다.
-    expect(screen.getByText(longName)).toBeTruthy();
+    // 키보드 접근을 위해 button 으로 렌더하고, CSS 로만 말줄임하므로 DOM 에는 전체 이름이 그대로 있다.
+    expect(screen.getByRole('button', { name: longName })).toBeTruthy();
   });
 
   describe('tooltip formatter', () => {
@@ -207,6 +207,14 @@ describe('OpenTelemetryMetricChart', () => {
     it('confines the tooltip to the chart widget', () => {
       const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [3])])]));
       expect(option.tooltip.confine).toBe(true);
+    });
+
+    it('escapes the formatted value so a caller formatter cannot inject HTML', () => {
+      const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [3])])]), {
+        yAxisTickFormatter: () => '<img src=x onerror=alert(1)>',
+      });
+      const html = option.tooltip.formatter([{ axisValue: 1000, value: 5, seriesName: 'cpu', color: '#f00' }]);
+      expect(html).not.toContain('<img');
     });
   });
 });
