@@ -24,8 +24,7 @@ import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
-import com.navercorp.pinpoint.batch.service.BatchAgentServiceImpl;
-import com.navercorp.pinpoint.batch.service.BatchApplicationIndexServiceImpl;
+import com.navercorp.pinpoint.batch.service.BatchServiceConfig;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
@@ -47,8 +46,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
@@ -58,6 +55,7 @@ import java.util.List;
         BatchAppPropertySources.class,
 
         BatchServiceModule.class,
+        BatchServiceConfig.class,
         ComponentConfiguration.class,
         HyperLinkConfiguration.class,
 
@@ -84,21 +82,6 @@ import java.util.List;
         AlarmSenderConfiguration.class,
         CommonCacheManagerConfiguration.class
 })
-@ComponentScan(
-        basePackages = {
-                "com.navercorp.pinpoint.batch.service",
-        },
-        useDefaultFilters = false,
-        includeFilters = {
-                @ComponentScan.Filter(
-                        type = FilterType.ASSIGNABLE_TYPE,
-                        classes = {
-                                BatchApplicationIndexServiceImpl.class,
-                                BatchAgentServiceImpl.class
-                        }
-                )
-        }
-)
 public class BatchModule {
 
     @Bean
