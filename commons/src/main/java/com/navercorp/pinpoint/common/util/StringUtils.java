@@ -154,13 +154,26 @@ public final class StringUtils {
             throw new IllegalArgumentException("negative maxWidth:" + maxWidth);
         }
         if (str.length() > maxWidth) {
-            StringBuilder buffer = new StringBuilder(abbreviateBufferSize(maxWidth, str.length()));
-            buffer.append(str, 0, maxWidth);
+            final int endIndex = abbreviateEndIndex(str, maxWidth);
+            StringBuilder buffer = new StringBuilder(abbreviateBufferSize(endIndex, str.length()));
+            buffer.append(str, 0, endIndex);
             appendAbbreviateMessage(buffer, str.length());
             return buffer.toString();
         } else {
             return str;
         }
+    }
+
+    /**
+     * An unpaired high surrogate left by cutting a surrogate pair in half
+     * is not encodable to UTF-8 (e.g. protobuf throws UnpairedSurrogateException),
+     * so drop the high surrogate instead of splitting the pair.
+     */
+    static int abbreviateEndIndex(final String str, final int maxWidth) {
+        if (maxWidth > 0 && Character.isHighSurrogate(str.charAt(maxWidth - 1))) {
+            return maxWidth - 1;
+        }
+        return maxWidth;
     }
 
     static int abbreviateBufferSize(int maxWidth, int strLength) {
@@ -175,7 +188,7 @@ public final class StringUtils {
             return;
         }
         if (str.length() > maxWidth) {
-            builder.append(str, 0, maxWidth);
+            builder.append(str, 0, abbreviateEndIndex(str, maxWidth));
             appendAbbreviateMessage(builder, str.length());
         } else {
             builder.append(str);
