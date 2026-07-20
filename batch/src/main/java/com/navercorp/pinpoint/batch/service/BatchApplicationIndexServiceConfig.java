@@ -18,26 +18,13 @@ package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Selects the {@link BatchApplicationIndexService} implementation at the bean
- * level with the {@code pinpoint.batch.application.index.read.v2} property.
- */
 @Configuration
 public class BatchApplicationIndexServiceConfig {
 
     @Bean("batchApplicationIndexService")
-    @ConditionalOnProperty(name = "pinpoint.batch.application.index.read.v2", havingValue = "false")
-    public BatchApplicationIndexService batchApplicationIndexV1Service(ApplicationIndexDao applicationIndexDao) {
-        return new BatchApplicationIndexV1ServiceImpl(applicationIndexDao);
-    }
-
-    @Bean("batchApplicationIndexService")
-    @ConditionalOnProperty(name = "pinpoint.batch.application.index.read.v2", havingValue = "true", matchIfMissing = true)
     public BatchApplicationIndexService batchApplicationIndexV2Service(ApplicationDao applicationDao, AgentIdDao agentIdDao) {
         return new BatchApplicationIndexV2ServiceImpl(applicationDao, agentIdDao);
     }

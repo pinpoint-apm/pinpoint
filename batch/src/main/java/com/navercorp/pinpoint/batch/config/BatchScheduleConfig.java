@@ -62,14 +62,6 @@ public class BatchScheduleConfig implements SchedulingConfigurer {
         );
 
         taskRegistrar.addTriggerTask(
-                batchJobLauncher::cleanupInactiveApplicationsJob,
-                triggerContext -> {
-                    String cron = batchProperties.getCleanupInactiveApplicationsJobCron();
-                    return new CronTrigger(cron).nextExecution(triggerContext);
-                }
-        );
-
-        taskRegistrar.addTriggerTask(
                 batchJobLauncher::cleanAgentAndApplicationJob,
                 triggerContext -> {
                     String cron = batchProperties.getCleanupAgentAndApplicationJobCron();

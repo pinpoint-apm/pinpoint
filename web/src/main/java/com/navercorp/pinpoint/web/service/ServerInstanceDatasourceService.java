@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupList
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -31,11 +30,10 @@ public class ServerInstanceDatasourceService {
     private final ServerGroupListDataSource datasource;
 
     public ServerInstanceDatasourceService(AgentInfoService agentInfoService,
-                                           AgentListV2Service agentListV2Service,
-                                           @Value("${pinpoint.web.application.index.read.v2:true}") boolean agentReadV2) {
+                                           AgentListV2Service agentListV2Service) {
         Objects.requireNonNull(agentInfoService, "agentInfoService");
         Objects.requireNonNull(agentListV2Service, "agentListV2Service");
-        this.datasource = new AgentInfoServerGroupListDataSource(agentInfoService, agentListV2Service, agentReadV2);
+        this.datasource = new AgentInfoServerGroupListDataSource(agentInfoService, agentListV2Service);
     }
 
     public ServerGroupListFactory getGroupServerFactory(boolean isUseStatisticsAgentState) {
