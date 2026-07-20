@@ -407,6 +407,12 @@ class OtlpTraceMapperTest {
         return span.toBuilder().setFlags(flags).build();
     }
 
+    // A definitively-unsampled wire shape: the trace-flags byte is populated (W3C "random" bit,
+    // 0x02) so we know the sampling decision is real, while the sampled bit (0x01) stays clear.
+    // is_remote metadata is included to mirror a modern SDK.
+    private static final int UNSAMPLED_FLAGS =
+            SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE | 0x02;
+
     @Test
     void isUnsampled_flagRules() {
         Span base = serverRoot(ROOT_A, "/api/orders", false);
@@ -414,18 +420,20 @@ class OtlpTraceMapperTest {
         assertThat(OtlpTraceMapper.isUnsampled(withFlags(base, 0))).isFalse();
         // sampled bit set, remote bits unset
         assertThat(OtlpTraceMapper.isUnsampled(withFlags(base, 0x01))).isFalse();
-        // populated flags (has_is_remote bit) with the sampled bit clear: definitively unsampled
+        // is_remote metadata only: the trace-flags byte is unpopulated — NOT a sampling signal,
+        // so keep (e.g. a locust load-generator root span exported with is_remote but no sampled bit).
         assertThat(OtlpTraceMapper.isUnsampled(
-                withFlags(base, SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE))).isTrue();
-        // populated flags with the sampled bit set
+                withFlags(base, SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE))).isFalse();
+        // is_remote metadata + sampled bit set
         assertThat(OtlpTraceMapper.isUnsampled(
                 withFlags(base, SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE | 0x01))).isFalse();
+        // trace-flags byte populated (random bit) with the sampled bit clear: definitively unsampled
+        assertThat(OtlpTraceMapper.isUnsampled(withFlags(base, UNSAMPLED_FLAGS))).isTrue();
     }
 
     @Test
     void unsampledSpan_droppedAndCountedAsRejected() {
-        Span unsampledRoot = withFlags(serverRoot(ROOT_A, "/api/orders", false),
-                SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE);
+        Span unsampledRoot = withFlags(serverRoot(ROOT_A, "/api/orders", false), UNSAMPLED_FLAGS);
 
         OtlpTraceMapperData data = newMapper().map(resourceSpans(unsampledRoot));
 
@@ -446,6 +454,20 @@ class OtlpTraceMapperTest {
     }
 
     @Test
+    void isRemoteMetadataOnly_keptConservatively() {
+        // Regression: a span carrying only is_remote metadata (trace-flags byte all-clear) must be
+        // kept. Reading the non-zero flags int as "populated" previously dropped these — which
+        // silently lost a whole service's traces (locust load-generator root spans).
+        Span isRemoteOnlyRoot = withFlags(serverRoot(ROOT_A, "/api/orders", false),
+                SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(isRemoteOnlyRoot));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getRejectedSpan().count()).isZero();
+    }
+
+    @Test
     void zeroFlags_treatedAsLegacyAndKept() {
         // serverRoot() never sets flags — the pre-flags wire shape must keep flowing unchanged
         Span legacyRoot = serverRoot(ROOT_A, "/api/orders", false);
@@ -460,8 +482,7 @@ class OtlpTraceMapperTest {
     void unsampledChild_droppedButSampledRootKept() {
         // per-span drop: the sampled root survives; the explicitly unsampled child is rejected
         Span root = serverRoot(ROOT_A, "/api/orders", false);
-        Span unsampledChild = withFlags(clientChild(CHILD, ROOT_A, false),
-                SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE);
+        Span unsampledChild = withFlags(clientChild(CHILD, ROOT_A, false), UNSAMPLED_FLAGS);
 
         OtlpTraceMapperData data = newMapper().map(resourceSpans(root, unsampledChild));
 
