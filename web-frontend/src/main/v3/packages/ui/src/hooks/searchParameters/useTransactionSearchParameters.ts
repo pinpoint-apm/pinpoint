@@ -23,11 +23,15 @@ export const useTransactionSearchParameters = () => {
       return null;
     }
   })();
+  // plain traceId string; when present the list panel is populated by a
+  // /api/transaction/metadata lookup instead of heatmap drag / filter map
+  const traceInfo = props.searchParameters?.traceInfo;
   return {
     ...props,
     dateRange,
     withFilter,
     dragInfo: parseDragInfo,
     transactionInfo: parsedTransactionInfo,
+    traceInfo,
   };
 };

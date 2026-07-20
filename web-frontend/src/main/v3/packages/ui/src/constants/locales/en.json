@@ -80,6 +80,9 @@
   },
   "TRANSACTION_LIST": {
     "CALL_TREE_TIMELINE": "Timeline",
+    "JUMP": "Jump",
+    "LINKED_TRANSACTION_NOT_FOUND": "Linked transaction not found.",
+    "OPEN_IN_TRANSACTION_LIST": "Open in Transaction List",
     "SELECT_TRANSACTION": "Select your transaction",
     "TRANSACTION_RETRIEVE_ERROR": "Transaction information is missing.",
     "TRANSACTION_RETRIEVE_ERROR_DESC": "Please start it over from the Servermap/Filtered page.  (If you close this dialog, you will be redirected to the Servermap page.)",

@@ -10,4 +10,8 @@ export type Transaction = {
   remoteAddr: string;
   startTime: number;
   traceId: string;
+  // present on /api/transaction/metadata and /api/transactionmetadata responses;
+  // absent on /api/heatmap/drag rows
+  applicationName?: string;
+  serviceType?: string;
 };

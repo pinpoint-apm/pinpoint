@@ -19,6 +19,9 @@ import {
   FaPuzzlePiece,
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
+import { PiStackDuotone } from 'react-icons/pi';
+import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../..';
 import {
   addCommas,
@@ -29,10 +32,15 @@ import {
   getTransactionDetailQueryString,
   getTransactionListPath,
 } from '@pinpoint-fe/ui/src/utils';
-import { useTimezone, useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  getTransactionTraceMetadataQueryOptions,
+  useTimezone,
+  useTransactionSearchParameters,
+} from '@pinpoint-fe/ui/src/hooks';
 import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
 import { useSetAtom } from 'jotai';
 import React from 'react';
+import { useReactToastifyToast } from '../../Toast';
 import {
   computeParallelGroups,
   getRowEndOffsetNanos,
@@ -516,17 +524,21 @@ const MethodCell = (props: {
         </Button>
       );
     } else if (text === 'Link') {
-      const linkPath = buildOtelLinkPath(rowData.arguments, application, {
-        pathname,
-        searchParameters,
-      });
-      if (linkPath) {
+      const otelLink = parseOtelLinkArguments(rowData.arguments);
+      if (otelLink) {
+        const linkPath = buildOtelLinkPath(otelLink, application, {
+          pathname,
+          searchParameters,
+        });
         return (
-          <Button asChild className="text-xs h-[1rem] gap-0.5 p-1">
-            <Link to={linkPath} onClick={() => setCallTreeFocusId('')}>
-              <FaLink /> {text}
-            </Link>
-          </Button>
+          <>
+            <Button asChild className="text-xs h-[1rem] gap-0.5 p-1">
+              <Link to={linkPath} onClick={() => setCallTreeFocusId('')}>
+                <FaLink /> {text}
+              </Link>
+            </Button>
+            <OtelLinkTransactionListButton traceId={otelLink.traceId} spanId={otelLink.spanId} />
+          </>
         );
       }
       Icon = <FaLink />;
@@ -595,45 +607,138 @@ export const getExecPercentage = (
   return (elapsed / totalExecuteTime) * 100;
 };
 
-const buildOtelLinkPath = (
-  argumentsJson: string,
-  application: Parameters<typeof getTransactionDetailPath>[0],
-  context: {
-    pathname: string;
-    searchParameters: Record<string, string>;
-  },
-): string | null => {
+type OtelLinkArguments = {
+  traceId: string;
+  spanId: string;
+  linkTraceId: string;
+  linkSpanId: string;
+  focusTimestamp: number;
+};
+
+const parseOtelLinkArguments = (argumentsJson: string): OtelLinkArguments | null => {
   if (!argumentsJson) return null;
   try {
     const parsed = JSON.parse(argumentsJson);
     const { traceId, spanId, linkTraceId, linkSpanId, focusTimestamp } = parsed ?? {};
     if (!traceId || spanId == null || !linkTraceId || linkSpanId == null) return null;
-
-    const transactionInfoParams = {
-      agentId: '',
-      spanId: String(spanId),
+    return {
       traceId: String(traceId),
-      focusTimestamp: typeof focusTimestamp === 'number' ? focusTimestamp : 0,
+      spanId: String(spanId),
       linkTraceId: String(linkTraceId),
       linkSpanId: String(linkSpanId),
+      focusTimestamp: typeof focusTimestamp === 'number' ? focusTimestamp : 0,
     };
-
-    // Stay on /transactionList when the user opened the link from the list page,
-    // so the upper transaction-list panel (heatmap drag results) is preserved.
-    const onTransactionListPage =
-      context.pathname === APP_PATH.TRANSACTION_LIST ||
-      context.pathname.startsWith(`${APP_PATH.TRANSACTION_LIST}/`);
-    if (onTransactionListPage) {
-      return `${getTransactionListPath(application)}?${convertParamsToQueryString({
-        ...context.searchParameters,
-        transactionInfo: JSON.stringify(transactionInfoParams),
-      })}`;
-    }
-
-    return `${getTransactionDetailPath(application)}?${getTransactionDetailQueryString(
-      transactionInfoParams,
-    )}`;
   } catch {
     return null;
   }
+};
+
+const buildOtelLinkPath = (
+  otelLink: OtelLinkArguments,
+  application: Parameters<typeof getTransactionDetailPath>[0],
+  context: {
+    pathname: string;
+    searchParameters: Record<string, string>;
+  },
+): string => {
+  const transactionInfoParams = {
+    agentId: '',
+    spanId: otelLink.spanId,
+    traceId: otelLink.traceId,
+    focusTimestamp: otelLink.focusTimestamp,
+    linkTraceId: otelLink.linkTraceId,
+    linkSpanId: otelLink.linkSpanId,
+  };
+
+  // Stay on /transactionList when the user opened the link from the list page,
+  // so the upper transaction-list panel (heatmap drag results) is preserved.
+  const onTransactionListPage =
+    context.pathname === APP_PATH.TRANSACTION_LIST ||
+    context.pathname.startsWith(`${APP_PATH.TRANSACTION_LIST}/`);
+  if (onTransactionListPage) {
+    return `${getTransactionListPath(application)}?${convertParamsToQueryString({
+      ...context.searchParameters,
+      transactionInfo: JSON.stringify(transactionInfoParams),
+    })}`;
+  }
+
+  return `${getTransactionDetailPath(application)}?${getTransactionDetailQueryString(
+    transactionInfoParams,
+  )}`;
+};
+
+/**
+ * Opens the OTel Link target transaction standalone in the Transaction List screen
+ * (?traceInfo mode) in a new tab. Unlike the merged-view Link button, the target
+ * application/time are unknown until the traceId is resolved, so this fetches
+ * /api/transaction/metadata first and builds the application-scoped URL from the result.
+ */
+const OtelLinkTransactionListButton = ({
+  traceId,
+  spanId,
+}: {
+  traceId: string;
+  spanId: string;
+}) => {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const toast = useReactToastifyToast();
+  const [timezone] = useTimezone();
+
+  const handleClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // fetch errors already surface via the global query error toast
+    const data = await queryClient
+      .fetchQuery(getTransactionTraceMetadataQueryOptions(traceId))
+      .catch(() => null);
+    if (data === null) {
+      return;
+    }
+    const rows = data?.metadata ?? [];
+
+    // A trace may contain multiple spans (multi-application); prefer the span the
+    // link points to, falling back to the first row (e.g. link target is a sub-span).
+    const preferred = rows.find((row) => String(row.spanId) === spanId) || rows[0];
+    if (!preferred?.applicationName || !preferred?.serviceType) {
+      toast.warn(t('TRANSACTION_LIST.LINKED_TRANSACTION_NOT_FOUND'));
+      return;
+    }
+
+    const baseTime = preferred.collectorAcceptTime;
+    const from = formatInTimeZone(baseTime - 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
+    const to = formatInTimeZone(baseTime + 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
+    const url = `${BASE_PATH}${getTransactionListPath({
+      applicationName: preferred.applicationName,
+      serviceType: preferred.serviceType,
+    })}?${convertParamsToQueryString({
+      from,
+      to,
+      traceInfo: traceId,
+      transactionInfo: JSON.stringify({
+        agentId: preferred.agentId,
+        spanId: preferred.spanId,
+        traceId: preferred.traceId,
+        focusTimestamp: preferred.collectorAcceptTime,
+        path: preferred.application,
+      }),
+    })}`;
+    // noopener/noreferrer prevents the opened tab from reaching back through
+    // window.opener (reverse tab-nabbing). With noopener, open() returns null;
+    // defensively null the opener too in case a browser ignores the feature.
+    const opened = window.open(url, '_blank', 'noopener,noreferrer');
+    if (opened) {
+      opened.opener = null;
+    }
+  };
+
+  return (
+    <Button
+      className="flex-none text-xs h-[1rem] gap-0.5 p-1 ml-1"
+      title={t('TRANSACTION_LIST.OPEN_IN_TRANSACTION_LIST')}
+      aria-label={t('TRANSACTION_LIST.OPEN_IN_TRANSACTION_LIST')}
+      onClick={handleClick}
+    >
+      <PiStackDuotone /> {t('TRANSACTION_LIST.JUMP')}
+    </Button>
+  );
 };
