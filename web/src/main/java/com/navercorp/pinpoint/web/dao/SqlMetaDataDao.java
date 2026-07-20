@@ -25,4 +25,14 @@ import java.util.List;
  */
 public interface SqlMetaDataDao {
     List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int sqlId);
+
+    /**
+     * Batch variant of {@link #getSqlMetaData(String, long, int)}.
+     * The returned list is index-aligned with {@code keys}; a key with no matching
+     * row yields an empty list at the same index.
+     */
+    List<List<SqlMetaDataBo>> getSqlMetaData(List<SqlMetaDataKey> keys);
+
+    record SqlMetaDataKey(String agentId, long agentStartTime, int sqlId) {
+    }
 }
