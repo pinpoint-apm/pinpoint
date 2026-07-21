@@ -68,9 +68,8 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
     bindedSql?: string;
     bindValue?: string;
   }>();
-  const [detailType, setDetailType] = React.useState<'sql' | 'attribute' | 'scope'>('sql');
+  const [detailType, setDetailType] = React.useState<'sql' | 'attribute'>('sql');
   const [jsonDetail, setJsonDetail] = React.useState<string>('');
-  const [scopeDetail, setScopeDetail] = React.useState<string>('');
   const { mutate } = usePostBind({
     onSuccess: (result) => {
       setSqlDetail((prev) => {
@@ -79,16 +78,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
     },
   });
   const onClickDetailView = React.useCallback(
-    (callStackData: TransactionInfo.CallStackKeyValueMap, type?: 'scope') => {
-      // The Scope icon passes an explicit type: a row can carry both attributes and scope,
-      // so the scope click must not fall into the attribute branch below.
-      if (type === 'scope' && callStackData.scope) {
-        setScopeDetail(callStackData.scope);
-        setDetailType('scope');
-        setSheetOpen(true);
-        return;
-      }
-
+    (callStackData: TransactionInfo.CallStackKeyValueMap) => {
       if (callStackData.attributes) {
         setJsonDetail(prettyJson(callStackData.attributes));
         setDetailType('attribute');
@@ -302,11 +292,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         >
           <SheetHeader className="px-5 pb-4">
             <SheetTitle className="flex items-center">
-              {detailType === 'scope'
-                ? t('TRANSACTION_LIST.SCOPE_DETAIL')
-                : detailType === 'attribute'
-                  ? 'Attribute Detail'
-                  : 'SQL Detail'}
+              {detailType === 'attribute' ? 'Attribute Detail' : 'SQL Detail'}
               <Button
                 variant="outline"
                 size="icon"
@@ -319,9 +305,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           </SheetHeader>
           <Separator className="" />
           <div className="p-4 space-y-4 overflow-auto">
-            {detailType === 'scope' ? (
-              <ScopeDetail value={scopeDetail} />
-            ) : detailType === 'attribute' ? (
+            {detailType === 'attribute' ? (
               <div className="relative space-y-2">
                 <CollapsibleCodeViewer
                   title="Attribute"
@@ -370,38 +354,6 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           <HighLightCode className="p-2 text-xs min-h-20" code={content} />
         </DialogContent>
       </Dialog>
-    </div>
-  );
-};
-
-// OTel instrumentation-scope identity, serialized by the collector as "name@version"
-// (bare "name" when the SDK omitted the version). Split on the LAST '@' — scope names
-// may themselves contain '@' but versions never do.
-const parseScope = (value: string) => {
-  const at = value.lastIndexOf('@');
-  if (at <= 0) {
-    return { name: value, version: undefined };
-  }
-  return { name: value.slice(0, at), version: value.slice(at + 1) };
-};
-
-const ScopeDetail = ({ value }: { value: string }) => {
-  const { t } = useTranslation();
-  const { name, version } = parseScope(value);
-  return (
-    <div className="grid grid-cols-[6rem_1fr] gap-y-2 text-sm">
-      <span className="font-semibold text-muted-foreground">
-        {t('TRANSACTION_LIST.SCOPE_NAME')}
-      </span>
-      <span className="break-all">{name}</span>
-      {version && (
-        <>
-          <span className="font-semibold text-muted-foreground">
-            {t('TRANSACTION_LIST.SCOPE_VERSION')}
-          </span>
-          <span className="break-all">{version}</span>
-        </>
-      )}
     </div>
   );
 };
