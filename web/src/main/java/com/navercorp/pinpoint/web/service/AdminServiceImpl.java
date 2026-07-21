@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * @author netspider
  * @author HyunGil Jeong
  */
-@Service
+@org.springframework.stereotype.Service
 public class AdminServiceImpl implements AdminService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -60,8 +60,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void removeApplication(String applicationName, int serviceTypeCode) {
-        this.applicationIndexService.deleteApplication(applicationName, serviceTypeCode);
+    public void removeApplication(Service service, String applicationName, int serviceTypeCode) {
+        this.applicationIndexService.deleteApplication(service, applicationName, serviceTypeCode);
     }
 
     @Override
@@ -71,8 +71,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void removeAgentId(String applicationName, int serviceTypeCode, String agentId) {
-        applicationIndexService.deleteAgentId(applicationName, serviceTypeCode, agentId);
+    public void removeAgent(Service service, String applicationName, int serviceTypeCode, String agentId) {
+        applicationIndexService.deleteAgentId(service, applicationName, serviceTypeCode, agentId);
     }
 
     @Override
@@ -152,7 +152,7 @@ public class AdminServiceImpl implements AdminService {
         if (serviceTypeCode == null) {
             applicationIndexService.deleteAgentIds(applicationName, agentsToDelete);
         } else {
-            applicationIndexService.deleteAgentIds(applicationName, serviceTypeCode, agentsToDelete);
+            applicationIndexService.deleteAgentIds(Service.DEFAULT, applicationName, serviceTypeCode, agentsToDelete);
         }
     }
 
