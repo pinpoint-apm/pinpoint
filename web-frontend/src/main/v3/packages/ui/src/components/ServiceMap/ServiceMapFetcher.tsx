@@ -58,7 +58,9 @@ export const ServiceMapFetcher = ({
     bidirectional: !!queryOption.bidirectional,
     wasOnly: !!queryOption.wasOnly,
     useStatisticsAgentState,
-    keepServiceNames: [selectedService],
+    // selectedService는 localStorage 기반이라 빈 값일 수 있다. 빈 값이면
+    // 넘기지 않고 useGetServiceMap이 'DEFAULT'로 폴백하도록 둔다.
+    keepServiceNames: selectedService ? [selectedService] : undefined,
   });
 
   const data = React.useMemo(() => flattenServiceMapResponse(rawData), [rawData]);
