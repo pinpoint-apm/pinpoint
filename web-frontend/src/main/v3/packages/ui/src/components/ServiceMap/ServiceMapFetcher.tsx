@@ -5,6 +5,7 @@ import {
   serverMapDataAtom,
   currentServerAtom,
   serverMapCurrentTargetAtom,
+  selectedServiceAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
 import {
@@ -22,22 +23,32 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { ServerMapCore, ServerMapCoreProps } from '../ServerMap/ServerMapCore';
 
-export interface ServiceMapFetcherProps
-  extends Pick<ServerMapCoreProps, 'onClickMenuItem' | 'onApplyChangedOption' | 'queryOption'> {
+export interface ServiceMapFetcherProps extends Pick<
+  ServerMapCoreProps,
+  'onClickMenuItem' | 'onApplyChangedOption' | 'queryOption'
+> {
   shouldPoll?: boolean;
 }
 
-export const ServiceMapFetcher = ({ shouldPoll: _shouldPoll, ...props }: ServiceMapFetcherProps) => {
+export const ServiceMapFetcher = ({
+  shouldPoll: _shouldPoll,
+  ...props
+}: ServiceMapFetcherProps) => {
   const setDataAtom = useSetAtom(serverMapDataAtom);
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const serverMapCurrentTarget = useAtomValue(serverMapCurrentTargetAtom);
+  const selectedService = useAtomValue(selectedServiceAtom);
   const { application, dateRange, queryOption } = useServerMapSearchParameters();
   const experimentalOption = useExperimentals();
   const useStatisticsAgentState =
     experimentalOption[EXPERIMENTAL_CONFIG_KEYS.USE_STATISTICS_AGENT_STATE].value || true;
 
-  const { data: rawData, isLoading, error } = useGetServiceMap({
+  const {
+    data: rawData,
+    isLoading,
+    error,
+  } = useGetServiceMap({
     applicationName: application?.applicationName ?? '',
     serviceTypeName: application?.serviceType,
     from: toBasicISOString(dateRange.from),
@@ -47,6 +58,7 @@ export const ServiceMapFetcher = ({ shouldPoll: _shouldPoll, ...props }: Service
     bidirectional: !!queryOption.bidirectional,
     wasOnly: !!queryOption.wasOnly,
     useStatisticsAgentState,
+    keepServiceNames: [selectedService],
   });
 
   const data = React.useMemo(() => flattenServiceMapResponse(rawData), [rawData]);
