@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
+import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMappingProperties;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
@@ -58,9 +60,11 @@ public class MapControllerConfiguration {
     public MapController mapController(MapProperties mapProperties,
                                        MapService mapService,
                                        ApplicationValidator applicationValidator,
+                                       ServiceModelResolver serviceModelResolver,
+                                       CommonService commonService,
                                        ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapController(mapProperties, mapService, applicationValidator, maxPeriod);
+        return new MapController(mapProperties, mapService, applicationValidator, serviceModelResolver, commonService, maxPeriod);
     }
 
     @Bean
