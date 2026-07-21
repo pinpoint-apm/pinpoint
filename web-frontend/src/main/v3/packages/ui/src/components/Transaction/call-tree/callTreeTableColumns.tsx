@@ -16,7 +16,6 @@ import {
   FaExclamationTriangle,
   FaLink,
   FaListUl,
-  FaPuzzlePiece,
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { PiStackDuotone } from 'react-icons/pi';
@@ -52,9 +51,8 @@ import {
 
 export interface CallTreeTableColumnsProps {
   metaData: TransactionInfo.Response;
-  // detailType distinguishes icons on the same row: the Scope icon passes 'scope';
-  // the Attribute/SQL icons omit it (the handler infers the type from the row data).
-  onClickDetailView?: (data: TransactionInfo.CallStackKeyValueMap, detailType?: 'scope') => void;
+  // The Attribute/SQL icons trigger the detail view; the handler infers the type from the row data.
+  onClickDetailView?: (data: TransactionInfo.CallStackKeyValueMap) => void;
   mapData?: TransactionInfo.CallStackKeyValueMap[];
 }
 
@@ -332,7 +330,16 @@ export const callTreeTableColumns = ({
     accessorKey: 'simpleClassName',
     header: 'Class',
     cell: (props) => {
-      return props.getValue();
+      const rowData = props.row.original;
+      // OTel spans carry no Java class (simpleClassName empty); surface the OTel
+      // instrumentation scope ("name@version") here instead — the analogous "origin
+      // component" identity. Full value shown on hover since it can exceed the column.
+      const value = rowData.scope || (props.getValue() as string);
+      return (
+        <span className="truncate" title={value}>
+          {value}
+        </span>
+      );
     },
     meta: {
       // cellClassName: 'max-w-[30px]',
@@ -573,19 +580,6 @@ const MethodCell = (props: {
           }}
         >
           <FaListUl />
-        </Button>
-      )}
-      {rowData.scope && (
-        <Button
-          className="flex-none w-4 h-4 p-0 ml-1.5 text-xs bg-indigo-500 text-white hover:bg-indigo-600"
-          title="Scope"
-          aria-label="Scope"
-          onClick={(e) => {
-            e.stopPropagation();
-            onClickDetailView?.(rowData, 'scope');
-          }}
-        >
-          <FaPuzzlePiece />
         </Button>
       )}
     </>
