@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.config.MapProperties;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
+import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
@@ -50,6 +52,10 @@ class MapControllerTest {
     MapService mapService;
     @Mock
     ApplicationValidator applicationValidator;
+    @Mock
+    ServiceModelResolver serviceModelResolver;
+    @Mock
+    CommonService commonService;
 
     private MockMvc mockMvc;
 
@@ -60,7 +66,7 @@ class MapControllerTest {
 
         MapProperties mapProperties = new MapProperties();
         Duration duration = Duration.ofMinutes(1);
-        MapController controller = new MapController(mapProperties, mapService, applicationValidator, duration);
+        MapController controller = new MapController(mapProperties, mapService, applicationValidator, serviceModelResolver, commonService, duration);
         when(applicationValidator.newApplication(any(), anyInt(), any()))
                 .thenReturn(new Application("test", ServiceType.STAND_ALONE));
 

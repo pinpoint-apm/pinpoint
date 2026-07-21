@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
@@ -49,6 +50,11 @@ public class ApplicationValidator {
     }
 
     public Application newApplication(String applicationName, int serviceTypeCode, String serviceTypeName) {
+        return newApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+    }
+
+    public Application newApplication(Service service, String applicationName, int serviceTypeCode, String serviceTypeName) {
+        Objects.requireNonNull(service, "service");
         validateName(applicationName);
 
         ServiceType serviceType = null;
@@ -59,7 +65,7 @@ public class ApplicationValidator {
             serviceType = registry.findServiceTypeByName(serviceTypeName);
         }
         if (serviceType != null && serviceType.getCode() != undefined) {
-            return new Application(applicationName, serviceType);
+            return new Application(service, applicationName, serviceType);
         }
 
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceTypeCode or serviceTypeName");
