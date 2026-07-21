@@ -68,13 +68,17 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     public void deleteApplicationName(String applicationName) {
         List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
         for (Application application : applicationList) {
-            deleteApplication(application.getApplicationName(), application.getServiceTypeCode());
+            deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getApplicationName(), application.getServiceTypeCode());
         }
     }
 
     @Override
-    public void deleteApplication(String applicationName, int serviceTypeCode) {
-        this.applicationDao.deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
+    public void deleteApplication(Service service, String applicationName, int serviceTypeCode) {
+        deleteApplication(service.getServiceUid().getUid(), applicationName, serviceTypeCode);
+    }
+
+    private void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode) {
+        this.applicationDao.deleteApplication(serviceUid, applicationName, serviceTypeCode);
     }
 
     @Override
@@ -108,14 +112,14 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     public void deleteAgentIds(String applicationName, List<String> agentIds) {
         List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
         for (Application application : applicationList) {
-            batchDeleteAgentIds(application.getService().getServiceUid().getUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
+            deleteAgentIds(application.getService().getServiceUid().getUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
         }
     }
 
     @Override
-    public void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds) {
-        logger.info("deleteAgentIds applicationName:{}, serviceTypeCode:{}, agentIds:{}", applicationName, serviceTypeCode, agentIds);
-        batchDeleteAgentIds(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, agentIds);
+    public void deleteAgentIds(Service service, String applicationName, int serviceTypeCode, List<String> agentIds) {
+        logger.info("delete AgentIds. applicationName:{}, serviceTypeCode:{}, agentIds:{}", applicationName, serviceTypeCode, agentIds);
+        deleteAgentIds(service.getServiceUid().getUid(), applicationName, serviceTypeCode, agentIds);
     }
 
     @Override
@@ -125,11 +129,17 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     }
 
     @Override
-    public void deleteAgentId(String applicationName, int serviceTypeCode, String agentId) {
-        deleteAgentIds(applicationName, serviceTypeCode, List.of(agentId));
+    public void deleteAgentId(Service service, String applicationName, int serviceTypeCode, String agentId) {
+        logger.info("delete AgentId. applicationName:{}, serviceTypeCode:{}, agentId:{}", applicationName, serviceTypeCode, agentId);
+        deleteAgentId(service.getServiceUid().getUid(), applicationName, serviceTypeCode, agentId);
     }
 
-    private void batchDeleteAgentIds(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIds) {
+    private void deleteAgentId(int serviceUid, String applicationName, int serviceTypeCode, String agentId) {
+        List<AgentIdEntry> entries = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode, agentId);
+        batchDeleteEntries(entries);
+    }
+
+    private void deleteAgentIds(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIds) {
         List<AgentIdEntry> entries = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
         Set<String> agentIdsSet = new HashSet<>(agentIds);
         List<AgentIdEntry> targets = entries.stream()

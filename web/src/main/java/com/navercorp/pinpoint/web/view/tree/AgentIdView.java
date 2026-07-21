@@ -29,9 +29,9 @@ public final class AgentIdView {
 
     // State within the query range
     private final AgentLifeCycleState state;
-    // Current state of the agent
-    private final AgentLifeCycleState currentState;
-    private final long currentStateTimestamp;
+    // Most recently persisted state of the agent
+    private final AgentLifeCycleState lastState;
+    private final long lastStateUpdateTimestamp;
 
     public static AgentIdView of(AgentIdEntry agentIdEntry) {
         return of(agentIdEntry, null);
@@ -58,14 +58,14 @@ public final class AgentIdView {
     }
 
     public AgentIdView(Application application, String agentId, long agentStartTime, String agentName,
-                       AgentLifeCycleState state, AgentLifeCycleState currentState, long currentStateTimestamp) {
+                       AgentLifeCycleState state, AgentLifeCycleState lastState, long lastStateUpdateTimestamp) {
         this.application = application;
         this.agentId = agentId;
         this.agentStartTime = agentStartTime;
         this.agentName = StringUtils.hasText(agentName) ? agentName : agentId;
         this.state = state;
-        this.currentState = currentState;
-        this.currentStateTimestamp = currentStateTimestamp;
+        this.lastState = lastState;
+        this.lastStateUpdateTimestamp = lastStateUpdateTimestamp;
     }
 
     public String getApplicationName() {
@@ -96,12 +96,12 @@ public final class AgentIdView {
         return state;
     }
 
-    public AgentLifeCycleState getCurrentState() {
-        return currentState;
+    public AgentLifeCycleState getLastState() {
+        return lastState;
     }
 
-    public long getCurrentStateTimestamp() {
-        return currentStateTimestamp;
+    public long getLastStateUpdateTimestamp() {
+        return lastStateUpdateTimestamp;
     }
 
 }

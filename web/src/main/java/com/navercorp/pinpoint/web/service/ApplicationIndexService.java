@@ -36,7 +36,7 @@ public interface ApplicationIndexService {
     @Deprecated
     void deleteApplicationName(String applicationName);
 
-    void deleteApplication(String applicationName, int serviceTypeCode);
+    void deleteApplication(Service service, String applicationName, int serviceTypeCode);
 
     boolean isExistApplicationName(String applicationName);
 
@@ -47,10 +47,10 @@ public interface ApplicationIndexService {
     @Deprecated
     void deleteAgentIds(String applicationName, List<String> agentIds);
 
-    void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds);
+    void deleteAgentIds(Service service, String applicationName, int serviceTypeCode, List<String> agentIds);
 
     @Deprecated
     void deleteAgentId(String applicationName, String agentId);
 
-    void deleteAgentId(String applicationName, int serviceTypeCode, String agentId);
+    void deleteAgentId(Service service, String applicationName, int serviceTypeCode, String agentId);
 }

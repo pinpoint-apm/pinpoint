@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,8 @@ public class AdminServiceImplTest {
     final String APPLICATION_NAME1 = "TEST_APP1";
     final String APPLICATION_NAME2 = "TEST_APP2";
     final String APPLICATION_NAME3 = "TEST_APP3";
+
+    final int SERVICE_TYPE_CODE = ServiceType.UNDEFINED.getCode();
 
     AdminService adminService;
 
@@ -77,6 +80,30 @@ public class AdminServiceImplTest {
 
         // then
         verify(applicationIndexService).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
+    }
+
+    @Test
+    public void removeApplication() {
+        // given
+        doNothing().when(applicationIndexService).deleteApplication(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE);
+
+        // when
+        adminService.removeApplication(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE);
+
+        // then
+        verify(applicationIndexService).deleteApplication(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE);
+    }
+
+    @Test
+    public void removeAgent() {
+        // given
+        doNothing().when(applicationIndexService).deleteAgentId(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
+
+        // when
+        adminService.removeAgent(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
+
+        // then
+        verify(applicationIndexService).deleteAgentId(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
     }
 
     @Test

@@ -70,8 +70,7 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
         agentIdEntryList = filterByAgentStartTime(agentIdEntryList, range);
         agentIdEntryList = dedupeConsecutiveAgentId(agentIdEntryList);
 
-        // TODO use serviceUid to create Application
-        Application searchApplication = new Application(applicationName, serviceType);
+        Application searchApplication = new Application(service, applicationName, serviceType);
         Set<String> statisticsAgentIds = mapAgentResponseDao.selectAgentIds(searchApplication, new TimeWindow(range));
         return agentIdEntryList.stream()
                 .filter(entry -> !isInactiveCandidate(entry, range.getFrom()) || statisticsAgentIds.contains(entry.getAgentId()))
