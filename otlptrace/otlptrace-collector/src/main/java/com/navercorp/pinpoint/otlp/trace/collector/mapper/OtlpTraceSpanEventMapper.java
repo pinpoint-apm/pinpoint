@@ -129,12 +129,9 @@ public class OtlpTraceSpanEventMapper {
         } else if (isClient(span)) {
             spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes, consumedKeys));
             spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes, consumedKeys));
-            // rpc.system dispatch: grpc → GRPC, apache_dubbo → APACHE_DUBBO_CONSUMER.
-            // HTTP clients emit no rpc.system → OPENTELEMETRY_CLIENT fallback.
-            final String rpcSystem = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null);
-            if (rpcSystem != null) {
-                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM);
-            }
+            // rpc.system(.name) dispatch: grpc → GRPC, dubbo/apache_dubbo → APACHE_DUBBO_CONSUMER.
+            // HTTP clients emit no rpc system → OPENTELEMETRY_CLIENT fallback.
+            final String rpcSystem = OtlpTraceSpanMapper.getRpcSystem(attributes, consumedKeys);
             spanEventBo.setServiceType(clientTypeResolver.resolveClientServiceType(rpcSystem));
             // Envoy egress detection → identification annotations only. The ServiceType is NOT
             // overridden to ENVOY_EGRESS (see OtlpEnvoyRecorder Javadoc).

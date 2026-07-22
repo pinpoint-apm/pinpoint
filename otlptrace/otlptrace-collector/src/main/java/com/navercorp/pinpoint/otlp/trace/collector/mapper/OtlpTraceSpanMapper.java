@@ -287,17 +287,12 @@ public class OtlpTraceSpanMapper {
             spanBo.setAcceptorHost(spanBo.getEndPoint());
         }
 
-        // SERVER kind only: dispatch ServiceType via rpc.system (grpc → GRPC_SERVER,
-        // apache_dubbo → APACHE_DUBBO_PROVIDER). INTERNAL and unsupported-messaging consumer
-        // fallthrough stay on OPENTELEMETRY_SERVER. HTTP server framework cannot be derived
-        // from OTel attributes.
+        // SERVER kind only: dispatch ServiceType via rpc.system(.name) (grpc → GRPC_SERVER,
+        // dubbo / apache_dubbo → APACHE_DUBBO_PROVIDER). INTERNAL and unsupported-messaging
+        // consumer fallthrough stay on OPENTELEMETRY_SERVER. HTTP server framework cannot be
+        // derived from OTel attributes.
         final boolean isServerKind = span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE;
-        final String rpcSystem = isServerKind
-                ? AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM, null)
-                : null;
-        if (rpcSystem != null) {
-            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SYSTEM);
-        }
+        final String rpcSystem = isServerKind ? getRpcSystem(attributes, consumedKeys) : null;
         spanBo.setServiceType(serverTypeResolver.resolveServerServiceType(rpcSystem));
         // Envoy ingress detection → identification annotations only. The ServiceType is NOT
         // overridden (see OtlpEnvoyRecorder Javadoc: mixing ENVOY(1550) with
@@ -491,6 +486,23 @@ public class OtlpTraceSpanMapper {
             if (method != null) {
                 consumedKeys.add(key);
                 return method;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Resolves the RPC system (RC semconv {@code rpc.system.name} before the deprecated
+     * {@code rpc.system}) for ServiceType dispatch, or {@code null} when absent. Shared by the
+     * root-span and SpanEvent paths. Only the consumed variant is collected, so a non-consumed
+     * new/deprecated twin stays in the raw attribute list.
+     */
+    static @Nullable String getRpcSystem(Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
+        for (String key : OtlpTraceConstants.RPC_SYSTEM_KEYS) {
+            final String system = AttributeUtils.getAttributeStringValue(attributes, key, null);
+            if (system != null) {
+                consumedKeys.add(key);
+                return system;
             }
         }
         return null;

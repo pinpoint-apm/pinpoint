@@ -782,6 +782,68 @@ class OtlpTraceSpanMapperTest {
         assertThat(attributeKeys(bo)).contains("grpc.status_code");
     }
 
+    // =======================================================================
+    // map() — RC semconv rpc keys (rpc.system.name / rpc.response.status_code)
+    // =======================================================================
+
+    @Test
+    void map_server_rpcSystemName_rcKey_dispatchesServiceType() {
+        // RC semconv renamed rpc.system → rpc.system.name.
+        Span span = serverSpan(kv("rpc.system.name", strVal("grpc")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getServiceType()).isEqualTo((short) 1130); // GRPC_SERVER
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.system.name");
+    }
+
+    @Test
+    void map_server_rpcSystemName_precedesDeprecatedKey() {
+        // A dual-emitting migration SDK: the RC key wins; the non-consumed deprecated twin
+        // stays in the raw attribute list (consumedKeys rule).
+        Span span = serverSpan(
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.system", strVal("grpc")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getServiceType()).isEqualTo((short) 1130); // GRPC_SERVER
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.system.name").contains("rpc.system");
+    }
+
+    @Test
+    void map_server_grpcStatus_rcResponseStatusCode_statusName_promoted() {
+        // RC rpc.response.status_code carries the gRPC status NAME directly.
+        Span span = serverSpan(
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.response.status_code", strVal("DEADLINE_EXCEEDED")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS))
+                .isEqualTo("DEADLINE_EXCEEDED");
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.response.status_code");
+    }
+
+    @Test
+    void map_server_grpcStatus_rcResponseStatusCode_numericString_translated() {
+        // Defensive: a sender still emitting the legacy numeric shape under the RC key is
+        // translated to the name representation. The gate also accepts the deprecated
+        // rpc.system spelling.
+        Span span = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.response.status_code", strVal("14")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS))
+                .isEqualTo("UNAVAILABLE");
+    }
+
+    @Test
+    void map_server_rpcResponseStatusCode_nonGrpcSystem_notPromoted() {
+        // rpc.response.status_code is shared by all rpc systems — a jsonrpc error code must
+        // not render as a gRPC status; the raw attribute is retained.
+        Span span = serverSpan(
+                kv("rpc.system.name", strVal("jsonrpc")),
+                kv("rpc.response.status_code", strVal("-32602")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isNull();
+        assertThat(attributeKeys(bo)).contains("rpc.response.status_code");
+    }
+
     @Test
     void map_server_envoy_upstreamClusterName_consumed_filtered() {
         // The Envoy ingress branch promotes upstream_cluster.name to the upstream.cluster
