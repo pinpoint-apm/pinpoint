@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.CoroutinesConfig;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.CoroutinesConstants;
@@ -32,7 +32,7 @@ import kotlin.coroutines.CoroutineContext;
 /**
  * @author Taejin Koo
  */
-public class ResumeWithInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class ResumeWithInterceptor extends AsyncContextSpanEventBlockSimpleAroundInterceptor {
 
     private final ServiceType serviceType;
 
