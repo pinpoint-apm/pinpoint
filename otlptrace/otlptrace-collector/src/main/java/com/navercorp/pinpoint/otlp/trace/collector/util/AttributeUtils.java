@@ -10,6 +10,10 @@ public final class AttributeUtils {
     private AttributeUtils() {
     }
 
+    /**
+     * @deprecated Use {@code org.apache.commons.collections4.MapUtils#getLongValue(Map, Object, long)} instead.
+     */
+    @Deprecated
     public static long getIntValue(Map<String, Object> attributes, String key, long defaultValue) {
         final Object value = attributes.get(key);
         if (value instanceof Number) {
@@ -18,6 +22,10 @@ public final class AttributeUtils {
         return defaultValue;
     }
 
+    /**
+     * @deprecated Use {@code org.apache.commons.collections4.MapUtils#getString(Map, Object, String)} instead.
+     */
+    @Deprecated
     public static String getStringValue(Map<String, Object> attributes, String key, String defaultValue) {
         final Object value = attributes.get(key);
         if (value instanceof String) {
