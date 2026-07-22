@@ -149,6 +149,12 @@ public interface Buffer {
 
     void putBytes(byte[] v);
 
+    /**
+     * Returns the byte at the given index without moving the read position.
+     * The index is relative to the buffer's start offset: index 0 is this
+     * buffer's first byte even when it is a window over a shared array.
+     * Symmetric with {@link #setByte(int, byte)}.
+     */
     byte getByte(int index);
 
     byte readByte();
@@ -201,6 +207,10 @@ public interface Buffer {
 
     String readNullTerminatedString();
 
+    /**
+     * Writes the byte at the given index without moving the write position.
+     * The index is relative to the buffer's start offset, see {@link #getByte(int)}.
+     */
     void setByte(int offset, byte value);
 
     byte[] getBuffer();

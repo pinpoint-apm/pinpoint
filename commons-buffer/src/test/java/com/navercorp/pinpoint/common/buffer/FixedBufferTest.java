@@ -41,6 +41,38 @@ public class FixedBufferTest {
     private final Random random = new Random();
 
     @Test
+    public void testGetByte() {
+        Buffer buffer = new FixedBuffer(8);
+        buffer.putByte((byte) 10);
+        buffer.putByte((byte) 20);
+
+        // does not depend on, nor move, the current position
+        assertThat(buffer.getByte(0)).isEqualTo((byte) 10);
+        assertThat(buffer.getByte(1)).isEqualTo((byte) 20);
+        assertThat(buffer.getOffset()).isEqualTo(2);
+
+        // symmetric with setByte
+        buffer.setByte(0, (byte) 30);
+        assertThat(buffer.getByte(0)).isEqualTo((byte) 30);
+    }
+
+    @Test
+    public void testGetByte_offsetBuffer() {
+        // index 0 is the window's first byte, not the backing array's
+        byte[] backing = {99, 99, 42, 1, 2};
+        Buffer buffer = new OffsetFixedBuffer(backing, 2, 3);
+
+        assertThat(buffer.getByte(0)).isEqualTo((byte) 42);
+        assertThat(buffer.getByte(1)).isEqualTo((byte) 1);
+        // stays stable after reads
+        buffer.readByte();
+        assertThat(buffer.getByte(0)).isEqualTo((byte) 42);
+
+        buffer.setByte(0, (byte) 7);
+        assertThat(backing[2]).isEqualTo((byte) 7);
+    }
+
+    @Test
     public void testPutPrefixedBytes() {
         String test = "test";
         int endExpected = 3333;

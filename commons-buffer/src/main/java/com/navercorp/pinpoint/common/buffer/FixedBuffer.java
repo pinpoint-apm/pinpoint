@@ -304,7 +304,15 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public byte getByte(int index) {
-        return this.buffer[offset];
+        return this.buffer[absoluteIndex(index)];
+    }
+
+    /**
+     * Translates an index relative to the buffer's start offset into an
+     * absolute index of the backing array.
+     */
+    private int absoluteIndex(final int index) {
+        return getStartOffset() + index;
     }
 
     @Override
@@ -622,7 +630,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public void setByte(int offset, byte value) {
-        this.buffer[offset] = value;
+        this.buffer[absoluteIndex(offset)] = value;
     }
 
     /**
