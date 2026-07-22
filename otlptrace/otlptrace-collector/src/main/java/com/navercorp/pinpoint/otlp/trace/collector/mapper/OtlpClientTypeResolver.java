@@ -49,9 +49,11 @@ public class OtlpClientTypeResolver {
     // rpc.system value → registered ServiceType name. Names mirror the agent plugin
     // constants (GrpcConstants GRPC, ApacheDubboConstants APACHE_DUBBO_CONSUMER) and are
     // registered on the collector via SPI TraceMetadataProvider / type-provider.yml.
+    // "dubbo" is the RC rpc.system.name spelling of the deprecated "apache_dubbo".
     private static final Map<String, String> NAME_MAP = Map.of(
             OtlpTraceConstants.RPC_SYSTEM_GRPC,         "GRPC",
-            OtlpTraceConstants.RPC_SYSTEM_APACHE_DUBBO, "APACHE_DUBBO_CONSUMER");
+            OtlpTraceConstants.RPC_SYSTEM_APACHE_DUBBO, "APACHE_DUBBO_CONSUMER",
+            OtlpTraceConstants.RPC_SYSTEM_DUBBO,        "APACHE_DUBBO_CONSUMER");
 
     private static final int DEFAULT_CLIENT = ServiceType.OPENTELEMETRY_CLIENT.getCode();
 

@@ -749,6 +749,31 @@ class OtlpTraceSpanEventMapperTest {
     }
 
     @Test
+    void map_client_rpcSystemName_rcKey_dispatchesServiceType() {
+        // RC semconv: rpc.system.name replaces rpc.system, and the Dubbo value was renamed
+        // apache_dubbo → dubbo. The consumed RC key is filtered from the raw attributes.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system.name", strVal("dubbo")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getServiceType()).isEqualTo((short) 9997); // APACHE_DUBBO_CONSUMER
+        assertThat(attributeKeys(event)).doesNotContain("rpc.system.name");
+    }
+
+    @Test
+    void map_client_grpcStatus_rcResponseStatusCode_promoted() {
+        // RC rpc.response.status_code carries the status NAME; promoted only because the rpc
+        // system is grpc.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.response.status_code", strVal("UNAVAILABLE")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("UNAVAILABLE");
+        assertThat(attributeKeys(event)).doesNotContain("rpc.response.status_code");
+    }
+
+    @Test
     void map_client_http_keepsOpenTelemetryClient() {
         // Generic HTTP client (Apache HttpClient / OkHttp / java-http-client / async-http-client)
         // emits no rpc.system and no framework identifier — stays on OPENTELEMETRY_CLIENT.

@@ -30,6 +30,12 @@ class OtlpClientTypeResolverTest {
     }
 
     @Test
+    void resolve_dubbo_rcSpelling() {
+        // RC rpc.system.name renamed the value apache_dubbo → dubbo; both spellings resolve.
+        assertThat(resolver.resolveClientServiceType("dubbo")).isEqualTo(9997);
+    }
+
+    @Test
     void resolve_caseInsensitive() {
         assertThat(resolver.resolveClientServiceType("GRPC")).isEqualTo(9160);
         assertThat(resolver.resolveClientServiceType("Apache_Dubbo")).isEqualTo(9997);

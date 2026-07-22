@@ -137,16 +137,28 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_URL_PATH = "url.path";
     public static final String ATTRIBUTE_KEY_HTTP_URL = "http.url";
     public static final String ATTRIBUTE_KEY_HTTP_TARGET = "http.target";
+    // rpc.service is deprecated in the RC semconv (folded into the fully-qualified rpc.method,
+    // e.g. "com.example.ExampleService/exampleMethod") but is kept as an endPoint fallback for
+    // 1.x SDKs that still emit it.
     public static final String ATTRIBUTE_KEY_RPC_SERVICE = "rpc.service";
     public static final String ATTRIBUTE_KEY_RPC_METHOD = "rpc.method";
+    // RPC system identifier. RC semconv (Release Candidate): rpc.system.name; deprecated 1.x:
+    // rpc.system. Same consumedKeys handling as the HTTP keys: only the consumed variant is
+    // filtered from the raw attributes.
+    public static final String ATTRIBUTE_KEY_RPC_SYSTEM_NAME = "rpc.system.name";
     public static final String ATTRIBUTE_KEY_RPC_SYSTEM = "rpc.system";
-    // OTel RPC semconv enum values emitted by the OTel Java agent (verified against
-    // grpc-1.6 GrpcRpcAttributesGetter / apache-dubbo-2.7 DubboRpcAttributesGetter).
+    // OTel RPC semconv enum values. grpc is unchanged across versions; Dubbo was renamed —
+    // deprecated rpc.system used "apache_dubbo" (emitted by the OTel Java agent
+    // apache-dubbo-2.7 DubboRpcAttributesGetter), RC rpc.system.name uses "dubbo".
     public static final String RPC_SYSTEM_GRPC = "grpc";
     public static final String RPC_SYSTEM_APACHE_DUBBO = "apache_dubbo";
-    // gRPC result status code (0-16). Standard OTel RPC semconv: rpc.grpc.status_code (int);
+    public static final String RPC_SYSTEM_DUBBO = "dubbo";
+    // gRPC result status. RC semconv: rpc.response.status_code (string status NAME, e.g. "OK" /
+    // "DEADLINE_EXCEEDED"; shared by all rpc systems, so it is only interpreted as a gRPC status
+    // when rpc.system(.name) == grpc). Deprecated 1.x: rpc.grpc.status_code (int 0-16);
     // nonstandard variant grpc.status_code (numeric string) emitted by e.g. the ASP.NET Core
     // gRPC instrumentation. Promoted to the grpc.status annotation via OtlpGrpcStatusResolver.
+    public static final String ATTRIBUTE_KEY_RPC_RESPONSE_STATUS_CODE = "rpc.response.status_code";
     public static final String ATTRIBUTE_KEY_RPC_GRPC_STATUS_CODE = "rpc.grpc.status_code";
     public static final String ATTRIBUTE_KEY_GRPC_STATUS_CODE = "grpc.status_code";
     public static final String ATTRIBUTE_KEY_MESSAGING_CLIENT_ID = "messaging.client_id";
@@ -273,7 +285,14 @@ public class OtlpTraceConstants {
             List.of(ATTRIBUTE_KEY_HTTP_REQUEST_METHOD, ATTRIBUTE_KEY_HTTP_METHOD);
 
     // gRPC status resolution order: standard RPC semconv before the nonstandard variant.
+    // (The RC rpc.response.status_code is handled separately in OtlpGrpcStatusResolver — it
+    // needs the rpc-system gate, unlike these gRPC-specific keys.)
     // Same consumedKeys handling: only the consumed variant is filtered.
     public static final List<String> GRPC_STATUS_CODE_KEYS =
             List.of(ATTRIBUTE_KEY_RPC_GRPC_STATUS_CODE, ATTRIBUTE_KEY_GRPC_STATUS_CODE);
+
+    // RPC system resolution order: RC semconv (rpc.system.name) before deprecated (rpc.system).
+    // Same consumedKeys handling: only the consumed variant is filtered.
+    public static final List<String> RPC_SYSTEM_KEYS =
+            List.of(ATTRIBUTE_KEY_RPC_SYSTEM_NAME, ATTRIBUTE_KEY_RPC_SYSTEM);
 }
