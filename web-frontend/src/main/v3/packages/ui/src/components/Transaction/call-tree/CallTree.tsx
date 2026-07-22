@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { formatInTimeZone } from 'date-fns-tz';
 import { usePostBind, useTimezone } from '@pinpoint-fe/ui/src/hooks';
@@ -35,6 +36,9 @@ export interface CallTreeProps {
   data: TransactionInfo.CallStackKeyValueMap[];
   mapData: TransactionInfo.CallStackKeyValueMap[];
   metaData: TransactionInfo.Response;
+  // Optional DOM node in the tab header to portal the toolbar into, so the tabs and the
+  // toolbar share one flex-wrap row and never overlap when the panel narrows.
+  toolbarSlot?: HTMLElement | null;
 }
 
 const filterList = [
@@ -53,7 +57,7 @@ const prettyJson = (raw: string) => {
   }
 };
 
-export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
+export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps) => {
   const { t } = useTranslation();
   const [openSheet, setSheetOpen] = React.useState<boolean>(false);
   const [openDialog, setDialogOpen] = React.useState<boolean>(false);
@@ -111,7 +115,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
     [mapData, mutate],
   );
   const focusRowIdIndex = Math.max(
-    focusRowId === undefined ? 0 : filteredListIds?.indexOf(focusRowId) ?? 0,
+    focusRowId === undefined ? 0 : (filteredListIds?.indexOf(focusRowId) ?? 0),
     0,
   );
   const hasFilteredList = Boolean(filteredListIds?.length);
@@ -185,105 +189,112 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
     }
   };
 
-  return (
-    <div className="relative h-full">
-      <div className="absolute flex gap-1 rounded -top-10 right-4 h-7">
-        <CallTreeTableColumnsSetting
-          defaultColumns={defaultColumns}
-          updateColumns={updateColumns}
-        />
-        <Select value={filter} onValueChange={(value) => setFilter(value)}>
-          <SelectTrigger className="w-24 h-full text-xs">
-            <SelectValue placeholder={t('TRANSACTION_LIST.CALL_TREE_FILTER')} />
-          </SelectTrigger>
-          <SelectContent>
-            {filterList.map((filter) => (
-              <SelectItem className="text-xs" value={filter.id} key={filter.id}>
-                {filter.display}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <div className="border flex rounded pr-0.5 w-64">
-          <Input
-            className="h-full text-xs border-none shadow-none focus-visible:ring-0 placeholder:text-xs"
-            placeholder={t('TRANSACTION_LIST.CALL_TREE_FILTER_PLACEHOLDER')}
-            value={input}
-            onChange={(e) => setInput(e.currentTarget.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                if (e.shiftKey) {
-                  setFilterInput((prev) => {
-                    if (prev === input) {
-                      backToPrevSearchIndex();
-                    }
-                    return input;
-                  });
-                } else {
-                  setFilterInput((prev) => {
-                    if (prev === input) {
-                      goToNextSearchIndex();
-                    }
-                    return input;
-                  });
-                }
-              } else if (e.key === 'Escape') {
-                setInput('');
-                setFilterInput('');
+  const toolbar = (
+    <div className="flex flex-wrap items-center justify-end gap-1 gap-y-1">
+      <CallTreeTableColumnsSetting defaultColumns={defaultColumns} updateColumns={updateColumns} />
+      <Select value={filter} onValueChange={(value) => setFilter(value)}>
+        <SelectTrigger className="w-24 h-7 text-xs">
+          <SelectValue placeholder={t('TRANSACTION_LIST.CALL_TREE_FILTER')} />
+        </SelectTrigger>
+        <SelectContent>
+          {filterList.map((filter) => (
+            <SelectItem className="text-xs" value={filter.id} key={filter.id}>
+              {filter.display}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <div className="border flex rounded pr-0.5 w-64 h-7">
+        <Input
+          className="h-full text-xs border-none shadow-none focus-visible:ring-0 placeholder:text-xs"
+          placeholder={t('TRANSACTION_LIST.CALL_TREE_FILTER_PLACEHOLDER')}
+          value={input}
+          onChange={(e) => setInput(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              if (e.shiftKey) {
+                setFilterInput((prev) => {
+                  if (prev === input) {
+                    backToPrevSearchIndex();
+                  }
+                  return input;
+                });
+              } else {
+                setFilterInput((prev) => {
+                  if (prev === input) {
+                    goToNextSearchIndex();
+                  }
+                  return input;
+                });
               }
-            }}
-          />
-          <div className="flex items-center opacity-50">
-            {hasFilteredList && (
-              <>
-                <span className="whitespace-nowrap text-xxs">
-                  {focusRowIdIndex + 1} of {filteredListIds?.length}
-                </span>
-                <Button
-                  variant="ghost"
-                  className="h-full p-0.5"
-                  onClick={() => backToPrevSearchIndex()}
-                >
-                  <LuMoveUp />
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-full p-0.5"
-                  onClick={() => goToNextSearchIndex()}
-                >
-                  <LuMoveDown />
-                </Button>
-              </>
-            )}
-            <Button variant="ghost" className="h-full p-0.5" onClick={() => setFilterInput(input)}>
-              <RxMagnifyingGlass />
-            </Button>
-          </div>
+            } else if (e.key === 'Escape') {
+              setInput('');
+              setFilterInput('');
+            }
+          }}
+        />
+        <div className="flex items-center opacity-50">
+          {hasFilteredList && (
+            <>
+              <span className="whitespace-nowrap text-xxs">
+                {focusRowIdIndex + 1} of {filteredListIds?.length}
+              </span>
+              <Button
+                variant="ghost"
+                className="h-full p-0.5"
+                onClick={() => backToPrevSearchIndex()}
+              >
+                <LuMoveUp />
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-full p-0.5"
+                onClick={() => goToNextSearchIndex()}
+              >
+                <LuMoveDown />
+              </Button>
+            </>
+          )}
+          <Button variant="ghost" className="h-full p-0.5" onClick={() => setFilterInput(input)}>
+            <RxMagnifyingGlass />
+          </Button>
         </div>
       </div>
-      <CallTreeTable
-        columns={columns || defaultColumns || []}
-        data={data}
-        metaData={metaData}
-        // scrollToIndex={(row) => row.findIndex((r) => r.original.id === callTreeFocusId)}
-        focusRowIndex={Number(focusRowId) - 1}
-        filteredRowIds={filteredListIds}
-        onDoubleClickCell={(cell) => {
-          const originalData = cell.getContext().row.original;
-          const durationContent = getDurationContent(cell.column.id, originalData);
-          let content = durationContent ?? `${cell.getValue()}`;
+    </div>
+  );
 
-          if (cell.column.id === 'executionPercentage') {
-            content = `${getExecPercentage(metaData, originalData).toFixed(0)}`;
-          } else if (cell.column.id === 'begin') {
-            content = originalData.begin
-              ? `${formatInTimeZone(originalData.begin, timezone, 'HH:mm:ss SSS')} (${originalData.begin})`
-              : '';
-          }
-          setContent(content);
-          setDialogOpen(true);
-        }}
-      />
+  return (
+    <div className="relative flex flex-col h-full">
+      {toolbarSlot ? (
+        createPortal(toolbar, toolbarSlot)
+      ) : (
+        <div className="flex justify-end px-4 py-2">{toolbar}</div>
+      )}
+      <div className="flex-1 min-h-0">
+        <CallTreeTable
+          columns={columns || defaultColumns || []}
+          data={data}
+          metaData={metaData}
+          // scrollToIndex={(row) => row.findIndex((r) => r.original.id === callTreeFocusId)}
+          focusRowIndex={Number(focusRowId) - 1}
+          filteredRowIds={filteredListIds}
+          onDoubleClickCell={(cell) => {
+            const originalData = cell.getContext().row.original;
+            const durationContent = getDurationContent(cell.column.id, originalData);
+            let content = durationContent ?? `${cell.getValue()}`;
+
+            if (cell.column.id === 'executionPercentage') {
+              content = `${getExecPercentage(metaData, originalData).toFixed(0)}`;
+            } else if (cell.column.id === 'begin') {
+              content = originalData.begin
+                ? `${formatInTimeZone(originalData.begin, timezone, 'HH:mm:ss SSS')} (${originalData.begin})`
+                : '';
+            }
+            setContent(content);
+            setDialogOpen(true);
+          }}
+        />
+      </div>
       <Sheet open={openSheet} onOpenChange={setSheetOpen}>
         <SheetContent
           className="flex flex-col gap-0 w-3/5 sm:max-w-full z-[5000] px-0 py-4"
@@ -307,12 +318,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           <div className="p-4 space-y-4 overflow-auto">
             {detailType === 'attribute' ? (
               <div className="relative space-y-2">
-                <CollapsibleCodeViewer
-                  title="Attribute"
-                  code={jsonDetail}
-                  language="json"
-                  wrap
-                />
+                <CollapsibleCodeViewer title="Attribute" code={jsonDetail} language="json" wrap />
               </div>
             ) : (
               <>
@@ -381,10 +387,7 @@ const getDurationContent = (
   return undefined;
 };
 
-const formatDurationMillis = (
-  millis?: number | string | null,
-  nanos?: number | string | null,
-) => {
+const formatDurationMillis = (millis?: number | string | null, nanos?: number | string | null) => {
   if (nanos !== undefined && nanos !== null && nanos !== '') {
     const nanosValue = Number(nanos);
     if (Number.isFinite(nanosValue)) {
