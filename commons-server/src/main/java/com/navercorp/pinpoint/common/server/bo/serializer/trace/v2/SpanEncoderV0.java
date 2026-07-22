@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,13 +36,23 @@ public class SpanEncoderV0 implements SpanEncoder {
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
     private static final AttributeTranscoder attributeTranscoder = new AttributeTranscoder();
 
+    private final SpanHeaderFactory spanHeaderFactory;
+
+    public SpanEncoderV0() {
+        this(new SpanHeaderFactory(false));
+    }
+
+    public SpanEncoderV0(SpanHeaderFactory spanHeaderFactory) {
+        this.spanHeaderFactory = Objects.requireNonNull(spanHeaderFactory, "spanHeaderFactory");
+    }
+
     @Override
     public ByteBuffer encodeSpanQualifier(SpanEncodingContext<SpanBo> encodingContext) {
         final SpanBo spanBo = encodingContext.getValue();
         final List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
         final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
 
-        final SpanHeader header = SpanHeader.span(spanBo.getTraceSourceType());
+        final SpanHeader header = spanHeaderFactory.span(spanBo.getTraceSourceType());
         return encodeQualifier(header, spanBo, firstEvent, null);
     }
 
@@ -53,7 +64,7 @@ public class SpanEncoderV0 implements SpanEncoder {
         final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
 
         LocalAsyncIdBo localAsyncId = spanChunkBo.getLocalAsyncId();
-        final SpanHeader header = SpanHeader.spanChunk(spanChunkBo.getTraceSourceType());
+        final SpanHeader header = spanHeaderFactory.spanChunk(spanChunkBo.getTraceSourceType());
         return encodeQualifier(header, spanChunkBo, firstEvent, localAsyncId);
     }
 
@@ -61,6 +72,9 @@ public class SpanEncoderV0 implements SpanEncoder {
         final SpanOwner owner = basicSpan.getSpanOwner();
         final Buffer buffer = new AutomaticBuffer(128);
         buffer.putByte(header.getCode());
+        if (header.hasServiceUid()) {
+            buffer.putSVInt(owner.getServiceUid().getUid());
+        }
         buffer.putPrefixedString(owner.getApplicationName());
         buffer.putPrefixedString(owner.getAgentId());
         buffer.putVLong(owner.getAgentStartTime());

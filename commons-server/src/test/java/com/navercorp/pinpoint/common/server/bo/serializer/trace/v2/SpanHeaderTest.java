@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
-import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,18 +40,28 @@ class SpanHeaderTest {
     }
 
     @Test
-    void span_factory() {
-        assertThat(SpanHeader.span(TraceSourceType.PINPOINT)).isSameAs(SpanHeader.SPAN);
-        assertThat(SpanHeader.span(TraceSourceType.OPENTELEMETRY)).isSameAs(SpanHeader.OTEL_SPAN);
-        assertThat(SpanHeader.spanChunk(TraceSourceType.PINPOINT)).isSameAs(SpanHeader.SPAN_CHUNK);
-        assertThat(SpanHeader.spanChunk(TraceSourceType.OPENTELEMETRY)).isSameAs(SpanHeader.OTEL_SPAN_CHUNK);
-    }
-
-    @Test
     void spanChunk_discriminator() {
         assertThat(SpanHeader.SPAN.isSpanChunk()).isFalse();
         assertThat(SpanHeader.OTEL_SPAN.isSpanChunk()).isFalse();
         assertThat(SpanHeader.SPAN_CHUNK.isSpanChunk()).isTrue();
         assertThat(SpanHeader.OTEL_SPAN_CHUNK.isSpanChunk()).isTrue();
+
+        assertThat(SpanHeader.SPAN_UID.isSpanChunk()).isFalse();
+        assertThat(SpanHeader.OTEL_SPAN_UID.isSpanChunk()).isFalse();
+        assertThat(SpanHeader.SPAN_CHUNK_UID.isSpanChunk()).isTrue();
+        assertThat(SpanHeader.OTEL_SPAN_CHUNK_UID.isSpanChunk()).isTrue();
+    }
+
+    @Test
+    void serviceUid_discriminator() {
+        assertThat(SpanHeader.SPAN.hasServiceUid()).isFalse();
+        assertThat(SpanHeader.SPAN_CHUNK.hasServiceUid()).isFalse();
+        assertThat(SpanHeader.OTEL_SPAN.hasServiceUid()).isFalse();
+        assertThat(SpanHeader.OTEL_SPAN_CHUNK.hasServiceUid()).isFalse();
+
+        assertThat(SpanHeader.SPAN_UID.hasServiceUid()).isTrue();
+        assertThat(SpanHeader.SPAN_CHUNK_UID.hasServiceUid()).isTrue();
+        assertThat(SpanHeader.OTEL_SPAN_UID.hasServiceUid()).isTrue();
+        assertThat(SpanHeader.OTEL_SPAN_CHUNK_UID.hasServiceUid()).isTrue();
     }
 }

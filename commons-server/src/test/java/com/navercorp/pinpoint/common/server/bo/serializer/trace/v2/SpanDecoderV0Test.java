@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.junit.jupiter.api.Test;
 
@@ -79,6 +80,44 @@ class SpanDecoderV0Test {
     }
 
     @Test
+    void decode_typeSpanUid_roundTripsServiceUid() {
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+        ServiceUid serviceUid = ServiceUid.of(100);
+
+        SpanBo input = newMinimalSpan(TraceSourceType.PINPOINT);
+        input.getSpanOwner().setServiceUid(() -> serviceUid);
+        BasicSpan decoded = roundTripSpan(uidEncoder, input);
+
+        assertThat(decoded).isInstanceOf(SpanBo.class);
+        assertThat(decoded.getTraceSourceType()).isEqualTo(TraceSourceType.PINPOINT);
+        assertThat(decoded.getServiceUid()).isEqualTo(serviceUid);
+    }
+
+    @Test
+    void decode_typeOtelSpanChunkUid_roundTripsServiceUid() {
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+        ServiceUid serviceUid = ServiceUid.of(-100);
+
+        SpanChunkBo input = newMinimalSpanChunk(TraceSourceType.OPENTELEMETRY);
+        input.getSpanOwner().setServiceUid(() -> serviceUid);
+        BasicSpan decoded = roundTripSpanChunk(uidEncoder, input);
+
+        assertThat(decoded).isInstanceOf(SpanChunkBo.class);
+        assertThat(decoded.getTraceSourceType()).isEqualTo(TraceSourceType.OPENTELEMETRY);
+        assertThat(decoded.getServiceUid()).isEqualTo(serviceUid);
+    }
+
+    @Test
+    void decode_serviceUidDisabled_keepsDefaultServiceUid() {
+        SpanBo input = newMinimalSpan(TraceSourceType.PINPOINT);
+        input.getSpanOwner().setServiceUid(() -> ServiceUid.of(100));
+        BasicSpan decoded = roundTripSpan(input);
+
+        // the plain SPAN qualifier does not carry a serviceUid
+        assertThat(decoded.getServiceUid()).isEqualTo(ServiceUid.DEFAULT);
+    }
+
+    @Test
     void decode_unknownType_returnsNull() {
         Buffer qualifier = new FixedBuffer(1);
         qualifier.putByte((byte) 99);
@@ -119,6 +158,10 @@ class SpanDecoderV0Test {
     }
 
     private BasicSpan roundTripSpan(SpanBo input) {
+        return roundTripSpan(encoder, input);
+    }
+
+    private BasicSpan roundTripSpan(SpanEncoderV0 encoder, SpanBo input) {
         SpanEncodingContext<SpanBo> encCtx = new SpanEncodingContext<>(input);
         Buffer qualifier = wrap(encoder.encodeSpanQualifier(encCtx));
         Buffer value = wrap(encoder.encodeSpanColumnValue(encCtx));
@@ -129,6 +172,10 @@ class SpanDecoderV0Test {
     }
 
     private BasicSpan roundTripSpanChunk(SpanChunkBo input) {
+        return roundTripSpanChunk(encoder, input);
+    }
+
+    private BasicSpan roundTripSpanChunk(SpanEncoderV0 encoder, SpanChunkBo input) {
         SpanEncodingContext<SpanChunkBo> encCtx = new SpanEncodingContext<>(input);
         Buffer qualifier = wrap(encoder.encodeSpanChunkQualifier(encCtx));
         Buffer value = wrap(encoder.encodeSpanChunkColumnValue(encCtx));
