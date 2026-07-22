@@ -65,10 +65,12 @@ public class OtlpTraceMapper {
     private final OtlpAgentInfoMapper agentInfoMapper;
     private final OtlpExceptionMapper exceptionMapper;
     private final OtlpExceptionInfoResolver exceptionInfoResolver;
+    private final OtlpAgentStartTimeResolver agentStartTimeResolver;
     private final boolean allowApplicationNameFallback;
 
     public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpExceptionMapper exceptionMapper,
                            OtlpExceptionInfoResolver exceptionInfoResolver,
+                           OtlpAgentStartTimeResolver agentStartTimeResolver,
                            @Value("${pinpoint.collector.otlptrace.application-name-fallback.enabled:false}") boolean allowApplicationNameFallback) {
         this.spanMapper = spanMapper;
         this.spanEventMapper = spanEventMapper;
@@ -76,6 +78,7 @@ public class OtlpTraceMapper {
         this.agentInfoMapper = agentInfoMapper;
         this.exceptionMapper = exceptionMapper;
         this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
+        this.agentStartTimeResolver = Objects.requireNonNull(agentStartTimeResolver, "agentStartTimeResolver");
         this.allowApplicationNameFallback = allowApplicationNameFallback;
     }
 
@@ -92,6 +95,9 @@ public class OtlpTraceMapper {
                 // skip
                 continue;
             }
+            // Stateless, per-ResourceSpans: UNSET(-1) when process.creation.time is absent/unusable,
+            // in which case the span mapper keeps the span-start-time approximation.
+            final long agentStartTime = agentStartTimeResolver.resolve(resourceAttributeMap);
 
             final List<ScopeSpans> scopeSpanList = resourceSpan.getScopeSpansList();
             final Map<ByteString, List<ScopedSpan>> spanMap = getSpanMap(scopeSpanList, mapperData.getRejectedSpan());
@@ -113,7 +119,7 @@ public class OtlpTraceMapper {
                         final String rootUriTemplate = spanMapper.getServerSpanToRpc(rootSpan, rootAttributes);
                         final long rootSpanId = OtlpTraceMapperUtils.getSpanId(rootSpan.getSpanId());
 
-                        final SpanBo spanBo = spanMapper.map(idAndName, rootSpan, rootScopedSpan.scope());
+                        final SpanBo spanBo = spanMapper.map(idAndName, rootSpan, rootScopedSpan.scope(), agentStartTime);
 
                         // root span's own exception
                         recordException(mapperData, idAndName, rootSpan, rootSpanId, rootUriTemplate);

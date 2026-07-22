@@ -76,6 +76,10 @@ public class OtlpTraceSpanMapper {
     }
 
     SpanBo map(IdAndName idAndName, Span span, InstrumentationScope scope) {
+        return map(idAndName, span, scope, OtlpAgentStartTimeResolver.UNSET);
+    }
+
+    SpanBo map(IdAndName idAndName, Span span, InstrumentationScope scope, long agentStartTimeMillis) {
         final long startTimeNanos = span.getStartTimeUnixNano();
 
         final SpanOwner owner = new SpanOwner();
@@ -85,7 +89,12 @@ public class OtlpTraceSpanMapper {
         }
         owner.setApplicationName(idAndName.applicationName());
         owner.setServiceName(idAndName.serviceName());
-        owner.setAgentStartTime(TimeUnit.NANOSECONDS.toMillis(startTimeNanos));
+        // process.creation.time (resource) when provided — the actual process session start,
+        // matching the native agent's RuntimeMXBean.getStartTime(). Otherwise the span start
+        // time remains the per-span approximation for exporters that don't report it.
+        owner.setAgentStartTime(agentStartTimeMillis != OtlpAgentStartTimeResolver.UNSET
+                ? agentStartTimeMillis
+                : TimeUnit.NANOSECONDS.toMillis(startTimeNanos));
 
         SpanBo spanBo = new SpanBo(TraceSourceType.OPENTELEMETRY, owner);
         // Application-level type is always the generic OTel server type. The span-level
