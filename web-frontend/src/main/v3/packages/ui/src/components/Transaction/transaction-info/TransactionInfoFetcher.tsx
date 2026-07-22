@@ -14,7 +14,6 @@ import {
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { RxExternalLink } from 'react-icons/rx';
 import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/ui/src/atoms';
-import { cn } from '../../../lib';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui';
 import { Timeline } from '../timeline/Timeline';
 import { ServerIcon } from '../../Application/ServerIcon';
@@ -36,6 +35,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
   const { data, tableData, mapData } = useGetTransactionInfo();
   const setTransactionInfo = useSetAtom(transactionInfoDatasAtom);
   const [currentTab, setCurrentTab] = useAtom(transactionInfoCurrentTabId);
+  const [toolbarSlot, setToolbarSlot] = React.useState<HTMLDivElement | null>(null);
   const { t } = useTranslation();
 
   React.useEffect(() => {
@@ -70,10 +70,10 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
   return (
     <Tabs
       value={currentTab || tabList[0].id}
-      className="h-full"
+      className="flex flex-col h-full"
       onValueChange={(id) => setCurrentTab(id)}
     >
-      <div className="p-3 border-b">
+      <div className="flex-none p-3 border-b">
         {!disableHeader && (
           <div className="flex items-center gap-1 pb-2 text-sm font-semibold truncate">
             <ServerIcon application={application!} className="w-3.5 mr-1" />
@@ -105,7 +105,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
           </div>
         )}
 
-        <div className="flex items-center">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
           <TabsList>
             {tabList.map((tab) => (
               <TabsTrigger className="text-xs" key={tab.id} value={tab.id}>
@@ -137,12 +137,23 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
               dangerouslySetInnerHTML={{ __html: data.disableButtonMessage }}
             ></PopoverContent>
           </Popover>
+
+          {/* Toolbar slot: CallTree portals its column/filter controls here so the tabs and the
+              toolbar share one flex-wrap row and wrap instead of overlapping when space is tight. */}
+          <div ref={setToolbarSlot} className="flex items-center ml-auto" />
         </div>
       </div>
       {tabList.map((tab) => {
         let Content;
         if (tab.id === 'callTree') {
-          Content = <CallTree data={tableData} metaData={data} mapData={mapData || []} />;
+          Content = (
+            <CallTree
+              data={tableData}
+              metaData={data}
+              mapData={mapData || []}
+              toolbarSlot={toolbarSlot}
+            />
+          );
         } else if (tab.id === 'serverMap' && data) {
           Content = <TraceServerMap />;
         } else if (tab.id === 'flameGraph') {
@@ -152,12 +163,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
           <TabsContent
             key={tab.id}
             value={tab.id}
-            className={cn(
-              'mt-0 h-[calc(100%-6.25rem)] focus-visible:ring-0 focus-visible:ring-offset-0',
-              {
-                'h-[calc(100%-3.75rem)]': disableHeader,
-              },
-            )}
+            className="mt-0 flex-1 min-h-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           >
             {Content}
           </TabsContent>
