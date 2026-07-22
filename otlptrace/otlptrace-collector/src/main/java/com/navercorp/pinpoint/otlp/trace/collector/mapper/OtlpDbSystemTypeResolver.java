@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -106,7 +107,9 @@ public class OtlpDbSystemTypeResolver {
         if (dbSystem == null) {
             return DEFAULT_BASE;
         }
-        short[] codes = codeMap.get(dbSystem);
+        // Case-insensitive like the sibling resolvers (client/server/messaging); the semconv
+        // values are lowercase, but a non-conformant SDK sending "MySQL" must not fall to UNKNOWN_DB.
+        short[] codes = codeMap.get(dbSystem.toLowerCase(Locale.ROOT));
         return codes != null ? codes[0] : DEFAULT_BASE;
     }
 
@@ -114,7 +117,7 @@ public class OtlpDbSystemTypeResolver {
         if (dbSystem == null) {
             return DEFAULT_EXECUTE_QUERY;
         }
-        short[] codes = codeMap.get(dbSystem);
+        short[] codes = codeMap.get(dbSystem.toLowerCase(Locale.ROOT));
         return codes != null ? codes[1] : DEFAULT_EXECUTE_QUERY;
     }
 }

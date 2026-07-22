@@ -16,8 +16,10 @@ public final class AttributeUtils {
     @Deprecated
     public static long getIntValue(Map<String, Object> attributes, String key, long defaultValue) {
         final Object value = attributes.get(key);
-        if (value instanceof Number) {
-            return (long) value;
+        // (long) value would be a Long unboxing cast and throw ClassCastException for any
+        // other Number subtype (e.g. a DOUBLE_VALUE attribute mapped to Double).
+        if (value instanceof Number number) {
+            return number.longValue();
         }
         return defaultValue;
     }

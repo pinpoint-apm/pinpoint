@@ -72,4 +72,21 @@ class AttributeUtilsTest {
         assertThat(AttributeUtils.getIntValue(attrs, "port", 0L)).isEqualTo(8080L);
     }
 
+    @Test
+    void getIntValue_map_integerValue() {
+        // Regression: (long) value on an Object is a Long unboxing cast and threw
+        // ClassCastException for any other Number subtype.
+        Map<String, Object> attrs = Map.of("port", 8080);
+
+        assertThat(AttributeUtils.getIntValue(attrs, "port", 0L)).isEqualTo(8080L);
+    }
+
+    @Test
+    void getIntValue_map_doubleValue_truncatesToLong() {
+        // A DOUBLE_VALUE attribute reaches this path as a Double.
+        Map<String, Object> attrs = Map.of("port", 8080.0d);
+
+        assertThat(AttributeUtils.getIntValue(attrs, "port", 0L)).isEqualTo(8080L);
+    }
+
 }

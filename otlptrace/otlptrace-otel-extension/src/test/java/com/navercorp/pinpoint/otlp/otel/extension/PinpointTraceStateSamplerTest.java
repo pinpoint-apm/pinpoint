@@ -20,12 +20,14 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.sdk.trace.data.LinkData;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
 import io.opentelemetry.sdk.trace.samplers.SamplingDecision;
 import io.opentelemetry.sdk.trace.samplers.SamplingResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -85,6 +87,47 @@ class PinpointTraceStateSamplerTest {
 
         // pp= is added; dd / nr remain readable.
         assertThat(updated.get("pp")).isEqualTo("svc:my-svc;app:my-app;type:1010");
+    }
+
+    @Test
+    void shouldSample_preservesDelegateTraceStateUpdates() {
+        // Regression: the pp entry was layered on the *parent* trace state, silently
+        // discarding entries the delegate itself wrote (e.g. a consistent-probability
+        // sampler recording its ot=th:... threshold).
+        Sampler otWritingDelegate = new Sampler() {
+            @Override
+            public SamplingResult shouldSample(Context parentContext, String traceId, String name,
+                                               SpanKind spanKind, Attributes attributes,
+                                               List<LinkData> parentLinks) {
+                return new SamplingResult() {
+                    @Override
+                    public SamplingDecision getDecision() {
+                        return SamplingDecision.RECORD_AND_SAMPLE;
+                    }
+
+                    @Override
+                    public Attributes getAttributes() {
+                        return Attributes.empty();
+                    }
+
+                    @Override
+                    public TraceState getUpdatedTraceState(TraceState parentTraceState) {
+                        return parentTraceState.toBuilder().put("ot", "th:8").build();
+                    }
+                };
+            }
+
+            @Override
+            public String getDescription() {
+                return "OtWritingSampler";
+            }
+        };
+        Sampler sampler = new PinpointTraceStateSampler(otWritingDelegate, "my-svc", "my-app", null);
+
+        TraceState updated = invoke(sampler).getUpdatedTraceState(TraceState.getDefault());
+
+        assertThat(updated.get("ot")).isEqualTo("th:8");
+        assertThat(updated.get("pp")).isEqualTo("svc:my-svc;app:my-app");
     }
 
     @Test
