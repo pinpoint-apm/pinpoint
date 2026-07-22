@@ -69,11 +69,15 @@ public final class PinpointTraceStateSampler implements Sampler {
         final SamplingResult delegateResult = delegate.shouldSample(
                 parentContext, traceId, name, spanKind, attributes, parentLinks);
         final TraceState parentTs = Span.fromContext(parentContext).getSpanContext().getTraceState();
-        final TraceState updated = withPinpointEntry(parentTs);
+        // Layer the pp entry on the delegate's updated trace state, not the parent's — a
+        // delegate that writes its own entries (e.g. a consistent-probability sampler's
+        // ot=th:... threshold) must not have them silently discarded here.
+        final TraceState delegateTs = delegateResult.getUpdatedTraceState(parentTs);
+        final TraceState updated = withPinpointEntry(delegateTs);
 
-        // If the trace state is unchanged (already had the same value), avoid allocating
-        // a wrapper SamplingResult.
-        if (updated.equals(parentTs) && updated.equals(delegateResult.getUpdatedTraceState(parentTs))) {
+        // If the delegate's trace state already carries the identical pp entry, avoid
+        // allocating a wrapper SamplingResult.
+        if (updated.equals(delegateTs)) {
             return delegateResult;
         }
 

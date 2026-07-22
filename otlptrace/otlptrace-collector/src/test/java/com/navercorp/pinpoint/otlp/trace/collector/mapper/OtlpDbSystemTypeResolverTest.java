@@ -142,6 +142,20 @@ class OtlpDbSystemTypeResolverTest {
     }
 
     // =======================================================================
+    // case-insensitivity (parity with the client/server/messaging resolvers)
+    // =======================================================================
+
+    @Test
+    void resolveCodes_caseInsensitive() {
+        // semconv values are lowercase, but a non-conformant SDK sending mixed case
+        // must not silently fall back to UNKNOWN_DB.
+        assertThat(resolver.resolveBaseCode("MySQL")).isEqualTo((short) 2100);
+        assertThat(resolver.resolveBaseCode("REDIS")).isEqualTo((short) 8200);
+        assertThat(resolver.resolveExecuteQueryCode("PostgreSQL")).isEqualTo((short) 2501);
+        assertThat(resolver.resolveExecuteQueryCode("Oracle.DB")).isEqualTo((short) 2301);
+    }
+
+    // =======================================================================
     // null / unknown → UNKNOWN_DB fallback
     // =======================================================================
 
