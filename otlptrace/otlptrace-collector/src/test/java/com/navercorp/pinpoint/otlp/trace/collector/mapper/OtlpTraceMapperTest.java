@@ -112,7 +112,7 @@ class OtlpTraceMapperTest {
         OtlpTraceSpanChunkMapper spanChunkMapper = new OtlpTraceSpanChunkMapper(spanEventMapper);
         return new OtlpTraceMapper(spanMapper, spanEventMapper, spanChunkMapper,
                 new OtlpAgentInfoMapper(), new OtlpExceptionMapper(8192, 256, 2048, new SimpleMeterRegistry()),
-                exceptionInfoResolver, false);
+                exceptionInfoResolver, new OtlpAgentStartTimeResolver(new SimpleMeterRegistry()), false);
     }
 
     private static Span.Event exceptionEvent(String type) {
@@ -489,5 +489,67 @@ class OtlpTraceMapperTest {
         assertThat(data.getSpanBoList()).hasSize(1);
         assertThat(data.getSpanBoList().get(0).getSpanEventBoList()).isEmpty();
         assertThat(data.getRejectedSpan().count()).isEqualTo(1);
+    }
+
+    // =======================================================================
+    // agentStartTime — process.creation.time resource attribute
+    // =======================================================================
+
+    private static List<ResourceSpans> resourceSpansWithCreationTime(String creationTime, Span... spans) {
+        Resource resource = Resource.newBuilder()
+                .addAttributes(kv("pinpoint.applicationName", strVal("app-1")))
+                .addAttributes(kv("pinpoint.agentId", strVal("agent-1")))
+                .addAttributes(kv("process.creation.time", strVal(creationTime)))
+                .build();
+        ScopeSpans.Builder scope = ScopeSpans.newBuilder();
+        for (Span span : spans) {
+            scope.addSpans(span);
+        }
+        return List.of(ResourceSpans.newBuilder()
+                .setResource(resource)
+                .addScopeSpans(scope)
+                .build());
+    }
+
+    @Test
+    void agentStartTime_fromProcessCreationTime() {
+        // 2026-07-01T00:00:00Z = 1782864000000 epoch millis
+        Span rootA = serverRoot(ROOT_A, "/api/orders", false);
+        Span rootB = serverRoot(ROOT_B, "/api/items", false);
+
+        OtlpTraceMapperData data = newMapper().map(
+                resourceSpansWithCreationTime("2026-07-01T00:00:00Z", rootA, rootB));
+
+        assertThat(data.getSpanBoList()).hasSize(2);
+        // every root span of the ResourceSpans carries the same process session time
+        for (SpanBo spanBo : data.getSpanBoList()) {
+            assertThat(spanBo.getSpanOwner().getAgentStartTime()).isEqualTo(1782864000000L);
+        }
+        // AgentInfoBo (AGENTINFO rowkey) uses the same value
+        assertThat(data.getAgentInfoBoList()).isNotEmpty();
+        assertThat(data.getAgentInfoBoList().get(0).getStartTime()).isEqualTo(1782864000000L);
+    }
+
+    @Test
+    void agentStartTime_absentCreationTime_keepsSpanStartTime() {
+        // regression: without process.creation.time the pre-existing approximation
+        // (span start time) must remain unchanged. serverRoot starts at 1_000_000_000ns = 1000ms.
+        Span root = serverRoot(ROOT_A, "/api/orders", false);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getSpanBoList().get(0).getSpanOwner().getAgentStartTime()).isEqualTo(1000L);
+    }
+
+    @Test
+    void agentStartTime_invalidCreationTime_fallsBackToSpanStartTime() {
+        Span root = serverRoot(ROOT_A, "/api/orders", false);
+
+        OtlpTraceMapperData data = newMapper().map(
+                resourceSpansWithCreationTime("not-a-timestamp", root));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getSpanBoList().get(0).getSpanOwner().getAgentStartTime()).isEqualTo(1000L);
     }
 }

@@ -195,6 +195,11 @@ public class OtlpTraceConstants {
 
     public static final String ATTRIBUTE_KEY_HOST_NAME = "host.name";
     public static final String ATTRIBUTE_KEY_PROCESS_PID = "process.pid";
+    // Process start timestamp (ISO 8601 string, semconv Development stage). When present, promoted
+    // to the agentStartTime session field — the OTel counterpart of the native agent's
+    // RuntimeMXBean.getStartTime(). Absent by default in SDK resource detectors; set via
+    // OTEL_RESOURCE_ATTRIBUTES when session semantics are needed.
+    public static final String ATTRIBUTE_KEY_PROCESS_CREATION_TIME = "process.creation.time";
     public static final String ATTRIBUTE_KEY_PROCESS_RUNTIME_DESCRIPTION = "process.runtime.description";
     public static final String ATTRIBUTE_KEY_TELEMETRY_SDK_VERSION = "telemetry.sdk.version";
 
