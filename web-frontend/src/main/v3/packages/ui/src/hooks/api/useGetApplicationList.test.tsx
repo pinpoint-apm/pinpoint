@@ -1,7 +1,9 @@
 import React from 'react';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { getDefaultStore } from 'jotai';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import { selectedServiceAtom, DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms/selectedService';
 
 // useGetApplicationList reads the module-level queryClient (from reactQueryHelper,
 // which transitively imports the ECharts ESM stack) only for the 304 cache lookup.
@@ -33,6 +35,7 @@ describe('useGetApplicationList', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
     mockGetQueryData.mockReset();
+    getDefaultStore().set(selectedServiceAtom, DEFAULT_SERVICE);
   });
 
   afterEach(() => {
@@ -96,5 +99,22 @@ describe('useGetApplicationList', () => {
     });
 
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test('refetches the list when the selected service changes', async () => {
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce(okResponse([{ applicationName: 'A' }], 'etag-a'))
+      .mockResolvedValueOnce(okResponse([{ applicationName: 'B' }], 'etag-b'));
+
+    const { result } = renderHook(() => useGetApplicationList(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual([{ applicationName: 'A' }]);
+
+    act(() => {
+      getDefaultStore().set(selectedServiceAtom, 'service-b');
+    });
+
+    await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.length).toBe(2));
+    await waitFor(() => expect(result.current.data).toEqual([{ applicationName: 'B' }]));
   });
 });

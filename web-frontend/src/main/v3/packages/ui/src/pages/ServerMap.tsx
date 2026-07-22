@@ -86,13 +86,11 @@ export const ServerMapPage = ({
         serverMapCurrentTarget &&
         ((serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[]).some(
           (node) =>
-            node.key === serverMapCurrentTarget.id ||
-            node.nodeKey === serverMapCurrentTarget.id,
+            node.key === serverMapCurrentTarget.id || node.nodeKey === serverMapCurrentTarget.id,
         ) ||
           (serverMapData.applicationMapData.linkDataArray as GetServerMap.LinkData[]).some(
             (link) =>
-              link.key === serverMapCurrentTarget.id ||
-              link.linkKey === serverMapCurrentTarget.id,
+              link.key === serverMapCurrentTarget.id || link.linkKey === serverMapCurrentTarget.id,
           ));
 
       if (isTargetIncluded || serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges) {

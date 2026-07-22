@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
+  useClearApplicationOnServiceChange,
   useExperimentals,
   useGetConfiguration,
   useInvalidateQueriesOnServiceChange,
@@ -26,6 +27,7 @@ export const InitialFetchOutlet = () => {
   useExperimentals(data);
   useServicesFetch(configuration);
   useInvalidateQueriesOnServiceChange(enableServiceMap);
+  useClearApplicationOnServiceChange(enableServiceMap);
 
   React.useEffect(() => {
     if (application && searchParameters) {
