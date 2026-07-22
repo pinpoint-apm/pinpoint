@@ -24,7 +24,9 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,9 +36,11 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -80,12 +84,18 @@ class ResumeWithInterceptorTest {
     }
 
     @Test
-    void closesTraceBlockCreatedBeforeResumeWhenCurrentAsyncTraceIsUnavailable() {
-        BlockAroundInterceptor interceptor = assertInstanceOf(
-                BlockAroundInterceptor.class, new ResumeWithInterceptor(traceContext, methodDescriptor));
+    void closesStartedTraceBlockAfterNestedReactorCallbackClearsCurrentTrace() {
+        AtomicReference<Trace> currentTrace = new AtomicReference<>(trace);
+        lenient().when(asyncContext.currentAsyncTraceObject()).thenAnswer(invocation -> currentTrace.get());
+        lenient().when(trace.traceBlockBegin()).thenReturn(traceBlock);
 
-        TraceBlock block = interceptor.before(continuation, null);
-        interceptor.after(block, continuation, null, null, null);
+        // Keep the pre-fix AroundInterceptor path executable so this test fails on behavior.
+        Interceptor interceptor = new ResumeWithInterceptor(traceContext, methodDescriptor);
+        TraceBlock block = beforeResume(interceptor);
+
+        // Simulate a nested Reactor callback clearing the current async trace between interceptor hooks.
+        currentTrace.set(null);
+        afterResume(interceptor, block);
 
         assertSame(traceBlock, block);
         verify(asyncContext, never()).currentAsyncTraceObject();
@@ -96,5 +106,23 @@ class ResumeWithInterceptorTest {
         inOrder.verify(traceBlock).begin();
         inOrder.verify(traceScope).leave();
         inOrder.verify(traceBlock).close();
+    }
+
+    private TraceBlock beforeResume(Interceptor interceptor) {
+        if (interceptor instanceof BlockAroundInterceptor) {
+            return ((BlockAroundInterceptor) interceptor).before(continuation, null);
+        }
+
+        ((AroundInterceptor) interceptor).before(continuation, null);
+        return traceBlock;
+    }
+
+    private void afterResume(Interceptor interceptor, TraceBlock block) {
+        if (interceptor instanceof BlockAroundInterceptor) {
+            ((BlockAroundInterceptor) interceptor).after(block, continuation, null, null, null);
+            return;
+        }
+
+        ((AroundInterceptor) interceptor).after(continuation, null, null, null);
     }
 }
