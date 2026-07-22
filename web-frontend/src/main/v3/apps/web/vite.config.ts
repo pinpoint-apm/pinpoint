@@ -48,7 +48,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
-          charts: ['echarts', 'recharts'],
+          charts: ['echarts'],
           graph: ['cytoscape'],
         },
       },
