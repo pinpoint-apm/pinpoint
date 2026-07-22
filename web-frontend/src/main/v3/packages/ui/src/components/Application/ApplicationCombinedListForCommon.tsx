@@ -37,8 +37,28 @@ export const ApplicationCombinedListForCommon = ({
   selectedApplication,
   onClickApplication,
 }: ApplicationCombinedListForCommonProps) => {
-  const [isOpen, setIsOpen] = React.useState(open);
+  const [isOpen, setIsOpen] = React.useState(!!open);
   const popoverContentRef = React.useRef<HTMLDivElement>(null);
+  // 자동 열림 직후, 다른 Radix 레이어의 dismiss가 팝오버를 곧바로 닫지 못하게 막는 창(window).
+  const suppressDismissRef = React.useRef(false);
+
+  // `open`은 최초 마운트 시 초기값으로만 쓰이므로, 이후 prop 변화를 isOpen에 반영한다.
+  // (예: 서비스 변경으로 application이 비워져 open이 true가 될 때 자동으로 열려야 한다.)
+  // 이때 서비스 선택 DropdownMenu가 닫히며 포커스를 트리거로 되돌리는데(onCloseAutoFocus),
+  // 그 focus-outside가 방금 연 팝오버를 곧바로 닫아버린다. 팝오버는 즉시 열되, 짧은 시간 동안
+  // outside-dismiss(아래 onInteractOutside)를 무시해 "열리자마자 닫히는" 현상을 막는다.
+  React.useEffect(() => {
+    if (!open) {
+      setIsOpen(false);
+      return;
+    }
+    suppressDismissRef.current = true;
+    setIsOpen(true);
+    const timer = setTimeout(() => {
+      suppressDismissRef.current = false;
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [open]);
 
   const [filterKeyword, setFilterKeyword] = React.useState('');
   const prevFilterKeywordRef = React.useRef(filterKeyword);
@@ -272,6 +292,11 @@ export const ApplicationCombinedListForCommon = ({
         onKeyDown={handleKeyDown}
         onMouseMove={() => {
           setIsMouseMove(true);
+        }}
+        onInteractOutside={(e) => {
+          // 자동 열림 직후, 서비스 DropdownMenu가 닫히며 발생하는 focus/pointer outside가
+          // 팝오버를 곧바로 닫지 않도록 무시한다. 창이 지난 뒤엔 정상적으로 바깥 클릭 시 닫힌다.
+          if (suppressDismissRef.current) e.preventDefault();
         }}
         ref={popoverContentRef}
       >
