@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
+import com.navercorp.pinpoint.web.scatter.DragArea;
+import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
@@ -102,6 +104,20 @@ public class HbaseTraceIndexDaoTest {
         result = this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 5);
         Assertions.assertEquals(-1L, result.limitedTime());
 
+    }
+
+    @Test
+    public void scanScatterDataV2LimitTest() {
+        final List<List<DotMetaData>> scannedList = Collections.nCopies(10, List.of(testDotMetaData));
+        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
+                any(ResultsExtractor.class), anyInt())).thenReturn(scannedList);
+
+        DragAreaQuery dragAreaQuery = new DragAreaQuery(DragArea.normalize(1000L, 5000L, 0L, 100L), null, null);
+
+        LimitedScanResult<List<DotMetaData>> result =
+                this.traceIndexDao.scanScatterDataV2(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), dragAreaQuery, null, 20);
+        Assertions.assertEquals(1000L, result.limitedTime());
+        assertThat(result.scanData()).hasSize(10);
     }
 
     @Test

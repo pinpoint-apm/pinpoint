@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
-import com.navercorp.pinpoint.web.service.CommonService;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceMappingProperties;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
@@ -35,8 +33,9 @@ import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -96,8 +95,7 @@ public class MapControllerConfiguration {
                                                        TraceIndexService traceIndexService,
                                                        FilterBuilder<List<SpanBo>> filterBuilder,
                                                        HyperLinkFactory hyperLinkFactory,
-                                                       ServiceTypeRegistryService serviceTypeRegistryService,
-                                                       @Value("${pinpoint.web.trace.index.read.v2:true}") boolean defaultReadTraceIndexV2) {
-        return new FilteredMapController(mapProperties, filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService, defaultReadTraceIndexV2);
+                                                       ServiceTypeRegistryService serviceTypeRegistryService) {
+        return new FilteredMapController(mapProperties, filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService);
     }
 }

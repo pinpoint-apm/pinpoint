@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
-import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
@@ -36,6 +37,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,69 +50,68 @@ public class HeatMapServiceImplTest {
     @Mock
     DragAreaQuery dragAreaQuery;
 
+    private static final int SERVICE_UID = ServiceUid.TEST_SERVICE.getUid();
     private static final String APPLICATION_NAME = "applicationName";
+    private static final int SERVICE_TYPE_CODE = ServiceType.TEST.getCode();
     private static final int LIMIT = 50;
     private static final ServerTraceId TRANSACTION_ID_1 = new PinpointServerTraceId("txAgent1", 10, 100);
     private static final ServerTraceId TRANSACTION_ID_2 = new PinpointServerTraceId("txAgent2", 20, 200);
 
     @Test
     public void legacyCompatibilityCheckPassTest() {
-        ApplicationTraceIndexDao applicationTraceIndexDao = mock(ApplicationTraceIndexDao.class);
         TraceIndexDao traceIndexDao = mock(TraceIndexDao.class);
         TraceDao traceDao = mock(TraceDao.class);
 
         LimitedScanResult<List<DotMetaData>> scanResult = new LimitedScanResult<>(1, dotMataData());
-        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT))
+        when(traceIndexDao.scanScatterDataV2(eq(SERVICE_UID), eq(APPLICATION_NAME), eq(SERVICE_TYPE_CODE), eq(dragAreaQuery), isNull(), eq(LIMIT)))
                 .thenReturn(scanResult);
 
-        HeatMapService heatMapService = new HeatMapServiceImpl(applicationTraceIndexDao, traceIndexDao, spanService, traceDao);
-        Assertions.assertSame(scanResult, heatMapService.dragScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT));
+        HeatMapService heatMapService = new HeatMapServiceImpl(traceIndexDao, spanService, traceDao);
+        Assertions.assertSame(scanResult, heatMapService.dragTraceIndex(SERVICE_UID, APPLICATION_NAME, SERVICE_TYPE_CODE, dragAreaQuery, LIMIT));
     }
 
     @Test
     public void legacyCompatibilityCheckTest() {
-        ApplicationTraceIndexDao applicationTraceIndexDao = mock(ApplicationTraceIndexDao.class);
         TraceIndexDao traceIndexDao = mock(TraceIndexDao.class);
         TraceDao traceDao = mock(TraceDao.class);
 
         LimitedScanResult<List<DotMetaData>> scanResult = new LimitedScanResult<>(1, legacyDotMataData());
-        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT))
+        when(traceIndexDao.scanScatterDataV2(eq(SERVICE_UID), eq(APPLICATION_NAME), eq(SERVICE_TYPE_CODE), eq(dragAreaQuery), isNull(), eq(LIMIT)))
                 .thenReturn(scanResult);
         when(traceDao.selectSpans(any())).thenReturn(matchingSpanData());
 
-        HeatMapService heatMapService = new HeatMapServiceImpl(applicationTraceIndexDao, traceIndexDao, spanService, traceDao);
-        heatMapService.dragScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT);
-        Assertions.assertNotSame(scanResult, heatMapService.dragScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT));
+        HeatMapService heatMapService = new HeatMapServiceImpl(traceIndexDao, spanService, traceDao);
+        heatMapService.dragTraceIndex(SERVICE_UID, APPLICATION_NAME, SERVICE_TYPE_CODE, dragAreaQuery, LIMIT);
+        Assertions.assertNotSame(scanResult, heatMapService.dragTraceIndex(SERVICE_UID, APPLICATION_NAME, SERVICE_TYPE_CODE, dragAreaQuery, LIMIT));
     }
 
     @Test
     public void legacyCompatibilityCheckMoreSpanTest() {
-        ApplicationTraceIndexDao applicationTraceIndexDao = mock(ApplicationTraceIndexDao.class);
         TraceIndexDao traceIndexDao = mock(TraceIndexDao.class);
         TraceDao traceDao = mock(TraceDao.class);
 
         LimitedScanResult<List<DotMetaData>> scanResult = new LimitedScanResult<>(1, legacyDotMataData());
-        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT))
+        when(traceIndexDao.scanScatterDataV2(eq(SERVICE_UID), eq(APPLICATION_NAME), eq(SERVICE_TYPE_CODE), eq(dragAreaQuery), isNull(), eq(LIMIT)))
                 .thenReturn(scanResult);
         when(traceDao.selectSpans(any())).thenReturn(moreSpanData());
 
-        HeatMapService heatMapService = new HeatMapServiceImpl(applicationTraceIndexDao, traceIndexDao, spanService, traceDao);
-        heatMapService.dragScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT);
-        Assertions.assertNotSame(scanResult, heatMapService.dragScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT));
+        HeatMapService heatMapService = new HeatMapServiceImpl(traceIndexDao, spanService, traceDao);
+        heatMapService.dragTraceIndex(SERVICE_UID, APPLICATION_NAME, SERVICE_TYPE_CODE, dragAreaQuery, LIMIT);
+        Assertions.assertNotSame(scanResult, heatMapService.dragTraceIndex(SERVICE_UID, APPLICATION_NAME, SERVICE_TYPE_CODE, dragAreaQuery, LIMIT));
     }
 
     @Test
     public void legacyCompatibilityCheckErrorTest() {
-        ApplicationTraceIndexDao applicationTraceIndexDao = mock(ApplicationTraceIndexDao.class);
         TraceIndexDao traceIndexDao = mock(TraceIndexDao.class);
         TraceDao traceDao = mock(TraceDao.class);
 
         LimitedScanResult<List<DotMetaData>> scanResult = new LimitedScanResult<>(1, legacyDotMataData());
-        when(applicationTraceIndexDao.scanScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT)).thenReturn(scanResult);
+        when(traceIndexDao.scanScatterDataV2(eq(SERVICE_UID), eq(APPLICATION_NAME), eq(SERVICE_TYPE_CODE), eq(dragAreaQuery), isNull(), eq(LIMIT)))
+                .thenReturn(scanResult);
         when(traceDao.selectSpans(any())).thenReturn(lessSpanData());
 
-        HeatMapService heatMapService = new HeatMapServiceImpl(applicationTraceIndexDao, traceIndexDao, spanService, traceDao);
-        Assertions.assertThrows(IllegalStateException.class, () -> heatMapService.dragScatterDataV2(APPLICATION_NAME, dragAreaQuery, LIMIT));
+        HeatMapService heatMapService = new HeatMapServiceImpl(traceIndexDao, spanService, traceDao);
+        Assertions.assertThrows(IllegalStateException.class, () -> heatMapService.dragTraceIndex(SERVICE_UID, APPLICATION_NAME, SERVICE_TYPE_CODE, dragAreaQuery, LIMIT));
     }
 
     private List<DotMetaData> dotMataData() {

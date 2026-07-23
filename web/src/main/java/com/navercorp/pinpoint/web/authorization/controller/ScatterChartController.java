@@ -19,9 +19,12 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterView;
 import com.navercorp.pinpoint.web.scatter.Status;
@@ -30,14 +33,10 @@ import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.GetTraceInfoParser;
-import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
-import com.navercorp.pinpoint.service.web.vo.ServiceName;
-import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +48,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author netspider
@@ -64,17 +62,14 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
 
     private final ScatterChartService scatterChartService;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
-    private final boolean defaultTraceIndexReadV2;
 
     private final GetTraceInfoParser getTraceInfoParser = new GetTraceInfoParser();
 
     public ScatterChartController(
             ScatterChartService scatterChartService,
-            ServiceTypeRegistryService serviceTypeRegistryService,
-            @Value("${pinpoint.web.trace.index.read.v2:true}") boolean defaultTraceIndexReadV2) {
+            ServiceTypeRegistryService serviceTypeRegistryService) {
         this.scatterChartService = Objects.requireNonNull(scatterChartService, "scatterChartService");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
-        this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;
     }
 
 
@@ -115,29 +110,18 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
             @RequestParam("to") Timestamp to,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
-            @RequestParam("limit") int limitParam,
-            @RequestParam(value = "backwardDirection", required = false, defaultValue = "true")
-                    boolean backwardDirection,
-            @RequestParam(value = "traceIndexReadV2", required = false) Optional<Boolean> traceIndexReadV2) {
+            @RequestParam("limit") int limitParam) {
         final int limit = LimitUtils.checkRange(limitParam);
 
         // TODO: range check verification exception occurs. "from" is bigger than "to"
         final Range range = Range.unchecked(from, to);
         logger.debug(
-                "fetch scatter data. RANGE: {}, X-Group-Unit: {}, Y-Group-Unit: {}, LIMIT: {}, " +
-                        "BACKWARD_DIRECTION: {}",
-                range, xGroupUnit, yGroupUnit, limit, backwardDirection
+                "fetch scatter data. RANGE: {}, X-Group-Unit: {}, Y-Group-Unit: {}, LIMIT: {}",
+                range, xGroupUnit, yGroupUnit, limit
         );
-        final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
 
-        final ScatterData scatterData;
-        if (!useTraceIndexV2) {
-            scatterData = scatterChartService.selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
-        } else {
-            final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
-            // always scan backwardDirection in V2
-            scatterData = scatterChartService.selectScatterDataV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, xGroupUnit, yGroupUnit, limit);
-        }
+        final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+        final ScatterData scatterData = scatterChartService.selectScatterDataV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, xGroupUnit, yGroupUnit, limit);
         final boolean requestComplete = scatterData.getDotSize() < limit;
         ScatterView.DotView dotView = new ScatterView.DotView(scatterData, requestComplete);
         return wrapScatterResultView(range, dotView);

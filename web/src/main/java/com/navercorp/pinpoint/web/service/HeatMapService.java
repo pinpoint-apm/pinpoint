@@ -8,7 +8,5 @@ import java.util.List;
 
 public interface HeatMapService {
 
-    LimitedScanResult<List<DotMetaData>> dragScatterDataV2(String applicationName, DragAreaQuery dragAreaquery, int limit);
-
     LimitedScanResult<List<DotMetaData>> dragTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, int limit);
 }

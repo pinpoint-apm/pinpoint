@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
-import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
@@ -48,19 +47,16 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
     private final TraceIndexDao traceIndexDao;
 
     private final TraceDao traceDao;
 
     private final SpanService spanService;
 
-    public ScatterChartServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
-                                   TraceIndexDao traceIndexDao,
+    public ScatterChartServiceImpl(TraceIndexDao traceIndexDao,
                                    TraceDao traceDao,
                                    SpanService spanService) {
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
-        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "applicationTraceIndexV2Dao");
+        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
     }
@@ -98,17 +94,6 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             return;
         }
         spanService.populateAgentName(list);
-    }
-
-    @Override
-    public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(range, "range");
-        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, backwardDirection);
-
-        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
-        builder.addDot(scanResult.scanData());
-        return builder.build();
     }
 
     @Override

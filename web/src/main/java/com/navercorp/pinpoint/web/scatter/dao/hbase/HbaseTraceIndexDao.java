@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-// HbaseApplicationTraceIndexDao V2
 @Repository
 public class HbaseTraceIndexDao implements TraceIndexDao {
     private static final int TRACE_INDEX_NUM_PARTITIONS = HbaseTableConstants.TRACE_INDEX_DISTRIBUTOR_MOD;

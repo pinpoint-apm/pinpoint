@@ -49,7 +49,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -59,7 +58,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author emeroad
@@ -79,7 +77,6 @@ public class FilteredMapController {
     private final FilterBuilder<List<SpanBo>> filterBuilder;
     private final HyperLinkFactory hyperLinkFactory;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
-    private final boolean defaultTraceIndexReadV2;
 
     public FilteredMapController(
             MapProperties mapProperties,
@@ -87,49 +84,39 @@ public class FilteredMapController {
             TraceIndexService traceIndexService,
             FilterBuilder<List<SpanBo>> filterBuilder,
             HyperLinkFactory hyperLinkFactory,
-            ServiceTypeRegistryService serviceTypeRegistryService,
-            @Value("${pinpoint.web.trace.index.read.v2:true}") boolean defaultTraceIndexReadV2) {
+            ServiceTypeRegistryService serviceTypeRegistryService) {
         this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.traceIndexService = Objects.requireNonNull(traceIndexService, "traceIndexService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
-        this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;
     }
 
     @GetMapping(value = "/filterServerMap")
     public FilterMapViewV3 getFilterServer(
             @Valid @ModelAttribute
-                    ApplicationForm appForm,
+            ApplicationForm appForm,
             @Valid @ModelAttribute
-                    RangeForm rangeForm,
+            RangeForm rangeForm,
             @RequestParam("originTo") Timestamp originTo,
             @Valid @ModelAttribute
-                    GroupForm groupForm,
+            GroupForm groupForm,
             @Valid @ModelAttribute
-                    FilterForm filterForm,
+            FilterForm filterForm,
             @RequestParam(value = "limit", required = false, defaultValue = "10000")
             @PositiveOrZero int limitParam,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
-                    boolean useStatisticsAgentState,
-            @RequestParam(value = "traceIndexReadV2", required = false) Optional<Boolean> traceIndexReadV2) {
+            boolean useStatisticsAgentState) {
         final String serviceName = appForm.getServiceName();
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
         final Filter<List<SpanBo>> filter = newFilter(filterForm);
         final Range range = toRange(rangeForm);
-        final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
 
-
-        final LimitedScanResult<List<ServerTraceId>> limitedScanResult;
-        if (!useTraceIndexV2) {
-            limitedScanResult = traceIndexService.getTraceIndex(applicationName, range, limit);
-        } else {
-            final ServiceType serviceType = findServiceType(appForm.getServiceTypeCode(), appForm.getServiceTypeName());
-            limitedScanResult = traceIndexService.getTraceIndexV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, limit);
-        }
+        final ServiceType serviceType = findServiceType(appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+        final LimitedScanResult<List<ServerTraceId>> limitedScanResult = traceIndexService.getTraceIndexV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, limit);
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
