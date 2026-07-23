@@ -49,6 +49,8 @@ export const ApplicationCombinedListForCommon = ({
   // outside-dismiss(아래 onInteractOutside)를 무시해 "열리자마자 닫히는" 현상을 막는다.
   React.useEffect(() => {
     if (!open) {
+      // 억제 창이 열려 있는 동안 닫히면 ref가 true로 고착될 수 있으므로 반드시 되돌린다.
+      suppressDismissRef.current = false;
       setIsOpen(false);
       return;
     }
@@ -57,7 +59,11 @@ export const ApplicationCombinedListForCommon = ({
     const timer = setTimeout(() => {
       suppressDismissRef.current = false;
     }, 300);
-    return () => clearTimeout(timer);
+    // 타이머가 끝나기 전에 open이 바뀌어 정리될 때도 ref를 false로 되돌려 고착을 막는다.
+    return () => {
+      clearTimeout(timer);
+      suppressDismissRef.current = false;
+    };
   }, [open]);
 
   const [filterKeyword, setFilterKeyword] = React.useState('');
