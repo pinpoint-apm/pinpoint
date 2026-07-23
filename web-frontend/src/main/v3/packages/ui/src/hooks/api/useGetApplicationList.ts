@@ -31,7 +31,6 @@ const applicationListQueryFn = async (service: string, clearCache?: boolean) => 
 
   if (response.status === 304) {
     const cached = queryClient.getQueryData([END_POINTS.APPLICATION_LIST, service]);
-    console.log('304~~~~~~', cached);
     if (cached !== undefined) return cached;
     cachedETagByService.delete(service);
     return applicationListQueryFn(service, clearCache);
