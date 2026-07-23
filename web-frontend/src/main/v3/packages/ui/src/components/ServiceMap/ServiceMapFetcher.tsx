@@ -18,26 +18,37 @@ import {
   getBaseNodeId,
   getServerImagePath,
   parseBaseNodeId,
+  resolveUseStatisticsAgentState,
   toBasicISOString,
 } from '@pinpoint-fe/ui/src/utils';
 import { ServerMapCore, ServerMapCoreProps } from '../ServerMap/ServerMapCore';
 
-export interface ServiceMapFetcherProps
-  extends Pick<ServerMapCoreProps, 'onClickMenuItem' | 'onApplyChangedOption' | 'queryOption'> {
+export interface ServiceMapFetcherProps extends Pick<
+  ServerMapCoreProps,
+  'onClickMenuItem' | 'onApplyChangedOption' | 'queryOption'
+> {
   shouldPoll?: boolean;
 }
 
-export const ServiceMapFetcher = ({ shouldPoll: _shouldPoll, ...props }: ServiceMapFetcherProps) => {
+export const ServiceMapFetcher = ({
+  shouldPoll: _shouldPoll,
+  ...props
+}: ServiceMapFetcherProps) => {
   const setDataAtom = useSetAtom(serverMapDataAtom);
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const serverMapCurrentTarget = useAtomValue(serverMapCurrentTargetAtom);
   const { application, dateRange } = useServerMapSearchParameters();
   const experimentalOption = useExperimentals();
-  const useStatisticsAgentState =
-    experimentalOption[EXPERIMENTAL_CONFIG_KEYS.USE_STATISTICS_AGENT_STATE].value || true;
+  const useStatisticsAgentState = resolveUseStatisticsAgentState(
+    experimentalOption[EXPERIMENTAL_CONFIG_KEYS.USE_STATISTICS_AGENT_STATE].value,
+  );
 
-  const { data: rawData, isLoading, error } = useGetServiceMap({
+  const {
+    data: rawData,
+    isLoading,
+    error,
+  } = useGetServiceMap({
     applicationName: application?.applicationName ?? '',
     serviceTypeName: application?.serviceType,
     from: toBasicISOString(dateRange.from),
