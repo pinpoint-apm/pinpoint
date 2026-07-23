@@ -5,18 +5,18 @@ import { searchParametersAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/a
 import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 
-// URL 맨 끝의 application 세그먼트(`{appName}@{serviceType}` 또는 `^`)를 매칭한다.
-// getApplicationTypeAndName과 동일한 규칙으로 base 경로를 계산한다.
-const APPLICATION_PATH_SEGMENT = /\/?([^/]+)[@^]([^/]+)$/;
-
 /**
  * 주어진 pathname에서 application 세그먼트를 떼어낸 base 경로를 반환한다.
  * pathname에 application이 없으면 null을 반환한다(리다이렉트 불필요).
- * 세그먼트만 제거하므로, 넘긴 pathname에 접두사(basename 등)가 있으면 그대로 유지된다.
+ *
+ * application 세그먼트는 항상 경로의 마지막 세그먼트다. getApplicationTypeAndName으로
+ * 존재를 확인한 뒤 마지막 세그먼트만 떼어내므로, 세그먼트 형식 정규식을 여기서
+ * 중복 정의하지 않는다(파싱 규칙이 바뀌어도 어긋날 일이 없다).
+ * 마지막 세그먼트만 제거하므로, 넘긴 pathname에 접두사(basename 등)가 있으면 그대로 유지된다.
  */
 export const resolveClearedApplicationPath = (pathname: string): string | null => {
   if (!getApplicationTypeAndName(pathname)) return null;
-  return pathname.replace(APPLICATION_PATH_SEGMENT, '') || '/';
+  return pathname.split('/').slice(0, -1).join('/') || '/';
 };
 
 /**
@@ -49,6 +49,9 @@ export const useClearApplicationOnServiceChange = (enabled: boolean) => {
     setSearchParameters((prev) => ({ ...prev, application: {} as ApplicationType }));
 
     // 현재 URL에 application이 있으면 base 경로로 soft navigate.
+    // query string(?from=...&to=...)은 굳이 유지하지 않는다. application이 비워진
+    // 중간 상태에서는 지도가 렌더링되지 않고, 사용자가 새 application을 고르는 순간
+    // from/to 없는 경로로 이동해 어차피 기본 시간 범위로 리셋되기 때문이다.
     const target = resolveClearedApplicationPath(pathname);
     if (target) navigate(target, { replace: true });
   }, [selectedService, enabled, setSearchParameters, navigate, pathname]);
