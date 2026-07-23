@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.util.Utf8;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -43,12 +44,13 @@ public class OtlpAttributeBoMapper {
     }
 
     /**
-     * Converts attributes to an {@link AttributeBo} list, applying {@code excludeFilter} and
-     * truncating over-long string (UTF-8 byte length) and byte (raw byte length) values in the
-     * same pass, recursing into ARRAY / KVLIST. Numeric and boolean values are left untouched,
-     * matching the OTel spec (only string and byte values are length-limited). {@code onTruncated}
-     * is invoked once per truncated leaf so the caller can emit a single per-span
-     * {@code OPENTELEMETRY_TRUNCATED} summary.
+     * Converts attributes to an {@link AttributeBo} list, applying {@code excludeFilter}, the fixed
+     * security policy ({@link OtlpSensitiveAttributeFilter} — drops sensitive keys and strips
+     * query/fragment/userinfo from URL values) and truncating over-long string (UTF-8 byte length)
+     * and byte (raw byte length) values in the same pass, recursing into ARRAY / KVLIST. Numeric
+     * and boolean values are left untouched, matching the OTel spec (only string and byte values
+     * are length-limited). {@code onTruncated} is invoked once per truncated leaf so the caller can
+     * emit a single per-span {@code OPENTELEMETRY_TRUNCATED} summary.
      */
     public List<AttributeBo> toAttributeBoList(Map<String, AttributeValue> attributes, Predicate<String> excludeFilter, TruncationListener onTruncated) {
         Objects.requireNonNull(onTruncated, "onTruncated");
@@ -57,13 +59,29 @@ public class OtlpAttributeBoMapper {
         }
         List<AttributeBo> result = new ArrayList<>();
         for (Map.Entry<String, AttributeValue> entry : attributes.entrySet()) {
-            if (excludeFilter.test(entry.getKey())) {
+            final String key = entry.getKey();
+            // Caller exclusion (promoted / statically-filtered keys) + fixed security policy.
+            if (excludeFilter.test(key) || OtlpSensitiveAttributeFilter.isSensitive(key)) {
                 continue;
             }
-            final AttributeValue value = truncateValue(entry.getValue(), onTruncated);
-            result.add(new AttributeBo(entry.getKey(), value));
+            // Strip query/fragment/userinfo from URL values before truncation.
+            final AttributeValue sanitized = sanitizeValue(key, entry.getValue());
+            final AttributeValue value = truncateValue(sanitized, onTruncated);
+            result.add(new AttributeBo(key, value));
         }
         return result;
+    }
+
+    private AttributeValue sanitizeValue(String key, AttributeValue value) {
+        if (value.getType() != AttributeValueType.STRING) {
+            return value;
+        }
+        final String original = (String) value.getValue();
+        final String sanitized = OtlpSensitiveAttributeFilter.sanitizeUrl(key, original);
+        if (sanitized == null || sanitized.equals(original)) {
+            return value;
+        }
+        return AttributeValue.of(sanitized);
     }
 
     @SuppressWarnings("unchecked")

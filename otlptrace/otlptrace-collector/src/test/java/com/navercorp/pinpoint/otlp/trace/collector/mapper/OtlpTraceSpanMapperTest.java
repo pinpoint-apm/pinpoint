@@ -78,6 +78,20 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
+    void extractHostAndPort_schemeRelative() {
+        assertThat(OtlpTraceSpanMapper.extractHostAndPort("//example.com:8080/path"))
+                .isEqualTo("example.com:8080");
+    }
+
+    @Test
+    void extractHostAndPort_stripsUserInfo() {
+        assertThat(OtlpTraceSpanMapper.extractHostAndPort("http://alice:pass@example.com:8080/path"))
+                .isEqualTo("example.com:8080");
+        assertThat(OtlpTraceSpanMapper.extractHostAndPort("//alice@example.com/path"))
+                .isEqualTo("example.com");
+    }
+
+    @Test
     void extractHostAndPort_null() {
         assertThat(OtlpTraceSpanMapper.extractHostAndPort(null)).isNull();
     }
@@ -241,6 +255,14 @@ class OtlpTraceSpanMapperTest {
         return bo.getAttributeBoList().stream()
                 .map(AttributeBo::getKey)
                 .toList();
+    }
+
+    private static Object attributeValue(SpanBo bo, String key) {
+        return bo.getAttributeBoList().stream()
+                .filter(attribute -> attribute.getKey().equals(key))
+                .map(attribute -> attribute.getValue().getValue())
+                .findFirst()
+                .orElse(null);
     }
 
     // =======================================================================
@@ -716,14 +738,16 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
-    void map_server_httpUrl_partialConsumption_keptRaw() {
-        // http.url feeds both rpc (path) and endPoint (host:port) but retains query information —
-        // partial consumption keeps the raw attribute.
-        Span span = serverSpan(kv("http.url", strVal("http://shop:8080/api/cart?x=1")));
+    void map_server_httpUrl_partialConsumption_keptButSanitized() {
+        // http.url feeds both rpc (path) and endPoint (host:port); it is not "consumed", so the raw
+        // attribute is kept — but the security filter strips its query/fragment/userinfo, and the
+        // endPoint host extraction drops the userinfo.
+        Span span = serverSpan(kv("http.url", strVal("http://alice@shop:8080/api/cart?x=1#frag")));
         SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getRpc()).isEqualTo("/api/cart");
         assertThat(bo.getEndPoint()).isEqualTo("shop:8080");
         assertThat(attributeKeys(bo)).contains("http.url");
+        assertThat(attributeValue(bo, "http.url")).isEqualTo("http://shop:8080/api/cart");
     }
 
     @Test

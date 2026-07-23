@@ -353,6 +353,9 @@ public class OtlpTraceSpanMapper {
         int schemeEnd = url.indexOf("://");
         if (schemeEnd >= 0) {
             start = schemeEnd + 3;
+        } else if (url.startsWith("//")) {
+            // scheme-relative URL: //host[:port]/path (consistent with OtlpSensitiveAttributeFilter.stripUrl)
+            start = 2;
         }
 
         int end = url.length();
@@ -362,6 +365,12 @@ public class OtlpTraceSpanMapper {
                 end = i;
                 break;
             }
+        }
+
+        // Strip userinfo ("user:pass@") so credentials never leak into the promoted endPoint.
+        int userInfoEnd = url.lastIndexOf('@', end - 1);
+        if (userInfoEnd >= start) {
+            start = userInfoEnd + 1;
         }
 
         return url.substring(start, end); // "host" or "host:port"
