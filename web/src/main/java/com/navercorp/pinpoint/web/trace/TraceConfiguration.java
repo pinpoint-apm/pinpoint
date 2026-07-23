@@ -17,10 +17,12 @@
 package com.navercorp.pinpoint.web.trace;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.buffer.StringAllocatorFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.config.SpanSerializeConfiguration;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 import com.navercorp.pinpoint.web.trace.callstacks.AnnotationRecordFormatter;
 import com.navercorp.pinpoint.web.trace.callstacks.AttributeBoWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -52,6 +54,17 @@ public class TraceConfiguration {
             }
     )
     public static class TraceServiceConfiguration {
+        /**
+         * Per-row string allocation strategy for the trace row mappers.
+         */
+        @Bean
+        public StringAllocatorFactory stringAllocatorFactory(@Value("${web.hbase.mapper.cache.string.size:-1}") int stringCacheSize) {
+            if (stringCacheSize > 0) {
+                return StringAllocatorFactory.cached(stringCacheSize);
+            }
+            return StringAllocatorFactory.DEFAULT;
+        }
+
         @Bean
         public AnnotationRecordFormatter annotationRecordFormatter(Optional<ProxyRequestTypeRegistryService> proxyRequestTypeRegistryService) {
             AnnotationRecordFormatter.Builder builder = AnnotationRecordFormatter.newBuilder();

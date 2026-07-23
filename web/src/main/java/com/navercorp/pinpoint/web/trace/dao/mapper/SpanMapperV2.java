@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.trace.dao.mapper;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.buffer.StringAllocatorFactory;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
@@ -58,32 +58,30 @@ import java.util.Objects;
  */
 public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
-    private static final int DISABLED_CACHE = -1;
-
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SpanDecoder spanDecoder;
 
     private final RowKeyDecoder<ServerTraceId> rowKeyDecoder;
 
-    private final int cacheSize;
+    private final StringAllocatorFactory stringAllocatorFactory;
 
     public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder) {
-        this(rowKeyDecoder, new SpanDecoderV0(), DISABLED_CACHE);
+        this(rowKeyDecoder, new SpanDecoderV0(), StringAllocatorFactory.DEFAULT);
     }
 
-    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, int cacheSize) {
-        this(rowKeyDecoder, new SpanDecoderV0(), cacheSize);
+    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, StringAllocatorFactory stringAllocatorFactory) {
+        this(rowKeyDecoder, new SpanDecoderV0(), stringAllocatorFactory);
     }
 
     public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, SpanDecoder spanDecoder) {
-        this(rowKeyDecoder, spanDecoder, DISABLED_CACHE);
+        this(rowKeyDecoder, spanDecoder, StringAllocatorFactory.DEFAULT);
     }
 
-    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, SpanDecoder spanDecoder, int cacheSize) {
+    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, SpanDecoder spanDecoder, StringAllocatorFactory stringAllocatorFactory) {
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.spanDecoder = Objects.requireNonNull(spanDecoder, "spanDecoder");
-        this.cacheSize = cacheSize;
+        this.stringAllocatorFactory = Objects.requireNonNull(stringAllocatorFactory, "stringAllocatorFactory");
     }
 
     @Override
@@ -102,9 +100,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         List<SpanChunkBo> spanChunkList = new ArrayList<>();
 
         final SpanDecodingContext decodingContext = new SpanDecodingContext(transactionId);
-        if (cacheSize > 0) {
-            decodingContext.setStringAllocator(new CachedStringAllocator(cacheSize));
-        }
+        // per-row allocator, see StringAllocatorFactory
+        decodingContext.setStringAllocator(stringAllocatorFactory.create());
 
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;
