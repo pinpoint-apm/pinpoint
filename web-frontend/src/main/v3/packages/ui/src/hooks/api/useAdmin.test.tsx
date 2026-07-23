@@ -29,28 +29,41 @@ describe('useAdmin', () => {
     jest.clearAllMocks();
   });
 
-  test('useDeleteApplication calls the remove-application endpoint with name and password', async () => {
+  test('useDeleteApplication DELETEs the applications endpoint with name, serviceType and password', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
 
     const { result } = renderHook(() => useDeleteApplication(), { wrapper: createWrapper() });
-    const data = await result.current.mutateAsync({ applicationName: 'App', password: 'pw' });
+    const data = await result.current.mutateAsync({
+      applicationName: 'App',
+      serviceTypeName: 'SPRING_BOOT',
+      password: 'pw',
+    });
 
     expect(data).toBeNull();
-    const calledUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
-    expect(calledUrl).toContain(END_POINTS.ADMIN_REMOVE_APPLICATION);
-    expect(calledUrl).toContain('applicationName=App');
-    expect(calledUrl).toContain('password=pw');
+    const [calledUrl, calledInit] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(calledUrl as string).toContain(END_POINTS.ADMIN_APPLICATIONS);
+    expect(calledUrl as string).toContain('applicationName=App');
+    expect(calledUrl as string).toContain('serviceTypeName=SPRING_BOOT');
+    expect(calledUrl as string).toContain('password=pw');
+    expect((calledInit as RequestInit).method).toBe('DELETE');
   });
 
-  test('useDeleteAgent calls the remove-agent endpoint with agentId', async () => {
+  test('useDeleteAgent DELETEs the agents endpoint with agentId and serviceType', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
 
     const { result } = renderHook(() => useDeleteAgent(), { wrapper: createWrapper() });
-    await result.current.mutateAsync({ applicationName: 'App', agentId: 'a1', password: 'pw' });
+    await result.current.mutateAsync({
+      applicationName: 'App',
+      serviceTypeName: 'SPRING_BOOT',
+      agentId: 'a1',
+      password: 'pw',
+    });
 
-    const calledUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
-    expect(calledUrl).toContain(END_POINTS.ADMIN_REMOVE_AGENT);
-    expect(calledUrl).toContain('agentId=a1');
+    const [calledUrl, calledInit] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(calledUrl as string).toContain(END_POINTS.ADMIN_AGENTS);
+    expect(calledUrl as string).toContain('agentId=a1');
+    expect(calledUrl as string).toContain('serviceTypeName=SPRING_BOOT');
+    expect((calledInit as RequestInit).method).toBe('DELETE');
   });
 
   test('rejects through parseResponseError when the response is not ok', async () => {

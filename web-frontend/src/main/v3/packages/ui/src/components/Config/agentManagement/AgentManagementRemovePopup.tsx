@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RemovePopup } from '../../Popup';
-import { AgentOverview, ApplicationType } from '@pinpoint-fe/ui/src/constants';
+import { AgentManagementList, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import {
   Form,
   FormControl,
@@ -24,9 +24,9 @@ export interface AgentManagementRemovePopupProps {
   isApplication?: boolean;
   popupTrigger: React.ReactNode;
   application?: ApplicationType;
-  agent?: AgentOverview.Instance;
+  agent?: AgentManagementList.Instance;
   onClickRemove?: (
-    removeTarget?: AgentOverview.Instance | ApplicationType,
+    removeTarget?: AgentManagementList.Instance | ApplicationType,
     password?: string,
   ) => void;
 }
@@ -71,7 +71,7 @@ export const AgentManagementRemovePopup = ({
       popupContents={
         <div className="flex flex-col gap-2 text-sm font-semibold">
           <div>
-            {isApplication ? application?.applicationName : agent?.hostName}{' '}
+            {isApplication ? application?.applicationName : agent?.agentName}{' '}
             {!isApplication && <span className="text-muted-foreground">({agent?.agentId})</span>}
           </div>
           <div>
