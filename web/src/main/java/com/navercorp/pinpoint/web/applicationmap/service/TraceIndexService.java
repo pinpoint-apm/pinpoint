@@ -24,9 +24,6 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import java.util.List;
 
 public interface TraceIndexService {
-    LimitedScanResult<List<ServerTraceId>> getTraceIndex(String applicationName, Range range, int limit);
-
-    LimitedScanResult<List<ServerTraceId>> getTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
     LimitedScanResult<List<ServerTraceId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);
 }
