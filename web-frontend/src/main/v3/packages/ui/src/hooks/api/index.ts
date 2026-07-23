@@ -8,6 +8,7 @@ export * from './useConfigUsers';
 export * from './useGetActiveThreadLightDump';
 export * from './useGetActiveThreadDump';
 export * from './useGetAgentList';
+export * from './useGetAgentManagementList';
 export * from './useGetAgentOverview';
 export * from './useGetAlarmRuleChecker';
 export * from './useGetApdexScore';

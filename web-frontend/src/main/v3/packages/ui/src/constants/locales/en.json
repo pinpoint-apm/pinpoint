@@ -140,7 +140,8 @@
       "REMOVE_AGENT_TITLE": "Remove agent",
       "REMOVE_AGENT_DESC": "Remove the following agent.",
       "LABEL": {
-        "REMOVE_APPLICATION": "Remove application"
+        "REMOVE_APPLICATION": "Remove application",
+        "LAST_UPDATED": "last updated: {{time}}"
       },
       "REMOVE_PASSWORD_DESCRIPTION": "If you have set a password, please enter it."
     },

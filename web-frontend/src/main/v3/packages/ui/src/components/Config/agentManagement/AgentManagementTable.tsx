@@ -1,5 +1,7 @@
 import React from 'react';
-import { AgentOverview } from '@pinpoint-fe/ui/src/constants';
+import { useTranslation } from 'react-i18next';
+import { AgentManagementList } from '@pinpoint-fe/ui/src/constants';
+import { format } from '@pinpoint-fe/ui/src/utils';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button, DataTable } from '../../../components';
 import { cn } from '../../../lib';
@@ -7,33 +9,46 @@ import { FaRegTrashCan } from 'react-icons/fa6';
 import { AgentManagementRemovePopup } from './AgentManagementRemovePopup';
 
 export interface AgentManagementTableProps {
-  data?: AgentOverview.Instance[];
-  onRemove?: (instance: AgentOverview.Instance, password?: string) => void;
+  data?: AgentManagementList.Instance[];
+  onRemove?: (instance: AgentManagementList.Instance, password?: string) => void;
 }
 
 export const AgentManagementTable = ({ data, onRemove }: AgentManagementTableProps) => {
+  const { t } = useTranslation();
+
   // https://github.com/shadcn-ui/ui/issues/4261#issuecomment-2295547143
-  const columns: ColumnDef<AgentOverview.Instance>[] = React.useMemo(
+  const columns: ColumnDef<AgentManagementList.Instance>[] = React.useMemo(
     () => [
-      {
-        accessorKey: 'hostName',
-        header: 'Host Name',
-      },
       {
         accessorKey: 'agentId',
         header: 'Agent Id',
+      },
+      {
+        accessorKey: 'agentStartTime',
+        header: 'Agent Start Time',
+        cell: ({ row }) => format(row?.original?.agentStartTime),
       },
       {
         accessorKey: 'agentName',
         header: 'Agent Name',
       },
       {
-        accessorKey: 'agentVersion',
-        header: 'Agent Version',
-      },
-      {
-        accessorKey: 'ip',
-        header: 'IP',
+        accessorKey: 'state',
+        header: 'State',
+        cell: ({ row }) => {
+          const { state, lastStateUpdateTimestamp } = row?.original || {};
+
+          return (
+            <div className="flex flex-col">
+              <span>{state?.desc}</span>
+              <span className="text-xs text-muted-foreground">
+                {t('CONFIGURATION.AGENT_MANAGEMENT.LABEL.LAST_UPDATED', {
+                  time: format(lastStateUpdateTimestamp),
+                })}
+              </span>
+            </div>
+          );
+        },
       },
       {
         header: 'Action',
@@ -65,7 +80,7 @@ export const AgentManagementTable = ({ data, onRemove }: AgentManagementTablePro
         },
       },
     ],
-    [],
+    [t],
   );
 
   return (

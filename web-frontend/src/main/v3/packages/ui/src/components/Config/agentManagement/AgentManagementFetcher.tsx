@@ -1,13 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Configuration, ApplicationType, AgentOverview } from '@pinpoint-fe/ui/src/constants';
+import { Configuration, ApplicationType, AgentManagementList } from '@pinpoint-fe/ui/src/constants';
 import { ApplicationCombinedList } from '../../../components/Application';
 import { Button, ScrollArea, Separator, useReactToastifyToast } from '../../../components';
 import { AgentManagementTable } from './AgentManagementTable';
 import {
   useDeleteAgent,
   useDeleteApplication,
-  useGetAgentOverview,
+  useGetAgentManagementList,
 } from '@pinpoint-fe/ui/src/hooks';
 import { FaRegTrashCan } from 'react-icons/fa6';
 import { AgentManagementRemovePopup } from './AgentManagementRemovePopup';
@@ -23,8 +23,8 @@ export const AgentManagementFetcher = ({ configuration }: AgentManagementFetcher
   const { t } = useTranslation();
   const [application, setApplication] = React.useState<ApplicationType>();
 
-  const { data, refetch } = useGetAgentOverview({
-    application: application?.applicationName || '',
+  const { data, refetch } = useGetAgentManagementList({
+    applicationName: application?.applicationName || '',
     serviceTypeName: application?.serviceType,
   });
 
@@ -59,13 +59,15 @@ export const AgentManagementFetcher = ({ configuration }: AgentManagementFetcher
   function handleRemoveApplication(removeApplication?: ApplicationType, password: string = '') {
     deleteApplication({
       applicationName: removeApplication?.applicationName || '',
+      serviceTypeName: removeApplication?.serviceType,
       password,
     });
   }
 
-  function handleRemoveAgent(removeAgent?: AgentOverview.Instance, password: string = '') {
+  function handleRemoveAgent(removeAgent?: AgentManagementList.Instance, password: string = '') {
     deleteAgent({
       applicationName: removeAgent?.applicationName || '',
+      serviceTypeName: removeAgent?.serviceTypeName,
       agentId: removeAgent?.agentId || '',
       password,
     });

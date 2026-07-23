@@ -63,8 +63,8 @@ export const ALARM_RULE = `${LOCAL_API_PATH}/application/alarmRule`;
 // export const = '/getApplicationStat/directBuffer/chart';
 // export const = '/admin/removeAgentId';
 // export const = '/admin/removeInactiveAgents';
-export const ADMIN_REMOVE_APPLICATION = `${LOCAL_API_PATH}/admin/removeApplicationName`;
-export const ADMIN_REMOVE_AGENT = `${LOCAL_API_PATH}/admin/removeAgentId`;
+export const ADMIN_APPLICATIONS = `${LOCAL_API_PATH}/admin/applications`;
+export const ADMIN_AGENTS = `${LOCAL_API_PATH}/admin/agents`;
 
 export const BIND = `${LOCAL_API_PATH}/bind`;
 // export const = '/getAgentStat/uriStat/chartList';
