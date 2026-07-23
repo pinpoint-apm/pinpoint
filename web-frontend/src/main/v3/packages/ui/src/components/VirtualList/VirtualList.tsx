@@ -34,6 +34,11 @@ export const VirtualList = <T,>({
 }: VirtualListProps<T>) => {
   const virtuosoRef = React.useRef<VirtuosoHandle>(null);
   const isFirstFocusEffectRef = React.useRef(true);
+  // 직전에 스크롤을 맞춘 focusIndex를 기억한다.
+  // 마우스로 스크롤하면 focusIndex가 잠시 undefined가 되었다가 같은 값으로 되돌아오는데,
+  // 그때 다시 scrollToIndex를 호출하면 사용자가 스크롤한 위치를 무시하고 원래 항목으로
+  // 튕겨 올라간다. 같은 항목으로의 재스크롤을 막아 이 현상을 방지한다.
+  const lastScrolledIndexRef = React.useRef<number | undefined>(undefined);
 
   const fuzzySearch = React.useMemo(() => {
     return new Fuse(list || [], {
@@ -57,8 +62,17 @@ export const VirtualList = <T,>({
     }
 
     if (focusIndex === undefined) {
+      // 마우스 이동 모드에서는 스크롤 위치를 건드리지 않는다. 다음 focus 값과 비교할 수
+      // 있도록 마지막으로 스크롤한 인덱스는 그대로 유지한다.
       return;
     }
+
+    // 마우스로 스크롤한 뒤 focus가 같은 항목으로 되돌아온 경우에는 다시 스크롤하지 않는다.
+    // (방향키로 실제로 다른 항목으로 이동했을 때만 스크롤이 따라간다.)
+    if (lastScrolledIndexRef.current === focusIndex) {
+      return;
+    }
+    lastScrolledIndexRef.current = focusIndex;
 
     if (isFirst && focusIndex === 0) {
       // 최초 focusIndex가 0인 경우에만 스크롤을 생략
