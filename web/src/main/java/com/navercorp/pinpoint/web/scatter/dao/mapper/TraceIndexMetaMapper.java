@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-// TraceIndexMetaScatterMapper version 2
 public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTypeHint {
 
     private final HbaseColumnFamily index = HbaseTables.TRACE_INDEX;

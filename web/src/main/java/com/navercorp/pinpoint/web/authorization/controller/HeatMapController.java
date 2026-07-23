@@ -20,8 +20,12 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import com.navercorp.pinpoint.web.service.HeatMapService;
 import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.LimitUtils;
@@ -30,14 +34,9 @@ import com.navercorp.pinpoint.web.view.transactionlist.DotMetaDataView;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionDotMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Service;
-import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
-import com.navercorp.pinpoint.service.web.vo.ServiceName;
-import com.navercorp.pinpoint.web.scatter.vo.Dot;
-import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController()
 @RequestMapping("/api/heatmap")
@@ -59,15 +57,12 @@ public class HeatMapController {
     private final HeatMapService heatMap;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final ServiceModelResolver serviceModelResolver;
-    private final boolean defaultTraceIndexReadV2;
 
     public HeatMapController(HeatMapService heatMap, ServiceTypeRegistryService serviceTypeRegistryService,
-                             ServiceModelResolver serviceModelResolver,
-                             @Value("${pinpoint.web.trace.index.read.v2:true}") boolean defaultTraceIndexReadV2) {
+                             ServiceModelResolver serviceModelResolver) {
         this.heatMap = Objects.requireNonNull(heatMap, "heatMap");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
-        this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;
     }
 
     @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
@@ -83,8 +78,7 @@ public class HeatMapController {
             @RequestParam("y2") long y2,
             @RequestParam(value = "agentId", required = false) @NullOrNotBlank String agentId,
             @RequestParam(value = "dotStatus", required = false) Boolean boolDotStatus,
-            @RequestParam(name = "limit", required = false, defaultValue = "50") int limitParam,
-            @RequestParam(value = "traceIndexReadV2", required = false) Optional<Boolean> traceIndexReadV2) {
+            @RequestParam(name = "limit", required = false, defaultValue = "50") int limitParam) {
         final int limit = LimitUtils.checkRange(limitParam);
 
         final DragArea dragArea = DragArea.normalize(x1, x2, y1, y2);
@@ -95,15 +89,9 @@ public class HeatMapController {
         final Dot.Status dotStatus = toDotStatus(boolDotStatus);
         final DragAreaQuery query = new DragAreaQuery(dragArea, agentId, dotStatus);
 
-        final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
-        final LimitedScanResult<List<DotMetaData>> dotMetaData;
-        if (!useTraceIndexV2) {
-            dotMetaData = heatMap.dragScatterDataV2(applicationName, query, limit);
-        } else {
-            final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
-            final Service service = serviceModelResolver.getService(serviceName.getName());
-            dotMetaData = heatMap.dragTraceIndex(service, applicationName, serviceType.getCode(), query, limit);
-        }
+        final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final LimitedScanResult<List<DotMetaData>> dotMetaData = heatMap.dragTraceIndex(service, applicationName, serviceType.getCode(), query, limit);
         if (logger.isDebugEnabled()) {
             logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, dotMetaData.scanData().size());
         }

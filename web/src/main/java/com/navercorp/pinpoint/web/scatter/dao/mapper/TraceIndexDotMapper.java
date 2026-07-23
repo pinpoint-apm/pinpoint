@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-// TraceIndexScatterMapper version 2
 public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
 
     private static final ServerTraceId EMPTY = new PinpointServerTraceId("EMPTY", 0, 0);

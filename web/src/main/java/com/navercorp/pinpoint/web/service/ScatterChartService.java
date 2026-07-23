@@ -31,7 +31,5 @@ public interface ScatterChartService {
 
     List<SpanBo> selectTransactionMetadata(ServerTraceId transactionId);
 
-    ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection);
-
     ScatterData selectScatterDataV2(Service service, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit);
 }
