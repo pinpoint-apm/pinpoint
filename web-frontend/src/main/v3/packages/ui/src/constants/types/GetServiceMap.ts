@@ -8,12 +8,7 @@ export namespace GetServiceMap {
     serviceTypeCode?: number;
     from: number | string;
     to: number | string;
-    calleeRange?: number;
-    callerRange?: number;
-    wasOnly?: boolean;
-    bidirectional?: boolean;
     useStatisticsAgentState?: boolean;
-    keepServiceNames?: string[];
   }
 
   export interface Response {

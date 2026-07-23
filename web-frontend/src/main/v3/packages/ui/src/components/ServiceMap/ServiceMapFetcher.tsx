@@ -32,7 +32,7 @@ export const ServiceMapFetcher = ({ shouldPoll: _shouldPoll, ...props }: Service
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const serverMapCurrentTarget = useAtomValue(serverMapCurrentTargetAtom);
-  const { application, dateRange, queryOption } = useServerMapSearchParameters();
+  const { application, dateRange } = useServerMapSearchParameters();
   const experimentalOption = useExperimentals();
   const useStatisticsAgentState =
     experimentalOption[EXPERIMENTAL_CONFIG_KEYS.USE_STATISTICS_AGENT_STATE].value || true;
@@ -42,10 +42,6 @@ export const ServiceMapFetcher = ({ shouldPoll: _shouldPoll, ...props }: Service
     serviceTypeName: application?.serviceType,
     from: toBasicISOString(dateRange.from),
     to: toBasicISOString(dateRange.to),
-    callerRange: queryOption.outbound,
-    calleeRange: queryOption.inbound,
-    bidirectional: !!queryOption.bidirectional,
-    wasOnly: !!queryOption.wasOnly,
     useStatisticsAgentState,
   });
 

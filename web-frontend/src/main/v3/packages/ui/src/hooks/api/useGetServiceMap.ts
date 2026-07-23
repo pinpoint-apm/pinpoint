@@ -4,11 +4,7 @@ import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { queryFn } from './reactQueryHelper';
 
 export const useGetServiceMap = (params: GetServiceMap.Parameters) => {
-  const { keepServiceNames, ...rest } = params;
-  const queryString = convertParamsToQueryString({
-    ...rest,
-    keepServiceNames: keepServiceNames?.length ? keepServiceNames.join(',') : 'DEFAULT',
-  });
+  const queryString = convertParamsToQueryString(params);
 
   return useQuery<GetServiceMap.Response>({
     queryKey: [END_POINTS.SERVICE_MAP_DATA, queryString],
