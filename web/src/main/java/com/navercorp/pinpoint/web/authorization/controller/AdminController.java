@@ -21,9 +21,7 @@ import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.AdminService;
-import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.web.service.ServiceModelResolver;
-import com.navercorp.pinpoint.web.view.tree.AgentIdView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.Min;
@@ -35,7 +33,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,16 +57,13 @@ public class AdminController {
     private final AdminService adminService;
     private final ApplicationFactory applicationFactory;
     private final ServiceModelResolver serviceModelResolver;
-    private final AgentListV2Service agentListV2Service;
 
     public AdminController(AdminService adminService,
                            ApplicationFactory applicationFactory,
-                           ServiceModelResolver serviceModelResolver,
-                           AgentListV2Service agentListV2Service) {
+                           ServiceModelResolver serviceModelResolver) {
         this.adminService = Objects.requireNonNull(adminService, "adminService");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
-        this.agentListV2Service = Objects.requireNonNull(agentListV2Service, "agentListV2Service");
     }
 
     @Deprecated
@@ -182,22 +176,6 @@ public class AdminController {
         logger.info("Getting in-active agents - applicationName: [{}], duration: {} days.",
                 applicationName, durationDays);
         return this.adminService.getInactiveAgents(applicationName, durationDays);
-    }
-
-    @GetMapping(value = "/agents")
-    public List<AgentIdView> getAgents(
-            @ServiceParam ServiceName serviceName,
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName) {
-        final Service service = serviceModelResolver.getService(serviceName.getName());
-        final Application application = getApplication(service, applicationName, serviceTypeCode, serviceTypeName);
-        if (application.getServiceType().equals(ServiceType.UNDEFINED)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required");
-        }
-        return agentListV2Service.getAllAgentList(service, applicationName, application.getServiceType()).stream()
-                .map(AgentIdView::of)
-                .toList();
     }
 
     private Application getApplication(Service service, String applicationName, Integer serviceTypeCode, String serviceTypeName) {

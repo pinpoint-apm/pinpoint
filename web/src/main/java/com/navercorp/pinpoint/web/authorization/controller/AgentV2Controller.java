@@ -66,10 +66,10 @@ public class AgentV2Controller {
 
     @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/agents", params = {"applicationName", "from", "to"})
-    public List<AgentIdView> getAgentsV2(
+    public List<AgentIdView> getAgents(
             @ServiceParam ServiceName serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to) {
@@ -79,14 +79,31 @@ public class AgentV2Controller {
         rangeValidator.validate(range);
 
         if (serviceType.equals(ServiceType.UNDEFINED)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required for v2 table");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required");
         }
         return agentListV2Service.getActiveAgentList(service, applicationName, serviceType, range).stream()
                 .map(entry -> AgentIdView.of(entry, range.getTo()))
                 .toList();
     }
 
-    private ServiceType findServiceType(Short serviceTypeCode, String serviceTypeName) {
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
+    @GetMapping(value = "/agents", params = {"applicationName", "!from", "!to"})
+    public List<AgentIdView> getAgents(
+            @ServiceParam ServiceName serviceName,
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName) {
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+        if (serviceType.equals(ServiceType.UNDEFINED)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required");
+        }
+        return agentListV2Service.getAllAgentList(service, applicationName, serviceType).stream()
+                .map(AgentIdView::of)
+                .toList();
+    }
+
+    private ServiceType findServiceType(Integer serviceTypeCode, String serviceTypeName) {
         if (serviceTypeCode != null) {
             return serviceTypeRegistryService.findServiceType(serviceTypeCode);
         } else if (serviceTypeName != null) {
