@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.trace.dao.mapper;
 
+import com.navercorp.pinpoint.common.buffer.StringAllocatorFactory;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,18 +38,18 @@ public class SpanMapperFactory {
 
     private final RowKeyDecoder<ServerTraceId> rowKeyDecoder;
 
-    private final int stringCacheSize;
+    private final StringAllocatorFactory stringAllocatorFactory;
 
     private final RowMapper<List<SpanBo>> mapper;
 
     private final SpanDecoder spanDecoder = new SpanDecoderV0();
 
     public SpanMapperFactory(@Qualifier("traceRowKeyDecoderV2") RowKeyDecoder<ServerTraceId> rowKeyDecoder,
-                             @Value("${web.hbase.mapper.cache.string.size:-1}") int stringCacheSize) {
+                             StringAllocatorFactory stringAllocatorFactory) {
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
-        this.stringCacheSize = stringCacheSize;
+        this.stringAllocatorFactory = Objects.requireNonNull(stringAllocatorFactory, "stringAllocatorFactory");
 
-        this.mapper = wrap(new SpanMapperV2(rowKeyDecoder, stringCacheSize));
+        this.mapper = wrap(new SpanMapperV2(rowKeyDecoder, stringAllocatorFactory));
     }
 
     public RowMapper<List<SpanBo>> getSpanMapper() {
@@ -71,6 +71,6 @@ public class SpanMapperFactory {
         }
 
         final SpanDecoder targetSpanDecoder = new FilteringSpanDecoder(spanDecoder, spanFilter);
-        return new SpanMapperV2(rowKeyDecoder, targetSpanDecoder, stringCacheSize);
+        return new SpanMapperV2(rowKeyDecoder, targetSpanDecoder, stringAllocatorFactory);
     }
 }
