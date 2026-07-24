@@ -89,7 +89,7 @@ public class OtlpTraceCollectorModule {
     @Bean
     public ServerServiceDefinition serverServiceDefinition(OtlpTraceExportService exportService,
                                                            @Qualifier("grpcOtlpTraceWorkerExecutor") Executor workerExecutor,
-                                                           @Value("${pinpoint.collector.otlptrace.admission.max-in-flight-bytes:67108864}") int maxInFlightBytes,
+                                                           @Value("${pinpoint.collector.otlptrace.admission.max-in-flight-bytes:268435456}") int maxInFlightBytes,
                                                            MeterRegistry meterRegistry) {
         BindableService spanService = new GrpcOtlpTraceService(exportService, workerExecutor, maxInFlightBytes);
         // gRPC server metrics (request count / latency / status code) for the OTLP trace endpoint,

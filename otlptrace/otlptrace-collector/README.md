@@ -51,14 +51,14 @@ OTLP exporter
 
 | Item | Value | Notes |
 |---|---|---|
-| inbound_message_size_max | 1MB | More conservative than the main collector's span receiver (4MB) |
+| inbound_message_size_max | 4MB | Matches the reference OTel Collector (4MiB) and the HTTP path; worst-case ~512MB/connection direct memory at 128 concurrent calls |
 | HTTP/2 flow-control window | 512KB | |
 | Concurrent calls per connection | 128 | Conservative vs the main collector's 1024 |
 | keepalive | time 30s / timeout 60s, permit 10s + without_calls | Handles OTLP exporter idle PINGs (avoids GOAWAY too_many_pings) |
 | max header | 8KB | Accounts for the JWT Authorization header |
 | server executor | 4 threads / queue 256 | Serves both the gRPC handler and HBase async callbacks |
 | worker executor | 16 threads / queue 128 | Runs mapping + insert, AbortPolicy |
-| in-flight byte admission | 256MB (Semaphore) | The code `@Value` default is 64MB — note the mismatch |
+| in-flight byte admission | 256MB (Semaphore) | Code `@Value` default aligned to 256MB (matches this properties value) |
 
 ### Request handling flow (`GrpcOtlpTraceService.java:86-153`)
 
