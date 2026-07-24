@@ -48,7 +48,7 @@ class TimeSeriesBuilderTest {
 
         TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(heatmapCellList, heatmapCellList, timeWindow, bucketList);
         HeatMapData heatMapData = timeSeriesBuilder.createHeatMapData();
-        assertEquals(31, heatMapData.getHeatMapMetricColumnMap().size());
+        assertEquals(30, heatMapData.getHeatMapMetricColumnMap().size());
 
         for (HeatMapMetricColumn heatMapMetricColumn : heatMapData.getHeatMapMetricColumnMap().values()) {
             assertEquals(bucketList.size(), heatMapMetricColumn.heatMapMetricCellMap().size());
@@ -66,7 +66,7 @@ class TimeSeriesBuilderTest {
 
         TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(heatmapCellList, heatmapCellList, timeWindow, bucketList);
         HeatMapData heatMapData = timeSeriesBuilder.createHeatMapData();
-        assertEquals(31, heatMapData.getHeatMapMetricColumnMap().size());
+        assertEquals(30, heatMapData.getHeatMapMetricColumnMap().size());
 
         for (HeatMapMetricColumn heatMapMetricColumn : heatMapData.getHeatMapMetricColumnMap().values()) {
             assertEquals(bucketList.size(), heatMapMetricColumn.heatMapMetricCellMap().size());
@@ -84,8 +84,8 @@ class TimeSeriesBuilderTest {
 
         TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(heatmapCellList, heatmapCellList, timeWindow, bucketList);
         HeatMapData heatMapData = timeSeriesBuilder.createHeatMapData();
-        assertEquals(31, heatMapData.getHeatMapMetricColumnMap().size());
-        assertEquals(31, heatMapData.getHeatmapSize().width());
+        assertEquals(30, heatMapData.getHeatMapMetricColumnMap().size());
+        assertEquals(30, heatMapData.getHeatmapSize().width());
         assertEquals(50, heatMapData.getHeatmapSize().height());
     }
 
@@ -104,10 +104,10 @@ class TimeSeriesBuilderTest {
         List<HeatMapMetricColumn> heatMapMetricColumnList = new ArrayList<>(heatMapData.getAscHeatMapMetricColumnList());
         Collections.reverse(heatMapMetricColumnList);
         int size = heatMapMetricColumnList.size();
-        assertEquals(31, size);
+        assertEquals(30, size);
 
         long timestamp = heatMapMetricColumnList.get(0).timestamp();
-        assertEquals(1742826240000L, timestamp);
+        assertEquals(1742817600000L, timestamp);
 
         timestamp = heatMapMetricColumnList.get(size - 1).timestamp();
         assertEquals(1742567040000L, timestamp);
@@ -121,8 +121,8 @@ class TimeSeriesBuilderTest {
         TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler(10000L, 30L));
         List<Integer> bucketList = Arrays.asList(200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800, 4000, 4200, 4400, 4600, 4800, 5000, 5200, 5400, 5600, 5800, 6000, 6200, 6400, 6600, 6800, 7000, 7200, 7400, 7600, 7800, 8000, 8200, 8400, 8600, 8800, 9000, 9200, 9400, 9600, 9800, 10000);
 
-
-        long timestamp1 = 1742826240000L;
+        //long timestamp1 = 1742826240000L; out of refined range
+        long timestamp1 = 1742817600000L;
         long timestamp2 = 1742567040000L;
         long timestamp3 = 1742662080000L;
         int elapsedTime1 = 200;

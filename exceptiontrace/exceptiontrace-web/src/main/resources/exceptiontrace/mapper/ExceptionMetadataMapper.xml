@@ -60,7 +60,7 @@
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
         <if test="range != null">
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         </if>
         <if test="agentId != null">
             AND agentId = #{agentId}
@@ -84,7 +84,7 @@
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
         <if test="range != null">
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         </if>
         <if test="agentId != null">
             AND agentId = #{agentId}

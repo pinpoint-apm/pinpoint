@@ -45,7 +45,7 @@
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
-        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
@@ -71,7 +71,7 @@
         WHERE
         tenantId = #{tenantId}
         AND applicationName = #{applicationName}
-        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         <if test="agentId != null">
             AND agentId = #{agentId}
         </if>
