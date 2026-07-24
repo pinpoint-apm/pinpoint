@@ -71,7 +71,7 @@ public class SpanEncoderTest {
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);
 
-    private final SpanEncoder spanEncoder = new SpanEncoderV0();
+    private final SpanEncoder spanEncoder = new SpanEncoderV0(new SpanHeaderFactory(false));
     private final SpanDecoder spanDecoder = new SpanDecoderV0();
 
 

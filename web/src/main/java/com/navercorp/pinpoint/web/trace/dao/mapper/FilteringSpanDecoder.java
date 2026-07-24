@@ -47,7 +47,10 @@ public class FilteringSpanDecoder implements SpanDecoder {
         }
         final byte type = qualifier.getByte(0);
         final SpanHeader header = SpanHeader.of(type);
-        if (header == null || header.isSpanChunk()) {
+        if (header == null) {
+            throw new IllegalStateException("Unknown span qualifier type: " + Byte.toUnsignedInt(type));
+        }
+        if (header.isSpanChunk()) {
             return null;
         }
         // span
