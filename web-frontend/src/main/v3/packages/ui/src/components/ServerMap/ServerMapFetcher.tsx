@@ -12,7 +12,12 @@ import {
   useServerMapSearchParameters,
 } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
-import { getBaseNodeId, getServerImagePath, parseBaseNodeId } from '@pinpoint-fe/ui/src/utils';
+import {
+  getBaseNodeId,
+  getServerImagePath,
+  parseBaseNodeId,
+  resolveUseStatisticsAgentState,
+} from '@pinpoint-fe/ui/src/utils';
 import { ServerMapCore, ServerMapCoreProps } from './ServerMapCore';
 
 export interface ServerMapFetcherProps extends Pick<
@@ -28,7 +33,9 @@ export const ServerMapFetcher = ({ shouldPoll, ...props }: ServerMapFetcherProps
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const { application } = useServerMapSearchParameters();
   const experimentalOption = useExperimentals();
-  const useStatisticsAgentState = experimentalOption.statisticsAgentState.value || true;
+  const useStatisticsAgentState = resolveUseStatisticsAgentState(
+    experimentalOption.statisticsAgentState.value,
+  );
 
   const { data, isLoading, error } = useGetServerMapDataV2({
     shouldPoll: !!shouldPoll,
