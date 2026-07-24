@@ -102,7 +102,7 @@ public class OtlpTraceSpanMapper {
         // leaking into application-keyed storage via the applicationServiceType fallback
         // (trace index v2 row key, server-map self vertex, application registration).
         spanBo.setApplicationServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
-        spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
+        spanBo.setTransactionId(new OtelServerTraceId(OtlpIdValidator.validateTraceId(span.getTraceId())));
         spanBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getSpanId()));
         spanBo.setParentSpanId(OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId()));
         final long endTimeNanos = Math.max(span.getEndTimeUnixNano(), startTimeNanos);

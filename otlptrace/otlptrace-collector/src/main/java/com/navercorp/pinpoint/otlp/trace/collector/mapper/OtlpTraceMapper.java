@@ -220,6 +220,7 @@ public class OtlpTraceMapper {
     Map<ByteString, List<ScopedSpan>> getSpanMap(List<ScopeSpans> scopeSpanList, OtlpTraceCollectorRejectedSpan rejectedSpan) {
         Map<ByteString, List<ScopedSpan>> spanMap = new HashMap<>();
         int unsampledCount = 0;
+        int invalidIdCount = 0;
         for (ScopeSpans scopeSpan : scopeSpanList) {
             // The scope→span association only exists on this container — capture it here
             // (see ScopedSpan) so the mappers can emit the OPENTELEMETRY_SCOPE annotation.
@@ -228,6 +229,16 @@ public class OtlpTraceMapper {
             for (Span span : spansList) {
                 if (isUnsampled(span)) {
                     unsampledCount++;
+                    continue;
+                }
+                // Reject malformed identifiers up front (OTel: trace ID = 16 bytes, span ID = 8 bytes,
+                // neither all-zero). A present-but-invalid parentSpanId also rejects the span, so it is
+                // never mis-classified as a root. Skipped here so the invalid ID never becomes a
+                // storage key (transactionId/spanId) or a truncated-collision.
+                if (!OtlpIdValidator.isValidTraceId(span.getTraceId())
+                        || !OtlpIdValidator.isValidSpanId(span.getSpanId())
+                        || !OtlpIdValidator.isValidParentSpanId(span.getParentSpanId())) {
+                    invalidIdCount++;
                     continue;
                 }
                 spanMap.computeIfAbsent(span.getTraceId(), k -> new ArrayList<>()).add(new ScopedSpan(span, scope));
@@ -241,6 +252,12 @@ public class OtlpTraceMapper {
             rejectedSpan.putMessage("unsampled span (" + unsampledCount + ")");
             rejectedSpan.addCount(unsampledCount);
             logger.debug("Dropped unsampled spans count={}", unsampledCount);
+        }
+        if (invalidIdCount > 0) {
+            // Same client-data reject policy as above: count into rejected_spans, debug log only.
+            rejectedSpan.putMessage("invalid id (" + invalidIdCount + ")");
+            rejectedSpan.addCount(invalidIdCount);
+            logger.debug("Dropped spans with invalid trace/span id count={}", invalidIdCount);
         }
         return spanMap;
     }

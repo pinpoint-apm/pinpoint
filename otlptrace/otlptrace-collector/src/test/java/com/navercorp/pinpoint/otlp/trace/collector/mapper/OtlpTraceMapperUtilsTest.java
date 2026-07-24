@@ -725,14 +725,14 @@ class OtlpTraceMapperUtilsTest {
     void getSpanId_empty_throws() {
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getSpanId(ByteString.EMPTY))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("not found spanId");
+                .hasMessageContaining("invalid spanId");
     }
 
     @Test
     void getSpanId_null_throws() {
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getSpanId(null))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("not found spanId");
+                .hasMessageContaining("invalid spanId");
     }
 
     // =======================================================================

@@ -169,6 +169,34 @@ class OtlpTraceMapperTest {
                 .build());
     }
 
+    @Test
+    void invalidId_span_isRejectedAndCounted() {
+        OtlpTraceMapper mapper = newMapper();
+        Span validRoot = serverRoot(ROOT_A, "/ok", false);
+        // all-zero span id -> invalid; dropped at the span-map gate before it can become a storage key
+        Span invalidRoot = serverRoot(new byte[8], "/bad", false);
+
+        OtlpTraceMapperData data = mapper.map(resourceSpans(validRoot, invalidRoot));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getRejectedSpan().count()).isEqualTo(1);
+        assertThat(data.getRejectedSpan().getMessage()).contains("invalid id");
+    }
+
+    @Test
+    void invalidParentSpanId_child_isRejected() {
+        OtlpTraceMapper mapper = newMapper();
+        Span root = serverRoot(ROOT_A, "/ok", false);
+        // present-but-all-zero parentSpanId -> invalid; the child span is rejected (decision A)
+        Span badChild = clientChild(CHILD, new byte[8], false);
+
+        OtlpTraceMapperData data = mapper.map(resourceSpans(root, badChild));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getRejectedSpan().count()).isEqualTo(1);
+        assertThat(data.getRejectedSpan().getMessage()).contains("invalid id");
+    }
+
     private static ExceptionMetaDataBo findBySpanId(OtlpTraceMapperData data, long rootSpanId) {
         return data.getExceptionMetaDataBoList().stream()
                 .filter(bo -> bo.getSpanId() == rootSpanId)

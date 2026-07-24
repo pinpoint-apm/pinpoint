@@ -44,13 +44,14 @@ public class OtlpTraceLinkMapper {
      * Serializes an OTel {@link Span.Link} as {@link OtelLink} JSON into an
      * {@link AnnotationKey#OPENTELEMETRY_LINK} annotation.
      *
-     * <p>Returns {@code null} when both traceId and spanId are empty — OTel spec requires links
-     * to carry a non-empty SpanContext, so a fully-empty link is invalid input we drop silently.</p>
+     * <p>Returns {@code null} when the link does not carry a valid SpanContext (16-byte non-zero
+     * traceId + 8-byte non-zero spanId). OTel requires a link to reference a valid span, so an
+     * invalid/empty link is unusable input; only the link is dropped, not the owning span.</p>
      *
      * <p>{@code onTruncated} is invoked once per truncated value (traceState or attribute leaf).</p>
      */
     public @Nullable AnnotationBo toAnnotation(Span.Link link, TruncationListener onTruncated) {
-        if (link.getTraceId().isEmpty() && link.getSpanId().isEmpty()) {
+        if (!OtlpIdValidator.isValidTraceId(link.getTraceId()) || !OtlpIdValidator.isValidSpanId(link.getSpanId())) {
             return null;
         }
         try {
