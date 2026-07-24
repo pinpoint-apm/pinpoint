@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
@@ -34,29 +33,10 @@ import java.util.Objects;
 public class TraceIndexServiceImpl implements TraceIndexService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
     private final TraceIndexDao traceIndexDao;
 
-    public TraceIndexServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao, TraceIndexDao traceIndexDao) {
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
-        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "applicationTraceIndexV2Dao");
-    }
-
-    @Override
-    public LimitedScanResult<List<ServerTraceId>> getTraceIndex(String applicationName, Range range, int limit) {
-        return getTraceIndex(applicationName, range, limit, true);
-    }
-
-    @Override
-    public LimitedScanResult<List<ServerTraceId>> getTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(range, "range");
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
-        }
-
-        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
+    public TraceIndexServiceImpl(TraceIndexDao traceIndexDao) {
+        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
     }
 
     @Override
@@ -65,7 +45,7 @@ public class TraceIndexServiceImpl implements TraceIndexService {
         Objects.requireNonNull(range, "range");
 
         if (logger.isTraceEnabled()) {
-            logger.trace("scan(selectTraceIdsFromApplicationTraceIndexV2) {}, {}", applicationName, range);
+            logger.trace("scan(selectTraceIdsFromTraceIndex) {}, {}", applicationName, range);
         }
 
         LimitedScanResult<List<DotMetaData>> listLimitedScanResult = this.traceIndexDao.scanTraceIndex(serviceUid, applicationName, serviceTypeCode, range, limit);

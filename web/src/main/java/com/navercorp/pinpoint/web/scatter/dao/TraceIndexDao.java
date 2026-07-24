@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 
 import java.util.List;
 
-// ApplicationTraceIndexDao V2
 public interface TraceIndexDao {
 
     LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);

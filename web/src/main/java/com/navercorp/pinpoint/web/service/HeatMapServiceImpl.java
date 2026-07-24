@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
-import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
@@ -45,6 +44,8 @@ import java.util.function.Predicate;
 @Service
 public class HeatMapServiceImpl implements HeatMapService {
 
+    private static final int LEGACY_TX_ID_LOG_LIMIT = 10;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final Predicate<DotMetaData> legacyTablePredicate = new Predicate<>() {
@@ -54,38 +55,19 @@ public class HeatMapServiceImpl implements HeatMapService {
         }
     };
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
     private final TraceIndexDao traceIndexDao;
 
     private final TraceDao traceDao;
     private final SpanService spanService;
 
-    public HeatMapServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
-                              TraceIndexDao traceIndexDao,
+    public HeatMapServiceImpl(TraceIndexDao traceIndexDao,
                               SpanService spanService,
                               TraceDao traceDao) {
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
-        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "applicationTraceIndexV2Dao");
+        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
     }
 
-
-    @Override
-    public LimitedScanResult<List<DotMetaData>> dragScatterDataV2(String applicationName, DragAreaQuery dragAreaQuery, int limit) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
-
-
-        LimitedScanResult<List<DotMetaData>> scanResult = applicationTraceIndexDao.scanScatterDataV2(applicationName, dragAreaQuery, limit);
-        List<DotMetaData> scanData = scanResult.scanData();
-        logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
-
-        if (hasOldVersion(scanData)) {
-            return filterCompatibility(applicationName, scanResult);
-        }
-        return scanResult;
-    }
 
     @Override
     public LimitedScanResult<List<DotMetaData>> dragTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, int limit) {
@@ -97,7 +79,7 @@ public class HeatMapServiceImpl implements HeatMapService {
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
 
         if (hasOldVersion(scanData)) {
-            return filterCompatibility(applicationName, scanResult);
+            return filterCompatibility(applicationName, serviceTypeCode, scanResult);
         }
         return scanResult;
     }
@@ -109,10 +91,20 @@ public class HeatMapServiceImpl implements HeatMapService {
         return oldVersion.isPresent();
     }
 
-    private LimitedScanResult<List<DotMetaData>> filterCompatibility(String applicationName, LimitedScanResult<List<DotMetaData>> scanResult) {
+    private LimitedScanResult<List<DotMetaData>> filterCompatibility(String applicationName, int serviceTypeCode, LimitedScanResult<List<DotMetaData>> scanResult) {
         List<DotMetaData> scanData = scanResult.scanData();
 
         List<Dot> dots = filterLegacyTablePredicate(scanData, legacyTablePredicate);
+
+        if (logger.isWarnEnabled()) {
+            List<ServerTraceId> legacyTxIds = dots.stream()
+                    .map(Dot::getTransactionId)
+                    .limit(LEGACY_TX_ID_LOG_LIMIT)
+                    .toList();
+            logger.warn("Legacy trace-index rows detected (startTime==0); running compatibility backfill. " +
+                            "applicationName:{} serviceTypeCode:{} dots:{} legacyTxIds:{}",
+                    applicationName, serviceTypeCode, dots.size(), legacyTxIds);
+        }
 
         List<GetTraceInfo> query = buildQuery(applicationName, dots);
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query);
