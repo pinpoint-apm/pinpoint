@@ -197,6 +197,23 @@ public class FilteringSpanDecoderTest {
         Assertions.assertNull(result, "TYPE_OTEL_SPAN_CHUNK must be dropped (decoder filters spans only)");
     }
 
+    @Test
+    public void decodeTest_unknownType_throws() {
+        SpanBo spanBo = Random.createSpanBo();
+        SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
+
+        GetTraceInfo getTraceInfo = createGetTraceInfo(spanBo);
+        SpanQueryBuilder builder = new SpanQueryBuilder();
+        SpanQuery query = builder.build(getTraceInfo);
+
+        FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
+
+        Buffer buffer = newQualifierBuffer(SpanEncoder.TYPE_INDEX);
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> filteringSpanDecoder.decode(buffer, null, null),
+                "an unresolved qualifier type must fail fast");
+    }
+
     private GetTraceInfo createGetTraceInfo() {
         return createGetTraceInfo(Random.createSpanBo());
     }

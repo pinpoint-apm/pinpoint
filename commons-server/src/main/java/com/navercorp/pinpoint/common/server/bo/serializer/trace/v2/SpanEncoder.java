@@ -22,6 +22,13 @@ public interface SpanEncoder {
     byte TYPE_PASSIVE_SPAN = 4;
     byte TYPE_INDEX = 7;
 
+    // serviceUid-bearing variants. Same span/chunk and source-type semantics as the
+    // codes above, but the qualifier additionally carries a serviceUid.
+    byte TYPE_SPAN_UID = 8;
+    byte TYPE_SPAN_CHUNK_UID = 9;
+    byte TYPE_OTEL_SPAN_UID = 10;
+    byte TYPE_OTEL_SPAN_CHUNK_UID = 11;
+
     ByteBuffer encodeSpanQualifier(SpanEncodingContext<SpanBo> encodingContext);
 
     ByteBuffer encodeSpanColumnValue(SpanEncodingContext<SpanBo> encodingContext);

@@ -25,12 +25,14 @@ import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Focused tests for {@link SpanDecoderV0#decode} type-byte dispatch.
@@ -39,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class SpanDecoderV0Test {
 
-    private final SpanEncoderV0 encoder = new SpanEncoderV0();
+    private final SpanEncoderV0 encoder = new SpanEncoderV0(new SpanHeaderFactory(false));
     private final SpanDecoderV0 decoder = new SpanDecoderV0();
 
     @Test
@@ -79,16 +81,74 @@ class SpanDecoderV0Test {
     }
 
     @Test
-    void decode_unknownType_returnsNull() {
+    void decode_typeSpanUid_roundTripsServiceUid() {
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+        ServiceUid serviceUid = ServiceUid.of(100);
+
+        SpanBo input = newMinimalSpan(TraceSourceType.PINPOINT);
+        input.getSpanOwner().setServiceUid(() -> serviceUid);
+        BasicSpan decoded = roundTripSpan(uidEncoder, input);
+
+        assertThat(decoded).isInstanceOf(SpanBo.class);
+        assertThat(decoded.getTraceSourceType()).isEqualTo(TraceSourceType.PINPOINT);
+        assertThat(decoded.getServiceUid()).isEqualTo(serviceUid);
+        // fields around the front-loaded serviceUid layout survive the reorder
+        assertThat(decoded.getSpanId()).isEqualTo(input.getSpanId());
+        assertThat(decoded.getApplicationName()).isEqualTo(input.getApplicationName());
+        assertThat(decoded.getAgentId()).isEqualTo(input.getAgentId());
+    }
+
+    @Test
+    void decode_fullRangeServiceUid_roundTrips() {
+        // serviceUid is a full-range random int; the fixed 4-byte layout must survive
+        // values that a varint would have widened (or a narrower read would truncate).
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+        for (int uid : new int[]{Integer.MAX_VALUE, Integer.MIN_VALUE, 0x12345678}) {
+            ServiceUid serviceUid = ServiceUid.of(uid);
+
+            SpanBo input = newMinimalSpan(TraceSourceType.PINPOINT);
+            input.getSpanOwner().setServiceUid(() -> serviceUid);
+            BasicSpan decoded = roundTripSpan(uidEncoder, input);
+
+            assertThat(decoded.getServiceUid()).isEqualTo(serviceUid);
+        }
+    }
+
+    @Test
+    void decode_typeOtelSpanChunkUid_roundTripsServiceUid() {
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+        ServiceUid serviceUid = ServiceUid.of(-100);
+
+        SpanChunkBo input = newMinimalSpanChunk(TraceSourceType.OPENTELEMETRY);
+        input.getSpanOwner().setServiceUid(() -> serviceUid);
+        BasicSpan decoded = roundTripSpanChunk(uidEncoder, input);
+
+        assertThat(decoded).isInstanceOf(SpanChunkBo.class);
+        assertThat(decoded.getTraceSourceType()).isEqualTo(TraceSourceType.OPENTELEMETRY);
+        assertThat(decoded.getServiceUid()).isEqualTo(serviceUid);
+    }
+
+    @Test
+    void decode_serviceUidDisabled_keepsDefaultServiceUid() {
+        SpanBo input = newMinimalSpan(TraceSourceType.PINPOINT);
+        input.getSpanOwner().setServiceUid(() -> ServiceUid.of(100));
+        BasicSpan decoded = roundTripSpan(input);
+
+        // the plain SPAN qualifier does not carry a serviceUid
+        assertThat(decoded.getServiceUid()).isEqualTo(ServiceUid.DEFAULT);
+    }
+
+    @Test
+    void decode_unknownType_throws() {
         Buffer qualifier = new FixedBuffer(1);
         qualifier.putByte((byte) 99);
         qualifier.setOffset(0);
         Buffer value = new FixedBuffer(new byte[]{0});
 
         SpanDecodingContext ctx = new SpanDecodingContext(newTransactionId());
-        BasicSpan decoded = decoder.decode(qualifier, value, ctx);
 
-        assertThat(decoded).isNull();
+        assertThatThrownBy(() -> decoder.decode(qualifier, value, ctx))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     private SpanBo newMinimalSpan(TraceSourceType type) {
@@ -119,6 +179,10 @@ class SpanDecoderV0Test {
     }
 
     private BasicSpan roundTripSpan(SpanBo input) {
+        return roundTripSpan(encoder, input);
+    }
+
+    private BasicSpan roundTripSpan(SpanEncoderV0 encoder, SpanBo input) {
         SpanEncodingContext<SpanBo> encCtx = new SpanEncodingContext<>(input);
         Buffer qualifier = wrap(encoder.encodeSpanQualifier(encCtx));
         Buffer value = wrap(encoder.encodeSpanColumnValue(encCtx));
@@ -129,6 +193,10 @@ class SpanDecoderV0Test {
     }
 
     private BasicSpan roundTripSpanChunk(SpanChunkBo input) {
+        return roundTripSpanChunk(encoder, input);
+    }
+
+    private BasicSpan roundTripSpanChunk(SpanEncoderV0 encoder, SpanChunkBo input) {
         SpanEncodingContext<SpanChunkBo> encCtx = new SpanEncodingContext<>(input);
         Buffer qualifier = wrap(encoder.encodeSpanChunkQualifier(encCtx));
         Buffer value = wrap(encoder.encodeSpanChunkColumnValue(encCtx));

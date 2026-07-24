@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 
 /**
  * First byte of the trace qualifier. The code doubles as both the span/chunk
@@ -25,19 +28,26 @@ import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
  * the HBase qualifier filters.
  */
 public enum SpanHeader {
-    SPAN(SpanEncoder.TYPE_SPAN, TraceSourceType.PINPOINT, false),
-    SPAN_CHUNK(SpanEncoder.TYPE_SPAN_CHUNK, TraceSourceType.PINPOINT, true),
-    OTEL_SPAN(SpanEncoder.TYPE_OTEL_SPAN, TraceSourceType.OPENTELEMETRY, false),
-    OTEL_SPAN_CHUNK(SpanEncoder.TYPE_OTEL_SPAN_CHUNK, TraceSourceType.OPENTELEMETRY, true);
+    SPAN(SpanEncoder.TYPE_SPAN, TraceSourceType.PINPOINT, false, false),
+    SPAN_CHUNK(SpanEncoder.TYPE_SPAN_CHUNK, TraceSourceType.PINPOINT, true, false),
+    OTEL_SPAN(SpanEncoder.TYPE_OTEL_SPAN, TraceSourceType.OPENTELEMETRY, false, false),
+    OTEL_SPAN_CHUNK(SpanEncoder.TYPE_OTEL_SPAN_CHUNK, TraceSourceType.OPENTELEMETRY, true, false),
+
+    SPAN_UID(SpanEncoder.TYPE_SPAN_UID, TraceSourceType.PINPOINT, false, true),
+    SPAN_CHUNK_UID(SpanEncoder.TYPE_SPAN_CHUNK_UID, TraceSourceType.PINPOINT, true, true),
+    OTEL_SPAN_UID(SpanEncoder.TYPE_OTEL_SPAN_UID, TraceSourceType.OPENTELEMETRY, false, true),
+    OTEL_SPAN_CHUNK_UID(SpanEncoder.TYPE_OTEL_SPAN_CHUNK_UID, TraceSourceType.OPENTELEMETRY, true, true);
 
     private final byte code;
     private final TraceSourceType traceSourceType;
     private final boolean spanChunk;
+    private final boolean serviceUid;
 
-    SpanHeader(byte code, TraceSourceType traceSourceType, boolean spanChunk) {
+    SpanHeader(byte code, TraceSourceType traceSourceType, boolean spanChunk, boolean serviceUid) {
         this.code = code;
-        this.traceSourceType = traceSourceType;
+        this.traceSourceType = Objects.requireNonNull(traceSourceType, "traceSourceType");
         this.spanChunk = spanChunk;
+        this.serviceUid = serviceUid;
     }
 
     public byte getCode() {
@@ -52,18 +62,15 @@ public enum SpanHeader {
         return spanChunk;
     }
 
-    public static SpanHeader span(TraceSourceType traceSourceType) {
-        if (traceSourceType == TraceSourceType.OPENTELEMETRY) {
-            return OTEL_SPAN;
-        }
-        return SPAN;
+    public boolean isSpan() {
+        return !spanChunk;
     }
 
-    public static SpanHeader spanChunk(TraceSourceType traceSourceType) {
-        if (traceSourceType == TraceSourceType.OPENTELEMETRY) {
-            return OTEL_SPAN_CHUNK;
-        }
-        return SPAN_CHUNK;
+    /**
+     * @return {@code true} if the qualifier carries a serviceUid.
+     */
+    public boolean hasServiceUid() {
+        return serviceUid;
     }
 
     /**
@@ -71,12 +78,16 @@ public enum SpanHeader {
      * unknown or reserved codes ({@code TYPE_PASSIVE_SPAN}, {@code TYPE_INDEX})
      * so decoders can skip them leniently.
      */
-    public static SpanHeader of(byte code) {
+    public static @Nullable SpanHeader of(byte code) {
         return switch (code) {
             case SpanEncoder.TYPE_SPAN -> SPAN;
             case SpanEncoder.TYPE_SPAN_CHUNK -> SPAN_CHUNK;
             case SpanEncoder.TYPE_OTEL_SPAN -> OTEL_SPAN;
             case SpanEncoder.TYPE_OTEL_SPAN_CHUNK -> OTEL_SPAN_CHUNK;
+            case SpanEncoder.TYPE_SPAN_UID -> SPAN_UID;
+            case SpanEncoder.TYPE_SPAN_CHUNK_UID -> SPAN_CHUNK_UID;
+            case SpanEncoder.TYPE_OTEL_SPAN_UID -> OTEL_SPAN_UID;
+            case SpanEncoder.TYPE_OTEL_SPAN_CHUNK_UID -> OTEL_SPAN_CHUNK_UID;
             default -> null;
         };
     }
