@@ -201,17 +201,28 @@ public class OtlpTraceMapperUtils {
     }
 
     public static String getServiceName(Map<String, AttributeValue> attributes) {
-        String serviceName = AttributeUtils.getAttributeStringValue(attributes, KEY_PINPOINT_SERVICE_NAME, null);
-        if (serviceName == null) {
-            serviceName = AttributeUtils.getAttributeStringValue(attributes, KEY_SERVICE_NAMESPACE, null);
-        }
-        if (serviceName == null) {
-            return ServiceUid.DEFAULT_SERVICE_UID_NAME;
-        }
-        if (!IdValidateUtils.validateId(serviceName, PinpointConstants.SERVICE_NAME_MAX_LEN)) {
-            throw new IllegalArgumentException("invalid serviceName=" + serviceName);
-        }
-        return serviceName;
+        // TEMPORARY: OTLP spans are always assigned the DEFAULT serviceName, matching the native
+        // agent's effective default (SpanOwner.serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME).
+        // Rationale: OTLP applications are registered under DEFAULT_SERVICE_UID (see
+        // OtlpTraceExportService), and the web queries service-keyed stores (e.g. the Pinot heatmap
+        // sortKey = serviceName#applicationName) with DEFAULT. Deriving serviceName from
+        // pinpoint.serviceName / service.namespace here produced a key that never matched the web
+        // query, so OTLP transactions were missing from those views.
+        // Revisit once the serviceUid policy for OTLP is decided; the attribute-based resolution
+        // below should be restored (and validated against DEFAULT_SERVICE_UID registration) then.
+        //
+        //   String serviceName = AttributeUtils.getAttributeStringValue(attributes, KEY_PINPOINT_SERVICE_NAME, null);
+        //   if (serviceName == null) {
+        //       serviceName = AttributeUtils.getAttributeStringValue(attributes, KEY_SERVICE_NAMESPACE, null);
+        //   }
+        //   if (serviceName == null) {
+        //       return ServiceUid.DEFAULT_SERVICE_UID_NAME;
+        //   }
+        //   if (!IdValidateUtils.validateId(serviceName, PinpointConstants.SERVICE_NAME_MAX_LEN)) {
+        //       throw new IllegalArgumentException("invalid serviceName=" + serviceName);
+        //   }
+        //   return serviceName;
+        return ServiceUid.DEFAULT_SERVICE_UID_NAME;
     }
 
     public static long getSpanId(ByteString bytes) {
