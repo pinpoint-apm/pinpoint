@@ -247,13 +247,19 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     public Filter createSpanQualifierFilter() {
-        // Keep span cells only (drop span-chunk cells). TYPE_SPAN marks Pinpoint-origin spans,
-        // TYPE_OTEL_SPAN marks OpenTelemetry-origin spans — both are full Span rows.
-        Filter pinpointSpan = new QualifierFilter(CompareOperator.EQUAL,
-                new BinaryPrefixComparator(new byte[]{SpanHeader.SPAN.getCode()}));
-        Filter otelSpan = new QualifierFilter(CompareOperator.EQUAL,
-                new BinaryPrefixComparator(new byte[]{SpanHeader.OTEL_SPAN.getCode()}));
-        return new FilterList(FilterList.Operator.MUST_PASS_ONE, pinpointSpan, otelSpan);
+        // Keep full span cells only (drop span-chunk cells), across both the legacy and the
+        // serviceUid-bearing layouts (SPAN/OTEL_SPAN and their *_UID variants). The type byte
+        // is always qualifier[0], so a 1-byte prefix match per non-chunk SpanHeader code
+        // selects spans regardless of the rest of the layout. Driving this off SpanHeader keeps
+        // it correct if a variant is added later.
+        List<Filter> spanFilters = new ArrayList<>();
+        for (SpanHeader header : SpanHeader.values()) {
+            if (header.isSpan()) {
+                spanFilters.add(new QualifierFilter(CompareOperator.EQUAL,
+                        new BinaryPrefixComparator(new byte[]{header.getCode()})));
+            }
+        }
+        return new FilterList(FilterList.Operator.MUST_PASS_ONE, spanFilters);
     }
 
 
