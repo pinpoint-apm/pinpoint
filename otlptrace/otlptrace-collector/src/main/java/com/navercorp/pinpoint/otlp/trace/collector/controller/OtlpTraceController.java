@@ -16,10 +16,16 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.controller;
 
+import com.google.rpc.Code;
+import com.google.rpc.Status;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportResult;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceResponseMapper;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
+import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,15 +43,31 @@ public class OtlpTraceController {
         this.exportService = Objects.requireNonNull(exportService, "exportService");
     }
 
-    @PostMapping(value = "/v1/traces", consumes = "application/x-protobuf")
-    public ResponseEntity<Void> saveOtlpMetric(@RequestBody ExportTraceServiceRequest request) {
+    // OTLP/HTTP response semantics (M-1), shared with the gRPC path via OtlpTraceResponseMapper:
+    // success / client-rejected -> 200 + ExportTraceServiceResponse body (empty or partial success),
+    // server error -> retryable 503 + google.rpc.Status body. Content-Type mirrors the protobuf request.
+    @PostMapping(value = "/v1/traces",
+            consumes = MediaType.APPLICATION_PROTOBUF_VALUE,
+            produces = MediaType.APPLICATION_PROTOBUF_VALUE)
+    public ResponseEntity<byte[]> export(@RequestBody ExportTraceServiceRequest request) {
         final List<ResourceSpans> resourceSpanList = request.getResourceSpansList();
         final OtlpTraceExportResult result = exportService.export(resourceSpanList);
 
-        // NOTE (M-1, out of scope for this change): the HTTP path currently returns 200 regardless of
-        // outcome and sends no ExportTraceServiceResponse body. result.serverErrorCount() /
-        // result.clientRejected() are now available here to implement proper OTLP/HTTP response
-        // semantics (5xx on server error, ExportTracePartialSuccess body on client rejects) later.
-        return ResponseEntity.ok().build();
+        if (OtlpTraceResponseMapper.isServerError(result)) {
+            // Mirror the gRPC UNAVAILABLE path with a retryable 503 carrying a google.rpc.Status body,
+            // so the exporter retries the whole batch instead of silently dropping recoverable data.
+            final Status status = Status.newBuilder()
+                    .setCode(Code.UNAVAILABLE_VALUE)
+                    .setMessage(result.serverMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .contentType(MediaType.APPLICATION_PROTOBUF)
+                    .body(status.toByteArray());
+        }
+
+        final ExportTraceServiceResponse response = OtlpTraceResponseMapper.toResponse(result);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PROTOBUF)
+                .body(response.toByteArray());
     }
 }
