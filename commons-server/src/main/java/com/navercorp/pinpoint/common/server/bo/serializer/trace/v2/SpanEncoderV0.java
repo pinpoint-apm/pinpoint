@@ -20,20 +20,26 @@ import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-@Component
 public class SpanEncoderV0 implements SpanEncoder {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
     private static final AttributeTranscoder attributeTranscoder = new AttributeTranscoder();
+
+    // resolves the qualifier header for the encoder's fixed serviceUid mode
+    private final SpanHeaderFactory spanHeaderFactory;
+
+    public SpanEncoderV0(SpanHeaderFactory spanHeaderFactory) {
+        this.spanHeaderFactory = Objects.requireNonNull(spanHeaderFactory, "spanHeaderFactory");
+    }
 
     @Override
     public ByteBuffer encodeSpanQualifier(SpanEncodingContext<SpanBo> encodingContext) {
@@ -41,7 +47,7 @@ public class SpanEncoderV0 implements SpanEncoder {
         final List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
         final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
 
-        final SpanHeader header = SpanHeader.span(spanBo.getTraceSourceType());
+        final SpanHeader header = spanHeaderFactory.span(spanBo.getTraceSourceType());
         return encodeQualifier(header, spanBo, firstEvent, null);
     }
 
@@ -53,7 +59,7 @@ public class SpanEncoderV0 implements SpanEncoder {
         final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
 
         LocalAsyncIdBo localAsyncId = spanChunkBo.getLocalAsyncId();
-        final SpanHeader header = SpanHeader.spanChunk(spanChunkBo.getTraceSourceType());
+        final SpanHeader header = spanHeaderFactory.spanChunk(spanChunkBo.getTraceSourceType());
         return encodeQualifier(header, spanChunkBo, firstEvent, localAsyncId);
     }
 
@@ -61,10 +67,20 @@ public class SpanEncoderV0 implements SpanEncoder {
         final SpanOwner owner = basicSpan.getSpanOwner();
         final Buffer buffer = new AutomaticBuffer(128);
         buffer.putByte(header.getCode());
-        buffer.putPrefixedString(owner.getApplicationName());
-        buffer.putPrefixedString(owner.getAgentId());
-        buffer.putVLong(owner.getAgentStartTime());
-        buffer.putLong(basicSpan.getSpanId());
+        if (header.hasServiceUid()) {
+            // Front-load the fixed-width fields so an HBase QualifierFilter can match a
+            // [type][serviceUid][appNameHash][spanId] prefix without decoding the tail.
+            // serviceUid: fixed 4 bytes (full-range random int; a varint would average
+            // ~5 bytes). appNameHash: 1-byte lossy bucket for server-side application
+            // pre-filtering (the appName string in the tail stays authoritative).
+            buffer.putInt(owner.getServiceUid().getUid());
+            buffer.putByte(SpanQualifierHash.applicationName(owner.getApplicationName()));
+            buffer.putLong(basicSpan.getSpanId());
+            writeApplicationInfo(buffer, owner);
+        } else {
+            writeApplicationInfo(buffer, owner);
+            buffer.putLong(basicSpan.getSpanId());
+        }
 
         if (firstEvent != null) {
             buffer.putSVInt(firstEvent.getSequence());
@@ -88,7 +104,11 @@ public class SpanEncoderV0 implements SpanEncoder {
         return buffer.wrapByteBuffer();
     }
 
-
+    private void writeApplicationInfo(Buffer buffer, SpanOwner owner) {
+        buffer.putPrefixedString(owner.getApplicationName());
+        buffer.putPrefixedString(owner.getAgentId());
+        buffer.putVLong(owner.getAgentStartTime());
+    }
 
     private SpanEventBo getFirstSpanEvent(List<SpanEventBo> spanEventBoList) {
         if (CollectionUtils.isEmpty(spanEventBoList)) {

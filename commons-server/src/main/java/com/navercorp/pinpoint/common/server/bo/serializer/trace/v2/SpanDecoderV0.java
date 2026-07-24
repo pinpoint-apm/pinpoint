@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanOwner;
-import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitField;
@@ -37,6 +36,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.Span
 import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.server.io.SpanEventWriter;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,25 +62,24 @@ public class SpanDecoderV0 implements SpanDecoder {
 
         final SpanHeader header = SpanHeader.of(type);
         if (header == null) {
-            logger.warn("Unknown span type {}", type);
-            return null;
+            throw new IllegalStateException("Unknown span qualifier type: " + Byte.toUnsignedInt(type));
         }
         if (header.isSpanChunk()) {
-            return readSpanChunk(qualifier, columnValue, decodingContext, header.getTraceSourceType());
+            return readSpanChunk(qualifier, columnValue, decodingContext, header);
         }
-        return readSpan(qualifier, columnValue, decodingContext, header.getTraceSourceType());
+        return readSpan(qualifier, columnValue, decodingContext, header);
     }
 
     private SpanChunkBo readSpanChunk(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext,
-                                      TraceSourceType traceSourceType) {
-        final SpanChunkBo spanChunk = new SpanChunkBo(traceSourceType, new SpanOwner());
+                                      SpanHeader header) {
+        final SpanChunkBo spanChunk = new SpanChunkBo(header.getTraceSourceType(), new SpanOwner());
 
         final ServerTraceId transactionId = decodingContext.getTransactionId();
         spanChunk.setTransactionId(transactionId);
         spanChunk.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
 
-        readQualifier(spanChunk, qualifier, decodingContext);
+        readQualifier(spanChunk, qualifier, decodingContext, header);
 
         readSpanChunkValue(columnValue, spanChunk, decodingContext);
 
@@ -89,14 +88,14 @@ public class SpanDecoderV0 implements SpanDecoder {
 
 
     private SpanBo readSpan(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext,
-                            TraceSourceType traceSourceType) {
-        final SpanBo span = new SpanBo(traceSourceType, new SpanOwner());
+                            SpanHeader header) {
+        final SpanBo span = new SpanBo(header.getTraceSourceType(), new SpanOwner());
 
         final ServerTraceId transactionId = decodingContext.getTransactionId();
         span.setTransactionId(transactionId);
         span.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
-        readQualifier(span, qualifier, decodingContext);
+        readQualifier(span, qualifier, decodingContext, header);
 
         readSpanValue(columnValue, span, decodingContext);
 
@@ -413,20 +412,20 @@ public class SpanDecoderV0 implements SpanDecoder {
         }
     }
 
-    private void readQualifier(BasicSpan basicSpan, Buffer buffer, SpanDecodingContext decodingContext) {
+    private void readQualifier(BasicSpan basicSpan, Buffer buffer, SpanDecodingContext decodingContext, SpanHeader header) {
         final SpanOwner owner = basicSpan.getSpanOwner();
 
-        String applicationName = decodingContext.encoding(buffer.readPrefixedBytes());
-        owner.setApplicationName(applicationName);
-
-        String agentId = decodingContext.encoding(buffer.readPrefixedBytes());
-        owner.setAgentId(agentId);
-
-        long agentStartTime = buffer.readVLong();
-        owner.setAgentStartTime(agentStartTime);
-
-        long spanId = buffer.readLong();
-        basicSpan.setSpanId(spanId);
+        if (header.hasServiceUid()) {
+            // layout: [serviceUid(4)][appNameHash(1)][spanId(8)] then applicationInfo
+            final ServiceUid serviceUid = ServiceUid.of(buffer.readInt());
+            owner.setServiceUid(() -> serviceUid);
+            buffer.readByte(); // applicationName hash: filter-only, the name below is authoritative
+            basicSpan.setSpanId(buffer.readLong());
+            readApplicationInfo(owner, buffer, decodingContext);
+        } else {
+            readApplicationInfo(owner, buffer, decodingContext);
+            basicSpan.setSpanId(buffer.readLong());
+        }
 
         if (!buffer.hasRemaining()) {
             // spanEventList.size() == 0
@@ -443,6 +442,12 @@ public class SpanDecoderV0 implements SpanDecoder {
             }
         }
         setLocalAsyncId(basicSpan, buffer);
+    }
+
+    private void readApplicationInfo(SpanOwner owner, Buffer buffer, SpanDecodingContext decodingContext) {
+        owner.setApplicationName(decodingContext.encoding(buffer.readPrefixedBytes()));
+        owner.setAgentId(decodingContext.encoding(buffer.readPrefixedBytes()));
+        owner.setAgentStartTime(buffer.readVLong());
     }
 
     private void setLocalAsyncId(BasicSpan basicSpan, Buffer buffer) {
