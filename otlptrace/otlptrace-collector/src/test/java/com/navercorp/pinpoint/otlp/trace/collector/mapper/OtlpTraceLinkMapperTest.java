@@ -166,6 +166,32 @@ class OtlpTraceLinkMapperTest {
     }
 
     @Test
+    void invalidSpanId_link_isDropped() {
+        // Valid traceId but a malformed spanId (wrong length) — the link cannot reference a real
+        // span, so drop just the link (the owning span is unaffected).
+        Span.Link link = Span.Link.newBuilder()
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(new byte[]{1, 2, 3, 4}))
+                .build();
+
+        addLink(link);
+
+        assertThat(annotations).isEmpty();
+    }
+
+    @Test
+    void allZeroIds_link_isDropped() {
+        Span.Link link = Span.Link.newBuilder()
+                .setTraceId(ByteString.copyFrom(new byte[16]))
+                .setSpanId(ByteString.copyFrom(new byte[8]))
+                .build();
+
+        addLink(link);
+
+        assertThat(annotations).isEmpty();
+    }
+
+    @Test
     void allFields_combined() throws Exception {
         Span.Link link = Span.Link.newBuilder()
                 .setTraceId(ByteString.copyFrom(TRACE_ID))

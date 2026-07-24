@@ -215,18 +215,16 @@ public class OtlpTraceMapperUtils {
     }
 
     public static long getSpanId(ByteString bytes) {
-        if (ByteStringUtils.isEmpty(bytes)) {
-            throw new IllegalArgumentException("not found spanId");
-        }
-
-        return ByteStringUtils.parseLong(bytes);
+        // Validates length (exactly 8 bytes — no silent truncation of longer IDs) and rejects all-zero.
+        return OtlpIdValidator.validateSpanId(bytes);
     }
 
     public static long getParentSpanId(ByteString bytes) {
+        // An absent parent (root span) is represented as -1; a present parent must be a valid span ID.
         if (ByteStringUtils.isEmpty(bytes)) {
             return -1;
         }
-        return ByteStringUtils.parseLong(bytes);
+        return OtlpIdValidator.validateSpanId(bytes);
     }
 
     public static Map<String, AttributeValue> getAttributeValueMap(List<KeyValue> keyValueList) {
