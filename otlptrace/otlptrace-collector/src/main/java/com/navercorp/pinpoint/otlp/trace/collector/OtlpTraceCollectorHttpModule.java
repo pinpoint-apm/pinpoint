@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector;
 
+import com.navercorp.pinpoint.otlp.trace.collector.controller.OtlpTraceDecompressionFilter;
 import com.navercorp.pinpoint.otlp.trace.collector.controller.OtlpTraceHttpAdmissionFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -56,6 +57,22 @@ public class OtlpTraceCollectorHttpModule implements WebMvcConfigurer {
         FilterRegistrationBean<OtlpTraceHttpAdmissionFilter> registration = new FilterRegistrationBean<>(filter);
         registration.addUrlPatterns(OTLP_HTTP_TRACES_PATH);
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return registration;
+    }
+
+    /**
+     * Decompresses {@code Content-Encoding: gzip} bodies for {@value #OTLP_HTTP_TRACES_PATH} (the
+     * OTel {@code otlphttp} exporter's default). Ordered just after the admission filter so the
+     * compressed-size gates apply to the raw request first, then the inflated size is capped to guard
+     * against decompression bombs.
+     */
+    @Bean
+    public FilterRegistrationBean<OtlpTraceDecompressionFilter> otlpTraceDecompressionFilter(
+            @Value("${pinpoint.collector.otlptrace.http.max-decompressed-request-bytes:16777216}") int maxDecompressedBytes) {
+        OtlpTraceDecompressionFilter filter = new OtlpTraceDecompressionFilter(maxDecompressedBytes);
+        FilterRegistrationBean<OtlpTraceDecompressionFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.addUrlPatterns(OTLP_HTTP_TRACES_PATH);
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
         return registration;
     }
 }

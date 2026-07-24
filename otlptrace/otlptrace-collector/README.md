@@ -79,9 +79,9 @@ OTLP exporter
 
 ## 3. HTTP Layer
 
-- Endpoint: a single mapping `POST /v1/traces`, `consumes = application/x-protobuf`
-  (`OtlpTraceController.java:67-68`). **OTLP/HTTP JSON encoding is not supported** (415),
-  **Content-Encoding: gzip is not supported** (parse failure 400 — beware exporters that default to gzip).
+- Endpoint: a single mapping `POST /v1/traces`, `consumes = application/x-protobuf`.
+  **OTLP/HTTP JSON encoding is not supported** (415). **`Content-Encoding: gzip` is supported**
+  (decompressed by `OtlpTraceDecompressionFilter`); any other encoding → **415**.
 - Body parsing: `ProtobufHttpMessageConverter` (`OtlpTraceCollectorHttpModule.java:36-40`)
 - Executed synchronously on the Tomcat request thread (no worker offload)
 
@@ -97,6 +97,15 @@ deserialization. A 3-stage gate:
 
 Permits are released in a finally block after the entire request (parse + insert) completes.
 Config keys: `pinpoint.collector.otlptrace.http.*`
+
+### Decompression Filter (`OtlpTraceDecompressionFilter`)
+
+Registered for `/v1/traces` just after the admission filter (`HIGHEST_PRECEDENCE + 1`), so the
+compressed-size gates apply to the raw request first. `Content-Encoding: gzip` bodies are inflated
+before protobuf deserialization; `identity`/absent pass through; any other encoding → **415**.
+Since Content-Length bounds only the compressed size, the inflated stream is capped at
+`http.max-decompressed-request-bytes` (16MB) to guard against decompression bombs — overflow → **400**.
+The gRPC path needs no counterpart (grpc-java decompresses `grpc-encoding: gzip` natively).
 
 ### gRPC vs HTTP comparison
 
