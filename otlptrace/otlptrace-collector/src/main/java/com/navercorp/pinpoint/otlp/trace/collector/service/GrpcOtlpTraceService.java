@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.service;
 
-import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import io.opentelemetry.proto.collector.trace.v1.ExportTracePartialSuccess;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.proto.collector.trace.v1.TraceServiceGrpc;
@@ -108,7 +106,7 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
     private void handleExport(List<ResourceSpans> resourceSpanList, StreamObserver<ExportTraceServiceResponse> responseObserver) {
         final OtlpTraceExportResult result = exportService.export(resourceSpanList);
 
-        if (result.serverErrorCount() > 0) {
+        if (OtlpTraceResponseMapper.isServerError(result)) {
             // Server-side / transient failures (HBase insert, agentInfo): ask the client to retry
             // the whole batch via UNAVAILABLE (retryable) instead of dropping recoverable data.
             // INVALID_ARGUMENT here would be treated as non-retryable and silently lost.
@@ -116,19 +114,8 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
             return;
         }
 
-        final OtlpTraceCollectorRejectedSpan clientRejected = result.clientRejected();
-        if (clientRejected.count() > 0) {
-            // Client-side data faults (invalid/missing identifiers, unlinkable spans) are
-            // deterministic, so report them via OTLP partial success rather than a retryable error.
-            final ExportTracePartialSuccess partialSuccess = ExportTracePartialSuccess.newBuilder()
-                    .setErrorMessage(clientRejected.getMessage())
-                    .setRejectedSpans(clientRejected.count())
-                    .build();
-            safeComplete(responseObserver, ExportTraceServiceResponse.newBuilder().setPartialSuccess(partialSuccess).build());
-        } else {
-            // success
-            safeComplete(responseObserver, ExportTraceServiceResponse.getDefaultInstance());
-        }
+        // Client-side data faults surface as OTLP partial success; a clean run as the empty response.
+        safeComplete(responseObserver, OtlpTraceResponseMapper.toResponse(result));
     }
 
     // Guards response calls against IllegalStateException when the client already closed the call
