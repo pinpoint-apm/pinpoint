@@ -548,8 +548,12 @@ class OtlpTraceMapperUtilsTest {
         assertThat(result.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
     }
 
+    // TEMPORARY: serviceName is forced to DEFAULT for OTLP spans (see OtlpTraceMapperUtils.getServiceName).
+    // The pinpoint.serviceName / service.namespace attributes are currently ignored. Restore the
+    // attribute-derived assertions (my-service / otel-ns / pinpoint-over-namespace priority) once the
+    // OTLP serviceUid policy is decided and getServiceName's attribute resolution is re-enabled.
     @Test
-    void getId_serviceName_fromPinpointServiceName() {
+    void getId_serviceName_pinpointServiceName_ignored_returnsDefault() {
         Map<String, AttributeValue> attrs = Map.of(
                 "pinpoint.agentId", AttributeValue.of("agent1"),
                 "pinpoint.applicationName", AttributeValue.of("app"),
@@ -558,11 +562,11 @@ class OtlpTraceMapperUtilsTest {
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
 
-        assertThat(result.serviceName()).isEqualTo("my-service");
+        assertThat(result.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
     }
 
     @Test
-    void getId_serviceName_fromServiceNamespace() {
+    void getId_serviceName_serviceNamespace_ignored_returnsDefault() {
         Map<String, AttributeValue> attrs = Map.of(
                 "pinpoint.agentId", AttributeValue.of("agent1"),
                 "pinpoint.applicationName", AttributeValue.of("app"),
@@ -571,11 +575,11 @@ class OtlpTraceMapperUtilsTest {
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
 
-        assertThat(result.serviceName()).isEqualTo("otel-ns");
+        assertThat(result.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
     }
 
     @Test
-    void getId_serviceName_pinpointHasPriorityOverNamespace() {
+    void getId_serviceName_attributes_ignored_returnsDefault() {
         Map<String, AttributeValue> attrs = Map.of(
                 "pinpoint.agentId", AttributeValue.of("agent1"),
                 "pinpoint.applicationName", AttributeValue.of("app"),
@@ -585,7 +589,7 @@ class OtlpTraceMapperUtilsTest {
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
 
-        assertThat(result.serviceName()).isEqualTo("pinpoint-service");
+        assertThat(result.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
     }
 
     @Test
