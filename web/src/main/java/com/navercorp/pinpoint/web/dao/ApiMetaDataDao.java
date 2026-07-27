@@ -25,4 +25,14 @@ import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
  */
 public interface ApiMetaDataDao {
     List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId);
+
+    /**
+     * Batch variant of {@link #getApiMetaData(String, long, int)}.
+     * The returned list is index-aligned with {@code keys}; a key with no matching
+     * row yields an empty list at the same index.
+     */
+    List<List<ApiMetaDataBo>> getApiMetaData(List<ApiMetaDataKey> keys);
+
+    record ApiMetaDataKey(String agentId, long agentStartTime, int apiId) {
+    }
 }

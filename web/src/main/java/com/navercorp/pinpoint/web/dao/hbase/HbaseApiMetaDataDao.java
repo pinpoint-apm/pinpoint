@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -77,6 +78,25 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
         TableName apiMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.get(apiMetaDataTableName, get, apiMetaDataMapper);
+    }
+
+    @Override
+    public List<List<ApiMetaDataBo>> getApiMetaData(List<ApiMetaDataKey> keys) {
+        Objects.requireNonNull(keys, "keys");
+        if (keys.isEmpty()) {
+            return List.of();
+        }
+
+        List<Get> gets = new ArrayList<>(keys.size());
+        for (ApiMetaDataKey key : keys) {
+            MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(key.agentId(), key.agentStartTime(), key.apiId());
+            Get get = new Get(rowKeyEncoder.encodeRowKey(metaDataRowKey));
+            get.addFamily(DESCRIPTOR.getName());
+            gets.add(get);
+        }
+
+        TableName apiMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return hbaseOperations.get(apiMetaDataTableName, gets, apiMetaDataMapper);
     }
 
 }

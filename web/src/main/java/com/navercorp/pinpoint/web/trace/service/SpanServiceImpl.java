@@ -602,7 +602,10 @@ public class SpanServiceImpl implements SpanService {
                 }
 
                 // may be able to get a more accurate data using agentIdentifier.
-                List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(align.getAgentId(), align.getAgentStartTime(), apiId);
+                // Resolved from the request-scoped batch prefetch (see #prefetchMetaData) to avoid
+                // a per-span HBase round-trip (N+1); falls back to an empty list on a prefetch miss,
+                // matching the single-row DAO's not-found semantics.
+                List<ApiMetaDataBo> apiMetaDataList = metadataAccessor.getApiMetaData(align.getAgentId(), align.getAgentStartTime(), apiId);
                 int size = apiMetaDataList.size();
                 if (size == 0) {
                     String errorMessage = "API-DynamicID not found. api:" + apiId;
@@ -773,6 +776,7 @@ public class SpanServiceImpl implements SpanService {
         Map<UidLookupKey, SqlUidMetaDataDao.SqlUidMetaDataKey> sqlUidQueries = new LinkedHashMap<>();
         Map<IntLookupKey, SqlMetaDataDao.SqlMetaDataKey> sqlQueries = new LinkedHashMap<>();
         Map<IntLookupKey, StringMetaDataDao.StringMetaDataKey> stringQueries = new LinkedHashMap<>();
+        Map<IntLookupKey, ApiMetaDataDao.ApiMetaDataKey> apiQueries = new LinkedHashMap<>();
 
         for (Align align : aligns) {
             final String agentId = align.getAgentId();
@@ -807,12 +811,22 @@ public class SpanServiceImpl implements SpanService {
             if (align.hasException() && !align.isOpenTelemetry()) {
                 addStringQuery(stringQueries, agentId, agentStartTime, align.getExceptionInfo().id());
             }
+
+            // Dynamic API metadata: collect a key whenever transitionDynamicApiId() would hit
+            // the DAO (see #transitionDynamicApiId). Only the annotation-backed apiId==0 case
+            // short-circuits before the lookup, so it is the sole exclusion here.
+            final int apiId = align.getApiId();
+            if (apiId != 0 || annotationBoList == null || AnnotationUtils.findApiAnnotation(annotationBoList) == null) {
+                apiQueries.putIfAbsent(new IntLookupKey(agentId, agentStartTime, apiId),
+                        new ApiMetaDataDao.ApiMetaDataKey(agentId, agentStartTime, apiId));
+            }
         }
 
         return new MetadataAccessor(
                 batchSqlUidMetaData(sqlUidQueries),
                 batchSqlMetaData(sqlQueries),
-                batchStringMetaData(stringQueries));
+                batchStringMetaData(stringQueries),
+                batchApiMetaData(apiQueries));
     }
 
     private boolean isSqlMetaDataFiltered(Align align) {
@@ -852,6 +866,15 @@ public class SpanServiceImpl implements SpanService {
         return zip(lookupKeys, results);
     }
 
+    private Map<IntLookupKey, List<ApiMetaDataBo>> batchApiMetaData(Map<IntLookupKey, ApiMetaDataDao.ApiMetaDataKey> queries) {
+        if (queries.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<IntLookupKey> lookupKeys = new ArrayList<>(queries.keySet());
+        List<List<ApiMetaDataBo>> results = apiMetaDataDao.getApiMetaData(new ArrayList<>(queries.values()));
+        return zip(lookupKeys, results);
+    }
+
     private static <K, V> Map<K, List<V>> zip(List<K> keys, List<List<V>> values) {
         if (keys.size() != values.size()) {
             throw new IllegalStateException("batch metadata result size mismatch keys:" + keys.size() + " values:" + values.size());
@@ -877,13 +900,16 @@ public class SpanServiceImpl implements SpanService {
         private final Map<UidLookupKey, List<SqlUidMetaDataBo>> sqlUidMetaData;
         private final Map<IntLookupKey, List<SqlMetaDataBo>> sqlMetaData;
         private final Map<IntLookupKey, List<StringMetaDataBo>> stringMetaData;
+        private final Map<IntLookupKey, List<ApiMetaDataBo>> apiMetaData;
 
         private MetadataAccessor(Map<UidLookupKey, List<SqlUidMetaDataBo>> sqlUidMetaData,
                                  Map<IntLookupKey, List<SqlMetaDataBo>> sqlMetaData,
-                                 Map<IntLookupKey, List<StringMetaDataBo>> stringMetaData) {
+                                 Map<IntLookupKey, List<StringMetaDataBo>> stringMetaData,
+                                 Map<IntLookupKey, List<ApiMetaDataBo>> apiMetaData) {
             this.sqlUidMetaData = sqlUidMetaData;
             this.sqlMetaData = sqlMetaData;
             this.stringMetaData = stringMetaData;
+            this.apiMetaData = apiMetaData;
         }
 
         List<SqlUidMetaDataBo> getSqlUidMetaData(String agentId, long time, byte[] sqlUid) {
@@ -896,6 +922,10 @@ public class SpanServiceImpl implements SpanService {
 
         List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
             return stringMetaData.getOrDefault(new IntLookupKey(agentId, time, stringId), Collections.emptyList());
+        }
+
+        List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
+            return apiMetaData.getOrDefault(new IntLookupKey(agentId, time, apiId), Collections.emptyList());
         }
     }
 }
