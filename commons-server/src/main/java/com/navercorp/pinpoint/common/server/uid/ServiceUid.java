@@ -67,8 +67,6 @@ public class ServiceUid {
 
     @Override
     public String toString() {
-        return "ServiceUid{"
-                + uid +
-                '}';
+        return Integer.toString(uid);
     }
 }
