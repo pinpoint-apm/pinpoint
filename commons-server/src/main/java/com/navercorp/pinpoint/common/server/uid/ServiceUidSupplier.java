@@ -25,4 +25,9 @@ import java.util.function.Supplier;
  */
 @FunctionalInterface
 public interface ServiceUidSupplier extends Supplier<ServiceUid> {
+
+    /**
+     * Shared constant for the DEFAULT serviceUid.
+     */
+    ServiceUidSupplier DEFAULT = new FixedServiceUid(ServiceUid.DEFAULT);
 }

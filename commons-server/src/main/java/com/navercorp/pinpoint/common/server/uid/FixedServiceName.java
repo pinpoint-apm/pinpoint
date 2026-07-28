@@ -24,12 +24,6 @@ import java.util.Objects;
  */
 public final class FixedServiceName implements ServiceNameSupplier {
 
-    /**
-     * uid 0's name is a system constant, not a registry mapping — shared across all rows.
-     */
-    public static final ServiceNameSupplier DEFAULT =
-            new FixedServiceName(ServiceUid.DEFAULT_SERVICE_UID_CODE, ServiceUid.DEFAULT_SERVICE_UID_NAME);
-
     private final int serviceUid;
     private final String serviceName;
 

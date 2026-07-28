@@ -25,4 +25,10 @@ import java.util.function.Supplier;
  */
 @FunctionalInterface
 public interface ServiceNameSupplier extends Supplier<String> {
+
+    /**
+     * uid 0's name is a system constant, not a registry mapping — shared across all rows.
+     */
+    ServiceNameSupplier DEFAULT =
+            new FixedServiceName(ServiceUid.DEFAULT_SERVICE_UID_CODE, ServiceUid.DEFAULT_SERVICE_UID_NAME);
 }

@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
-import com.navercorp.pinpoint.common.server.uid.FixedServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
@@ -55,7 +54,7 @@ import java.util.Optional;
 @Service
 public class OtlpTraceExportService {
 
-    public static final ServiceUidSupplier DEFAULT_SERVICE_UID = FixedServiceUid.DEFAULT;
+    public static final ServiceUidSupplier DEFAULT_SERVICE_UID = ServiceUidSupplier.DEFAULT;
 
     private static final String INSERT_ERROR_METRIC = "collector.otlptrace.insert.error";
 
