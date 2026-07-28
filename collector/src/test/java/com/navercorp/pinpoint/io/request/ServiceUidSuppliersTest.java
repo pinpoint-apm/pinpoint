@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -21,7 +21,7 @@ class ServiceUidSuppliersTest {
             return CompletableFuture.completedFuture(ServiceUid.of(100001));
         };
 
-        Supplier<ServiceUid> supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher);
+        ServiceUidSupplier supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher);
 
         assertThat(requestedServiceName).hasValue("serviceName");
         assertThat(supplier.get()).isEqualTo(ServiceUid.of(100001));
@@ -31,7 +31,7 @@ class ServiceUidSuppliersTest {
     void throwExceptionOnTimeout() {
         UidFetcher uidFetcher = serviceName -> new CompletableFuture<>();
 
-        Supplier<ServiceUid> supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher, 1, TimeUnit.MILLISECONDS);
+        ServiceUidSupplier supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher, 1, TimeUnit.MILLISECONDS);
 
         assertThatThrownBy(supplier::get).isInstanceOf(UidException.class);
     }
@@ -40,7 +40,7 @@ class ServiceUidSuppliersTest {
     void returnNullOnMissingServiceUid() {
         UidFetcher uidFetcher = serviceName -> CompletableFuture.completedFuture(null);
 
-        Supplier<ServiceUid> supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher);
+        ServiceUidSupplier supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher);
 
         assertThat(supplier.get()).isNull();
     }
@@ -51,7 +51,7 @@ class ServiceUidSuppliersTest {
             throw new RuntimeException("error");
         };
 
-        Supplier<ServiceUid> supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher);
+        ServiceUidSupplier supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher);
 
         assertThatThrownBy(supplier::get).isInstanceOf(UidException.class);
     }

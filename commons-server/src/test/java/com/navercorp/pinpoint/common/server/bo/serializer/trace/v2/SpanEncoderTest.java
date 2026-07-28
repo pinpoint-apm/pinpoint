@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
@@ -220,11 +221,14 @@ public class SpanEncoderTest {
 
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
 
-        List<String> excludeField = List.of("parentApplication", "annotationBoList", "spanEventBoList", "owner.agentName");
+        // suppliers are compared by resolved value below, not by implementation type
+        List<String> excludeField = List.of("parentApplication", "annotationBoList", "spanEventBoList",
+                "owner.agentName", "owner.serviceNameSupplier", "owner.serviceUidSupplier");
         Assertions.assertThat(decode)
                 .usingRecursiveComparison()
                 .ignoringFields(excludeField.toArray(new String[0]))
                 .isEqualTo(spanBo);
+        assertSpanOwner(decode.getSpanOwner(), spanBo.getSpanOwner());
 
         logger.debug("{} {}", spanBo.getAnnotationBoList(), decode.getAnnotationBoList());
         Assertions.assertThat(spanBo.getAnnotationBoList())
@@ -238,6 +242,11 @@ public class SpanEncoderTest {
                 .usingRecursiveComparison()
                 .ignoringFields("annotationBoList")
                 .isEqualTo(decodedSpanEventBoList);
+    }
+
+    private void assertSpanOwner(SpanOwner decode, SpanOwner expected) {
+        Assertions.assertThat(decode.getServiceName()).isEqualTo(expected.getServiceName());
+        Assertions.assertThat(decode.getServiceUid()).isEqualTo(expected.getServiceUid());
     }
 
     private void assertSpanChunk(SpanChunkBo spanChunkBo) {
@@ -259,12 +268,15 @@ public class SpanEncoderTest {
         // logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
 
         List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType");
-        List<String> excludeField = List.of("spanEventBoList", "localAsyncId", "owner.agentName");
+        // suppliers are compared by resolved value below, not by implementation type
+        List<String> excludeField = List.of("spanEventBoList", "localAsyncId",
+                "owner.agentName", "owner.serviceNameSupplier", "owner.serviceUidSupplier");
         notSerializedField.addAll(excludeField);
         Assertions.assertThat(decode)
                 .usingRecursiveComparison()
                 .ignoringFields(notSerializedField.toArray(new String[0]))
                 .isEqualTo(spanChunkBo);
+        assertSpanOwner(decode.getSpanOwner(), spanChunkBo.getSpanOwner());
 
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
