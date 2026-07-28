@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.server.uid.ServiceNameFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
@@ -66,6 +67,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     private final StringAllocatorFactory stringAllocatorFactory;
 
+    private final ServiceNameFactory serviceNameFactory;
+
     public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder) {
         this(rowKeyDecoder, new SpanDecoderV0(), StringAllocatorFactory.DEFAULT);
     }
@@ -79,9 +82,15 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     }
 
     public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, SpanDecoder spanDecoder, StringAllocatorFactory stringAllocatorFactory) {
+        this(rowKeyDecoder, spanDecoder, stringAllocatorFactory, ServiceNameFactory.FALLBACK);
+    }
+
+    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, SpanDecoder spanDecoder,
+                        StringAllocatorFactory stringAllocatorFactory, ServiceNameFactory serviceNameFactory) {
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.spanDecoder = Objects.requireNonNull(spanDecoder, "spanDecoder");
         this.stringAllocatorFactory = Objects.requireNonNull(stringAllocatorFactory, "stringAllocatorFactory");
+        this.serviceNameFactory = Objects.requireNonNull(serviceNameFactory, "serviceNameFactory");
     }
 
     @Override
@@ -102,6 +111,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         final SpanDecodingContext decodingContext = new SpanDecodingContext(transactionId);
         // per-row allocator, see StringAllocatorFactory
         decodingContext.setStringAllocator(stringAllocatorFactory.create());
+        // serviceUid -> serviceName suppliers, cached per row inside the context
+        decodingContext.setServiceNameFactory(serviceNameFactory);
 
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;

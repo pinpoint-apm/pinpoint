@@ -1,6 +1,9 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.navercorp.pinpoint.common.server.uid.LazyServiceNameFactory;
+import com.navercorp.pinpoint.common.server.uid.ServiceNameFactory;
+import com.navercorp.pinpoint.common.server.uid.ServiceNameResolver;
 import com.navercorp.pinpoint.common.server.cache.NullValueExpiry;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
@@ -72,5 +75,16 @@ public class ServiceModelCacheConfiguration {
             @Qualifier("webServiceModelCacheProperties") CaffeineCacheProperties cacheProperties,
             ServiceModelLoadProperties loadProperties) {
         return new CachingServiceModelResolver(serviceRegistryService, cacheManager, cacheProperties, loadProperties);
+    }
+
+    /**
+     * Bridges the service registry into the span decoder's serviceUid -> serviceName
+     * resolution (see SpanDecodingContext).
+     */
+    @Bean
+    public ServiceNameFactory serviceNameFactory(ServiceModelResolver serviceModelResolver) {
+        // getService() falls back to Service.DEFAULT on an unknown uid, so this never returns null
+        ServiceNameResolver resolver = serviceUid -> serviceModelResolver.getService(serviceUid.getUid()).getServiceName();
+        return new LazyServiceNameFactory(resolver);
     }
 }

@@ -24,7 +24,8 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.FixedServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
@@ -40,7 +41,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * Transport-agnostic OTLP trace ingestion: maps the incoming {@link ResourceSpans} into
@@ -55,7 +55,7 @@ import java.util.function.Supplier;
 @Service
 public class OtlpTraceExportService {
 
-    public static final Supplier<ServiceUid> DEFAULT_SERVICE_UID = () -> ServiceUid.DEFAULT;
+    public static final ServiceUidSupplier DEFAULT_SERVICE_UID = FixedServiceUid.DEFAULT;
 
     private static final String INSERT_ERROR_METRIC = "collector.otlptrace.insert.error";
 

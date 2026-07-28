@@ -1,9 +1,7 @@
 package com.navercorp.pinpoint.common.server.io;
 
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import org.jspecify.annotations.NonNull;
-
-import java.util.function.Supplier;
 
 public interface ServerHeader {
 
@@ -20,7 +18,7 @@ public interface ServerHeader {
     // Service -----------------
     String getServiceName();
 
-    Supplier<ServiceUid> getServiceUid();
+    ServiceUidSupplier getServiceUid();
 
     // ----------------------
 

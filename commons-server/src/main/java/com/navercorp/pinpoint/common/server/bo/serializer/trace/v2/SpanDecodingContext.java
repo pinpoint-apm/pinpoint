@@ -18,6 +18,13 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.buffer.StringAllocator;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.FixedServiceName;
+import com.navercorp.pinpoint.common.server.uid.ServiceNameFactory;
+import com.navercorp.pinpoint.common.server.uid.ServiceNameSupplier;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+
+import org.eclipse.collections.api.factory.primitive.IntObjectMaps;
+import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -34,8 +41,37 @@ public class SpanDecodingContext {
 
     private StringAllocator stringAllocator = StringAllocator.DEFAULT_ALLOCATOR;
 
+    private ServiceNameFactory serviceNameFactory = ServiceNameFactory.FALLBACK;
+
+    // Row-local cache: one serviceName supplier per distinct serviceUid (primitive int key,
+    // no boxing), shared by every span/chunk of this row. Lazily allocated — legacy (non-UID)
+    // rows never touch it.
+    // Row-scoped state: unlike collectorAcceptedTime, this survives next() on purpose.
+    private MutableIntObjectMap<ServiceNameSupplier> serviceNameCache;
+
     public SpanDecodingContext(ServerTraceId transactionId) {
         this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
+    }
+
+    public void setServiceNameFactory(ServiceNameFactory serviceNameFactory) {
+        this.serviceNameFactory = Objects.requireNonNull(serviceNameFactory, "serviceNameFactory");
+    }
+
+    public ServiceNameSupplier getServiceName(ServiceUid serviceUid) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+
+        if (serviceUid.getUid() == ServiceUid.DEFAULT_SERVICE_UID_CODE) {
+            // allocation fast path (the factory returns the same constant):
+            // DEFAULT-only rows never allocate the cache map
+            return FixedServiceName.DEFAULT;
+        }
+
+        MutableIntObjectMap<ServiceNameSupplier> cache = this.serviceNameCache;
+        if (cache == null) {
+            cache = IntObjectMaps.mutable.of();
+            this.serviceNameCache = cache;
+        }
+        return cache.getIfAbsentPutWith(serviceUid.getUid(), serviceNameFactory::create, serviceUid);
     }
 
 //    public AnnotationBo getPrevFirstAnnotationBo() {

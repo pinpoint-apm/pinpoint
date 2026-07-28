@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.Span
 import com.navercorp.pinpoint.common.server.io.AnnotationWriter;
 import com.navercorp.pinpoint.common.server.io.SpanEventWriter;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.FixedServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.logging.log4j.LogManager;
@@ -43,6 +44,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -418,7 +420,9 @@ public class SpanDecoderV0 implements SpanDecoder {
         if (header.hasServiceUid()) {
             // layout: [serviceUid(4)][appNameHash(1)][spanId(8)] then applicationInfo
             final ServiceUid serviceUid = ServiceUid.of(buffer.readInt());
-            owner.setServiceUid(() -> serviceUid);
+            owner.setServiceName(decodingContext.getServiceName(serviceUid));
+            owner.setServiceUid(new FixedServiceUid(serviceUid));
+
             buffer.readByte(); // applicationName hash: filter-only, the name below is authoritative
             basicSpan.setSpanId(buffer.readLong());
             readApplicationInfo(owner, buffer, decodingContext);
