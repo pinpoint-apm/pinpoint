@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FilterList;
@@ -110,13 +111,15 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     @Override
-    public LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limitWithTies) {
+    public LimitedScanResult<List<Dot>> scanTraceScatterData(Service service, String applicationName, int serviceTypeCode, Range range, int limitWithTies) {
+        Objects.requireNonNull(service, "service");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
         if (limitWithTies < 0) {
             throw new IllegalArgumentException("negative limitWithTies:" + limitWithTies);
         }
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
+        final int serviceUid = service.getServiceUid().getUid();
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
 
         RowMapper<List<Dot>> dotMapper = new TraceIndexDotMapper(TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName));

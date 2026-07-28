@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
@@ -58,6 +59,7 @@ public class HbaseTraceIndexDaoTest {
     private static final ServerTraceId EMPTY = new PinpointServerTraceId("EMPTY", 0, 0);
 
     private static final int serviceUid = ServiceUid.DEFAULT_SERVICE_UID_CODE;
+    private static final Service service = Service.DEFAULT;
     private static final DotMetaData testDotMetaData = new DotMetaData(new Dot(EMPTY, 10, 10, 0, "testAgentId"),
             "testAgentName", "remoteAddr", "rpc", "endpoint", -1, 0);
 
@@ -106,7 +108,7 @@ public class HbaseTraceIndexDaoTest {
 
     @Test
     public void scanTraceScatterDataExceptionTest() {
-        assertThrows(IllegalArgumentException.class, () -> this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), -10));
+        assertThrows(IllegalArgumentException.class, () -> this.traceIndexDao.scanTraceScatterData(service, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), -10));
     }
 
     @Test
@@ -116,7 +118,7 @@ public class HbaseTraceIndexDaoTest {
                 any(ResultsExtractor.class), anyInt())).thenReturn(List.of());
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
-                = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10);
+                = this.traceIndexDao.scanTraceScatterData(service, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
         scanResult.scanData().forEach(builder::addDot);
         ScatterData result = builder.build();
@@ -133,7 +135,7 @@ public class HbaseTraceIndexDaoTest {
                 any(ResultsExtractor.class), anyInt())).thenReturn(scanResult);
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> limitedScanResult
-                = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10);
+                = this.traceIndexDao.scanTraceScatterData(service, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
         limitedScanResult.scanData().forEach(builder::addDot);
         ScatterData result = builder.build();

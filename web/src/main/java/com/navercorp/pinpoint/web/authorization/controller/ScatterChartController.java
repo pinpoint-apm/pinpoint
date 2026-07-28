@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -26,7 +25,9 @@ import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterView;
 import com.navercorp.pinpoint.web.scatter.Status;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.LimitUtils;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.GetTraceInfoParser;
@@ -64,6 +65,7 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
 
     private final ScatterChartService scatterChartService;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
+    private final ServiceModelResolver serviceModelResolver;
     private final boolean defaultTraceIndexReadV2;
 
     private final GetTraceInfoParser getTraceInfoParser = new GetTraceInfoParser();
@@ -71,9 +73,11 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
     public ScatterChartController(
             ScatterChartService scatterChartService,
             ServiceTypeRegistryService serviceTypeRegistryService,
+            ServiceModelResolver serviceModelResolver,
             @Value("${pinpoint.web.trace.index.read.v2:true}") boolean defaultTraceIndexReadV2) {
         this.scatterChartService = Objects.requireNonNull(scatterChartService, "scatterChartService");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
         this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;
     }
 
@@ -135,8 +139,8 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
             scatterData = scatterChartService.selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
         } else {
             final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
-            // always scan backwardDirection in V2
-            scatterData = scatterChartService.selectScatterDataV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, xGroupUnit, yGroupUnit, limit);
+            final Service service = serviceModelResolver.getService(serviceName.getName());
+            scatterData = scatterChartService.selectScatterDataV2(service, applicationName, serviceType.getCode(), range, xGroupUnit, yGroupUnit, limit);
         }
         final boolean requestComplete = scatterData.getDotSize() < limit;
         ScatterView.DotView dotView = new ScatterView.DotView(scatterData, requestComplete);

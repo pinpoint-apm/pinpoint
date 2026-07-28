@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
+import com.navercorp.pinpoint.web.vo.Service;
 
 import java.util.List;
 
@@ -32,5 +33,5 @@ public interface ScatterChartService {
 
     ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection);
 
-    ScatterData selectScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit);
+    ScatterData selectScatterDataV2(Service service, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit);
 }

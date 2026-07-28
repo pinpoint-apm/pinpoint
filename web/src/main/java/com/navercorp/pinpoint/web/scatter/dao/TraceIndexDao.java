@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.scatter.dao;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 
@@ -29,7 +30,7 @@ public interface TraceIndexDao {
 
     LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);
 
-    LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);
+    LimitedScanResult<List<Dot>> scanTraceScatterData(Service service, String applicationName, int serviceTypeCode, Range range, int limit);
 
     LimitedScanResult<List<DotMetaData>> scanScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, String rpcRegex, int limit);
 
