@@ -26,11 +26,6 @@ import java.util.Objects;
  */
 public final class FixedServiceUid implements ServiceUidSupplier {
 
-    /**
-     * Shared constant for the DEFAULT serviceUid.
-     */
-    public static final ServiceUidSupplier DEFAULT = new FixedServiceUid(ServiceUid.DEFAULT);
-
     private final ServiceUid serviceUid;
 
     public FixedServiceUid(ServiceUid serviceUid) {

@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
-import com.navercorp.pinpoint.common.server.uid.FixedServiceName;
-import com.navercorp.pinpoint.common.server.uid.FixedServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
@@ -40,10 +38,6 @@ import java.util.Objects;
  */
 public class SpanOwner {
 
-    // named constants (not lambdas) so toString() shows the captured state
-    private static final ServiceNameSupplier DEFAULT_SERVICE_NAME = FixedServiceName.DEFAULT;
-    private static final ServiceUidSupplier DEFAULT_SERVICE_UID = FixedServiceUid.DEFAULT;
-
     @NonNull
     private String agentId;
     private String agentName;
@@ -52,8 +46,8 @@ public class SpanOwner {
     private String applicationName;
 
     @NonNull
-    private ServiceNameSupplier serviceNameSupplier = DEFAULT_SERVICE_NAME;
-    private ServiceUidSupplier serviceUidSupplier = DEFAULT_SERVICE_UID;
+    private ServiceNameSupplier serviceNameSupplier = ServiceNameSupplier.DEFAULT;
+    private ServiceUidSupplier serviceUidSupplier = ServiceUidSupplier.DEFAULT;
 
     private long agentStartTime;
 

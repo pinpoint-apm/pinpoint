@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.buffer.StringAllocator;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
-import com.navercorp.pinpoint.common.server.uid.FixedServiceName;
 import com.navercorp.pinpoint.common.server.uid.ServiceNameFactory;
 import com.navercorp.pinpoint.common.server.uid.ServiceNameSupplier;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
@@ -63,7 +62,7 @@ public class SpanDecodingContext {
         if (serviceUid.getUid() == ServiceUid.DEFAULT_SERVICE_UID_CODE) {
             // allocation fast path (the factory returns the same constant):
             // DEFAULT-only rows never allocate the cache map
-            return FixedServiceName.DEFAULT;
+            return ServiceNameSupplier.DEFAULT;
         }
 
         MutableIntObjectMap<ServiceNameSupplier> cache = this.serviceNameCache;

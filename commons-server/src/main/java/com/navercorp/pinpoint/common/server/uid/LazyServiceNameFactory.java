@@ -35,7 +35,7 @@ public class LazyServiceNameFactory implements ServiceNameFactory {
     @Override
     public ServiceNameSupplier create(ServiceUid serviceUid) {
         if (serviceUid.getUid() == ServiceUid.DEFAULT_SERVICE_UID_CODE) {
-            return FixedServiceName.DEFAULT;
+            return ServiceNameSupplier.DEFAULT;
         }
         return new LazyServiceName(resolver, serviceUid);
     }
