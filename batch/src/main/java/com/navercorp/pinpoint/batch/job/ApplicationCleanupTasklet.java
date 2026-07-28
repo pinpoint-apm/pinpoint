@@ -252,7 +252,7 @@ public class ApplicationCleanupTasklet implements Tasklet {
 
     private Dot getTraceIndexData(Application application, long baseTimestamp) {
         Range range = Range.between(baseTimestamp - Duration.ofDays(inactiveDays).toMillis(), baseTimestamp);
-        LimitedScanResult<List<Dot>> result = traceIndexDao.scanTraceScatterData(application.getService().getServiceUid().getUid(), application.getApplicationName(), application.getServiceTypeCode(), range, 1);
+        LimitedScanResult<List<Dot>> result = traceIndexDao.scanTraceScatterData(application.getService(), application.getApplicationName(), application.getServiceTypeCode(), range, 1);
         if (!result.scanData().isEmpty()) {
             return result.scanData().get(0);
         }

@@ -30,9 +30,9 @@ import com.navercorp.pinpoint.web.trace.service.SpanService;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * @author netspider
  * @author emeroad
  */
-@Service
+@org.springframework.stereotype.Service
 public class ScatterChartServiceImpl implements ScatterChartService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -112,10 +112,11 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public ScatterData selectScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit) {
+    public ScatterData selectScatterDataV2(Service service, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit) {
+        Objects.requireNonNull(service, "service");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
-        LimitedScanResult<List<Dot>> scanResult = traceIndexDao.scanTraceScatterData(serviceUid, applicationName, serviceTypeCode, range, limit);
+        LimitedScanResult<List<Dot>> scanResult = traceIndexDao.scanTraceScatterData(service, applicationName, serviceTypeCode, range, limit);
 
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         builder.addDot(scanResult.scanData());
