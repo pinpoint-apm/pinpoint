@@ -85,25 +85,25 @@ public class AdminServiceImplTest {
     @Test
     public void removeApplication() {
         // given
-        doNothing().when(applicationIndexService).deleteApplication(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE);
+        doNothing().when(applicationIndexService).deleteApplication(Service.DEFAULT, APPLICATION_NAME1, SERVICE_TYPE_CODE);
 
         // when
-        adminService.removeApplication(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE);
+        adminService.removeApplication(Service.DEFAULT, APPLICATION_NAME1, SERVICE_TYPE_CODE);
 
         // then
-        verify(applicationIndexService).deleteApplication(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE);
+        verify(applicationIndexService).deleteApplication(Service.DEFAULT, APPLICATION_NAME1, SERVICE_TYPE_CODE);
     }
 
     @Test
     public void removeAgent() {
         // given
-        doNothing().when(applicationIndexService).deleteAgentId(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
+        doNothing().when(applicationIndexService).deleteAgentId(Service.DEFAULT, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
 
         // when
-        adminService.removeAgent(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
+        adminService.removeAgent(Service.DEFAULT, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
 
         // then
-        verify(applicationIndexService).deleteAgentId(Service.TEST_SERVICE, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
+        verify(applicationIndexService).deleteAgentId(Service.DEFAULT, APPLICATION_NAME1, SERVICE_TYPE_CODE, AGENT_ID1);
     }
 
     @Test

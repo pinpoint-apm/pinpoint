@@ -8,7 +8,6 @@ import java.util.Objects;
 public class Service {
 
     public static final Service DEFAULT = new Service(ServiceUid.DEFAULT_SERVICE_UID_NAME, ServiceUid.DEFAULT);
-    public static final Service TEST_SERVICE = new Service(ServiceUid.TEST_SERVICE_UID_NAME, ServiceUid.TEST_SERVICE);
 
     private final String serviceName;
     private final ServiceUid serviceUid;

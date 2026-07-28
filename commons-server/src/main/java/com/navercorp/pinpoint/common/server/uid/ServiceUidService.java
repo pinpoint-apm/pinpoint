@@ -12,9 +12,6 @@ public class ServiceUidService {
         if (ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
             return ServiceUid.DEFAULT;
         }
-        if (ServiceUid.TEST_SERVICE_UID_NAME.equals(serviceName)) {
-            return ServiceUid.TEST_SERVICE;
-        }
         // TODO ServiceUid query
         return ServiceUid.DEFAULT;
     }

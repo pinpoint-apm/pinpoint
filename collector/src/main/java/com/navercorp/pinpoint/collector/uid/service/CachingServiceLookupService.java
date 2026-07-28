@@ -59,9 +59,6 @@ public class CachingServiceLookupService implements ServiceLookupService, Applic
         if (ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
             return CompletableFuture.completedFuture(ServiceUid.DEFAULT);
         }
-        if (ServiceUid.TEST_SERVICE_UID_NAME.equals(serviceName)) {
-            return CompletableFuture.completedFuture(ServiceUid.TEST_SERVICE);
-        }
         return serviceLookupCache.retrieve(serviceName, () -> loadServiceUidAsync(serviceName));
     }
 
