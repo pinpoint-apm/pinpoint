@@ -67,7 +67,12 @@ export const HostGroupList = ({
       }
     }
 
-    setIsMouseMove(false);
+    // 실제로 포커스를 이동/선택하는 네비게이션 키에서만 마우스 이동 상태를 해제한다.
+    // 검색어 입력이나 Shift 등 그 외 키에서도 해제하면, 사용자가 마우스로 스크롤해 둔
+    // 리스트가 focusIndex(=포커스 위치, 보통 맨 위)로 강제 스크롤되어 튕겨 올라간다.
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter') {
+      setIsMouseMove(false);
+    }
   };
 
   const handleMouseEnter = (idx: number) => {
