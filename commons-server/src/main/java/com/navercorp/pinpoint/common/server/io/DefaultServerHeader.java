@@ -1,11 +1,10 @@
 package com.navercorp.pinpoint.common.server.io;
 
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 public class DefaultServerHeader implements ServerHeader {
 
@@ -17,11 +16,11 @@ public class DefaultServerHeader implements ServerHeader {
     private final long agentStartTime;
     private final int serviceType;
 
-    private final Supplier<ServiceUid> uidSupplier;
+    private final ServiceUidSupplier uidSupplier;
     private final boolean grpcBuiltInRetry;
 
     public DefaultServerHeader(String agentId, String agentName, String applicationName, String serviceName,
-                               Supplier<ServiceUid> uidSupplier,
+                               ServiceUidSupplier uidSupplier,
                                long agentStartTime, int serviceType, boolean grpcBuiltInRetry) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.agentName = StringPrecondition.requireHasLength(agentName, "agentName");
@@ -61,7 +60,7 @@ public class DefaultServerHeader implements ServerHeader {
     }
 
     @Override
-    public Supplier<ServiceUid> getServiceUid() {
+    public ServiceUidSupplier getServiceUid() {
         return uidSupplier;
     }
 

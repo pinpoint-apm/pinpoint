@@ -25,11 +25,14 @@ import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.LazyServiceNameFactory;
+import com.navercorp.pinpoint.common.server.uid.ServiceNameResolver;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -139,6 +142,77 @@ class SpanDecoderV0Test {
     }
 
     @Test
+    void decode_typeSpanUid_resolvesServiceNameLazily() {
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+
+        SpanDecodingContext rowContext = newRowContext(uid -> "service-" + uid.getUid());
+        BasicSpan decoded = decodeWith(uidEncoder, decoder, rowContext, newUidSpan(100));
+
+        // serviceName is not stored in the qualifier; it resolves from the serviceUid
+        assertThat(decoded.getServiceName()).isEqualTo("service-100");
+    }
+
+    @Test
+    void decode_serviceUidLayout_defaultFactory_keepsDefaultServiceName() {
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+
+        SpanBo input = newMinimalSpan(TraceSourceType.PINPOINT);
+        input.getSpanOwner().setServiceUid(() -> ServiceUid.of(100));
+        // context without an explicit factory (e.g. collector side): DEFAULT name for every uid
+        BasicSpan decoded = roundTripSpan(uidEncoder, input);
+
+        assertThat(decoded.getServiceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+    }
+
+    @Test
+    void decode_sameRow_sameServiceUid_resolvesOnce() {
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+        AtomicInteger resolveCount = new AtomicInteger();
+
+        // one context = one row; both spans carry the same serviceUid
+        SpanDecodingContext rowContext = newRowContext(uid -> {
+            resolveCount.incrementAndGet();
+            return "service-" + uid.getUid();
+        });
+        BasicSpan first = decodeWith(uidEncoder, decoder, rowContext, newUidSpan(100));
+        BasicSpan second = decodeWith(uidEncoder, decoder, rowContext, newUidSpan(100));
+
+        assertThat(first.getServiceName()).isEqualTo("service-100");
+        assertThat(second.getServiceName()).isEqualTo("service-100");
+        // row-local cache shares one memoizing supplier across the row's spans
+        assertThat(resolveCount).hasValue(1);
+    }
+
+    @Test
+    void decode_sameRow_distinctServiceUids_resolveSeparately() {
+        SpanEncoderV0 uidEncoder = new SpanEncoderV0(new SpanHeaderFactory(true));
+        AtomicInteger resolveCount = new AtomicInteger();
+
+        SpanDecodingContext rowContext = newRowContext(uid -> {
+            resolveCount.incrementAndGet();
+            return "service-" + uid.getUid();
+        });
+        BasicSpan first = decodeWith(uidEncoder, decoder, rowContext, newUidSpan(100));
+        BasicSpan second = decodeWith(uidEncoder, decoder, rowContext, newUidSpan(200));
+
+        assertThat(first.getServiceName()).isEqualTo("service-100");
+        assertThat(second.getServiceName()).isEqualTo("service-200");
+        assertThat(resolveCount).hasValue(2);
+    }
+
+    @Test
+    void decode_plainLayout_doesNotConsultResolver() {
+        SpanDecodingContext rowContext = newRowContext(uid -> {
+            throw new AssertionError("resolver must not be consulted for a non-UID qualifier");
+        });
+
+        SpanBo input = newMinimalSpan(TraceSourceType.PINPOINT);
+        BasicSpan decoded = decodeWith(encoder, decoder, rowContext, input);
+
+        assertThat(decoded.getServiceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+    }
+
+    @Test
     void decode_unknownType_throws() {
         Buffer qualifier = new FixedBuffer(1);
         qualifier.putByte((byte) 99);
@@ -183,13 +257,29 @@ class SpanDecoderV0Test {
     }
 
     private BasicSpan roundTripSpan(SpanEncoderV0 encoder, SpanBo input) {
+        SpanDecodingContext decCtx = new SpanDecodingContext(newTransactionId());
+        return decodeWith(encoder, decoder, decCtx, input);
+    }
+
+    private SpanDecodingContext newRowContext(ServiceNameResolver resolver) {
+        SpanDecodingContext rowContext = new SpanDecodingContext(newTransactionId());
+        rowContext.setServiceNameFactory(new LazyServiceNameFactory(resolver));
+        return rowContext;
+    }
+
+    private BasicSpan decodeWith(SpanEncoderV0 encoder, SpanDecoderV0 decoder, SpanDecodingContext decCtx, SpanBo input) {
         SpanEncodingContext<SpanBo> encCtx = new SpanEncodingContext<>(input);
         Buffer qualifier = wrap(encoder.encodeSpanQualifier(encCtx));
         Buffer value = wrap(encoder.encodeSpanColumnValue(encCtx));
 
-        SpanDecodingContext decCtx = new SpanDecodingContext(newTransactionId());
         decCtx.setCollectorAcceptedTime(input.getCollectorAcceptTime());
         return decoder.decode(qualifier, value, decCtx);
+    }
+
+    private SpanBo newUidSpan(int uid) {
+        SpanBo span = newMinimalSpan(TraceSourceType.PINPOINT);
+        span.getSpanOwner().setServiceUid(() -> ServiceUid.of(uid));
+        return span;
     }
 
     private BasicSpan roundTripSpanChunk(SpanChunkBo input) {

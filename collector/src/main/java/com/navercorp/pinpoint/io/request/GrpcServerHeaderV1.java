@@ -1,20 +1,19 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.grpc.Header;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 
 public class GrpcServerHeaderV1 implements ServerHeader {
 
     private final Header header;
 
-    private final Supplier<ServiceUid> serviceUidSupplier;
+    private final ServiceUidSupplier serviceUidSupplier;
 
     public GrpcServerHeaderV1(Header header) {
         this(header, UidFetchers.defaultUidFetcher());
@@ -49,7 +48,7 @@ public class GrpcServerHeaderV1 implements ServerHeader {
     }
 
     @Override
-    public Supplier<ServiceUid> getServiceUid() {
+    public ServiceUidSupplier getServiceUid() {
         return serviceUidSupplier;
     }
 

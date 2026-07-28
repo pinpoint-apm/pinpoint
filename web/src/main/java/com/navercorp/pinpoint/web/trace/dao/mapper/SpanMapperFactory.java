@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.buffer.StringAllocatorFactory;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.server.uid.ServiceNameFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
@@ -44,12 +45,16 @@ public class SpanMapperFactory {
 
     private final SpanDecoder spanDecoder = new SpanDecoderV0();
 
+    private final ServiceNameFactory serviceNameFactory;
+
     public SpanMapperFactory(@Qualifier("traceRowKeyDecoderV2") RowKeyDecoder<ServerTraceId> rowKeyDecoder,
-                             StringAllocatorFactory stringAllocatorFactory) {
+                             StringAllocatorFactory stringAllocatorFactory,
+                             ServiceNameFactory serviceNameFactory) {
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.stringAllocatorFactory = Objects.requireNonNull(stringAllocatorFactory, "stringAllocatorFactory");
+        this.serviceNameFactory = Objects.requireNonNull(serviceNameFactory, "serviceNameFactory");
 
-        this.mapper = wrap(new SpanMapperV2(rowKeyDecoder, stringAllocatorFactory));
+        this.mapper = wrap(new SpanMapperV2(rowKeyDecoder, spanDecoder, stringAllocatorFactory, serviceNameFactory));
     }
 
     public RowMapper<List<SpanBo>> getSpanMapper() {
@@ -71,6 +76,6 @@ public class SpanMapperFactory {
         }
 
         final SpanDecoder targetSpanDecoder = new FilteringSpanDecoder(spanDecoder, spanFilter);
-        return new SpanMapperV2(rowKeyDecoder, targetSpanDecoder, stringAllocatorFactory);
+        return new SpanMapperV2(rowKeyDecoder, targetSpanDecoder, stringAllocatorFactory, serviceNameFactory);
     }
 }
