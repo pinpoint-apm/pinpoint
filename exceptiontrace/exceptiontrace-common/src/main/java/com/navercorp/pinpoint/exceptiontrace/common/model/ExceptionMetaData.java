@@ -36,6 +36,7 @@ public class ExceptionMetaData {
     private long exceptionId;
 
     private String applicationServiceType;
+    private String serviceName;
     private String applicationName;
     private String agentId;
     private String uriTemplate;
@@ -58,6 +59,7 @@ public class ExceptionMetaData {
             long spanId,
             long exceptionId,
             String applicationServiceType,
+            String serviceName,
             String applicationName,
             String agentId,
             String uriTemplate,
@@ -73,6 +75,7 @@ public class ExceptionMetaData {
         this.spanId = spanId;
         this.exceptionId = exceptionId;
         this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.uriTemplate = uriTemplate;
@@ -86,7 +89,7 @@ public class ExceptionMetaData {
     public static ExceptionMetaData valueOf(
             String tenantId,
             long timestamp, String transactionId, long spanId, long exceptionId,
-            String applicationServiceType, String applicationName, String agentId,
+            String applicationServiceType, String serviceName, String applicationName, String agentId,
             String uriTemplate,
             String errorClassName, String errorMessage, int exceptionDepth,
             List<StackTraceElementWrapper> wrappers
@@ -98,6 +101,7 @@ public class ExceptionMetaData {
                 spanId,
                 exceptionId,
                 applicationServiceType,
+                serviceName,
                 applicationName,
                 agentId,
                 uriTemplate,
@@ -155,6 +159,14 @@ public class ExceptionMetaData {
 
     public void setApplicationServiceType(String applicationServiceType) {
         this.applicationServiceType = applicationServiceType;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
     }
 
     public String getApplicationName() {
@@ -230,6 +242,7 @@ public class ExceptionMetaData {
                 ", spanId=" + spanId +
                 ", exceptionId=" + exceptionId +
                 ", applicationServiceType='" + applicationServiceType + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", uriTemplate='" + uriTemplate + '\'' +

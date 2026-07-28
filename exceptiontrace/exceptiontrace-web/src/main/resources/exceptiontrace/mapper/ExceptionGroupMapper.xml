@@ -44,6 +44,7 @@
 
         WHERE
         tenantId = #{tenantId}
+        AND serviceName = #{serviceName}
         AND applicationName = #{applicationName}
         AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         <if test="agentId != null">
@@ -70,6 +71,7 @@
         <include refid="exceptionTraceTable"></include>
         WHERE
         tenantId = #{tenantId}
+        AND serviceName = #{serviceName}
         AND applicationName = #{applicationName}
         AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         <if test="agentId != null">

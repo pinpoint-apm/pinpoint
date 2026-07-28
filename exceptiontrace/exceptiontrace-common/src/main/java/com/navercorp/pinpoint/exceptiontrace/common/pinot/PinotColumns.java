@@ -25,6 +25,7 @@ public enum PinotColumns {
     SPAN_ID("spanId"),
     EXCEPTION_ID("exceptionId"),
     APPLICATION_SERVICE_TYPE("applicationServiceType"),
+    SERVICE_NAME("serviceName"),
     APPLICATION_NAME("applicationName"),
     AGENT_ID("agentId"),
     URI_TEMPLATE("uriTemplate"),

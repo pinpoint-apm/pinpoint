@@ -31,6 +31,8 @@ public class ExceptionMetaDataBo {
 
     private final short serviceType;
     @NonNull
+    private final String serviceName;
+    @NonNull
     private final String applicationName;
     @NonNull
     private final String agentId;
@@ -42,12 +44,13 @@ public class ExceptionMetaDataBo {
 
     public ExceptionMetaDataBo(
             ServerTraceId transactionId, long spanId,
-            short serviceType, String applicationName, String agentId,
+            short serviceType, String serviceName, String applicationName, String agentId,
             String uriTemplate
     ) {
         this.transactionId = transactionId;
         this.spanId = spanId;
         this.serviceType = serviceType;
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.uriTemplate = uriTemplate;
@@ -63,6 +66,10 @@ public class ExceptionMetaDataBo {
 
     public short getServiceType() {
         return serviceType;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getApplicationName() {
@@ -91,6 +98,7 @@ public class ExceptionMetaDataBo {
                 "transactionId=" + transactionId +
                 ", spanId=" + spanId +
                 ", serviceType=" + serviceType +
+                ", serviceName='" + serviceName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", uriTemplate='" + uriTemplate + '\'' +

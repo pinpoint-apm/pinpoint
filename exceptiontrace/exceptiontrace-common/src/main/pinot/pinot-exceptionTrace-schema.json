@@ -22,6 +22,11 @@
       "dataType": "STRING"
     },
     {
+      "name": "serviceName",
+      "dataType": "STRING",
+      "defaultNullValue": "DEFAULT"
+    },
+    {
       "name": "applicationName",
       "dataType": "STRING"
     },

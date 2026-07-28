@@ -139,6 +139,7 @@ public class OtlpExceptionMapper {
                 transactionId,
                 rootSpanId,
                 ServiceType.OPENTELEMETRY_SERVER.getCode(),
+                idAndName.serviceName(),
                 idAndName.applicationName(),
                 idAndName.agentId(),
                 uriTemplate
