@@ -62,7 +62,6 @@ class CachingServiceLookupServiceTest {
         ServiceLookupService service = newService(Duration.ofMinutes(1));
 
         assertThat(service.getServiceUid(ServiceUid.DEFAULT_SERVICE_UID_NAME).join()).isEqualTo(ServiceUid.DEFAULT);
-        assertThat(service.getServiceUid(ServiceUid.TEST_SERVICE_UID_NAME).join()).isEqualTo(ServiceUid.TEST_SERVICE);
 
         Mockito.verifyNoInteractions(serviceRegistryDao);
     }

@@ -50,7 +50,7 @@ public class HeatMapServiceImplTest {
     @Mock
     DragAreaQuery dragAreaQuery;
 
-    private static final Service SERVICE = Service.TEST_SERVICE;
+    private static final Service SERVICE = Service.DEFAULT;
     private static final String APPLICATION_NAME = "applicationName";
     private static final int SERVICE_TYPE_CODE = ServiceType.TEST.getCode();
     private static final int LIMIT = 50;

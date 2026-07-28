@@ -18,9 +18,6 @@ public class ServiceModelResolver {
         if (Service.DEFAULT.getServiceUid().getUid() == serviceUid) {
             return Service.DEFAULT;
         }
-        if (Service.TEST_SERVICE.getServiceUid().getUid() == serviceUid) {
-            return Service.TEST_SERVICE;
-        }
         Service service = resolveService(serviceUid);
         if (service == null) {
             return Service.DEFAULT;
@@ -31,9 +28,6 @@ public class ServiceModelResolver {
     public Service getService(String serviceName) {
         if (Service.DEFAULT.getServiceName().equals(serviceName)) {
             return Service.DEFAULT;
-        }
-        if (Service.TEST_SERVICE.getServiceName().equals(serviceName)) {
-            return Service.TEST_SERVICE;
         }
         Service service = resolveService(serviceName);
         if (service == null) {
