@@ -99,6 +99,7 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<PExc
         return new ExceptionMetaDataBo(
                 transactionId, exceptionMetaData.getSpanId(),
                 (short) agentInfo.getServiceType(),
+                agentInfo.getServiceName(),
                 agentInfo.getApplicationName(),
                 agentInfo.getAgentId(),
                 StringUtils.defaultIfEmpty(exceptionMetaData.getUriTemplate(), EMPTY)

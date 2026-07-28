@@ -38,6 +38,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
     private final String tableName;
 
     private final String tenantId;
+    private final String serviceName;
     private final String applicationName;
     private final String agentId;
 
@@ -59,6 +60,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
         this.tableName = builder.tableName;
         this.tenantId = builder.tenantId;
+        this.serviceName = builder.serviceName;
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.transactionId = builder.transactionId;
@@ -84,6 +86,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         private String tableName;
 
         private String tenantId;
+        private String serviceName;
         private String applicationName;
         private String agentId = null;
 
@@ -112,6 +115,11 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
 
         public Builder setTenantId(String tenantId) {
             this.tenantId = tenantId;
+            return self();
+        }
+
+        public Builder setServiceName(String serviceName) {
+            this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
             return self();
         }
 
@@ -235,6 +243,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         return "ExceptionTraceQueryParameter{" +
                 "tableName='" + tableName + '\'' +
                 ", tenantId='" + tenantId + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", transactionId='" + transactionId + '\'' +

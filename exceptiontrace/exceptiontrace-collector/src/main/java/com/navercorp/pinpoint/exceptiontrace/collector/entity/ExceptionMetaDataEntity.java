@@ -31,6 +31,7 @@ public class ExceptionMetaDataEntity {
     private long exceptionId;
 
     private String applicationServiceType;
+    private String serviceName;
     private String applicationName;
     private String agentId;
     private String uriTemplate;
@@ -94,6 +95,14 @@ public class ExceptionMetaDataEntity {
 
     public void setApplicationServiceType(String applicationServiceType) {
         this.applicationServiceType = applicationServiceType;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
     }
 
     public String getApplicationName() {
@@ -193,6 +202,7 @@ public class ExceptionMetaDataEntity {
                 ", spanId=" + spanId +
                 ", exceptionId=" + exceptionId +
                 ", applicationServiceType='" + applicationServiceType + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", uriTemplate='" + uriTemplate + '\'' +

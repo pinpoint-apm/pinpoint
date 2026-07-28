@@ -78,6 +78,7 @@ public class PinotExceptionMetaDataService implements ExceptionMetaDataService {
                             exceptionMetaDataBo.getSpanId(),
                             e.getExceptionId(),
                             serviceType.getName(),
+                            exceptionMetaDataBo.getServiceName(),
                             exceptionMetaDataBo.getApplicationName(),
                             exceptionMetaDataBo.getAgentId(),
                             exceptionMetaDataBo.getUriTemplate(),
