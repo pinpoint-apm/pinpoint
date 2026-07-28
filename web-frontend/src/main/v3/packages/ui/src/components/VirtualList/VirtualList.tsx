@@ -60,6 +60,12 @@ export const VirtualList = <T,>({
       return;
     }
 
+    // focusIndex가 음수(-1)이면 이 리스트는 키보드 포커스 대상이 아니라는 의미이므로
+    // 자동 스크롤하지 않는다. (다른 리스트가 포커스됐을 때 이 리스트가 맨 위로 튕기는 것을 방지)
+    if (focusIndex < 0) {
+      return;
+    }
+
     if (isFirst && focusIndex === 0) {
       // 최초 focusIndex가 0인 경우에만 스크롤을 생략
       return;
