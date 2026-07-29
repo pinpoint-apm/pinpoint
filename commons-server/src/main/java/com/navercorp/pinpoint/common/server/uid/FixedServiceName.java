@@ -39,6 +39,6 @@ public final class FixedServiceName implements ServiceNameSupplier {
 
     @Override
     public String toString() {
-        return serviceName + "/" + serviceUid;
+        return serviceName + '(' + serviceUid + ')';
     }
 }

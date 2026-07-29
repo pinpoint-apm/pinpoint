@@ -51,8 +51,7 @@ class ServiceNameTest {
 
         String result = serviceNameObj.toString();
 
-        assertThat(result).contains("ServiceName");
-        assertThat(result).contains("myService");
+        assertThat(result).isEqualTo("myService");
     }
 
     @Test
