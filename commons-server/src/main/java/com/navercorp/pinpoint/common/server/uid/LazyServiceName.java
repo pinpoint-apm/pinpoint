@@ -59,9 +59,9 @@ public final class LazyServiceName implements ServiceNameSupplier {
         // debuggers and log statements must not cause a registry lookup
         final String name = this.resolved;
         if (name != null) {
-            return name + '/' + serviceUid;
+            return name + '(' + serviceUid + ')';
         }
-        return "?/" + serviceUid;
+        return "?(" + serviceUid + ')';
     }
 
 }

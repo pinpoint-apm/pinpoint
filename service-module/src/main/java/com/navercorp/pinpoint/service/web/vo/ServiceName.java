@@ -35,6 +35,6 @@ public class ServiceName {
 
     @Override
     public String toString() {
-        return "ServiceName{serviceName='" + name + "'}";
+        return getName();
     }
 }
