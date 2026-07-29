@@ -1,8 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Configuration, ApplicationType, AgentManagementList } from '@pinpoint-fe/ui/src/constants';
-import { ApplicationCombinedList } from '../../../components/Application';
-import { Button, ScrollArea, Separator, useReactToastifyToast } from '../../../components';
+import { ApplicationType, AgentManagementList } from '@pinpoint-fe/ui/src/constants';
+import { Button, useReactToastifyToast } from '../../../components';
 import { AgentManagementTable } from './AgentManagementTable';
 import {
   useDeleteAgent,
@@ -13,15 +12,17 @@ import { FaRegTrashCan } from 'react-icons/fa6';
 import { AgentManagementRemovePopup } from './AgentManagementRemovePopup';
 
 export interface AgentManagementFetcherProps {
-  configuration?: Configuration;
+  application?: ApplicationType;
+  onRemoveApplicationSuccess?: () => void;
 }
 
-export const AgentManagementFetcher = ({ configuration }: AgentManagementFetcherProps) => {
-  void configuration; // Not use configuration
+export const AgentManagementFetcher = ({
+  application,
+  onRemoveApplicationSuccess,
+}: AgentManagementFetcherProps) => {
   const toast = useReactToastifyToast();
 
   const { t } = useTranslation();
-  const [application, setApplication] = React.useState<ApplicationType>();
 
   const { data, refetch } = useGetAgentManagementList({
     applicationName: application?.applicationName || '',
@@ -44,7 +45,7 @@ export const AgentManagementFetcher = ({ configuration }: AgentManagementFetcher
     onError,
     onSuccess: () => {
       onSuccess();
-      setApplication(undefined);
+      onRemoveApplicationSuccess?.();
     },
   });
 
@@ -74,32 +75,21 @@ export const AgentManagementFetcher = ({ configuration }: AgentManagementFetcher
   }
 
   return (
-    <ScrollArea>
-      <div className="flex gap-10">
-        <h3 className="text-lg font-semibold">Agent management</h3>
-        <ApplicationCombinedList
-          open={!application}
-          selectedApplication={application}
-          onClickApplication={(application) => setApplication(application)}
+    <div className="flex flex-col gap-2">
+      <div className="text-end">
+        <AgentManagementRemovePopup
+          popupTrigger={
+            <Button variant={'destructive'}>
+              <FaRegTrashCan className="mr-0.5" />{' '}
+              {t('CONFIGURATION.AGENT_MANAGEMENT.LABEL.REMOVE_APPLICATION')}
+            </Button>
+          }
+          isApplication={true}
+          application={application}
+          onClickRemove={handleRemoveApplication}
         />
       </div>
-      <Separator className="my-6" />
-      <div className="flex flex-col gap-2">
-        <div className="text-end">
-          <AgentManagementRemovePopup
-            popupTrigger={
-              <Button variant={'destructive'}>
-                <FaRegTrashCan className="mr-0.5" />{' '}
-                {t('CONFIGURATION.AGENT_MANAGEMENT.LABEL.REMOVE_APPLICATION')}
-              </Button>
-            }
-            isApplication={true}
-            application={application}
-            onClickRemove={handleRemoveApplication}
-          />
-        </div>
-        <AgentManagementTable data={data || []} onRemove={handleRemoveAgent} />
-      </div>
-    </ScrollArea>
+      <AgentManagementTable data={data || []} onRemove={handleRemoveAgent} />
+    </div>
   );
 };
