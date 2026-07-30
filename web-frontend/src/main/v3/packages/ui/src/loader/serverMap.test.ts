@@ -1,4 +1,4 @@
-import { serverMapRouteLoader } from './serverMap';
+import { serverMapRouteLoader, serviceMapRouteLoader } from './serverMap';
 
 jest.mock('react-router-dom', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
@@ -78,6 +78,34 @@ describe('serverMapRouteLoader', () => {
     (getConfiguration as jest.Mock).mockRejectedValueOnce(new Error('backend down'));
     const result = await serverMapRouteLoader(
       makeArgs(`http://localhost${BASE}?${VALID}`, { application: APP }),
+    );
+    expect(result).toEqual({ applicationName: 'TestApp', serviceType: 'SPRING_BOOT' });
+  });
+});
+
+describe('serviceMapRouteLoader', () => {
+  const SERVICE_MAP_BASE = `/serviceMap/${APP}`;
+
+  beforeEach(() => {
+    (getConfiguration as jest.Mock).mockResolvedValue({});
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('redirects to the serviceMap path, not the serverMap path', async () => {
+    const result = (await serviceMapRouteLoader(
+      makeArgs(`http://localhost${SERVICE_MAP_BASE}`, { application: APP }),
+    )) as unknown as { __isRedirect: boolean; url: string };
+    expect(result.__isRedirect).toBe(true);
+    expect(result.url).toContain(SERVICE_MAP_BASE);
+    expect(result.url).not.toContain('/serverMap/');
+  });
+
+  test('returns the application when from/to are in the canonical date format', async () => {
+    const result = await serviceMapRouteLoader(
+      makeArgs(`http://localhost${SERVICE_MAP_BASE}?${VALID}`, { application: APP }),
     );
     expect(result).toEqual({ applicationName: 'TestApp', serviceType: 'SPRING_BOOT' });
   });

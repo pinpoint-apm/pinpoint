@@ -2,7 +2,10 @@ import { getDefaultStore } from 'jotai';
 import { configurationAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import {
+  getRequestService,
   installServiceNameFetchInterceptor,
+  isServiceExcludedPath,
+  resolveRequestService,
   SERVICE_NAME_HEADER,
 } from './serviceNameFetchInterceptor';
 
@@ -31,6 +34,7 @@ describe('serviceNameFetchInterceptor', () => {
     originalFetch.mockClear();
     store.set(configurationAtom, undefined);
     store.set(selectedServiceAtom, 'DEFAULT');
+    window.history.replaceState({}, '', '/serviceMap');
   });
 
   test('does not add the service header when enableServiceMap is off', async () => {
@@ -84,5 +88,52 @@ describe('serviceNameFetchInterceptor', () => {
     expect(headers.get('Content-Type')).toBe('application/json');
     expect(headers.get(SERVICE_NAME_HEADER)).toBe('my-service');
     expect(init?.method).toBe('POST');
+  });
+
+  test('does not add the header on the servermap page, even for a shared API', async () => {
+    store.set(configurationAtom, configWithServiceMap(true));
+    store.set(selectedServiceAtom, 'my-service');
+    window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT?from=1&to=2');
+
+    await window.fetch('/api/agents/search-application');
+
+    expect(originalFetch).toHaveBeenCalledTimes(1);
+    expect(headerOfLastCall()).toBeNull();
+  });
+
+  describe('resolveRequestService', () => {
+    test('resolves to the selected service on a service path', () => {
+      window.history.replaceState({}, '', '/serviceMap/app-name@TOMCAT');
+
+      expect(resolveRequestService('my-service')).toBe('my-service');
+    });
+
+    test('resolves to the default service on the servermap page', () => {
+      // 헤더를 생략해 백엔드 기본 service로 응답받으므로, 캐시도 기본 service로 키를 잡아야 한다.
+      window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
+
+      expect(resolveRequestService('my-service')).toBe('DEFAULT');
+    });
+
+    test('getRequestService reads the currently selected service from the store', () => {
+      store.set(selectedServiceAtom, 'my-service');
+      window.history.replaceState({}, '', '/serviceMap/app-name@TOMCAT');
+      expect(getRequestService()).toBe('my-service');
+
+      window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
+      expect(getRequestService()).toBe('DEFAULT');
+    });
+  });
+
+  describe('isServiceExcludedPath', () => {
+    test.each([
+      ['/serverMap', true],
+      ['/serverMap/app-name@TOMCAT', true],
+      ['/serverMap/realtime/app-name@TOMCAT', true],
+      ['/serviceMap/app-name@TOMCAT', false],
+      ['/inspector', false],
+    ])('returns %p → %p', (pathname, expected) => {
+      expect(isServiceExcludedPath(pathname)).toBe(expected);
+    });
   });
 });

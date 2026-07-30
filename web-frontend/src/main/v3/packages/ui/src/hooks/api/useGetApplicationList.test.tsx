@@ -36,6 +36,7 @@ describe('useGetApplicationList', () => {
     global.fetch = jest.fn();
     mockGetQueryData.mockReset();
     getDefaultStore().set(selectedServiceAtom, DEFAULT_SERVICE);
+    window.history.replaceState({}, '', '/');
   });
 
   afterEach(() => {
@@ -116,5 +117,25 @@ describe('useGetApplicationList', () => {
 
     await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.length).toBe(2));
     await waitFor(() => expect(result.current.data).toEqual([{ applicationName: 'B' }]));
+  });
+
+  test('caches under the default service on service-excluded paths', async () => {
+    // 헤더가 빠지면 응답은 기본 service의 목록이므로, 선택된 service 캐시를 덮어써선 안 된다.
+    window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
+    getDefaultStore().set(selectedServiceAtom, 'service-b');
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce(okResponse([{ applicationName: 'A' }], 'etag-default'))
+      .mockResolvedValueOnce({ status: 304 });
+    mockGetQueryData.mockReturnValue([{ applicationName: 'A' }]);
+
+    const { result } = renderHook(() => useGetApplicationList(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    await act(async () => {
+      await result.current.refetch();
+    });
+
+    await waitFor(() => expect(mockGetQueryData).toHaveBeenCalled());
+    expect(mockGetQueryData).toHaveBeenCalledWith([END_POINTS.APPLICATION_LIST, DEFAULT_SERVICE]);
   });
 });

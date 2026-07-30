@@ -105,14 +105,6 @@ export const transactionListTableColumns = (
     },
   },
   {
-    accessorKey: 'agentId',
-    header: 'Agent Id',
-    size: 90,
-    cell: (props) => {
-      return props.getValue();
-    },
-  },
-  {
     accessorKey: 'remoteAddr',
     header: 'Client IP',
     size: 100,
