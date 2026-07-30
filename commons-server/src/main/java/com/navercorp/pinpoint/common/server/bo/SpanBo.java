@@ -164,18 +164,16 @@ public class SpanBo implements BasicSpan {
         return owner.getAgentStartTime();
     }
 
+    private TraceTimeAccessor timeAccessor() {
+        return TraceTimeAccessor.ofVersion(this.version);
+    }
+
     public long getStartTimeMillis() {
-        if (getVersion() == SpanVersion.TRACE_V3) {
-            return TimeUnit.NANOSECONDS.toMillis(startTime);
-        }
-        return startTime;
+        return timeAccessor().toMillis(startTime);
     }
 
     public long getStartTimeNanos() {
-        if (getVersion() == SpanVersion.TRACE_V3) {
-            return startTime;
-        }
-        return TimeUnit.MILLISECONDS.toNanos(startTime);
+        return timeAccessor().toNanos(startTime);
     }
 
     /**
@@ -221,20 +219,14 @@ public class SpanBo implements BasicSpan {
 
     public long getEndTimeMillis() {
         if (hasEndTime()) {
-            if (getVersion() == SpanVersion.TRACE_V3) {
-                return TimeUnit.NANOSECONDS.toMillis(endTime);
-            }
-            return endTime;
+            return timeAccessor().toMillis(endTime);
         }
         return getStartTimeMillis() + elapsed;
     }
 
     public long getEndTimeNanos() {
         if (hasEndTime()) {
-            if (getVersion() == SpanVersion.TRACE_V3) {
-                return endTime;
-            }
-            return TimeUnit.MILLISECONDS.toNanos(endTime);
+            return timeAccessor().toNanos(endTime);
         }
         return getStartTimeNanos() + TimeUnit.MILLISECONDS.toNanos(elapsed);
     }
