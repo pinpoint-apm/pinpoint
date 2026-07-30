@@ -26,7 +26,6 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -139,18 +138,16 @@ public class SpanChunkBo implements BasicSpan {
         this.spanId = spanId;
     }
 
+    private TraceTimeAccessor timeAccessor() {
+        return TraceTimeAccessor.ofVersion(this.version);
+    }
+
     public long getKeyTimeMillis() {
-        if (getVersion() == SpanVersion.TRACE_V3) {
-            return TimeUnit.NANOSECONDS.toMillis(keyTime);
-        }
-        return keyTime;
+        return timeAccessor().toMillis(keyTime);
     }
 
     public long getKeyTimeNanos() {
-        if (getVersion() == SpanVersion.TRACE_V3) {
-            return keyTime;
-        }
-        return TimeUnit.MILLISECONDS.toNanos(keyTime);
+        return timeAccessor().toNanos(keyTime);
     }
 
     /**
