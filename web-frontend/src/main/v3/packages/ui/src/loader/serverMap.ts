@@ -1,4 +1,5 @@
 import {
+  APP_PATH,
   Configuration,
   SEARCH_PARAMETER_DATE_FORMAT,
   SEARCH_PARAMETER_DATE_FORMAT_WHITE_LIST,
@@ -16,73 +17,82 @@ import { parse } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
-export const serverMapRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
-  const application = getApplicationTypeAndName(params.application!);
+/**
+ * map 페이지(serverMap, serviceMap)의 날짜 파라미터를 검증/정규화하는 공용 로더.
+ * 리다이렉트는 현재 페이지 경로를 유지해야 하므로 pagePath를 받아 로더를 만든다.
+ */
+export const createMapRouteLoader =
+  (pagePath: string) =>
+  async ({ params, request }: LoaderFunctionArgs) => {
+    const application = getApplicationTypeAndName(params.application!);
 
-  let configuration: Configuration | undefined;
-  try {
-    configuration = await getConfiguration<Configuration>();
-  } catch {
-    // Configuration fetch may fail when the backend is down.
-    // Continue with defaults so that date params are still redirected.
-  }
-
-  const timezone = getTimezone();
-
-  if (application?.applicationName && application.serviceType) {
-    const basePath = `/serverMap/${params.application}`;
-    const queryParam = Object.fromEntries(new URL(request.url).searchParams);
-    const conditions = Object.keys(queryParam);
-
-    const from = queryParam?.from as string;
-    const to = queryParam?.to as string;
-
-    const currentDate = new Date();
-    const validationRange = isValidDateRange(configuration?.['periodMax.serverMap'] || 2);
-    const defaultParsedDateRange = getParsedDateRange({ from, to });
-    const defaultFormattedDateRange = {
-      from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
-      to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
-    };
-    const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
-    const defaultDestination = `${basePath}?${defaultDatesQueryString}`;
-
-    if (conditions.length === 0) {
-      return redirect(defaultDestination);
-    } else if (conditions.includes('from')) {
-      if (!conditions.includes('to')) {
-        return redirect(defaultDestination);
-      }
-
-      const matchedFormat = SEARCH_PARAMETER_DATE_FORMAT_WHITE_LIST.find((dateFormat) => {
-        const parsedDateRange = {
-          from: parse(from, dateFormat, currentDate),
-          to: parse(to, dateFormat, currentDate),
-        };
-
-        return validationRange(parsedDateRange);
-      });
-
-      if (!matchedFormat) {
-        return redirect(defaultDestination);
-      }
-
-      if (matchedFormat !== SEARCH_PARAMETER_DATE_FORMAT) {
-        const parsedDateRange = {
-          from: parse(from, matchedFormat, currentDate),
-          to: parse(to, matchedFormat, currentDate),
-        };
-        const formattedDataRange = getFormattedDateRange(parsedDateRange);
-        const destination = `${basePath}?${convertParamsToQueryString({
-          ...queryParam,
-          ...formattedDataRange,
-        })}`;
-        return redirect(destination);
-      }
-
-      return application;
+    let configuration: Configuration | undefined;
+    try {
+      configuration = await getConfiguration<Configuration>();
+    } catch {
+      // Configuration fetch may fail when the backend is down.
+      // Continue with defaults so that date params are still redirected.
     }
-  }
 
-  return application;
-};
+    const timezone = getTimezone();
+
+    if (application?.applicationName && application.serviceType) {
+      const basePath = `${pagePath}/${params.application}`;
+      const queryParam = Object.fromEntries(new URL(request.url).searchParams);
+      const conditions = Object.keys(queryParam);
+
+      const from = queryParam?.from as string;
+      const to = queryParam?.to as string;
+
+      const currentDate = new Date();
+      const validationRange = isValidDateRange(configuration?.['periodMax.serverMap'] || 2);
+      const defaultParsedDateRange = getParsedDateRange({ from, to });
+      const defaultFormattedDateRange = {
+        from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+        to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+      };
+      const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
+      const defaultDestination = `${basePath}?${defaultDatesQueryString}`;
+
+      if (conditions.length === 0) {
+        return redirect(defaultDestination);
+      } else if (conditions.includes('from')) {
+        if (!conditions.includes('to')) {
+          return redirect(defaultDestination);
+        }
+
+        const matchedFormat = SEARCH_PARAMETER_DATE_FORMAT_WHITE_LIST.find((dateFormat) => {
+          const parsedDateRange = {
+            from: parse(from, dateFormat, currentDate),
+            to: parse(to, dateFormat, currentDate),
+          };
+
+          return validationRange(parsedDateRange);
+        });
+
+        if (!matchedFormat) {
+          return redirect(defaultDestination);
+        }
+
+        if (matchedFormat !== SEARCH_PARAMETER_DATE_FORMAT) {
+          const parsedDateRange = {
+            from: parse(from, matchedFormat, currentDate),
+            to: parse(to, matchedFormat, currentDate),
+          };
+          const formattedDataRange = getFormattedDateRange(parsedDateRange);
+          const destination = `${basePath}?${convertParamsToQueryString({
+            ...queryParam,
+            ...formattedDataRange,
+          })}`;
+          return redirect(destination);
+        }
+
+        return application;
+      }
+    }
+
+    return application;
+  };
+
+export const serverMapRouteLoader = createMapRouteLoader(APP_PATH.SERVER_MAP);
+export const serviceMapRouteLoader = createMapRouteLoader(APP_PATH.SERVICE_MAP);

@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { createBrowserRouter, redirect } from 'react-router-dom';
 import {
   serverMapRouteLoader,
+  serviceMapRouteLoader,
   realtimeLoader,
   errorAnalysisRouteLoader,
   urlStatisticRouteLoader,
@@ -22,6 +23,7 @@ import { ConfigurationOutlet } from '@pinpoint-fe/web/src/components/Layout/Conf
 import { RouteErrorFallback } from '@pinpoint-fe/ui/src/components/Error';
 
 import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
+const ServiceMap = lazy(() => import('@pinpoint-fe/web/src/pages/ServiceMap'));
 const Realtime = lazy(() => import('@pinpoint-fe/web/src/pages/ServerMap/Realtime'));
 const ScatterOrHeatmapFullScreen = lazy(
   () => import('@pinpoint-fe/web/src/pages/ScatterOrHeatmapFullScreen'),
@@ -96,6 +98,11 @@ const router = createBrowserRouter(
                   path: `${APP_PATH.SERVER_MAP_REALTIME}/:application?`,
                   element: <Realtime />,
                   loader: realtimeLoader,
+                },
+                {
+                  path: `${APP_PATH.SERVICE_MAP}/:application?`,
+                  element: <ServiceMap />,
+                  loader: serviceMapRouteLoader,
                 },
                 {
                   path: `${APP_PATH.FILTERED_MAP}/:application?`,

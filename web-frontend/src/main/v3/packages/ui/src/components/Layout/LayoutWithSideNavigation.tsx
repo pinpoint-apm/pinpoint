@@ -100,7 +100,7 @@ export const LayoutWithSideNavigation = ({
   );
 
   const renderMenuItemContent = (item: SideNavigationMenuItem, isChildItem?: boolean) => {
-    const itemClassName = cn('w-full', { '!hidden': item.hide }, { 'justify-center': collapsed });
+    const itemClassName = cn('w-full', { 'justify-center': collapsed });
 
     const itemChildren = (
       <div className="flex items-center w-full">
@@ -166,6 +166,11 @@ export const LayoutWithSideNavigation = ({
   };
 
   const renderSidebarMenuItem = (item: SideNavigationMenuItem) => {
+    // hide는 메뉴 자리(버튼 높이 + gap)까지 남지 않도록 아예 렌더하지 않는다.
+    if (item.hide) {
+      return null;
+    }
+
     if (item.childItems) {
       return (
         <SidebarMenuItem>
@@ -239,9 +244,9 @@ export const LayoutWithSideNavigation = ({
                         alt={'pinpoint-logo'}
                       />
                     </Link>
-                    <div className="hidden absolute top-1 right-1 scale-button-wrapper">
+                    <div className="absolute hidden top-1 right-1 scale-button-wrapper">
                       <button
-                        className="flex justify-center items-center w-6 h-6 text-white opacity-50 cursor-pointer hover:opacity-100 hover:font-semibold"
+                        className="flex items-center justify-center w-6 h-6 text-white opacity-50 cursor-pointer hover:opacity-100 hover:font-semibold"
                         onClick={() => setCollapsed(!collapsed)}
                       >
                         {collapsed ? <LuChevronLast /> : <LuChevronFirst />}
@@ -278,7 +283,7 @@ export const LayoutWithSideNavigation = ({
                     content: (
                       <div className="flex">
                         Search...
-                        <div className="flex gap-1 items-center px-1 ml-3 text-xs rounded border bg-muted/25">
+                        <div className="flex items-center gap-1 px-1 ml-3 text-xs border rounded bg-muted/25">
                           <LuCommand /> K
                         </div>
                       </div>
@@ -341,36 +346,36 @@ const SidebarMenuButtonWithDropdownMenu = ({
 
   const renderChildList = (childItems: SideNavigationMenuItem[]) => (
     <div className="space-y-1">
-      {childItems.map((childItem) => (
-        <DropdownMenuItem
-          key={getMenuKey(childItem.path)}
-          className={cn(
-            SIDEBAR_MENU_BUTTON_CLASS_NAME,
-            {
-              'font-semibold': isActive(childItem) || childItem.selected,
-              'bg-[var(--blue-700)]': isActive(childItem),
-            },
-            'cursor-pointer',
-          )}
-          asChild
-          onSelect={close}
-        >
-          {renderMenuItemContent(childItem, true)}
-        </DropdownMenuItem>
-      ))}
+      {childItems
+        .filter((childItem) => !childItem.hide)
+        .map((childItem) => (
+          <DropdownMenuItem
+            key={getMenuKey(childItem.path)}
+            className={cn(
+              SIDEBAR_MENU_BUTTON_CLASS_NAME,
+              {
+                'font-semibold': isActive(childItem) || childItem.selected,
+                'bg-[var(--blue-700)]': isActive(childItem),
+              },
+              'cursor-pointer',
+            )}
+            asChild
+            onSelect={close}
+          >
+            {renderMenuItemContent(childItem, true)}
+          </DropdownMenuItem>
+        ))}
     </div>
   );
 
   const rightSection = (
     <>
-      <div className="flex items-center justify-between gap-4 pr-2 pl-6 h-10 text-sm">
-        <span className="opacity-50 truncate min-w-0">{item.rightSectionTitle ?? item.name}</span>
+      <div className="flex items-center justify-between h-10 gap-4 pl-6 pr-2 text-sm">
+        <span className="min-w-0 truncate opacity-50">{item.rightSectionTitle ?? item.name}</span>
         {typeof item.headerAction === 'function' ? item.headerAction(close) : item.headerAction}
       </div>
       <Separator className="mb-2 opacity-50" />
-      <div className="overflow-y-auto max-h-[360px]">
-        {renderChildList(item.childItems ?? [])}
-      </div>
+      <div className="overflow-y-auto max-h-[360px]">{renderChildList(item.childItems ?? [])}</div>
     </>
   );
 
@@ -405,7 +410,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
         {hasLeftSection ? (
           <div className="flex">
             <div className="flex-1 pr-2 border-r border-white/10">
-              <div className="flex items-center pr-2 pl-6 h-10 text-sm">
+              <div className="flex items-center h-10 pl-6 pr-2 text-sm">
                 <span className="opacity-50">{item.leftSectionTitle ?? ''}</span>
               </div>
               <Separator className="mb-2 opacity-50" />

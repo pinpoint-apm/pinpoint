@@ -4,7 +4,6 @@ export * from './useClearApplicationOnServiceChange';
 export * from './useDateFormat';
 export * from './useExperimentals';
 export * from './useHeightToBottom';
-export * from './useInvalidateQueriesOnServiceChange';
 export * from './useLanguage';
 export * from './useLocalStorage';
 export * from './useServerMapLinkedData';

@@ -4,6 +4,7 @@ import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
 import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import React from 'react';
 import { queryClient } from './reactQueryHelper';
+import { resolveRequestService } from './serviceNameFetchInterceptor';
 
 // ETag는 service별로 응답이 다를 수 있으므로 service마다 따로 보관한다.
 // 하나의 전역 값으로 두면 service 전환 시 이전 service의 ETag를 보내
@@ -54,14 +55,17 @@ export const useGetApplicationList = (shouldFetch = true) => {
   // selectedService가 바뀌면 queryKey가 달라져 새 service의 목록을 다시 불러온다.
   // service마다 application 목록이 다르므로 캐시를 service별로 분리한다.
   const selectedService = useAtomValue(selectedServiceAtom);
+  // 이 쿼리는 사이드 네비게이션(remount 대상 밖)에서도 쓰이고 ETag도 service별로 보관하므로,
+  // 해시에만 의존하지 않고 요청에 쓰이는 service를 queryKey에 명시해 직접 다룬다.
+  const service = resolveRequestService(selectedService);
   const clearCacheRef = React.useRef(false);
 
   const query = useQuery({
-    queryKey: [END_POINTS.APPLICATION_LIST, selectedService],
+    queryKey: [END_POINTS.APPLICATION_LIST, service],
     queryFn: () => {
       const shouldClearCache = clearCacheRef.current;
       clearCacheRef.current = false;
-      return applicationListQueryFn(selectedService, shouldClearCache);
+      return applicationListQueryFn(service, shouldClearCache);
     },
     enabled: shouldFetch,
     refetchOnMount: false,

@@ -11,6 +11,7 @@ import {
 import { SiOpentelemetry } from 'react-icons/si';
 import {
   getServerMapPath,
+  getServiceMapPath,
   getInspectorPath,
   getUrlStatPath,
   getSystemMetricPath,
@@ -28,6 +29,14 @@ export const useMenuItems = () => {
       name: 'Servermap',
       path: APP_PATH.SERVER_MAP,
       href: getServerMapPath(application, searchParameters),
+    },
+    {
+      icon: <PiTreeStructure />,
+      name: 'Servicemap',
+      path: APP_PATH.SERVICE_MAP,
+      href: getServiceMapPath(application, searchParameters),
+      // service 기능(experimental.enableServiceMap)이 켜져 있을 때만 노출한다.
+      hide: !configuration?.['experimental.enableServiceMap.value'],
     },
     {
       icon: <PiChartLine />,

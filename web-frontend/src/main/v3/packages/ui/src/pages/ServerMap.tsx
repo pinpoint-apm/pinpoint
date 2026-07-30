@@ -46,6 +46,8 @@ export interface ServermapPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
   MapView?: typeof ServerMap;
   title?: 'Servermap' | 'Servicemap';
+  /** 페이지 내부 이동(애플리케이션 선택, 기간 변경 등)에 사용할 경로 생성 함수 */
+  getPagePath?: typeof getServerMapPath;
 }
 
 const SERVERMAP_CONTAINER_ID = 'server-map-main-container';
@@ -56,6 +58,7 @@ export const ServerMapPage = ({
   ApplicationList = ApplicationCombinedList,
   MapView = ServerMap,
   title = 'Servermap',
+  getPagePath = getServerMapPath,
 }: ServermapPageProps) => {
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.[`periodInterval.serverMap`];
@@ -131,14 +134,14 @@ export const ServerMapPage = ({
         navigate(`${getRealtimePath(application!)}`);
       } else {
         navigate(
-          `${getServerMapPath(application!)}?${convertParamsToQueryString({
+          `${getPagePath(application!)}?${convertParamsToQueryString({
             ...formattedDate,
             ...queryOption,
           })}`,
         );
       }
     }) as DatetimePickerChangeHandler,
-    [application?.applicationName, queryOption],
+    [application?.applicationName, queryOption, getPagePath],
   );
 
   const initPage = () => {
@@ -178,7 +181,7 @@ export const ServerMapPage = ({
         <ApplicationList
           open={!application}
           selectedApplication={application}
-          onClickApplication={(application) => navigate(getServerMapPath(application))}
+          onClickApplication={(application) => navigate(getPagePath(application))}
         />
         {application && (
           <div className="flex gap-1 ml-auto">
@@ -227,7 +230,7 @@ export const ServerMapPage = ({
                     queryOption={queryOption}
                     onApplyChangedOption={(option) => {
                       navigate(
-                        `${getServerMapPath(application)}?${convertParamsToQueryString({
+                        `${getPagePath(application)}?${convertParamsToQueryString({
                           ...getFormattedDateRange(dateRange),
                           ...option,
                         })}`,
