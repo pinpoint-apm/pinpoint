@@ -2,12 +2,8 @@ package com.navercorp.pinpoint.common.server.trace;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.server.util.TransactionIdParser;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public interface ServerTraceId {
@@ -23,33 +19,6 @@ public interface ServerTraceId {
      */
     static boolean isOpenTelemetry(ServerTraceId traceId) {
         return traceId instanceof OtelServerTraceId;
-    }
-
-    static byte[] encodeTraceRowKey(int saltKeySize, ServerTraceId serverTraceId) {
-        if (serverTraceId instanceof PinpointServerTraceId pinpointServerTraceId) {
-            final String agentId = pinpointServerTraceId.getAgentId();
-            return RowKeyUtils.stringLongLongToBytes(saltKeySize, agentId, PinpointConstants.AGENT_ID_MAX_LEN, pinpointServerTraceId.getAgentStartTime(), pinpointServerTraceId.getTransactionSequence());
-        } else if (serverTraceId instanceof OtelServerTraceId otelServerTraceId) {
-            byte[] otelTraceIdBytes = otelServerTraceId.getId();
-            byte[] rowKey = new byte[PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN + 1];
-            System.arraycopy(otelTraceIdBytes, 0, rowKey, 1, PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN);
-            return rowKey;
-        } else {
-            throw new IllegalStateException("unsupported ServerTraceId=" + serverTraceId);
-        }
-    }
-
-    static ServerTraceId decodeTraceRowKey(byte[] rowKey, int saltKeySize) {
-        if (rowKey.length == saltKeySize + PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN) {
-            byte[] otelTraceId = Arrays.copyOfRange(rowKey, saltKeySize, saltKeySize + PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN);
-            return new OtelServerTraceId(otelTraceId);
-        }
-
-        // PinpointServerTraceId
-        String agentId = BytesUtils.toStringAndRightTrim(rowKey, saltKeySize, PinpointConstants.AGENT_ID_MAX_LEN);
-        long agentStartTime = ByteArrayUtils.bytesToLong(rowKey, saltKeySize + PinpointConstants.AGENT_ID_MAX_LEN);
-        long transactionSequence = ByteArrayUtils.bytesToLong(rowKey, saltKeySize + BytesUtils.LONG_BYTE_LENGTH + PinpointConstants.AGENT_ID_MAX_LEN);
-        return new PinpointServerTraceId(agentId, agentStartTime, transactionSequence);
     }
 
     static byte[] encodeApplicationTraceIndexQualifier(ServerTraceId serverTraceId) {

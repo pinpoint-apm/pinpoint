@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
-import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
@@ -30,9 +29,6 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class TraceRowKeyEncoderV2 implements RowKeyEncoder<ServerTraceId> {
-
-    public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
-    public static final int OPENTELEMETRY_TRACE_ID_LEN = PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN;
 
     private final ByteHasher byteHasher;
     private final ByteHasher otelByteHasher;
@@ -53,7 +49,7 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<ServerTraceId> {
         Objects.requireNonNull(serverTraceId, "serverTraceId");
 
         if (serverTraceId instanceof PinpointServerTraceId pinpointServerTraceId) {
-            byte[] rowKey = ServerTraceId.encodeTraceRowKey(saltKeySize, pinpointServerTraceId);
+            byte[] rowKey = PinpointTraceRowKeyCodec.encode(saltKeySize, pinpointServerTraceId);
             if (saltKeySize == 0) {
                 return rowKey;
             }
@@ -61,7 +57,7 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<ServerTraceId> {
         }
 
         if (serverTraceId instanceof OtelServerTraceId otelServerTraceId) {
-            byte[] rowKey = ServerTraceId.encodeTraceRowKey(saltKeySize, otelServerTraceId);
+            byte[] rowKey = OtelTraceRowKeyCodec.encode(otelServerTraceId);
             return otelByteHasher.writeSaltKey(rowKey);
         }
 
