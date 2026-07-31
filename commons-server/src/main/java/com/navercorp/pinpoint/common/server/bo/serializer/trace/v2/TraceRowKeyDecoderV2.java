@@ -29,10 +29,6 @@ import java.util.Objects;
 @Component
 public class TraceRowKeyDecoderV2 implements RowKeyDecoder<ServerTraceId> {
 
-    public static final int AGENT_ID_MAX_LEN = TraceRowKeyEncoderV2.AGENT_ID_MAX_LEN;
-
-    private static final int OPENTELEMETRY_TRACE_ID_LEN = TraceRowKeyEncoderV2.OPENTELEMETRY_TRACE_ID_LEN;
-
     private final ByteSaltKey saltKey;
 
     public TraceRowKeyDecoderV2() {
@@ -51,7 +47,10 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<ServerTraceId> {
         return readTransactionId(rowkey, saltKey.size());
     }
 
-    private ServerTraceId readTransactionId(byte[] rowKey, int offset) {
-        return ServerTraceId.decodeTraceRowKey(rowKey, offset);
+    private ServerTraceId readTransactionId(byte[] rowKey, int saltKeySize) {
+        if (OtelTraceRowKeyCodec.matches(rowKey, saltKeySize)) {
+            return OtelTraceRowKeyCodec.decode(rowKey, saltKeySize);
+        }
+        return PinpointTraceRowKeyCodec.decode(rowKey, saltKeySize);
     }
 }
