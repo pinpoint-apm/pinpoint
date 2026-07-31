@@ -48,8 +48,9 @@ public class SpanSerializeConfiguration {
     }
 
     @Bean
-    public TraceRowKeyEncoderV2 traceRowKeyEncoderV2(@Qualifier("traceV2Distributor") RowKeyDistributor rowKeyDistributor) {
-        return new TraceRowKeyEncoderV2(rowKeyDistributor);
+    public TraceRowKeyEncoderV2 traceRowKeyEncoderV2(@Qualifier("traceV2Distributor") RowKeyDistributor rowKeyDistributor,
+                                                     @Qualifier("traceV2OtelDistributor") RowKeyDistributor otelRowKeyDistributor) {
+        return new TraceRowKeyEncoderV2(rowKeyDistributor, otelRowKeyDistributor);
     }
 
 
