@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase.config;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
@@ -55,6 +56,13 @@ public class DistributorConfiguration {
     @Bean
     public RowKeyDistributorByHashPrefix traceV2Distributor() {
         ByteHasher hasher = newRangeOneByteSimpleHash(32, 40, 256);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
+
+    @Bean
+    public RowKeyDistributorByHashPrefix traceV2OtelDistributor() {
+        // hash range must cover the 16-byte OTel trace_id; the traceV2Distributor range [32,40) does not
+        ByteHasher hasher = newRangeOneByteSimpleHash(0, PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN, 256);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 

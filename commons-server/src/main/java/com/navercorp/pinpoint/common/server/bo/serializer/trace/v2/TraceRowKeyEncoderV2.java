@@ -35,10 +35,13 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<ServerTraceId> {
     public static final int OPENTELEMETRY_TRACE_ID_LEN = PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN;
 
     private final ByteHasher byteHasher;
+    private final ByteHasher otelByteHasher;
 
-    public TraceRowKeyEncoderV2(RowKeyDistributor rowKeyDistributor) {
+    public TraceRowKeyEncoderV2(RowKeyDistributor rowKeyDistributor, RowKeyDistributor otelRowKeyDistributor) {
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(otelRowKeyDistributor, "otelRowKeyDistributor");
         this.byteHasher = rowKeyDistributor.getByteHasher();
+        this.otelByteHasher = otelRowKeyDistributor.getByteHasher();
     }
 
     public byte[] encodeRowKey(ServerTraceId transactionId) {
@@ -59,9 +62,7 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<ServerTraceId> {
 
         if (serverTraceId instanceof OtelServerTraceId otelServerTraceId) {
             byte[] rowKey = ServerTraceId.encodeTraceRowKey(saltKeySize, otelServerTraceId);
-            byte saltKey = byteHasher.getHashPrefix(otelServerTraceId.getId());
-            rowKey[0] = saltKey;
-            return rowKey;
+            return otelByteHasher.writeSaltKey(rowKey);
         }
 
         throw new IllegalStateException("Unsupported ServerTraceId:" + serverTraceId);
