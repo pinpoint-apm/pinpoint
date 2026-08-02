@@ -35,4 +35,14 @@ profiler.ktor.server.excludeurl=
 # Retransform
 profiler.ktor.http.server.retransform.configure-routing=true
 
+# Client (outbound)
+# Traces io.ktor.client.plugins.HttpSend$DefaultSender.execute(...) and records
+# an outbound span event per HTTP attempt (including HttpRequestRetry retries).
+# Disabled by default — opt in only when the JVM runs a Ktor HTTP client.
+profiler.ktor.client.enable=false
+# record the request URL on the span event, default true
+profiler.ktor.client.param=true
+# treat a thrown Throwable from the client as an error on the span event, default true
+profiler.ktor.client.mark.error=true
+
 ~~~
