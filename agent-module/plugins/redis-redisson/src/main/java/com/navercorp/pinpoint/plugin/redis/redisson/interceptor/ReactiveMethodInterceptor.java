@@ -60,6 +60,10 @@ public class ReactiveMethodInterceptor extends SpanEventSimpleAroundInterceptorF
 
         if (this.keyTrace) {
             Method method = ArrayArgumentUtils.getArgument(args, 0, Method.class);
+            if (method == null) {
+                // redisson 3.19+: ProxyBuilder$Callback.execute(Callable, Method)
+                method = ArrayArgumentUtils.getArgument(args, 1, Method.class);
+            }
             if (method != null && StringUtils.hasLength(method.getName())) {
                 recorder.recordAttribute(AnnotationKey.ARGS0, method.getName());
             }
