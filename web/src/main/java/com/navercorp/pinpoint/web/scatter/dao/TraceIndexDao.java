@@ -32,6 +32,6 @@ public interface TraceIndexDao {
 
     LimitedScanResult<List<Dot>> scanTraceScatterData(Service service, String applicationName, int serviceTypeCode, Range range, int limit);
 
-    LimitedScanResult<List<DotMetaData>> scanScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, String rpcRegex, int limit);
+    LimitedScanResult<List<DotMetaData>> scanScatterDataV2(Service service, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, String rpcRegex, int limit);
 
 }
