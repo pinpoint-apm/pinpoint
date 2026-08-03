@@ -9,8 +9,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanHeaderFac
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.TraceRowKeyDecoderV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.TraceRowKeyEncoderV2;
+import com.navercorp.pinpoint.common.server.uid.ServiceHeaderEnabled;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,8 +32,8 @@ public class SpanSerializeConfiguration {
     }
 
     @Bean
-    public SpanHeaderFactory spanHeaderFactory(@Value("${collector.span.serviceuid.enabled:false}") boolean serviceUid) {
-        return new SpanHeaderFactory(serviceUid);
+    public SpanHeaderFactory spanHeaderFactory(ServiceHeaderEnabled serviceHeaderEnabled) {
+        return new SpanHeaderFactory(serviceHeaderEnabled.isEnabled());
     }
 
     @Bean
