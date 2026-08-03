@@ -73,3 +73,5 @@ pinpoint:
       enabled: false
     uid:
       version: v3
+    service-header:
+      enabled: true

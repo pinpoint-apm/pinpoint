@@ -17,10 +17,12 @@
 package com.navercorp.pinpoint.common.server;
 
 import com.fasterxml.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
+import com.navercorp.pinpoint.common.server.uid.ServiceHeaderEnabled;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -48,4 +50,10 @@ public class CommonsServerConfiguration {
     public com.fasterxml.jackson.databind.Module eclipseCollectionsModule() {
         return new EclipseCollectionsModule();
     }
+
+    @Bean
+    public ServiceHeaderEnabled serviceHeaderEnabled(@Value("${" + ServiceHeaderEnabled.ENABLED + ":true}") boolean enabled) {
+        return new ServiceHeaderEnabled(enabled);
+    }
+
 }

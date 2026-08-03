@@ -7,5 +7,4 @@ import org.springframework.context.annotation.Import;
         WebServiceConfiguration.class,
 })
 public class ServiceModule {
-
 }
