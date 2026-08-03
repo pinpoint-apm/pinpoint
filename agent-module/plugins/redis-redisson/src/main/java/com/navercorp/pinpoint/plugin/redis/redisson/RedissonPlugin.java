@@ -191,6 +191,16 @@ public class RedissonPlugin implements ProfilerPlugin, TransformTemplateAware {
             if (executeMethod != null) {
                 executeMethod.addInterceptor(ReactiveMethodInterceptor.class);
             }
+            // redisson ~3.17.x: ProxyBuilder$Callback.execute(Method, Object, Method, Object[])
+            final InstrumentMethod instanceExecuteMethod = target.getDeclaredMethod("execute", "java.lang.reflect.Method", "java.lang.Object", "java.lang.reflect.Method", "java.lang.Object[]");
+            if (instanceExecuteMethod != null) {
+                instanceExecuteMethod.addInterceptor(ReactiveMethodInterceptor.class);
+            }
+            // redisson 3.19+: ProxyBuilder$Callback.execute(Callable, Method)
+            final InstrumentMethod callableExecuteMethod = target.getDeclaredMethod("execute", "java.util.concurrent.Callable", "java.lang.reflect.Method");
+            if (callableExecuteMethod != null) {
+                callableExecuteMethod.addInterceptor(ReactiveMethodInterceptor.class);
+            }
 
             return target.toBytecode();
         }
