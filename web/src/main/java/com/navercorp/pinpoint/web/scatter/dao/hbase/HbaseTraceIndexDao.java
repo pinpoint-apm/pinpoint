@@ -136,13 +136,15 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     @Override
-    public LimitedScanResult<List<DotMetaData>> scanScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode,
+    public LimitedScanResult<List<DotMetaData>> scanScatterDataV2(Service service, String applicationName, int serviceTypeCode,
                                                                   DragAreaQuery dragAreaQuery, String rpcRegex, int limitWithTies) {
+        Objects.requireNonNull(service, "service");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
         DragArea dragArea = dragAreaQuery.getDragArea();
         Range range = Range.unchecked(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceScatterData-range:{}", range);
+        final int serviceUid = service.getServiceUid().getUid();
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
         setHbaseFilter(scan, dragAreaQuery, rpcRegex);
         scan.addFamily(META.getName());
