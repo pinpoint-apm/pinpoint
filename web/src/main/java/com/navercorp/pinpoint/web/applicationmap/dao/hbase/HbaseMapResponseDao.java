@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
@@ -81,7 +80,7 @@ public class HbaseMapResponseDao implements MapResponseDao {
         }
 
         Range windowRange = timeWindow.getWindowRange();
-        Scan scan = scanFactory.createScan("MAppRes", ServiceUid.DEFAULT_SERVICE_UID_CODE, application, windowRange, table.getName());
+        Scan scan = scanFactory.createScan("MAppRes", application.getService().getServiceUid().getUid(), application, windowRange, table.getName());
 
         ResultsExtractor<ApplicationResponse> mapper = resultExtractor.newMapper(timeWindow, application);
         TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(table.getTable());

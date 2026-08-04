@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionForm;
@@ -39,6 +41,7 @@ import com.navercorp.pinpoint.web.applicationmap.view.ServerGroupListView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
@@ -90,6 +93,7 @@ public class ServerMapHistogramController {
     private final ServiceTypeRegistryService registry;
     private final RangeValidator rangeValidator;
     private final ApplicationValidator applicationValidator;
+    private final ServiceModelResolver serviceModelResolver;
     private final HyperLinkFactory hyperLinkFactory;
 
     public ServerMapHistogramController(
@@ -98,6 +102,7 @@ public class ServerMapHistogramController {
             ApplicationFactory applicationFactory,
             ServiceTypeRegistryService registry,
             ApplicationValidator applicationValidator,
+            ServiceModelResolver serviceModelResolver,
             HyperLinkFactory hyperLinkFactory,
             Duration limitDay
     ) {
@@ -107,6 +112,7 @@ public class ServerMapHistogramController {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationValidator");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
@@ -115,6 +121,7 @@ public class ServerMapHistogramController {
             "bidirectional", "callerRange", "calleeRange", "wasOnly"
     })
     public NodeHistogramSummaryView getStatisticsFromServerMap(
+            @ServiceParam ServiceName serviceName,
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -127,7 +134,8 @@ public class ServerMapHistogramController {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
-        final Application application = getApplication(appForm);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final Application application = getApplication(service, appForm);
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
                 application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
@@ -148,6 +156,7 @@ public class ServerMapHistogramController {
             "bidirectional", "callerRange", "calleeRange", "wasOnly", "nodeKey"
     })
     public NodeHistogramSummaryView getStatisticsFromServerMap(
+            @ServiceParam ServiceName serviceName,
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -159,11 +168,12 @@ public class ServerMapHistogramController {
             boolean useStatisticsAgentState
     ) {
 
-        final Application application = getApplication(appForm);
-        final Application nodeApplication = this.newApplication(nodeKey);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final Application application = getApplication(service, appForm);
+        final Application nodeApplication = this.newApplication(service, nodeKey);
         if (application.equals(nodeApplication)) {
             return getStatisticsFromServerMap(
-                    appForm, rangeForm, searchForm,
+                    serviceName, appForm, rangeForm, searchForm,
                     useStatisticsAgentState
             );
         }
@@ -246,11 +256,11 @@ public class ServerMapHistogramController {
         return SearchOption.newBuilder(DEFAULT_MAX_SEARCH_DEPTH);
     }
 
-    private Application getApplication(ApplicationForm appForm) {
-        return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+    private Application getApplication(Service service, ApplicationForm appForm) {
+        return applicationValidator.newApplication(service, appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
     }
 
-    private Application newApplication(String nodeKey) {
+    private Application newApplication(Service service, String nodeKey) {
         if (nodeKey == null || nodeKey.isEmpty()) {
             throw new IllegalArgumentException("Node key must not be null or empty");
         }
@@ -266,7 +276,7 @@ public class ServerMapHistogramController {
             serviceType = registry.findServiceTypeByName(serviceTypeName);
         }
         if (serviceType != null && serviceType.getCode() != ServiceType.UNDEFINED.getCode()) {
-            return new Application(applicationName, serviceType);
+            return new Application(service, applicationName, serviceType);
         }
         throw new IllegalArgumentException("Invalid or undefined service type for application: " + nodeKey);
     }
@@ -275,6 +285,7 @@ public class ServerMapHistogramController {
             "fromApplicationNames", "fromServiceTypeCodes", "toApplicationNames", "toServiceTypeCodes"
     })
     public NodeHistogramSummaryView getNodeHistogramData(
+            @ServiceParam ServiceName serviceName,
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -303,10 +314,11 @@ public class ServerMapHistogramController {
                     "toApplicationNames and toServiceTypeCodes must have the same number of elements");
         }
 
-        final Application application = getApplication(appForm);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final Application application = getApplication(service, appForm);
 
-        final List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
-        final List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
+        final List<Application> fromApplications = toApplications(service, fromApplicationNames, fromServiceTypeCodes);
+        final List<Application> toApplications = toApplications(service, toApplicationNames, toServiceTypeCodes);
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
                 .Builder(application, timeWindow, fromApplications, toApplications)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
@@ -319,11 +331,11 @@ public class ServerMapHistogramController {
         return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, TimeHistogramView.TimeseriesHistogram);
     }
 
-    private List<Application> toApplications(List<String> applicationNames, List<Integer> serviceTypeCodes) {
+    private List<Application> toApplications(Service service, List<String> applicationNames, List<Integer> serviceTypeCodes) {
         final List<Application> result = new ArrayList<>(applicationNames.size());
         for (int i = 0; i < applicationNames.size(); i++) {
             final Application application =
-                    this.applicationFactory.createApplication(Service.DEFAULT, applicationNames.get(i), serviceTypeCodes.get(i));
+                    this.applicationFactory.createApplication(service, applicationNames.get(i), serviceTypeCodes.get(i));
             result.add(application);
         }
         return result;
@@ -331,6 +343,7 @@ public class ServerMapHistogramController {
 
     @GetMapping(value = "/statistics/links")
     public LinkHistogramSummaryView getLinkTimeHistogramData(
+            @ServiceParam ServiceName serviceName,
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -350,8 +363,9 @@ public class ServerMapHistogramController {
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid linkKey format: expected 'fromApp~toApp' but got: " + linkKey);
         }
-        final Application fromApplication = this.newApplication(parts[0]);
-        final Application toApplication = this.newApplication(parts[1]);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final Application fromApplication = this.newApplication(service, parts[0]);
+        final Application toApplication = this.newApplication(service, parts[1]);
 
         final LinkHistogramSummary linkHistogramSummary =
                 histogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
