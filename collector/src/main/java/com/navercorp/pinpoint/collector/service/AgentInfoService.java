@@ -17,11 +17,9 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
-import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -36,21 +34,13 @@ public class AgentInfoService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentInfoDao agentInfoDao;
-    private final ApplicationIndexDao applicationIndexDao;
-    private final boolean applicationIndexV1Enabled;
 
-    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao,
-                            @Value("${pinpoint.collector.application.index.v1.enabled:false}") boolean applicationIndexV1Enabled) {
+    public AgentInfoService(AgentInfoDao agentInfoDao) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.applicationIndexV1Enabled = applicationIndexV1Enabled;
     }
 
     public void insert(final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
-        if (applicationIndexV1Enabled) {
-            applicationIndexDao.insert(agentInfoBo);
-        }
     }
 
 }
