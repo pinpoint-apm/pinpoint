@@ -24,6 +24,7 @@ export enum APP_SETTING_KEYS {
   SERVER_MAP_HORIZONTAL_RESIZABLE = 'pp.serverMapHorizontalResizable',
   REALTIME_ACTIVE_REQUEST_RESIZABLE = 'pp.realtimeActiveRequestResizable',
   CONFIG_LAST_SELECTED_APPLICATION = 'pp.configLastSelectedApplication',
+  LAST_SELECTED_SERVICE = 'pp.lastSelectedService',
   SERVER_MAP_CHART_TYPE = 'pp.serverMapChartType',
   INSPECTOR_RESIZABLE = 'pp.inspectorResizable',
   URL_STATISTIC_RESIZABLE = 'pp.urlStatisticResizable',
