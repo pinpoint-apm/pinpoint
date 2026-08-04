@@ -17,3 +17,10 @@ export const getLocalStorageValue = (key: APP_SETTING_KEYS | EXPERIMENTAL_CONFIG
 
   return storageValue;
 };
+
+export const setLocalStorageValue = (
+  key: APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_KEYS | string,
+  value: unknown,
+) => {
+  window.localStorage.setItem(key, JSON.stringify(value));
+};
