@@ -7,6 +7,7 @@ import { AlarmRule } from '@pinpoint-fe/ui/src/constants';
 import omit from 'lodash.omit';
 import {
   useAlarmRuleMutation,
+  useConfiguration,
   useGetAlarmRuleChecker,
   useGetUserGroup,
   useGetWebhook,
@@ -37,8 +38,6 @@ import { useReactToastifyToast } from '../../components/Toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
 import { cn } from '../../lib/utils';
-import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
-import { useAtomValue } from 'jotai';
 import { HelpPopover } from '../../components/HelpPopover';
 
 export interface AlarmDetailProps {
@@ -149,7 +148,7 @@ export const AlarmDetail = ({
       }),
     [t],
   );
-  const configuration = useAtomValue(configurationAtom);
+  const configuration = useConfiguration();
   const [openWebhookDialog, setOpenWebhookDialog] = React.useState(false);
   const { data: chekerList } = useGetAlarmRuleChecker({ disableFetch: !editable });
   const { refetch: refetchWebhookList } = useGetWebhook({

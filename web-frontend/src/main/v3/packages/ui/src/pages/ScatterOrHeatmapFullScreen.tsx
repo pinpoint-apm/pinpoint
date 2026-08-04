@@ -8,8 +8,8 @@ import {
   getScatterFullScreenRealtimePath,
   getServerMapPath,
 } from '@pinpoint-fe/ui/src/utils';
-import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
-import { APP_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { useConfiguration, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ApplicationCombinedList,
@@ -23,11 +23,8 @@ import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
 import { Heatmap } from '@pinpoint-fe/ui/src/components/Heatmap/Heatmap';
 
-export const ScatterOrHeatmapFullScreenPage = ({
-  configuration,
-}: {
-  configuration?: Configuration & Record<string, unknown>;
-}) => {
+export const ScatterOrHeatmapFullScreenPage = () => {
+  const configuration = useConfiguration();
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.[`periodInterval.serverMap`];
   const navigate = useNavigate();
@@ -117,7 +114,6 @@ export const ScatterOrHeatmapFullScreenPage = ({
                 node={application}
                 realtime={isRealtime}
                 toolbarOption={{ expand: { hide: true } }}
-                configuration={configuration}
               />
             ) : (
               <Heatmap
@@ -125,7 +121,6 @@ export const ScatterOrHeatmapFullScreenPage = ({
                 agentId={agentId}
                 nodeData={application}
                 toolbarOption={{ expand: { hide: true } }}
-                configuration={configuration}
               />
             ))}
         </div>

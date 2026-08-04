@@ -1,15 +1,16 @@
-import { APP_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
+import { useConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import { Separator } from '../../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { t } from 'i18next';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 export interface LayoutWithAlarmProps {
-  configuration?: Configuration;
   children?: React.ReactNode;
 }
 
-export const LayoutWithAlarm = ({ children, configuration }: LayoutWithAlarmProps) => {
+export const LayoutWithAlarm = ({ children }: LayoutWithAlarmProps) => {
+  const configuration = useConfiguration();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 

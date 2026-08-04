@@ -39,7 +39,7 @@ export const InitialFetchOutlet = () => {
   const requestService = resolveRequestService(selectedService);
 
   useExperimentals(data);
-  useServicesFetch(configuration);
+  useServicesFetch();
   useClearApplicationOnServiceChange(enableServiceMap);
 
   React.useEffect(() => {

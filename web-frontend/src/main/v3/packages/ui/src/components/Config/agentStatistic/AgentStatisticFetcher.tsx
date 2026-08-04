@@ -1,7 +1,6 @@
 import React from 'react';
 import { HiOutlineRefresh } from 'react-icons/hi';
 import { useTranslation } from 'react-i18next';
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { Button, Separator } from '../../../components';
 import { useGetAgentsStatistics, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { CgSpinner } from 'react-icons/cg';
@@ -10,13 +9,7 @@ import { AgentStatisticContainer } from './AgentStatisticChartContainer';
 import { AgentStatisticTable } from './AgentStatisticTable';
 import { formatInTimeZone } from 'date-fns-tz';
 
-export interface AgentStatisticFetcherProps {
-  configuration?: Configuration;
-}
-
-export const AgentStatisticFetcher = ({ configuration }: AgentStatisticFetcherProps) => {
-  void configuration; // Not use configuration
-
+export const AgentStatisticFetcher = () => {
   const { t } = useTranslation();
   const [timezone] = useTimezone();
   const [load, setLoad] = React.useState(false);

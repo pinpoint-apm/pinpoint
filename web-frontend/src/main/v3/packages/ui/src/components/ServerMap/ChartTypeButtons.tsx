@@ -5,9 +5,10 @@ import { PiChartScatterBold } from 'react-icons/pi';
 import { AiOutlineTable } from 'react-icons/ai';
 import { TooltipContent, TooltipProvider, Tooltip, TooltipTrigger, Button } from '../ui';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
+import { useConfiguration } from '@pinpoint-fe/ui/src/hooks';
 
-export const ChartTypeButtons = ({ configuration }: { configuration?: Configuration }) => {
+export const ChartTypeButtons = () => {
+  const configuration = useConfiguration();
   const [chartType, setChartType] = useAtom(serverMapChartTypeAtom);
 
   useEffect(() => {

@@ -1,13 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '../../components';
-import { Configuration, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
-import { useExperimentals } from '@pinpoint-fe/ui/src/hooks';
+import { EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
+import { useConfiguration, useExperimentals } from '@pinpoint-fe/ui/src/hooks';
 
-export interface ExperimentalPageProps {
-  configuration?: Configuration;
-}
-
-export const ExperimentalPage = ({ configuration }: ExperimentalPageProps) => {
+export const ExperimentalPage = () => {
+  const configuration = useConfiguration();
   const { t } = useTranslation();
   const experimentalMap = useExperimentals(configuration);
 

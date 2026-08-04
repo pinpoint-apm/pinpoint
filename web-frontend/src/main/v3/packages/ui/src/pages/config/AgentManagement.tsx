@@ -1,15 +1,10 @@
 import React from 'react';
-import { ApplicationType, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import { DataTableSkeleton, ErrorBoundary, ScrollArea, Separator } from '../../components';
 import { ApplicationCombinedList } from '../../components/Application';
 import { AgentManagementFetcher } from '@pinpoint-fe/ui/src/components/Config/agentManagement';
 
-export interface AgentManagementPageProps {
-  configuration?: Configuration;
-}
-
-export const AgentManagementPage = ({ configuration }: AgentManagementPageProps) => {
-  void configuration; // Not use configuration
+export const AgentManagementPage = () => {
   const [application, setApplication] = React.useState<ApplicationType>();
 
   return (

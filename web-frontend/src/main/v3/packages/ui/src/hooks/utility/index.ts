@@ -1,6 +1,7 @@
 export * from './useAgentListSortBy';
 export * from './useCaptureKeydown';
 export * from './useClearApplicationOnServiceChange';
+export * from './useConfiguration';
 export * from './useDateFormat';
 export * from './useExperimentals';
 export * from './useHeightToBottom';

@@ -1,11 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  APP_SETTING_KEYS,
-  AlarmRule,
-  ApplicationType,
-  Configuration,
-} from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, AlarmRule, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../lib';
 import { Separator } from '../../components/ui/separator';
 import {
@@ -41,24 +36,19 @@ import {
   useLocalStorage,
 } from '@pinpoint-fe/ui/src/hooks';
 import { LayoutWithAlarm } from '../../components/Layout/LayoutWithAlarm';
-import { useSetAtom } from 'jotai';
-import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 import { AlarmPermissionContext } from '../../components';
 import { MdOutlineAdd } from 'react-icons/md';
 
 export interface AlarmPageProps {
-  configuration?: Configuration;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
   onChangeApplication?: (application: ApplicationType) => void;
 }
 
 export const AlarmPage = ({
   ApplicationList = ApplicationCombinedList,
-  configuration,
   onChangeApplication,
 }: AlarmPageProps) => {
   const toast = useReactToastifyToast();
-  const setConfigurationAtom = useSetAtom(configurationAtom);
   const { t } = useTranslation();
   const [selectedApplication, setSelectedApplication] = useLocalStorage<
     ApplicationType | undefined
@@ -85,19 +75,13 @@ export const AlarmPage = ({
   const { permissionContext } = React.useContext(AlarmPermissionContext);
 
   React.useEffect(() => {
-    if (configuration) {
-      setConfigurationAtom(configuration);
-    }
-  }, [configuration]);
-
-  React.useEffect(() => {
     if (selectedApplication) {
       onChangeApplication?.(selectedApplication);
     }
   }, [selectedApplication]);
 
   return (
-    <LayoutWithAlarm configuration={configuration}>
+    <LayoutWithAlarm>
       <div className="space-y-3">
         <div className="flex gap-2">
           <ApplicationList

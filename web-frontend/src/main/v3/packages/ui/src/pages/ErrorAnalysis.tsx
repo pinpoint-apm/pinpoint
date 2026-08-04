@@ -27,17 +27,13 @@ import {
   getTransactionDetailQueryString,
 } from '@pinpoint-fe/ui/src/utils';
 import {
+  useConfiguration,
   useErrorAnalysisSearchParameters,
   useServiceNameForLink,
   useTimezone,
 } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
-import {
-  ErrorAnalysisErrorList,
-  BASE_PATH,
-  Configuration,
-  APP_SETTING_KEYS,
-} from '@pinpoint-fe/ui/src/constants';
+import { ErrorAnalysisErrorList, BASE_PATH, APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 import { formatInTimeZone } from 'date-fns-tz';
 import { IoMdClose } from 'react-icons/io';
 import { PiBugBeetleDuotone } from 'react-icons/pi';
@@ -46,21 +42,20 @@ import { FaChevronRight } from 'react-icons/fa6';
 import { ServerIcon } from '../components/Application/ServerIcon';
 
 export interface ErrorAnalysisPageProps {
-  configuration?: Configuration;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const ErrorAnalysisPage = ({
-  configuration,
   ApplicationList = ApplicationCombinedList,
 }: ErrorAnalysisPageProps) => {
+  const configuration = useConfiguration();
   const periodMax = configuration?.['periodMax.exceptionTrace'];
   const periodInterval = configuration?.['periodInterval.exceptionTrace'];
   const navigate = useNavigate();
   const [timezone] = useTimezone();
   // errorAnalysis 경로는 URL에 service를 싣지 않으므로, 새 탭으로 여는 transactionDetail에는
   // 클릭 시점의 선택된 service를 실어 그 탭이 전역 선택값 변화에 흔들리지 않게 한다.
-  const serviceNameForLink = useServiceNameForLink(configuration);
+  const serviceNameForLink = useServiceNameForLink();
   const {
     searchParameters,
     application,

@@ -8,12 +8,7 @@ import {
   Separator,
   useReactToastifyToast,
 } from '../../components';
-import {
-  APP_SETTING_KEYS,
-  ApplicationType,
-  Configuration,
-  Webhook,
-} from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, ApplicationType, Webhook } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../lib/utils';
 import { WebhookList } from '../../components/Webhook/WebhookList';
 import { WebhookTable } from '../../components/Webhook/WebhookTable';
@@ -42,13 +37,9 @@ import { MdOutlineAdd } from 'react-icons/md';
 
 export interface WebhookPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
-  configuration?: Configuration;
 }
 
-export const WebhookPage = ({
-  ApplicationList = ApplicationCombinedList,
-  configuration,
-}: WebhookPageProps) => {
+export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: WebhookPageProps) => {
   const toast = useReactToastifyToast();
   const { t } = useTranslation();
   const [selectedApplication, setSelectedApplication] = useLocalStorage<
@@ -75,7 +66,7 @@ export const WebhookPage = ({
   });
 
   return (
-    <LayoutWithAlarm configuration={configuration}>
+    <LayoutWithAlarm>
       <div className="space-y-3">
         <div className="flex gap-2">
           <ApplicationList

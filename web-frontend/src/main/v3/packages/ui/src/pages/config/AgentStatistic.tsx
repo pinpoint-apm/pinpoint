@@ -1,18 +1,13 @@
 import React from 'react';
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { DataTableSkeleton, ErrorBoundary } from '../../components';
 import { AgentStatisticFetcher } from '../../components/Config/agentStatistic';
 
-export interface AgentStatisticPageProps {
-  configuration?: Configuration;
-}
-
-export const AgentStatisticPage = (props: AgentStatisticPageProps) => {
+export const AgentStatisticPage = () => {
   return (
     <div className="h-full space-y-6">
       <ErrorBoundary>
         <React.Suspense fallback={<DataTableSkeleton hideRowBox={true} />}>
-          <AgentStatisticFetcher {...props} />
+          <AgentStatisticFetcher />
         </React.Suspense>
       </ErrorBoundary>
     </div>

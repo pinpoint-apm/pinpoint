@@ -18,7 +18,7 @@ import {
   ScatterChartStatic,
   ChartsBoardHeader,
 } from '@pinpoint-fe/ui/src/components';
-import { Configuration, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { useExperimentals, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
@@ -61,7 +61,6 @@ export interface ServerMapChartsBoardFetcherProps extends Omit<
   SERVER_LIST_WIDTH: number;
   resizeHandleWidth: number;
   SERVERMAP_CONTAINER_ID: string;
-  configuration?: Configuration;
 }
 
 export const ServerMapChartsBoardFetcher = ({
@@ -70,7 +69,6 @@ export const ServerMapChartsBoardFetcher = ({
   SERVER_LIST_WIDTH,
   resizeHandleWidth,
   SERVERMAP_CONTAINER_ID,
-  configuration,
   children,
   ...props
 }: ServerMapChartsBoardFetcherProps) => {
@@ -250,12 +248,12 @@ export const ServerMapChartsBoardFetcher = ({
                       {openServerView ? <MdArrowForwardIos /> : <MdArrowBackIosNew />}
                       <span className="ml-2">VIEW SERVERS</span>
                     </Button>
-                    {!shouldHideScatter() && <ChartTypeButtons configuration={configuration} />}
+                    {!shouldHideScatter() && <ChartTypeButtons />}
                     <InstanceCount nodeData={data as unknown as GetServerMap.NodeData} />
                   </div>
                 ) : !shouldHideScatter() ? (
                   <div className="flex items-center h-12 py-2.5 px-4 gap-2">
-                    <ChartTypeButtons configuration={configuration} />
+                    <ChartTypeButtons />
                   </div>
                 ) : null}
                 {!shouldHideScatter() && (
@@ -274,12 +272,10 @@ export const ServerMapChartsBoardFetcher = ({
                       {chartType === 'scatter' ? (
                         <ScatterChart
                           node={(serverMapCurrentTarget || application) as CurrentTarget}
-                          configuration={configuration}
                         />
                       ) : (
                         <Heatmap
                           nodeData={(currentTargetData as GetServerMap.NodeData) || application}
-                          configuration={configuration}
                         />
                       )}
                     </div>
@@ -348,7 +344,6 @@ export const ServerMapChartsBoardFetcher = ({
                     }
                     range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                     selectedAgentId={currentServer?.agentId || ''}
-                    configuration={configuration}
                   />
                   {isScatterDataOutdated && (
                     <div className="absolute top-0 left-0 z-[1000] flex flex-col items-center justify-center w-full h-[calc(100%+48px)] bg-background/50 text-center">
