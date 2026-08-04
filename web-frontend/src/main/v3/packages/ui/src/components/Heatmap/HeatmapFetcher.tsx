@@ -13,7 +13,7 @@ const DefaultAxisY = [0, 10000];
 
 export type HeatmapFetcherProps = {
   agentId?: string;
-} & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'nodeData'>;
+} & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'nodeData' | 'configuration'>;
 
 export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherProps) => {
   const { t } = useTranslation();

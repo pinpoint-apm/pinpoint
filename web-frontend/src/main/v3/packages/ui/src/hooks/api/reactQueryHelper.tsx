@@ -118,7 +118,7 @@ const queryCache = new QueryCache({
 
 /**
  * service와 무관하게 항상 같은 응답을 주는 엔드포인트. 이들까지 service별로 분리하면
- * servermap ↔ servicemap 이동마다 불필요한 재요청이 생기고, configuration은 특히
+ * service를 바꿀 때마다 불필요한 재요청이 생기고, configuration은 특히
  * `InitialFetchOutlet`이 로드되기 전까지 자식을 렌더하지 않으므로 화면이 잠깐 사라진다.
  * queryKey의 첫 요소가 엔드포인트라는 이 저장소의 관례를 이용해 한 곳에서 예외를 관리한다.
  */
@@ -132,8 +132,8 @@ const SERVICE_AGNOSTIC_ENDPOINTS: string[] = [
  * 위 예외를 제외한 모든 쿼리 캐시를 "그 요청이 해석되는 service" 단위로 분리한다.
  *
  * pServiceName 헤더는 fetch 인터셉터가 붙이기 때문에 queryKey에 드러나지 않는다. 그래서
- * service가 다른 두 요청이 같은 캐시 엔트리를 공유했고, staleTime(3초) 안에 servermap ↔
- * servicemap을 이동하면 재요청 없이 이전 service의 데이터가 그대로 표시됐다.
+ * service가 다른 두 요청이 같은 캐시 엔트리를 공유했고, staleTime(3초) 안에 service를 바꾸면
+ * 재요청 없이 이전 service의 데이터가 그대로 표시됐다.
  * 헤더와 동일한 규칙(`getRequestService`)으로 파생한 service를 해시에만 덧붙여 이를 막는다.
  *
  * queryKey 배열 자체는 그대로 두므로 `invalidateQueries`/`removeQueries`의 부분 매칭

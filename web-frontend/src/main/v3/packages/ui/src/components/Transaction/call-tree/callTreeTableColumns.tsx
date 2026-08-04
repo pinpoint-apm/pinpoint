@@ -475,7 +475,7 @@ const MethodCell = (props: {
   rowData: TransactionInfo.CallStackKeyValueMap;
   onClickDetailView: CallTreeTableColumnsProps['onClickDetailView'];
 }) => {
-  const { application, transactionInfo, pathname, searchParameters } =
+  const { application, transactionInfo, pathname, searchParameters, serviceName } =
     useTransactionSearchParameters();
   const setCallTreeFocusId = useSetAtom(transactionInfoCallTreeFocusId);
   const { metaData, rowData, onClickDetailView } = props;
@@ -536,6 +536,7 @@ const MethodCell = (props: {
         const linkPath = buildOtelLinkPath(otelLink, application, {
           pathname,
           searchParameters,
+          serviceName,
         });
         return (
           <>
@@ -633,6 +634,8 @@ const buildOtelLinkPath = (
   context: {
     pathname: string;
     searchParameters: Record<string, string>;
+    /** URL에 실려 있던 service 이름. transactionList에 머무를 때 다시 실어 헤더를 유지한다. */
+    serviceName?: string;
   },
 ): string => {
   const transactionInfoParams = {
@@ -650,7 +653,8 @@ const buildOtelLinkPath = (
     context.pathname === APP_PATH.TRANSACTION_LIST ||
     context.pathname.startsWith(`${APP_PATH.TRANSACTION_LIST}/`);
   if (onTransactionListPage) {
-    return `${getTransactionListPath(application)}?${convertParamsToQueryString({
+    const path = getTransactionListPath(application, undefined, context.serviceName);
+    return `${path}?${convertParamsToQueryString({
       ...context.searchParameters,
       transactionInfo: JSON.stringify(transactionInfoParams),
     })}`;
@@ -678,6 +682,9 @@ const OtelLinkTransactionListButton = ({
   const queryClient = useQueryClient();
   const toast = useReactToastifyToast();
   const [timezone] = useTimezone();
+  // 이 화면(transactionList)의 URL이 곧 service의 출처다. serviceName이 없으면 링크에도 싣지
+  // 않고, 열린 화면이 전역 선택값으로 조회한다(`resolveRequestService`).
+  const { serviceName } = useTransactionSearchParameters();
 
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -701,10 +708,12 @@ const OtelLinkTransactionListButton = ({
     const baseTime = preferred.collectorAcceptTime;
     const from = formatInTimeZone(baseTime - 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
     const to = formatInTimeZone(baseTime + 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
-    const url = `${BASE_PATH}${getTransactionListPath({
-      applicationName: preferred.applicationName,
-      serviceType: preferred.serviceType,
-    })}?${convertParamsToQueryString({
+    const path = getTransactionListPath(
+      { applicationName: preferred.applicationName, serviceType: preferred.serviceType },
+      undefined,
+      serviceName,
+    );
+    const url = `${BASE_PATH}${path}?${convertParamsToQueryString({
       from,
       to,
       traceInfo: traceId,

@@ -4,6 +4,7 @@ import {
   getApplicationPath,
   getHostGroupPath,
   getFilteredMapPath,
+  getTransactionListPath,
 } from './route';
 
 describe('Test route helper utils', () => {
@@ -189,6 +190,38 @@ describe('Test route helper utils', () => {
 
       const result = getFilteredMapPath(filterState, sourceIsWas);
       expect(result).toEqual('/filteredMap/toApplication@toServiceType');
+    });
+  });
+
+  describe('Test "getTransactionListPath"', () => {
+    const application = { applicationName: 'appName', serviceType: 'TOMCAT' };
+    const dateRange = { from: 'from', to: 'to' };
+
+    test('Return the page path only when application is not given', () => {
+      expect(getTransactionListPath()).toEqual('/transactionList');
+      expect(getTransactionListPath(null, dateRange, 'svc')).toEqual('/transactionList');
+    });
+
+    test('Return the legacy path when service name is not given', () => {
+      expect(getTransactionListPath(application)).toEqual('/transactionList/appName@TOMCAT');
+      expect(getTransactionListPath(application, dateRange)).toEqual(
+        '/transactionList/appName@TOMCAT?from=from&to=to',
+      );
+    });
+
+    test('Prefix the service name to the application segment', () => {
+      expect(getTransactionListPath(application, undefined, 'svc')).toEqual(
+        '/transactionList/svc@appName@TOMCAT',
+      );
+      expect(getTransactionListPath(application, dateRange, 'svc')).toEqual(
+        '/transactionList/svc@appName@TOMCAT?from=from&to=to',
+      );
+    });
+
+    test('Omit the query string when only one of from/to is given', () => {
+      expect(getTransactionListPath(application, { from: 'from' }, 'svc')).toEqual(
+        '/transactionList/svc@appName@TOMCAT',
+      );
     });
   });
 });

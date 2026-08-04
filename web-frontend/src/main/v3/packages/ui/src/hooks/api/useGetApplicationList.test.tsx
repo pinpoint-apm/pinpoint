@@ -119,12 +119,12 @@ describe('useGetApplicationList', () => {
     await waitFor(() => expect(result.current.data).toEqual([{ applicationName: 'B' }]));
   });
 
-  test('caches under the default service on service-excluded paths', async () => {
-    // 헤더가 빠지면 응답은 기본 service의 목록이므로, 선택된 service 캐시를 덮어써선 안 된다.
+  test('caches under the selected service, servermap included', async () => {
+    // ServerMap도 예외가 아니라 선택된 service로 조회되므로, 그 service 캐시/ETag를 써야 한다.
     window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
     getDefaultStore().set(selectedServiceAtom, 'service-b');
     (global.fetch as jest.Mock)
-      .mockResolvedValueOnce(okResponse([{ applicationName: 'A' }], 'etag-default'))
+      .mockResolvedValueOnce(okResponse([{ applicationName: 'A' }], 'etag-b'))
       .mockResolvedValueOnce({ status: 304 });
     mockGetQueryData.mockReturnValue([{ applicationName: 'A' }]);
 
@@ -136,6 +136,6 @@ describe('useGetApplicationList', () => {
     });
 
     await waitFor(() => expect(mockGetQueryData).toHaveBeenCalled());
-    expect(mockGetQueryData).toHaveBeenCalledWith([END_POINTS.APPLICATION_LIST, DEFAULT_SERVICE]);
+    expect(mockGetQueryData).toHaveBeenCalledWith([END_POINTS.APPLICATION_LIST, 'service-b']);
   });
 });

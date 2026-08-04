@@ -274,10 +274,12 @@ export const ServerMapChartsBoardFetcher = ({
                       {chartType === 'scatter' ? (
                         <ScatterChart
                           node={(serverMapCurrentTarget || application) as CurrentTarget}
+                          configuration={configuration}
                         />
                       ) : (
                         <Heatmap
                           nodeData={(currentTargetData as GetServerMap.NodeData) || application}
+                          configuration={configuration}
                         />
                       )}
                     </div>
@@ -346,6 +348,7 @@ export const ServerMapChartsBoardFetcher = ({
                     }
                     range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                     selectedAgentId={currentServer?.agentId || ''}
+                    configuration={configuration}
                   />
                   {isScatterDataOutdated && (
                     <div className="absolute top-0 left-0 z-[1000] flex flex-col items-center justify-center w-full h-[calc(100%+48px)] bg-background/50 text-center">

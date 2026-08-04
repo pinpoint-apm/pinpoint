@@ -1,6 +1,7 @@
 import { getDefaultStore } from 'jotai';
-import { DEFAULT_SERVICE, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
-import { APP_PATH, BASE_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
+import { BASE_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { getServiceNameFromPath } from '@pinpoint-fe/ui/src/utils';
 
 /**
  * 백엔드(service-module)의 `ServiceConstants.KEY`와 동일한 헤더 이름.
@@ -18,24 +19,19 @@ const toRouterPath = (pathname: string) =>
   BASE_PATH && pathname.startsWith(BASE_PATH) ? pathname.slice(BASE_PATH.length) : pathname;
 
 /**
- * service 개념에서 제외되는 경로. enableServiceMap이 켜져 있으면 service 헤더를 붙이는 것이
- * 기본이고, ServerMap만 예외적으로 제외한다. ServerMap은 service 개념이 도입되기 전의
- * 화면이라 다른 페이지와 같은 API를 쓰더라도 헤더 없이 보내 기본 service로 조회해야 한다.
- * 추후 ServiceMap이 ServerMap을 대체하면 이 함수와 호출부를 함께 지우면 된다.
- */
-export const isServiceExcludedPath = (pathname: string = window.location.pathname) =>
-  toRouterPath(pathname).startsWith(APP_PATH.SERVER_MAP);
-
-/**
- * 이 요청이 실제로 어떤 service로 해석되는지 반환한다. 제외 경로에서는 헤더를 생략해
- * 백엔드가 기본 service로 해석하므로 `DEFAULT_SERVICE`다.
+ * 이 요청이 실제로 어떤 service로 해석되는지 반환한다. enableServiceMap이 켜져 있으면
+ * 예외 없이 모든 화면(ServerMap 포함)이 선택된 service 범위에서 조회된다.
+ *
+ * transactionList처럼 URL에 serviceName이 실리는 화면(`hasServiceNameInPath`)은 새 탭으로
+ * 열리므로, 전역 선택값(`selectedServiceAtom`)보다 URL의 serviceName을 우선한다. 전역 선택값은
+ * 탭 간 공유 저장소라서 링크를 연 뒤 원래 탭에서 service를 바꾸면 화면과 어긋날 수 있다.
  *
  * 요청 헤더(아래 인터셉터)와 캐시 키(reactQueryHelper의 `serviceScopedQueryKeyHashFn`)는
  * 반드시 같은 규칙에서 파생되어야 한다. 서로 다른 규칙을 쓰면 헤더는 A service로 나가는데
  * 캐시는 B service 키에 쌓여 다른 service의 데이터가 섞인다.
  */
 export const resolveRequestService = (selectedService: string) =>
-  isServiceExcludedPath() ? DEFAULT_SERVICE : selectedService;
+  getServiceNameFromPath(toRouterPath(window.location.pathname)) || selectedService;
 
 /** `resolveRequestService`를 현재 선택된 service에 적용한 값. 렌더 밖(모듈 레벨)에서 쓴다. */
 export const getRequestService = () =>
@@ -65,8 +61,8 @@ let installed = false;
 /**
  * 전역 `fetch`를 한 번 래핑하여, configuration의
  * `experimental.enableServiceMap.value`가 true일 때 백엔드로 가는 모든
- * `/api` 요청 헤더에 현재 선택된 service(`selectedServiceAtom`)를 주입한다.
- * 단, `isServiceExcludedPath`에 해당하는 경로에서는 예외적으로 주입하지 않는다.
+ * `/api` 요청 헤더에 그 요청이 해석되는 service(`resolveRequestService`)를 주입한다.
+ * 화면별 예외는 없다. 설정이 꺼져 있으면 헤더를 아예 붙이지 않아 백엔드가 기본 service로 해석한다.
  *
  * configuration은 부트스트랩 이후 비동기로 로드/갱신되므로, 값이 아니라
  * 매 요청 시 최신 configuration을 반환하는 getter(`getConfiguration`)를 받는다.
@@ -92,8 +88,9 @@ export const installServiceNameFetchInterceptor = (
       const configuration = getConfiguration();
       const enableServiceMap = !!configuration?.['experimental.enableServiceMap.value'];
 
-      if (enableServiceMap && isApiRequest(input) && !isServiceExcludedPath()) {
-        const selectedService = store.get(selectedServiceAtom);
+      if (enableServiceMap && isApiRequest(input)) {
+        // 캐시 키와 어긋나지 않도록 헤더도 `resolveRequestService`와 같은 규칙에서 파생한다.
+        const selectedService = resolveRequestService(store.get(selectedServiceAtom));
 
         if (selectedService) {
           const headers = new Headers(

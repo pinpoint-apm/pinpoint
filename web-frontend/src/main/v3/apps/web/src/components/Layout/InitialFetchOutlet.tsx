@@ -14,7 +14,7 @@ import {
   selectedServiceAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { APP_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
-import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
+import { getApplicationTypeAndNameFromPath } from '@pinpoint-fe/ui/src/utils';
 
 export const InitialFetchOutlet = () => {
   const navigate = useNavigate();
@@ -22,7 +22,9 @@ export const InitialFetchOutlet = () => {
   const setConfiguration = useSetAtom(configurationAtom);
   const configuration = useAtomValue(configurationAtom);
   const { pathname, search } = useLocation();
-  const application = getApplicationTypeAndName(pathname);
+  // transactionList처럼 serviceName이 실린 경로에서도 applicationName만 추려낸다.
+  // (사이드 네비게이션이 이 값으로 다른 페이지 링크를 만든다.)
+  const application = getApplicationTypeAndNameFromPath(pathname);
   const searchParameters = Object.fromEntries(new URLSearchParams(search));
   const setSearchParameters = useSetAtom(searchParametersAtom);
 
