@@ -7,7 +7,6 @@ import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   ApplicationCombinedList,
   ApplicationCombinedListProps,
-  Configuration,
   DatetimePicker,
   DatetimePickerChangeHandler,
   HelpPopover,
@@ -17,14 +16,10 @@ import {
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 
 export interface RealtimePageProps {
-  configuration?: Configuration & Record<string, string>;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
-export const RealtimePage = ({
-  ApplicationList = ApplicationCombinedList,
-  configuration,
-}: RealtimePageProps) => {
+export const RealtimePage = ({ ApplicationList = ApplicationCombinedList }: RealtimePageProps) => {
   const navigate = useNavigate();
   const { application, searchParameters } = useServerMapSearchParameters();
   const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
@@ -93,7 +88,7 @@ export const RealtimePage = ({
           )}
         </div>
       </MainHeader>
-      {serverMapCurrentTarget && <Realtime configuration={configuration} />}
+      {serverMapCurrentTarget && <Realtime />}
     </div>
   );
 };

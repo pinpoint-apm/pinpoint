@@ -28,20 +28,11 @@ import {
   serverMapDataAtom,
   serverMapChartTypeAtom,
 } from '@pinpoint-fe/ui/src/atoms';
-import {
-  APP_SETTING_KEYS,
-  ApplicationType,
-  GetServerMap,
-  Configuration,
-} from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 
-export interface RealtimeProps {
-  configuration?: Configuration;
-}
-
-export const Realtime = ({ configuration }: RealtimeProps) => {
+export const Realtime = () => {
   const chartType = useAtomValue(serverMapChartTypeAtom);
   const isFocus = useTabFocus();
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -164,7 +155,7 @@ export const Realtime = ({ configuration }: RealtimeProps) => {
             <>
               {(currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
                 <div className="flex items-center h-12 py-2.5 px-4">
-                  <ChartTypeButtons configuration={configuration} />
+                  <ChartTypeButtons />
                   <InstanceCount className="ml-auto" nodeData={currentTargetData} />
                 </div>
               ) : null}
@@ -186,14 +177,12 @@ export const Realtime = ({ configuration }: RealtimeProps) => {
                       <ScatterChart
                         node={serverMapCurrentTarget || (application as ApplicationType)}
                         realtime={true}
-                        configuration={configuration}
                       />
                     ) : (
                       // <div className="w-full pl-3 pt-5 pr-10 pb-8 aspect-[1.3]">
                       <Heatmap
                         nodeData={currentTargetData || (application as ApplicationType)}
                         realtime={true}
-                        configuration={configuration}
                       />
                       // </div>
                     )}

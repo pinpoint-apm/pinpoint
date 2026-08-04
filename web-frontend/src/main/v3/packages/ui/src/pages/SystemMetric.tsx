@@ -9,17 +9,14 @@ import {
   LayoutWithContentSidebar,
 } from '../components';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useConfiguration, useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { convertParamsToQueryString, getSystemMetricPath } from '@pinpoint-fe/ui/src/utils';
 import { useTranslation } from 'react-i18next';
 import { PiHardDrivesDuotone } from 'react-icons/pi';
-import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 
-export const SystemMetricPage = ({
-  configuration,
-}: {
-  configuration?: Configuration & Record<string, unknown>;
-}) => {
+export const SystemMetricPage = ({}: {}) => {
+  const configuration = useConfiguration();
   const periodMax = configuration?.['periodMax.systemMetric'];
   const periodInterval = configuration?.['periodInterval.systemMetric'];
   const navigate = useNavigate();

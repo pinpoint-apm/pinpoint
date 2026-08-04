@@ -1,14 +1,10 @@
-import { APP_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowForwardIos } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { UserGroup, GroupMember } from '../../components/Config';
 
-export interface UserGroupPageProps {
-  configuration?: Configuration;
-}
-
-export const UserGroupPage = (props: UserGroupPageProps) => {
+export const UserGroupPage = () => {
   const { searchParameters } = useSearchParameters();
   const userGroupName = searchParameters?.groupName;
 
@@ -37,7 +33,7 @@ export const UserGroupPage = (props: UserGroupPageProps) => {
         role="none"
         className="shrink-0 bg-border h-[1px] w-full"
       ></div>
-      {userGroupName ? <GroupMember /> : <UserGroup {...props} />}
+      {userGroupName ? <GroupMember /> : <UserGroup />}
     </div>
   );
 };

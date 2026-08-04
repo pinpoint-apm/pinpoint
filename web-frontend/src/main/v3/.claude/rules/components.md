@@ -10,18 +10,30 @@ paths:
 ## 페이지 컴포넌트 (apps/web/src/pages/)
 - 페이지는 얇은 래퍼: `@pinpoint-fe/ui`에서 페이지 컴포넌트를 임포트하여 렌더링
 - 레이아웃 감싸기는 `apps/web/src/routes/index.tsx`의 중첩 레이아웃 라우트(`SideNavigationOutlet`, `InitialFetchOutlet`, `ConfigurationOutlet`)에서 처리
-- 설정이 필요한 페이지는 `useAtomValue`로 `configurationAtom`에서 읽음
-- 패턴:
+- **configuration은 prop으로 내려주지 않음** — 필요한 컴포넌트가 `useConfiguration()`으로 직접 읽음
+- 넘길 prop이 없는 래퍼는 재수출로 끝냄:
   ```tsx
-  import { useAtomValue } from 'jotai';
+  export { SomePageComponent as default } from '@pinpoint-fe/ui';
+  ```
+- 이 저장소 전용 prop이 있을 때만 래퍼 컴포넌트를 유지:
+  ```tsx
   import { SomePageComponent } from '@pinpoint-fe/ui';
-  import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
+  import { ApplicationCombinedList } from '@pinpoint-fe/web/src/components/Application/ApplicationCombinedList';
 
   export default function SomePage() {
-    const configuration = useAtomValue(configurationAtom);
-    return <SomePageComponent configuration={configuration} />;
+    return <SomePageComponent ApplicationList={ApplicationCombinedList} />;
   }
   ```
+
+## configuration 읽기
+- `packages/ui`는 `useConfiguration()`(`@pinpoint-fe/ui/src/hooks`)으로 `configurationAtom`을 읽음 — prop으로 받지 않음
+- 저장소는 ui의 `configurationAtom` 하나뿐. `apps/web`에서 별도 atom을 만들지 않음
+- `Configuration`을 확장한 저장소는 래퍼 훅을 하나 두고, 호출부는 타입 인자 없이 사용:
+  ```tsx
+  // apps/web/src/hooks/useConfiguration.ts
+  export const useConfiguration = () => useCommonConfiguration<Configuration>();
+  ```
+- React 밖(라우트 로더)에서는 atom이 아직 비어 있으므로 `getConfiguration()`을 직접 호출
 
 ## 도메인 컴포넌트 (packages/ui/src/components/)
 - 도메인별 컴포넌트는 자체 서브디렉토리에 배치 (예: `ServerMap/`, `ErrorAnalysis/`)

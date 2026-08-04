@@ -1,11 +1,6 @@
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { ServiceSettingTable } from '../../components/Config/serviceSetting';
 
-export interface ServiceSettingPageProps {
-  configuration?: Configuration;
-}
-
-export const ServiceSettingPage = (_props: ServiceSettingPageProps) => {
+export const ServiceSettingPage = () => {
   return (
     <div className="space-y-6">
       <div>

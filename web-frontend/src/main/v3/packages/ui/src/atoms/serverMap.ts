@@ -7,7 +7,6 @@ import {
   AgentOverview,
 } from '@pinpoint-fe/ui/src/constants';
 import { Node, Edge } from '@pinpoint-fe/server-map';
-import { configurationAtom } from './configuration';
 
 export type CurrentTarget = {
   id?: string;

@@ -1,12 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  useConfiguration,
   useGetConfigUsers,
   usePostConfigUser,
   usePutConfigUser,
   useDeleteConfigUser,
 } from '@pinpoint-fe/ui/src/hooks';
-import { Configuration, ConfigUsers } from '@pinpoint-fe/ui/src/constants';
+import { ConfigUsers } from '@pinpoint-fe/ui/src/constants';
 import { UsersTable } from './UsersTable';
 import { FaRegTrashCan } from 'react-icons/fa6';
 import { UserForm } from './UserForm';
@@ -14,15 +15,12 @@ import { UsersSheet } from './UsersSheet';
 import { UserRemovePopup } from './UserRemovePopup';
 import { useReactToastifyToast, Button } from '../../../components';
 
-export interface UsersTableFetcherProps {
-  configuration?: Configuration;
-}
-
 export interface UsersTableAction {
   refresh: () => void;
 }
 
-export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => {
+export const UsersTableFetcher = () => {
+  const configuration = useConfiguration();
   const { t } = useTranslation();
   const toast = useReactToastifyToast();
   const enableUserEdit = configuration?.editUserInfo;

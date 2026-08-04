@@ -1,11 +1,9 @@
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
+import { useConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import { UserGroupTable } from './UserGroupTable';
 
-export interface UserGroupProps {
-  configuration?: Configuration;
-}
+export const UserGroup = () => {
+  const configuration = useConfiguration();
 
-export const UserGroup = ({ configuration }: UserGroupProps) => {
   return (
     configuration && <UserGroupTable enableUserGroupAdd={true} enableAllUserGroupRemove={true} />
   );

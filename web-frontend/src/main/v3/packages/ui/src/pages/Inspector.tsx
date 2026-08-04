@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useInspectorSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useConfiguration, useInspectorSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import {
   DatetimePicker,
@@ -19,17 +19,16 @@ import {
 import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/ui/src/utils';
 import { PiChartLineDuotone } from 'react-icons/pi';
 import { TimeUnitFormat } from '@pinpoint-fe/datetime-picker';
-import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 
 export interface InspectorPageProps {
-  configuration?: Configuration;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const InspectorPage = ({
-  configuration,
   ApplicationList = ApplicationCombinedList,
 }: InspectorPageProps) => {
+  const configuration = useConfiguration();
   const periodMax = configuration?.['periodMax.inspector'];
   const periodInterval = configuration?.['periodInterval.inspector'];
   const navigate = useNavigate();

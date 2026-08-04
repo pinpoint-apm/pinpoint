@@ -10,17 +10,13 @@ import {
   getFormattedDateRange,
   getRealtimePath,
 } from '@pinpoint-fe/ui/src/utils';
-import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useConfiguration, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/src/atoms';
-import {
-  FilteredMapType as FilteredMap,
-  GetServerMap,
-  Configuration,
-} from '@pinpoint-fe/ui/src/constants';
+import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { IoMdClose } from 'react-icons/io';
 import {
   DatetimePicker,
@@ -42,7 +38,6 @@ import { ServerMapChartsBoard } from '@pinpoint-fe/ui/src/components/ServerMap/S
 
 export interface ServermapPageProps {
   authorizationGuideUrl?: string;
-  configuration?: Configuration & Record<string, string>;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
   MapView?: typeof ServerMap;
   title?: 'Servermap' | 'Servicemap';
@@ -54,12 +49,12 @@ const SERVERMAP_CONTAINER_ID = 'server-map-main-container';
 
 export const ServerMapPage = ({
   authorizationGuideUrl,
-  configuration,
   ApplicationList = ApplicationCombinedList,
   MapView = ServerMap,
   title = 'Servermap',
   getPagePath = getServerMapPath,
 }: ServermapPageProps) => {
+  const configuration = useConfiguration();
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.[`periodInterval.serverMap`];
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -248,7 +243,6 @@ export const ServerMapPage = ({
                 SERVER_LIST_WIDTH={SERVER_LIST_WIDTH}
                 resizeHandleWidth={resizeHandleWidth}
                 SERVERMAP_CONTAINER_ID={SERVERMAP_CONTAINER_ID}
-                configuration={configuration}
               />
             )}
           </LayoutWithHorizontalResizable>

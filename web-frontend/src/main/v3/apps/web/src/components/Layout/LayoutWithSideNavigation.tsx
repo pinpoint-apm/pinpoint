@@ -4,9 +4,7 @@ import {
   SideNavigationMenuItem,
   useServiceSideNavigation,
 } from '@pinpoint-fe/ui';
-import { useAtomValue } from 'jotai';
 import { FaCog } from 'react-icons/fa';
-import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { LuCircleUser } from 'react-icons/lu';
 import { CONFIG_MENU_MAP } from './LayoutWithConfiguration';
@@ -14,7 +12,6 @@ import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import { useMenuItems } from '@pinpoint-fe/web/src/hooks/useMenuItems';
 
 export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationProps) => {
-  const configuration = useAtomValue(configurationAtom);
   const { menuItems } = useMenuItems();
 
   const serviceGroupItems: SideNavigationMenuItem[] = [
@@ -25,7 +22,7 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
     },
   ];
 
-  const { serviceMenuItems } = useServiceSideNavigation(configuration, serviceGroupItems);
+  const { serviceMenuItems } = useServiceSideNavigation(serviceGroupItems);
 
   const topMenuItems = menuItems;
 

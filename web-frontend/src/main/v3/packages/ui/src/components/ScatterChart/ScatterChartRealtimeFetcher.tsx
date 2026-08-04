@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  SCATTER_DATA_TOTAL_KEY,
-  BASE_PATH,
-  GetScatter,
-  Configuration,
-} from '@pinpoint-fe/ui/src/constants';
+import { SCATTER_DATA_TOTAL_KEY, BASE_PATH, GetScatter } from '@pinpoint-fe/ui/src/constants';
 import { CurrentTarget } from '@pinpoint-fe/ui/src/atoms';
 import {
   convertParamsToQueryString,
@@ -28,19 +23,16 @@ export interface ScatterChartRealtimeFetcherProps {
   node: CurrentTarget;
   agentId?: string;
   toolbarOption?: ScatterChartCoreProps['toolbarOption'];
-  /** transactionList 링크에 실을 service를 판단하는 데 쓴다(`useServiceNameForLink`). */
-  configuration?: Configuration;
 }
 
 export const ScatterChartRealtimeFetcher = ({
   node,
   agentId = SCATTER_DATA_TOTAL_KEY,
   toolbarOption,
-  configuration,
 }: ScatterChartRealtimeFetcherProps) => {
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const { dateRange } = useServerMapSearchParameters();
-  const serviceNameForLink = useServiceNameForLink(configuration);
+  const serviceNameForLink = useServiceNameForLink();
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
   const currentNode = `${node.applicationName}^${node.serviceType}`;

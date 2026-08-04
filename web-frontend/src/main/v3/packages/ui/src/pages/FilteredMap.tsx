@@ -8,18 +8,14 @@ import {
   getApplicationKey,
   getServerMapPath,
 } from '@pinpoint-fe/ui/src/utils';
-import { useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useConfiguration, useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
   scatterDataByApplicationKeyAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/src/atoms';
-import {
-  FilteredMapType as FilteredMap,
-  GetServerMap,
-  Configuration,
-} from '@pinpoint-fe/ui/src/constants';
+import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import {
   ApplicationCombinedList,
   ApplicationCombinedListProps,
@@ -45,7 +41,6 @@ import { FilteredMapChartsBoard } from '@pinpoint-fe/ui/src/components/FilterMap
 
 export interface FilteredMapPageProps {
   authorizationGuideUrl?: string;
-  configuration?: Configuration & Record<string, string>;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
@@ -53,9 +48,9 @@ const FILTERED_MAP_CONTAINER_ID = 'filtered-map-main-container';
 
 export const FilteredMapPage = ({
   authorizationGuideUrl,
-  configuration,
   ApplicationList = ApplicationCombinedList,
 }: FilteredMapPageProps) => {
+  const configuration = useConfiguration();
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.['periodInterval.serverMap'];
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -274,7 +269,6 @@ export const FilteredMapPage = ({
                 SERVER_LIST_WIDTH={SERVER_LIST_WIDTH}
                 resizeHandleWidth={resizeHandleWidth}
                 FILTERED_MAP_CONTAINER_ID={FILTERED_MAP_CONTAINER_ID}
-                configuration={configuration}
               />
             )}
           </LayoutWithHorizontalResizable>

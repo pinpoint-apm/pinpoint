@@ -12,19 +12,18 @@ import {
   OpenTelemetryDashboard,
 } from '../components';
 import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/ui/src/utils';
-import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useConfiguration, useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { SiOpentelemetry } from 'react-icons/si';
-import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 
 export interface OpenTelemetryPageProps {
-  configuration?: Configuration & Record<string, unknown>;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const OpenTelemetryPage = ({
-  configuration,
   ApplicationList = ApplicationCombinedList,
 }: OpenTelemetryPageProps) => {
+  const configuration = useConfiguration();
   const periodMax = configuration?.['periodMax.otlpMetric'];
   const periodInterval = configuration?.['periodInterval.otlpMetric'];
   const navigate = useNavigate();

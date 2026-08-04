@@ -2,7 +2,6 @@ import React from 'react';
 import { ChartsBoard, ChartsBoardProps } from '../ChartsBoard';
 import {
   BASE_PATH,
-  Configuration,
   FilteredMapType as FilteredMap,
   GetHistogramStatistics,
   GetServerMap,
@@ -49,7 +48,6 @@ export interface FilteredMapChartsBoardProps extends Omit<
   SERVER_LIST_WIDTH: number;
   resizeHandleWidth: number;
   FILTERED_MAP_CONTAINER_ID: string;
-  configuration?: Configuration;
 }
 
 export const FilteredMapChartsBoard = ({
@@ -58,13 +56,12 @@ export const FilteredMapChartsBoard = ({
   SERVER_LIST_WIDTH,
   resizeHandleWidth,
   FILTERED_MAP_CONTAINER_ID,
-  configuration,
   children,
   ...props
 }: FilteredMapChartsBoardProps) => {
   const { t } = useTranslation();
   const { dateRange, application, searchParameters } = useFilteredMapParameters();
-  const serviceNameForLink = useServiceNameForLink(configuration);
+  const serviceNameForLink = useServiceNameForLink();
 
   const [openServerView, setOpenServerView] = React.useState(false);
 
@@ -206,7 +203,6 @@ export const FilteredMapChartsBoard = ({
                         }
                         range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                         selectedAgentId={SCATTER_DATA_TOTAL_KEY}
-                        configuration={configuration}
                         onDragEnd={(data, checkedLables) => {
                           if (checkedLables.length) {
                             window.__pp_scatter_data__ =
@@ -297,7 +293,6 @@ export const FilteredMapChartsBoard = ({
                     }
                     range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                     selectedAgentId={currentServer?.agentId}
-                    configuration={configuration}
                     onDragEnd={(data, checkedLables) => {
                       if (checkedLables.length) {
                         window.__pp_scatter_data__ =

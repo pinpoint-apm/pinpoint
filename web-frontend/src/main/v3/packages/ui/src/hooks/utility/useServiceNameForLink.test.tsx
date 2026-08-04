@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { getDefaultStore } from 'jotai';
-import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
+import { configurationAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { useServiceNameForLink } from './useServiceNameForLink';
 
@@ -17,13 +17,17 @@ const configWithServiceMap = (enable: boolean) =>
 
 const renderServiceNameForLink = (pathname: string, configuration?: Configuration) => {
   mockLocation.pathname = pathname;
-  return renderHook(() => useServiceNameForLink(configuration)).result.current;
+  act(() => {
+    store.set(configurationAtom, configuration);
+  });
+  return renderHook(() => useServiceNameForLink()).result.current;
 };
 
 describe('useServiceNameForLink', () => {
   beforeEach(() => {
     act(() => {
       store.set(selectedServiceAtom, 'my-service');
+      store.set(configurationAtom, undefined);
     });
   });
 
@@ -39,7 +43,7 @@ describe('useServiceNameForLink', () => {
     ).toBeUndefined();
   });
 
-  test('returns undefined when no configuration is given yet', () => {
+  test('returns undefined when no configuration is loaded yet', () => {
     // configuration은 부트스트랩 이후 비동기로 로드되므로 아직 없을 수 있다.
     expect(renderServiceNameForLink('/serviceMap/test-app@SPRING_BOOT')).toBeUndefined();
   });

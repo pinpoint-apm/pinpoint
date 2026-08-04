@@ -12,13 +12,12 @@ import {
 } from '../components';
 import { useNavigate } from 'react-router-dom';
 import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/ui/src/utils';
-import { useUrlStatSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useConfiguration, useUrlStatSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import { PiChartBarDuotone } from 'react-icons/pi';
 // import { ErrorBoundary } from '../../Error/ErrorBoundary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@pinpoint-fe/ui/src/components';
 import { APP_SETTING_KEYS, UrlStatSummary } from '../constants';
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
 
 const TAB_LIST = [
   { id: 'total', display: 'Total Count' },
@@ -30,14 +29,13 @@ const TAB_LIST = [
 type TYPE = UrlStatSummary.Parameters['type'];
 
 export interface UrlStatisticPageProps {
-  configuration?: Configuration & Record<string, unknown>;
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const UrlStatisticPage = ({
-  configuration,
   ApplicationList = ApplicationCombinedList,
 }: UrlStatisticPageProps) => {
+  const configuration = useConfiguration();
   const periodMax = configuration?.['periodMax.uriStat'];
   const periodInterval = configuration?.['periodInterval.uriStat'];
   const navigate = useNavigate();
