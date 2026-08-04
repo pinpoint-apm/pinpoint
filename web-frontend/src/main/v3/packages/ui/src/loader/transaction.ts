@@ -15,9 +15,16 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const transactionRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
+  const requestUrl = new URL(request.url);
   // 세그먼트가 `{serviceName}@{applicationName}@{serviceType}`일 수 있으므로 serviceName을 분리한다.
-  // 리다이렉트 경로는 원본 세그먼트(params.application)를 그대로 쓰므로 serviceName이 유지된다.
-  const application = getServiceAndApplicationTypeAndName(params.application!);
+  //
+  // react-router의 `params`는 디코딩된 값이라 그대로 쓸 수 없다. serviceName에 인코딩된 '/'가
+  // 있으면 '%2F'가 '/'로 풀려 세그먼트 경계가 어긋나고, 아래 리다이렉트 경로에도 원본 '/'가
+  // 실려 라우트 매칭이 깨진다. 그래서 파싱과 리다이렉트 모두 인코딩된 원본 세그먼트를 쓴다.
+  const applicationSegment = params.application
+    ? requestUrl.pathname.split('/').pop()
+    : params.application;
+  const application = getServiceAndApplicationTypeAndName(applicationSegment);
 
   let configuration: Configuration | undefined;
   try {
@@ -29,8 +36,8 @@ export const transactionRouteLoader = async ({ params, request }: LoaderFunction
   const timezone = getTimezone();
 
   if (application?.applicationName && application.serviceType) {
-    const basePath = `${APP_PATH.TRANSACTION_LIST}/${params.application}`;
-    const queryParam = Object.fromEntries(new URL(request.url).searchParams);
+    const basePath = `${APP_PATH.TRANSACTION_LIST}/${applicationSegment}`;
+    const queryParam = Object.fromEntries(requestUrl.searchParams);
     const conditions = Object.keys(queryParam);
 
     const from = queryParam?.from as string;

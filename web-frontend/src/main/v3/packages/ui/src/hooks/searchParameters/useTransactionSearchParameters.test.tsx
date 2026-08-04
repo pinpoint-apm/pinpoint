@@ -32,15 +32,43 @@ describe('useTransactionSearchParameters', () => {
     expect(application).toEqual({ applicationName: 'test-app', serviceType: 'SPRING_BOOT' });
   });
 
-  test('does not split a service name off paths that never carry one', () => {
-    // transactionDetail은 serviceName을 싣지 않으므로, '@'가 든 applicationName이
-    // service/application으로 쪼개지면 안 된다.
+  test('splits the service name off a transactionDetail path too', () => {
+    // transactionList의 외부 링크로 새 탭에서 열리므로 transactionDetail도 serviceName을 싣는다.
     const { application, serviceName } = renderTransactionSearchParameters(
-      '/transactionDetail/test@app@SPRING_BOOT',
+      '/transactionDetail/my-service@test-app@SPRING_BOOT',
+    );
+
+    expect(serviceName).toBe('my-service');
+    expect(application).toEqual({ applicationName: 'test-app', serviceType: 'SPRING_BOOT' });
+  });
+
+  test('keeps a legacy transactionDetail path resolving without a service name', () => {
+    const { application, serviceName } = renderTransactionSearchParameters(
+      '/transactionDetail/test-app@SPRING_BOOT',
+    );
+
+    expect(serviceName).toBeUndefined();
+    expect(application).toEqual({ applicationName: 'test-app', serviceType: 'SPRING_BOOT' });
+  });
+
+  test('does not split a service name off paths that never carry one', () => {
+    // serviceName 분리는 `SERVICE_NAME_IN_PATH_PAGES`에 등록된 경로에서만 해야 한다. 그 외에는
+    // '@'가 든 applicationName이 service/application으로 쪼개지면 안 된다.
+    const { application, serviceName } = renderTransactionSearchParameters(
+      '/serverMap/test@app@SPRING_BOOT',
     );
 
     expect(serviceName).toBeUndefined();
     expect(application).toEqual({ applicationName: 'test@app', serviceType: 'SPRING_BOOT' });
+  });
+
+  test('decodes an encoded service name from the path', () => {
+    const { application, serviceName } = renderTransactionSearchParameters(
+      '/transactionList/a%2Fb@test-app@SPRING_BOOT',
+    );
+
+    expect(serviceName).toBe('a/b');
+    expect(application).toEqual({ applicationName: 'test-app', serviceType: 'SPRING_BOOT' });
   });
 
   test('returns no application when the path has no application segment', () => {

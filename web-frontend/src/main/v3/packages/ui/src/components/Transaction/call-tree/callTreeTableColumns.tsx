@@ -634,7 +634,7 @@ const buildOtelLinkPath = (
   context: {
     pathname: string;
     searchParameters: Record<string, string>;
-    /** URL에 실려 있던 service 이름. transactionList에 머무를 때 다시 실어 헤더를 유지한다. */
+    /** URL에 실려 있던 service 이름. 어느 화면으로 가든 다시 실어 헤더를 유지한다. */
     serviceName?: string;
   },
 ): string => {
@@ -660,9 +660,8 @@ const buildOtelLinkPath = (
     })}`;
   }
 
-  return `${getTransactionDetailPath(application)}?${getTransactionDetailQueryString(
-    transactionInfoParams,
-  )}`;
+  const path = getTransactionDetailPath(application, undefined, context.serviceName);
+  return `${path}?${getTransactionDetailQueryString(transactionInfoParams)}`;
 };
 
 /**
