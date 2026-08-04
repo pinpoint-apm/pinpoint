@@ -26,7 +26,11 @@ import {
   getTransactionDetailPath,
   getTransactionDetailQueryString,
 } from '@pinpoint-fe/ui/src/utils';
-import { useErrorAnalysisSearchParameters, useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useErrorAnalysisSearchParameters,
+  useServiceNameForLink,
+  useTimezone,
+} from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import {
   ErrorAnalysisErrorList,
@@ -54,6 +58,9 @@ export const ErrorAnalysisPage = ({
   const periodInterval = configuration?.['periodInterval.exceptionTrace'];
   const navigate = useNavigate();
   const [timezone] = useTimezone();
+  // errorAnalysis 경로는 URL에 service를 싣지 않으므로, 새 탭으로 여는 transactionDetail에는
+  // 클릭 시점의 선택된 service를 실어 그 탭이 전역 선택값 변화에 흔들리지 않게 한다.
+  const serviceNameForLink = useServiceNameForLink(configuration);
   const {
     searchParameters,
     application,
@@ -169,10 +176,13 @@ export const ErrorAnalysisPage = ({
                         <div
                           className="flex items-center gap-1 truncate cursor-pointer hover:text-primary hover:underline"
                           onClick={() => {
+                            const path = getTransactionDetailPath(
+                              application,
+                              undefined,
+                              serviceNameForLink,
+                            );
                             window.open(
-                              `${BASE_PATH}${getTransactionDetailPath(
-                                application,
-                              )}?${getTransactionDetailQueryString({
+                              `${BASE_PATH}${path}?${getTransactionDetailQueryString({
                                 agentId: errorInfo.agentId,
                                 spanId: `${errorInfo.spanId}`,
                                 traceId: errorInfo.transactionId,

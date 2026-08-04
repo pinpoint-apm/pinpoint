@@ -69,7 +69,8 @@ describe('Test application helper utils', () => {
     test.each([
       [`${APP_PATH.TRANSACTION_LIST}`, true],
       [`${APP_PATH.TRANSACTION_LIST}/svc@appName@TOMCAT`, true],
-      [`${APP_PATH.TRANSACTION_DETAIL}/appName@TOMCAT`, false],
+      [`${APP_PATH.TRANSACTION_DETAIL}`, true],
+      [`${APP_PATH.TRANSACTION_DETAIL}/svc@appName@TOMCAT`, true],
       [`${APP_PATH.SERVICE_MAP}/appName@TOMCAT`, false],
       [`${APP_PATH.SERVER_MAP}/appName@TOMCAT`, false],
       ['', false],
@@ -141,6 +142,23 @@ describe('Test application helper utils', () => {
     test('Return undefined on a path that does not carry a service name', () => {
       expect(getServiceNameFromPath('/serverMap/svc@appName@TOMCAT')).toBeUndefined();
       expect(getServiceNameFromPath('/serviceMap/svc@appName@TOMCAT')).toBeUndefined();
+    });
+
+    test('Read the service name on the transactionDetail path too', () => {
+      expect(getServiceNameFromPath('/transactionDetail/svc@appName@TOMCAT')).toBe('svc');
+      expect(getServiceNameFromPath('/transactionDetail/appName@TOMCAT')).toBeUndefined();
+    });
+
+    // `getServiceScopedApplicationPath`가 인코딩해서 넣은 값을 되돌린다.
+    test('Decode the encoded service name', () => {
+      expect(getServiceNameFromPath('/transactionList/a%2Fb@appName@TOMCAT')).toBe('a/b');
+      expect(getServiceNameFromPath('/transactionList/a%40b@appName@TOMCAT')).toBe('a@b');
+      expect(getServiceNameFromPath('/transactionList/a%20b@appName@TOMCAT')).toBe('a b');
+    });
+
+    // 경로는 사용자가 직접 편집할 수 있다. 렌더 중에 호출되므로 던지면 화면이 죽는다.
+    test('Fall back to the raw value on a malformed encoding instead of throwing', () => {
+      expect(getServiceNameFromPath('/transactionList/100%@appName@TOMCAT')).toBe('100%');
     });
   });
 

@@ -5,6 +5,7 @@ import {
   getHostGroupPath,
   getFilteredMapPath,
   getTransactionListPath,
+  getTransactionDetailPath,
 } from './route';
 
 describe('Test route helper utils', () => {
@@ -221,6 +222,49 @@ describe('Test route helper utils', () => {
     test('Omit the query string when only one of from/to is given', () => {
       expect(getTransactionListPath(application, { from: 'from' }, 'svc')).toEqual(
         '/transactionList/svc@appName@TOMCAT',
+      );
+    });
+
+    // 백엔드가 service 이름 형식을 검증하지 않으므로 '/'나 '@'가 들어올 수 있다. 인코딩하지
+    // 않으면 '/'가 세그먼트를 쪼개 라우트 매칭이 실패하고 '@'는 구분자와 구별되지 않는다.
+    test('Encode the service name so it cannot break the path segment', () => {
+      expect(getTransactionListPath(application, undefined, 'a/b')).toEqual(
+        '/transactionList/a%2Fb@appName@TOMCAT',
+      );
+      expect(getTransactionListPath(application, undefined, 'a@b')).toEqual(
+        '/transactionList/a%40b@appName@TOMCAT',
+      );
+      expect(getTransactionListPath(application, undefined, 'a b')).toEqual(
+        '/transactionList/a%20b@appName@TOMCAT',
+      );
+    });
+  });
+
+  describe('Test "getTransactionDetailPath"', () => {
+    const application = { applicationName: 'appName', serviceType: 'TOMCAT' };
+    const dateRange = { from: 'from', to: 'to' };
+
+    test('Return the page path only when application is not given', () => {
+      expect(getTransactionDetailPath()).toEqual('/transactionDetail');
+      expect(getTransactionDetailPath(null, dateRange, 'svc')).toEqual('/transactionDetail');
+    });
+
+    test('Return the legacy path when service name is not given', () => {
+      expect(getTransactionDetailPath(application)).toEqual('/transactionDetail/appName@TOMCAT');
+      expect(getTransactionDetailPath(application, dateRange)).toEqual(
+        '/transactionDetail/appName@TOMCAT?from=from&to=to',
+      );
+    });
+
+    test('Prefix the service name to the application segment', () => {
+      expect(getTransactionDetailPath(application, undefined, 'svc')).toEqual(
+        '/transactionDetail/svc@appName@TOMCAT',
+      );
+    });
+
+    test('Encode the service name so it cannot break the path segment', () => {
+      expect(getTransactionDetailPath(application, undefined, 'a/b')).toEqual(
+        '/transactionDetail/a%2Fb@appName@TOMCAT',
       );
     });
   });

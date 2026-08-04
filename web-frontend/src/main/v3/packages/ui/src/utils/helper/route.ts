@@ -102,31 +102,43 @@ export const getInspectorPath = getApplicationPath(APP_PATH.INSPECTOR);
 export const getOpenTelemetryPath = getApplicationPath(APP_PATH.OPEN_TELEMETRY_METRIC);
 export const getSystemMetricPath = getHostGroupPath(APP_PATH.SYSTEM_METRIC);
 /**
- * /transactionList
- *
  * serviceName이 주어지면 application 세그먼트를 `{serviceName}@{applicationName}@{serviceType}`로
- * 만든다. transactionList는 scatter/heatmap의 drag&drop으로 새 탭에서 열리므로, 어떤 service를
- * 보던 중이었는지 URL에 남겨야 그 화면의 모든 API에 pServiceName 헤더를 실을 수 있다.
+ * 만드는 경로 빌더. transaction 화면들은 새 탭으로 열리므로(map의 drag&drop → transactionList,
+ * transactionList의 외부 링크 → transactionDetail), 어떤 service를 보던 중이었는지 URL에 남겨야
+ * 그 화면의 모든 API에 pServiceName 헤더를 실을 수 있다.
  * 파싱은 `getServiceAndApplicationTypeAndName`이 담당한다.
+ *
+ * serviceName은 백엔드에서 형식이 검증되지 않으므로(`ServiceNameRequest`에 제약이 없다) '/'나
+ * '@'가 들어올 수 있어 인코딩한다. 인코딩하지 않으면 '/'가 세그먼트를 쪼개 `:application?`
+ * 라우트 매칭이 실패하고, '@'는 구분자와 구별되지 않는다. applicationName/serviceType은
+ * 백엔드가 `[a-zA-Z0-9._\-]+`로 검증하므로(IdValidateUtils) 기존처럼 그대로 둔다.
  */
-export const getTransactionListPath = (
-  application?: ApplicationType | null,
-  queryParams?: {
-    [k: string]: string;
-  },
-  serviceName?: string,
-) => {
-  if (!application?.applicationName || !application?.serviceType) {
-    return APP_PATH.TRANSACTION_LIST;
-  }
+const getServiceScopedApplicationPath =
+  (pagePath: string) =>
+  (
+    application?: ApplicationType | null,
+    queryParams?: {
+      [k: string]: string;
+    },
+    serviceName?: string,
+  ) => {
+    if (!application?.applicationName || !application?.serviceType) {
+      return pagePath;
+    }
 
-  const servicePrefix = serviceName ? `${serviceName}@` : '';
-  const queryString =
-    queryParams?.from && queryParams?.to
-      ? `?${convertParamsToQueryString({ from: queryParams.from, to: queryParams.to })}`
-      : '';
+    const servicePrefix = serviceName ? `${encodeURIComponent(serviceName)}@` : '';
+    const queryString =
+      queryParams?.from && queryParams?.to
+        ? `?${convertParamsToQueryString({ from: queryParams.from, to: queryParams.to })}`
+        : '';
 
-  return `${APP_PATH.TRANSACTION_LIST}/${servicePrefix}${application.applicationName}@${application.serviceType}${queryString}`;
-};
-export const getTransactionDetailPath = getApplicationPath(APP_PATH.TRANSACTION_DETAIL);
+    return `${pagePath}/${servicePrefix}${application.applicationName}@${application.serviceType}${queryString}`;
+  };
+
+/** /transactionList */
+export const getTransactionListPath = getServiceScopedApplicationPath(APP_PATH.TRANSACTION_LIST);
+/** /transactionDetail */
+export const getTransactionDetailPath = getServiceScopedApplicationPath(
+  APP_PATH.TRANSACTION_DETAIL,
+);
 export const getThreadDumpPath = getApplicationPath(APP_PATH.THREAD_DUMP);

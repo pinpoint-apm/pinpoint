@@ -23,7 +23,7 @@ export const TransactionListTable = ({ data, ...props }: TransactionListTablePro
   const [timezone] = useTimezone();
   const setCallTreeFocusId = useSetAtom(transactionInfoCallTreeFocusId);
 
-  const columns = transactionListTableColumns(application, timezone);
+  const columns = transactionListTableColumns(application, timezone, serviceName);
 
   return (
     <VirtualizedDataTable

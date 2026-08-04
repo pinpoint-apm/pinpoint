@@ -31,7 +31,9 @@ const tabList = [
 
 export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcherProps) => {
   const navigate = useNavigate();
-  const { application, transactionInfo } = useTransactionSearchParameters();
+  // URL에 실려 있던 service 이름. 새 탭/같은 탭으로 여는 transactionDetail에 다시 실어야
+  // pServiceName 헤더가 유지된다(`resolveRequestService`).
+  const { application, transactionInfo, serviceName } = useTransactionSearchParameters();
   const { data, tableData, mapData } = useGetTransactionInfo();
   const setTransactionInfo = useSetAtom(transactionInfoDatasAtom);
   const [currentTab, setCurrentTab] = useAtom(transactionInfoCurrentTabId);
@@ -44,10 +46,11 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
     if (data && data.spanId === -1 && !application) {
       const applicationName = data.applicationName;
       const serviceType = data.serviceType;
-      const navigatePath = `${getTransactionDetailPath({
-        applicationName,
-        serviceType,
-      })}?${getTransactionDetailQueryString({
+      const navigatePath = `${getTransactionDetailPath(
+        { applicationName, serviceType },
+        undefined,
+        serviceName,
+      )}?${getTransactionDetailQueryString({
         agentId: data.agentId,
         traceId: data.transactionId,
         spanId: transactionInfo.spanId,
@@ -87,10 +90,9 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
               className="ml-auto w-8 h-8 text-base text-muted-foreground py-0.5 px-1"
               variant="ghost"
               onClick={() => {
+                const path = getTransactionDetailPath(application, undefined, serviceName);
                 window.open(
-                  `${BASE_PATH}${getTransactionDetailPath(
-                    application,
-                  )}?${getTransactionDetailQueryString({
+                  `${BASE_PATH}${path}?${getTransactionDetailQueryString({
                     agentId: data.agentId,
                     traceId: data.transactionId,
                     spanId: transactionInfo.spanId,

@@ -60,6 +60,33 @@ describe('transactionRouteLoader', () => {
     expect(result.url).toContain(`${APP_PATH.TRANSACTION_LIST}/svc@${APP}`);
   });
 
+  // react-router는 params를 디코딩하므로 params.application에는 '%2F'가 '/'로 풀려 들어온다.
+  // 그대로 쓰면 세그먼트 경계가 어긋나고 리다이렉트 경로에 원본 '/'가 실려 라우트가 깨진다.
+  test('reads the raw segment so an encoded service name survives the redirect', async () => {
+    const encoded = `a%2Fb@${APP}`;
+    const result = (await transactionRouteLoader(
+      makeArgs(`http://localhost${APP_PATH.TRANSACTION_LIST}/${encoded}`, {
+        application: `a/b@${APP}`,
+      }),
+    )) as unknown as { __isRedirect: boolean; url: string };
+    expect(result.__isRedirect).toBe(true);
+    expect(result.url).toContain(`${APP_PATH.TRANSACTION_LIST}/a%2Fb@${APP}`);
+  });
+
+  test('decodes the encoded service name when returning the application', async () => {
+    const encoded = `a%2Fb@${APP}`;
+    const result = await transactionRouteLoader(
+      makeArgs(`http://localhost${APP_PATH.TRANSACTION_LIST}/${encoded}?${VALID}`, {
+        application: `a/b@${APP}`,
+      }),
+    );
+    expect(result).toEqual({
+      serviceName: 'a/b',
+      applicationName: 'TestApp',
+      serviceType: 'SPRING_BOOT',
+    });
+  });
+
   test('redirects to the base path with default dates when no query params exist', async () => {
     const result = (await transactionRouteLoader(
       makeArgs(`http://localhost${BASE}`, { application: APP }),

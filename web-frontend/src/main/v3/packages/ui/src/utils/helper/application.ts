@@ -16,11 +16,15 @@ export const getApplicationTypeAndName = (path = '') => {
  * application 세그먼트에 serviceName까지 함께 싣는 페이지 목록.
  * 이 경로의 세그먼트는 `{serviceName}@{applicationName}@{serviceType}` 형태다.
  *
- * transactionList는 scatter/heatmap의 drag&drop으로 새 탭에서 열리므로, 어떤 service를
- * 보고 있었는지 URL에 남겨두지 않으면 모든 API에 실어야 할 pServiceName 헤더를 복원할 수 없다.
+ * transactionList는 scatter/heatmap의 drag&drop으로, transactionDetail은 transactionList의
+ * 외부 링크 버튼으로 새 탭에서 열리므로, 어떤 service를 보고 있었는지 URL에 남겨두지 않으면
+ * 모든 API에 실어야 할 pServiceName 헤더를 복원할 수 없다.
  * (전역 선택값은 탭 간 공유 저장소라서 링크를 열 시점의 값과 다를 수 있다.)
  */
-const SERVICE_NAME_IN_PATH_PAGES: string[] = [APP_PATH.TRANSACTION_LIST];
+const SERVICE_NAME_IN_PATH_PAGES: string[] = [
+  APP_PATH.TRANSACTION_LIST,
+  APP_PATH.TRANSACTION_DETAIL,
+];
 
 /**
  * 라우터 기준 pathname(basename 제외)이 serviceName을 싣는 경로인지 여부.
@@ -30,11 +34,27 @@ export const hasServiceNameInPath = (pathname = '') =>
   SERVICE_NAME_IN_PATH_PAGES.some((page) => pathname === page || pathname.startsWith(`${page}/`));
 
 /**
+ * URL에 실린 serviceName을 디코딩한다(`getServiceScopedApplicationPath`가 인코딩한다).
+ * 경로는 사용자가 직접 편집할 수 있어 '%' 하나만 있는 등 잘못된 인코딩이 들어올 수 있고,
+ * 이 함수는 렌더 중에 호출되므로 던지면 화면이 죽는다. 실패하면 원본을 그대로 쓴다.
+ */
+const decodeServiceName = (serviceName: string) => {
+  try {
+    return decodeURIComponent(serviceName);
+  } catch {
+    return serviceName;
+  }
+};
+
+/**
  * `{serviceName}@{applicationName}@{serviceType}` 세그먼트를 분해한다.
  * serviceName이 없는 기존 형태(`{applicationName}@{serviceType}`)면 serviceName은 undefined다.
  *
  * serviceName은 첫 '@' 앞부분으로, applicationName/serviceType은 기존 규칙(마지막 구분자)을
  * 그대로 따른다. 경로 전체를 넘겨도 되고 세그먼트만 넘겨도 된다.
+ *
+ * 인코딩된(raw) 경로를 넘겨야 한다. react-router의 `params`는 디코딩된 값이므로 그대로 쓰면
+ * serviceName의 '%2F'가 '/'로 풀려 세그먼트 경계가 어긋난다(`transactionRouteLoader` 참고).
  */
 export const getServiceAndApplicationTypeAndName = (path = '') => {
   const application = getApplicationTypeAndName(path);
@@ -50,7 +70,7 @@ export const getServiceAndApplicationTypeAndName = (path = '') => {
   }
 
   return {
-    serviceName: application.applicationName.slice(0, separatorIndex),
+    serviceName: decodeServiceName(application.applicationName.slice(0, separatorIndex)),
     applicationName: application.applicationName.slice(separatorIndex + 1),
     serviceType: application.serviceType,
   };

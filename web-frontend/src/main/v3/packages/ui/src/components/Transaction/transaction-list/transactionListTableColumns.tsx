@@ -12,6 +12,8 @@ import {
 export const transactionListTableColumns = (
   application: ApplicationType | null,
   timezone: string,
+  /** URL에 실려 있던 service 이름. 새 탭으로 여는 transactionDetail에 다시 실어 헤더를 유지한다. */
+  serviceName?: string,
 ): ColumnDef<Transaction>[] => [
   {
     accessorKey: 'index',
@@ -52,10 +54,9 @@ export const transactionListTableColumns = (
             variant="ghost"
             onClick={(e) => {
               e.stopPropagation();
+              const path = getTransactionDetailPath(application, undefined, serviceName);
               window.open(
-                `${BASE_PATH}${getTransactionDetailPath(
-                  application,
-                )}?${getTransactionDetailQueryString({
+                `${BASE_PATH}${path}?${getTransactionDetailQueryString({
                   agentId: data.agentId,
                   spanId: data.spanId,
                   traceId: data.traceId,
