@@ -11,15 +11,11 @@ public class RandomServiceUidGenerator implements IdGenerator<ServiceUid> {
 
     @Override
     public ServiceUid generate() {
-        int randomInt;
+        int serviceUid;
         do {
-            randomInt = random.nextInt();
-        } while (isReservedServiceUid(randomInt));
+            serviceUid = random.nextInt();
+        } while (ServiceUid.isReservedUid(serviceUid));
 
-        return ServiceUid.of(randomInt);
-    }
-
-    private boolean isReservedServiceUid(int uid) {
-        return -ServiceUid.RESERVED_NEGATIVE_UID_COUNT <= uid && uid <= ServiceUid.RESERVED_POSITIVE_UID_COUNT;
+        return ServiceUid.of(serviceUid);
     }
 }
