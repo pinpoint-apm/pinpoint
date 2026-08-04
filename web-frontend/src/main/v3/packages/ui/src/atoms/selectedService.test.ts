@@ -35,4 +35,31 @@ describe('selectedServiceAtom', () => {
     const { result } = renderHook(() => useAtomValue(selectedServiceAtom));
     expect(result.current).toBe(DEFAULT_SERVICE);
   });
+
+  // 서드파티 스토리지가 차단된 iframe 등에서는 sessionStorage 접근 자체가 던진다.
+  // getOnInit이 켜져 있으면 atomWithStorage가 모듈 평가 시점에 storage.getItem을 호출하므로,
+  // 가드가 없으면 import만으로 앱 전체가 죽는다. 그래서 모듈을 다시 평가해서 확인한다.
+  test('keeps working when storage access throws', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(window, 'sessionStorage');
+
+    Object.defineProperty(window, 'sessionStorage', {
+      configurable: true,
+      get() {
+        throw new Error('storage blocked');
+      },
+    });
+
+    try {
+      jest.isolateModules(() => {
+        const reloaded = require('./selectedService');
+
+        const { result } = renderHook(() => useAtomValue(reloaded.selectedServiceAtom));
+        expect(result.current).toBe(DEFAULT_SERVICE);
+      });
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(window, 'sessionStorage', descriptor);
+      }
+    }
+  });
 });
