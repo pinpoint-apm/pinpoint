@@ -129,6 +129,33 @@ describe('selectedServiceAtom', () => {
     expect(renderWithFreshModule()).toBe('my-service');
   });
 
+  // 읽기는 되지만 쓰기가 던지는 환경(quota 초과 등)이 있다. 탭 고정 쓰기는 모듈 평가 중에
+  // 일어나므로, 막지 않으면 import만으로 앱이 죽는다.
+  test('keeps working when pinning the inherited service throws', () => {
+    localStorage.setItem(LAST_SELECTED_SERVICE_KEY, JSON.stringify('my-service'));
+
+    const descriptor = Object.getOwnPropertyDescriptor(window, 'sessionStorage');
+
+    Object.defineProperty(window, 'sessionStorage', {
+      configurable: true,
+      get: () => ({
+        getItem: () => null,
+        setItem: () => {
+          throw new Error('quota exceeded');
+        },
+        removeItem: () => {},
+      }),
+    });
+
+    try {
+      expect(renderWithFreshModule()).toBe('my-service');
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(window, 'sessionStorage', descriptor);
+      }
+    }
+  });
+
   test('keeps working when local storage access throws', () => {
     const descriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
 

@@ -86,8 +86,18 @@ const initialSelectedService =
 
 // 승계한 값은 이 탭의 sessionStorage에 곧바로 심어 둔다. 심어 두지 않으면 다른 탭이 service를
 // 바꾼 뒤 이 탭을 새로고침했을 때 선택이 따라 바뀌어 탭별 독립성이 깨진다.
-if (getSessionStringStorage().getItem(SELECTED_SERVICE_STORAGE_KEY) === null) {
-  sessionStorageForService.setItem(SELECTED_SERVICE_STORAGE_KEY, initialSelectedService);
+//
+// 이 쓰기는 모듈 평가 중에 일어나므로 예외가 새어 나가면 import만으로 앱이 죽는다.
+// getSessionStringStorage()는 스토리지 접근이 던지는 경우만 막아 주고, 읽기는 되지만 쓰기가
+// 던지는 환경(quota 초과, 일부 프라이버시 모드)은 막지 못한다. 아톰 초기값은 이 쓰기와 무관하게
+// 정해지므로, 실패하면 탭 고정만 포기하고 넘어간다.
+try {
+  if (getSessionStringStorage().getItem(SELECTED_SERVICE_STORAGE_KEY) === null) {
+    sessionStorageForService.setItem(SELECTED_SERVICE_STORAGE_KEY, initialSelectedService);
+  }
+} catch {
+  // 탭 고정에 실패하면 새로고침 시 다른 탭의 최신 선택을 따라갈 수 있지만, 화면이 아예 뜨지
+  // 않는 것보다는 낫다.
 }
 
 // getOnInit: true → 첫 렌더부터 sessionStorage 값을 동기로 읽는다.
