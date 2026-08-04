@@ -186,12 +186,14 @@ export const Realtime = ({ configuration }: RealtimeProps) => {
                       <ScatterChart
                         node={serverMapCurrentTarget || (application as ApplicationType)}
                         realtime={true}
+                        configuration={configuration}
                       />
                     ) : (
                       // <div className="w-full pl-3 pt-5 pr-10 pb-8 aspect-[1.3]">
                       <Heatmap
                         nodeData={currentTargetData || (application as ApplicationType)}
                         realtime={true}
+                        configuration={configuration}
                       />
                       // </div>
                     )}

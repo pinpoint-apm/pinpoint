@@ -1,5 +1,12 @@
-import { getApplicationTypeAndName, getApplicationKey } from './application';
-import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
+import {
+  getApplicationTypeAndName,
+  getApplicationKey,
+  getApplicationTypeAndNameFromPath,
+  getServiceAndApplicationTypeAndName,
+  getServiceNameFromPath,
+  hasServiceNameInPath,
+} from './application';
+import { APP_PATH, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 
 describe('Test application helper utils', () => {
   describe('Test "getApplicationTypeAndName"', () => {
@@ -55,6 +62,85 @@ describe('Test application helper utils', () => {
         applicationName: 'appName',
         serviceType: 'serviceType',
       });
+    });
+  });
+
+  describe('Test "hasServiceNameInPath"', () => {
+    test.each([
+      [`${APP_PATH.TRANSACTION_LIST}`, true],
+      [`${APP_PATH.TRANSACTION_LIST}/svc@appName@TOMCAT`, true],
+      [`${APP_PATH.TRANSACTION_DETAIL}/appName@TOMCAT`, false],
+      [`${APP_PATH.SERVICE_MAP}/appName@TOMCAT`, false],
+      [`${APP_PATH.SERVER_MAP}/appName@TOMCAT`, false],
+      ['', false],
+    ])('Return %p → %p', (pathname, expected) => {
+      expect(hasServiceNameInPath(pathname)).toBe(expected);
+    });
+  });
+
+  describe('Test "getServiceAndApplicationTypeAndName"', () => {
+    test('Split service name, application name and service type', () => {
+      const result = getServiceAndApplicationTypeAndName('/transactionList/svc@appName@TOMCAT');
+      expect(result).toEqual({
+        serviceName: 'svc',
+        applicationName: 'appName',
+        serviceType: 'TOMCAT',
+      });
+    });
+
+    test('Return undefined service name for the legacy two part segment', () => {
+      const result = getServiceAndApplicationTypeAndName('/transactionList/appName@TOMCAT');
+      expect(result).toEqual({
+        serviceName: undefined,
+        applicationName: 'appName',
+        serviceType: 'TOMCAT',
+      });
+    });
+
+    test('Keep "@" inside the application name after the service name', () => {
+      const result = getServiceAndApplicationTypeAndName('/transactionList/svc@app@Name@TOMCAT');
+      expect(result).toEqual({
+        serviceName: 'svc',
+        applicationName: 'app@Name',
+        serviceType: 'TOMCAT',
+      });
+    });
+
+    test('Return null when the segment does not match the pattern', () => {
+      expect(getServiceAndApplicationTypeAndName('/transactionList/appName')).toBeNull();
+      expect(getServiceAndApplicationTypeAndName('')).toBeNull();
+    });
+  });
+
+  describe('Test "getApplicationTypeAndNameFromPath"', () => {
+    test('Drop the service name on a path that carries it', () => {
+      const result = getApplicationTypeAndNameFromPath('/transactionList/svc@appName@TOMCAT');
+      expect(result).toEqual({ applicationName: 'appName', serviceType: 'TOMCAT' });
+    });
+
+    test('Keep "@" in the application name on a path that carries no service name', () => {
+      const result = getApplicationTypeAndNameFromPath('/serverMap/svc@appName@TOMCAT');
+      expect(result).toEqual({ applicationName: 'svc@appName', serviceType: 'TOMCAT' });
+    });
+
+    test('Return null when the path has no application segment', () => {
+      expect(getApplicationTypeAndNameFromPath('/transactionList')).toBeNull();
+      expect(getApplicationTypeAndNameFromPath('/serverMap')).toBeNull();
+    });
+  });
+
+  describe('Test "getServiceNameFromPath"', () => {
+    test('Return the service name on a path that carries it', () => {
+      expect(getServiceNameFromPath('/transactionList/svc@appName@TOMCAT')).toBe('svc');
+    });
+
+    test('Return undefined on a legacy path without a service name', () => {
+      expect(getServiceNameFromPath('/transactionList/appName@TOMCAT')).toBeUndefined();
+    });
+
+    test('Return undefined on a path that does not carry a service name', () => {
+      expect(getServiceNameFromPath('/serverMap/svc@appName@TOMCAT')).toBeUndefined();
+      expect(getServiceNameFromPath('/serviceMap/svc@appName@TOMCAT')).toBeUndefined();
     });
   });
 

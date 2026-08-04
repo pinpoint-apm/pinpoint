@@ -11,6 +11,7 @@ import {
   SCATTER_DATA_TOTAL_KEY,
   SEARCH_PARAMETER_DATE_FORMAT,
   BASE_PATH,
+  Configuration,
 } from '@pinpoint-fe/ui/src/constants';
 import { formatInTimeZone } from 'date-fns-tz';
 import {
@@ -18,7 +19,11 @@ import {
   ScatterChartCoreProps,
   ScatterChartHandle,
 } from './core/ScatterChartCore';
-import { useServerMapSearchParameters, useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useServerMapSearchParameters,
+  useServiceNameForLink,
+  useTimezone,
+} from '@pinpoint-fe/ui/src/hooks';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
 
 export interface ScatterChartStaticProps extends Pick<
@@ -29,6 +34,8 @@ export interface ScatterChartStaticProps extends Pick<
   data?: ScatterDataType[];
   range: [number, number];
   selectedAgentId?: string;
+  /** transactionList 링크에 실을 service를 판단하는 데 쓴다(`useServiceNameForLink`). */
+  configuration?: Configuration;
 }
 
 export const ScatterChartStatic = ({
@@ -36,9 +43,11 @@ export const ScatterChartStatic = ({
   data = [],
   range,
   selectedAgentId,
+  configuration,
   ...props
 }: ScatterChartStaticProps) => {
   const { searchParameters } = useServerMapSearchParameters();
+  const serviceNameForLink = useServiceNameForLink(configuration);
   const [timezone] = useTimezone();
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const [x, setX] = React.useState<[number, number]>([range[0], range[1]]);
@@ -112,6 +121,7 @@ export const ScatterChartStatic = ({
             `${BASE_PATH}${getTransactionListPath(
               application,
               searchParameters,
+              serviceNameForLink,
             )}&${getTransactionListQueryString({
               ...data,
               checkedLegends,

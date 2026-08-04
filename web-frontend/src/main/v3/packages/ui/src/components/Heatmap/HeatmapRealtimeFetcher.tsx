@@ -29,7 +29,7 @@ function ceilTo10SecAndSubtract30(date: Date): Date {
 export type HeatmapRealtimeFetcherProps = {
   nodeData: GetServerMap.NodeData | ApplicationType;
   agentId?: string;
-} & Pick<HeatmapChartCoreProps, 'toolbarOption'>;
+} & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'configuration'>;
 
 export const HeatmapRealtimeFetcher = ({
   nodeData,

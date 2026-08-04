@@ -18,7 +18,8 @@ export interface TransactionListByTraceProps extends TransactionListTableProps {
  */
 export const TransactionListByTrace = (props: TransactionListByTraceProps) => {
   const navigate = useNavigate();
-  const { application, searchParameters, traceInfo } = useTransactionSearchParameters();
+  const { application, searchParameters, traceInfo, serviceName } =
+    useTransactionSearchParameters();
   const setCallTreeFocusId = useSetAtom(transactionInfoCallTreeFocusId);
   const { data } = useGetTransactionTraceMetadata({ traceId: traceInfo });
 
@@ -29,8 +30,10 @@ export const TransactionListByTrace = (props: TransactionListByTraceProps) => {
         setCallTreeFocusId('');
 
         const rowData = row.original;
+        // serviceName을 다시 실어야 화면 안에서 이동해도 pServiceName 헤더가 유지된다.
+        const path = getTransactionListPath(application, undefined, serviceName);
         navigate(
-          `${getTransactionListPath(application)}?${convertParamsToQueryString({
+          `${path}?${convertParamsToQueryString({
             from: searchParameters.from,
             to: searchParameters.to,
             traceInfo,

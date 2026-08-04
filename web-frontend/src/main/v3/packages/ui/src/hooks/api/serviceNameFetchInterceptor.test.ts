@@ -4,7 +4,6 @@ import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import {
   getRequestService,
   installServiceNameFetchInterceptor,
-  isServiceExcludedPath,
   resolveRequestService,
   SERVICE_NAME_HEADER,
 } from './serviceNameFetchInterceptor';
@@ -90,15 +89,40 @@ describe('serviceNameFetchInterceptor', () => {
     expect(init?.method).toBe('POST');
   });
 
-  test('does not add the header on the servermap page, even for a shared API', async () => {
+  test.each([
+    ['/serverMap/app-name@TOMCAT?from=1&to=2'],
+    ['/serverMap/realtime/app-name@TOMCAT'],
+    ['/serviceMap/app-name@TOMCAT?from=1&to=2'],
+    ['/inspector/app-name@TOMCAT'],
+    ['/config/general'],
+  ])('adds the header on every page when enableServiceMap is on: %s', async (pathname) => {
     store.set(configurationAtom, configWithServiceMap(true));
     store.set(selectedServiceAtom, 'my-service');
-    window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT?from=1&to=2');
+    window.history.replaceState({}, '', pathname);
 
     await window.fetch('/api/agents/search-application');
 
-    expect(originalFetch).toHaveBeenCalledTimes(1);
-    expect(headerOfLastCall()).toBeNull();
+    expect(headerOfLastCall()).toBe('my-service');
+  });
+
+  test('sends the service name carried by the transactionList path, not the selected one', async () => {
+    store.set(configurationAtom, configWithServiceMap(true));
+    store.set(selectedServiceAtom, 'my-service');
+    window.history.replaceState({}, '', '/transactionList/url-service@app-name@TOMCAT?from=1&to=2');
+
+    await window.fetch('/api/transactionmetadata');
+
+    expect(headerOfLastCall()).toBe('url-service');
+  });
+
+  test('falls back to the selected service on a legacy transactionList path', async () => {
+    store.set(configurationAtom, configWithServiceMap(true));
+    store.set(selectedServiceAtom, 'my-service');
+    window.history.replaceState({}, '', '/transactionList/app-name@TOMCAT?from=1&to=2');
+
+    await window.fetch('/api/transactionmetadata');
+
+    expect(headerOfLastCall()).toBe('my-service');
   });
 
   describe('resolveRequestService', () => {
@@ -108,11 +132,24 @@ describe('serviceNameFetchInterceptor', () => {
       expect(resolveRequestService('my-service')).toBe('my-service');
     });
 
-    test('resolves to the default service on the servermap page', () => {
-      // 헤더를 생략해 백엔드 기본 service로 응답받으므로, 캐시도 기본 service로 키를 잡아야 한다.
+    test('prefers the service name carried by the path', () => {
+      // 헤더와 캐시 키가 같은 값에서 파생되도록, URL에 실린 serviceName을 전역 선택값보다 앞세운다.
+      window.history.replaceState({}, '', '/transactionList/url-service@app-name@TOMCAT');
+
+      expect(resolveRequestService('my-service')).toBe('url-service');
+    });
+
+    test('ignores the leading segment on paths that do not carry a service name', () => {
+      window.history.replaceState({}, '', '/inspector/svc@app-name@TOMCAT');
+
+      expect(resolveRequestService('my-service')).toBe('my-service');
+    });
+
+    test('resolves to the selected service on the servermap page too', () => {
+      // ServerMap도 예외가 아니다. 헤더가 선택된 service로 나가므로 캐시 키도 같아야 한다.
       window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
 
-      expect(resolveRequestService('my-service')).toBe('DEFAULT');
+      expect(resolveRequestService('my-service')).toBe('my-service');
     });
 
     test('getRequestService reads the currently selected service from the store', () => {
@@ -121,19 +158,7 @@ describe('serviceNameFetchInterceptor', () => {
       expect(getRequestService()).toBe('my-service');
 
       window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
-      expect(getRequestService()).toBe('DEFAULT');
-    });
-  });
-
-  describe('isServiceExcludedPath', () => {
-    test.each([
-      ['/serverMap', true],
-      ['/serverMap/app-name@TOMCAT', true],
-      ['/serverMap/realtime/app-name@TOMCAT', true],
-      ['/serviceMap/app-name@TOMCAT', false],
-      ['/inspector', false],
-    ])('returns %p → %p', (pathname, expected) => {
-      expect(isServiceExcludedPath(pathname)).toBe(expected);
+      expect(getRequestService()).toBe('my-service');
     });
   });
 });

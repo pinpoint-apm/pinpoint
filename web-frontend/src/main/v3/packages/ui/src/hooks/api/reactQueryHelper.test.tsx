@@ -81,30 +81,27 @@ describe('serviceScopedQueryKeyHashFn', () => {
     expect(hashOfA).not.toBe(hashOfB);
   });
 
-  test('hashes the servermap(service-excluded) path as the default service', () => {
-    store.set(selectedServiceAtom, 'DEFAULT');
-    const hashOfDefaultService = serviceScopedQueryKeyHashFn(['/api/agents/search-application']);
-
+  test('hashes the servermap path the same as any other page', () => {
+    // ServerMap도 service 예외가 아니므로, 같은 service라면 페이지가 달라도 같은 캐시를 쓴다.
     store.set(selectedServiceAtom, 'service-a');
+    const hashOnServiceMap = serviceScopedQueryKeyHashFn(['/api/agents/search-application']);
+
     window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
 
-    // servermap은 헤더를 생략해 기본 service로 응답받으므로 기본 service 캐시를 써야 한다.
-    expect(serviceScopedQueryKeyHashFn(['/api/agents/search-application'])).toBe(
-      hashOfDefaultService,
-    );
+    expect(serviceScopedQueryKeyHashFn(['/api/agents/search-application'])).toBe(hashOnServiceMap);
   });
 
   test.each([END_POINTS.CONFIGURATION, END_POINTS.SERVICES, END_POINTS.SERVER_TIME])(
     'does not scope %s by service',
     (endPoint) => {
-      // configuration이 service별로 나뉘면 servermap ↔ servicemap 이동마다 다시 로딩되고,
+      // configuration이 service별로 나뉘면 service를 바꿀 때마다 다시 로딩되고,
       // 그동안 InitialFetchOutlet이 자식을 렌더하지 않아 화면이 사라진다.
       store.set(selectedServiceAtom, 'service-a');
-      const hashOnServiceMap = serviceScopedQueryKeyHashFn([endPoint]);
+      const hashOnServiceA = serviceScopedQueryKeyHashFn([endPoint]);
 
-      window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
+      store.set(selectedServiceAtom, 'service-b');
 
-      expect(serviceScopedQueryKeyHashFn([endPoint])).toBe(hashOnServiceMap);
+      expect(serviceScopedQueryKeyHashFn([endPoint])).toBe(hashOnServiceA);
     },
   );
 
@@ -117,14 +114,14 @@ describe('serviceScopedQueryKeyHashFn', () => {
     store.set(selectedServiceAtom, 'service-a');
     client.setQueryData(queryKey, 'service-a-data');
 
-    // 같은 queryKey지만 servermap으로 이동하면 기본 service 캐시를 보므로 비어 있어야 한다.
-    window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
+    // 같은 queryKey지만 다른 service에서는 캐시가 비어 있어야 한다.
+    store.set(selectedServiceAtom, 'service-b');
     expect(client.getQueryData(queryKey)).toBeUndefined();
 
-    client.setQueryData(queryKey, 'default-service-data');
-    expect(client.getQueryData(queryKey)).toBe('default-service-data');
+    client.setQueryData(queryKey, 'service-b-data');
+    expect(client.getQueryData(queryKey)).toBe('service-b-data');
 
-    window.history.replaceState({}, '', '/serviceMap/app-name@TOMCAT');
+    store.set(selectedServiceAtom, 'service-a');
     expect(client.getQueryData(queryKey)).toBe('service-a-data');
   });
 });

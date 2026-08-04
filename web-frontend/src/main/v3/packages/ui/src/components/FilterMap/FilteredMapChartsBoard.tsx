@@ -35,7 +35,7 @@ import {
   getTransactionListPath,
   getTransactionListQueryString,
 } from '@pinpoint-fe/ui/src/utils';
-import { useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useFilteredMapParameters, useServiceNameForLink } from '@pinpoint-fe/ui/src/hooks';
 import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
 import { MdArrowForwardIos, MdArrowBackIosNew } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
@@ -64,6 +64,7 @@ export const FilteredMapChartsBoard = ({
 }: FilteredMapChartsBoardProps) => {
   const { t } = useTranslation();
   const { dateRange, application, searchParameters } = useFilteredMapParameters();
+  const serviceNameForLink = useServiceNameForLink(configuration);
 
   const [openServerView, setOpenServerView] = React.useState(false);
 
@@ -205,6 +206,7 @@ export const FilteredMapChartsBoard = ({
                         }
                         range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                         selectedAgentId={SCATTER_DATA_TOTAL_KEY}
+                        configuration={configuration}
                         onDragEnd={(data, checkedLables) => {
                           if (checkedLables.length) {
                             window.__pp_scatter_data__ =
@@ -215,6 +217,7 @@ export const FilteredMapChartsBoard = ({
                               `${BASE_PATH}${getTransactionListPath(
                                 serverMapCurrentTarget,
                                 searchParameters,
+                                serviceNameForLink,
                               )}&${getTransactionListQueryString({
                                 ...data,
                                 checkedLegends: checkedLables,
@@ -294,6 +297,7 @@ export const FilteredMapChartsBoard = ({
                     }
                     range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                     selectedAgentId={currentServer?.agentId}
+                    configuration={configuration}
                     onDragEnd={(data, checkedLables) => {
                       if (checkedLables.length) {
                         window.__pp_scatter_data__ =
@@ -304,6 +308,7 @@ export const FilteredMapChartsBoard = ({
                           `${BASE_PATH}${getTransactionListPath(
                             application,
                             searchParameters,
+                            serviceNameForLink,
                           )}&${getTransactionListQueryString({
                             ...data,
                             checkedLegends: checkedLables,

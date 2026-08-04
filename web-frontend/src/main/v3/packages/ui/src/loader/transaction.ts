@@ -5,7 +5,7 @@ import {
 } from '@pinpoint-fe/ui/src/constants';
 import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import {
-  getApplicationTypeAndName,
+  getServiceAndApplicationTypeAndName,
   getParsedDateRange,
   isValidDateRange,
   getTimezone,
@@ -15,7 +15,9 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const transactionRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
-  const application = getApplicationTypeAndName(params.application!);
+  // 세그먼트가 `{serviceName}@{applicationName}@{serviceType}`일 수 있으므로 serviceName을 분리한다.
+  // 리다이렉트 경로는 원본 세그먼트(params.application)를 그대로 쓰므로 serviceName이 유지된다.
+  const application = getServiceAndApplicationTypeAndName(params.application!);
 
   let configuration: Configuration | undefined;
   try {

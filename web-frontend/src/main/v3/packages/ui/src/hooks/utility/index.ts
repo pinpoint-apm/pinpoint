@@ -7,6 +7,7 @@ export * from './useHeightToBottom';
 export * from './useLanguage';
 export * from './useLocalStorage';
 export * from './useServerMapLinkedData';
+export * from './useServiceNameForLink';
 export * from './useServicesFetch';
 export * from './useStoragedSetting';
 export * from './useTabFocus';

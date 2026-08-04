@@ -18,7 +18,7 @@ export interface TransactionListTableProps
 
 export const TransactionListTable = ({ data, ...props }: TransactionListTableProps) => {
   const navigate = useNavigate();
-  const { transactionInfo, searchParameters, application, withFilter } =
+  const { transactionInfo, searchParameters, application, withFilter, serviceName } =
     useTransactionSearchParameters();
   const [timezone] = useTimezone();
   const setCallTreeFocusId = useSetAtom(transactionInfoCallTreeFocusId);
@@ -53,8 +53,10 @@ export const TransactionListTable = ({ data, ...props }: TransactionListTablePro
         setCallTreeFocusId('');
 
         const rowData = row.original;
+        // serviceName을 다시 실어야 화면 안에서 이동해도 pServiceName 헤더가 유지된다.
+        const path = getTransactionListPath(application, undefined, serviceName);
         navigate(
-          `${getTransactionListPath(application)}?${convertParamsToQueryString({
+          `${path}?${convertParamsToQueryString({
             from: searchParameters.from,
             to: searchParameters.to,
             dragInfo: searchParameters.dragInfo,

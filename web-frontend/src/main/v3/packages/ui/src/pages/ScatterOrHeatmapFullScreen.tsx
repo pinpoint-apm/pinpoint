@@ -117,6 +117,7 @@ export const ScatterOrHeatmapFullScreenPage = ({
                 node={application}
                 realtime={isRealtime}
                 toolbarOption={{ expand: { hide: true } }}
+                configuration={configuration}
               />
             ) : (
               <Heatmap
@@ -124,6 +125,7 @@ export const ScatterOrHeatmapFullScreenPage = ({
                 agentId={agentId}
                 nodeData={application}
                 toolbarOption={{ expand: { hide: true } }}
+                configuration={configuration}
               />
             ))}
         </div>

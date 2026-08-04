@@ -101,6 +101,32 @@ export const getUrlStatPath = getApplicationPath(APP_PATH.URL_STATISTIC);
 export const getInspectorPath = getApplicationPath(APP_PATH.INSPECTOR);
 export const getOpenTelemetryPath = getApplicationPath(APP_PATH.OPEN_TELEMETRY_METRIC);
 export const getSystemMetricPath = getHostGroupPath(APP_PATH.SYSTEM_METRIC);
-export const getTransactionListPath = getApplicationPath(APP_PATH.TRANSACTION_LIST);
+/**
+ * /transactionList
+ *
+ * serviceName이 주어지면 application 세그먼트를 `{serviceName}@{applicationName}@{serviceType}`로
+ * 만든다. transactionList는 scatter/heatmap의 drag&drop으로 새 탭에서 열리므로, 어떤 service를
+ * 보던 중이었는지 URL에 남겨야 그 화면의 모든 API에 pServiceName 헤더를 실을 수 있다.
+ * 파싱은 `getServiceAndApplicationTypeAndName`이 담당한다.
+ */
+export const getTransactionListPath = (
+  application?: ApplicationType | null,
+  queryParams?: {
+    [k: string]: string;
+  },
+  serviceName?: string,
+) => {
+  if (!application?.applicationName || !application?.serviceType) {
+    return APP_PATH.TRANSACTION_LIST;
+  }
+
+  const servicePrefix = serviceName ? `${serviceName}@` : '';
+  const queryString =
+    queryParams?.from && queryParams?.to
+      ? `?${convertParamsToQueryString({ from: queryParams.from, to: queryParams.to })}`
+      : '';
+
+  return `${APP_PATH.TRANSACTION_LIST}/${servicePrefix}${application.applicationName}@${application.serviceType}${queryString}`;
+};
 export const getTransactionDetailPath = getApplicationPath(APP_PATH.TRANSACTION_DETAIL);
 export const getThreadDumpPath = getApplicationPath(APP_PATH.THREAD_DUMP);

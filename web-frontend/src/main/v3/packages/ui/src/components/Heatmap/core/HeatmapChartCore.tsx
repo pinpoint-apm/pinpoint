@@ -6,6 +6,7 @@ import {
   GetHeatmapAppData,
   GetServerMap,
   ApplicationType,
+  Configuration,
 } from '@pinpoint-fe/ui/src/constants';
 import HeatmapChart from './HeatmapChart';
 import {
@@ -17,6 +18,7 @@ import {
   getTransactionListPath,
   getTransactionListQueryString,
   useServerMapSearchParameters,
+  useServiceNameForLink,
   useStoragedSetting,
 } from '@pinpoint-fe/ui';
 import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
@@ -36,6 +38,8 @@ export type HeatmapChartCoreProps = {
       hide?: boolean;
     };
   };
+  /** transactionList 링크에 실을 service를 판단하는 데 쓴다(`useServiceNameForLink`). */
+  configuration?: Configuration;
 };
 
 const HeatmapChartCore = ({
@@ -45,10 +49,12 @@ const HeatmapChartCore = ({
   data,
   agentId,
   toolbarOption,
+  configuration,
 }: HeatmapChartCoreProps) => {
   const chartContainerRef = React.useRef<HTMLDivElement>(null);
 
   const { dateRange, searchParameters } = useServerMapSearchParameters();
+  const serviceNameForLink = useServiceNameForLink(configuration);
   const [showSetting, setShowSetting] = React.useState(false);
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
 
@@ -109,6 +115,7 @@ const HeatmapChartCore = ({
       `${BASE_PATH}${getTransactionListPath(
         nodeData,
         isRealtime ? getFormattedDateRange(dateRange) : searchParameters,
+        serviceNameForLink,
       )}&${getTransactionListQueryString({
         ...data,
         checkedLegends,

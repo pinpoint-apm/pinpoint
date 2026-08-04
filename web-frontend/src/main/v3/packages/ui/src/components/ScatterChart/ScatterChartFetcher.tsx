@@ -1,5 +1,10 @@
 import React from 'react';
-import { SCATTER_DATA_TOTAL_KEY, BASE_PATH, ApplicationType } from '@pinpoint-fe/ui/src/constants';
+import {
+  SCATTER_DATA_TOTAL_KEY,
+  BASE_PATH,
+  ApplicationType,
+  Configuration,
+} from '@pinpoint-fe/ui/src/constants';
 import { CurrentTarget } from '@pinpoint-fe/ui/src/atoms';
 import {
   convertParamsToQueryString,
@@ -7,7 +12,11 @@ import {
   getTransactionListPath,
   getTransactionListQueryString,
 } from '@pinpoint-fe/ui/src/utils';
-import { useGetScatterData, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useGetScatterData,
+  useServerMapSearchParameters,
+  useServiceNameForLink,
+} from '@pinpoint-fe/ui/src/hooks';
 import { scatterDataAtom } from '@pinpoint-fe/ui/src/atoms';
 import { useAtom } from 'jotai';
 import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './core';
@@ -17,15 +26,19 @@ export interface ScatterChartFetcherProps {
   node: CurrentTarget;
   agentId?: string;
   toolbarOption?: ScatterChartCoreProps['toolbarOption'];
+  /** transactionList 링크에 실을 service를 판단하는 데 쓴다(`useServiceNameForLink`). */
+  configuration?: Configuration;
 }
 
 export const ScatterChartFetcher = ({
   node,
   agentId = SCATTER_DATA_TOTAL_KEY,
   toolbarOption,
+  configuration,
 }: ScatterChartFetcherProps) => {
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const { dateRange, searchParameters } = useServerMapSearchParameters();
+  const serviceNameForLink = useServiceNameForLink(configuration);
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
   const currentNode = `${node.applicationName}^${node.serviceType}`;
@@ -101,6 +114,7 @@ export const ScatterChartFetcher = ({
           `${BASE_PATH}${getTransactionListPath(
             node,
             searchParameters,
+            serviceNameForLink,
           )}&${getTransactionListQueryString({
             ...data,
             checkedLegends,

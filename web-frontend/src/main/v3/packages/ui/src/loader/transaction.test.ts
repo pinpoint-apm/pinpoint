@@ -37,6 +37,29 @@ describe('transactionRouteLoader', () => {
     expect(result).toEqual({ applicationName: 'TestApp', serviceType: 'SPRING_BOOT' });
   });
 
+  test('splits the service name off a serviceName@applicationName@serviceType segment', async () => {
+    const application = `svc@${APP}`;
+    const result = await transactionRouteLoader(
+      makeArgs(`http://localhost${APP_PATH.TRANSACTION_LIST}/${application}?${VALID}`, {
+        application,
+      }),
+    );
+    expect(result).toEqual({
+      serviceName: 'svc',
+      applicationName: 'TestApp',
+      serviceType: 'SPRING_BOOT',
+    });
+  });
+
+  test('keeps the service name in the redirect target', async () => {
+    const application = `svc@${APP}`;
+    const result = (await transactionRouteLoader(
+      makeArgs(`http://localhost${APP_PATH.TRANSACTION_LIST}/${application}`, { application }),
+    )) as unknown as { __isRedirect: boolean; url: string };
+    expect(result.__isRedirect).toBe(true);
+    expect(result.url).toContain(`${APP_PATH.TRANSACTION_LIST}/svc@${APP}`);
+  });
+
   test('redirects to the base path with default dates when no query params exist', async () => {
     const result = (await transactionRouteLoader(
       makeArgs(`http://localhost${BASE}`, { application: APP }),
