@@ -27,6 +27,8 @@ import java.util.Objects;
  */
 public class ThrottledLogger {
 
+    public static final Duration DEFAULT_INTERVAL = Duration.ofSeconds(3);
+
     private final Logger logger;
     private final LogThrottle throttle;
 
@@ -40,6 +42,13 @@ public class ThrottledLogger {
     public static ThrottledLogger getLogger(Logger logger, long ratio) {
         Objects.requireNonNull(logger, "logger");
         return new ThrottledLogger(logger, new CountLogThrottle(ratio));
+    }
+
+    /**
+     * Logs at most once per {@link #DEFAULT_INTERVAL}; suppressed calls are still counted.
+     */
+    public static ThrottledLogger getIntervalLogger(Logger logger) {
+        return getIntervalLogger(logger, DEFAULT_INTERVAL);
     }
 
     /**

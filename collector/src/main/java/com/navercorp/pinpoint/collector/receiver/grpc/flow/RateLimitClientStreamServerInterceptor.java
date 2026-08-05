@@ -53,7 +53,7 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
         this.bandwidth = Objects.requireNonNull(bandwidth, "bandwidth");
         this.bucketBuilder = Bucket.builder().addLimit(bandwidth);
 
-        this.bandwidthLogger = ThrottledLogger.getLogger(logger, throttledLoggerRatio);
+        this.bandwidthLogger = ThrottledLogger.getIntervalLogger(logger);
     }
 
     @Override

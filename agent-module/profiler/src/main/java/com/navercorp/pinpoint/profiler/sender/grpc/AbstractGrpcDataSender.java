@@ -55,7 +55,7 @@ public abstract class AbstractGrpcDataSender<T> implements DataSender<T> {
     public AbstractGrpcDataSender(String host, int port,
                                   MessageConverter<T, GeneratedMessageV3> messageConverter,
                                   ChannelFactory channelFactory) {
-        this.tLogger = ThrottledLogger.getLogger(logger, 100);
+        this.tLogger = ThrottledLogger.getIntervalLogger(logger);
 
         this.channelFactory = Objects.requireNonNull(channelFactory, "channelFactory");
 

@@ -52,7 +52,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     private static final String MERGE_AGENT = "_";
     private static final String MERGE_QUEUE = "_";
 
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(logger, 10000);
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(logger);
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
