@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeast;
@@ -76,8 +77,8 @@ class CachingServiceModelResolverTest {
 
         Mockito.when(serviceRegistryService.getService(unRegisteredServiceName)).thenReturn(null);
 
-        assertThat(resolver.getService(unRegisteredServiceName)).isEqualTo(Service.DEFAULT);
-        assertThat(resolver.getService(unRegisteredServiceName)).isEqualTo(Service.DEFAULT);
+        assertThatThrownBy(() -> resolver.getService(unRegisteredServiceName)).isInstanceOf(ServiceNotFoundException.class);
+        assertThatThrownBy(() -> resolver.getService(unRegisteredServiceName)).isInstanceOf(ServiceNotFoundException.class);
 
         Mockito.verify(serviceRegistryService, times(1)).getService(unRegisteredServiceName);
     }
@@ -93,10 +94,10 @@ class CachingServiceModelResolverTest {
 
         assertThat(resolver.getService(serviceName)).isEqualTo(new Service(serviceName, 100004));
         assertThat(resolver.getService(serviceName)).isEqualTo(new Service(serviceName, 100004));
-        assertThat(resolver.getService(unRegisteredServiceName)).isEqualTo(Service.DEFAULT);
+        assertThatThrownBy(() -> resolver.getService(unRegisteredServiceName)).isInstanceOf(ServiceNotFoundException.class);
 
         await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
-            assertThat(resolver.getService(unRegisteredServiceName)).isEqualTo(Service.DEFAULT);
+            assertThatThrownBy(() -> resolver.getService(unRegisteredServiceName)).isInstanceOf(ServiceNotFoundException.class);
             Mockito.verify(serviceRegistryService, atLeast(2)).getService(unRegisteredServiceName);
         });
 

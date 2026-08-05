@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.problem;
 
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.navercorp.pinpoint.web.service.ServiceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
@@ -111,6 +112,23 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
 
         problemDetail.setTitle("Forbidden");
+        addProperties(problemDetail, request);
+
+        return ResponseEntity
+                .status(status)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ServiceNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleServiceNotFoundException(
+            ServiceNotFoundException ex,
+            WebRequest request
+    ) {
+        logger.debug("handleServiceNotFoundException: {}", ex.getMessage());
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+        problemDetail.setTitle(status.getReasonPhrase());
+
         addProperties(problemDetail, request);
 
         return ResponseEntity

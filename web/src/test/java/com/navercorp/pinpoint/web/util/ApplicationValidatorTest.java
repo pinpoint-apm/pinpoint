@@ -65,4 +65,16 @@ class ApplicationValidatorTest {
                 () -> validator.newApplication(appName, -1, null));
 
     }
+
+    @Test
+    void newApplication_null_appName() {
+
+        ServiceTypeRegistryService registry = mock(ServiceTypeRegistryService.class);
+        ApplicationValidator validator = new ApplicationValidator(registry);
+
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> validator.newApplication(null, -1, "TOMCAT"));
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> validator.newApplication("", -1, "TOMCAT"));
+    }
 }

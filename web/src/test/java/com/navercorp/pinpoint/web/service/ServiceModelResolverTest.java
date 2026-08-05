@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 
 class ServiceModelResolverTest {
@@ -37,13 +38,25 @@ class ServiceModelResolverTest {
     }
 
     @Test
-    void missingServiceReturnsDefault() {
+    void missingServiceThrows() {
         String unRegisteredServiceName = "unRegisteredServiceName";
         ServiceModelResolver resolver = new ServiceModelResolver(serviceRegistryService);
 
         Mockito.when(serviceRegistryService.getService(unRegisteredServiceName)).thenReturn(null);
 
-        assertThat(resolver.getService(unRegisteredServiceName)).isEqualTo(Service.DEFAULT);
+        assertThatThrownBy(() -> resolver.getService(unRegisteredServiceName))
+                .isInstanceOf(ServiceNotFoundException.class)
+                .hasMessageContaining(unRegisteredServiceName);
+    }
+
+    @Test
+    void missingServiceUidReturnsDefault() {
+        int unRegisteredServiceUid = 999999;
+        ServiceModelResolver resolver = new ServiceModelResolver(serviceRegistryService);
+
+        Mockito.when(serviceRegistryService.getService(unRegisteredServiceUid)).thenReturn(null);
+
+        assertThat(resolver.getService(unRegisteredServiceUid)).isEqualTo(Service.DEFAULT);
     }
 
     private ServiceEntity serviceEntity(int uid, String name) {

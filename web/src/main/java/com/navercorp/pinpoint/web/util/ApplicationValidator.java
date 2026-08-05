@@ -71,8 +71,8 @@ public class ApplicationValidator {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceTypeCode or serviceTypeName");
     }
 
-    private void validateName(String applicationName) {
-        if (!IdValidateUtils.validateId(applicationName, MAX_LENGTH)) {
+    public void validateName(String applicationName) {
+        if (!StringUtils.hasLength(applicationName) || !IdValidateUtils.validateId(applicationName, MAX_LENGTH)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName " + applicationName);
         }
     }
