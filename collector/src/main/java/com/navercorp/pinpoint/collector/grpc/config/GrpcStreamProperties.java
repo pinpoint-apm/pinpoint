@@ -17,29 +17,33 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 
-import jakarta.validation.constraints.PositiveOrZero;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import org.springframework.boot.convert.DurationUnit;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 public class GrpcStreamProperties {
 
-    @PositiveOrZero
-    private long throttledLoggerRatio = 1;
+    @DurationUnit(ChronoUnit.MILLIS)
+    private Duration throttledLoggerInterval = ThrottledLogger.DEFAULT_INTERVAL;
 
     public GrpcStreamProperties() {
     }
 
 
-    public long getThrottledLoggerRatio() {
-        return throttledLoggerRatio;
+    public Duration getThrottledLoggerInterval() {
+        return throttledLoggerInterval;
     }
 
-    public void setThrottledLoggerRatio(long throttledLoggerRatio) {
-        this.throttledLoggerRatio = throttledLoggerRatio;
+    public void setThrottledLoggerInterval(Duration throttledLoggerInterval) {
+        this.throttledLoggerInterval = throttledLoggerInterval;
     }
 
     @Override
     public String toString() {
         return "GrpcStreamProperties{" +
-                ", throttledLoggerRatio=" + throttledLoggerRatio +
+                "throttledLoggerInterval=" + throttledLoggerInterval +
                 '}';
     }
 }

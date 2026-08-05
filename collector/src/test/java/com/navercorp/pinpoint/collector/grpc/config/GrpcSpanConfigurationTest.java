@@ -34,6 +34,8 @@ import org.springframework.util.unit.DataSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.time.Duration;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -51,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
         "collector.receiver.grpc.span.worker.executor.monitor-enable=false",
 
         // # Stream scheduler for rejected execution
-        "collector.receiver.grpc.span.stream.throttled_logger_ratio=5",
+        "collector.receiver.grpc.span.stream.throttled_logger_interval=5s",
 
         // # Server Option
         "collector.receiver.grpc.span.keepalive_time_millis=2",
@@ -96,7 +98,7 @@ public class GrpcSpanConfigurationTest {
         assertEquals(4, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
 
-        assertEquals(5, streamProperties.getThrottledLoggerRatio());
+        assertEquals(Duration.ofSeconds(5), streamProperties.getThrottledLoggerInterval());
     }
 
     @Test

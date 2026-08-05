@@ -29,7 +29,7 @@ class StreamRateLimitServerInterceptorTest {
     void interceptCall() {
         Bandwidth bandwidth = bandwidth();
 
-        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", bandwidth, 1);
+        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", bandwidth, Duration.ofSeconds(1));
 
         ServiceDescriptor desc = SpanGrpc.getServiceDescriptor();
         MethodDescriptor<PSpanMessage, Empty> methodDescriptor = (MethodDescriptor<PSpanMessage, Empty>) desc.getMethods().iterator().next();
@@ -84,7 +84,7 @@ class StreamRateLimitServerInterceptorTest {
                 .capacity(1)
                 .refillGreedy(1, Duration.ofMinutes(1))
                 .build();
-        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", bandwidth, 1);
+        RateLimitClientStreamServerInterceptor interceptor = new RateLimitClientStreamServerInterceptor("span-service", bandwidth, Duration.ofSeconds(1));
 
         ServiceDescriptor desc = SpanGrpc.getServiceDescriptor();
         MethodDescriptor<PSpanMessage, Empty> methodDescriptor = (MethodDescriptor<PSpanMessage, Empty>) desc.getMethods().iterator().next();

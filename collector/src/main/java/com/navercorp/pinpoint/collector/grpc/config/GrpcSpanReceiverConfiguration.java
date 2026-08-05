@@ -75,7 +75,7 @@ public class GrpcSpanReceiverConfiguration {
                                                                Bandwidth bandwidth,
                                                                @Qualifier("grpcSpanStreamProperties")
                                                                GrpcStreamProperties properties) {
-            return new RateLimitClientStreamServerInterceptor("SpanStream", bandwidth, properties.getThrottledLoggerRatio());
+            return new RateLimitClientStreamServerInterceptor("SpanStream", bandwidth, properties.getThrottledLoggerInterval());
         }
     }
 

@@ -105,7 +105,7 @@ public class SpanServerTestMain {
     private ServerServiceDefinition newSpanBindableService(Executor executor) {
 
         Bandwidth bandwidth = Bandwidth.builder().capacity(1000).refillGreedy(200, Duration.ofSeconds(1)).build();
-        RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-span", bandwidth, 1);
+        RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-span", bandwidth, Duration.ofSeconds(1));
 
         SimpleHandler<PSpan> handler1 = new MockSimpleHandler<>();
         SimpleHandler<PSpanChunk> handler2 = new MockSimpleHandler<>();
