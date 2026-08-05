@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -34,21 +33,15 @@ public class HbaseOtlpApplicationIndexV2Service {
 
     private final ApplicationDao applicationDao;
     private final AgentIdDao agentIdDao;
-    private final boolean v2enabled;
 
     public HbaseOtlpApplicationIndexV2Service(ApplicationDao applicationDao,
-                                              AgentIdDao agentIdDao,
-                                              @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
+                                              AgentIdDao agentIdDao) {
         this.applicationDao = Objects.requireNonNull(applicationDao, "ApplicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
-        this.v2enabled = v2enabled;
     }
 
     // TODO get serviceUid from agentInfoBo
     public void insert(ServiceUidSupplier serviceUidSupplier, AgentInfoBo agentInfoBo) {
-        if (!v2enabled) {
-            return;
-        }
         try {
             ServiceUid serviceUid = serviceUidSupplier.get();
             applicationDao.insert(serviceUid.getUid(), agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
