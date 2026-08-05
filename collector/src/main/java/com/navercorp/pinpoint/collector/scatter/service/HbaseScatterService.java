@@ -31,7 +31,7 @@ import java.util.Objects;
 @Service
 public class HbaseScatterService implements ScatterService {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getLogger(logger, 1000);
+    private final ThrottledLogger tLogger = ThrottledLogger.getIntervalLogger(logger);
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
     private final TraceIndexDao traceIndexDao;

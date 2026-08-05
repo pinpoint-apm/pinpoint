@@ -18,7 +18,7 @@ import java.util.Set;
 @Service
 public class ApplicationIndexV2Service {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getLogger(logger, 100);
+    private final ThrottledLogger tLogger = ThrottledLogger.getIntervalLogger(logger);
 
     private final ApplicationDao applicationDao;
     private final AgentIdDao agentIdDao;

@@ -32,7 +32,7 @@ public class LoggingDiscardEventListener<ReqT> implements DiscardEventListener<R
     public LoggingDiscardEventListener(String loggerName, long rateLimitCount) {
         Objects.requireNonNull(loggerName, "loggerName");
         Logger log = LogManager.getLogger(loggerName);
-        this.logger = ThrottledLogger.getLogger(log, rateLimitCount);
+        this.logger = ThrottledLogger.getIntervalLogger(log);
     }
 
     @Override

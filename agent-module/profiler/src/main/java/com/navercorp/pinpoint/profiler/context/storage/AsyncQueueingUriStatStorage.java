@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatInfo> implements UriStatStorage {
 
     private static final Logger LOGGER = LogManager.getLogger(AsyncQueueingUriStatStorage.class);
-    private static final ThrottledLogger TLogger = ThrottledLogger.getLogger(LOGGER, 100);
+    private static final ThrottledLogger TLogger = ThrottledLogger.getIntervalLogger(LOGGER);
     private final UriStatConsumer consumer;
 
     private final UriTransformer uriTransformer;

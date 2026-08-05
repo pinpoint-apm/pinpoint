@@ -40,7 +40,7 @@ import java.util.Objects;
 public class GrpcSpanMessageConverter implements MessageConverter<SpanType, GeneratedMessageV3> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(this.logger, 100);
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(this.logger);
 
     private final String agentId;
     private final short applicationServiceType;
