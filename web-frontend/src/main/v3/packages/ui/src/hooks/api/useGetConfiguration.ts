@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { queryClient } from './reactQueryHelper';
+import { queryClient, queryFn } from './reactQueryHelper';
 
 /**
  * configuration은 웹이 뜬 뒤 바뀌지 않는 서버 설정이므로 캐시 엔트리를 하나만 두고 공유한다.
@@ -8,21 +8,10 @@ import { queryClient } from './reactQueryHelper';
  */
 const CONFIGURATION_QUERY_KEY = [END_POINTS.CONFIGURATION];
 
-const fetchConfiguration = async <T>(): Promise<T> => {
-  const response = await fetch(`${END_POINTS.CONFIGURATION}`);
-
-  if (!response?.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData?.message);
-  }
-
-  return await response.json();
-};
-
 export const useGetConfiguration = <T>() => {
   const { data, error, isLoading, refetch } = useQuery<T>({
     queryKey: CONFIGURATION_QUERY_KEY,
-    queryFn: fetchConfiguration,
+    queryFn: queryFn(END_POINTS.CONFIGURATION),
     // 한 번 받은 값을 계속 쓴다. 페이지를 옮기며 이 훅이 remount 되어도 재요청하지 않는다.
     // (실패한 쿼리는 data가 없으므로 다음 mount에서 정상적으로 다시 시도된다.)
     staleTime: Infinity,
@@ -49,8 +38,12 @@ export const useGetConfiguration = <T>() => {
 export const getConfiguration = <T>(): Promise<T> =>
   queryClient.ensureQueryData<T>({
     queryKey: CONFIGURATION_QUERY_KEY,
-    queryFn: fetchConfiguration,
+    queryFn: queryFn(END_POINTS.CONFIGURATION),
+    // 로더가 먼저 캐시를 만드는 경로에서도 gcTime을 함께 지정해야 한다. 로더만 이 값을 읽는
+    // 구간(훅이 마운트되기 전, 또는 훅 없이 로더만 도는 경로)에는 관찰자가 없어서, 기본
+    // gcTime(5분)이면 캐시가 수거되고 다음 페이지 진입에서 다시 요청이 나간다.
     staleTime: Infinity,
+    gcTime: Infinity,
     retry: false,
     meta: { ignoreGlobalError: true },
   });
