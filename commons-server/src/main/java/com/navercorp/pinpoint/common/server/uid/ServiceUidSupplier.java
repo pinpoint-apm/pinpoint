@@ -30,4 +30,7 @@ public interface ServiceUidSupplier extends Supplier<ServiceUid> {
      * Shared constant for the DEFAULT serviceUid.
      */
     ServiceUidSupplier DEFAULT = new FixedServiceUid(ServiceUid.DEFAULT);
+
+    @Override
+    ServiceUid get();
 }
