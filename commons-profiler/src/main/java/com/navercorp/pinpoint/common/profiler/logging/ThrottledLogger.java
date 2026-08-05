@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.profiler.logging;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
@@ -43,179 +44,144 @@ public class ThrottledLogger {
     }
 
     private boolean checkLogCounter() {
-        if (UPDATER.getAndIncrement(this) % ratio == 0) {
-            return true;
-        }
-        return false;
+        return UPDATER.getAndIncrement(this) % ratio == 0;
     }
 
     public long getCounter() {
         return UPDATER.get(this);
     }
 
+    // level -------------
+
+    private boolean isEnabled(Level level) {
+        return logger.isEnabled(level);
+    }
+
+    private void log(Level level, String msg) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!checkLogCounter()) {
+            return;
+        }
+        logger.log(level, msg);
+    }
+
+    private void log(Level level, String msg, Object arg) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!checkLogCounter()) {
+            return;
+        }
+        logger.log(level, msg, arg);
+    }
+
+    private void log(Level level, String msg, Object arg1, Object arg2) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!checkLogCounter()) {
+            return;
+        }
+        logger.log(level, msg, arg1, arg2);
+    }
+
+    private void log(Level level, String msg, Throwable t) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!checkLogCounter()) {
+            return;
+        }
+        logger.log(level, msg, t);
+    }
+
+    private void log(Level level, String msg, Object... args) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!checkLogCounter()) {
+            return;
+        }
+        logger.log(level, msg, args);
+    }
+
+    // info -------------
+
     public boolean isInfoEnabled() {
-        return logger.isInfoEnabled();
+        return isEnabled(Level.INFO);
     }
 
     public void info(String msg) {
-        if (!logger.isInfoEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.info(msg);
+        log(Level.INFO, msg);
     }
 
     public void info(String msg, Object arg) {
-        if (!logger.isInfoEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.info(msg, arg);
+        log(Level.INFO, msg, arg);
     }
 
     public void info(String msg, Object arg1, Object arg2) {
-        if (!logger.isInfoEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.info(msg, arg1, arg2);
+        log(Level.INFO, msg, arg1, arg2);
     }
 
     public void info(String msg, Throwable t) {
-        if (!logger.isInfoEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.info(msg, t);
+        log(Level.INFO, msg, t);
     }
 
     public void info(String msg, Object... args) {
-        if (!logger.isInfoEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.info(msg, args);
+        log(Level.INFO, msg, args);
     }
 
     // debug -------------
 
     public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
+        return isEnabled(Level.DEBUG);
     }
 
     public void debug(String msg) {
-        if (!logger.isDebugEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.debug(msg);
+        log(Level.DEBUG, msg);
     }
 
     public void debug(String msg, Object arg) {
-        if (!logger.isDebugEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.debug(msg, arg);
+        log(Level.DEBUG, msg, arg);
     }
 
     public void debug(String msg, Object arg1, Object arg2) {
-        if (!logger.isDebugEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.debug(msg, arg1, arg2);
+        log(Level.DEBUG, msg, arg1, arg2);
     }
 
     public void debug(String msg, Throwable t) {
-        if (!logger.isDebugEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.debug(msg, t);
+        log(Level.DEBUG, msg, t);
     }
 
     public void debug(String msg, Object... args) {
-        if (!logger.isDebugEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.debug(msg, args);
+        log(Level.DEBUG, msg, args);
     }
 
     // warn -------------
 
     public boolean isWarnEnabled() {
-        return logger.isWarnEnabled();
+        return isEnabled(Level.WARN);
     }
 
     public void warn(String msg) {
-        if (!logger.isWarnEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.warn(msg);
+        log(Level.WARN, msg);
     }
 
     public void warn(String msg, Object arg) {
-        if (!logger.isWarnEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.warn(msg, arg);
+        log(Level.WARN, msg, arg);
     }
 
     public void warn(String msg, Object arg1, Object arg2) {
-        if (!logger.isWarnEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.warn(msg, arg1, arg2);
+        log(Level.WARN, msg, arg1, arg2);
     }
 
     public void warn(String msg, Throwable t) {
-        if (!logger.isWarnEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.warn(msg, t);
+        log(Level.WARN, msg, t);
     }
 
     public void warn(String msg, Object... args) {
-        if (!logger.isWarnEnabled()) {
-            return;
-        }
-        if (!checkLogCounter()) {
-            return;
-        }
-        logger.warn(msg, args);
+        log(Level.WARN, msg, args);
     }
 }
