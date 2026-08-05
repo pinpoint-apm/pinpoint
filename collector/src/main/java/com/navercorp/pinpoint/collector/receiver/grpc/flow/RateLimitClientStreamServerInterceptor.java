@@ -32,6 +32,7 @@ import io.grpc.ServerInterceptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -47,13 +48,13 @@ public class RateLimitClientStreamServerInterceptor implements ServerInterceptor
     private final LocalBucketBuilder bucketBuilder;
 
 
-    public RateLimitClientStreamServerInterceptor(String name, Bandwidth bandwidth, final long throttledLoggerRatio) {
+    public RateLimitClientStreamServerInterceptor(String name, Bandwidth bandwidth, final Duration throttledLoggerInterval) {
         this.name = Objects.requireNonNull(name, "name");
 
         this.bandwidth = Objects.requireNonNull(bandwidth, "bandwidth");
         this.bucketBuilder = Bucket.builder().addLimit(bandwidth);
 
-        this.bandwidthLogger = ThrottledLogger.getIntervalLogger(logger);
+        this.bandwidthLogger = ThrottledLogger.getIntervalLogger(logger, throttledLoggerInterval);
     }
 
     @Override

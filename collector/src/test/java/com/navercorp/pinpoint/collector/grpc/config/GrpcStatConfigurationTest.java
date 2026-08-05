@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
         "collector.receiver.grpc.stat.worker.executor.monitor-enable=false",
 
         // # Stream scheduler for rejected execution
-        "collector.receiver.grpc.stat.stream.throttled_logger_ratio=2",
+        "collector.receiver.grpc.stat.stream.throttled_logger_interval=2s",
 
         // # Server Option
         "collector.receiver.grpc.stat.keepalive_time_millis=2",
@@ -94,7 +94,7 @@ public class GrpcStatConfigurationTest {
         assertEquals(2, workerExecutor.getQueueCapacity());
         assertFalse(workerExecutor.isMonitorEnable());
 
-        assertEquals(2, streamProperties.getThrottledLoggerRatio());
+        assertEquals(Duration.ofSeconds(2), streamProperties.getThrottledLoggerInterval());
 
     }
 

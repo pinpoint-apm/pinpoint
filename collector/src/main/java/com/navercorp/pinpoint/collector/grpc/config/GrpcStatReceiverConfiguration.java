@@ -69,8 +69,9 @@ public class GrpcStatReceiverConfiguration {
         }
 
         @Bean
-        public ServerInterceptor statStreamExecutorInterceptor(@Qualifier("statBandwidth") Bandwidth bandwidth, @Qualifier("grpcStatStreamProperties") GrpcStreamProperties properties) {
-            return new RateLimitClientStreamServerInterceptor("StatStream", bandwidth, properties.getThrottledLoggerRatio());
+        public ServerInterceptor statStreamExecutorInterceptor(@Qualifier("statBandwidth") Bandwidth bandwidth,
+                                                               @Qualifier("grpcStatStreamProperties") GrpcStreamProperties properties) {
+            return new RateLimitClientStreamServerInterceptor("StatStream", bandwidth, properties.getThrottledLoggerInterval());
         }
     }
 
