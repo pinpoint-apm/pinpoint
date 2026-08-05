@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.collector.applicationmap.service.HbaseApplicationM
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkServiceImpl;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkConfiguration;
+import com.navercorp.pinpoint.collector.uid.service.ServiceLookupService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,9 +66,10 @@ public class ApplicationMapModule {
     @Bean
     public ApplicationMapService applicationMapService(HostApplicationMapDao[] hostApplicationMapDaos,
                                                        LinkService linkService,
-                                                       ServiceTypeRegistryService registry) {
+                                                       ServiceTypeRegistryService registry,
+                                                       ServiceLookupService serviceLookupService) {
         HostApplicationMapDao hostApplicationMapDao = deleageHostApplicationMapDao(hostApplicationMapDaos);
-        return new HbaseApplicationMapService(hostApplicationMapDao, linkService, registry);
+        return new HbaseApplicationMapService(hostApplicationMapDao, linkService, registry, serviceLookupService);
     }
 
     private HostApplicationMapDao deleageHostApplicationMapDao(HostApplicationMapDao[] hostApplicationMapDaos) {
