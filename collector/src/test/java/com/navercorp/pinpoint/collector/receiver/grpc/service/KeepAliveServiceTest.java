@@ -47,7 +47,7 @@ class KeepAliveServiceTest {
 
     private KeepAliveService newKeepAliveService(UidFetcherService uidFetcherService) {
         return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry,
-                applicationServiceTypeService, uidFetcherService, false);
+                applicationServiceTypeService, uidFetcherService);
     }
 
     private static UidFetcherService fetcher(CompletableFuture<ServiceUid> future) {

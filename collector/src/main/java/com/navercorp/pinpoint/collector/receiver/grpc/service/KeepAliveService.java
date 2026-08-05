@@ -49,20 +49,17 @@ public class KeepAliveService {
     private final PingSessionRegistry pingSessionRegistry;
     private final ApplicationServiceTypeService applicationServiceTypeService;
     private final UidFetcherService uidFetcherService;
-    private final boolean v2enabled;
 
     public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                             AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
                             PingSessionRegistry pingSessionRegistry,
                             ApplicationServiceTypeService applicationServiceTypeService,
-                            UidFetcherService uidFetcherService,
-                            boolean v2enabled) {
+                            UidFetcherService uidFetcherService) {
         this.agentEventAsyncTask = Objects.requireNonNull(agentEventAsyncTask, "agentEventAsyncTask");
         this.agentLifeCycleAsyncTask = Objects.requireNonNull(agentLifeCycleAsyncTask, "agentLifeCycleAsyncTask");
         this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
         this.applicationServiceTypeService = Objects.requireNonNull(applicationServiceTypeService, "applicationServiceTypeService");
         this.uidFetcherService = Objects.requireNonNull(uidFetcherService, "uidFetcherService");
-        this.v2enabled = v2enabled;
     }
 
     public void updateState() {
@@ -104,9 +101,6 @@ public class KeepAliveService {
 
     private int resolveServiceType(PingSession pingSession) {
         int serviceType = pingSession.getServiceType();
-        if (!v2enabled) {
-            return serviceType;
-        }
         if (serviceType != ServiceType.UNDEFINED.getCode()) {
             return serviceType;
         }

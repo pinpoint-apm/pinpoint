@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -34,19 +33,13 @@ public class AgentListStateService {
     private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final AgentIdDao agentIdDao;
-    private final boolean v2enabled;
 
-    public AgentListStateService(AgentIdDao agentIdDao,
-                                 @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
+    public AgentListStateService(AgentIdDao agentIdDao) {
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
-        this.v2enabled = v2enabled;
     }
 
     public void update(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime,
                        AgentLifeCycleState agentLifeCycleState, long eventTimestamp) {
-        if (!v2enabled) {
-            return;
-        }
         if (serviceTypeCode == ServiceType.UNDEFINED.getCode()) {
             tLogger.info("Skip updateState. undefined serviceType. serviceUid={}, applicationName={}, agentId={}, agentStartTime={}, eventTimestamp={}", serviceUid, applicationName, agentId, agentStartTime, eventTimestamp);
             return;
