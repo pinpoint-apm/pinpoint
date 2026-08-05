@@ -19,36 +19,49 @@ package com.navercorp.pinpoint.common.profiler.logging;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ThrottledLogger {
-    private static final AtomicLongFieldUpdater<ThrottledLogger> UPDATER = AtomicLongFieldUpdater.newUpdater(ThrottledLogger.class, "counter");
-
-    private volatile long counter;
 
     private final Logger logger;
-    private final long ratio;
+    private final LogThrottle throttle;
 
+    /**
+     * Logs once per {@code ratio} calls.
+     *
+     * @deprecated call-count throttling emits in bursts under load spikes;
+     * use time-based {@link #getIntervalLogger(Logger, Duration)} instead
+     */
+    @Deprecated
     public static ThrottledLogger getLogger(Logger logger, long ratio) {
         Objects.requireNonNull(logger, "logger");
-        return new ThrottledLogger(logger, ratio);
+        return new ThrottledLogger(logger, new CountLogThrottle(ratio));
     }
 
-    private ThrottledLogger(Logger logger, long ratio) {
+    /**
+     * Logs at most once per {@code interval}; suppressed calls are still counted.
+     */
+    public static ThrottledLogger getIntervalLogger(Logger logger, Duration interval) {
+        Objects.requireNonNull(logger, "logger");
+        Objects.requireNonNull(interval, "interval");
+        return new ThrottledLogger(logger, new TimeLogThrottle(interval.toMillis()));
+    }
+
+    private ThrottledLogger(Logger logger, LogThrottle throttle) {
         this.logger = Objects.requireNonNull(logger, "logger");
-        this.ratio = Math.max(ratio, 1);
+        this.throttle = Objects.requireNonNull(throttle, "throttle");
     }
 
     private boolean checkLogCounter() {
-        return UPDATER.getAndIncrement(this) % ratio == 0;
+        return throttle.tryAcquire();
     }
 
     public long getCounter() {
-        return UPDATER.get(this);
+        return throttle.getCounter();
     }
 
     // level -------------
