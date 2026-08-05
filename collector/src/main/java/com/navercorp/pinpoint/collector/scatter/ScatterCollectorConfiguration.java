@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.collector.scatter;
 
-import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoder;
 import com.navercorp.pinpoint.collector.dao.hbase.encode.TraceIndexRowKeyEncoder;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -33,13 +31,6 @@ import org.springframework.context.annotation.Configuration;
 })
 @Configuration
 public class ScatterCollectorConfiguration {
-
-    @Bean
-    public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder(ApplicationNameRowKeyEncoder rowKeyEncoder,
-                                                               @Qualifier("applicationTraceIndexDistributor")
-                                                                       RowKeyDistributor rowKeyDistributor) {
-        return new ApplicationIndexRowKeyEncoder(rowKeyEncoder, rowKeyDistributor);
-    }
 
     @Bean
     public RowKeyEncoder<SpanBo> traceIndexRowKeyEncoder(@Qualifier("traceIndexDistributor") RowKeyDistributor rowKeyDistributor) {

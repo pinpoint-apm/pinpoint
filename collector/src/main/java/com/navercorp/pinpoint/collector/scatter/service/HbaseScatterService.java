@@ -16,54 +16,23 @@
 
 package com.navercorp.pinpoint.collector.scatter.service;
 
-import com.navercorp.pinpoint.collector.scatter.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.scatter.dao.TraceIndexDao;
-import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 @Service
 public class HbaseScatterService implements ScatterService {
-    private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
     private final TraceIndexDao traceIndexDao;
-    private final boolean enableApplicationTraceIndexV1;
-    private final boolean enableApplicationTraceIndexV2;
 
-    public HbaseScatterService(
-            ApplicationTraceIndexDao applicationTraceIndexDao,
-            TraceIndexDao traceIndexDao,
-            @Value("${pinpoint.collector.application.trace.index.v1.enabled:false}")
-            boolean enableApplicationTraceIndexV1,
-            @Value("${pinpoint.collector.application.trace.index.v2.enabled:true}")
-            boolean enableApplicationTraceIndexV2
-    ) {
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+    public HbaseScatterService(TraceIndexDao traceIndexDao) {
         this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
-        this.enableApplicationTraceIndexV1 = enableApplicationTraceIndexV1;
-        this.enableApplicationTraceIndexV2 = enableApplicationTraceIndexV2;
     }
 
     @Override
     public void insert(SpanBo span) {
-        if (enableApplicationTraceIndexV1) {
-            if (span.getApplicationName().length() > PinpointConstants.APPLICATION_NAME_MAX_LEN) {
-                tLogger.warn("ApplicationTraceIndex v1 does not support application name exceeding {} chars. name={}, agentId={}",
-                        PinpointConstants.APPLICATION_NAME_MAX_LEN, span.getApplicationName(), span.getAgentId());
-            } else {
-                applicationTraceIndexDao.insert(span);
-            }
-        }
-        if (enableApplicationTraceIndexV2) {
-            traceIndexDao.insert(span);
-        }
+        traceIndexDao.insert(span);
     }
 }
