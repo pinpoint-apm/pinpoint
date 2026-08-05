@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.component;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.applicationmap.servicemap.ServiceResolver;
 import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Service;
@@ -32,32 +31,16 @@ import java.util.Objects;
 public class DefaultApplicationFactory implements ApplicationFactory {
 
     private final ServiceTypeRegistryService registry;
-    private final ServiceResolver serviceResolver;
     private final ServiceModelResolver serviceModelResolver;
 
     public DefaultApplicationFactory(ServiceTypeRegistryService registry,
                                      ServiceModelResolver serviceModelResolver) {
-        this(registry, ServiceResolver.emptyResolver(), serviceModelResolver);
-    }
-
-    public DefaultApplicationFactory(ServiceTypeRegistryService registry,
-                                     ServiceResolver serviceResolver,
-                                     ServiceModelResolver serviceModelResolver) {
         this.registry = Objects.requireNonNull(registry, "registry");
-        this.serviceResolver = Objects.requireNonNull(serviceResolver, "serviceResolver");
         this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
     }
 
     private Application newApplication(Service service, String applicationName, ServiceType serviceType) {
-        Service resolved = resolveService(applicationName, service);
-        return new Application(resolved, applicationName, serviceType);
-    }
-
-    private Service resolveService(String applicationName, Service service) {
-        if (!Service.DEFAULT.equals(service)) {
-            return service;
-        }
-        return serviceResolver.resolve(applicationName, service);
+        return new Application(service, applicationName, serviceType);
     }
 
     private Service requireService(int serviceUid) {
