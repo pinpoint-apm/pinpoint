@@ -170,11 +170,12 @@ public class SpanCallTree implements CallTree {
                 if (sibling == child) {
                     // change child
                     parent.setChild(node);
-                    node.setSibling(child);
+                    // node may carry its own sibling chain (e.g. async call tree root) - keep it intact
+                    findLastSibling(node).setSibling(child);
                     setAllSiblingParent(node, parent);
                 } else {
                     prevSibling.setSibling(node);
-                    node.setSibling(sibling);
+                    findLastSibling(node).setSibling(sibling);
                     setAllSiblingParent(node, parent);
                 }
                 return;
