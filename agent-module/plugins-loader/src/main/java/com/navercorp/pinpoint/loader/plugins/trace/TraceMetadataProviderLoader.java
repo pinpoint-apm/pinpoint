@@ -20,14 +20,19 @@ import com.navercorp.pinpoint.common.trace.LoadedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.ParsedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.Filter;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.loader.plugins.PinpointPluginLoader;
 import com.navercorp.pinpoint.loader.plugins.trace.yaml.TraceMetadataProviderYamlParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -81,8 +86,14 @@ public class TraceMetadataProviderLoader implements PinpointPluginLoader<TraceMe
 
     private List<TraceMetadataProvider> fromMetaFiles(ClassLoader classLoader) {
         Set<String> loadedProviderIds = new HashSet<>();
+        Set<String> loadedContentDigests = new HashSet<>();
         List<TraceMetadataProvider> traceMetadataProviders = new ArrayList<>();
         for (URL typeProviderUrl : getTypeProviderUrls(classLoader)) {
+            String contentDigest = contentDigest(typeProviderUrl);
+            if (contentDigest != null && !loadedContentDigests.add(contentDigest)) {
+                logger.debug("Skipping trace metadata provider from {} as an identical definition has already been added.", typeProviderUrl);
+                continue;
+            }
             ParsedTraceMetadataProvider parsedTraceMetadataProvider = traceMetadataProviderParser.parse(typeProviderUrl);
             String loadedProviderId = parsedTraceMetadataProvider.getId();
             if (loadedProviderIds.contains(loadedProviderId)) {
@@ -93,6 +104,20 @@ public class TraceMetadataProviderLoader implements PinpointPluginLoader<TraceMe
             }
         }
         return traceMetadataProviders;
+    }
+
+    // The same definition can be visible through multiple classpath entries with different URLs -
+    // e.g. an IDE lists both a module's classes directory and its packaged jar - and the provider
+    // id is derived from the URL, so identical definitions must also be deduplicated by content.
+    private String contentDigest(URL typeProviderUrl) {
+        try (InputStream inputStream = typeProviderUrl.openStream()) {
+            byte[] content = IOUtils.toByteArray(inputStream);
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            return Base64.getEncoder().encodeToString(messageDigest.digest(content));
+        } catch (IOException | NoSuchAlgorithmException e) {
+            logger.warn("Failed to read type provider definition {} for deduplication", typeProviderUrl, e);
+            return null;
+        }
     }
 
     private List<URL> getTypeProviderUrls(ClassLoader classLoader) {
