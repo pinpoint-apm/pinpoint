@@ -31,7 +31,7 @@ public class ServiceModelResolver {
         }
         Service service = resolveService(serviceName);
         if (service == null) {
-            return Service.DEFAULT;
+            throw new ServiceNotFoundException(serviceName);
         }
         return service;
     }
