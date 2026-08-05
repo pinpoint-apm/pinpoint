@@ -8,6 +8,9 @@ import { Edge as ServerMapEdge, Node as ServerMapNode } from '@pinpoint-fe/serve
 export type Edge = ServerMapEdge;
 export type Node = ServerMapNode;
 
+export const resolveUseStatisticsAgentState = (value: boolean | null | undefined): boolean =>
+  value ?? true;
+
 // node/link key는 2-part(applicationName^serviceType) 또는 3-part(serviceName^applicationName^serviceType)로 들어올 수 있다.
 // 마지막 두 토큰이 항상 [applicationName, serviceType]이므로 뒤에서 잘라낸다.
 export const parseBaseNodeId = (

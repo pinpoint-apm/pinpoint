@@ -1,4 +1,4 @@
-import { getBaseNodeId, getTimeSeriesApdexInfo } from './serverMap';
+import { getBaseNodeId, getTimeSeriesApdexInfo, resolveUseStatisticsAgentState } from './serverMap';
 import {
   ApplicationType,
   GetServerMap,
@@ -6,10 +6,22 @@ import {
 } from '@pinpoint-fe/ui/src/constants';
 
 describe('Test serverMap helper utils', () => {
+  describe('Test "resolveUseStatisticsAgentState"', () => {
+    test('Preserve an explicitly disabled option', () => {
+      expect(resolveUseStatisticsAgentState(false)).toBe(false);
+    });
+
+    test('Preserve an explicitly enabled option', () => {
+      expect(resolveUseStatisticsAgentState(true)).toBe(true);
+    });
+
+    test.each([null, undefined])('Use the fallback when the option is %s', (value) => {
+      expect(resolveUseStatisticsAgentState(value)).toBe(true);
+    });
+  });
+
   describe('Test "getTimeSeriesApdexInfo"', () => {
-    const makeNode = (
-      overrides: Partial<GetServerMap.NodeData> = {},
-    ): GetServerMap.NodeData =>
+    const makeNode = (overrides: Partial<GetServerMap.NodeData> = {}): GetServerMap.NodeData =>
       ({
         isAuthorized: true,
         apdexSlot: [],
@@ -55,7 +67,6 @@ describe('Test serverMap helper utils', () => {
       expect(getTimeSeriesApdexInfo(node)).toEqual([1, 0.6, 1, 0.95]);
     });
   });
-
 
   describe('Test "getBaseNodeId"', () => {
     test('Return base node ID when node list is empty', () => {
