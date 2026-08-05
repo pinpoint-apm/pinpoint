@@ -78,7 +78,8 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
                 location = buffer.readPrefixedString();
             }
 
-            ApiMetaDataBo.Builder builder = new ApiMetaDataBo.Builder(key.getAgentId(), key.getAgentStartTime(), key.getId(), lineNumber, methodTypeEnum, apiInfo);
+            ApiMetaDataBo.Builder builder = new ApiMetaDataBo.Builder(
+                    key.getServiceUid(), key.getAgentId(), key.getAgentStartTime(), key.getId(), lineNumber, methodTypeEnum, apiInfo);
             if (location != null) {
                 builder.setLocation(location);
             }

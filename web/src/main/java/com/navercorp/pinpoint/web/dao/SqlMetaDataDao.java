@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.dao;
 
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 import java.util.List;
 
@@ -24,15 +25,18 @@ import java.util.List;
  * @author emeroad
  */
 public interface SqlMetaDataDao {
-    List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int sqlId);
+    List<SqlMetaDataBo> getSqlMetaData(ServiceUid serviceUid, String agentId, long time, int sqlId);
 
     /**
-     * Batch variant of {@link #getSqlMetaData(String, long, int)}.
+     * Batch variant of {@link #getSqlMetaData(ServiceUid, String, long, int)}.
      * The returned list is index-aligned with {@code keys}; a key with no matching
      * row yields an empty list at the same index.
      */
     List<List<SqlMetaDataBo>> getSqlMetaData(List<SqlMetaDataKey> keys);
 
-    record SqlMetaDataKey(String agentId, long agentStartTime, int sqlId) {
+    record SqlMetaDataKey(ServiceUid serviceUid, String agentId, long agentStartTime, int sqlId) {
+        public SqlMetaDataKey(String agentId, long agentStartTime, int sqlId) {
+            this(ServiceUid.DEFAULT, agentId, agentStartTime, sqlId);
+        }
     }
 }

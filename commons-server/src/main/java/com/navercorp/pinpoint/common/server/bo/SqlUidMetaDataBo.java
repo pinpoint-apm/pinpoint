@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDataRowKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
@@ -25,6 +26,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class SqlUidMetaDataBo implements UidMetaDataRowKey {
+    private final ServiceUid serviceUid;
+
     @NonNull
     private final String agentId;
     private final long startTime;
@@ -35,16 +38,27 @@ public class SqlUidMetaDataBo implements UidMetaDataRowKey {
     @NonNull
     private final String sql;
 
-    public SqlUidMetaDataBo(String agentId, long startTime, byte[] sqlUid, String sql) {
-        this(agentId, startTime, "", sqlUid, sql);
+    // used by web only
+    public SqlUidMetaDataBo(ServiceUid serviceUid, String agentId, long startTime, byte[] sqlUid, String sql) {
+        this(serviceUid, agentId, startTime, "", sqlUid, sql);
     }
 
-    public SqlUidMetaDataBo(String agentId, long startTime, String applicationName, byte[] sqlUid, String sql) {
+    public SqlUidMetaDataBo(ServiceUid serviceUid, String agentId, long startTime, String applicationName, byte[] sqlUid, String sql) {
+        this.serviceUid = Objects.requireNonNull(serviceUid, "serviceUid");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.sqlUid = Objects.requireNonNull(sqlUid, "sqlUid");
         this.sql = Objects.requireNonNull(sql, "sql");
+
+        if (sqlUid.length != UidMetaDataRowKey.UID_LENGTH) {
+            throw new IllegalArgumentException("sqlUid length must be 16: " + sqlUid.length);
+        }
+    }
+
+    @Override
+    public ServiceUid getServiceUid() {
+        return serviceUid;
     }
 
     @Override

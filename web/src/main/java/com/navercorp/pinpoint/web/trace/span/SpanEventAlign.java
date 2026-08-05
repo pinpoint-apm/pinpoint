@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.util.OpenTelemetryAnnotationValueUtils;
 
 import java.util.List;
@@ -217,6 +218,10 @@ public class SpanEventAlign implements Align {
         return spanBo.getServiceName();
     }
 
+    @Override
+    public ServiceUid getServiceUid() {
+        return spanBo.getServiceUid();
+    }
 
     @Override
     public int getApplicationServiceType() {

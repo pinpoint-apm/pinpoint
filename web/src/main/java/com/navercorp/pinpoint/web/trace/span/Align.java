@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -98,6 +99,7 @@ public interface Align {
 
     String getServiceName();
 
+    ServiceUid getServiceUid();
 
     int getApplicationServiceType();
 

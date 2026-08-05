@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -40,8 +41,9 @@ public class MetadataDecoder implements RowKeyDecoder<MetaDataRowKey> {
         final String agentId = readAgentId(rowkey, saltKeySize);
         final long agentStartTime = readAgentStartTime(rowkey, PinpointConstants.AGENT_ID_MAX_LEN + saltKeySize);
         final int id = readId(rowkey, PinpointConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + saltKeySize);
+        final ServiceUid serviceUid = readServiceUid(rowkey, PinpointConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.INT_BYTE_LENGTH + saltKeySize);
 
-        return new DefaultMetaDataRowKey(agentId, agentStartTime, id);
+        return new DefaultMetaDataRowKey(serviceUid, agentId, agentStartTime, id);
     }
 
     private String readAgentId(byte[] rowKey, int offset) {
@@ -54,5 +56,25 @@ public class MetadataDecoder implements RowKeyDecoder<MetaDataRowKey> {
 
     private int readId(byte[] rowKey, int offset) {
         return ByteArrayUtils.bytesToInt(rowKey, offset);
+    }
+
+    private ServiceUid readServiceUid(byte[] rowKey, int offset) {
+        final int remaining = rowKey.length - offset;
+        if (remaining == 0) {
+            return ServiceUid.DEFAULT;
+        } else if (remaining == BytesUtils.INT_BYTE_LENGTH) {
+            ServiceUid serviceUid = ServiceUid.of(ByteArrayUtils.bytesToInt(rowKey, offset));
+            validateServiceUid(serviceUid);
+            return serviceUid;
+        } else {
+            throw new IllegalArgumentException("invalid metadata rowkey length: " + rowKey.length);
+        }
+    }
+
+    private static void validateServiceUid(ServiceUid serviceUid) {
+        if (ServiceUid.ERROR.equals(serviceUid)
+                || ServiceUid.UNKNOWN.equals(serviceUid)) {
+            throw new IllegalArgumentException("invalid metadata serviceUid: " + serviceUid);
+        }
     }
 }

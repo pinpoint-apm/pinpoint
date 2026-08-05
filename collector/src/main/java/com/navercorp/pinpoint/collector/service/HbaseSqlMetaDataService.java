@@ -40,7 +40,11 @@ public class HbaseSqlMetaDataService implements SqlMetaDataService {
     public void insert(SqlMetaDataBo sqlMetaDataBo) {
         if (sqlMetaDataBo.getSql().length() > maxSqlLength) {
             String sql = StringUtils.abbreviate(sqlMetaDataBo.getSql(), maxSqlLength);
-            sqlMetaDataBo = new SqlMetaDataBo(sqlMetaDataBo.getAgentId(), sqlMetaDataBo.getAgentStartTime(), sqlMetaDataBo.getId(), sql);
+            sqlMetaDataBo = new SqlMetaDataBo(
+                    sqlMetaDataBo.getServiceUid(),
+                    sqlMetaDataBo.getAgentId(),
+                    sqlMetaDataBo.getAgentStartTime(),
+                    sqlMetaDataBo.getId(), sql);
         }
         this.sqlMetaDataDao.insert(sqlMetaDataBo);
     }

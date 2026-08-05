@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellBuilderFactory;
 import org.apache.hadoop.hbase.CellBuilderType;
@@ -42,7 +43,8 @@ public class ApiMetaDataMapperTest {
     // from node: ApiMetaDataBo{agentId='express-node-sample-id', startTime=1669280767548, apiId=12, apiInfo='express.Function.proto.get(path, callback)', lineNumber=169, methodTypeEnum=DEFAULT, location='/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/routes/index.js'}
     @Test
     public void testMapRow() throws Exception {
-        ApiMetaDataBo expected = new ApiMetaDataBo.Builder("express-node-sample-id", 1669280767548L, 12, 169, MethodTypeEnum.DEFAULT, "express.Function.proto.get(path, callback)")
+        ServiceUid serviceUid = ServiceUid.of(100_001);
+        ApiMetaDataBo expected = new ApiMetaDataBo.Builder(serviceUid, "express-node-sample-id", 1669280767548L, 12, 169, MethodTypeEnum.DEFAULT, "express.Function.proto.get(path, callback)")
                 .setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/routes/index.js")
                 .build();
 
@@ -81,5 +83,6 @@ public class ApiMetaDataMapperTest {
 
         assertThat(actual).extracting("agentId", "startTime", "apiId", "apiInfo", "lineNumber", "methodTypeEnum", "location")
                 .contains(expected.getAgentId(), expected.getAgentStartTime(), expected.getId(), expected.getApiInfo(), expected.getLineNumber(), expected.getMethodTypeEnum(), expected.getLocation());
+        assertThat(actual.getServiceUid()).isEqualTo(serviceUid);
     }
 }

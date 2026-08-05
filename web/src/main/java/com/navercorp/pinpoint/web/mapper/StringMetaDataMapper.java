@@ -60,7 +60,7 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
         for (Cell cell : result.rawCells()) {
             String stringValue = readString(cell);
 
-            StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(key.getAgentId(), key.getAgentStartTime(), key.getId(), stringValue);
+            StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(key.getServiceUid(), key.getAgentId(), key.getAgentStartTime(), key.getId(), stringValue);
 
             stringMetaDataList.add(stringMetaDataBo);
         }

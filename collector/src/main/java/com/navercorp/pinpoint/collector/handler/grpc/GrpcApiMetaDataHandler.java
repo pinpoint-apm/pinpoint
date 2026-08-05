@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.common.server.io.ServerResponse;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -62,14 +63,20 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<PApiMetaDa
         }
 
         try {
+            ServiceUid serviceUid = header.getServiceUid().get();
+            if (serviceUid == null || ServiceUid.UNKNOWN.equals(serviceUid) || ServiceUid.ERROR.equals(serviceUid)) {
+                logger.warn("Service not found. serviceName={}, serviceUid={}, applicationName={}, agentId={}",
+                        header.getServiceName(), serviceUid, header.getApplicationName(), header.getAgentId());
+                return PResults.serviceNotFound(header.getServiceName());
+            }
+
             final String agentId = header.getAgentId();
             final long agentStartTime = header.getAgentStartTime();
             final int line = LineNumber.defaultLineNumber(apiMetaData.getLine());
 
             final MethodTypeEnum type = MethodTypeEnum.defaultValueOf(apiMetaData.getType());
 
-            final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo.Builder(agentId, agentStartTime,
-                    apiMetaData.getApiId(), line, type, apiMetaData.getApiInfo())
+            final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo.Builder(serviceUid, agentId, agentStartTime, apiMetaData.getApiId(), line, type, apiMetaData.getApiInfo())
                     .setLocation(apiMetaData.getLocation())
                     .build();
 
