@@ -10,7 +10,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -26,7 +25,6 @@ import java.util.concurrent.TimeUnit;
  * Only handles default serviceUid (0).
  */
 @Service
-@ConditionalOnProperty(name = "pinpoint.collector.application.index.v2.enabled", havingValue = "true")
 public class CachedApplicationServiceTypeService implements ApplicationServiceTypeService {
 
     private static final int NOT_FOUND = ServiceType.UNDEFINED.getCode();
