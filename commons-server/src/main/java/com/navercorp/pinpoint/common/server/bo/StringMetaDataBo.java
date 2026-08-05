@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
@@ -25,6 +26,8 @@ import org.jspecify.annotations.NonNull;
  * @author emeroad
  */
 public class StringMetaDataBo implements MetaDataRowKey {
+    private final ServiceUid serviceUid;
+
     @NonNull
     private final String agentId;
     private final long startTime;
@@ -32,11 +35,17 @@ public class StringMetaDataBo implements MetaDataRowKey {
     private final int stringId;
     private final String stringValue;
 
-    public StringMetaDataBo(String agentId, long startTime, int stringId, String stringValue) {
+    public StringMetaDataBo(ServiceUid serviceUid, String agentId, long startTime, int stringId, String stringValue) {
+        this.serviceUid = java.util.Objects.requireNonNull(serviceUid, "serviceUid");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.stringId = stringId;
         this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
         this.stringValue = stringValue;
+    }
+
+    @Override
+    public ServiceUid getServiceUid() {
+        return serviceUid;
     }
 
     @Override

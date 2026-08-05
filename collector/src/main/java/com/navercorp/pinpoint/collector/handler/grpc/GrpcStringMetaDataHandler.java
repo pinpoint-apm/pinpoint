@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.common.server.io.ServerResponse;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
@@ -53,18 +54,25 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<PString
         serverResponse.write(result);
     }
 
-    private PResult handleStringMetaData(ServerHeader header, final PStringMetaData stringMetaData) {
+    PResult handleStringMetaData(ServerHeader header, final PStringMetaData stringMetaData) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PStringMetaData={}", MessageFormatUtils.debugLog(stringMetaData));
         }
 
         try {
+            ServiceUid serviceUid = header.getServiceUid().get();
+            if (serviceUid == null || ServiceUid.UNKNOWN.equals(serviceUid) || ServiceUid.ERROR.equals(serviceUid)) {
+                logger.warn("Service not found. serviceName={}, serviceUid={}, applicationName={}, agentId={}",
+                        header.getServiceName(), serviceUid, header.getApplicationName(), header.getAgentId());
+                return PResults.serviceNotFound(header.getServiceName());
+            }
+
             final String agentId = header.getAgentId();
             final long agentStartTime = header.getAgentStartTime();
 
             final String stringValue = stringMetaData.getStringValue();
 
-            final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime,
+            final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(serviceUid, agentId, agentStartTime,
                     stringMetaData.getStringId(), stringValue);
 
             stringMetaDataService.insert(stringMetaDataBo);

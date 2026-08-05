@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -53,12 +54,13 @@ public class HbaseApiMetaDataDaoTest {
         // cacheable key - spring expression language
         ExpressionParser parser = new SpelExpressionParser();
         StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("serviceUid", ServiceUid.of(100_001));
         context.setVariable("agentId", "foo");
         context.setVariable("time", (long) 1);
         context.setVariable("apiId", (int) 2);
 
         String key = (String) parser.parseExpression(HbaseApiMetaDataDao.SPEL_KEY).getValue(context);
-        assertEquals("foo.1.2", key);
+        assertEquals("100001.foo.1.2", key);
     }
 
     @Test
@@ -80,11 +82,13 @@ public class HbaseApiMetaDataDaoTest {
         TableName tableName = TableName.valueOf("ApiMetaData");
         when(tableNameProvider.getTableName(any(HbaseTable.class))).thenReturn(tableName);
 
+        ServiceUid serviceA = ServiceUid.of(100_001);
+        ServiceUid serviceB = ServiceUid.of(100_002);
         List<ApiMetaDataDao.ApiMetaDataKey> keys = List.of(
-                new ApiMetaDataDao.ApiMetaDataKey("agent-a", 100L, 1),
-                new ApiMetaDataDao.ApiMetaDataKey("agent-a", 100L, 2));
+                new ApiMetaDataDao.ApiMetaDataKey(serviceA, "agent-a", 100L, 1),
+                new ApiMetaDataDao.ApiMetaDataKey(serviceB, "agent-a", 100L, 2));
 
-        ApiMetaDataBo bo = new ApiMetaDataBo("agent-a", 100L, 2, 0, MethodTypeEnum.DEFAULT, "api");
+        ApiMetaDataBo bo = new ApiMetaDataBo(serviceB, "agent-a", 100L, 2, 0, MethodTypeEnum.DEFAULT, "api");
         List<List<ApiMetaDataBo>> canned = List.of(List.of(), List.of(bo));
         when(hbaseOperations.get(eq(tableName), any(List.class), eq(apiMetaDataMapper))).thenReturn(canned);
 
@@ -95,10 +99,33 @@ public class HbaseApiMetaDataDaoTest {
         verify(hbaseOperations).get(eq(tableName), getsCaptor.capture(), eq(apiMetaDataMapper));
         assertEquals(2, getsCaptor.getValue().size());
 
+        ArgumentCaptor<MetaDataRowKey> rowKeys = ArgumentCaptor.forClass(MetaDataRowKey.class);
+        verify(rowKeyEncoder, org.mockito.Mockito.times(2)).encodeRowKey(rowKeys.capture());
+        assertEquals(List.of(serviceA, serviceB), rowKeys.getAllValues().stream()
+                .map(MetaDataRowKey::getServiceUid).toList());
+
         // result is returned index-aligned with the input keys
         assertSame(canned, result);
         assertEquals(2, result.size());
         assertTrue(result.get(0).isEmpty());
         assertEquals("api", result.get(1).get(0).getApiInfo());
+    }
+
+    @Test
+    public void getApiMetaData_singleUsesExactServiceKey() {
+        HbaseApiMetaDataDao dao = newDao();
+        ServiceUid serviceUid = ServiceUid.of(100_001);
+        when(rowKeyEncoder.encodeRowKey(any())).thenReturn(new byte[]{1});
+        TableName table = TableName.valueOf("ApiMetaData");
+        when(tableNameProvider.getTableName(any(HbaseTable.class))).thenReturn(table);
+        when(hbaseOperations.get(eq(table), any(Get.class), eq(apiMetaDataMapper)))
+                .thenReturn(List.of());
+
+        dao.getApiMetaData(serviceUid, "agent", 10L, 7);
+
+        ArgumentCaptor<MetaDataRowKey> key = ArgumentCaptor.forClass(MetaDataRowKey.class);
+        verify(rowKeyEncoder).encodeRowKey(key.capture());
+        assertEquals(serviceUid, key.getValue().getServiceUid());
+        verify(hbaseOperations).get(eq(table), any(Get.class), eq(apiMetaDataMapper));
     }
 }

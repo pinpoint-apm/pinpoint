@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -62,10 +63,11 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
     }
 
     @Override
-    public List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
+    public List<StringMetaDataBo> getStringMetaData(ServiceUid serviceUid, String agentId, long time, int stringId) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(agentId, "agentId");
 
-        MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(agentId, time, stringId);
+        MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(serviceUid, agentId, time, stringId);
         byte[] rowKey = rowKeyEncoder.encodeRowKey(metaDataRowKey);
 
         Get get = new Get(rowKey);
@@ -84,7 +86,7 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
         List<Get> gets = new ArrayList<>(keys.size());
         for (StringMetaDataKey key : keys) {
-            MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(key.agentId(), key.agentStartTime(), key.stringId());
+            MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(key.serviceUid(), key.agentId(), key.agentStartTime(), key.stringId());
             Get get = new Get(rowKeyEncoder.encodeRowKey(metaDataRowKey));
             get.addFamily(DESCRIPTOR.getName());
             gets.add(get);

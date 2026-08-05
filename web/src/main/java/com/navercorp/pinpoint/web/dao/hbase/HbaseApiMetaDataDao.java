@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import org.apache.hadoop.hbase.TableName;
@@ -42,7 +43,7 @@ import java.util.Objects;
  */
 @Repository
 public class HbaseApiMetaDataDao implements ApiMetaDataDao {
-    static final String SPEL_KEY = "#agentId.toString() + '.' + #time.toString() + '.' + #apiId.toString()";
+    static final String SPEL_KEY = "#serviceUid.toString() + '.' + #agentId.toString() + '.' + #time.toString() + '.' + #apiId.toString()";
 
     private static final HbaseTables.ApiMetadata DESCRIPTOR = HbaseTables.API_METADATA_API;
 
@@ -67,10 +68,11 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     @Override
     @Cacheable(cacheNames="apiMetaData", key=SPEL_KEY, cacheManager = CacheConfiguration.API_METADATA_CACHE_NAME)
-    public List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
+    public List<ApiMetaDataBo> getApiMetaData(ServiceUid serviceUid, String agentId, long time, int apiId) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(agentId, "agentId");
 
-        MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(agentId, time, apiId);
+        MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(serviceUid, agentId, time, apiId);
         byte[] sqlId = rowKeyEncoder.encodeRowKey(metaDataRowKey);
 
         Get get = new Get(sqlId);
@@ -89,7 +91,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
         List<Get> gets = new ArrayList<>(keys.size());
         for (ApiMetaDataKey key : keys) {
-            MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(key.agentId(), key.agentStartTime(), key.apiId());
+            MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(key.serviceUid(), key.agentId(), key.agentStartTime(), key.apiId());
             Get get = new Get(rowKeyEncoder.encodeRowKey(metaDataRowKey));
             get.addFamily(DESCRIPTOR.getName());
             gets.add(get);

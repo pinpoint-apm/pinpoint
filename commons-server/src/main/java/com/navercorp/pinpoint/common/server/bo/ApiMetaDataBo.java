@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.util.LineNumber;
@@ -30,6 +31,8 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class ApiMetaDataBo implements MetaDataRowKey {
+    private final ServiceUid serviceUid;
+
     @NonNull
     private final String agentId;
     private final long startTime;
@@ -40,8 +43,12 @@ public class ApiMetaDataBo implements MetaDataRowKey {
     private final MethodTypeEnum methodTypeEnum;
     private String location;
 
-    public ApiMetaDataBo(String agentId, long startTime, int apiId, int lineNumber,
-                         MethodTypeEnum methodTypeEnum, String apiInfo) {
+    public ApiMetaDataBo(String agentId, long startTime, int apiId, int lineNumber, MethodTypeEnum methodTypeEnum, String apiInfo) {
+        this(ServiceUid.DEFAULT, agentId, startTime, apiId, lineNumber, methodTypeEnum, apiInfo);
+    }
+
+    public ApiMetaDataBo(ServiceUid serviceUid, String agentId, long startTime, int apiId, int lineNumber, MethodTypeEnum methodTypeEnum, String apiInfo) {
+        this.serviceUid = Objects.requireNonNull(serviceUid, "serviceUid");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
         this.apiId = apiId;
@@ -49,6 +56,11 @@ public class ApiMetaDataBo implements MetaDataRowKey {
         this.apiInfo = apiInfo;
         this.methodTypeEnum = Objects.requireNonNull(methodTypeEnum, "methodTypeEnum");
         this.location = null;
+    }
+
+    @Override
+    public ServiceUid getServiceUid() {
+        return serviceUid;
     }
 
     @Override
@@ -111,10 +123,11 @@ public class ApiMetaDataBo implements MetaDataRowKey {
         private final int lineNumber;
         private final MethodTypeEnum methodTypeEnum;
         private final String apiInfo;
+        private final ServiceUid serviceUid;
         private String location;
 
-        public Builder(String agentId, long startTime, int apiId, int lineNumber,
-                       MethodTypeEnum methodTypeEnum, String apiInfo) {
+        public Builder(ServiceUid serviceUid, String agentId, long startTime, int apiId, int lineNumber, MethodTypeEnum methodTypeEnum, String apiInfo) {
+            this.serviceUid = serviceUid;
             this.agentId = agentId;
             this.startTime = startTime;
             this.apiId = apiId;
@@ -122,6 +135,10 @@ public class ApiMetaDataBo implements MetaDataRowKey {
             this.methodTypeEnum = methodTypeEnum;
             this.apiInfo = apiInfo;
             this.location = null;
+        }
+
+        public Builder(String agentId, long startTime, int apiId, int lineNumber, MethodTypeEnum methodTypeEnum, String apiInfo) {
+            this(ServiceUid.DEFAULT, agentId, startTime, apiId, lineNumber, methodTypeEnum, apiInfo);
         }
 
         public Builder setLocation(String location) {
@@ -133,7 +150,7 @@ public class ApiMetaDataBo implements MetaDataRowKey {
         }
 
         public ApiMetaDataBo build() {
-            ApiMetaDataBo result = new ApiMetaDataBo(this.agentId, this.startTime, this.apiId, this.lineNumber, this.methodTypeEnum, this.apiInfo);
+            ApiMetaDataBo result = new ApiMetaDataBo(this.serviceUid, this.agentId, this.startTime, this.apiId, this.lineNumber, this.methodTypeEnum, this.apiInfo);
             result.location = this.location;
             return result;
         }

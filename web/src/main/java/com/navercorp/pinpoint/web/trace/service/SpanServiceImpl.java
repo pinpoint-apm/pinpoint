@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
@@ -401,7 +402,7 @@ public class SpanServiceImpl implements SpanService {
                 final String sqlParam = sqlValue.getStringValue1();
                 final String bindValue = sqlValue.getStringValue2();
 
-                List<SqlMetaDataBo> sqlMetaDataList = metadataAccessor.getSqlMetaData(align.getAgentId(), align.getAgentStartTime(), sqlId);
+                List<SqlMetaDataBo> sqlMetaDataList = metadataAccessor.getSqlMetaData(align.getServiceUid(), align.getAgentId(), align.getAgentStartTime(), sqlId);
 
                 final int size = sqlMetaDataList.size();
                 if (size == 0) {
@@ -468,7 +469,7 @@ public class SpanServiceImpl implements SpanService {
                 final String sqlParam = sqlValue.getStringValue1();
                 final String bindValue = sqlValue.getStringValue2();
 
-                List<SqlUidMetaDataBo> sqlUidMetaDataList = metadataAccessor.getSqlUidMetaData(align.getAgentId(), align.getAgentStartTime(), sqlUid);
+                List<SqlUidMetaDataBo> sqlUidMetaDataList = metadataAccessor.getSqlUidMetaData(align.getServiceUid(), align.getAgentId(), align.getAgentStartTime(), sqlUid);
 
                 final int size = sqlUidMetaDataList.size();
                 if (size == 0) {
@@ -590,9 +591,9 @@ public class SpanServiceImpl implements SpanService {
                                 || (align.isSpan() && ServiceTypeCategory.MESSAGE_BROKER.contains(serviceType));
                         ApiMetaDataBo apiMetaDataBo;
                         if (isEntryPoint) {
-                            apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTimeMillis(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.WEB_REQUEST, apiString);
+                            apiMetaDataBo = new ApiMetaDataBo(align.getServiceUid(), align.getAgentId(), align.getStartTimeMillis(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.WEB_REQUEST, apiString);
                         } else {
-                            apiMetaDataBo = new ApiMetaDataBo(align.getAgentId(), align.getStartTimeMillis(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.DEFAULT, apiString);
+                            apiMetaDataBo = new ApiMetaDataBo(align.getServiceUid(), align.getAgentId(), align.getStartTimeMillis(), apiId, LineNumber.NO_LINE_NUMBER, MethodTypeEnum.DEFAULT, apiString);
                         }
 
                         AnnotationBo apiAnnotation = AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaDataBo);
@@ -605,7 +606,7 @@ public class SpanServiceImpl implements SpanService {
                 // Resolved from the request-scoped batch prefetch (see #prefetchMetaData) to avoid
                 // a per-span HBase round-trip (N+1); falls back to an empty list on a prefetch miss,
                 // matching the single-row DAO's not-found semantics.
-                List<ApiMetaDataBo> apiMetaDataList = metadataAccessor.getApiMetaData(align.getAgentId(), align.getAgentStartTime(), apiId);
+                List<ApiMetaDataBo> apiMetaDataList = metadataAccessor.getApiMetaData(align.getServiceUid(), align.getAgentId(), align.getAgentStartTime(), apiId);
                 int size = apiMetaDataList.size();
                 if (size == 0) {
                     String errorMessage = "API-DynamicID not found. api:" + apiId;
@@ -647,7 +648,7 @@ public class SpanServiceImpl implements SpanService {
                 for (AnnotationBo annotationBo : cachedStringAnnotation) {
                     final int cachedArgsKey = annotationBo.getKey();
                     int stringMetaDataId = (Integer) annotationBo.getValue();
-                    List<StringMetaDataBo> stringMetaList = metadataAccessor.getStringMetaData(align.getAgentId(), align.getAgentStartTime(), stringMetaDataId);
+                    List<StringMetaDataBo> stringMetaList = metadataAccessor.getStringMetaData(align.getServiceUid(), align.getAgentId(), align.getAgentStartTime(), stringMetaDataId);
                     int size = stringMetaList.size();
                     if (size == 0) {
                         logger.warn("StringMetaData not Found {}/{}/{}", align.getAgentId(), stringMetaDataId, align.getAgentStartTime());
@@ -685,18 +686,18 @@ public class SpanServiceImpl implements SpanService {
                         align.setExceptionClass(ExceptionInfo.otelClassName(exceptionInfo.message()));
                         return;
                     }
-                    StringMetaDataBo stringMetaData = selectStringMetaData(metadataAccessor, align.getAgentId(), exceptionInfo.id(), align.getAgentStartTime());
+                    StringMetaDataBo stringMetaData = selectStringMetaData(metadataAccessor, align.getServiceUid(), align.getAgentId(), exceptionInfo.id(), align.getAgentStartTime());
                     align.setExceptionClass(stringMetaData.getStringValue());
                 }
             }
         };
     }
 
-    private StringMetaDataBo selectStringMetaData(MetadataAccessor metadataAccessor, String agentId, int cacheId, long agentStartTime) {
-        final List<StringMetaDataBo> metaDataList = metadataAccessor.getStringMetaData(agentId, agentStartTime, cacheId);
+    private StringMetaDataBo selectStringMetaData(MetadataAccessor metadataAccessor, ServiceUid serviceUid, String agentId, int cacheId, long agentStartTime) {
+        final List<StringMetaDataBo> metaDataList = metadataAccessor.getStringMetaData(serviceUid, agentId, agentStartTime, cacheId);
         if (CollectionUtils.isEmpty(metaDataList)) {
-            logger.warn("StringMetaData not Found agent:{}, cacheId{}, agentStartTime:{}", agentId, cacheId, agentStartTime);
-            return new StringMetaDataBo(agentId, agentStartTime, cacheId, "STRING-META-DATA-NOT-FOUND");
+            logger.warn("StringMetaData not Found serviceUid={}, agentId={}, cacheId={}, agentStartTime={}", serviceUid, agentId, cacheId, agentStartTime);
+            return new StringMetaDataBo(serviceUid, agentId, agentStartTime, cacheId, "STRING-META-DATA-NOT-FOUND");
         }
         if (metaDataList.size() == 1) {
             return metaDataList.get(0);
@@ -779,6 +780,7 @@ public class SpanServiceImpl implements SpanService {
         Map<IntLookupKey, ApiMetaDataDao.ApiMetaDataKey> apiQueries = new LinkedHashMap<>();
 
         for (Align align : aligns) {
+            final ServiceUid serviceUid = align.getServiceUid();
             final String agentId = align.getAgentId();
             final long agentStartTime = align.getAgentStartTime();
 
@@ -787,15 +789,17 @@ public class SpanServiceImpl implements SpanService {
                 AnnotationBo sqlUidAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_UID.getCode());
                 if (sqlUidAnnotation != null) {
                     final byte[] sqlUid = ((BytesStringStringValue) sqlUidAnnotation.getValue()).getBytesValue();
-                    sqlUidQueries.putIfAbsent(new UidLookupKey(agentId, agentStartTime, ByteBuffer.wrap(sqlUid)),
-                            new SqlUidMetaDataDao.SqlUidMetaDataKey(agentId, agentStartTime, sqlUid));
+                    sqlUidQueries.putIfAbsent(
+                            new UidLookupKey(serviceUid, agentId, agentStartTime, ByteBuffer.wrap(sqlUid)),
+                            new SqlUidMetaDataDao.SqlUidMetaDataKey(serviceUid, agentId, agentStartTime, sqlUid));
                 }
 
                 AnnotationBo sqlIdAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
                 if (sqlIdAnnotation != null) {
                     final int sqlId = ((IntStringStringValue) sqlIdAnnotation.getValue()).getIntValue();
-                    sqlQueries.putIfAbsent(new IntLookupKey(agentId, agentStartTime, sqlId),
-                            new SqlMetaDataDao.SqlMetaDataKey(agentId, agentStartTime, sqlId));
+                    sqlQueries.putIfAbsent(
+                            new IntLookupKey(serviceUid, agentId, agentStartTime, sqlId),
+                            new SqlMetaDataDao.SqlMetaDataKey(serviceUid, agentId, agentStartTime, sqlId));
                 }
             }
 
@@ -803,13 +807,13 @@ public class SpanServiceImpl implements SpanService {
                 List<AnnotationBo> cachedStringAnnotations = AnnotationUtils.findAnnotations(annotationBoList,
                         e -> AnnotationKeyUtils.isCachedArgsKey(e.getKey()));
                 for (AnnotationBo annotationBo : cachedStringAnnotations) {
-                    addStringQuery(stringQueries, agentId, agentStartTime, (Integer) annotationBo.getValue());
+                    addStringQuery(stringQueries, serviceUid, agentId, agentStartTime, (Integer) annotationBo.getValue());
                 }
             }
 
             // exception class name is resolved via StringMetaData (legacy, non-OTel spans only)
             if (align.hasException() && !align.isOpenTelemetry()) {
-                addStringQuery(stringQueries, agentId, agentStartTime, align.getExceptionInfo().id());
+                addStringQuery(stringQueries, serviceUid, agentId, agentStartTime, align.getExceptionInfo().id());
             }
 
             // Dynamic API metadata: collect a key whenever transitionDynamicApiId() would hit
@@ -817,8 +821,9 @@ public class SpanServiceImpl implements SpanService {
             // short-circuits before the lookup, so it is the sole exclusion here.
             final int apiId = align.getApiId();
             if (apiId != 0 || annotationBoList == null || AnnotationUtils.findApiAnnotation(annotationBoList) == null) {
-                apiQueries.putIfAbsent(new IntLookupKey(agentId, agentStartTime, apiId),
-                        new ApiMetaDataDao.ApiMetaDataKey(agentId, agentStartTime, apiId));
+                apiQueries.putIfAbsent(
+                        new IntLookupKey(serviceUid, agentId, agentStartTime, apiId),
+                        new ApiMetaDataDao.ApiMetaDataKey(serviceUid, agentId, agentStartTime, apiId));
             }
         }
 
@@ -834,9 +839,10 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private void addStringQuery(Map<IntLookupKey, StringMetaDataDao.StringMetaDataKey> stringQueries,
-                                String agentId, long agentStartTime, int stringId) {
-        stringQueries.putIfAbsent(new IntLookupKey(agentId, agentStartTime, stringId),
-                new StringMetaDataDao.StringMetaDataKey(agentId, agentStartTime, stringId));
+                                ServiceUid serviceUid, String agentId, long agentStartTime, int stringId) {
+        stringQueries.putIfAbsent(
+                new IntLookupKey(serviceUid, agentId, agentStartTime, stringId),
+                new StringMetaDataDao.StringMetaDataKey(serviceUid, agentId, agentStartTime, stringId));
     }
 
     private Map<UidLookupKey, List<SqlUidMetaDataBo>> batchSqlUidMetaData(Map<UidLookupKey, SqlUidMetaDataDao.SqlUidMetaDataKey> queries) {
@@ -886,10 +892,10 @@ public class SpanServiceImpl implements SpanService {
         return map;
     }
 
-    private record UidLookupKey(String agentId, long agentStartTime, ByteBuffer sqlUid) {
+    private record UidLookupKey(ServiceUid serviceUid, String agentId, long agentStartTime, ByteBuffer sqlUid) {
     }
 
-    private record IntLookupKey(String agentId, long agentStartTime, int id) {
+    private record IntLookupKey(ServiceUid serviceUid, String agentId, long agentStartTime, int id) {
     }
 
     /**
@@ -912,20 +918,28 @@ public class SpanServiceImpl implements SpanService {
             this.apiMetaData = apiMetaData;
         }
 
-        List<SqlUidMetaDataBo> getSqlUidMetaData(String agentId, long time, byte[] sqlUid) {
-            return sqlUidMetaData.getOrDefault(new UidLookupKey(agentId, time, ByteBuffer.wrap(sqlUid)), Collections.emptyList());
+        List<SqlUidMetaDataBo> getSqlUidMetaData(ServiceUid serviceUid, String agentId, long time, byte[] sqlUid) {
+            return sqlUidMetaData.getOrDefault(
+                    new UidLookupKey(serviceUid, agentId, time, ByteBuffer.wrap(sqlUid)),
+                    Collections.emptyList());
         }
 
-        List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int sqlId) {
-            return sqlMetaData.getOrDefault(new IntLookupKey(agentId, time, sqlId), Collections.emptyList());
+        List<SqlMetaDataBo> getSqlMetaData(ServiceUid serviceUid, String agentId, long time, int sqlId) {
+            return sqlMetaData.getOrDefault(
+                    new IntLookupKey(serviceUid, agentId, time, sqlId),
+                    Collections.emptyList());
         }
 
-        List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
-            return stringMetaData.getOrDefault(new IntLookupKey(agentId, time, stringId), Collections.emptyList());
+        List<StringMetaDataBo> getStringMetaData(ServiceUid serviceUid, String agentId, long time, int stringId) {
+            return stringMetaData.getOrDefault(
+                    new IntLookupKey(serviceUid, agentId, time, stringId),
+                    Collections.emptyList());
         }
 
-        List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
-            return apiMetaData.getOrDefault(new IntLookupKey(agentId, time, apiId), Collections.emptyList());
+        List<ApiMetaDataBo> getApiMetaData(ServiceUid serviceUid, String agentId, long time, int apiId) {
+            return apiMetaData.getOrDefault(
+                    new IntLookupKey(serviceUid, agentId, time, apiId),
+                    Collections.emptyList());
         }
     }
 }

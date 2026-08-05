@@ -40,7 +40,12 @@ public class HbaseSqlUidMetaDataService implements SqlUidMetaDataService {
     public void insert(SqlUidMetaDataBo sqlUidMetaDataBo) {
         if (sqlUidMetaDataBo.getSql().length() > maxSqlLength) {
             String sql = StringUtils.abbreviate(sqlUidMetaDataBo.getSql(), maxSqlLength);
-            sqlUidMetaDataBo = new SqlUidMetaDataBo(sqlUidMetaDataBo.getAgentId(), sqlUidMetaDataBo.getAgentStartTime(), sqlUidMetaDataBo.getApplicationName(), sqlUidMetaDataBo.getUid(), sql);
+            sqlUidMetaDataBo = new SqlUidMetaDataBo(
+                    sqlUidMetaDataBo.getServiceUid(),
+                    sqlUidMetaDataBo.getAgentId(),
+                    sqlUidMetaDataBo.getAgentStartTime(),
+                    sqlUidMetaDataBo.getApplicationName(),
+                    sqlUidMetaDataBo.getUid(), sql);
         }
         this.sqlUidMetaDataDao.insert(sqlUidMetaDataBo);
     }

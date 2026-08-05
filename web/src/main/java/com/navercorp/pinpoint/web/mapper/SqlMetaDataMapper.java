@@ -61,7 +61,7 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
         for (Cell cell : result.rawCells()) {
             String sql = readSql(cell);
 
-            SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(key.getAgentId(), key.getAgentStartTime(), key.getId(), sql);
+            SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(key.getServiceUid(), key.getAgentId(), key.getAgentStartTime(), key.getId(), sql);
             sqlMetaDataList.add(sqlMetaDataBo);
         }
         return sqlMetaDataList;

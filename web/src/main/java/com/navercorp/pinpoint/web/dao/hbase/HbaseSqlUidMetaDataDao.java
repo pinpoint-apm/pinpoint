@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.DefaultUidMetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDataRowKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.dao.SqlUidMetaDataDao;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -56,10 +57,11 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
     }
 
     @Override
-    public List<SqlUidMetaDataBo> getSqlUidMetaData(String agentId, long time, byte[] sqlUid) {
+    public List<SqlUidMetaDataBo> getSqlUidMetaData(ServiceUid serviceUid, String agentId, long time, byte[] sqlUid) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(agentId, "agentId");
 
-        UidMetaDataRowKey uidMetaDataRowKey = new DefaultUidMetaDataRowKey(agentId, time, sqlUid);
+        UidMetaDataRowKey uidMetaDataRowKey = new DefaultUidMetaDataRowKey(serviceUid, agentId, time, sqlUid);
         byte[] rowKey = rowKeyEncoder.encodeRowKey(uidMetaDataRowKey);
 
         Get get = new Get(rowKey);
@@ -78,7 +80,7 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
 
         List<Get> gets = new ArrayList<>(keys.size());
         for (SqlUidMetaDataKey key : keys) {
-            UidMetaDataRowKey uidMetaDataRowKey = new DefaultUidMetaDataRowKey(key.agentId(), key.agentStartTime(), key.sqlUid());
+            UidMetaDataRowKey uidMetaDataRowKey = new DefaultUidMetaDataRowKey(key.serviceUid(), key.agentId(), key.agentStartTime(), key.sqlUid());
             Get get = new Get(rowKeyEncoder.encodeRowKey(uidMetaDataRowKey));
             get.addFamily(DESCRIPTOR.getName());
             gets.add(get);

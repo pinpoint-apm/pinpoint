@@ -16,23 +16,27 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+
+import java.util.List;
 
 /**
  * @author emeroad
  */
 public interface ApiMetaDataDao {
-    List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId);
+    List<ApiMetaDataBo> getApiMetaData(ServiceUid serviceUid, String agentId, long time, int apiId);
 
     /**
-     * Batch variant of {@link #getApiMetaData(String, long, int)}.
+     * Batch variant of {@link #getApiMetaData(ServiceUid, String, long, int)}.
      * The returned list is index-aligned with {@code keys}; a key with no matching
      * row yields an empty list at the same index.
      */
     List<List<ApiMetaDataBo>> getApiMetaData(List<ApiMetaDataKey> keys);
 
-    record ApiMetaDataKey(String agentId, long agentStartTime, int apiId) {
+    record ApiMetaDataKey(ServiceUid serviceUid, String agentId, long agentStartTime, int apiId) {
+        public ApiMetaDataKey(String agentId, long agentStartTime, int apiId) {
+            this(ServiceUid.DEFAULT, agentId, agentStartTime, apiId);
+        }
     }
 }

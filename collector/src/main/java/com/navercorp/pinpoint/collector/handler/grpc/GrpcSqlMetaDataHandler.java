@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.common.server.io.ServerResponse;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
@@ -54,34 +55,46 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<PSqlMetaDa
         serverResponse.write(result);
     }
 
-    private PResult handleSqlMetaData(ServerHeader header, PSqlMetaData sqlMetaData) {
+    PResult handleSqlMetaData(ServerHeader header, PSqlMetaData sqlMetaData) {
         if (isDebug) {
             logger.debug("Handle PSqlMetaData={}", MessageFormatUtils.debugLog(sqlMetaData));
         }
 
-        final SqlMetaDataBo sqlMetaDataBo = mapSqlMetaDataBo(header, sqlMetaData);
-
-        boolean result = true;
-        for (SqlMetaDataService sqlMetaDataService : sqlMetaDataServices) {
-            try {
-                sqlMetaDataService.insert(sqlMetaDataBo);
-            } catch (Throwable e) {
-                // Avoid detailed error messages.
-                logger.warn("Failed to handle sqlMetaData={}", MessageFormatUtils.debugLog(sqlMetaData), e);
-                result = false;
+        try {
+            ServiceUid serviceUid = header.getServiceUid().get();
+            if (serviceUid == null || ServiceUid.UNKNOWN.equals(serviceUid) || ServiceUid.ERROR.equals(serviceUid)) {
+                logger.warn("Service not found. serviceName={}, serviceUid={}, applicationName={}, agentId={}",
+                        header.getServiceName(), serviceUid, header.getApplicationName(), header.getAgentId());
+                return PResults.serviceNotFound(header.getServiceName());
             }
-        }
 
-        return newResult(result);
+            final SqlMetaDataBo sqlMetaDataBo = mapSqlMetaDataBo(header, sqlMetaData, serviceUid);
+
+            boolean result = true;
+            for (SqlMetaDataService sqlMetaDataService : sqlMetaDataServices) {
+                try {
+                    sqlMetaDataService.insert(sqlMetaDataBo);
+                } catch (Exception e) {
+                    // Avoid detailed error messages.
+                    logger.warn("Failed to handle applicationName={}, sqlMetaData={}", header.getApplicationName(), MessageFormatUtils.debugLog(sqlMetaData), e);
+                    result = false;
+                }
+            }
+
+            return newResult(result);
+        } catch (Exception e) {
+            logger.warn("Failed to handle applicationName={}, sqlMetaData={}", header.getApplicationName(), MessageFormatUtils.debugLog(sqlMetaData), e);
+            return PResults.INTERNAL_SERVER_ERROR;
+        }
     }
 
-    private static SqlMetaDataBo mapSqlMetaDataBo(ServerHeader agentInfo, PSqlMetaData sqlMetaData) {
+    private static SqlMetaDataBo mapSqlMetaDataBo(ServerHeader agentInfo, PSqlMetaData sqlMetaData, ServiceUid serviceUid) {
         final String agentId = agentInfo.getAgentId();
         final long agentStartTime = agentInfo.getAgentStartTime();
         final int sqlId = sqlMetaData.getSqlId();
         final String sql = sqlMetaData.getSql();
 
-        return new SqlMetaDataBo(agentId, agentStartTime, sqlId, sql);
+        return new SqlMetaDataBo(serviceUid, agentId, agentStartTime, sqlId, sql);
     }
 
     private static PResult newResult(boolean success) {

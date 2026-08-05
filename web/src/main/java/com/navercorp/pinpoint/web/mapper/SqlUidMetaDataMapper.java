@@ -55,7 +55,7 @@ public class SqlUidMetaDataMapper implements RowMapper<List<SqlUidMetaDataBo>> {
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingQualifier(cell, SQL_UID_METADATA_CF_SQL_QUALI_SQLSTATEMENT)) {
                 String sqlStatement = CellUtils.valueToString(cell);
-                SqlUidMetaDataBo sqlUidMetaDataBo = new SqlUidMetaDataBo(key.getAgentId(), key.getAgentStartTime(), key.getUid(), sqlStatement);
+                SqlUidMetaDataBo sqlUidMetaDataBo = new SqlUidMetaDataBo(key.getServiceUid(), key.getAgentId(), key.getAgentStartTime(), key.getUid(), sqlStatement);
                 sqlUidMetaDataList.add(sqlUidMetaDataBo);
             }
         }
