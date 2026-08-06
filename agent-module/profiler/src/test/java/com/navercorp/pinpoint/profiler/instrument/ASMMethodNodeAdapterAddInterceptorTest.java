@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum;
 import com.navercorp.pinpoint.profiler.instrument.mock.BasicInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.ExceptionInterceptor;
+import com.navercorp.pinpoint.profiler.instrument.mock.ResultReplaceInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -91,6 +92,87 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
     @Test
     public void addBasicInterceptor() throws Exception {
         addInterceptor(new BasicInterceptor());
+    }
+
+    @Test
+    public void addResultReplaceInterceptor() throws Exception {
+        // without a replacement the interceptor behaves like a plain around interceptor,
+        // so the whole shared suite (constructors, primitives, exceptions) must pass unchanged.
+        addInterceptor(new ResultReplaceInterceptor());
+    }
+
+    @Test
+    public void resultReplaceReturnValue() throws Exception {
+        ResultReplaceInterceptor interceptor = new ResultReplaceInterceptor();
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ReturnClass", interceptor);
+        Object instance = clazz.newInstance();
+        Method returnString = clazz.getDeclaredMethod("returnString");
+
+        // a replacement of the declared return type is handed to the caller.
+        ResultReplaceInterceptor.clear();
+        ResultReplaceInterceptor.useReplacement = true;
+        ResultReplaceInterceptor.replacement = "replaced";
+        assertEquals("replaced", returnString.invoke(instance));
+        assertEquals("s", ResultReplaceInterceptor.result);
+        assertEquals(String.class, ResultReplaceInterceptor.afterReturnType);
+        assertEquals(String.class, ResultReplaceInterceptor.beforeReturnType);
+
+        // null keeps the original.
+        ResultReplaceInterceptor.clear();
+        ResultReplaceInterceptor.useReplacement = true;
+        ResultReplaceInterceptor.replacement = null;
+        assertEquals("s", returnString.invoke(instance));
+
+        // a type-incompatible replacement keeps the original.
+        ResultReplaceInterceptor.clear();
+        ResultReplaceInterceptor.useReplacement = true;
+        ResultReplaceInterceptor.replacement = Integer.valueOf(1);
+        assertEquals("s", returnString.invoke(instance));
+
+        // array return type.
+        ResultReplaceInterceptor.clear();
+        ResultReplaceInterceptor.useReplacement = true;
+        ResultReplaceInterceptor.replacement = new String[]{"replaced"};
+        Method returnStringArray = clazz.getDeclaredMethod("returnStringArray");
+        assertThat((String[]) returnStringArray.invoke(instance)).containsExactly("replaced");
+        assertEquals(String[].class, ResultReplaceInterceptor.afterReturnType);
+
+        // primitive return: the interceptor's value is discarded (defensive path).
+        ResultReplaceInterceptor.clear();
+        ResultReplaceInterceptor.useReplacement = true;
+        ResultReplaceInterceptor.replacement = Integer.valueOf(99);
+        Method returnInt = clazz.getDeclaredMethod("returnInt");
+        assertEquals(1, returnInt.invoke(instance));
+        assertEquals(Integer.class, ResultReplaceInterceptor.afterReturnType);
+
+        // void return: no value to replace, interceptor still runs.
+        ResultReplaceInterceptor.clear();
+        ResultReplaceInterceptor.useReplacement = true;
+        ResultReplaceInterceptor.replacement = "ignored";
+        Method voidType = clazz.getDeclaredMethod("voidType");
+        assertNull(voidType.invoke(instance));
+        assertTrue(ResultReplaceInterceptor.after);
+        assertEquals(Void.class, ResultReplaceInterceptor.afterReturnType);
+    }
+
+    @Test
+    public void resultReplaceExceptionPath() throws Exception {
+        ResultReplaceInterceptor interceptor = new ResultReplaceInterceptor();
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ExceptionClass", interceptor);
+
+        // exiting exceptionally: the interceptor's value is discarded and the original exception propagates.
+        ResultReplaceInterceptor.clear();
+        ResultReplaceInterceptor.useReplacement = true;
+        ResultReplaceInterceptor.replacement = "ignored";
+        Method method = clazz.getDeclaredMethod("throwable");
+        try {
+            method.invoke(clazz.newInstance());
+            fail("expected an exception");
+        } catch (Throwable expected) {
+        }
+        assertTrue(ResultReplaceInterceptor.after);
+        assertNotNull(ResultReplaceInterceptor.throwable);
+        assertNull(ResultReplaceInterceptor.result);
     }
 
     @Disabled
@@ -298,6 +380,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         ApiIdAwareInterceptor.clear();
         BasicInterceptor.clear();
         ExceptionInterceptor.clear();
+        ResultReplaceInterceptor.clear();
 
         Constructor<?> constructor;
         Method method = null;
@@ -436,6 +519,33 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
             assertEquals(returnValue, ApiIdAwareInterceptor.result, name);
             if (throwable) {
                 assertNotNull(ApiIdAwareInterceptor.throwable, name);
+            }
+        } else if (interceptorClass == ResultReplaceInterceptor.class) {
+            assertTrue(ResultReplaceInterceptor.before, name);
+            assertTrue(ResultReplaceInterceptor.after, name);
+
+            if (method != null && Modifier.isStatic(method.getModifiers())) {
+                assertNull(ResultReplaceInterceptor.beforeTarget, name);
+                assertNull(ResultReplaceInterceptor.afterTarget, name);
+            } else if (method != null) {
+                assertNotNull(ResultReplaceInterceptor.beforeTarget, name);
+                assertNotNull(ResultReplaceInterceptor.afterTarget, name);
+            }
+            assertEquals(ResultReplaceInterceptor.beforeTarget, ResultReplaceInterceptor.afterTarget, name);
+
+            assertNotNull(ResultReplaceInterceptor.beforeReturnType, name);
+            assertNotNull(ResultReplaceInterceptor.afterReturnType, name);
+
+            if (ResultReplaceInterceptor.beforeArgs != null) {
+                assertThat(args).as(name).containsExactly(ResultReplaceInterceptor.beforeArgs);
+            }
+
+            if (ResultReplaceInterceptor.afterArgs != null) {
+                assertThat(args).as(name).containsExactly(ResultReplaceInterceptor.afterArgs);
+            }
+            assertEquals(returnValue, ResultReplaceInterceptor.result, name);
+            if (throwable) {
+                assertNotNull(ResultReplaceInterceptor.throwable, name);
             }
         } else if (interceptorClass == BasicInterceptor.class) {
             assertTrue(BasicInterceptor.before, name);

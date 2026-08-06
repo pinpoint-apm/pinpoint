@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.CaptureType;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolder;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorType;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -65,6 +66,10 @@ public class ASMMethodNodeAdapter {
     // find interceptor local variable.
     public boolean hasInterceptor() {
         return this.methodVariables.hasInterceptor();
+    }
+
+    public boolean hasObjectOrArrayReturnType() {
+        return this.methodVariables.hasObjectOrArrayReturnType();
     }
 
     public String getName() {
@@ -273,6 +278,8 @@ public class ASMMethodNodeAdapter {
         this.methodNode.instructions.insertBefore(this.methodVariables.getEnterInsnNode(), tryCatch.getStartLabelNode());
         this.methodNode.instructions.insert(this.methodVariables.getExitInsnNode(), tryCatch.getEndLabelNode());
 
+        final boolean resultReplace = interceptorDefinition.getInterceptorType() == InterceptorType.RESULT_REPLACE;
+
         // find return.
         AbstractInsnNode insnNode = this.methodNode.instructions.getFirst();
         while (insnNode != null) {
@@ -281,6 +288,14 @@ public class ASMMethodNodeAdapter {
                 final InsnList instructions = new InsnList();
                 this.methodVariables.storeResultVar(instructions, opcode);
                 invokeAfterInterceptor(instructions, interceptorDefinition, false);
+                if (resultReplace) {
+                    if (opcode == Opcodes.ARETURN) {
+                        this.methodVariables.replaceReturnValue(instructions);
+                    } else {
+                        // defensive: only reachable when the reference-return validation was bypassed.
+                        this.methodVariables.discardReturnValue(instructions);
+                    }
+                }
                 this.methodNode.instructions.insertBefore(insnNode, instructions);
             }
             insnNode = insnNode.getNext();
@@ -290,6 +305,10 @@ public class ASMMethodNodeAdapter {
         InsnList instructions = new InsnList();
         this.methodVariables.storeThrowableVar(instructions);
         invokeAfterInterceptor(instructions, interceptorDefinition, true);
+        if (resultReplace) {
+            // exiting exceptionally: there is no return value to replace.
+            this.methodVariables.discardReturnValue(instructions);
+        }
         // throw exception.
         this.methodVariables.loadInterceptorThrowVar(instructions);
         this.methodNode.instructions.insert(tryCatch.getEndLabelNode(), instructions);

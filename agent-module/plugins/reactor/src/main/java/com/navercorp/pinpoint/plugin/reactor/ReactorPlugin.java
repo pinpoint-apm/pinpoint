@@ -35,6 +35,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberConstructorInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnNextInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.SchedulerTaskConstructorInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.SchedulerTaskRunInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeOrReturnInterceptor;
@@ -88,6 +90,9 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
         addFluxAndMono();
         addThreadingAndSchedulers();
+        if (config.isTraceSchedulerTask()) {
+            addSchedulerTasks();
+        }
         addProcessor();
         addFlux();
         addMono();
@@ -114,6 +119,27 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         transformTemplate.transform("reactor.core.publisher.FluxSubscribeOnCallable$CallableSubscribeOnSubscription", RunnableSubscriptionTransform.class);
         transformTemplate.transform("reactor.core.publisher.FluxInterval$IntervalRunnable", RunnableSubscriptionTransform.class);
         transformTemplate.transform("reactor.core.publisher.MonoDelay$MonoDelayRunnable", RunnableSubscriptionTransform.class);
+    }
+
+    /**
+     * Scheduler task carriers: every task the built-in schedulers wrap a submitted Runnable in
+     * before it crosses to a worker thread. The carrier receives the AsyncContext at construction
+     * (the scheduled Runnable is often an instrumented operator subscriber — publishOn/subscribeOn
+     * schedule themselves) and re-activates it around run()/call() on the worker thread.
+     * <p>
+     * The virtual-thread boundedElastic task exists only as a {@code META-INF/versions/21} entry
+     * (reactor 3.6+), so on JDK 8~20 — and on versions without the other classes (3.1.x has no
+     * InstantPeriodicWorkerTask) — the unmatched transform is a no-op.
+     */
+    private void addSchedulerTasks() {
+        transformTemplate.transform("reactor.core.scheduler.SchedulerTask", SchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.WorkerTask", SchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.PeriodicSchedulerTask", SchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.PeriodicWorkerTask", SchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.InstantPeriodicWorkerTask", SchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.ExecutorScheduler$ExecutorPlainRunnable", SchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.ExecutorScheduler$ExecutorTrackedRunnable", SchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.BoundedElasticThreadPerTaskScheduler$SchedulerTask", SchedulerTaskTransform.class);
     }
 
     private void addProcessor() {
@@ -267,6 +293,42 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             final InstrumentMethod runMethod = target.getDeclaredMethod("run");
             if (runMethod != null) {
                 runMethod.addInterceptor(RunnableSubscriptionInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class SchedulerTaskTransform implements TransformCallback {
+        // ASM ACC_SYNTHETIC: skips the bridge call():Object the compiler adds next to call():Void.
+        private static final int ACC_SYNTHETIC = 0x1000;
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                final String[] parameterTypes = constructorMethod.getParameterTypes();
+                if (ArrayUtils.hasLength(parameterTypes)) {
+                    constructorMethod.addInterceptor(SchedulerTaskConstructorInterceptor.class, va(ReactorConstants.REACTOR));
+                }
+            }
+            // the execution entry point differs per version and class (run() delegating to call(),
+            // call() only, run() only) - weave both; the async trace scope activates only once.
+            for (InstrumentMethod method : target.getDeclaredMethods()) {
+                final String name = method.getName();
+                if (!"run".equals(name) && !"call".equals(name)) {
+                    continue;
+                }
+                if (ArrayUtils.hasLength(method.getParameterTypes())) {
+                    continue;
+                }
+                if ((method.getModifiers() & ACC_SYNTHETIC) != 0) {
+                    continue;
+                }
+                method.addInterceptor(SchedulerTaskRunInterceptor.class);
             }
 
             return target.toBytecode();

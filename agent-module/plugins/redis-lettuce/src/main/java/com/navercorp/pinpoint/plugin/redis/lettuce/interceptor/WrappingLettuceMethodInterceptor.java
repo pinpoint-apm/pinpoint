@@ -1,0 +1,132 @@
+/*
+ * Copyright 2026 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
+
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.plugin.reactorsupport.SeamPublisherWrapper;
+import com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.LettuceConstants;
+import com.navercorp.pinpoint.plugin.redis.lettuce.StatefulConnectionGetter;
+
+import java.util.Objects;
+
+/**
+ * Wrapping variant of {@link LettuceMethodInterceptor} (config-gated by
+ * {@code profiler.redis.lettuce.wrap.publisher}). This interceptor covers both the async and
+ * the reactive command surface: a reactor Mono/Flux result is replaced with a wrapped one,
+ * while any other async result (futures, non-reactor publishers) keeps the original injection.
+ */
+public class WrappingLettuceMethodInterceptor implements ResultReplaceAroundInterceptor {
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
+
+    public WrappingLettuceMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
+    }
+
+    @Override
+    public void before(Object target, Class<?> returnType, Object[] args) {
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        try {
+            final SpanEventRecorder recorder = trace.traceBlockBegin();
+            recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
+            }
+        }
+    }
+
+    @Override
+    public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return result;
+        }
+
+        try {
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final String endPoint = toEndPoint(target);
+            recorder.recordApi(methodDescriptor);
+            recorder.recordEndPoint(Objects.toString(endPoint, "Unknown"));
+            recorder.recordDestinationId(LettuceConstants.REDIS_LETTUCE.getName());
+            recorder.recordException(throwable);
+
+            if (throwable != null) {
+                return result;
+            }
+
+            if (SeamPublisherWrapper.isWrappable(result)) {
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+                final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
+                if (isDebug) {
+                    logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
+                }
+                return wrapped;
+            }
+            // non-reactor async result: keep the original injection.
+            if (result instanceof AsyncContextAccessor) {
+                if (AsyncContextAccessorUtils.getAsyncContext(result) == null) {
+                    // Avoid duplicate async context
+                    final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+                    ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+                    if (isDebug) {
+                        logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
+                    }
+                }
+            }
+            return result;
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
+            }
+            return result;
+        } finally {
+            trace.traceBlockEnd();
+        }
+    }
+
+    private String toEndPoint(final Object target) {
+        if (!(target instanceof StatefulConnectionGetter)) {
+            return null;
+        }
+
+        final Object connection = ((StatefulConnectionGetter) target)._$PINPOINT$_getConnection();
+        if (!(connection instanceof EndPointAccessor)) {
+            return null;
+        }
+
+        return ((EndPointAccessor) connection)._$PINPOINT$_getEndPoint();
+    }
+}

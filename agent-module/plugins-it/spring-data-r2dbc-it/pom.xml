@@ -49,6 +49,12 @@
             <artifactId>pinpoint-spring-data-r2dbc-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- instruments the profiler.entrypoint (Echo) used by the seam-wrap IT -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-user-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Spring data r2dbc -->
         <dependency>
             <groupId>org.springframework.data</groupId>

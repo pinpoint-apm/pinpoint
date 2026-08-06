@@ -34,6 +34,7 @@ public class SpringWebFluxPluginConfig {
     private final boolean uriStatEnable;
     private final boolean uriStatUseUserInput;
     private final boolean uriStatCollectMethod;
+    private final boolean wrapPublisher;
     public SpringWebFluxPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
 
@@ -50,6 +51,11 @@ public class SpringWebFluxPluginConfig {
         this.uriStatEnable = config.readBoolean("profiler.uri.stat.spring.webflux.enable", false);
         this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.spring.webflux.useuserinput", false);
         this.uriStatCollectMethod = config.readBoolean("profiler.uri.stat.collect.http.method", false);
+        this.wrapPublisher = config.readBoolean("profiler.spring.webflux.wrap.publisher", false);
+    }
+
+    public boolean isWrapPublisher() {
+        return wrapPublisher;
     }
 
     public boolean isEnable() {
@@ -88,6 +94,7 @@ public class SpringWebFluxPluginConfig {
         sb.append(", httpDumpConfig=").append(httpDumpConfig);
         sb.append(", uriStatEnable=").append(uriStatEnable);
         sb.append(", uriStatUseUserInput=").append(uriStatUseUserInput);
+        sb.append(", wrapPublisher=").append(wrapPublisher);
         sb.append('}');
         return sb.toString();
     }
