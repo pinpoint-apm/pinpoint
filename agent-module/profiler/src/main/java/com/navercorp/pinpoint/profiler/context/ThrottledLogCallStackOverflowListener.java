@@ -20,18 +20,20 @@ import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
+
 public class ThrottledLogCallStackOverflowListener implements CallStackOverflowListener {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isInfo = logger.isInfoEnabled();
 
     private final int maxDepth;
     private final int maxSequence;
-    private ThrottledLogger throttledLogger;
+    private final ThrottledLogger throttledLogger;
 
-    public ThrottledLogCallStackOverflowListener(final int maxDepth, final int maxSequence, final int overflowLogRation) {
+    public ThrottledLogCallStackOverflowListener(final int maxDepth, final int maxSequence, final long overflowLogIntervalMillis) {
         this.maxDepth = maxDepth;
         this.maxSequence = maxSequence;
-        this.throttledLogger = ThrottledLogger.getIntervalLogger(logger);
+        this.throttledLogger = ThrottledLogger.getIntervalLogger(logger, Duration.ofMillis(overflowLogIntervalMillis));
     }
 
     @Override

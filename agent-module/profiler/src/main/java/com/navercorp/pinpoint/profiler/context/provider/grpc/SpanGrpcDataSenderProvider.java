@@ -46,6 +46,7 @@ import io.netty.handler.ssl.SslContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
@@ -156,11 +157,11 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
     }
 
     private ClientInterceptor newDiscardClientInterceptor() {
-        final int spanDiscardLogRateLimit = grpcTransportConfig.getSpanDiscardLogRateLimit();
+        final long spanDiscardLogIntervalMillis = grpcTransportConfig.getSpanDiscardLogIntervalMillis();
         final long spanDiscardMaxPendingThreshold = grpcTransportConfig.getSpanDiscardMaxPendingThreshold();
         final long spanDiscardCountForReconnect = grpcTransportConfig.getSpanDiscardCountForReconnect();
         final long spanNotReadyTimeoutMillis = grpcTransportConfig.getSpanNotReadyTimeoutMillis();
-        final DiscardEventListener<?> discardEventListener = new LoggingDiscardEventListener(SpanGrpcDataSender.class.getName(), spanDiscardLogRateLimit);
+        final DiscardEventListener<?> discardEventListener = new LoggingDiscardEventListener<>(SpanGrpcDataSender.class.getName(), Duration.ofMillis(spanDiscardLogIntervalMillis));
         return new DiscardClientInterceptor(discardEventListener, spanDiscardMaxPendingThreshold, spanDiscardCountForReconnect, spanNotReadyTimeoutMillis);
     }
 

@@ -26,11 +26,11 @@ public class CallStackFactoryV1 implements CallStackFactory<SpanEvent> {
     private final int maxSequence;
     private final CallStackOverflowListener overflowListener;
 
-    public CallStackFactoryV1(int maxDepth, int maxSequence, int overflowLogRation) {
+    public CallStackFactoryV1(int maxDepth, int maxSequence, long overflowLogIntervalMillis) {
         this.maxDepth = maxDepth;
         this.maxSequence = maxSequence;
-        if (overflowLogRation > 1) {
-            this.overflowListener = new ThrottledLogCallStackOverflowListener(maxDepth, maxSequence, overflowLogRation);
+        if (overflowLogIntervalMillis > 0) {
+            this.overflowListener = new ThrottledLogCallStackOverflowListener(maxDepth, maxSequence, overflowLogIntervalMillis);
         } else {
             this.overflowListener = new DefaultCallStackOverflowListener(maxDepth, maxSequence);
         }

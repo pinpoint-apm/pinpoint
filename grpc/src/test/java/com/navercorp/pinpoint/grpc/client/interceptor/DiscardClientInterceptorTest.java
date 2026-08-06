@@ -37,6 +37,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -79,7 +81,7 @@ public class DiscardClientInterceptorTest {
         this.clientCall = new ClientCallRecorder();
         when(channel.newCall(descriptor, callOptions)).thenReturn(clientCall);
 
-        discardEventListener = spy(new LoggingDiscardEventListener<String>(DiscardClientInterceptorTest.class.getName(), 1));
+        discardEventListener = spy(new LoggingDiscardEventListener<>(DiscardClientInterceptorTest.class.getName(), Duration.ofSeconds(1)));
         this.interceptor = new DiscardClientInterceptor(discardEventListener, 1, 100, 1000);
 
         this.call = (DiscardClientCall<String, Integer>) interceptor.interceptCall(descriptor, callOptions, channel);

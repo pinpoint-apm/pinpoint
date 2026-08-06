@@ -45,7 +45,7 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
 
     private int callStackMaxDepth = 64;
     private int callStackMaxSequence = 5000;
-    private int callStackOverflowLogRation = 100;
+    private long callStackOverflowLogIntervalMillis = 3000;
 
     private Filter<String> profilableClassFilter = new SkipFilter<>();
 
@@ -116,8 +116,8 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
         return callStackMaxSequence;
     }
 
-    public int getCallStackOverflowLogRation() {
-        return callStackOverflowLogRation;
+    public long getCallStackOverflowLogIntervalMillis() {
+        return callStackOverflowLogIntervalMillis;
     }
 
     @Value("${profiler.callstack.max.depth}")
@@ -140,14 +140,9 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
         this.callStackMaxSequence = callStackMaxSequence;
     }
 
-    @Value("${profiler.callstack.overflow.log.ration}")
-    public void setCallStackOverflowLogRation(int callStackOverflowLogRation) {
-        final int minLimit = 1;
-        if (callStackOverflowLogRation < minLimit) {
-            this.callStackOverflowLogRation = minLimit;
-        } else {
-            this.callStackOverflowLogRation = callStackOverflowLogRation;
-        }
+    @Value("${profiler.callstack.overflow.log.interval.millis}")
+    public void setCallStackOverflowLogIntervalMillis(long callStackOverflowLogIntervalMillis) {
+        this.callStackOverflowLogIntervalMillis = Math.max(callStackOverflowLogIntervalMillis, 0);
     }
 
     @Override
@@ -180,7 +175,7 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
                 ", pinpointExcludePackage='" + pinpointExcludePackage + '\'' +
                 ", callStackMaxDepth=" + callStackMaxDepth +
                 ", callStackMaxSequence=" + callStackMaxSequence +
-                ", callStackOverflowLogRation=" + callStackOverflowLogRation +
+                ", callStackOverflowLogIntervalMillis=" + callStackOverflowLogIntervalMillis +
                 ", profilableClassFilter=" + profilableClassFilter +
                 ", applicationServerType='" + applicationServerType + '\'' +
                 ", propagateInterceptorException=" + propagateInterceptorException +

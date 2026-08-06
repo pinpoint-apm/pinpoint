@@ -55,7 +55,7 @@ public class GrpcTransportConfig {
 
     private static final boolean DEFAULT_SSL = false;
 
-    private static final int DEFAULT_DISCARD_LOG_RATE_LIMIT = 100;
+    private static final long DEFAULT_DISCARD_LOG_INTERVAL_MILLIS = 3000;
     private static final long DEFAULT_DISCARD_MAX_PENDING_THRESHOLD = 1024;
     private static final long DEFAULT_DISCARD_COUNT_FOR_RECONNECT = 1000;
     private static final long DEFAULT_NOT_READY_TIMEOUT_MILLIS = 5 * 60 * 1000;
@@ -160,8 +160,8 @@ public class GrpcTransportConfig {
 
     private SpanBatchSenderConfig spanBatchSenderConfig = new SpanBatchSenderConfig();
 
-    @Value("${profiler.transport.grpc.span.sender.discardpolicy.logger.discard.ratelimit}")
-    private int spanDiscardLogRateLimit = DEFAULT_DISCARD_LOG_RATE_LIMIT;
+    @Value("${profiler.transport.grpc.span.sender.discardpolicy.logger.discard.interval.millis}")
+    private long spanDiscardLogIntervalMillis = DEFAULT_DISCARD_LOG_INTERVAL_MILLIS;
     @Value("${profiler.transport.grpc.span.sender.discardpolicy.maxpendingthreshold}")
     private long spanDiscardMaxPendingThreshold = DEFAULT_DISCARD_MAX_PENDING_THRESHOLD;
     @Value("${profiler.transport.grpc.span.sender.discardpolicy.discard-count-for-reconnect}")
@@ -320,8 +320,8 @@ public class GrpcTransportConfig {
         return statSenderExecutorQueueSize;
     }
 
-    public int getSpanDiscardLogRateLimit() {
-        return spanDiscardLogRateLimit;
+    public long getSpanDiscardLogIntervalMillis() {
+        return spanDiscardLogIntervalMillis;
     }
 
     public long getSpanDiscardMaxPendingThreshold() {
@@ -476,7 +476,7 @@ public class GrpcTransportConfig {
                 ", nettySystemPropertyTryReflectiveSetAccessible=" + nettySystemPropertyTryReflectiveSetAccessible +
                 ", spanSenderType=" + getSpanSenderType() +
                 ", spanBatchSenderConfig=" + spanBatchSenderConfig +
-                ", spanDiscardLogRateLimit=" + spanDiscardLogRateLimit +
+                ", spanDiscardLogIntervalMillis=" + spanDiscardLogIntervalMillis +
                 ", spanDiscardMaxPendingThreshold=" + spanDiscardMaxPendingThreshold +
                 '}';
     }

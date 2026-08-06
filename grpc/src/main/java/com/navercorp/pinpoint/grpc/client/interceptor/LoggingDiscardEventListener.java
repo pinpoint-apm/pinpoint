@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -29,10 +30,10 @@ public class LoggingDiscardEventListener<ReqT> implements DiscardEventListener<R
     private final ThrottledLogger logger;
 
 
-    public LoggingDiscardEventListener(String loggerName, long rateLimitCount) {
+    public LoggingDiscardEventListener(String loggerName, Duration loggerInterval) {
         Objects.requireNonNull(loggerName, "loggerName");
         Logger log = LogManager.getLogger(loggerName);
-        this.logger = ThrottledLogger.getIntervalLogger(log);
+        this.logger = ThrottledLogger.getIntervalLogger(log, loggerInterval);
     }
 
     @Override
