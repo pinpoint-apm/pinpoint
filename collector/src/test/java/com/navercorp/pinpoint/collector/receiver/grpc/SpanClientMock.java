@@ -178,7 +178,7 @@ public class SpanClientMock {
         final int spanDiscardLogRateLimit = 1000;
         final long spanDiscardMaxPendingThreshold = 1000;
 
-        final DiscardEventListener<?> discardEventListener = new LoggingDiscardEventListener<>(SpanGrpcDataSender.class.getName(), spanDiscardLogRateLimit);
+        final DiscardEventListener<?> discardEventListener = new LoggingDiscardEventListener<>(SpanGrpcDataSender.class.getName(), Duration.ofMillis(spanDiscardLogRateLimit));
         return new DiscardClientInterceptor(discardEventListener, spanDiscardMaxPendingThreshold, 1000, 1000);
     }
 
