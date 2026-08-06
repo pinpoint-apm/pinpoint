@@ -36,7 +36,7 @@ import java.util.Arrays;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint.config")
-@Dependency({"io.projectreactor:reactor-core:[3.6.9]"})
+@Dependency({"io.projectreactor:reactor-core:[3.6.9][3.7.19]"})
 
 public class Reactor_IT {
 

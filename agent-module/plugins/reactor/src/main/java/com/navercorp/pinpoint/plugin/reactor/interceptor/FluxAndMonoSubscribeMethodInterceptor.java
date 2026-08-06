@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriber;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessorUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
@@ -57,18 +55,17 @@ public class FluxAndMonoSubscribeMethodInterceptor implements BlockApiIdAwareAro
             return null;
         }
 
-        if (ReactorSubscriberAccessorUtils.get(args, 0) != null) {
-            // already set reactorSubscriber
+        if (AsyncContextAccessorUtils.getAsyncContext(args, 0) != null) {
+            // already set asyncContext
             return null;
         }
 
         try {
             final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
             if (asyncContext != null) {
-                final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(asyncContext);
-                ReactorSubscriberAccessorUtils.set(reactorSubscriber, args, 0);
+                AsyncContextAccessorUtils.setAsyncContext(asyncContext, args, 0);
                 if (isDebug) {
-                    logger.debug("Pass this to subscribe(args[0]). reactorSubscriber={}", reactorSubscriber);
+                    logger.debug("Pass this to subscribe(args[0]). asyncContext={}", asyncContext);
                 }
                 return null;
             }
@@ -77,11 +74,10 @@ public class FluxAndMonoSubscribeMethodInterceptor implements BlockApiIdAwareAro
             traceBlock.begin();
             traceBlock.recordServiceType(ReactorConstants.REACTOR);
             final AsyncContext nextAsyncContext = traceBlock.recordNextAsyncContext();
-            // set reactorSubscriber to args[0]
-            final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(nextAsyncContext);
-            ReactorSubscriberAccessorUtils.set(reactorSubscriber, args, 0);
+            // set asyncContext to args[0]
+            AsyncContextAccessorUtils.setAsyncContext(nextAsyncContext, args, 0);
             if (isDebug) {
-                logger.debug("Set reactorSubscriber to args[0]. reactorSubscriber={}", reactorSubscriber);
+                logger.debug("Set asyncContext to args[0]. asyncContext={}", nextAsyncContext);
             }
             return traceBlock;
         } catch (Throwable th) {

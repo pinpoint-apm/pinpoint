@@ -16,22 +16,21 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriber;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessorUtils;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 
-public class ParallelFluxSubscribeInterceptor implements ApiIdAwareAroundInterceptor {
+public class ParallelFluxSubscribeInterceptor implements InjectedAsyncContextApiIdAwareAroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     public ParallelFluxSubscribeInterceptor() {
     }
 
-    public void before(Object target, int apiId, Object[] args) {
+    @Override
+    public void before(Object target, AsyncContext asyncContext, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -41,12 +40,11 @@ public class ParallelFluxSubscribeInterceptor implements ApiIdAwareAroundInterce
         }
 
         try {
-            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
+            // asyncContext is supplied by the weaver (monomorphic getfield of the injected accessor field).
             if (asyncContext != null) {
-                ReactorSubscriber reactorSubscriber = new ReactorSubscriber(asyncContext);
-                setReactorSubscriber(reactorSubscriber, args);
+                setAsyncContext(asyncContext, args);
                 if (isDebug) {
-                    logger.debug("Set reactorSubscriber to args. reactorSubscriber={}", reactorSubscriber);
+                    logger.debug("Set asyncContext to args. asyncContext={}", asyncContext);
                 }
             }
         } catch (Throwable th) {
@@ -57,18 +55,18 @@ public class ParallelFluxSubscribeInterceptor implements ApiIdAwareAroundInterce
     }
 
     @Override
-    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 
-    private void setReactorSubscriber(final ReactorSubscriber reactorSubscriber, final Object[] args) {
+    private void setAsyncContext(final AsyncContext asyncContext, final Object[] args) {
         for (Object arg : args) {
             if (arg instanceof Object[]) {
                 final Object[] array = (Object[]) arg;
                 for (Object object : array) {
-                    ReactorSubscriberAccessorUtils.set(reactorSubscriber, object);
+                    AsyncContextAccessorUtils.setAsyncContext(asyncContext, object);
                 }
             } else {
-                ReactorSubscriberAccessorUtils.set(reactorSubscriber, arg);
+                AsyncContextAccessorUtils.setAsyncContext(asyncContext, arg);
             }
         }
     }

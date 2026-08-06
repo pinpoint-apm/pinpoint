@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -24,7 +26,7 @@ import java.util.function.Consumer;
 /**
  * @author emeroad
  */
-public class LoggingInterceptor implements StaticAroundInterceptor, AroundInterceptor, AroundInterceptor0, AroundInterceptor1, AroundInterceptor2, AroundInterceptor3, AroundInterceptor4, AroundInterceptor5, ApiIdAwareAroundInterceptor {
+public class LoggingInterceptor implements StaticAroundInterceptor, AroundInterceptor, AroundInterceptor0, AroundInterceptor1, AroundInterceptor2, AroundInterceptor3, AroundInterceptor4, AroundInterceptor5, ApiIdAwareAroundInterceptor, InjectedAsyncContextApiIdAwareAroundInterceptor {
 
     private final Consumer<String> logger;
 
@@ -61,6 +63,14 @@ public class LoggingInterceptor implements StaticAroundInterceptor, AroundInterc
     @Override
     public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
 
+    }
+
+    @Override
+    public void before(Object target, AsyncContext asyncContext, int apiId, Object[] args) {
+    }
+
+    @Override
+    public void after(Object target, AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 
     @Override

@@ -20,14 +20,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 
 /**
  * @author jaehong.kim
  */
-public class HttpClientOperationsOnOutboundErrorInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class HttpClientOperationsOnOutboundErrorInterceptor extends InjectedAsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     public HttpClientOperationsOnOutboundErrorInterceptor(TraceContext traceContext) {
         super(traceContext);

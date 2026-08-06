@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriber;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessorUtils;
 
 public class RunnableSubscriptionConstructorInterceptor implements AroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
@@ -42,11 +41,11 @@ public class RunnableSubscriptionConstructorInterceptor implements AroundInterce
         }
 
         try {
-            final ReactorSubscriber actualReactorSubscriber = ReactorSubscriberAccessorUtils.find(args, 0);
-            if (actualReactorSubscriber != null) {
-                AsyncContextAccessorUtils.setAsyncContext(actualReactorSubscriber.getAsyncContext(), target);
+            final AsyncContext actualAsyncContext = AsyncContextAccessorUtils.findAsyncContext(args, 0);
+            if (actualAsyncContext != null) {
+                AsyncContextAccessorUtils.setAsyncContext(actualAsyncContext, target);
                 if (isDebug) {
-                    logger.debug("Pass args[0] to this. asyncContext={}", actualReactorSubscriber.getAsyncContext());
+                    logger.debug("Pass args[0] to this. asyncContext={}", actualAsyncContext);
                 }
             }
         } catch (Throwable th) {
