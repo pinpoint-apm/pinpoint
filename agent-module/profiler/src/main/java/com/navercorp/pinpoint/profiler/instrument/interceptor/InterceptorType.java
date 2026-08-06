@@ -20,5 +20,5 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
  * @author Woonduk Kang(emeroad)
  */
 public enum InterceptorType {
-    ARRAY_ARGS, STATIC, BASIC, API_ID_AWARE
+    ARRAY_ARGS, STATIC, BASIC, API_ID_AWARE, ASYNC_CONTEXT_API_ID_AWARE
 }

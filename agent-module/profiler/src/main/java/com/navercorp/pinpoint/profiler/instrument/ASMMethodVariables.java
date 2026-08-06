@@ -60,6 +60,9 @@ public class ASMMethodVariables {
 
     private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
 
+    private static final String ASYNC_CONTEXT_ACCESSOR_UTILS = "com/navercorp/pinpoint/bootstrap/async/AsyncContextAccessorUtils";
+    private static final String ASYNC_CONTEXT_DESC = "Lcom/navercorp/pinpoint/bootstrap/context/AsyncContext;";
+
     private static final Comparator<LocalVariableNode> INDEX_COMPARATOR = new Comparator<LocalVariableNode>() {
         @Override
         public int compare(LocalVariableNode o1, LocalVariableNode o2) {
@@ -92,6 +95,7 @@ public class ASMMethodVariables {
     private int methodNameVarIndex;
     private int parameterDescriptionVarIndex;
     private int apiIdVarIndex;
+    private int asyncContextVarIndex;
 
     private int resultVarIndex;
     private int throwableVarIndex;
@@ -250,6 +254,11 @@ public class ASMMethodVariables {
             // Object target, int apiId, Object[] args
             initApiIdVar(apiId, instructions);
             initArgsVar(instructions);
+        } else if (interceptorType == InterceptorType.ASYNC_CONTEXT_API_ID_AWARE) {
+            // Object target, AsyncContext asyncContext, int apiId, Object[] args
+            initApiIdVar(apiId, instructions);
+            initArgsVar(instructions);
+            initAsyncContextVar(instructions);
         } else if (interceptorType == InterceptorType.BASIC) {
             int interceptorMethodParameterCount = getInterceptorParameterCount(interceptorDefinition);
             final int methodParameterCount = this.argumentTypes.length;
@@ -346,6 +355,20 @@ public class ASMMethodVariables {
         this.apiIdVarIndex = addInterceptorLocalVariable("_$PINPOINT$_apiId", "I");
         push(instructions, apiId);
         storeInt(instructions, this.apiIdVarIndex);
+    }
+
+    private void initAsyncContextVar(InsnList instructions) {
+        assertInitializedInterceptorLocalVariables();
+        this.asyncContextVarIndex = addInterceptorLocalVariable("_$PINPOINT$_asyncContext", ASYNC_CONTEXT_DESC);
+        // Read the injected AsyncContext from `this` at this per-class weave site. Because `this` is a
+        // single concrete type here, the util call inlines to a monomorphic field load, avoiding the
+        // megamorphic invokeinterface a single shared call site (e.g. the interceptor) would incur.
+        // AsyncContextAccessorUtils.getAsyncContext returns null when the target is not an
+        // AsyncContextAccessor, so a class instrumented without addField(AsyncContextAccessor) is still
+        // safe. Static targets have no `this`; loadThis pushes null and the util returns null.
+        loadThis(instructions);
+        instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, ASYNC_CONTEXT_ACCESSOR_UTILS, "getAsyncContext", "(Ljava/lang/Object;)" + ASYNC_CONTEXT_DESC, false));
+        storeVar(instructions, this.asyncContextVarIndex);
     }
 
     private void initArg0Var(InsnList instructions) {
@@ -463,6 +486,11 @@ public class ASMMethodVariables {
             loadVar(instructions, this.argsVarIndex);
         } else if (interceptorType == InterceptorType.API_ID_AWARE) {
             // Object target, int apiId, Object[] args
+            loadInt(instructions, this.apiIdVarIndex);
+            loadVar(instructions, this.argsVarIndex);
+        } else if (interceptorType == InterceptorType.ASYNC_CONTEXT_API_ID_AWARE) {
+            // Object target, AsyncContext asyncContext, int apiId, Object[] args
+            loadVar(instructions, this.asyncContextVarIndex);
             loadInt(instructions, this.apiIdVarIndex);
             loadVar(instructions, this.argsVarIndex);
         } else if (interceptorType == InterceptorType.BASIC) {

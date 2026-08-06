@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventNestedApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextSpanEventNestedApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class CoreSubscriberOnNextInterceptor extends AsyncContextSpanEventNestedApiIdAwareAroundInterceptor {
+public class CoreSubscriberOnNextInterceptor extends InjectedAsyncContextSpanEventNestedApiIdAwareAroundInterceptor {
     public static final String REACTOR_ON_NEXT_TRACE_SCOPE = "##REACTOR_ON_NEXT_TRACE_SCOPE";
     private final ServiceType serviceType;
 
@@ -32,18 +31,12 @@ public class CoreSubscriberOnNextInterceptor extends AsyncContextSpanEventNested
         this.serviceType = serviceType;
     }
 
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
+    // getAsyncContext(target, ...) removed: the weaver supplies the AsyncContext (read via a
+    // monomorphic getfield of the injected accessor field) as the `asyncContext` argument.
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
         recorder.recordServiceType(serviceType);
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
     }
 
     @Override

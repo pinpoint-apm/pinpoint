@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
-public class FluxAndMonoOperatorSubscribeInterceptor implements ApiIdAwareAroundInterceptor {
+public class FluxAndMonoOperatorSubscribeInterceptor implements InjectedAsyncContextApiIdAwareAroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -30,18 +30,17 @@ public class FluxAndMonoOperatorSubscribeInterceptor implements ApiIdAwareAround
     }
 
     @Override
-    public void before(Object target, int apiId, Object[] args) {
+    public void before(Object target, AsyncContext asyncContext, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
         try {
-            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
+            // asyncContext is supplied by the weaver (monomorphic getfield of the injected accessor field).
             if (asyncContext != null) {
-                final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(asyncContext);
-                ReactorSubscriberAccessorUtils.set(reactorSubscriber, args, 0);
+                AsyncContextAccessorUtils.setAsyncContext(asyncContext, args, 0);
                 if (isDebug) {
-                    logger.debug("Pass this to subscriber(args[0]). reactorSubscriber={}", reactorSubscriber);
+                    logger.debug("Pass this to subscriber(args[0]). asyncContext={}", asyncContext);
                 }
             }
         } catch (Throwable th) {
@@ -52,6 +51,6 @@ public class FluxAndMonoOperatorSubscribeInterceptor implements ApiIdAwareAround
     }
 
     @Override
-    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

@@ -261,7 +261,8 @@ public class ASMMethod implements InstrumentMethod {
         }
 
         int apiId = 0;
-        if (interceptorDefinition.getInterceptorType() == InterceptorType.API_ID_AWARE) {
+        final InterceptorType interceptorType = interceptorDefinition.getInterceptorType();
+        if (interceptorType == InterceptorType.API_ID_AWARE || interceptorType == InterceptorType.ASYNC_CONTEXT_API_ID_AWARE) {
             apiId = this.engineComponent.cacheApi(this.descriptor);
         }
 

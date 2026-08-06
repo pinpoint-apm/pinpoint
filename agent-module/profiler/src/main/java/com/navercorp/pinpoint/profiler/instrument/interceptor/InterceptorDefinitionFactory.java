@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
@@ -83,6 +84,7 @@ public class InterceptorDefinitionFactory {
         addTypeHandler(typeHandlerList, AroundInterceptor5.class, InterceptorType.BASIC);
         addTypeHandler(typeHandlerList, StaticAroundInterceptor.class, InterceptorType.STATIC);
         addTypeHandler(typeHandlerList, ApiIdAwareAroundInterceptor.class, InterceptorType.API_ID_AWARE);
+        addTypeHandler(typeHandlerList, InjectedAsyncContextApiIdAwareAroundInterceptor.class, InterceptorType.ASYNC_CONTEXT_API_ID_AWARE);
         // block
         addTypeHandler(typeHandlerList, BlockAroundInterceptor.class, InterceptorType.ARRAY_ARGS);
         addTypeHandler(typeHandlerList, BlockAroundInterceptor0.class, InterceptorType.BASIC);

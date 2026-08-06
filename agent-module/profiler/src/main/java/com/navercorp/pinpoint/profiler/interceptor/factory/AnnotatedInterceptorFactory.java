@@ -37,7 +37,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockStaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleInjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor1;
@@ -59,6 +61,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedBlockInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedBlockInterceptor0;
@@ -79,6 +82,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedS
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedBlockInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedBlockInterceptor0;
@@ -195,6 +199,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new ScopedInterceptor0((AroundInterceptor0) interceptor, scope, policy);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
             return new ScopedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, scope, policy);
+        } else if (interceptor instanceof InjectedAsyncContextApiIdAwareAroundInterceptor) {
+            return new ScopedInjectedAsyncContextApiIdAwareAroundInterceptor((InjectedAsyncContextApiIdAwareAroundInterceptor) interceptor, scope, policy);
         } else if (interceptor instanceof BlockAroundInterceptor) {
             return new ScopedBlockInterceptor((BlockAroundInterceptor) interceptor, scope, policy);
         } else if (interceptor instanceof BlockStaticAroundInterceptor) {
@@ -238,6 +244,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new ExceptionHandleScopedInterceptor0((AroundInterceptor0) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
             return new ExceptionHandleScopedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, scope, policy, exceptionHandler);
+        } else if (interceptor instanceof InjectedAsyncContextApiIdAwareAroundInterceptor) {
+            return new ExceptionHandleScopedInjectedAsyncContextApiIdAwareAroundInterceptor((InjectedAsyncContextApiIdAwareAroundInterceptor) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof BlockAroundInterceptor) {
             return new ExceptionHandleScopedBlockInterceptor((BlockAroundInterceptor) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof BlockStaticAroundInterceptor) {
@@ -281,6 +289,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new ExceptionHandleAroundInterceptor0((AroundInterceptor0) interceptor, exceptionHandler);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
             return new ExceptionHandleApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, exceptionHandler);
+        } else if (interceptor instanceof InjectedAsyncContextApiIdAwareAroundInterceptor) {
+            return new ExceptionHandleInjectedAsyncContextApiIdAwareAroundInterceptor((InjectedAsyncContextApiIdAwareAroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof BlockAroundInterceptor) {
             return new ExceptionHandleBlockAroundInterceptor((BlockAroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof BlockStaticAroundInterceptor) {
