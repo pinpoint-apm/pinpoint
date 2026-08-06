@@ -22,9 +22,10 @@ const toRouterPath = (pathname: string) =>
  * 이 요청이 실제로 어떤 service로 해석되는지 반환한다. enableServiceMap이 켜져 있으면
  * 예외 없이 모든 화면(ServerMap 포함)이 선택된 service 범위에서 조회된다.
  *
- * transactionList처럼 URL에 serviceName이 실리는 화면(`hasServiceNameInPath`)은 새 탭으로
- * 열리므로, 전역 선택값(`selectedServiceAtom`)보다 URL의 serviceName을 우선한다. 전역 선택값은
- * 탭 간 공유 저장소라서 링크를 연 뒤 원래 탭에서 service를 바꾸면 화면과 어긋날 수 있다.
+ * 경로에 serviceName이 실려 있으면(`getServiceNameFromPath`) 전역 선택값
+ * (`selectedServiceAtom`)보다 그것을 우선한다. 전역 선택값은 탭 간 공유 저장소라서, 링크를 새 탭에
+ * 열어 둔 뒤 원래 탭에서 service를 바꾸면 화면과 어긋난다. 아직 serviceName을 싣지 않는 화면만
+ * 전역 선택값으로 폴백한다.
  *
  * 요청 헤더(아래 인터셉터)와 캐시 키(reactQueryHelper의 `serviceScopedQueryKeyHashFn`)는
  * 반드시 같은 규칙에서 파생되어야 한다. 서로 다른 규칙을 쓰면 헤더는 A service로 나가는데

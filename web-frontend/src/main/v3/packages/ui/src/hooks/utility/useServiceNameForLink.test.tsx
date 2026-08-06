@@ -37,6 +37,19 @@ describe('useServiceNameForLink', () => {
     ).toBe('my-service');
   });
 
+  // servicemap은 serviceName을 경로에 실으므로, 그 값이 전역 선택값을 이겨야 한다.
+  test('prefers the service name carried as a servicemap path segment', () => {
+    expect(renderServiceNameForLink('/serviceMap/blogService', configWithServiceMap(true))).toBe(
+      'blogService',
+    );
+    expect(
+      renderServiceNameForLink(
+        '/serviceMap/DEFAULT/test-app@SPRING_BOOT',
+        configWithServiceMap(true),
+      ),
+    ).toBe('DEFAULT');
+  });
+
   test('returns undefined when enableServiceMap is off', () => {
     expect(
       renderServiceNameForLink('/serviceMap/test-app@SPRING_BOOT', configWithServiceMap(false)),
@@ -60,7 +73,7 @@ describe('useServiceNameForLink', () => {
   test('prefers the service name already carried by the path', () => {
     expect(
       renderServiceNameForLink(
-        '/transactionList/url-service@test-app@SPRING_BOOT',
+        '/transactionList/url-service/test-app@SPRING_BOOT',
         configWithServiceMap(true),
       ),
     ).toBe('url-service');

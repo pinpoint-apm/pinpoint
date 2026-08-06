@@ -1,17 +1,12 @@
-import {
-  getApplicationTypeAndNameFromPath,
-  getServiceNameFromPath,
-} from '@pinpoint-fe/ui/src/utils';
+import { getApplicationTypeAndName, getServiceNameFromPath } from '@pinpoint-fe/ui/src/utils';
 import { useSearchParameters } from './useSearchParameters';
 import { getDateRange } from './utils';
 
 export const useTransactionSearchParameters = () => {
   const props = useSearchParameters();
-  // transactionList의 application 세그먼트는 `{serviceName}@{applicationName}@{serviceType}`
-  // 형태일 수 있어, 기본 파서(useSearchParameters)로는 applicationName에 serviceName이 섞인다.
-  // 이 훅은 transactionDetail에서도 쓰이므로, serviceName 분리는 그것을 싣는 경로에서만
-  // 해야 한다(`hasServiceNameInPath`). 그 외 경로에서는 기존 파싱 규칙 그대로다.
-  const parsedApplication = getApplicationTypeAndNameFromPath(props.pathname);
+  // transaction 화면들은 serviceName을 별도 세그먼트로 싣지만, application 세그먼트는 그대로
+  // 마지막에 오므로 기본 파서로 읽는다. serviceName은 아래에서 따로 읽는다.
+  const parsedApplication = getApplicationTypeAndName(props.pathname);
   const withFilter = props?.searchParameters?.withFilter === 'true' ? true : false;
   const dateRange = getDateRange(props?.search, false);
   const dragInfo = props?.searchParameters?.dragInfo;

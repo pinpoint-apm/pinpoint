@@ -18,7 +18,7 @@ import {
   ScatterChartStatic,
   ChartsBoardHeader,
 } from '@pinpoint-fe/ui/src/components';
-import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { useExperimentals, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
@@ -32,7 +32,7 @@ import {
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { useAtom, useAtomValue } from 'jotai';
-import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
+import { getApplicationKey, getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 import { RxChevronRight } from 'react-icons/rx';
 import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
@@ -92,12 +92,30 @@ export const ServerMapChartsBoardFetcher = ({
   // VIEW SERVERS로 열었을 때 왼쪽에 클릭된 서버
   const currentServer = useAtomValue(currentServerAtom);
 
+  // service 전체를 모아 그린 servicemap에는 경로에 application이 없다. 통계 API는 기준
+  // application이 필수이므로, 이때는 선택된 노드(링크는 출발지 노드)를 기준으로 삼는다.
+  // 노드 자신을 기준으로 조회하는 것은 그 application을 직접 열어 본 것과 같은 결과가 된다.
+  const selectedTargetApplication = React.useMemo<ApplicationType | undefined>(() => {
+    if (serverMapCurrentTarget?.type === 'node') {
+      const { applicationName, serviceType } = serverMapCurrentTarget;
+      return applicationName && serviceType ? { applicationName, serviceType } : undefined;
+    }
+
+    const sourceInfo = (currentTargetData as GetServerMap.LinkData)?.sourceInfo;
+    return sourceInfo?.applicationName && sourceInfo?.serviceType
+      ? { applicationName: sourceInfo.applicationName, serviceType: sourceInfo.serviceType }
+      : undefined;
+  }, [serverMapCurrentTarget, currentTargetData]);
+
+  const baseApplication = application ?? selectedTargetApplication;
+
   const { data, isLoading } = useGetHistogramStatistics({
     useStatisticsAgentState,
     nodeKey:
       (currentTargetData as GetServerMap.NodeData)?.nodeKey ||
-      `${application?.applicationName}^${application?.serviceType}`, // 원래 optional인데 첫 페이지 로딩 시 currentTargetData가 없을 때, currentTargetData가 application으로 잡힐 때 두번 중복 call 방지를 위해 required 처럼 사용
+      (baseApplication ? getApplicationKey(baseApplication) : undefined), // 원래 optional인데 첫 페이지 로딩 시 currentTargetData가 없을 때, currentTargetData가 application으로 잡힐 때 두번 중복 call 방지를 위해 required 처럼 사용
     linkKey: (currentTargetData as GetServerMap.LinkData)?.linkKey,
+    fallbackApplication: selectedTargetApplication,
   });
 
   React.useEffect(() => {
@@ -188,6 +206,13 @@ export const ServerMapChartsBoardFetcher = ({
     serverMapCurrentTarget?.serviceType ??
     (currentTargetData as GetServerMap.NodeData)?.serviceType ??
     application?.serviceType;
+
+  // 선택된 대상도, 기준이 될 application도 없으면 보여줄 것이 없다. service 전체를 모아 그린
+  // servicemap에 처음 들어온 상태가 여기에 해당한다. 이때 억지로 그리면 이름 없는 헤더와
+  // 조회 대상 없는 차트가 남으므로, 사용자가 노드를 고른 뒤에 그린다.
+  if (!serverMapCurrentTarget && !application) {
+    return null;
+  }
 
   // service group 노드/링크가 선택된 경우(subNodes/subLinks 보유) ChartsBoard를 그리지 않는다.
   // 팝업에서 자식 노드/링크를 선택하면 currentTarget이 자식 key로 바뀌어 다시 렌더된다.
@@ -326,7 +351,7 @@ export const ServerMapChartsBoardFetcher = ({
             chartsContainerClassName="pt-12"
             emptyMessage={t('COMMON.NO_DATA')}
           >
-            {!shouldHideScatter() && application && (
+            {!shouldHideScatter() && baseApplication && (
               <>
                 <div className="w-full p-5 mb-12 aspect-[1.618] relative">
                   <div className="h-7">

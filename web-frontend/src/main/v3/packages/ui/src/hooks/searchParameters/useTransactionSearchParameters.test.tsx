@@ -16,7 +16,7 @@ const renderTransactionSearchParameters = (pathname: string, search = '') => {
 describe('useTransactionSearchParameters', () => {
   test('splits the service name off a transactionList path that carries one', () => {
     const { application, serviceName } = renderTransactionSearchParameters(
-      '/transactionList/my-service@test-app@SPRING_BOOT',
+      '/transactionList/my-service/test-app@SPRING_BOOT',
     );
 
     expect(serviceName).toBe('my-service');
@@ -35,7 +35,7 @@ describe('useTransactionSearchParameters', () => {
   test('splits the service name off a transactionDetail path too', () => {
     // transactionList의 외부 링크로 새 탭에서 열리므로 transactionDetail도 serviceName을 싣는다.
     const { application, serviceName } = renderTransactionSearchParameters(
-      '/transactionDetail/my-service@test-app@SPRING_BOOT',
+      '/transactionDetail/my-service/test-app@SPRING_BOOT',
     );
 
     expect(serviceName).toBe('my-service');
@@ -64,7 +64,7 @@ describe('useTransactionSearchParameters', () => {
 
   test('decodes an encoded service name from the path', () => {
     const { application, serviceName } = renderTransactionSearchParameters(
-      '/transactionList/a%2Fb@test-app@SPRING_BOOT',
+      '/transactionList/a%2Fb/test-app@SPRING_BOOT',
     );
 
     expect(serviceName).toBe('a/b');

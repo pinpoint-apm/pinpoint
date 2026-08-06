@@ -140,7 +140,7 @@ apps/web/src/pages/Inspector.tsx  →  @pinpoint-fe/ui의 InspectorPage를 감�
 3. 알려진 위치:
    - `.claude/skills/` — add-translation, create-api-hook, create-component, create-page, review-code, qa-pr, write-test, mvn-web
    - `.claude/agents/` — code-reviewer, explorer, debugger, qa-engineer
-   - `.claude/rules/` — code-style, monorepo, git-workflow, tool-usage, code-review-policy
+   - `.claude/rules/` — code-style, monorepo, git-workflow, tool-usage, code-review-policy, service-map
 
 이 규칙은 **모든** `.claude/` 리소스(스킬, 규칙, 명령어, 기타 설정)에 적용됩니다.
 
