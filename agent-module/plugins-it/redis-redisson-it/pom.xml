@@ -39,6 +39,13 @@
             <artifactId>pinpoint-plugin-it-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- @PluginTest loads only plugins on the test classpath: needed for profiler.entrypoint
+             (user plugin) used by the seam-wrap async-link assertions -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-user-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-redis-redisson-plugin</artifactId>

@@ -32,6 +32,7 @@
     <modules>
         <module>assembly</module>
         <module>common-servlet</module>
+        <module>reactor-seam-support</module>
         <module>external</module>
 
         <module>httpclient3</module>

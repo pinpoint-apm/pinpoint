@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 /**
  * @author emeroad
  */
-public class LoggingInterceptor implements StaticAroundInterceptor, AroundInterceptor, AroundInterceptor0, AroundInterceptor1, AroundInterceptor2, AroundInterceptor3, AroundInterceptor4, AroundInterceptor5, ApiIdAwareAroundInterceptor, InjectedAsyncContextApiIdAwareAroundInterceptor {
+public class LoggingInterceptor implements StaticAroundInterceptor, AroundInterceptor, AroundInterceptor0, AroundInterceptor1, AroundInterceptor2, AroundInterceptor3, AroundInterceptor4, AroundInterceptor5, ApiIdAwareAroundInterceptor, InjectedAsyncContextApiIdAwareAroundInterceptor, ResultReplaceAroundInterceptor {
 
     private final Consumer<String> logger;
 
@@ -71,6 +71,15 @@ public class LoggingInterceptor implements StaticAroundInterceptor, AroundInterc
 
     @Override
     public void after(Object target, AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
+    }
+
+    @Override
+    public void before(Object target, Class<?> returnType, Object[] args) {
+    }
+
+    @Override
+    public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+        return result;
     }
 
     @Override

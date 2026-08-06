@@ -49,7 +49,7 @@ public class CoreSubscriberConstructorInterceptor implements AroundInterceptor {
         }
 
         try {
-            final AsyncContext asyncContext = findAsyncContext(args);
+            final AsyncContext asyncContext = ReactorAsyncContextResolver.findUnique(args);
             if (asyncContext == null) {
                 return;
             }
@@ -74,37 +74,6 @@ public class CoreSubscriberConstructorInterceptor implements AroundInterceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         // do nothing
-    }
-
-    static AsyncContext findAsyncContext(Object[] args) {
-        if (ArrayUtils.isEmpty(args)) {
-            return null;
-        }
-
-        AsyncContext candidateAsyncContext = null;
-        final int length = args.length - 1;
-        for (int i = 0; i <= length; i++) {
-            final Object arg = args[i];
-            if (arg instanceof AsyncContextAccessor) {
-                final AsyncContextAccessor accessor = (AsyncContextAccessor) arg;
-                final AsyncContext asyncContext = accessor._$PINPOINT$_getAsyncContext();
-                if (asyncContext == null) {
-                    continue;
-                }
-                if (candidateAsyncContext == null) {
-                    candidateAsyncContext = asyncContext;
-                    continue;
-                }
-                if (candidateAsyncContext != asyncContext) {
-                    // Some subscriber constructors receive both a publisher/source and their actual
-                    // subscriber. Both are instrumented as AsyncContextAccessor, and a reusable
-                    // publisher may retain an older context. Do not choose either context arbitrarily:
-                    // the normal subscribe/onSubscribe relay can resolve the carrier later.
-                    return null;
-                }
-            }
-        }
-        return candidateAsyncContext;
     }
 
     /**

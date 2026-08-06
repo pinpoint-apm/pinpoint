@@ -26,11 +26,17 @@ public class LettucePluginConfig {
     private final boolean enable;
     private final boolean tracePubSubListener;
     private final List<String> redisPubSubListenerBasePackageList;
+    private final boolean wrapPublisher;
 
     public LettucePluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.redis.lettuce.enable", true);
         this.tracePubSubListener = src.readBoolean("profiler.redis.lettuce.trace.pubsub-listener", true);
         this.redisPubSubListenerBasePackageList = src.readList("profiler.redis.lettuce.pubsub-listener.base-packages");
+        this.wrapPublisher = src.readBoolean("profiler.redis.lettuce.wrap.publisher", false);
+    }
+
+    public boolean isWrapPublisher() {
+        return wrapPublisher;
     }
 
     public boolean isEnable() {
@@ -51,6 +57,7 @@ public class LettucePluginConfig {
                 "enable=" + enable +
                 ", tracePubSubListener=" + tracePubSubListener +
                 ", redisPubSubListenerBasePackageList=" + redisPubSubListenerBasePackageList +
+                ", wrapPublisher=" + wrapPublisher +
                 '}';
     }
 }

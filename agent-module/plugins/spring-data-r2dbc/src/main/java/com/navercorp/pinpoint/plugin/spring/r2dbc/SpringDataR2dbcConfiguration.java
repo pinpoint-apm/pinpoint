@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 public class SpringDataR2dbcConfiguration {
 
     private final boolean enabled;
+    private final boolean wrapPublisher;
     private final JdbcConfig mssqlConfig;
     private final JdbcConfig oracleConfig;
     private final JdbcConfig mariadbConfig;
@@ -31,6 +32,9 @@ public class SpringDataR2dbcConfiguration {
 
     public SpringDataR2dbcConfiguration(ProfilerConfig config) {
         this.enabled = config.readBoolean("profiler.spring.data.r2dbc.enable", true);
+        // experimental (PoC): wrap the publisher returned from an I/O seam instead of injecting
+        // the AsyncContext into it. Currently applied to the postgresql Statement.execute() seam only.
+        this.wrapPublisher = config.readBoolean("profiler.spring.data.r2dbc.wrap.publisher", false);
 
         this.mssqlConfig = JdbcConfig.of("mssql", config);
         this.oracleConfig = JdbcConfig.of("oracle", config);
@@ -68,10 +72,15 @@ public class SpringDataR2dbcConfiguration {
         return enabled;
     }
 
+    public boolean isWrapPublisher() {
+        return wrapPublisher;
+    }
+
     @Override
     public String toString() {
         return "SpringDataR2dbcConfiguration{" +
                 "enabled=" + enabled +
+                ", wrapPublisher=" + wrapPublisher +
                 ", mssqlConfig=" + mssqlConfig +
                 ", oracleConfig=" + oracleConfig +
                 ", mariadbConfig=" + mariadbConfig +

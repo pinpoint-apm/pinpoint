@@ -77,6 +77,7 @@
         <module>spring-data-r2dbc-it</module>
         <module>redis-lettuce-it</module>
         <module>redis-redisson-it</module>
+        <module>spring-tx-it</module>
         <module>pulsar-it</module>
         <module>reactor-it</module>
     </modules>

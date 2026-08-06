@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 /**
  * @author emeroad
  */
-public class EmptyInterceptor implements StaticAroundInterceptor, AroundInterceptor, AroundInterceptor0, AroundInterceptor1, AroundInterceptor2, AroundInterceptor3, AroundInterceptor4, AroundInterceptor5, ApiIdAwareAroundInterceptor, InjectedAsyncContextApiIdAwareAroundInterceptor {
+public class EmptyInterceptor implements StaticAroundInterceptor, AroundInterceptor, AroundInterceptor0, AroundInterceptor1, AroundInterceptor2, AroundInterceptor3, AroundInterceptor4, AroundInterceptor5, ApiIdAwareAroundInterceptor, InjectedAsyncContextApiIdAwareAroundInterceptor, ResultReplaceAroundInterceptor {
 
     public static Interceptor EMPTY = new EmptyInterceptor();
 
@@ -63,6 +63,15 @@ public class EmptyInterceptor implements StaticAroundInterceptor, AroundIntercep
 
     @Override
     public void after(Object target, AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
+    }
+
+    @Override
+    public void before(Object target, Class<?> returnType, Object[] args) {
+    }
+
+    @Override
+    public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+        return result;
     }
 
     @Override

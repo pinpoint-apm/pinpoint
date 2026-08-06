@@ -45,6 +45,8 @@ import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisCluserClient
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClusterClientConstructorInterceptor;
 
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisPubSubListenerInterceptor;
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.WrappingLettuceMethodInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
 import java.security.ProtectionDomain;
 
@@ -55,6 +57,16 @@ public class LettucePlugin implements ProfilerPlugin, MatchableTransformTemplate
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private MatchableTransformTemplate transformTemplate;
+
+    // profiler.redis.lettuce.wrap.publisher selects the wrapping variant, which hands the
+    // AsyncContext to a wrapped publisher instead of injecting it into the returned one.
+    static Class<? extends Interceptor> lettuceMethodInterceptor(Instrumentor instrumentor) {
+        final LettucePluginConfig config = new LettucePluginConfig(instrumentor.getProfilerConfig());
+        if (config.isWrapPublisher()) {
+            return WrappingLettuceMethodInterceptor.class;
+        }
+        return LettuceMethodInterceptor.class;
+    }
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -213,7 +225,7 @@ public class LettucePlugin implements ProfilerPlugin, MatchableTransformTemplate
             final LettuceMethodNameFilter lettuceMethodNameFilter = new LettuceMethodNameFilter();
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(lettuceMethodNameFilter, MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
                 try {
-                    method.addScopedInterceptor(LettuceMethodInterceptor.class, LettuceConstants.REDIS_SCOPE);
+                    method.addScopedInterceptor(lettuceMethodInterceptor(instrumentor), LettuceConstants.REDIS_SCOPE);
                 } catch (Exception e) {
                     final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
                     if (logger.isWarnEnabled()) {
