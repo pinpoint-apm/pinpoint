@@ -26,6 +26,7 @@ Core components:
 ## Coding Style
 
 - Do NOT use Java `var`. Always declare explicit types, and replace `var` in IDE-generated code as well.
+- Always use curly braces for `if` statements, even single-line bodies.
 
 ## Commit Message Convention
 
