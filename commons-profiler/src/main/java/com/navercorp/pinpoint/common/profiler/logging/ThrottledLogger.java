@@ -65,7 +65,7 @@ public class ThrottledLogger {
         this.throttle = Objects.requireNonNull(throttle, "throttle");
     }
 
-    private boolean checkLogCounter() {
+    private boolean tryAcquire() {
         return throttle.tryAcquire();
     }
 
@@ -83,7 +83,7 @@ public class ThrottledLogger {
         if (!logger.isEnabled(level)) {
             return;
         }
-        if (!checkLogCounter()) {
+        if (!tryAcquire()) {
             return;
         }
         logger.log(level, msg);
@@ -93,7 +93,7 @@ public class ThrottledLogger {
         if (!logger.isEnabled(level)) {
             return;
         }
-        if (!checkLogCounter()) {
+        if (!tryAcquire()) {
             return;
         }
         logger.log(level, msg, arg);
@@ -103,17 +103,57 @@ public class ThrottledLogger {
         if (!logger.isEnabled(level)) {
             return;
         }
-        if (!checkLogCounter()) {
+        if (!tryAcquire()) {
             return;
         }
         logger.log(level, msg, arg1, arg2);
+    }
+
+    private void log(Level level, String msg, Object arg1, Object arg2, Object arg3) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!tryAcquire()) {
+            return;
+        }
+        logger.log(level, msg, arg1, arg2, arg3);
+    }
+
+    private void log(Level level, String msg, Object arg1, Object arg2, Object arg3, Object arg4) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!tryAcquire()) {
+            return;
+        }
+        logger.log(level, msg, arg1, arg2, arg3, arg4);
+    }
+
+    private void log(Level level, String msg, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!tryAcquire()) {
+            return;
+        }
+        logger.log(level, msg, arg1, arg2, arg3, arg4, arg5);
+    }
+
+    private void log(Level level, String msg, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+        if (!logger.isEnabled(level)) {
+            return;
+        }
+        if (!tryAcquire()) {
+            return;
+        }
+        logger.log(level, msg, arg1, arg2, arg3, arg4, arg5, arg6);
     }
 
     private void log(Level level, String msg, Throwable t) {
         if (!logger.isEnabled(level)) {
             return;
         }
-        if (!checkLogCounter()) {
+        if (!tryAcquire()) {
             return;
         }
         logger.log(level, msg, t);
@@ -123,7 +163,7 @@ public class ThrottledLogger {
         if (!logger.isEnabled(level)) {
             return;
         }
-        if (!checkLogCounter()) {
+        if (!tryAcquire()) {
             return;
         }
         logger.log(level, msg, args);
@@ -145,6 +185,22 @@ public class ThrottledLogger {
 
     public void info(String msg, Object arg1, Object arg2) {
         log(Level.INFO, msg, arg1, arg2);
+    }
+
+    public void info(String msg, Object arg1, Object arg2, Object arg3) {
+        log(Level.INFO, msg, arg1, arg2, arg3);
+    }
+
+    public void info(String msg, Object arg1, Object arg2, Object arg3, Object arg4) {
+        log(Level.INFO, msg, arg1, arg2, arg3, arg4);
+    }
+
+    public void info(String msg, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        log(Level.INFO, msg, arg1, arg2, arg3, arg4, arg5);
+    }
+
+    public void info(String msg, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+        log(Level.INFO, msg, arg1, arg2, arg3, arg4, arg5, arg6);
     }
 
     public void info(String msg, Throwable t) {
@@ -173,6 +229,22 @@ public class ThrottledLogger {
         log(Level.DEBUG, msg, arg1, arg2);
     }
 
+    public void debug(String msg, Object arg1, Object arg2, Object arg3) {
+        log(Level.DEBUG, msg, arg1, arg2, arg3);
+    }
+
+    public void debug(String msg, Object arg1, Object arg2, Object arg3, Object arg4) {
+        log(Level.DEBUG, msg, arg1, arg2, arg3, arg4);
+    }
+
+    public void debug(String msg, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        log(Level.DEBUG, msg, arg1, arg2, arg3, arg4, arg5);
+    }
+
+    public void debug(String msg, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+        log(Level.DEBUG, msg, arg1, arg2, arg3, arg4, arg5, arg6);
+    }
+
     public void debug(String msg, Throwable t) {
         log(Level.DEBUG, msg, t);
     }
@@ -197,6 +269,22 @@ public class ThrottledLogger {
 
     public void warn(String msg, Object arg1, Object arg2) {
         log(Level.WARN, msg, arg1, arg2);
+    }
+
+    public void warn(String msg, Object arg1, Object arg2, Object arg3) {
+        log(Level.WARN, msg, arg1, arg2, arg3);
+    }
+
+    public void warn(String msg, Object arg1, Object arg2, Object arg3, Object arg4) {
+        log(Level.WARN, msg, arg1, arg2, arg3, arg4);
+    }
+
+    public void warn(String msg, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        log(Level.WARN, msg, arg1, arg2, arg3, arg4, arg5);
+    }
+
+    public void warn(String msg, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+        log(Level.WARN, msg, arg1, arg2, arg3, arg4, arg5, arg6);
     }
 
     public void warn(String msg, Throwable t) {
