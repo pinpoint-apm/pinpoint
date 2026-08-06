@@ -3,7 +3,11 @@ import { GetServerMap } from './GetServerMap';
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace GetServiceMap {
   export interface Parameters {
-    applicationName: string;
+    /**
+     * DEFAULT service에서만 필수다. 그 외 service는 백엔드가 service에 소속된 모든
+     * application을 source로 사용하므로 값을 싣지 않는다.
+     */
+    applicationName?: string;
     serviceTypeName?: string;
     serviceTypeCode?: number;
     from: number | string;

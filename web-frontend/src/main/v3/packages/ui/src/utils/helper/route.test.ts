@@ -6,6 +6,7 @@ import {
   getFilteredMapPath,
   getTransactionListPath,
   getTransactionDetailPath,
+  getServiceMapPath,
 } from './route';
 
 describe('Test route helper utils', () => {
@@ -194,6 +195,47 @@ describe('Test route helper utils', () => {
     });
   });
 
+  describe('Test "getServiceMapPath"', () => {
+    const application = { applicationName: 'appName', serviceType: 'TOMCAT' };
+    const dateRange = { from: 'from', to: 'to' };
+
+    // servicemap은 어떤 service를 보는지가 URL의 진실의 원천이라 DEFAULT도 예외 없이 싣는다.
+    test('Always carry the service name, DEFAULT included', () => {
+      expect(getServiceMapPath('DEFAULT')).toEqual('/serviceMap/DEFAULT');
+      expect(getServiceMapPath('blogService')).toEqual('/serviceMap/blogService');
+    });
+
+    test('Append the application as its own segment', () => {
+      expect(getServiceMapPath('DEFAULT', application)).toEqual(
+        '/serviceMap/DEFAULT/appName@TOMCAT',
+      );
+      expect(getServiceMapPath('DEFAULT', application, dateRange)).toEqual(
+        '/serviceMap/DEFAULT/appName@TOMCAT?from=from&to=to',
+      );
+    });
+
+    // application 없이도 map을 그리므로, 보고 있던 기간이 초기화되면 안 된다.
+    test('Keep the date range even without an application', () => {
+      expect(getServiceMapPath('blogService', null, dateRange)).toEqual(
+        '/serviceMap/blogService?from=from&to=to',
+      );
+    });
+
+    test('Omit the query string when only one of from/to is given', () => {
+      expect(getServiceMapPath('blogService', null, { from: 'from' })).toEqual(
+        '/serviceMap/blogService',
+      );
+    });
+
+    // 인코딩하지 않으면 '/'가 세그먼트를 쪼개 라우트 매칭이 깨지고, '@'는 application
+    // 세그먼트의 구분자와 구별되지 않는다.
+    test('Encode the service name so it cannot break the path segment', () => {
+      expect(getServiceMapPath('a/b')).toEqual('/serviceMap/a%2Fb');
+      expect(getServiceMapPath('a@b', application)).toEqual('/serviceMap/a%40b/appName@TOMCAT');
+      expect(getServiceMapPath('a b')).toEqual('/serviceMap/a%20b');
+    });
+  });
+
   describe('Test "getTransactionListPath"', () => {
     const application = { applicationName: 'appName', serviceType: 'TOMCAT' };
     const dateRange = { from: 'from', to: 'to' };
@@ -203,39 +245,40 @@ describe('Test route helper utils', () => {
       expect(getTransactionListPath(null, dateRange, 'svc')).toEqual('/transactionList');
     });
 
-    test('Return the legacy path when service name is not given', () => {
+    test('Omit the service segment when service name is not given', () => {
       expect(getTransactionListPath(application)).toEqual('/transactionList/appName@TOMCAT');
       expect(getTransactionListPath(application, dateRange)).toEqual(
         '/transactionList/appName@TOMCAT?from=from&to=to',
       );
     });
 
-    test('Prefix the service name to the application segment', () => {
+    test('Carry the service name as its own segment, like servicemap', () => {
       expect(getTransactionListPath(application, undefined, 'svc')).toEqual(
-        '/transactionList/svc@appName@TOMCAT',
+        '/transactionList/svc/appName@TOMCAT',
       );
       expect(getTransactionListPath(application, dateRange, 'svc')).toEqual(
-        '/transactionList/svc@appName@TOMCAT?from=from&to=to',
+        '/transactionList/svc/appName@TOMCAT?from=from&to=to',
       );
     });
 
     test('Omit the query string when only one of from/to is given', () => {
       expect(getTransactionListPath(application, { from: 'from' }, 'svc')).toEqual(
-        '/transactionList/svc@appName@TOMCAT',
+        '/transactionList/svc/appName@TOMCAT',
       );
     });
 
     // 백엔드가 service 이름 형식을 검증하지 않으므로 '/'나 '@'가 들어올 수 있다. 인코딩하지
-    // 않으면 '/'가 세그먼트를 쪼개 라우트 매칭이 실패하고 '@'는 구분자와 구별되지 않는다.
+    // 않으면 '/'가 세그먼트를 쪼개 라우트 매칭이 깨지고, '@'는 application 세그먼트의 구분자와
+    // 구별되지 않는다.
     test('Encode the service name so it cannot break the path segment', () => {
       expect(getTransactionListPath(application, undefined, 'a/b')).toEqual(
-        '/transactionList/a%2Fb@appName@TOMCAT',
+        '/transactionList/a%2Fb/appName@TOMCAT',
       );
       expect(getTransactionListPath(application, undefined, 'a@b')).toEqual(
-        '/transactionList/a%40b@appName@TOMCAT',
+        '/transactionList/a%40b/appName@TOMCAT',
       );
       expect(getTransactionListPath(application, undefined, 'a b')).toEqual(
-        '/transactionList/a%20b@appName@TOMCAT',
+        '/transactionList/a%20b/appName@TOMCAT',
       );
     });
   });
@@ -249,22 +292,22 @@ describe('Test route helper utils', () => {
       expect(getTransactionDetailPath(null, dateRange, 'svc')).toEqual('/transactionDetail');
     });
 
-    test('Return the legacy path when service name is not given', () => {
+    test('Omit the service segment when service name is not given', () => {
       expect(getTransactionDetailPath(application)).toEqual('/transactionDetail/appName@TOMCAT');
       expect(getTransactionDetailPath(application, dateRange)).toEqual(
         '/transactionDetail/appName@TOMCAT?from=from&to=to',
       );
     });
 
-    test('Prefix the service name to the application segment', () => {
+    test('Carry the service name as its own segment, like servicemap', () => {
       expect(getTransactionDetailPath(application, undefined, 'svc')).toEqual(
-        '/transactionDetail/svc@appName@TOMCAT',
+        '/transactionDetail/svc/appName@TOMCAT',
       );
     });
 
     test('Encode the service name so it cannot break the path segment', () => {
       expect(getTransactionDetailPath(application, undefined, 'a/b')).toEqual(
-        '/transactionDetail/a%2Fb@appName@TOMCAT',
+        '/transactionDetail/a%2Fb/appName@TOMCAT',
       );
     });
   });

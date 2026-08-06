@@ -100,7 +100,9 @@ const router = createBrowserRouter(
                   loader: realtimeLoader,
                 },
                 {
-                  path: `${APP_PATH.SERVICE_MAP}/:application?`,
+                  // serviceName을 별도 세그먼트로 싣는다. DEFAULT가 아닌 service는 기준
+                  // application이 없으므로 두 세그먼트 모두 optional이다.
+                  path: `${APP_PATH.SERVICE_MAP}/:serviceName?/:application?`,
                   element: <ServiceMap />,
                   loader: serviceMapRouteLoader,
                 },
@@ -145,12 +147,13 @@ const router = createBrowserRouter(
                   loader: systemMetricRouteLoader,
                 },
                 {
-                  path: `${APP_PATH.TRANSACTION_LIST}/:application?`,
+                  // serviceName을 별도 세그먼트로 싣는다(servicemap과 같은 표기).
+                  path: `${APP_PATH.TRANSACTION_LIST}/:serviceName?/:application?`,
                   element: <TransactionList />,
                   loader: transactionRouteLoader,
                 },
                 {
-                  path: `${APP_PATH.TRANSACTION_DETAIL}/:application?`,
+                  path: `${APP_PATH.TRANSACTION_DETAIL}/:serviceName?/:application?`,
                   element: <TransactionDetail />,
                   loader: transactionDetailRouteLoader,
                 },

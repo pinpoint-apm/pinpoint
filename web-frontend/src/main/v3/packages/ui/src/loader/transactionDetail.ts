@@ -1,13 +1,19 @@
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
-import { getServiceAndApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
+import { getApplicationTypeAndName, getServiceNameFromPath } from '@pinpoint-fe/ui/src/utils';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
-export const transactionDetailRouteLoader = ({ params, request }: LoaderFunctionArgs) => {
+export const transactionDetailRouteLoader = ({ request }: LoaderFunctionArgs) => {
   try {
-    // 세그먼트가 `{serviceName}@{applicationName}@{serviceType}`일 수 있으므로 serviceName을
-    // 분리한다. 리다이렉트가 세그먼트를 재사용하지 않으므로(항상 serverMap으로 보낸다)
-    // transactionRouteLoader처럼 raw 세그먼트를 다시 읽을 필요는 없다.
-    const application = getServiceAndApplicationTypeAndName(params.application!);
+    // 경로는 `/transactionDetail/{serviceName}/{applicationName}@{serviceType}` 형태다.
+    //
+    // react-router의 `params`는 디코딩된 값이라 serviceName의 '%2F'가 '/'로 풀려 세그먼트 경계가
+    // 어긋나므로, 인코딩된 원본 경로에서 읽는다.
+    const { pathname } = new URL(request.url);
+    const parsedApplication = getApplicationTypeAndName(pathname);
+    const application = parsedApplication && {
+      serviceName: getServiceNameFromPath(pathname),
+      ...parsedApplication,
+    };
 
     if (application?.applicationName && application.serviceType) {
       const queryParam = Object.fromEntries(new URL(request.url).searchParams);

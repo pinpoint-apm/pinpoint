@@ -108,7 +108,7 @@ describe('serviceNameFetchInterceptor', () => {
   test('sends the service name carried by the transactionList path, not the selected one', async () => {
     store.set(configurationAtom, configWithServiceMap(true));
     store.set(selectedServiceAtom, 'my-service');
-    window.history.replaceState({}, '', '/transactionList/url-service@app-name@TOMCAT?from=1&to=2');
+    window.history.replaceState({}, '', '/transactionList/url-service/app-name@TOMCAT?from=1&to=2');
 
     await window.fetch('/api/transactionmetadata');
 
@@ -134,7 +134,7 @@ describe('serviceNameFetchInterceptor', () => {
 
     test('prefers the service name carried by the path', () => {
       // 헤더와 캐시 키가 같은 값에서 파생되도록, URL에 실린 serviceName을 전역 선택값보다 앞세운다.
-      window.history.replaceState({}, '', '/transactionList/url-service@app-name@TOMCAT');
+      window.history.replaceState({}, '', '/transactionList/url-service/app-name@TOMCAT');
 
       expect(resolveRequestService('my-service')).toBe('url-service');
     });

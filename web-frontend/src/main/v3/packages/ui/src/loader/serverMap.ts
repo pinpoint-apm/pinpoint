@@ -18,7 +18,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 /**
- * map 페이지(serverMap, serviceMap)의 날짜 파라미터를 검증/정규화하는 공용 로더.
+ * map 페이지의 날짜 파라미터를 검증/정규화하는 공용 로더.
  * 리다이렉트는 현재 페이지 경로를 유지해야 하므로 pagePath를 받아 로더를 만든다.
  */
 export const createMapRouteLoader =
@@ -95,4 +95,3 @@ export const createMapRouteLoader =
   };
 
 export const serverMapRouteLoader = createMapRouteLoader(APP_PATH.SERVER_MAP);
-export const serviceMapRouteLoader = createMapRouteLoader(APP_PATH.SERVICE_MAP);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { END_POINTS, GetHistogramStatistics } from '@pinpoint-fe/ui/src/constants';
+import { ApplicationType, END_POINTS, GetHistogramStatistics } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { useServerMapSearchParameters } from '../searchParameters';
 import { useQuery } from '@tanstack/react-query';
@@ -24,12 +24,25 @@ export const useGetHistogramStatistics = ({
   useStatisticsAgentState,
   nodeKey,
   linkKey,
+  fallbackApplication,
 }: {
   useStatisticsAgentState?: boolean;
   nodeKey?: string;
   linkKey?: string;
+  /**
+   * 경로에 application이 없을 때 기준 application으로 쓸 값.
+   * service 전체를 모아 그린 servicemap에는 경로에 application이 없는데,
+   * 통계 API는 기준 application이 필수라 선택된 노드/링크에서 끌어와야 한다.
+   */
+  fallbackApplication?: ApplicationType;
 }) => {
-  const { dateRange, search, application, queryOption } = useServerMapSearchParameters();
+  const {
+    dateRange,
+    search,
+    application: applicationFromPath,
+    queryOption,
+  } = useServerMapSearchParameters();
+  const application = applicationFromPath ?? fallbackApplication;
   const from = toBasicISOString(dateRange.from);
   const to = toBasicISOString(dateRange.to);
 

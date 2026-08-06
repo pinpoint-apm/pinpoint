@@ -1,6 +1,11 @@
 import { useAtomValue } from 'jotai';
 import { APP_PATH, MenuItemType as MenuItem } from '@pinpoint-fe/ui/src/constants';
-import { configurationAtom, searchParametersAtom } from '@pinpoint-fe/ui/src/atoms';
+import {
+  configurationAtom,
+  DEFAULT_SERVICE,
+  searchParametersAtom,
+} from '@pinpoint-fe/ui/src/atoms';
+import { useIsDefaultService, useServiceNameForLink } from '@pinpoint-fe/ui/src/hooks';
 import {
   PiBugBeetle,
   PiChartBar,
@@ -22,6 +27,10 @@ import {
 export const useMenuItems = () => {
   const configuration = useAtomValue(configurationAtom);
   const { application, searchParameters } = useAtomValue(searchParametersAtom);
+  // servicemap 링크는 어떤 service를 볼지 경로에 담아야 한다. 지금 보고 있는 화면의 service를
+  // 그대로 이어받는다. (serviceName이 실린 경로면 그 값, 아니면 전역 선택값)
+  const serviceName = useServiceNameForLink() ?? DEFAULT_SERVICE;
+  const isDefaultService = useIsDefaultService();
 
   const menuItems: MenuItem[] = [
     {
@@ -34,7 +43,9 @@ export const useMenuItems = () => {
       icon: <PiTreeStructure />,
       name: 'Servicemap',
       path: APP_PATH.SERVICE_MAP,
-      href: getServiceMapPath(application, searchParameters),
+      // DEFAULT가 아닌 service는 소속 application을 모두 모아 그리므로 application을 싣지 않는다.
+      // 실어 보내면 페이지가 곧 경로에서 지우면서 한 번 더 이동한다.
+      href: getServiceMapPath(serviceName, isDefaultService ? application : null, searchParameters),
       // service 기능(experimental.enableServiceMap)이 켜져 있을 때만 노출한다.
       hide: !configuration?.['experimental.enableServiceMap.value'],
     },

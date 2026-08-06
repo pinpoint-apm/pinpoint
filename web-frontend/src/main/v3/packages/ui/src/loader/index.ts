@@ -6,6 +6,7 @@ export * from './realtime';
 export * from './scatterFullScreen';
 export * from './scatterOrHeatmapFullScreen';
 export * from './serverMap';
+export * from './serviceMap';
 export * from './systemMetric';
 export * from './threadDump';
 export * from './transaction';

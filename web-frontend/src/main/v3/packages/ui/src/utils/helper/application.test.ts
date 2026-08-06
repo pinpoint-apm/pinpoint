@@ -1,8 +1,6 @@
 import {
   getApplicationTypeAndName,
   getApplicationKey,
-  getApplicationTypeAndNameFromPath,
-  getServiceAndApplicationTypeAndName,
   getServiceNameFromPath,
   hasServiceNameInPath,
 } from './application';
@@ -67,98 +65,65 @@ describe('Test application helper utils', () => {
 
   describe('Test "hasServiceNameInPath"', () => {
     test.each([
-      [`${APP_PATH.TRANSACTION_LIST}`, true],
-      [`${APP_PATH.TRANSACTION_LIST}/svc@appName@TOMCAT`, true],
-      [`${APP_PATH.TRANSACTION_DETAIL}`, true],
-      [`${APP_PATH.TRANSACTION_DETAIL}/svc@appName@TOMCAT`, true],
+      // 세그먼트 표기 — application이 없어도 serviceName이 실린다.
+      [`${APP_PATH.SERVICE_MAP}/blogService`, true],
+      [`${APP_PATH.SERVICE_MAP}/blogService/appName@TOMCAT`, true],
+      [`${APP_PATH.TRANSACTION_LIST}/svc/appName@TOMCAT`, true],
+      [`${APP_PATH.TRANSACTION_DETAIL}/svc/appName@TOMCAT`, true],
+      // serviceName 세그먼트가 생기기 전 형태
       [`${APP_PATH.SERVICE_MAP}/appName@TOMCAT`, false],
+      [`${APP_PATH.TRANSACTION_LIST}/appName@TOMCAT`, false],
+      [`${APP_PATH.TRANSACTION_LIST}`, false],
+      // 아직 serviceName을 싣지 않는 화면
       [`${APP_PATH.SERVER_MAP}/appName@TOMCAT`, false],
+      [`${APP_PATH.INSPECTOR}/svc@appName@TOMCAT`, false],
       ['', false],
     ])('Return %p → %p', (pathname, expected) => {
       expect(hasServiceNameInPath(pathname)).toBe(expected);
     });
   });
 
-  describe('Test "getServiceAndApplicationTypeAndName"', () => {
-    test('Split service name, application name and service type', () => {
-      const result = getServiceAndApplicationTypeAndName('/transactionList/svc@appName@TOMCAT');
-      expect(result).toEqual({
-        serviceName: 'svc',
-        applicationName: 'appName',
-        serviceType: 'TOMCAT',
-      });
-    });
-
-    test('Return undefined service name for the legacy two part segment', () => {
-      const result = getServiceAndApplicationTypeAndName('/transactionList/appName@TOMCAT');
-      expect(result).toEqual({
-        serviceName: undefined,
-        applicationName: 'appName',
-        serviceType: 'TOMCAT',
-      });
-    });
-
-    test('Keep "@" inside the application name after the service name', () => {
-      const result = getServiceAndApplicationTypeAndName('/transactionList/svc@app@Name@TOMCAT');
-      expect(result).toEqual({
-        serviceName: 'svc',
-        applicationName: 'app@Name',
-        serviceType: 'TOMCAT',
-      });
-    });
-
-    test('Return null when the segment does not match the pattern', () => {
-      expect(getServiceAndApplicationTypeAndName('/transactionList/appName')).toBeNull();
-      expect(getServiceAndApplicationTypeAndName('')).toBeNull();
-    });
-  });
-
-  describe('Test "getApplicationTypeAndNameFromPath"', () => {
-    test('Drop the service name on a path that carries it', () => {
-      const result = getApplicationTypeAndNameFromPath('/transactionList/svc@appName@TOMCAT');
-      expect(result).toEqual({ applicationName: 'appName', serviceType: 'TOMCAT' });
-    });
-
-    test('Keep "@" in the application name on a path that carries no service name', () => {
-      const result = getApplicationTypeAndNameFromPath('/serverMap/svc@appName@TOMCAT');
-      expect(result).toEqual({ applicationName: 'svc@appName', serviceType: 'TOMCAT' });
-    });
-
-    test('Return null when the path has no application segment', () => {
-      expect(getApplicationTypeAndNameFromPath('/transactionList')).toBeNull();
-      expect(getApplicationTypeAndNameFromPath('/serverMap')).toBeNull();
-    });
-  });
-
   describe('Test "getServiceNameFromPath"', () => {
-    test('Return the service name on a path that carries it', () => {
-      expect(getServiceNameFromPath('/transactionList/svc@appName@TOMCAT')).toBe('svc');
+    // serviceName은 application과 별도 세그먼트로 실린다.
+    test('Return the service name carried as its own segment', () => {
+      expect(getServiceNameFromPath('/serviceMap/blogService')).toBe('blogService');
+      expect(getServiceNameFromPath('/serviceMap/blogService/appName@TOMCAT')).toBe('blogService');
+      expect(getServiceNameFromPath('/serviceMap/DEFAULT/appName@TOMCAT')).toBe('DEFAULT');
+      expect(getServiceNameFromPath('/transactionList/svc/appName@TOMCAT')).toBe('svc');
+      expect(getServiceNameFromPath('/transactionDetail/svc/appName@TOMCAT')).toBe('svc');
     });
 
-    test('Return undefined on a legacy path without a service name', () => {
+    // serviceName 세그먼트가 생기기 전 형태. 첫 세그먼트를 service 이름으로 오해하면 안 된다.
+    test('Return undefined on a path that carries only an application', () => {
       expect(getServiceNameFromPath('/transactionList/appName@TOMCAT')).toBeUndefined();
+      expect(getServiceNameFromPath('/transactionDetail/appName@TOMCAT')).toBeUndefined();
+      expect(getServiceNameFromPath('/serviceMap/appName@TOMCAT')).toBeUndefined();
+      expect(getServiceNameFromPath('/serviceMap/appName^TOMCAT')).toBeUndefined();
+    });
+
+    test('Decode a service name that was encoded to survive the path', () => {
+      expect(getServiceNameFromPath('/serviceMap/team%2Fa%40b')).toBe('team/a@b');
+    });
+
+    test('Return undefined on a bare servicemap path', () => {
+      expect(getServiceNameFromPath('/serviceMap')).toBeUndefined();
+      expect(getServiceNameFromPath('/serviceMap/')).toBeUndefined();
     });
 
     test('Return undefined on a path that does not carry a service name', () => {
       expect(getServiceNameFromPath('/serverMap/svc@appName@TOMCAT')).toBeUndefined();
-      expect(getServiceNameFromPath('/serviceMap/svc@appName@TOMCAT')).toBeUndefined();
     });
 
-    test('Read the service name on the transactionDetail path too', () => {
-      expect(getServiceNameFromPath('/transactionDetail/svc@appName@TOMCAT')).toBe('svc');
-      expect(getServiceNameFromPath('/transactionDetail/appName@TOMCAT')).toBeUndefined();
-    });
-
-    // `getServiceScopedApplicationPath`가 인코딩해서 넣은 값을 되돌린다.
+    // 경로 빌더가 인코딩해서 넣은 값을 되돌린다.
     test('Decode the encoded service name', () => {
-      expect(getServiceNameFromPath('/transactionList/a%2Fb@appName@TOMCAT')).toBe('a/b');
-      expect(getServiceNameFromPath('/transactionList/a%40b@appName@TOMCAT')).toBe('a@b');
-      expect(getServiceNameFromPath('/transactionList/a%20b@appName@TOMCAT')).toBe('a b');
+      expect(getServiceNameFromPath('/transactionList/a%2Fb/appName@TOMCAT')).toBe('a/b');
+      expect(getServiceNameFromPath('/transactionList/a%40b/appName@TOMCAT')).toBe('a@b');
+      expect(getServiceNameFromPath('/transactionList/a%20b/appName@TOMCAT')).toBe('a b');
     });
 
     // 경로는 사용자가 직접 편집할 수 있다. 렌더 중에 호출되므로 던지면 화면이 죽는다.
     test('Fall back to the raw value on a malformed encoding instead of throwing', () => {
-      expect(getServiceNameFromPath('/transactionList/100%@appName@TOMCAT')).toBe('100%');
+      expect(getServiceNameFromPath('/transactionList/100%/appName@TOMCAT')).toBe('100%');
     });
   });
 
