@@ -138,7 +138,7 @@ apps/web/src/pages/Inspector.tsx  →  @pinpoint-fe/ui의 InspectorPage를 감�
 1. 먼저 `<cwd>/.claude/` 확인
 2. 없으면 상위 디렉토리 탐색: 루트 `.claude/`
 3. 알려진 위치:
-   - `.claude/skills/` — add-translation, create-api-hook, create-component, create-page, review-code, qa-pr, write-test, mvn-web
+   - `.claude/skills/` — add-translation, create-api-hook, create-component, create-page, review-code, qa-pr, merge-check, write-test, mvn-web
    - `.claude/agents/` — code-reviewer, explorer, debugger, qa-engineer
    - `.claude/rules/` — code-style, monorepo, git-workflow, tool-usage, code-review-policy
 
