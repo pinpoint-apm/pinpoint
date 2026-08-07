@@ -5,36 +5,40 @@ import { getDefaultStore } from 'jotai';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
 import { selectedServiceAtom, DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms/selectedService';
 
-// useGetApplicationList reads the module-level queryClient (from reactQueryHelper,
-// which transitively imports the ECharts ESM stack) only for the 304 cache lookup.
-// Mock it so babel-jest does not choke on echarts and so we can drive the 304 path.
-const mockGetQueryData = jest.fn();
+// useGetApplicationList imports queryFn from reactQueryHelper, which transitively pulls in the
+// ECharts ESM stack. Stub the module with the same fetch behaviour so babel-jest does not choke.
 jest.mock('./reactQueryHelper', () => ({
-  queryClient: { getQueryData: (...args: unknown[]) => mockGetQueryData(...args) },
+  queryFn: (url: string) => async () => {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}.`);
+    }
+    return response.json();
+  },
 }));
 
 import { useGetApplicationList } from './useGetApplicationList';
 
+let testClient: QueryClient;
+
 const createWrapper = () => {
-  const client = new QueryClient({
+  testClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    <QueryClientProvider client={testClient}>{children}</QueryClientProvider>
   );
 };
 
-const okResponse = (body: unknown, etag?: string) => ({
+const okResponse = (body: unknown) => ({
   ok: true,
   status: 200,
-  headers: { get: (key: string) => (key === 'ETag' ? (etag ?? null) : null) },
   json: async () => body,
 });
 
 describe('useGetApplicationList', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
-    mockGetQueryData.mockReset();
     getDefaultStore().set(selectedServiceAtom, DEFAULT_SERVICE);
     window.history.replaceState({}, '', '/');
   });
@@ -44,7 +48,7 @@ describe('useGetApplicationList', () => {
   });
 
   test('fetches the application list from the applications endpoint', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(okResponse([{ applicationName: 'A' }], 'v1'));
+    (global.fetch as jest.Mock).mockResolvedValue(okResponse([{ applicationName: 'A' }]));
 
     const { result } = renderHook(() => useGetApplicationList(), { wrapper: createWrapper() });
 
@@ -53,12 +57,10 @@ describe('useGetApplicationList', () => {
     expect(result.current.data).toEqual([{ applicationName: 'A' }]);
   });
 
-  test('sends the cached ETag as If-None-Match and reuses cached data on 304', async () => {
-    // First response establishes the ETag.
-    (global.fetch as jest.Mock)
-      .mockResolvedValueOnce(okResponse([{ applicationName: 'A' }], 'etag-123'))
-      .mockResolvedValueOnce({ status: 304 });
-    mockGetQueryData.mockReturnValue([{ applicationName: 'A' }]);
+  test('leaves ETag revalidation to the browser HTTP cache', async () => {
+    // 백엔드가 Vary + no-cache를 보내므로 훅이 If-None-Match를 직접 실을 필요가 없다.
+    // 브라우저 캐시를 끄는 cache: 'no-store'도 붙이지 않아야 자동 재검증이 동작한다.
+    (global.fetch as jest.Mock).mockResolvedValue(okResponse([{ applicationName: 'A' }]));
 
     const { result } = renderHook(() => useGetApplicationList(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -68,13 +70,19 @@ describe('useGetApplicationList', () => {
     });
 
     await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.length).toBe(2));
-    const secondInit = (global.fetch as jest.Mock).mock.calls[1][1] as { headers: HeadersInit };
-    expect((secondInit.headers as Record<string, string>)['If-None-Match']).toBe('etag-123');
-    expect(result.current.data).toEqual([{ applicationName: 'A' }]);
+    for (const [, init] of (global.fetch as jest.Mock).mock.calls as [
+      RequestInfo | URL,
+      RequestInit | undefined,
+    ][]) {
+      // init.headers는 평범한 객체일 수도, Headers 인스턴스일 수도 있다(fetch 인터셉터가 후자로
+      // 만든다). Headers에 대괄호 접근은 항상 undefined라 검사가 무의미해지므로 형태를 통일한다.
+      expect(new Headers(init?.headers).get('If-None-Match')).toBeNull();
+      expect(init?.cache).toBeUndefined();
+    }
   });
 
   test('refetchWithClearCache requests the endpoint with clearCache=true', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(okResponse([{ applicationName: 'A' }], 'v1'));
+    (global.fetch as jest.Mock).mockResolvedValue(okResponse([{ applicationName: 'A' }]));
 
     const { result } = renderHook(() => useGetApplicationList(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -104,8 +112,8 @@ describe('useGetApplicationList', () => {
 
   test('refetches the list when the selected service changes', async () => {
     (global.fetch as jest.Mock)
-      .mockResolvedValueOnce(okResponse([{ applicationName: 'A' }], 'etag-a'))
-      .mockResolvedValueOnce(okResponse([{ applicationName: 'B' }], 'etag-b'));
+      .mockResolvedValueOnce(okResponse([{ applicationName: 'A' }]))
+      .mockResolvedValueOnce(okResponse([{ applicationName: 'B' }]));
 
     const { result } = renderHook(() => useGetApplicationList(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -120,22 +128,16 @@ describe('useGetApplicationList', () => {
   });
 
   test('caches under the selected service, servermap included', async () => {
-    // ServerMap도 예외가 아니라 선택된 service로 조회되므로, 그 service 캐시/ETag를 써야 한다.
+    // ServerMap도 예외가 아니라 선택된 service로 조회되므로, 그 service 캐시를 써야 한다.
     window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
     getDefaultStore().set(selectedServiceAtom, 'service-b');
-    (global.fetch as jest.Mock)
-      .mockResolvedValueOnce(okResponse([{ applicationName: 'A' }], 'etag-b'))
-      .mockResolvedValueOnce({ status: 304 });
-    mockGetQueryData.mockReturnValue([{ applicationName: 'A' }]);
+    (global.fetch as jest.Mock).mockResolvedValue(okResponse([{ applicationName: 'A' }]));
 
     const { result } = renderHook(() => useGetApplicationList(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    await act(async () => {
-      await result.current.refetch();
-    });
-
-    await waitFor(() => expect(mockGetQueryData).toHaveBeenCalled());
-    expect(mockGetQueryData).toHaveBeenCalledWith([END_POINTS.APPLICATION_LIST, 'service-b']);
+    expect(testClient.getQueryData([END_POINTS.APPLICATION_LIST, 'service-b'])).toEqual([
+      { applicationName: 'A' },
+    ]);
   });
 });

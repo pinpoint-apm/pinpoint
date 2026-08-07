@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceConstants;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.service.CacheService;
 import com.navercorp.pinpoint.web.service.CommonService;
@@ -31,6 +32,8 @@ import com.navercorp.pinpoint.web.view.TagApplications;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -88,7 +91,7 @@ public class MainController {
             if (cachedApplications != null) {
                 if (eTag.tag().equals(cachedApplications.getTag())) {
                     logger.debug("applicationList {} cache hit", cacheKey);
-                    return notModified();
+                    return notModified(eTag);
                 } else {
                     logger.debug("applicationList {} cache hit, but missed eTag {} = {}",
                             cacheKey, clearCache, cachedApplications.getTag());
@@ -118,15 +121,19 @@ public class MainController {
         // if (cachedApplications.getApplicationList().equals(applicationList))
         //
         // weak
-        return ResponseEntity.ok()
-                .eTag(newETag.toString())
+        return cacheHeaders(ResponseEntity.ok().eTag(newETag.toString()))
                 .body(new ApplicationGroup(applicationList));
     }
 
-    private static ResponseEntity<ApplicationGroup> notModified() {
-        return ResponseEntity
-                .status(HttpStatus.NOT_MODIFIED)
+    private static ResponseEntity<ApplicationGroup> notModified(ETag eTag) {
+        return cacheHeaders(ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(eTag.toString()))
                 .build();
+    }
+
+    private static ResponseEntity.BodyBuilder cacheHeaders(ResponseEntity.BodyBuilder builder) {
+        return builder
+                .varyBy(ServiceConstants.KEY, HttpHeaders.ACCEPT_ENCODING)
+                .cacheControl(CacheControl.noCache());
     }
 
     private static boolean needClearCache(ETag eTag, String clearCache) {
