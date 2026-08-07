@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class StatService extends StatGrpc.StatImplBase {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ServiceNotFoundChecker serviceNotFoundChecker = new ServiceNotFoundChecker(logger);
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isTrace = logger.isTraceEnabled();
 
@@ -101,6 +102,11 @@ public class StatService extends StatGrpc.StatImplBase {
     }
 
     private void statDispatch(Context context, PStatMessage statMessage, ServerCallStream<PStatMessage, Empty> call, ServerCallStream<PStatMessage, Empty> response) {
+        final String serviceName = ServerContext.getAgentInfo(context).getServiceName();
+        if (serviceNotFoundChecker.isServiceNotFoundNow(serviceName, call.getUidFetcher())) {
+            return;
+        }
+
         if (statMessage.hasAgentStat()) {
             PAgentStat agentStat = statMessage.getAgentStat();
             this.dispatch(agentStat, MessageTypes.AGENT_STAT, statHandler, call.getUidFetcher(), context, response);

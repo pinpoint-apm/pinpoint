@@ -37,12 +37,14 @@ class ServiceUidSuppliersTest {
     }
 
     @Test
-    void returnNullOnMissingServiceUid() {
+    void throwExceptionOnMissingServiceUid() {
         UidFetcher uidFetcher = serviceName -> CompletableFuture.completedFuture(null);
 
         ServiceUidSupplier supplier = ServiceUidSuppliers.newSupplier("serviceName", uidFetcher);
 
-        assertThat(supplier.get()).isNull();
+        assertThatThrownBy(supplier::get)
+                .isInstanceOf(UidNotFoundException.class)
+                .hasMessageContaining("serviceName");
     }
 
     @Test

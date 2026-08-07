@@ -52,6 +52,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
+    private final ServiceNotFoundChecker serviceNotFoundChecker = new ServiceNotFoundChecker(logger);
 
     private final AtomicLong serverStreamId = new AtomicLong();
 
@@ -93,7 +94,13 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     private void handleSpanBatch(Context current, PSpanMessageBatch request, StreamObserver<PSpanResultBatch> responseObserver) {
         final UidFetcher fetcher = uidFetcherStreamService.newUidFetcher();
         final SpanBatchErrorResult errorReporter = new SpanBatchErrorResult();
-
+        final String serviceName = ServerContext.getAgentInfo(current).getServiceName();
+        if (serviceNotFoundChecker.isServiceNotFoundNow(serviceName, fetcher)) {
+            // discard silently
+            responseObserver.onNext(PSpanResultBatch.getDefaultInstance());
+            responseObserver.onCompleted();
+            return;
+        }
         for (PSpanMessage spanMessage : request.getSpanList()) {
             if (isDebug) {
                 logger.debug("SendSpanList PSpanMessage={}", MessageFormatUtils.debugLog(spanMessage));
@@ -101,25 +108,24 @@ public class SpanService extends SpanGrpc.SpanImplBase {
             if (spanMessage.hasSpan()) {
                 final PSpan span = spanMessage.getSpan();
                 final ServerRequest<PSpan> serverRequest = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPAN, span);
-                try {
-                    spanHandler.handleSimple(serverRequest);
-                } catch (Throwable e) {
-                    logger.warn("Failed to handle span. header={} spanErrorId={}", serverRequest.getHeader(), errorReporter.getErrorId(), e);
-                    errorReporter.recordException(e);
-                }
+                handleSpan(spanHandler, serverRequest, errorReporter);
             } else if (spanMessage.hasSpanChunk()) {
                 final PSpanChunk spanChunk = spanMessage.getSpanChunk();
                 final ServerRequest<PSpanChunk> serverRequest = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPANCHUNK, spanChunk);
-                try {
-                    spanCheckHandler.handleSimple(serverRequest);
-                } catch (Throwable e) {
-                    logger.warn("Failed to handle spanChunk. header={} spanErrorId={}", serverRequest.getHeader(), errorReporter.getErrorId(), e);
-                    errorReporter.recordException(e);
-                }
+                handleSpan(spanCheckHandler, serverRequest, errorReporter);
             }
         }
         responseObserver.onNext(errorReporter.buildResultBatch());
         responseObserver.onCompleted();
+    }
+
+    private <T> void handleSpan(SimpleHandler<T> handler, ServerRequest<T> request, SpanBatchErrorResult errorReporter) {
+        try {
+            handler.handleSimple(request);
+        } catch (Throwable e) {
+            logger.warn("Failed to handle. messageTypes={} header={} spanErrorId={}", request.getMessageType(), request.getHeader(), errorReporter.getErrorId(), e);
+            errorReporter.recordException(e);
+        }
     }
 
     @Override
@@ -147,6 +153,11 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     }
 
     private void spanDispatch(Context context, PSpanMessage spanMessage, ServerCallStream<PSpanMessage, Empty> call, ServerCallStream<PSpanMessage, Empty> responseObserver) {
+        final String serviceName = ServerContext.getAgentInfo(context).getServiceName();
+        if (serviceNotFoundChecker.isServiceNotFoundNow(serviceName, call.getUidFetcher())) {
+            return;
+        }
+
         if (spanMessage.hasSpan()) {
             PSpan span = spanMessage.getSpan();
             UidFetcher fetcher = call.getUidFetcher();
@@ -165,8 +176,8 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     }
 
     private <T> void dispatch(SimpleHandler<T> handler,
-                          ServerRequest<T> request,
-                          ServerCallStream<PSpanMessage, Empty> responseObserver) {
+                              ServerRequest<T> request,
+                              ServerCallStream<PSpanMessage, Empty> responseObserver) {
         try {
             handler.handleSimple(request);
         } catch (Throwable e) {

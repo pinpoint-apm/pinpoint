@@ -35,7 +35,7 @@ public class ServiceLookupCacheConfiguration {
     @Bean(CACHE_MANAGER_NAME)
     public CacheManager collectorServiceLookupCacheManager(
             @Qualifier("collectorServiceLookupCacheProperties") CaffeineCacheProperties properties,
-            @Value("${collector.service.lookup.cache.missingExpireAfterWrite:1m}") Duration missingExpireAfterWrite) {
+            @Value("${collector.service.lookup.cache.missingExpireAfterWrite:10m}") Duration missingExpireAfterWrite) {
 
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(SERVICE_LOOKUP_CACHE_NAME);
         cacheManager.setCaffeine(buildCaffeine(properties, missingExpireAfterWrite));

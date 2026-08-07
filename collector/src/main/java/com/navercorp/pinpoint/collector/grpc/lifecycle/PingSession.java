@@ -16,10 +16,15 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.TransportMutableContext;
+import com.navercorp.pinpoint.io.request.UidFetcher;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -33,6 +38,9 @@ public class PingSession {
     private static final AtomicLongFieldUpdater<PingSession> EVENT_UPDATER = AtomicLongFieldUpdater.newUpdater(PingSession.class, "eventIdAllocator");
     private static final AtomicIntegerFieldUpdater<PingSession> PING_UPDATER = AtomicIntegerFieldUpdater.newUpdater(PingSession.class, "pingEvent");
 
+    private static final Logger logger = LogManager.getLogger(PingSession.class);
+    private static final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
+
     private volatile long eventIdAllocator = 0;
     private volatile int pingEvent = 0;
 
@@ -41,17 +49,17 @@ public class PingSession {
 
     private final Header header;
     private final TransportMutableContext transportMutableContext;
-    private final ServiceUid serviceUid;
 
     private boolean updated = false;
     private long lastPingTimeMillis;
 
-    public PingSession(Long transportId, long sessionId, Header header, TransportMutableContext transportMutableContext, ServiceUid serviceUid) {
+    private volatile ServiceUid serviceUid;
+
+    public PingSession(Long transportId, long sessionId, Header header, TransportMutableContext transportMutableContext) {
         this.transportId = Objects.requireNonNull(transportId, "transportId");
         this.sessionId = sessionId;
         this.header = Objects.requireNonNull(header, "header");
         this.transportMutableContext = transportMutableContext;
-        this.serviceUid = Objects.requireNonNull(serviceUid, "serviceUid");
     }
 
     public boolean firstPing() {
@@ -72,10 +80,6 @@ public class PingSession {
 
     public Header getHeader() {
         return header;
-    }
-
-    public ServiceUid getServiceUid() {
-        return serviceUid;
     }
 
     public int getServiceType() {
@@ -115,6 +119,36 @@ public class PingSession {
         this.lastPingTimeMillis = lastPingTimeMillis;
     }
 
+    @Nullable
+    public ServiceUid getServiceUid() {
+        return serviceUid;
+    }
+
+    /**
+     * Non-blocking; a cache hit completes inline and is visible immediately.
+     */
+    public void updateServiceUid(UidFetcher fetcher) {
+        final String serviceName = header.getServiceName();
+        try {
+            fetcher.getServiceUid(serviceName)
+                    .whenComplete((uid, throwable) -> {
+                        if (throwable != null) {
+                            tLogger.warn("Failed to get serviceUid. serviceName={}", serviceName, throwable);
+                            return;
+                        }
+                        updateServiceUid(uid);
+                    });
+        } catch (RuntimeException e) {
+            tLogger.warn("Failed to get serviceUid. serviceName={}", serviceName, e);
+        }
+    }
+
+    public void updateServiceUid(ServiceUid serviceUid) {
+        if (serviceUid != null) {
+            this.serviceUid = serviceUid;
+        }
+    }
+
     @Override
     public String toString() {
         return "PingSession{" +
@@ -125,6 +159,7 @@ public class PingSession {
                 ", eventIdAllocator=" + eventIdAllocator +
                 ", updated=" + updated +
                 ", lastPingTimeMillis=" + lastPingTimeMillis +
+                ", serviceUid=" + serviceUid +
                 '}';
     }
 
