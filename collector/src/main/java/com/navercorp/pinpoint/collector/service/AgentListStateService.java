@@ -31,7 +31,7 @@ import java.util.Objects;
 public class AgentListStateService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final AgentIdDao agentIdDao;
     private final boolean v2enabled;

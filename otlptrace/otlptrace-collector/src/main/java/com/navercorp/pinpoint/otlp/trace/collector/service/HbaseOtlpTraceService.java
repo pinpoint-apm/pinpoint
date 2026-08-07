@@ -41,7 +41,7 @@ import java.util.concurrent.Executor;
 public class HbaseOtlpTraceService implements TraceService {
     private final Logger logger = LogManager.getLogger(getClass());
     // Throttled so an HBase outage (every span failing) does not flood the log.
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final TraceDao traceDao;
     private final ScatterService scatterService;

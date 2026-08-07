@@ -59,7 +59,7 @@ public class OtlpAgentStartTimeResolver {
     private final Logger logger = LogManager.getLogger(this.getClass());
     // Throttled so a fleet-wide misconfigured exporter (every batch failing to parse) does not
     // flood the log; the true failure rate stays observable via the parse-error counter.
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final Counter creationTimeCounter;
     private final Counter spanTimeCounter;

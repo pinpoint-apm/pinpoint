@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AsyncPollerThread implements Closeable {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final TableWriterFactory writerFactory;
 

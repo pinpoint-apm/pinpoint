@@ -18,7 +18,7 @@ import java.util.Objects;
 @Service
 public class AgentMetricBatchHandler implements SimpleHandler<PAgentStatBatch> {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final GrpcAgentStatBatchMapper agentStatBatchMapper;
     private final AgentStatGroupService agentStatGroupService;

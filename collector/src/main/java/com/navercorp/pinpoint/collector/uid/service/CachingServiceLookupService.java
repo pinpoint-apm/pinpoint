@@ -28,7 +28,7 @@ public class CachingServiceLookupService implements ServiceLookupService, Applic
     private static final int DEFAULT_LOAD_LIMIT_PERCENT = 90;
 
     private final Logger logger = LogManager.getLogger(getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final CaffeineCacheProperties properties;
     private final ServiceLookupLoadProperties loadProperties;

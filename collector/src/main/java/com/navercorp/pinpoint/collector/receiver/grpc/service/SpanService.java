@@ -51,7 +51,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final ThrottledLogger tLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final AtomicLong serverStreamId = new AtomicLong();
 
