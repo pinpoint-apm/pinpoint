@@ -62,7 +62,7 @@ public class OtlpTraceExportService {
     // Throttled so an HBase outage (every span/chunk failing synchronously) does not flood the log.
     // Mirrors HbaseOtlpTraceService's async-path pattern (throttled WARN + a per-op error counter so
     // the true failure rate stays observable even while logs are throttled).
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     @NotNull
     private final TraceService[] traceServiceList;

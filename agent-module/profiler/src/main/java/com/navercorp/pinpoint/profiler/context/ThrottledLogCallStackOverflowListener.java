@@ -33,7 +33,7 @@ public class ThrottledLogCallStackOverflowListener implements CallStackOverflowL
     public ThrottledLogCallStackOverflowListener(final int maxDepth, final int maxSequence, final long overflowLogIntervalMillis) {
         this.maxDepth = maxDepth;
         this.maxSequence = maxSequence;
-        this.throttledLogger = ThrottledLogger.getIntervalLogger(logger, Duration.ofMillis(overflowLogIntervalMillis));
+        this.throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger, Duration.ofMillis(overflowLogIntervalMillis));
     }
 
     @Override

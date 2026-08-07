@@ -36,7 +36,7 @@ import java.util.Objects;
  */
 public class HeaderPropagationInterceptor implements ServerInterceptor {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final HeaderReader<Header> headerReader;
     private final Context.Key<Header> contextKey;

@@ -55,7 +55,7 @@ import java.util.concurrent.RejectedExecutionException;
 public class AgentService extends AgentGrpc.AgentImplBase {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ThrottledLogger tLogger = ThrottledLogger.getIntervalLogger(logger);
+    private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final RequestResponseHandler<PAgentInfo, PResult> handler;
 
@@ -135,7 +135,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         responseObserver.setOnCancelHandler(() -> disconnect(pingSession));
 
         return new StreamObserver<>() {
-            private final ThrottledLogger thLogger = ThrottledLogger.getIntervalLogger(AgentService.this.logger);
+            private final ThrottledLogger thLogger = ThrottledLogger.getUncountedIntervalLogger(AgentService.this.logger);
 
             @Override
             public void onNext(PPing ping) {
