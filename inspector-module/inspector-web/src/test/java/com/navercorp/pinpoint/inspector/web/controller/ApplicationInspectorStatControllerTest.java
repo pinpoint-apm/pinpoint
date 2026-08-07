@@ -10,6 +10,8 @@ import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +22,8 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +38,8 @@ class ApplicationInspectorStatControllerTest {
     private TenantProvider tenantProvider;
     @Mock
     private InspectorWebProperties inspectorWebProperties;
+    @Mock
+    private ServiceModelResolver serviceModelResolver;
 
     private ApplicationInspectorStatController controller;
 
@@ -43,7 +49,7 @@ class ApplicationInspectorStatControllerTest {
     @BeforeEach
     void setUp() {
         when(inspectorWebProperties.getInspectorPeriodMax()).thenReturn(42);
-        controller = new ApplicationInspectorStatController(applicationStatService, tenantProvider, apdexStatService, inspectorWebProperties);
+        controller = new ApplicationInspectorStatController(applicationStatService, tenantProvider, apdexStatService, inspectorWebProperties, serviceModelResolver);
     }
 
     @Test
@@ -79,5 +85,20 @@ class ApplicationInspectorStatControllerTest {
 
         assertThat(result.getTitle()).isEqualTo("jvmCpu");
         verify(applicationStatService).selectApplicationStatWithGrouping(any(), any());
+    }
+
+    @Test
+    void getApdexStatChart_passesResolvedService() {
+        Service service = new Service("my-service", 123);
+        when(serviceModelResolver.getService("my-service")).thenReturn(service);
+        InspectorMetricData metricData = new InspectorMetricData("Apdex Score", Collections.emptyList(), Collections.emptyList());
+        when(apdexStatService.selectApplicationStat(eq(service), any(), any(), any(), anyLong(), anyLong())).thenReturn(metricData);
+
+        InspectorMetricView result = controller.getApdexStatChart(
+                new ServiceName("my-service"), "testApp", "SPRING_BOOT", "apdex", FROM, TO);
+
+        assertThat(result.getTitle()).isEqualTo("Apdex Score");
+        verify(apdexStatService).selectApplicationStat(
+                eq(service), eq("testApp"), eq("SPRING_BOOT"), eq("apdex"), anyLong(), anyLong());
     }
 }
