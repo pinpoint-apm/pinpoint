@@ -18,13 +18,21 @@ package com.navercorp.pinpoint.common.profiler.logging;
 
 /**
  * Decides whether a log call is allowed to be emitted.
- * Every {@link #tryAcquire()} call is counted, whether it is emitted or not.
+ * Counting implementations count every {@link #tryAcquire()} call, whether it is emitted or not.
  *
  * @author Woonduk Kang(emeroad)
  */
 public interface LogThrottle {
 
+    /**
+     * Returned by {@link #getCounter()} when the implementation does not count calls.
+     */
+    long DISABLED_COUNTER = -1;
+
     boolean tryAcquire();
 
+    /**
+     * @return number of {@link #tryAcquire()} calls, or {@link #DISABLED_COUNTER} if counting is not supported
+     */
     long getCounter();
 }

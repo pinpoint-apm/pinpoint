@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Allows one log per {@code ratio} calls.
  *
  * @author Woonduk Kang(emeroad)
- * @deprecated call-count throttling emits in bursts under load spikes; use {@link TimeLogThrottle} instead
+ * @deprecated call-count throttling emits in bursts under load spikes; use {@link CountingTimeLogThrottle} instead
  */
 @Deprecated
 public class CountLogThrottle implements LogThrottle {

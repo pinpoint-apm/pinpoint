@@ -23,12 +23,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TimeLogThrottleTest {
+public class CountingTimeLogThrottleTest {
 
     @Test
     public void firstCallAlwaysLogs() {
         AtomicLong clock = new AtomicLong(1000);
-        TimeLogThrottle throttle = new TimeLogThrottle(3000, clock::get);
+        CountingTimeLogThrottle throttle = new CountingTimeLogThrottle(3000, clock::get);
 
         assertThat(throttle.tryAcquire()).isTrue();
     }
@@ -36,7 +36,7 @@ public class TimeLogThrottleTest {
     @Test
     public void suppressWithinInterval() {
         AtomicLong clock = new AtomicLong(1000);
-        TimeLogThrottle throttle = new TimeLogThrottle(3000, clock::get);
+        CountingTimeLogThrottle throttle = new CountingTimeLogThrottle(3000, clock::get);
 
         assertThat(throttle.tryAcquire()).isTrue();
 
@@ -53,22 +53,22 @@ public class TimeLogThrottleTest {
     }
 
     @Test
-    public void counterDisabled() {
+    public void countSuppressedCalls() {
         AtomicLong clock = new AtomicLong(1000);
-        TimeLogThrottle throttle = new TimeLogThrottle(3000, clock::get);
+        CountingTimeLogThrottle throttle = new CountingTimeLogThrottle(3000, clock::get);
 
         throttle.tryAcquire();
         throttle.tryAcquire();
         throttle.tryAcquire();
 
-        assertThat(throttle.getCounter()).isEqualTo(LogThrottle.DISABLED_COUNTER);
+        assertThat(throttle.getCounter()).isEqualTo(3);
     }
 
     @Test
     public void invalidInterval() {
-        assertThatThrownBy(() -> new TimeLogThrottle(0))
+        assertThatThrownBy(() -> new CountingTimeLogThrottle(0))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new TimeLogThrottle(-1))
+        assertThatThrownBy(() -> new CountingTimeLogThrottle(-1))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }
