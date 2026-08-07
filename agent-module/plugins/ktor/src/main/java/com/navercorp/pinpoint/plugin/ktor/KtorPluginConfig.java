@@ -37,6 +37,10 @@ public class KtorPluginConfig {
 
     private final boolean retransformConfigureRouting;
 
+    private final boolean clientEnable;
+    private final boolean clientParam;
+    private final boolean clientMarkError;
+
     public KtorPluginConfig(ProfilerConfig config) {
         Objects.requireNonNull(config, "config");
 
@@ -54,6 +58,11 @@ public class KtorPluginConfig {
         this.excludeProfileMethodFilter = serverConfig.getExcludeMethodFilter("profiler.ktor.http.server.excludemethod");
 
         this.retransformConfigureRouting = config.readBoolean("profiler.ktor.http.server.retransform.configure-routing", Boolean.TRUE);
+
+        // Client
+        this.clientEnable = config.readBoolean("profiler.ktor.client.enable", Boolean.FALSE);
+        this.clientParam = config.readBoolean("profiler.ktor.client.param", Boolean.TRUE);
+        this.clientMarkError = config.readBoolean("profiler.ktor.client.mark.error", Boolean.TRUE);
     }
 
     public boolean isEnable() {
@@ -96,6 +105,18 @@ public class KtorPluginConfig {
         return retransformConfigureRouting;
     }
 
+    public boolean isClientEnable() {
+        return clientEnable;
+    }
+
+    public boolean isClientParam() {
+        return clientParam;
+    }
+
+    public boolean isClientMarkError() {
+        return clientMarkError;
+    }
+
     @Override
     public String toString() {
         return "KtorPluginConfig{" +
@@ -109,6 +130,9 @@ public class KtorPluginConfig {
                 ", realIpEmptyValue='" + realIpEmptyValue + '\'' +
                 ", excludeProfileMethodFilter=" + excludeProfileMethodFilter +
                 ", retransformConfigureRouting=" + retransformConfigureRouting +
+                ", clientEnable=" + clientEnable +
+                ", clientParam=" + clientParam +
+                ", clientMarkError=" + clientMarkError +
                 '}';
     }
 }
