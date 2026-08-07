@@ -23,11 +23,15 @@ import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.service.async.DefaultAgentProperty;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.io.request.ServiceUidSuppliers;
+import com.navercorp.pinpoint.io.request.UidFetcherService;
+import com.navercorp.pinpoint.io.request.UidNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,21 +43,25 @@ import java.util.Objects;
  */
 public class KeepAliveService {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ThrottledLogger tLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
     private final PingSessionRegistry pingSessionRegistry;
     private final ApplicationServiceTypeService applicationServiceTypeService;
+    private final UidFetcherService uidFetcherService;
     private final boolean v2enabled;
 
     public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                             AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
                             PingSessionRegistry pingSessionRegistry,
                             ApplicationServiceTypeService applicationServiceTypeService,
+                            UidFetcherService uidFetcherService,
                             boolean v2enabled) {
         this.agentEventAsyncTask = Objects.requireNonNull(agentEventAsyncTask, "agentEventAsyncTask");
         this.agentLifeCycleAsyncTask = Objects.requireNonNull(agentLifeCycleAsyncTask, "agentLifeCycleAsyncTask");
         this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
         this.applicationServiceTypeService = Objects.requireNonNull(applicationServiceTypeService, "applicationServiceTypeService");
+        this.uidFetcherService = Objects.requireNonNull(uidFetcherService, "uidFetcherService");
         this.v2enabled = v2enabled;
     }
 
@@ -73,7 +81,25 @@ public class KeepAliveService {
         final String agentId = header.getAgentId();
         final long agentStartTime = header.getAgentStartTime();
         int serviceType = resolveServiceType(pingSession);
-        return new DefaultAgentProperty(pingSession.getServiceUid(), applicationName, serviceType, agentId, agentStartTime, header.getProperties());
+        ServiceUid serviceUid = resolveServiceUid(pingSession);
+        return new DefaultAgentProperty(serviceUid, applicationName, serviceType, agentId, agentStartTime, header.getProperties());
+    }
+
+    /**
+     * Blocking only while unresolved (in practice a cache hit: eager init + warmup),
+     * so the first connect lifecycle event is not lost to a pending lookup.
+     */
+    private ServiceUid resolveServiceUid(PingSession pingSession) {
+        final ServiceUid serviceUid = pingSession.getServiceUid();
+        if (serviceUid != null) {
+            return serviceUid;
+        }
+
+        final ServiceUid resolved = ServiceUidSuppliers
+                .newSupplier(pingSession.getHeader().getServiceName(), uidFetcherService.newUidFetcher())
+                .get();
+        pingSession.updateServiceUid(resolved);
+        return resolved;
     }
 
     private int resolveServiceType(PingSession pingSession) {
@@ -121,6 +147,8 @@ public class KeepAliveService {
             long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier((int) socketId, (int) pingSession.nextEventIdAllocator());
             this.agentLifeCycleAsyncTask.handleLifeCycleEvent(agentProperty, pingTimestamp, agentLifeCycleState, eventIdentifier);
             this.agentEventAsyncTask.handleEvent(agentProperty, pingTimestamp, agentEventType);
+        } catch (UidNotFoundException e) {
+            tLogger.info("Service not found. Skipping state update. pingSession={}", pingSession);
         } catch (Exception e) {
             logger.warn("Failed to update state. closeState:{} lifeCycle={} {}/{}", closeState, pingSession, agentLifeCycleState, agentEventType, e);
         }
@@ -131,6 +159,8 @@ public class KeepAliveService {
             final long pingTimestamp = System.currentTimeMillis();
             final AgentProperty agentProperty = newChannelProperties(pingSession);
             this.agentLifeCycleAsyncTask.handlePingEvent(agentProperty, pingTimestamp);
+        } catch (UidNotFoundException e) {
+            tLogger.info("Service not found. Skipping ping event. pingSession={}", pingSession);
         } catch (Exception e) {
             logger.warn("Failed to update state. pingSession={}", pingSession, e);
         }

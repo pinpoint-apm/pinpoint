@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.TransportMutableContext;
+import com.navercorp.pinpoint.io.request.UidFetcherService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,18 +37,22 @@ public class DefaultPingEventHandler implements PingEventHandler {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final PingSessionRegistry pingSessionRegistry;
     private final LifecycleListener lifecycleListener;
+    private final UidFetcherService uidFetcherService;
 
-    public DefaultPingEventHandler(PingSessionRegistry pingSessionRegistry, LifecycleListener lifecycleListener) {
+    public DefaultPingEventHandler(PingSessionRegistry pingSessionRegistry, LifecycleListener lifecycleListener, UidFetcherService uidFetcherService) {
         this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
         this.lifecycleListener = Objects.requireNonNull(lifecycleListener, "lifecycleListener");
+        this.uidFetcherService = Objects.requireNonNull(uidFetcherService, "uidFetcherService");
     }
 
     @Override
-    public PingSession newPingSession(Long id, Header header, TransportMutableContext transportServiceContext, ServiceUid serviceUid) {
+    public PingSession newPingSession(Long id, Header header, TransportMutableContext transportServiceContext) {
         Objects.requireNonNull(header, "header");
         Objects.requireNonNull(id, "transport");
 
-        PingSession pingSession = new PingSession(id, nextSessionId(), header, transportServiceContext, serviceUid);
+        PingSession pingSession = new PingSession(id, nextSessionId(), header, transportServiceContext);
+        // Eager, non-blocking: an unregistered service must not reject the stream
+        pingSession.updateServiceUid(uidFetcherService.newUidFetcher());
         pingSessionRegistry.add(pingSession);
 
         return pingSession;

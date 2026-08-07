@@ -73,12 +73,11 @@ public class GrpcAgentConfiguration {
     @Bean
     public AgentService agentService(RequestResponseHandler<PAgentInfo, PResult> grpcAgentInfoHandler,
                                      PingEventHandler pingEventHandler,
-                                     UidFetcherService uidFetcherService,
                                      @Qualifier("grpcAgentWorkerExecutor")
                                      Executor executor,
                                      ServerRequestFactory serverRequestFactory,
                                      ServerResponseFactory serverResponseFactory) {
-        return new AgentService(grpcAgentInfoHandler, pingEventHandler, uidFetcherService, executor, serverRequestFactory, serverResponseFactory);
+        return new AgentService(grpcAgentInfoHandler, pingEventHandler, executor, serverRequestFactory, serverResponseFactory);
     }
 
     @Bean
@@ -181,14 +180,16 @@ public class GrpcAgentConfiguration {
                                              AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
                                              PingSessionRegistry pingSessionRegistry,
                                              ApplicationServiceTypeService applicationServiceTypeService,
+                                             UidFetcherService uidFetcherService,
                                              @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
-        return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry, applicationServiceTypeService, v2enabled);
+        return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry, applicationServiceTypeService, uidFetcherService, v2enabled);
     }
 
     @Bean
     public PingEventHandler pingEventHandler(PingSessionRegistry pingSessionRegistry,
-                                             AgentLifecycleListener agentLifecycleListener) {
-        return new DefaultPingEventHandler(pingSessionRegistry, agentLifecycleListener);
+                                             AgentLifecycleListener agentLifecycleListener,
+                                             UidFetcherService uidFetcherService) {
+        return new DefaultPingEventHandler(pingSessionRegistry, agentLifecycleListener, uidFetcherService);
     }
 
     @Bean

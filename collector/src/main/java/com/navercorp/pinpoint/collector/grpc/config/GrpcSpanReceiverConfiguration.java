@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.UidGuardedHandler;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
@@ -89,7 +90,8 @@ public class GrpcSpanReceiverConfiguration {
                                                                ServerInterceptor serverInterceptor,
                                                                ServerRequestFactory serverRequestFactory,
                                                                StreamCloseOnError streamCloseOnError) {
-        BindableService spanService = new SpanService(spanHandler, spanCheckHandler, uidFetcherStreamService, executor, serverRequestFactory, streamCloseOnError);
+        BindableService spanService = new SpanService(new UidGuardedHandler<>(spanHandler), new UidGuardedHandler<>(spanCheckHandler),
+                uidFetcherStreamService, executor, serverRequestFactory, streamCloseOnError);
         return ServerInterceptors.intercept(spanService, serverInterceptor);
     }
 

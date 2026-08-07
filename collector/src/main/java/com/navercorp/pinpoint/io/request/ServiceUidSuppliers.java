@@ -30,13 +30,54 @@ public final class ServiceUidSuppliers {
         } catch (RuntimeException e) {
             future = CompletableFuture.failedFuture(new UidException("Failed to get serviceUid. serviceName:" + serviceName, e));
         }
-        CompletableFuture<ServiceUid> serviceUidFuture = future;
-        return () -> get(serviceName, serviceUidFuture, timeout, unit);
+        return new FutureServiceUidSupplier(serviceName, future, timeout, unit);
+    }
+
+    private static class FutureServiceUidSupplier implements ServiceUidSupplier {
+        private final String serviceName;
+        private final CompletableFuture<ServiceUid> future;
+        private final long timeout;
+        private final TimeUnit unit;
+
+        private FutureServiceUidSupplier(String serviceName, CompletableFuture<ServiceUid> future, long timeout, TimeUnit unit) {
+            this.serviceName = serviceName;
+            this.future = Objects.requireNonNull(future, "future");
+            this.timeout = timeout;
+            this.unit = Objects.requireNonNull(unit, "unit");
+        }
+
+        @Override
+        public ServiceUid get() {
+            return ServiceUidSuppliers.get(serviceName, future, timeout, unit);
+        }
+
+        @Override
+        public String toString() {
+            return "FutureServiceUidSupplier{" +
+                    "serviceName='" + serviceName + '\'' +
+                    ", serviceUid=" + resolutionState() +
+                    '}';
+        }
+
+        private String resolutionState() {
+            if (!future.isDone()) {
+                return "PENDING";
+            }
+            try {
+                return String.valueOf(future.getNow(null));
+            } catch (RuntimeException e) {
+                return "ERROR";
+            }
+        }
     }
 
     private static ServiceUid get(String serviceName, CompletableFuture<ServiceUid> future, long timeout, TimeUnit unit) {
         try {
-            return future.get(timeout, unit);
+            ServiceUid serviceUid = future.get(timeout, unit);
+            if (serviceUid == null) {
+                throw new UidNotFoundException(serviceName);
+            }
+            return serviceUid;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new UidException("Interrupted while getting serviceUid. serviceName:" + serviceName, e);

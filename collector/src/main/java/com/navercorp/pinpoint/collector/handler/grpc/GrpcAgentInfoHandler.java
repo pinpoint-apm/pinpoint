@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.collector.service.AgentInfoStatisticsService;
 import com.navercorp.pinpoint.collector.service.ApplicationIndexV2Service;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
@@ -29,10 +30,12 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
+import com.navercorp.pinpoint.io.request.UidNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -42,6 +45,7 @@ import java.util.Objects;
 @Service
 public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, PResult> {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ThrottledLogger uidLogger = ThrottledLogger.getUncountedIntervalLogger(logger, Duration.ofMinutes(5));
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final AgentInfoService agentInfoService;
@@ -78,10 +82,12 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, 
         }
 
         try {
-            ServiceUid serviceUid = header.getServiceUid().get();
-            if (serviceUid == null || ServiceUid.UNKNOWN.equals(serviceUid) || ServiceUid.ERROR.equals(serviceUid)) {
-                logger.warn("Service not found. serviceName={}, serviceUid={}, applicationName={}, agentId={}",
-                        header.getServiceName(), serviceUid, header.getApplicationName(), header.getAgentId());
+            final ServiceUid serviceUid;
+            try {
+                serviceUid = header.getServiceUid().get();
+            } catch (UidNotFoundException e) {
+                uidLogger.warn("Service not found. serviceName={}, applicationName={}, agentId={}",
+                        header.getServiceName(), header.getApplicationName(), header.getAgentId());
                 return PResults.serviceNotFound(header.getServiceName());
             }
 
