@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.collector.uid.service.ServiceLookupService;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
@@ -27,7 +28,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanOwner;
 import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -40,6 +40,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Trace service implementation for HBase storage.
@@ -52,6 +56,8 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     private static final String MERGE_AGENT = "_";
     private static final String MERGE_QUEUE = "_";
 
+    private static final long UID_LOOKUP_TIMEOUT_MILLIS = 3000;
+
     private final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final HostApplicationMapDao hostApplicationMapDao;
@@ -59,13 +65,16 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     private final LinkService linkService;
 
     private final ServiceTypeRegistryService registry;
+    private final ServiceLookupService serviceLookupService;
 
     public HbaseApplicationMapService(HostApplicationMapDao hostApplicationMapDao,
                                       LinkService linkService,
-                                      ServiceTypeRegistryService registry) {
+                                      ServiceTypeRegistryService registry,
+                                      ServiceLookupService serviceLookupService) {
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
         this.linkService = Objects.requireNonNull(linkService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
+        this.serviceLookupService = Objects.requireNonNull(serviceLookupService, "serviceLookupService");
     }
 
     @Override
@@ -160,7 +169,25 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     }
 
     private int getServiceUid(String serviceName) {
-        return ServiceUidService.getServiceUid(serviceName).getUid();
+        final CompletableFuture<ServiceUid> future = serviceLookupService.getServiceUid(serviceName);
+        try {
+            ServiceUid serviceUid = future.get(UID_LOOKUP_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            if (serviceUid == null) {
+                // ServiceLookupService completes with null when the serviceName is not registered
+                throttledLogger.info("Unregistered service. serviceName:{}", serviceName);
+                return ServiceUid.UNKNOWN.getUid();
+            }
+            return serviceUid.getUid();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return ServiceUid.ERROR.getUid();
+        } catch (ExecutionException e) {
+            throttledLogger.info("Failed to get serviceUid. serviceName:{} cause:{}", serviceName, e.getCause());
+            return ServiceUid.ERROR.getUid();
+        } catch (TimeoutException e) {
+            throttledLogger.info("Timed out getting serviceUid. serviceName:{} timeout:{}ms", serviceName, UID_LOOKUP_TIMEOUT_MILLIS);
+            return ServiceUid.ERROR.getUid();
+        }
     }
 
     private void insertSpanStat(SpanBo span, Vertex selfVertex) {
