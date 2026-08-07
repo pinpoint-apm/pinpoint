@@ -9,7 +9,6 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -23,25 +22,19 @@ public class ApplicationIndexV2Service {
     private final ApplicationDao applicationDao;
     private final AgentIdDao agentIdDao;
     private final ApplicationServiceTypeService applicationServiceTypeService;
-    private final boolean v2enabled;
     private final Set<Integer> missingHeaderServiceTypeCodes;
 
     public ApplicationIndexV2Service(ApplicationDao applicationDao,
                                      AgentIdDao agentIdDao,
                                      ApplicationServiceTypeService applicationServiceTypeService,
-                                     AgentProperties agentProperties,
-                                     @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
+                                     AgentProperties agentProperties) {
         this.applicationDao = Objects.requireNonNull(applicationDao, "ApplicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
         this.applicationServiceTypeService = Objects.requireNonNull(applicationServiceTypeService, "applicationServiceTypeService");
-        this.v2enabled = v2enabled;
         this.missingHeaderServiceTypeCodes = agentProperties.getMissingHeaderServiceTypeCodes();
     }
 
     public void insert(ServiceUid serviceUid, int headerServiceTypeCode, AgentInfoBo agentInfoBo) {
-        if (!v2enabled) {
-            return;
-        }
         Objects.requireNonNull(serviceUid, "serviceUid");
         try {
             if (headerServiceTypeCode == ServiceType.UNDEFINED.getCode()) {

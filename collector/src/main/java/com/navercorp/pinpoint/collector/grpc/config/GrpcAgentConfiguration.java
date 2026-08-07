@@ -51,7 +51,6 @@ import io.netty.buffer.ByteBufAllocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -180,9 +179,8 @@ public class GrpcAgentConfiguration {
     public KeepAliveService keepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                                              AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
                                              PingSessionRegistry pingSessionRegistry,
-                                             ApplicationServiceTypeService applicationServiceTypeService,
-                                             @Value("${pinpoint.collector.application.index.v2.enabled:true}") boolean v2enabled) {
-        return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry, applicationServiceTypeService, v2enabled);
+                                             ApplicationServiceTypeService applicationServiceTypeService) {
+        return new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, pingSessionRegistry, applicationServiceTypeService);
     }
 
     @Bean
