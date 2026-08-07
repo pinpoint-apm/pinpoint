@@ -57,6 +57,24 @@ public class ThrottledLogger {
     public static ThrottledLogger getIntervalLogger(Logger logger, Duration interval) {
         Objects.requireNonNull(logger, "logger");
         Objects.requireNonNull(interval, "interval");
+        return new ThrottledLogger(logger, new CountingTimeLogThrottle(interval.toMillis()));
+    }
+
+    /**
+     * Logs at most once per {@link #DEFAULT_INTERVAL} without counting suppressed calls;
+     * {@link #getCounter()} returns {@link LogThrottle#DISABLED_COUNTER}.
+     */
+    public static ThrottledLogger getUncountedIntervalLogger(Logger logger) {
+        return getUncountedIntervalLogger(logger, DEFAULT_INTERVAL);
+    }
+
+    /**
+     * Logs at most once per {@code interval} without counting suppressed calls;
+     * {@link #getCounter()} returns {@link LogThrottle#DISABLED_COUNTER}.
+     */
+    public static ThrottledLogger getUncountedIntervalLogger(Logger logger, Duration interval) {
+        Objects.requireNonNull(logger, "logger");
+        Objects.requireNonNull(interval, "interval");
         return new ThrottledLogger(logger, new TimeLogThrottle(interval.toMillis()));
     }
 

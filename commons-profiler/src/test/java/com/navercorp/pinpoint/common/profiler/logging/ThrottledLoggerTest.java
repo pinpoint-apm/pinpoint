@@ -92,6 +92,21 @@ public class ThrottledLoggerTest {
     }
 
     @Test
+    public void uncountedTimeBasedEmission() {
+        final Logger logger = mock(Logger.class);
+        when(logger.isEnabled(Level.INFO)).thenReturn(true);
+
+        // interval is long enough that only the first call within this test is emitted
+        final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger, Duration.ofSeconds(10));
+        throttledLogger.info("uncounted time based");
+        throttledLogger.info("uncounted time based");
+        throttledLogger.info("uncounted time based");
+
+        verify(logger, times(1)).log(Level.INFO, "uncounted time based");
+        assertThat(throttledLogger.getCounter()).isEqualTo(LogThrottle.DISABLED_COUNTER);
+    }
+
+    @Test
     public void disabledLevelDoesNotCount() {
         final Logger logger = mock(Logger.class);
         when(logger.isEnabled(Level.INFO)).thenReturn(false);

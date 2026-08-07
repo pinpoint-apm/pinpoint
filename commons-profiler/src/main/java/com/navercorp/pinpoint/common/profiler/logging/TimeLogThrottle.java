@@ -21,19 +21,18 @@ import java.util.function.LongSupplier;
 
 /**
  * Allows one log per {@code intervalMillis}; the first call always logs.
- * Suppressed calls are still counted and visible through {@link #getCounter()}.
+ * Calls are not counted, so a burst of suppressed calls only reads a volatile field
+ * instead of contending on a shared counter, and {@link #getCounter()} always returns
+ * {@link LogThrottle#DISABLED_COUNTER}.
+ * <p>
+ * See {@link CountingTimeLogThrottle} for the counting variant.
  *
  * @author Woonduk Kang(emeroad)
  */
 public class TimeLogThrottle implements LogThrottle {
-    private static final AtomicLongFieldUpdater<TimeLogThrottle> COUNTER
-            = AtomicLongFieldUpdater.newUpdater(TimeLogThrottle.class, "counter");
     private static final AtomicLongFieldUpdater<TimeLogThrottle> NEXT_LOG_TIME
             = AtomicLongFieldUpdater.newUpdater(TimeLogThrottle.class, "nextLogTime");
 
-    // adjacent fields: every tryAcquire() writes counter then reads nextLogTime,
-    // so sharing a cache line serves both accesses with a single line transfer
-    private volatile long counter;
     private volatile long nextLogTime;
 
     private final long intervalMillis;
@@ -53,7 +52,6 @@ public class TimeLogThrottle implements LogThrottle {
 
     @Override
     public boolean tryAcquire() {
-        COUNTER.getAndIncrement(this);
 
         final long now = clock.getAsLong();
         final long next = this.nextLogTime;
@@ -66,6 +64,6 @@ public class TimeLogThrottle implements LogThrottle {
 
     @Override
     public long getCounter() {
-        return COUNTER.get(this);
+        return DISABLED_COUNTER;
     }
 }
