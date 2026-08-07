@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -59,13 +60,15 @@ public class AgentInspectorStatController {
     private final ApdexStatService apdexStatService;
     private final TenantProvider tenantProvider;
     private final RangeValidator rangeValidator;
+    private final ServiceModelResolver serviceModelResolver;
 
-    public AgentInspectorStatController(AgentStatService agentStatService, ApdexStatService apdexStatService, TenantProvider tenantProvider, InspectorWebProperties inspectorWebProperties) {
+    public AgentInspectorStatController(AgentStatService agentStatService, ApdexStatService apdexStatService, TenantProvider tenantProvider, InspectorWebProperties inspectorWebProperties, ServiceModelResolver serviceModelResolver) {
         this.agentStatService = Objects.requireNonNull(agentStatService, "agentStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
         Objects.requireNonNull(inspectorWebProperties, "inspectorWebProperties");
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(inspectorWebProperties.getInspectorPeriodMax()));
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
     }
 
     // TODO : (minwoo) tenantId should be considered. The collector side should also be considered.
@@ -102,7 +105,8 @@ public class AgentInspectorStatController {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
-        InspectorMetricData inspectorMetricData = apdexStatService.selectAgentStat(Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, agentId, from.getEpochMillis(), to.getEpochMillis());
+        Service service = serviceModelResolver.getService(serviceName.getName());
+        InspectorMetricData inspectorMetricData = apdexStatService.selectAgentStat(service, applicationName, serviceTypeName, metricDefinitionId, agentId, from.getEpochMillis(), to.getEpochMillis());
         return new InspectorMetricView(inspectorMetricData);
     }
 
@@ -139,8 +143,9 @@ public class AgentInspectorStatController {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
+        Service service = serviceModelResolver.getService(serviceName.getName());
         InspectorMetricGroupData inspectorMetricGroupData = apdexStatService.selectAgentStatGroupedByAgentId(
-                Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, agentIds, from.getEpochMillis(), to.getEpochMillis()
+                service, applicationName, serviceTypeName, metricDefinitionId, agentIds, from.getEpochMillis(), to.getEpochMillis()
         );
         return new InspectorMetricGroupDataView(inspectorMetricGroupData);
     }

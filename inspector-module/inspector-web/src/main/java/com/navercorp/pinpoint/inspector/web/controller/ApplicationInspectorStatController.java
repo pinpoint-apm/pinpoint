@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,13 +38,15 @@ public class ApplicationInspectorStatController {
     private final ApplicationStatService applicationStatService;
     private final ApdexStatService apdexStatService;
     private final RangeValidator rangeValidator;
+    private final ServiceModelResolver serviceModelResolver;
 
-    public ApplicationInspectorStatController(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, InspectorWebProperties inspectorWebProperties) {
+    public ApplicationInspectorStatController(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, InspectorWebProperties inspectorWebProperties, ServiceModelResolver serviceModelResolver) {
         this.applicationStatService = Objects.requireNonNull(applicationStatService, "applicationStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
         Objects.requireNonNull(inspectorWebProperties, "inspectorWebProperties");
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(inspectorWebProperties.getInspectorPeriodMax()));
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
     }
 
     @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
@@ -77,7 +80,8 @@ public class ApplicationInspectorStatController {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
-        InspectorMetricData inspectorMetricData = apdexStatService.selectApplicationStat(Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, from.getEpochMillis(), to.getEpochMillis());
+        Service service = serviceModelResolver.getService(serviceName.getName());
+        InspectorMetricData inspectorMetricData = apdexStatService.selectApplicationStat(service, applicationName, serviceTypeName, metricDefinitionId, from.getEpochMillis(), to.getEpochMillis());
         return new InspectorMetricView(inspectorMetricData);
     }
 
