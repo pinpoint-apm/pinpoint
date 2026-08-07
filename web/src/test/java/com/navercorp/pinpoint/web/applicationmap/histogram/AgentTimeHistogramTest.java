@@ -38,6 +38,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,11 +54,13 @@ public class AgentTimeHistogramTest {
 
     private final ObjectMapper mapper = Jackson.newMapper();
 
+    private final long MINUTE_MILLIS = Duration.ofMinutes(1).toMillis();
+
     @Test
     public void testViewModel() throws IOException {
 
         Application app = new Application("test", ServiceType.STAND_ALONE);
-        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, Range.between(0, 1000 * 60));
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, Range.between(0, MINUTE_MILLIS));
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
@@ -71,7 +74,7 @@ public class AgentTimeHistogramTest {
     @Test
     public void getSampledAgentApdexScoreListTest() {
         Application app = new Application("test", ServiceType.STAND_ALONE);
-        Range range = Range.between(0L, 1000L * 60);
+        Range range = Range.between(0L, 2 * MINUTE_MILLIS);
         TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, timeWindow);
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test3", "test4");
@@ -90,7 +93,7 @@ public class AgentTimeHistogramTest {
     @Test
     public void getApplicationApdexScoreListTest() {
         Application app = new Application("test", ServiceType.STAND_ALONE);
-        Range range = Range.between(0L, 1000L * 60);
+        Range range = Range.between(0L, 2 * MINUTE_MILLIS);
         TimeWindow timeWindow = new TimeWindow(range, new TimeWindowSlotCentricSampler());
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, timeWindow);
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test5", "test6");
@@ -126,17 +129,16 @@ public class AgentTimeHistogramTest {
     @Test
     public void aggregatedLinkDataHandleTest() {
         final long timestamp = System.currentTimeMillis();
-        final long minute = 60000;
         final long aggregateTimeStamp = 0;
         Application app = new Application("test", ServiceType.STAND_ALONE);
         List<String> sourceAgentIdList = List.of("sourceAgentId1", "sourceAgentId2");
-        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, Range.between(timestamp, timestamp + minute));
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, Range.between(timestamp, timestamp + MINUTE_MILLIS));
 
         LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
         LinkCallDataMap aggregatedLinkCallDataMap = new LinkCallDataMap();
         for (String sourceAgentId : sourceAgentIdList) {
             linkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, timestamp));
-            linkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, timestamp + minute));
+            linkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, timestamp + MINUTE_MILLIS));
             aggregatedLinkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, aggregateTimeStamp));
             aggregatedLinkCallDataMap.addLinkDataMap(createSourceLinkCallDataMap(sourceAgentId, aggregateTimeStamp));
         }

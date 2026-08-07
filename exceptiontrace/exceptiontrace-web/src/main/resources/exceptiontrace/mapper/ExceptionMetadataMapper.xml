@@ -61,7 +61,7 @@
         AND serviceName = #{serviceName}
         AND applicationName = #{applicationName}
         <if test="range != null">
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         </if>
         <if test="agentId != null">
             AND agentId = #{agentId}
@@ -86,7 +86,7 @@
         AND serviceName = #{serviceName}
         AND applicationName = #{applicationName}
         <if test="range != null">
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         </if>
         <if test="agentId != null">
             AND agentId = #{agentId}
