@@ -17,341 +17,69 @@
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.bo.BasicSpan;
-import com.navercorp.pinpoint.common.server.bo.ParentApplication;
+import com.navercorp.pinpoint.collector.applicationmap.model.AcceptorHostRow;
+import com.navercorp.pinpoint.collector.applicationmap.model.ApplicationMapBuilder;
+import com.navercorp.pinpoint.collector.applicationmap.model.ApplicationMapModel;
+import com.navercorp.pinpoint.collector.applicationmap.model.InLinkRow;
+import com.navercorp.pinpoint.collector.applicationmap.model.OutLinkRow;
+import com.navercorp.pinpoint.collector.applicationmap.model.ResponseTimeRow;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
-import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.bo.SpanOwner;
-import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
  * Trace service implementation for HBase storage.
+ * Builds an {@link ApplicationMapModel} from the span first, then stores the model.
  */
 @Service
 public class HbaseApplicationMapService implements ApplicationMapService {
-
-    private final Logger logger = LogManager.getLogger(getClass());
-
-    private static final String MERGE_AGENT = "_";
-    private static final String MERGE_QUEUE = "_";
-
-    private final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
     private final LinkService linkService;
 
-    private final ServiceTypeRegistryService registry;
+    private final ApplicationMapBuilder applicationMapBuilder;
 
     public HbaseApplicationMapService(HostApplicationMapDao hostApplicationMapDao,
                                       LinkService linkService,
                                       ServiceTypeRegistryService registry) {
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
-        this.linkService = Objects.requireNonNull(linkService, "statisticsService");
-        this.registry = Objects.requireNonNull(registry, "registry");
+        this.linkService = Objects.requireNonNull(linkService, "linkService");
+        Objects.requireNonNull(registry, "registry");
+        this.applicationMapBuilder = new ApplicationMapBuilder(registry);
     }
 
     @Override
     public void insertSpanChunk(final SpanChunkBo spanChunkBo) {
-        final List<SpanEventBo> spanEventList = spanChunkBo.getSpanEventBoList();
-        if (CollectionUtils.isEmpty(spanEventList)) {
-            return;
-        }
-        final SpanOwner owner = spanChunkBo.getSpanOwner();
-        if (logger.isDebugEnabled()) {
-            logger.debug("handle insertSpanChunk {}/{}/{} size:{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId(), spanEventList.size());
-        }
-        Vertex selfVertex = getSelfVertex(spanChunkBo);
-        // TODO need to batch update later.
-        insertSpanEventList(spanEventList, selfVertex, owner.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
-    }
-
-    private Vertex getSelfVertex(BasicSpan basicSpan) {
-        final ServiceType applicationServiceType = getApplicationServiceType(basicSpan);
-        final SpanOwner owner = basicSpan.getSpanOwner();
-        return Vertex.of(owner.getServiceUid().getUid(), owner.getApplicationName(), applicationServiceType);
-    }
-
-    private ServiceType getApplicationServiceType(BasicSpan basicSpan) {
-        final int applicationServiceTypeCode = basicSpan.getApplicationServiceType();
-        return registry.findServiceType(applicationServiceTypeCode);
+        final ApplicationMapModel model = applicationMapBuilder.build(spanChunkBo);
+        write(model);
     }
 
     @Override
     public void insertSpan(final SpanBo spanBo) {
-
-        final Vertex selfVertex = getSelfVertex(spanBo);
-
-        insertAcceptorHost(spanBo, selfVertex);
-        insertSpanStat(spanBo, selfVertex);
-        insertSpanEventStat(spanBo, selfVertex);
+        final ApplicationMapModel model = applicationMapBuilder.build(spanBo);
+        write(model);
     }
 
+    private void write(ApplicationMapModel model) {
+        final long requestTime = model.getRequestTime();
 
-    private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, Vertex selfVertex) {
-        final String endPoint = spanEvent.getEndPoint();
-        if (endPoint == null) {
-            logger.debug("endPoint is null. appName:{} spanEvent:{}", selfVertex, spanEvent);
-            return;
+        for (AcceptorHostRow row : model.getAcceptorHosts()) {
+            hostApplicationMapDao.insert(requestTime, row.parentVertex(), row.vertex(), row.host());
         }
-        final String destinationId = spanEvent.getDestinationId();
-        if (destinationId == null) {
-            logger.debug("destinationId is null. appName:{} spanEvent:{}", selfVertex, spanEvent);
-            return;
+        for (OutLinkRow row : model.getOutLinks()) {
+            linkService.updateOutLink(requestTime, row.selfVertex(), row.selfAgentId(),
+                    row.outVertex(), row.outHost(), row.elapsed(), row.error());
         }
-        ServiceType serviceType = registry.findServiceType(spanEvent.getServiceType());
-        Vertex rpcVertex = Vertex.of(selfVertex.serviceUid(), destinationId, serviceType);
-        hostApplicationMapDao.insert(requestTime, selfVertex, rpcVertex, endPoint);
-    }
-
-    private void insertAcceptorHost(SpanBo span, Vertex selfVertex) {
-        // save host application map
-        // acceptor host is set at profiler module only when the span is not the kind of root span
-        final SpanOwner owner = span.getSpanOwner();
-        final String acceptorHost = span.getAcceptorHost();
-        if (acceptorHost == null) {
-            logger.debug("acceptorHost is null agent: {}/{}/{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
-            return;
+        for (InLinkRow row : model.getInLinks()) {
+            linkService.updateInLink(requestTime, row.inVertex(),
+                    row.selfVertex(), row.selfHost(), row.elapsed(), row.error());
         }
-
-        final ParentApplication parentApplication = span.getParentApplication();
-        if (parentApplication == null) {
-            logger.debug("parentApplication is null agent: {}/{}/{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
-            return;
+        for (ResponseTimeRow row : model.getResponseTimes()) {
+            linkService.updateResponseTime(requestTime, row.selfVertex(), row.agentId(), row.elapsed(), row.error());
         }
-        final Vertex parentVertex = getParentVertex(parentApplication);
-        final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
-        if (spanServiceType.isQueue()) {
-            final String host = span.getEndPoint();
-            if (host == null) {
-                logger.debug("endPoint is null agent: {}/{}/{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
-                return;
-            }
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex, selfVertex, host);
-        } else {
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex, selfVertex, acceptorHost);
-        }
-    }
-
-    private Vertex getParentVertex(ParentApplication parentApplication) {
-        Objects.requireNonNull(parentApplication, "parentApplication");
-
-        int serviceUid = getServiceUid(parentApplication.serviceName());
-        String parentApplicationName = parentApplication.applicationName();
-        ServiceType parentApplicationType = registry.findServiceType(parentApplication.applicationServiceType());
-        return Vertex.of(serviceUid, parentApplicationName, parentApplicationType);
-    }
-
-    private int getServiceUid(String serviceName) {
-        return ServiceUidService.getServiceUid(serviceName).getUid();
-    }
-
-    private void insertSpanStat(SpanBo span, Vertex selfVertex) {
-
-        final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
-        final ParentApplication parentApplication = span.getParentApplication();
-
-        if (span.isRoot()) {
-            // root span
-            if (spanServiceType.isQueue()) {
-                // create virtual queue node
-                Vertex acceptVertex = getQueueAcceptVertex(span, spanServiceType);
-
-                linkService.updateOutLink(span.getCollectorAcceptTime(), acceptVertex, span.getRemoteAddr(),
-                        selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("[InLink] root-queue {} <- {}/{}", selfVertex, acceptVertex, span.getAgentId());
-                }
-                linkService.updateInLink(span.getCollectorAcceptTime(), selfVertex,
-                        acceptVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
-            } else {
-                // create virtual user
-//                linkService.updateOutLink(span.getCollectorAcceptTime(), Link.of(span.getApplicationName(), ServiceType.USER), MERGE_AGENT,
-//                        spanLink, MERGE_AGENT, span.getElapsed(), span.hasError());
-
-                // update the span information of the current node (self)
-                Vertex userVertex = Vertex.of(span.getServiceUid().getUid(), span.getApplicationName(), ServiceType.USER);
-                linkService.updateInLink(span.getCollectorAcceptTime(), selfVertex, userVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
-            }
-            if (parentApplication != null) {
-                logInvalidSpan(span, InvalidSpanReason.ROOT_WITH_PARENT_APP);
-            }
-        } else {
-            // child span
-            // save statistics info only when parentApplicationContext exists
-            // when drawing server map based on statistics info, you must know the application name of the previous node.
-            if (parentApplication != null) {
-                Vertex parentVertex = getParentVertex(parentApplication);
-
-                logger.debug("Received parent application name. parentName:{} appName:{}", parentVertex, span.getApplicationName());
-
-                // create virtual queue node if current' span's service type is a queue AND :
-                // 1. parent node's application service type is not a queue (it may have come from a queue that is traced)
-                // 2. current node's application service type is not a queue (current node may be a queue that is traced)
-                if (spanServiceType.isQueue()) {
-                    if (!selfVertex.serviceType().isQueue() && !parentVertex.serviceType().isQueue()) {
-                        // emulate virtual queue node's accept Span and record it's acceptor host
-                        final Vertex queueAcceptVertex = getQueueAcceptVertex(span, spanServiceType);
-
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("[Bind] child-queue {}:{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
-                        }
-                        hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex, queueAcceptVertex, span.getRemoteAddr());
-                        // emulate virtual queue node's send SpanEvent
-
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("[OutLink] child-queue {}:{} -> {}:{}", queueAcceptVertex, span.getRemoteAddr(), selfVertex, span.getEndPoint());
-                        }
-                        linkService.updateOutLink(span.getCollectorAcceptTime(), queueAcceptVertex, span.getRemoteAddr(),
-                                selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
-
-                        parentVertex = queueAcceptVertex;
-                    }
-                }
-                if (logger.isDebugEnabled()) {
-                    logger.debug("child-span updateInLink child {}:{} <- parentAppName:{}", selfVertex, span.getAgentId(), parentVertex);
-                }
-                linkService.updateInLink(span.getCollectorAcceptTime(), selfVertex,
-                        parentVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
-            } else {
-                logInvalidSpan(span, InvalidSpanReason.CHILD_WITHOUT_PARENT_APP);
-            }
-        }
-
-        // record the response time of the current node (self).
-        // blow code may be conflict of idea above callee key.
-        // it is odd to record reversely, because of already recording the caller data at previous node.
-        // the data may be different due to timeout or network error.
-        linkService.updateResponseTime(span.getCollectorAcceptTime(), selfVertex, span.getAgentId(), span.getElapsed(), span.hasError());
-    }
-
-    private void logInvalidSpan(SpanBo span, InvalidSpanReason reason) {
-        // OTel-sourced spans routinely lack Pinpoint parent-app context (upstream does not
-        // propagate a pp= tracestate entry), so an invalid span is expected noise rather than
-        // an anomaly here. Keep it at debug for OTel and at info for native Pinpoint spans,
-        // where the same reason genuinely signals lost propagation.
-        final Level level = resolveInvalidSpanLevel(span);
-        if (logger.isEnabled(level)) {
-            final SpanOwner owner = span.getSpanOwner();
-            logger.log(level, "Invalid span found. reason:{} span {}/{}/{}", reason, owner.getServiceName(), owner.getApplicationName(), owner.getAgentId());
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Invalid span found. reason:{} detailed span {}", reason, span);
-        }
-    }
-
-    private Level resolveInvalidSpanLevel(SpanBo span) {
-        return span.getTraceSourceType() == TraceSourceType.OPENTELEMETRY ? Level.DEBUG : Level.INFO;
-    }
-
-    private enum InvalidSpanReason {
-        ROOT_WITH_PARENT_APP,
-        CHILD_WITHOUT_PARENT_APP
-    }
-
-    private @NonNull Vertex getQueueAcceptVertex(SpanBo span, ServiceType spanServiceType) {
-        String applicationName = span.getAcceptorHost();
-        if (applicationName == null) {
-            applicationName = span.getRemoteAddr();
-        }
-        ServiceUid serviceUid = span.getServiceUid();
-        return Vertex.of(serviceUid.getUid(), applicationName, spanServiceType);
-    }
-
-    private void insertSpanEventStat(SpanBo span, Vertex selfVertex) {
-
-        final List<SpanEventBo> spanEventList = span.getSpanEventBoList();
-        if (CollectionUtils.isEmpty(spanEventList)) {
-            return;
-        }
-        SpanOwner owner = span.getSpanOwner();
-        if (logger.isDebugEnabled()) {
-            logger.debug("handle insertSpanEventStat {}/{}/{} size:{}", owner.getServiceName(), owner.getApplicationName(), owner.getAgentId(), spanEventList.size());
-        }
-
-        // TODO need to batch update later.
-        insertSpanEventList(spanEventList, selfVertex, owner.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
-    }
-
-    private void insertSpanEventList(List<SpanEventBo> spanEventList, Vertex selfVertex,
-                                     String agentId, String endPoint, long requestTime) {
-
-        for (SpanEventBo spanEvent : spanEventList) {
-            final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
-
-            if (isAlias(spanEventType, spanEvent)) {
-                insertAcceptorHost(requestTime, spanEvent, selfVertex);
-                continue;
-            }
-
-            if (!spanEventType.isRecordStatistics()) {
-                continue;
-            }
-
-            final String spanEventApplicationName = normalize(spanEvent.getDestinationId(), spanEventType);
-            final String spanEventEndPoint = spanEvent.getEndPoint();
-
-            // if terminal update statistics
-            final int elapsed = spanEvent.getEndElapsed();
-            final boolean hasException = spanEvent.hasException();
-
-            if (spanEventApplicationName == null) {
-                throttledLogger.info("Failed to insert statistics. Cause:SpanEvent has invalid format " +
-                                "selfApplication:{}/{}, spanEventApplication:{}/{}",
-                        selfVertex, agentId, spanEventApplicationName, spanEventType);
-                continue;
-            }
-
-            Vertex outVertex = Vertex.of(selfVertex.serviceUid(), spanEventApplicationName, spanEventType);
-            /*
-             * save information to draw a server map based on statistics
-             */
-            // save the information of outLink (the spanevent that called span)
-            linkService.updateOutLink(requestTime, selfVertex, MERGE_AGENT,
-                    outVertex, spanEventEndPoint, elapsed, hasException);
-
-            // save the information of inLink (the span that spanevent called)
-            linkService.updateInLink(requestTime, outVertex,
-                    selfVertex, endPoint, elapsed, hasException);
-        }
-    }
-
-    private String normalize(String spanEventApplicationName, ServiceType spanEventType) {
-        if (spanEventType.getCategory() == ServiceTypeCategory.DATABASE) {
-            // empty database id
-            if (spanEventApplicationName == null) {
-                return "UNKNOWN_DATABASE";
-            }
-        }
-        return spanEventApplicationName;
-    }
-
-    private boolean isAlias(ServiceType spanEventType, SpanEventBo forDebugEvent) {
-        if (!spanEventType.isAlias()) {
-            return false;
-        }
-        if (spanEventType.isRecordStatistics()) {
-            logger.error("ServiceType with ALIAS should NOT have RECORD_STATISTICS {}", forDebugEvent);
-            return false;
-        }
-        return true;
     }
 }
