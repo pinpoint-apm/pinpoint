@@ -23,10 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
-import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventResultReplaceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.reactorsupport.SeamPublisherWrapper;
@@ -34,52 +31,40 @@ import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.pattern.PathPattern;
 
-import java.util.Objects;
-
 /**
  * Wrapping variant of {@link DispatchHandlerInvokeHandlerMethodInterceptor} (config-gated by
  * {@code profiler.spring.webflux.wrap.publisher}). The span event still runs inside the async
- * trace continued from the exchange's AsyncContext, but the returned publisher is replaced with
- * a wrapped one (carrying the same context) instead of being injected.
+ * trace continued from the exchange's AsyncContext (args[0]), but the returned publisher is
+ * replaced with a wrapped one (carrying the same context) instead of being injected.
  */
-public class WrappingDispatchHandlerInvokeHandlerMethodInterceptor implements ResultReplaceAroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
+public class WrappingDispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextSpanEventResultReplaceBlockSimpleAroundInterceptor {
+    // the async-context base validates but does not keep the trace context.
     private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
     private final Boolean uriStatEnable;
     private final Boolean uriStatUseUserInput;
 
     public WrappingDispatchHandlerInvokeHandlerMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, Boolean uriStatEnable, Boolean uriStatUseUserInput) {
-        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
+        super(traceContext, methodDescriptor);
+        this.traceContext = traceContext;
         this.uriStatEnable = uriStatEnable;
         this.uriStatUseUserInput = uriStatUseUserInput;
     }
 
     @Override
-    public void before(Object target, Class<?> returnType, Object[] args) {
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
-        if (asyncContext == null) {
-            return;
-        }
-        final Trace trace = asyncContext.continueAsyncTraceObject(true);
-        if (trace == null) {
-            return;
-        }
+    protected AsyncContext getAsyncContext(Object target, Object[] args) {
+        return AsyncContextAccessorUtils.getAsyncContext(args, 0);
+    }
 
-        ScopeUtils.entryAsyncTraceScope(trace);
-        try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
-            if (uriStatEnable) {
-                recordUriTemplate(args);
-            }
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-            }
+    @Override
+    protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
+        return AsyncContextAccessorUtils.getAsyncContext(args, 0);
+    }
+
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
+        if (uriStatEnable) {
+            recordUriTemplate(args);
         }
     }
 
@@ -121,56 +106,22 @@ public class WrappingDispatchHandlerInvokeHandlerMethodInterceptor implements Re
     }
 
     @Override
-    public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
-        if (asyncContext == null) {
-            return result;
-        }
-        final Trace trace = asyncContext.currentAsyncTraceObject();
-        if (trace == null) {
-            return result;
-        }
-
-        if (!ScopeUtils.leaveAsyncTraceScope(trace)) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Failed to leave scope of async trace {}.", trace);
-            }
-            deleteAsyncContext(trace, asyncContext);
-            return result;
-        }
-
-        Object ret = result;
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
-
-            if (throwable == null && SeamPublisherWrapper.isWrappable(result)) {
-                // hand the exchange's AsyncContext to the wrapped publisher.
-                ret = SeamPublisherWrapper.wrap(result, asyncContext);
-                if (isDebug) {
-                    logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
-                }
-            }
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
-            }
-            ret = result;
-        } finally {
-            trace.traceBlockEnd();
-            if (ScopeUtils.isAsyncTraceEndScope(trace)) {
-                deleteAsyncContext(trace, asyncContext);
-            }
-        }
-        return ret;
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
     }
 
-    private void deleteAsyncContext(Trace trace, AsyncContext asyncContext) {
-        if (isDebug) {
-            logger.debug("Delete async trace {}.", trace);
+    @Override
+    protected Object replaceResult(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+        if (throwable != null || !SeamPublisherWrapper.isWrappable(result)) {
+            return result;
         }
-        trace.close();
-        asyncContext.close();
+
+        // hand the exchange's AsyncContext to the wrapped publisher.
+        final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
+        if (isDebug) {
+            logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
+        }
+        return wrapped;
     }
 }

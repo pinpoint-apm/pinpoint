@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
+import com.navercorp.pinpoint.profiler.instrument.mock.ResultReplaceBlockInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.ResultReplaceInterceptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,6 +88,18 @@ public class InterceptorDefinitionFactoryTest {
         final InterceptorDefinition definition = typeDetector.createInterceptorDefinition(ResultReplaceInterceptor.class);
         Assertions.assertSame(InterceptorType.RESULT_REPLACE, definition.getInterceptorType());
         Assertions.assertSame(CaptureType.AROUND, definition.getCaptureType());
+        Assertions.assertEquals(Object.class, definition.getAfterMethod().getReturnType());
+    }
+
+    @Test
+    public void testGetInterceptorType_ResultReplaceBlock() {
+        InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
+
+        final InterceptorDefinition definition = typeDetector.createInterceptorDefinition(ResultReplaceBlockInterceptor.class);
+        Assertions.assertSame(InterceptorType.RESULT_REPLACE, definition.getInterceptorType());
+        // before() returning TraceBlock switches the capture type, composing the block channel
+        // with the result-replace calling convention.
+        Assertions.assertSame(CaptureType.BLOCK_AROUND, definition.getCaptureType());
         Assertions.assertEquals(Object.class, definition.getAfterMethod().getReturnType());
     }
 

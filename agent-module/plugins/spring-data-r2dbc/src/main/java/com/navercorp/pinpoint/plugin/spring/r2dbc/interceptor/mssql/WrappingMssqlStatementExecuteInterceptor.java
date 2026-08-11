@@ -21,11 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventResultReplaceBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
@@ -35,46 +32,23 @@ import com.navercorp.pinpoint.plugin.spring.r2dbc.BindNameValueAccessor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Wrapping variant of {@link MssqlStatementExecuteInterceptor} (config-gated by
  * {@code profiler.spring.data.r2dbc.wrap.publisher}). See
  * {@code WrappingStatementExecuteInterceptor} - identical flow with the mssql named-bind variant.
  */
-public class WrappingMssqlStatementExecuteInterceptor implements ResultReplaceAroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+public class WrappingMssqlStatementExecuteInterceptor extends SpanEventResultReplaceBlockSimpleAroundInterceptorForPlugin {
     private final int maxSqlBindValueSize;
 
     public WrappingMssqlStatementExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int maxSqlBindValueSize) {
-        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
+        super(traceContext, methodDescriptor);
         this.maxSqlBindValueSize = maxSqlBindValueSize;
     }
 
-    @Override
-    public void before(Object target, Class<?> returnType, Object[] args) {
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            recordStatement(recorder, target);
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-            }
-        }
-    }
-
     // same recording as MssqlStatementExecuteInterceptor.doInBeforeTrace
-    private void recordStatement(SpanEventRecorder recorder, Object target) {
+    @Override
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo() : null;
         if (databaseInfo == null) {
             databaseInfo = UnKnownDatabaseInfo.INSTANCE;
@@ -110,34 +84,22 @@ public class WrappingMssqlStatementExecuteInterceptor implements ResultReplaceAr
     }
 
     @Override
-    public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordException(throwable);
+        recorder.recordApi(methodDescriptor);
+    }
+
+    @Override
+    protected Object replaceResult(SpanEventRecorder recorder, Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+        if (throwable != null || !SeamPublisherWrapper.isWrappable(result)) {
             return result;
         }
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordException(throwable);
-            recorder.recordApi(methodDescriptor);
-
-            if (throwable != null || !SeamPublisherWrapper.isWrappable(result)) {
-                return result;
-            }
-
-            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
-            if (isDebug) {
-                logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
-            }
-            return wrapped;
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
-            }
-            return result;
-        } finally {
-            trace.traceBlockEnd();
+        final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+        final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
+        if (isDebug) {
+            logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
         }
+        return wrapped;
     }
 }

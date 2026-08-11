@@ -21,11 +21,8 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventResultReplaceBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -34,7 +31,6 @@ import com.navercorp.pinpoint.plugin.redis.redisson.RedissonConstants;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonPluginConfig;
 
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 /**
  * Wrapping variant of {@link ReactiveMethodInterceptor} (config-gated by
@@ -42,87 +38,59 @@ import java.util.Objects;
  * a wrapped one instead of relying on the accessor field the reactor plugin injects into
  * reactor.core.publisher types; any other async result keeps the original injection.
  */
-public class WrappingReactiveMethodInterceptor implements ResultReplaceAroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+public class WrappingReactiveMethodInterceptor extends SpanEventResultReplaceBlockSimpleAroundInterceptorForPlugin {
     private final boolean keyTrace;
 
     public WrappingReactiveMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
+        super(traceContext, methodDescriptor);
         final RedissonPluginConfig config = new RedissonPluginConfig(traceContext.getProfilerConfig());
         this.keyTrace = config.isKeyTrace();
     }
 
     @Override
-    public void before(Object target, Class<?> returnType, Object[] args) {
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(RedissonConstants.REDISSON_REACTIVE);
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-            }
-        }
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(RedissonConstants.REDISSON_REACTIVE);
     }
 
     @Override
-    public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (this.keyTrace) {
+            Method method = ArrayArgumentUtils.getArgument(args, 0, Method.class);
+            if (method == null) {
+                // redisson 3.17+: execute(Callable, Method)
+                method = ArrayArgumentUtils.getArgument(args, 1, Method.class);
+            }
+            if (method != null && StringUtils.hasLength(method.getName())) {
+                recorder.recordAttribute(AnnotationKey.ARGS0, method.getName());
+            }
+        }
+
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
+    }
+
+    @Override
+    protected Object replaceResult(SpanEventRecorder recorder, Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+        if (throwable != null) {
             return result;
         }
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-
-            Object ret = result;
-            if (throwable == null) {
-                if (SeamPublisherWrapper.isWrappable(result)) {
-                    final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                    ret = SeamPublisherWrapper.wrap(result, asyncContext);
-                    if (isDebug) {
-                        logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
-                    }
-                } else if (result instanceof AsyncContextAccessor) {
-                    // non-reactor async result: keep the original injection.
-                    if (AsyncContextAccessorUtils.getAsyncContext(result) == null) {
-                        // Avoid duplicate async context
-                        final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                        ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
-                    }
-                }
+        if (SeamPublisherWrapper.isWrappable(result)) {
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
+            if (isDebug) {
+                logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
             }
-
-            if (this.keyTrace) {
-                Method method = ArrayArgumentUtils.getArgument(args, 0, Method.class);
-                if (method == null) {
-                    // redisson 3.17+: execute(Callable, Method)
-                    method = ArrayArgumentUtils.getArgument(args, 1, Method.class);
-                }
-                if (method != null && StringUtils.hasLength(method.getName())) {
-                    recorder.recordAttribute(AnnotationKey.ARGS0, method.getName());
-                }
-            }
-
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
-            return ret;
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
-            }
-            return result;
-        } finally {
-            trace.traceBlockEnd();
+            return wrapped;
         }
+        // non-reactor async result: keep the original injection.
+        if (result instanceof AsyncContextAccessor) {
+            if (AsyncContextAccessorUtils.getAsyncContext(result) == null) {
+                // Avoid duplicate async context
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+            }
+        }
+        return result;
     }
 }

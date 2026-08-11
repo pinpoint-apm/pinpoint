@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +27,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -39,7 +40,7 @@ public class WrappingFluxAndMonoPublishOnInterceptorTest {
 
     private TraceContext traceContext;
     private Trace trace;
-    private SpanEventRecorder recorder;
+    private TraceBlock block;
     private AsyncContext asyncContext;
     private WrappingFluxAndMonoPublishOnInterceptor interceptor;
 
@@ -47,14 +48,15 @@ public class WrappingFluxAndMonoPublishOnInterceptorTest {
     public void setUp() {
         traceContext = mock(TraceContext.class);
         trace = mock(Trace.class);
-        recorder = mock(SpanEventRecorder.class);
+        block = mock(TraceBlock.class);
         asyncContext = mock(AsyncContext.class);
         MethodDescriptor methodDescriptor = mock(MethodDescriptor.class);
 
         when(traceContext.currentTraceObject()).thenReturn(trace);
-        when(trace.traceBlockBegin()).thenReturn(recorder);
-        when(trace.currentSpanEventRecorder()).thenReturn(recorder);
-        when(recorder.recordNextAsyncContext()).thenReturn(asyncContext);
+        when(trace.getTraceBlock()).thenReturn(block);
+        when(block.getTrace()).thenReturn(trace);
+        when(block.isBegin()).thenReturn(true);
+        when(block.recordNextAsyncContext()).thenReturn(asyncContext);
         interceptor = new WrappingFluxAndMonoPublishOnInterceptor(traceContext, methodDescriptor);
     }
 
@@ -62,37 +64,38 @@ public class WrappingFluxAndMonoPublishOnInterceptorTest {
     public void wrappableResultIsReplaced() {
         Flux<Integer> result = Flux.range(1, 2);
 
-        interceptor.before(result, Flux.class, ARGS);
-        Object replacement = interceptor.after(result, Flux.class, ARGS, result, null);
+        TraceBlock returned = interceptor.before(result, Flux.class, ARGS);
+        Object replacement = interceptor.after(returned, result, Flux.class, ARGS, result, null);
 
+        assertSame(block, returned);
         assertNotSame(result, replacement);
         assertTrue(replacement instanceof Flux);
-        verify(recorder).recordNextAsyncContext();
-        verify(trace).traceBlockEnd();
+        verify(block).recordNextAsyncContext();
+        verify(block).close();
     }
 
     @Test
     public void scalarResultDoesNotMintDanglingContext() {
         Mono<Integer> result = Mono.just(1);
 
-        interceptor.before(result, Mono.class, ARGS);
-        Object replacement = interceptor.after(result, Mono.class, ARGS, result, null);
+        TraceBlock returned = interceptor.before(result, Mono.class, ARGS);
+        Object replacement = interceptor.after(returned, result, Mono.class, ARGS, result, null);
 
         assertSame(result, replacement);
-        verify(recorder, never()).recordNextAsyncContext();
-        verify(trace).traceBlockEnd();
+        verify(block, never()).recordNextAsyncContext();
+        verify(block).close();
     }
 
     @Test
     public void exceptionalExitDoesNotWrapOrMint() {
         Flux<Integer> result = Flux.range(1, 2);
 
-        interceptor.before(result, Flux.class, ARGS);
-        Object replacement = interceptor.after(result, Flux.class, ARGS, result, new IllegalStateException("test"));
+        TraceBlock returned = interceptor.before(result, Flux.class, ARGS);
+        Object replacement = interceptor.after(returned, result, Flux.class, ARGS, result, new IllegalStateException("test"));
 
         assertSame(result, replacement);
-        verify(recorder, never()).recordNextAsyncContext();
-        verify(trace).traceBlockEnd();
+        verify(block, never()).recordNextAsyncContext();
+        verify(block).close();
     }
 
     @Test
@@ -100,11 +103,12 @@ public class WrappingFluxAndMonoPublishOnInterceptorTest {
         when(traceContext.currentTraceObject()).thenReturn(null);
         Flux<Integer> result = Flux.range(1, 2);
 
-        interceptor.before(result, Flux.class, ARGS);
-        Object replacement = interceptor.after(result, Flux.class, ARGS, result, null);
+        TraceBlock returned = interceptor.before(result, Flux.class, ARGS);
+        Object replacement = interceptor.after(returned, result, Flux.class, ARGS, result, null);
 
+        assertNull(returned);
         assertSame(result, replacement);
-        verify(recorder, never()).recordNextAsyncContext();
-        verify(trace, never()).traceBlockEnd();
+        verify(block, never()).recordNextAsyncContext();
+        verify(block, never()).close();
     }
 }
