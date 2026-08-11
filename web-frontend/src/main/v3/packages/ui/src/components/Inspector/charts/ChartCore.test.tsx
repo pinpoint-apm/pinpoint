@@ -37,7 +37,6 @@ jest.mock('../../../lib/charts/useEChartsInstance', () => ({
   }),
 }));
 
-// eslint-disable-next-line import/first
 import { ChartCore } from './ChartCore';
 
 type MetricValue = {

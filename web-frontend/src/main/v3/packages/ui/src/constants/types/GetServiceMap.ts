@@ -1,6 +1,5 @@
 import { GetServerMap } from './GetServerMap';
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace GetServiceMap {
   export interface Parameters {
     /**

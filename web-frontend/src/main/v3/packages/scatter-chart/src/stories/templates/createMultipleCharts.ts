@@ -2,10 +2,17 @@ import { newScatterChart } from './createDefault';
 import { ScatterChart } from '../../ui';
 import staticData from '../mock/realtimeData.json';
 
+interface RealtimeData {
+  result: {
+    timeStamp: number;
+    activeThreadCounts: Record<string, { status: number[] }>;
+  };
+}
+
 export const createMultipleCharts = () => {
   const CHART_COUNT = 30;
-  const applicationTotal: any = [];
-  const refinedData: any = {};
+  const applicationTotal: unknown[] = [];
+  const refinedData: Record<string, number[][]> = {};
   const wrapper = document.createElement('div');
   const chartContainer = document.createElement('div');
   chartContainer.style.display = 'grid';
@@ -25,7 +32,7 @@ export const createMultipleCharts = () => {
 
   let SCs: ScatterChart[];
 
-  const newData = (d: any) => {
+  const newData = (d: RealtimeData) => {
     if (applicationTotal.length > 5) {
       applicationTotal.shift();
     }
@@ -43,7 +50,7 @@ export const createMultipleCharts = () => {
         refinedData[key] = [d.result.activeThreadCounts[key].status];
       }
 
-      d.result.activeThreadCounts[key].status.forEach((stat: any, j: number) => {
+      d.result.activeThreadCounts[key].status.forEach((stat: number, j: number) => {
         SCs[i].render(
           [
             {
@@ -60,7 +67,7 @@ export const createMultipleCharts = () => {
 
   setTimeout(() => {
     let dataIndex = 0;
-    let interval: NodeJS.Timer;
+    let interval: ReturnType<typeof setInterval>;
 
     SCs = [...Array(CHART_COUNT)].map((_, i) => {
       const SC = newScatterChart(chartWrappers[i], {
@@ -71,7 +78,7 @@ export const createMultipleCharts = () => {
             tick: {
               count: 6,
               strokeColor: 'transparent',
-              format: (_) => '',
+              format: () => '',
             },
           },
           y: {
@@ -125,7 +132,7 @@ export const createMultipleCharts = () => {
           dataIndex++;
           newData(staticData[dataIndex]);
           if (dataIndex === staticData.length - 1) {
-            clearInterval(interval as any);
+            clearInterval(interval);
           }
         }, 1000);
       }

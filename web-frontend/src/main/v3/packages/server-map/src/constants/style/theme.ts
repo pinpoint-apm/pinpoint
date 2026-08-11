@@ -6,6 +6,8 @@ type DeepNonNullable<T> = {
 
 export enum GraphStyle {
   NODE_WIDTH = 100,
+  // 노드가 정사각형이라 폭과 높이가 같은 값인 것은 의도된 것이다.
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   NODE_HEIGHT = 100,
   NODE_RADIUS = GraphStyle.NODE_HEIGHT / 2,
   NODE_GAP = 30,

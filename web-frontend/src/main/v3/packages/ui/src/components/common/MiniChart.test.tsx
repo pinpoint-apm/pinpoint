@@ -20,7 +20,6 @@ jest.mock('../../lib/charts/useEChartsInstance', () => ({
   }),
 }));
 
-// eslint-disable-next-line import/first
 import { MiniChart } from './MiniChart';
 
 const makeMetricValue = (fieldName: string, values: number[]): MetricValue => ({
@@ -40,7 +39,6 @@ const makeChart = (
   timestamp: number[] = [1000, 2000, 3000],
 ): Chart => ({ title: 'Test', timestamp, metricValueGroups });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderChart = (chart: Chart) => {
   render(<MiniChart chart={chart} />);
   const [option, mergeArg] = mockSetOption.mock.calls[0];
