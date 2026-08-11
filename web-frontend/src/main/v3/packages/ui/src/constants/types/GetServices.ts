@@ -1,9 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace GetServices {
   export type Response = string[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace PostService {
   export interface Body {
     serviceName: string;
@@ -13,7 +11,6 @@ export namespace PostService {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace DeleteService {
   export interface Parameters {
     serviceName: string;

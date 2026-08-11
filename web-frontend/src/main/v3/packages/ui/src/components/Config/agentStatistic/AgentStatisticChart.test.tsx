@@ -19,7 +19,6 @@ jest.mock('../../../lib/charts/useEChartsInstance', () => ({
   }),
 }));
 
-// eslint-disable-next-line import/first
 import { AgentStatisticChart, ChartData } from './AgentStatisticChart';
 
 const renderChart = (type: 'vmVersion' | 'agentVersion', chartData?: ChartData[]) => {

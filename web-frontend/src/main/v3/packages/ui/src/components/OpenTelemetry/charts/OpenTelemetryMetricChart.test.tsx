@@ -25,7 +25,6 @@ jest.mock('../../../lib/charts/useEChartsInstance', () => ({
   }),
 }));
 
-// eslint-disable-next-line import/first
 import { OpenTelemetryMetricChart } from './OpenTelemetryMetricChart';
 
 const makeMetricValue = (fieldName: string, values: number[]): MetricValue => ({
@@ -33,7 +32,11 @@ const makeMetricValue = (fieldName: string, values: number[]): MetricValue => ({
   values,
 });
 
-const makeGroup = (chartType: string, metricValues: MetricValue[], unit = ''): MetricValueGroup => ({
+const makeGroup = (
+  chartType: string,
+  metricValues: MetricValue[],
+  unit = '',
+): MetricValueGroup => ({
   groupName: 'group',
   chartType,
   unit,
@@ -60,7 +63,9 @@ describe('OpenTelemetryMetricChart', () => {
   });
 
   it('calls setOption with replaceMerge series so stale series do not linger', () => {
-    const { mergeArg } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [1, 2, 3])])]));
+    const { mergeArg } = renderChart(
+      makeChart([makeGroup('line', [makeMetricValue('cpu', [1, 2, 3])])]),
+    );
     expect(mergeArg).toEqual({ replaceMerge: ['series'] });
   });
 
@@ -72,21 +77,27 @@ describe('OpenTelemetryMetricChart', () => {
   });
 
   it('maps a bar chartType to a bar series without smoothing or area fill', () => {
-    const { option } = renderChart(makeChart([makeGroup('bar', [makeMetricValue('cpu', [1, 2, 3])])]));
+    const { option } = renderChart(
+      makeChart([makeGroup('bar', [makeMetricValue('cpu', [1, 2, 3])])]),
+    );
     expect(option.series[0].type).toBe('bar');
     expect(option.series[0].smooth).toBe(false);
     expect(option.series[0].areaStyle).toBeUndefined();
   });
 
   it('maps an area chartType to a smoothed line series with an area fill', () => {
-    const { option } = renderChart(makeChart([makeGroup('area', [makeMetricValue('cpu', [1, 2, 3])])]));
+    const { option } = renderChart(
+      makeChart([makeGroup('area', [makeMetricValue('cpu', [1, 2, 3])])]),
+    );
     expect(option.series[0].type).toBe('line');
     expect(option.series[0].smooth).toBe(true);
     expect(option.series[0].areaStyle).toEqual({ opacity: 0.4 });
   });
 
   it('converts -1/null values to null so the line breaks (keeping 0/positive)', () => {
-    const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [-1, 0, 5])])]));
+    const { option } = renderChart(
+      makeChart([makeGroup('line', [makeMetricValue('cpu', [-1, 0, 5])])]),
+    );
     expect(option.series[0].data).toEqual([null, 0, 5]);
   });
 
@@ -134,7 +145,9 @@ describe('OpenTelemetryMetricChart', () => {
   });
 
   it('hides the y axis horizontal gridlines but keeps axis lines and ticks on both axes', () => {
-    const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [1, 2, 3])])]));
+    const { option } = renderChart(
+      makeChart([makeGroup('line', [makeMetricValue('cpu', [1, 2, 3])])]),
+    );
     expect(option.yAxis.splitLine).toEqual({ show: false });
     expect(option.yAxis.axisLine).toEqual({ show: true });
     expect(option.yAxis.axisTick).toEqual({ show: true });
@@ -143,15 +156,21 @@ describe('OpenTelemetryMetricChart', () => {
   });
 
   it('renders a No Data graphic when there is no collected value', () => {
-    const empty = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [-1, -1, -1])])]));
+    const empty = renderChart(
+      makeChart([makeGroup('line', [makeMetricValue('cpu', [-1, -1, -1])])]),
+    );
     expect(empty.option.graphic[0].style.text).toBe('No Data');
     mockSetOption.mockClear();
-    const withData = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [1, 2, 3])])]));
+    const withData = renderChart(
+      makeChart([makeGroup('line', [makeMetricValue('cpu', [1, 2, 3])])]),
+    );
     expect(withData.option.graphic[0].style.text).toBe('');
   });
 
   it('does not use the echarts built-in legend (custom React legend is rendered instead)', () => {
-    const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [1, 2, 3])])]));
+    const { option } = renderChart(
+      makeChart([makeGroup('line', [makeMetricValue('cpu', [1, 2, 3])])]),
+    );
     expect(option.legend).toBeUndefined();
   });
 
@@ -179,9 +198,12 @@ describe('OpenTelemetryMetricChart', () => {
     });
 
     it('appends a summed total row when showTotal is set', () => {
-      const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [3])])]), {
-        tooltipConfig: { showTotal: true },
-      });
+      const { option } = renderChart(
+        makeChart([makeGroup('line', [makeMetricValue('cpu', [3])])]),
+        {
+          tooltipConfig: { showTotal: true },
+        },
+      );
       const html = option.tooltip.formatter(params);
       expect(html).toContain('total');
       expect(html).toContain('>8<');
@@ -189,13 +211,20 @@ describe('OpenTelemetryMetricChart', () => {
 
     it('skips null-valued series and returns empty string when nothing is collected', () => {
       const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [3])])]));
-      expect(option.tooltip.formatter([{ axisValue: 1000, value: null, seriesName: 'cpu' }])).toBe('');
+      expect(option.tooltip.formatter([{ axisValue: 1000, value: null, seriesName: 'cpu' }])).toBe(
+        '',
+      );
     });
 
     it('truncates long series names with an ellipsis (value stays visible)', () => {
       const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [3])])]));
       const html = option.tooltip.formatter([
-        { axisValue: 1000, value: 42, seriesName: 'a.very.long.series.name.that.overflows', color: '#f00' },
+        {
+          axisValue: 1000,
+          value: 42,
+          seriesName: 'a.very.long.series.name.that.overflows',
+          color: '#f00',
+        },
       ]);
       // inline-block 이어야 max-width/overflow/ellipsis 가 실제로 적용된다.
       expect(html).toContain('display: inline-block');
@@ -210,10 +239,15 @@ describe('OpenTelemetryMetricChart', () => {
     });
 
     it('escapes the formatted value so a caller formatter cannot inject HTML', () => {
-      const { option } = renderChart(makeChart([makeGroup('line', [makeMetricValue('cpu', [3])])]), {
-        yAxisTickFormatter: () => '<img src=x onerror=alert(1)>',
-      });
-      const html = option.tooltip.formatter([{ axisValue: 1000, value: 5, seriesName: 'cpu', color: '#f00' }]);
+      const { option } = renderChart(
+        makeChart([makeGroup('line', [makeMetricValue('cpu', [3])])]),
+        {
+          yAxisTickFormatter: () => '<img src=x onerror=alert(1)>',
+        },
+      );
+      const html = option.tooltip.formatter([
+        { axisValue: 1000, value: 5, seriesName: 'cpu', color: '#f00' },
+      ]);
       expect(html).not.toContain('<img');
     });
   });

@@ -35,7 +35,6 @@ jest.mock('../../lib/charts/useEChartsInstance', () => ({
   }),
 }));
 
-// eslint-disable-next-line import/first
 import { AgentActiveChart, AgentActiveChartProps } from './AgentActiveChart';
 
 const makeRow = (server: string, values: [number, number, number, number]): AgentActiveData => ({
@@ -74,7 +73,9 @@ describe('AgentActiveChart', () => {
 
   it('stacks four bar series from slow (bottom) to 1s (top) with fixed colors', () => {
     const { option } = renderChart({ data: [makeRow('a', [1, 2, 3, 4])] });
-    const dataSeries = option.series.filter((s: { stack?: string }) => s.stack === 'agentActiveThread');
+    const dataSeries = option.series.filter(
+      (s: { stack?: string }) => s.stack === 'agentActiveThread',
+    );
     expect(dataSeries.map((s: { name: string }) => s.name)).toEqual(['slow', '5s', '3s', '1s']);
     expect(dataSeries.every((s: { type: string }) => s.type === 'bar')).toBe(true);
     expect(dataSeries[0].itemStyle.color).toBe('#e67f22'); // slow
@@ -100,7 +101,9 @@ describe('AgentActiveChart', () => {
   });
 
   it('keeps every server at full opacity when nothing is selected', () => {
-    const { option } = renderChart({ data: [makeRow('a', [1, 1, 1, 1]), makeRow('b', [1, 1, 1, 1])] });
+    const { option } = renderChart({
+      data: [makeRow('a', [1, 1, 1, 1]), makeRow('b', [1, 1, 1, 1])],
+    });
     expect(option.series[0].data[0].itemStyle.opacity).toBe(1);
     expect(option.series[0].data[1].itemStyle.opacity).toBe(1);
   });
@@ -202,7 +205,12 @@ describe('AgentActiveChart', () => {
     it('ignores clicks outside the grid (e.g. legend/blank area)', () => {
       const setClicked = jest.fn();
       mockContainPixel.mockReturnValue(false);
-      render(<AgentActiveChart data={[makeRow('a', [1, 2, 3, 4])]} setClickedActiveThread={setClicked} />);
+      render(
+        <AgentActiveChart
+          data={[makeRow('a', [1, 2, 3, 4])]}
+          setClickedActiveThread={setClicked}
+        />,
+      );
       const handler = mockZrOn.mock.calls[0][1];
       handler({ offsetX: 0, offsetY: 0 });
       expect(setClicked).not.toHaveBeenCalled();

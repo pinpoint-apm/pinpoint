@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { PiHardDrivesDuotone } from 'react-icons/pi';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 
-export const SystemMetricPage = ({}: {}) => {
+export const SystemMetricPage = () => {
   const configuration = useConfiguration();
   const periodMax = configuration?.['periodMax.systemMetric'];
   const periodInterval = configuration?.['periodInterval.systemMetric'];

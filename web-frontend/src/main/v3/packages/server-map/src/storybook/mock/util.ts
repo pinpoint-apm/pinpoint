@@ -6,10 +6,10 @@ const getTransactionInfo = (node: any) => {
   if (isWas && isAuthorized) {
     return {
       good: ['1s', '3s', '5s'].reduce((prev, curr) => {
-        return prev + node?.histogram?.[curr]!;
+        return prev + node?.histogram?.[curr];
       }, 0),
-      slow: node.histogram?.Slow!,
-      bad: node.histogram?.Error!,
+      slow: node.histogram?.Slow,
+      bad: node.histogram?.Error,
     };
   }
 };
@@ -24,7 +24,7 @@ export const getServerMapData = (data: {
   nodes: Node[];
   edges: Edge[];
 } => {
-  const { nodeDataArray = [], linkDataArray = [] } = data?.applicationMapData!;
+  const { nodeDataArray = [], linkDataArray = [] } = data.applicationMapData;
   const nodes = nodeDataArray.map((node: any) => {
     return {
       id: node.key,
@@ -35,7 +35,7 @@ export const getServerMapData = (data: {
     };
   });
 
-  const edges = linkDataArray.map((link: any, i: number) => ({
+  const edges = linkDataArray.map((link: any) => ({
     id: link.key,
     source: link.from,
     target: link.to,
