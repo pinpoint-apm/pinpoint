@@ -21,11 +21,8 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventResultReplaceBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.reactorsupport.SeamPublisherWrapper;
 import com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.LettuceConstants;
@@ -39,82 +36,52 @@ import java.util.Objects;
  * the reactive command surface: a reactor Mono/Flux result is replaced with a wrapped one,
  * while any other async result (futures, non-reactor publishers) keeps the original injection.
  */
-public class WrappingLettuceMethodInterceptor implements ResultReplaceAroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+public class WrappingLettuceMethodInterceptor extends SpanEventResultReplaceBlockSimpleAroundInterceptorForPlugin {
 
     public WrappingLettuceMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
+        super(traceContext, methodDescriptor);
     }
 
     @Override
-    public void before(Object target, Class<?> returnType, Object[] args) {
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-            }
-        }
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
     }
 
     @Override
-    public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        final String endPoint = toEndPoint(target);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordEndPoint(Objects.toString(endPoint, "Unknown"));
+        recorder.recordDestinationId(LettuceConstants.REDIS_LETTUCE.getName());
+        recorder.recordException(throwable);
+    }
+
+    @Override
+    protected Object replaceResult(SpanEventRecorder recorder, Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+        if (throwable != null) {
             return result;
         }
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            final String endPoint = toEndPoint(target);
-            recorder.recordApi(methodDescriptor);
-            recorder.recordEndPoint(Objects.toString(endPoint, "Unknown"));
-            recorder.recordDestinationId(LettuceConstants.REDIS_LETTUCE.getName());
-            recorder.recordException(throwable);
-
-            if (throwable != null) {
-                return result;
+        if (SeamPublisherWrapper.isWrappable(result)) {
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
+            if (isDebug) {
+                logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
             }
-
-            if (SeamPublisherWrapper.isWrappable(result)) {
+            return wrapped;
+        }
+        // non-reactor async result: keep the original injection.
+        if (result instanceof AsyncContextAccessor) {
+            if (AsyncContextAccessorUtils.getAsyncContext(result) == null) {
+                // Avoid duplicate async context
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
+                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Wrapped result publisher. asyncContext={}", asyncContext);
-                }
-                return wrapped;
-            }
-            // non-reactor async result: keep the original injection.
-            if (result instanceof AsyncContextAccessor) {
-                if (AsyncContextAccessorUtils.getAsyncContext(result) == null) {
-                    // Avoid duplicate async context
-                    final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                    ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
-                    if (isDebug) {
-                        logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
-                    }
+                    logger.debug("Set asyncContext to result. asyncContext={}", asyncContext);
                 }
             }
-            return result;
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
-            }
-            return result;
-        } finally {
-            trace.traceBlockEnd();
         }
+        return result;
     }
 
     private String toEndPoint(final Object target) {

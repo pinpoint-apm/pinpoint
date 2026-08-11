@@ -21,13 +21,9 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventResultReplaceBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.reactorsupport.SeamPublisherWrapper;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
-
-import java.util.Objects;
 
 /**
  * Wrapping variant of {@link DefaultWebClientExchangeMethodInterceptor} (config-gated by
@@ -35,67 +31,46 @@ import java.util.Objects;
  * with a wrapped one instead of receiving the AsyncContext through its injected accessor field.
  * As in the original, the next AsyncContext is recorded even for unsampled traces.
  */
-public class WrappingDefaultWebClientExchangeMethodInterceptor implements ResultReplaceAroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+public class WrappingDefaultWebClientExchangeMethodInterceptor extends SpanEventResultReplaceBlockSimpleAroundInterceptorForPlugin {
 
     public WrappingDefaultWebClientExchangeMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
+        super(traceContext, methodDescriptor);
     }
 
     @Override
-    public void before(Object target, Class<?> returnType, Object[] args) {
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
+    protected Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
 
-        try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-            }
+    @Override
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
+    }
+
+    @Override
+    protected void afterTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (trace.canSampled()) {
+            recorder.recordApi(methodDescriptor);
+            recorder.recordException(throwable);
         }
     }
 
     @Override
-    public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    }
+
+    @Override
+    protected Object replaceResult(SpanEventRecorder recorder, Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+        if (throwable != null || !SeamPublisherWrapper.isWrappable(result)) {
             return result;
         }
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            if (trace.canSampled()) {
-                recorder.recordApi(methodDescriptor);
-                recorder.recordException(throwable);
-            }
-
-            if (throwable != null || !SeamPublisherWrapper.isWrappable(result)) {
-                return result;
-            }
-
-            // make asynchronous trace-id
-            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
-            if (isDebug) {
-                logger.debug("Wrapped response publisher. asyncContext={}", asyncContext);
-            }
-            return wrapped;
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
-            }
-            return result;
-        } finally {
-            trace.traceBlockEnd();
+        // make asynchronous trace-id
+        final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+        final Object wrapped = SeamPublisherWrapper.wrap(result, asyncContext);
+        if (isDebug) {
+            logger.debug("Wrapped response publisher. asyncContext={}", asyncContext);
         }
+        return wrapped;
     }
 }

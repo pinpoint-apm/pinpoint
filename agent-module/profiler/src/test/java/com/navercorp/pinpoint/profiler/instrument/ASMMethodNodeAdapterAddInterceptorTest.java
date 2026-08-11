@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum;
 import com.navercorp.pinpoint.profiler.instrument.mock.BasicInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.ExceptionInterceptor;
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
+import com.navercorp.pinpoint.profiler.instrument.mock.ResultReplaceBlockInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.ResultReplaceInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -51,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -153,6 +156,73 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         assertNull(voidType.invoke(instance));
         assertTrue(ResultReplaceInterceptor.after);
         assertEquals(Void.class, ResultReplaceInterceptor.afterReturnType);
+    }
+
+    @Test
+    public void addResultReplaceBlockInterceptor() throws Exception {
+        // the shared suite runs with a null block and no replacement, so the block variant must
+        // behave exactly like the plain result-replace interceptor across every method shape.
+        addInterceptor(new ResultReplaceBlockInterceptor());
+    }
+
+    @Test
+    public void resultReplaceBlockChannel() throws Exception {
+        ResultReplaceBlockInterceptor interceptor = new ResultReplaceBlockInterceptor();
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ReturnClass", interceptor);
+        Object instance = clazz.newInstance();
+        Method returnString = clazz.getDeclaredMethod("returnString");
+
+        // the weaver hands after() exactly the block before() returned.
+        ResultReplaceBlockInterceptor.clear();
+        ResultReplaceBlockInterceptor.blockToReturn = org.mockito.Mockito.mock(TraceBlock.class);
+        assertEquals("s", returnString.invoke(instance));
+        assertSame(ResultReplaceBlockInterceptor.blockToReturn, ResultReplaceBlockInterceptor.afterBlock);
+
+        // a null block travels as null.
+        ResultReplaceBlockInterceptor.clear();
+        assertEquals("s", returnString.invoke(instance));
+        assertTrue(ResultReplaceBlockInterceptor.after);
+        assertNull(ResultReplaceBlockInterceptor.afterBlock);
+
+        // replacement works alongside the block channel.
+        ResultReplaceBlockInterceptor.clear();
+        ResultReplaceBlockInterceptor.blockToReturn = org.mockito.Mockito.mock(TraceBlock.class);
+        ResultReplaceBlockInterceptor.useReplacement = true;
+        ResultReplaceBlockInterceptor.replacement = "replaced";
+        assertEquals("replaced", returnString.invoke(instance));
+        assertSame(ResultReplaceBlockInterceptor.blockToReturn, ResultReplaceBlockInterceptor.afterBlock);
+        assertEquals("s", ResultReplaceBlockInterceptor.result);
+        assertEquals(String.class, ResultReplaceBlockInterceptor.beforeReturnType);
+        assertEquals(String.class, ResultReplaceBlockInterceptor.afterReturnType);
+
+        // a type-incompatible replacement keeps the original.
+        ResultReplaceBlockInterceptor.clear();
+        ResultReplaceBlockInterceptor.useReplacement = true;
+        ResultReplaceBlockInterceptor.replacement = Integer.valueOf(1);
+        assertEquals("s", returnString.invoke(instance));
+    }
+
+    @Test
+    public void resultReplaceBlockExceptionPath() throws Exception {
+        ResultReplaceBlockInterceptor interceptor = new ResultReplaceBlockInterceptor();
+        Class<?> clazz = addInterceptor0("com.navercorp.pinpoint.profiler.instrument.mock.ExceptionClass", interceptor);
+
+        // exiting exceptionally: the block still arrives, the replacement is discarded and the
+        // original exception propagates.
+        ResultReplaceBlockInterceptor.clear();
+        ResultReplaceBlockInterceptor.blockToReturn = org.mockito.Mockito.mock(TraceBlock.class);
+        ResultReplaceBlockInterceptor.useReplacement = true;
+        ResultReplaceBlockInterceptor.replacement = "ignored";
+        Method method = clazz.getDeclaredMethod("throwable");
+        try {
+            method.invoke(clazz.newInstance());
+            fail("expected an exception");
+        } catch (Throwable expected) {
+        }
+        assertTrue(ResultReplaceBlockInterceptor.after);
+        assertSame(ResultReplaceBlockInterceptor.blockToReturn, ResultReplaceBlockInterceptor.afterBlock);
+        assertNotNull(ResultReplaceBlockInterceptor.throwable);
+        assertNull(ResultReplaceBlockInterceptor.result);
     }
 
     @Test
@@ -381,6 +451,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
         BasicInterceptor.clear();
         ExceptionInterceptor.clear();
         ResultReplaceInterceptor.clear();
+        ResultReplaceBlockInterceptor.clear();
 
         Constructor<?> constructor;
         Method method = null;
@@ -546,6 +617,35 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
             assertEquals(returnValue, ResultReplaceInterceptor.result, name);
             if (throwable) {
                 assertNotNull(ResultReplaceInterceptor.throwable, name);
+            }
+        } else if (interceptorClass == ResultReplaceBlockInterceptor.class) {
+            assertTrue(ResultReplaceBlockInterceptor.before, name);
+            assertTrue(ResultReplaceBlockInterceptor.after, name);
+
+            if (method != null && Modifier.isStatic(method.getModifiers())) {
+                assertNull(ResultReplaceBlockInterceptor.beforeTarget, name);
+                assertNull(ResultReplaceBlockInterceptor.afterTarget, name);
+            } else if (method != null) {
+                assertNotNull(ResultReplaceBlockInterceptor.beforeTarget, name);
+                assertNotNull(ResultReplaceBlockInterceptor.afterTarget, name);
+            }
+            assertEquals(ResultReplaceBlockInterceptor.beforeTarget, ResultReplaceBlockInterceptor.afterTarget, name);
+
+            assertNotNull(ResultReplaceBlockInterceptor.beforeReturnType, name);
+            assertNotNull(ResultReplaceBlockInterceptor.afterReturnType, name);
+            // the weaver hands after() exactly the block before() returned (null in this suite).
+            assertSame(ResultReplaceBlockInterceptor.blockToReturn, ResultReplaceBlockInterceptor.afterBlock, name);
+
+            if (ResultReplaceBlockInterceptor.beforeArgs != null) {
+                assertThat(args).as(name).containsExactly(ResultReplaceBlockInterceptor.beforeArgs);
+            }
+
+            if (ResultReplaceBlockInterceptor.afterArgs != null) {
+                assertThat(args).as(name).containsExactly(ResultReplaceBlockInterceptor.afterArgs);
+            }
+            assertEquals(returnValue, ResultReplaceBlockInterceptor.result, name);
+            if (throwable) {
+                assertNotNull(ResultReplaceBlockInterceptor.throwable, name);
             }
         } else if (interceptorClass == BasicInterceptor.class) {
             assertTrue(BasicInterceptor.before, name);

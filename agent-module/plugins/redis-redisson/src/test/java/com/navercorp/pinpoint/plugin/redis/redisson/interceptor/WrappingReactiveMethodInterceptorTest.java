@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.plugin.redis.redisson.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -45,7 +46,7 @@ public class WrappingReactiveMethodInterceptorTest {
     private WrappingReactiveMethodInterceptor interceptor;
     private TraceContext traceContext;
     private Trace trace;
-    private SpanEventRecorder recorder;
+    private TraceBlock block;
 
     @BeforeEach
     public void setUp() {
@@ -58,24 +59,27 @@ public class WrappingReactiveMethodInterceptorTest {
         interceptor = new WrappingReactiveMethodInterceptor(traceContext, mock(MethodDescriptor.class));
 
         trace = mock(Trace.class);
-        recorder = mock(SpanEventRecorder.class);
+        block = mock(TraceBlock.class);
         when(traceContext.currentTraceObject()).thenReturn(trace);
-        when(trace.traceBlockBegin()).thenReturn(recorder);
-        when(trace.currentSpanEventRecorder()).thenReturn(recorder);
+        when(trace.getTraceBlock()).thenReturn(block);
+        when(block.getTrace()).thenReturn(trace);
+        when(block.isBegin()).thenReturn(true);
     }
 
     @Test
     public void errorOnWrapPath_isContained_originalResultReturned() {
         // simulate the reactor-absence failure mode: an Error (NoClassDefFoundError) thrown from
         // the wrap path inside after()'s try block.
-        when(recorder.recordNextAsyncContext())
+        when(block.recordNextAsyncContext())
                 .thenThrow(new NoClassDefFoundError("reactor/core/publisher/Mono"));
         final Object result = Flux.range(1, 2).hide(); // wrappable, so the wrap path is entered
 
-        interceptor.before(new Object(), Object.class, new Object[0]);
-        final Object returned = interceptor.after(new Object(), Object.class, new Object[0], result, null);
+        final TraceBlock returned = interceptor.before(new Object(), Object.class, new Object[0]);
+        final Object kept = interceptor.after(returned, new Object(), Object.class, new Object[0], result, null);
 
-        // contained: the app gets its original publisher back, nothing propagates.
-        assertSame(result, returned);
+        // contained: the app gets its original publisher back, nothing propagates, and the
+        // block is still closed on the error path.
+        assertSame(result, kept);
+        verify(block).close();
     }
 }
