@@ -85,7 +85,7 @@ public class AnnotatedInterceptorFactoryTest {
 
     private AnnotatedInterceptorFactory newAnnotatedInterceptorFactory() {
         return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
-                apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory);
+                apiMetaDataService, pluginContext, null, exceptionHandlerFactory, requestRecorderFactory);
     }
 
     private ScopeInfo newEmptyScopeInfo() {
@@ -124,7 +124,7 @@ public class AnnotatedInterceptorFactoryTest {
     @Test
     public void injectedAsyncContextInterceptor_exceptionHandleScoped() {
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
-                apiMetaDataService, pluginContext, new ExceptionHandlerFactory(true), requestRecorderFactory);
+                apiMetaDataService, pluginContext, null, new ExceptionHandlerFactory(true), requestRecorderFactory);
         final com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope scope = mock(com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope.class);
         final ScopeInfo scopeInfo = new ScopeInfo(scope, com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy.BOUNDARY);
         Interceptor interceptor = factory.newInterceptor(TestInjectedAsyncContextInterceptor.class, null, scopeInfo, instrumentMethod.getDescriptor());
