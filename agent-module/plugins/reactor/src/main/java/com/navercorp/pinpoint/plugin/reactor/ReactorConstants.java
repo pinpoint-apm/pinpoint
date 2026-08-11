@@ -24,5 +24,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
  */
 public class ReactorConstants {
     public static final ServiceType REACTOR = ServiceTypeProvider.getByName("REACTOR");
+    public static final ServiceType REACTOR_SCHEDULER = ServiceTypeProvider.getByName("REACTOR_SCHEDULER");
 
 }

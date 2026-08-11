@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.SuperClassInt
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -49,6 +50,9 @@ import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoSubscribeMet
 import com.navercorp.pinpoint.plugin.reactor.interceptor.FluxAndMonoSubscribeOnInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.OnErrorSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.ParallelFluxSubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.PeriodicSchedulerTaskRunInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.RetrySubscriberResubscribeInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.RetrySubscriberSeedInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RetryWhenMainSubscriberInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableSubscriptionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableSubscriptionInterceptor;
@@ -62,6 +66,8 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  * @author jaehong.kim
  */
 public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
+    private static final String PERIODIC_SCHEDULER_TASK_SCOPE = "##REACTOR_PERIODIC_SCHEDULER_TASK";
+
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private MatchableTransformTemplate transformTemplate;
 
@@ -93,6 +99,9 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         if (config.isTraceSchedulerTask()) {
             addSchedulerTasks();
         }
+        if (config.isTracePeriodicSchedulerTask()) {
+            addPeriodicSchedulerTasks();
+        }
         addProcessor();
         addFlux();
         addMono();
@@ -122,10 +131,9 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     }
 
     /**
-     * Scheduler task carriers: every task the built-in schedulers wrap a submitted Runnable in
-     * before it crosses to a worker thread. The carrier receives the AsyncContext at construction
-     * (the scheduled Runnable is often an instrumented operator subscriber — publishOn/subscribeOn
-     * schedule themselves) and re-activates it around run()/call() on the worker thread.
+     * One-shot scheduler task carriers: every non-periodic task the built-in schedulers wrap a
+     * submitted Runnable in before it crosses to a worker thread. The carrier receives the
+     * AsyncContext at construction and re-activates it around run()/call() on the worker thread.
      * <p>
      * The virtual-thread boundedElastic task exists only as a {@code META-INF/versions/21} entry
      * (reactor 3.6+), so on JDK 8~20 — and on versions without the other classes (3.1.x has no
@@ -134,12 +142,20 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     private void addSchedulerTasks() {
         transformTemplate.transform("reactor.core.scheduler.SchedulerTask", SchedulerTaskTransform.class);
         transformTemplate.transform("reactor.core.scheduler.WorkerTask", SchedulerTaskTransform.class);
-        transformTemplate.transform("reactor.core.scheduler.PeriodicSchedulerTask", SchedulerTaskTransform.class);
-        transformTemplate.transform("reactor.core.scheduler.PeriodicWorkerTask", SchedulerTaskTransform.class);
-        transformTemplate.transform("reactor.core.scheduler.InstantPeriodicWorkerTask", SchedulerTaskTransform.class);
         transformTemplate.transform("reactor.core.scheduler.ExecutorScheduler$ExecutorPlainRunnable", SchedulerTaskTransform.class);
         transformTemplate.transform("reactor.core.scheduler.ExecutorScheduler$ExecutorTrackedRunnable", SchedulerTaskTransform.class);
         transformTemplate.transform("reactor.core.scheduler.BoundedElasticThreadPerTaskScheduler$SchedulerTask", SchedulerTaskTransform.class);
+    }
+
+    /**
+     * Periodic scheduler tasks must not carry the trace that happened to schedule them for their
+     * whole lifetime. They are therefore excluded by default and, when explicitly enabled, each
+     * execution is recorded as a new independent transaction.
+     */
+    private void addPeriodicSchedulerTasks() {
+        transformTemplate.transform("reactor.core.scheduler.PeriodicSchedulerTask", PeriodicSchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.PeriodicWorkerTask", PeriodicSchedulerTaskTransform.class);
+        transformTemplate.transform("reactor.core.scheduler.InstantPeriodicWorkerTask", PeriodicSchedulerTaskTransform.class);
     }
 
     private void addProcessor() {
@@ -189,6 +205,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     }
 
     private void addRetry() {
+        transformTemplate.transform("reactor.core.publisher.FluxRetry$RetrySubscriber", RetrySubscriberTransform.class);
         transformTemplate.transform("reactor.core.publisher.FluxRetryWhen$RetryWhenMainSubscriber", RetrySubscriberTransform.class);
     }
 
@@ -329,6 +346,40 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
                     continue;
                 }
                 method.addInterceptor(SchedulerTaskRunInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class PeriodicSchedulerTaskTransform implements TransformCallback {
+        // ASM ACC_SYNTHETIC: skips the bridge call():Object the compiler adds next to call():Void.
+        private static final int ACC_SYNTHETIC = 0x1000;
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            // No injected AsyncContext field and no constructor capture. A periodic task may live
+            // forever; retaining the scheduling trace would make every tick a continuation of one
+            // stale request and keep that request reachable until cancellation.
+            for (InstrumentMethod method : target.getDeclaredMethods()) {
+                final String name = method.getName();
+                if (!"run".equals(name) && !"call".equals(name)) {
+                    continue;
+                }
+                if (ArrayUtils.hasLength(method.getParameterTypes())) {
+                    continue;
+                }
+                if ((method.getModifiers() & ACC_SYNTHETIC) != 0) {
+                    continue;
+                }
+                // Reactor versions differ between run(), call(), and run()->call(). The shared
+                // boundary scope makes a delegating pair one transaction per scheduler tick.
+                method.addScopedInterceptor(PeriodicSchedulerTaskRunInterceptor.class,
+                        va(ReactorConstants.REACTOR_SCHEDULER),
+                        PERIODIC_SCHEDULER_TASK_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
             }
 
             return target.toBytecode();
@@ -559,7 +610,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
                 if (ArrayUtils.hasLength(parameterTypes)) {
-                    constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
+                    constructorMethod.addInterceptor(RetrySubscriberSeedInterceptor.class, va(ReactorConstants.REACTOR));
                 }
             }
 
@@ -570,6 +621,17 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
             if (onNextMethod != null) {
                 onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
+            }
+
+            // FluxRetry uses resubscribe() in every supported Reactor line. RetryWhen uses the
+            // zero-argument form in 3.1 and resubscribe(Object) from 3.2 onward.
+            final InstrumentMethod resubscribeMethod = target.getDeclaredMethod("resubscribe");
+            if (resubscribeMethod != null) {
+                resubscribeMethod.addInterceptor(RetrySubscriberResubscribeInterceptor.class);
+            }
+            final InstrumentMethod resubscribeWithTriggerMethod = target.getDeclaredMethod("resubscribe", "java.lang.Object");
+            if (resubscribeWithTriggerMethod != null) {
+                resubscribeWithTriggerMethod.addInterceptor(RetrySubscriberResubscribeInterceptor.class);
             }
 
             final InstrumentMethod whenErrorMethod = target.getDeclaredMethod("whenError", "java.lang.Throwable");

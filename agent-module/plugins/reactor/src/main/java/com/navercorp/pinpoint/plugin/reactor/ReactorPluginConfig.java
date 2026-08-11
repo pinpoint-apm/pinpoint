@@ -72,6 +72,10 @@ public class ReactorPluginConfig {
         return config.readBoolean("profiler.reactor.trace.scheduler.task", false);
     }
 
+    public static boolean isTracePeriodicSchedulerTask(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.trace.scheduler.task.periodic", false);
+    }
+
     private final boolean enable;
 
     private final boolean traceOnError;
@@ -83,6 +87,7 @@ public class ReactorPluginConfig {
     private final boolean traceTimeout;
     private final boolean traceSubscribe;
     private final boolean traceSchedulerTask;
+    private final boolean tracePeriodicSchedulerTask;
     private final boolean markErrorRetry;
     private final boolean markErrorOnError;
 
@@ -104,6 +109,7 @@ public class ReactorPluginConfig {
         this.traceTimeout = isTraceTimeout(config);
         this.traceSubscribe = isTraceSubscribe(config);
         this.traceSchedulerTask = isTraceSchedulerTask(config);
+        this.tracePeriodicSchedulerTask = isTracePeriodicSchedulerTask(config);
     }
 
     public boolean isEnable() {
@@ -146,6 +152,10 @@ public class ReactorPluginConfig {
         return traceSchedulerTask;
     }
 
+    public boolean isTracePeriodicSchedulerTask() {
+        return tracePeriodicSchedulerTask;
+    }
+
     public boolean isMarkErrorRetry() {
         return markErrorRetry;
     }
@@ -167,6 +177,7 @@ public class ReactorPluginConfig {
                 ", traceTimeout=" + traceTimeout +
                 ", traceSubscribe=" + traceSubscribe +
                 ", traceSchedulerTask=" + traceSchedulerTask +
+                ", tracePeriodicSchedulerTask=" + tracePeriodicSchedulerTask +
                 ", markErrorRetry=" + markErrorRetry +
                 ", markErrorOnError=" + markErrorOnError +
                 '}';
