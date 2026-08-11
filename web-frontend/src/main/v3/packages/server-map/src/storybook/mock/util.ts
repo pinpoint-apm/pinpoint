@@ -5,11 +5,13 @@ const getTransactionInfo = (node: any) => {
 
   if (isWas && isAuthorized) {
     return {
+      // Node.transactionInfo declares these as number, so fall back to 0 rather than
+      // letting a missing histogram produce NaN/undefined.
       good: ['1s', '3s', '5s'].reduce((prev, curr) => {
-        return prev + node?.histogram?.[curr];
+        return prev + (node?.histogram?.[curr] ?? 0);
       }, 0),
-      slow: node.histogram?.Slow,
-      bad: node.histogram?.Error,
+      slow: node.histogram?.Slow ?? 0,
+      bad: node.histogram?.Error ?? 0,
     };
   }
 };
