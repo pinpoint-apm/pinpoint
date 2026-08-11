@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.SuperClassInt
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
@@ -57,6 +58,7 @@ import com.navercorp.pinpoint.plugin.reactor.interceptor.RetryWhenMainSubscriber
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableSubscriptionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableSubscriptionInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.TimeoutMainSubscriberDoTimeoutInterceptor;
+import com.navercorp.pinpoint.plugin.reactor.interceptor.WrappingFluxAndMonoPublishOnInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -94,9 +96,16 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         }
         logger.info("{}, config:{}", this.getClass().getSimpleName(), config);
 
-        addFluxAndMono();
+        addFluxAndMono(config.isTracePublishOn() && config.isWrapPublisherPublishOn());
         addThreadingAndSchedulers();
-        if (config.isTraceSchedulerTask()) {
+        if (config.isTraceSchedulerTask() || !config.isSubscriberInstrument()) {
+            // The carrier is REQUIRED when the generic subscriber layer is off: a scheduler hop
+            // then has no operator relay, so without the carrier's run() trace window, user code
+            // after the hop (e.g. a WebClient call assembled inside flatMap) runs out-of-trace
+            // and outbound header propagation silently breaks (verified end to end).
+            if (!config.isTraceSchedulerTask()) {
+                logger.info("profiler.reactor.subscriber.instrument=false requires the scheduler task carrier - enabling it (profiler.reactor.trace.scheduler.task)");
+            }
             addSchedulerTasks();
         }
         if (config.isTracePeriodicSchedulerTask()) {
@@ -109,7 +118,15 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         addTimeout();
         addRetry();
         addOnError();
-        addCoreSubscriber();
+        if (config.isSubscriberInstrument()) {
+            // The generic per-operator layer (200+ reactor.core.publisher CoreSubscriber types:
+            // addField + constructor/onSubscribe/onNext/run). The dedicated subscriber transforms
+            // above (timeout/retry/onError/scheduler tasks) are exact-name registrations, so they
+            // stay regardless of this gate. Turning this off keeps the publisher field injection
+            // and the subscribe relay; boundary linking then travels through the scheduler-task
+            // carrier (forced on above) and the seam wrappers instead of the operator chain.
+            addCoreSubscriber();
+        }
     }
 
     @Override
@@ -117,7 +134,12 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         this.transformTemplate = transformTemplate;
     }
 
-    private void addFluxAndMono() {
+    private void addFluxAndMono(boolean wrapPublishOn) {
+        if (wrapPublishOn) {
+            transformTemplate.transform("reactor.core.publisher.Flux", FluxPublishOnSeamMethodTransform.class);
+            transformTemplate.transform("reactor.core.publisher.Mono", MonoPublishOnSeamMethodTransform.class);
+            return;
+        }
         transformTemplate.transform("reactor.core.publisher.Flux", FluxMethodTransform.class);
         transformTemplate.transform("reactor.core.publisher.Mono", MonoMethodTransform.class);
     }
@@ -222,27 +244,39 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     public static class FluxMethodTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
-            if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxAndMonoSubscribeMethodInterceptor.class);
-            }
-            final InstrumentMethod publishOnMethod = target.getDeclaredMethod("publishOn", "reactor.core.scheduler.Scheduler", "boolean", "int", "int");
-            if (publishOnMethod != null) {
-                publishOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
-            }
-            final InstrumentMethod subscribeOnMethod = target.getDeclaredMethod("subscribeOn", "reactor.core.scheduler.Scheduler", "boolean");
-            if (subscribeOnMethod != null) {
-                subscribeOnMethod.addInterceptor(FluxAndMonoSubscribeOnInterceptor.class);
-            }
-            final InstrumentMethod intervalMethod = target.getDeclaredMethod("interval", "java.time.Duration", "java.time.Duration", "reactor.core.scheduler.Scheduler");
-            if (intervalMethod != null) {
-                intervalMethod.addInterceptor(FluxAndMonoIntervalInterceptor.class);
-            }
-
-            return target.toBytecode();
+            return transformFluxMethods(instrumentor, loader, className, classfileBuffer, FluxAndMonoPublishOnInterceptor.class);
         }
+    }
+
+    public static class FluxPublishOnSeamMethodTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            return transformFluxMethods(instrumentor, loader, className, classfileBuffer, WrappingFluxAndMonoPublishOnInterceptor.class);
+        }
+    }
+
+    private static byte[] transformFluxMethods(Instrumentor instrumentor, ClassLoader loader, String className, byte[] classfileBuffer,
+                                               Class<? extends Interceptor> publishOnInterceptor) throws InstrumentException {
+        final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+        final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
+        if (subscribeMethod != null) {
+            subscribeMethod.addInterceptor(FluxAndMonoSubscribeMethodInterceptor.class);
+        }
+        final InstrumentMethod publishOnMethod = target.getDeclaredMethod("publishOn", "reactor.core.scheduler.Scheduler", "boolean", "int", "int");
+        if (publishOnMethod != null) {
+            publishOnMethod.addInterceptor(publishOnInterceptor);
+        }
+        final InstrumentMethod subscribeOnMethod = target.getDeclaredMethod("subscribeOn", "reactor.core.scheduler.Scheduler", "boolean");
+        if (subscribeOnMethod != null) {
+            subscribeOnMethod.addInterceptor(FluxAndMonoSubscribeOnInterceptor.class);
+        }
+        final InstrumentMethod intervalMethod = target.getDeclaredMethod("interval", "java.time.Duration", "java.time.Duration", "reactor.core.scheduler.Scheduler");
+        if (intervalMethod != null) {
+            intervalMethod.addInterceptor(FluxAndMonoIntervalInterceptor.class);
+        }
+
+        return target.toBytecode();
     }
 
     public static class FluxTransform implements TransformCallback {
@@ -389,31 +423,45 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     public static class MonoMethodTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
-            if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxAndMonoSubscribeMethodInterceptor.class);
-            }
-            final InstrumentMethod publishOnMethod = target.getDeclaredMethod("publishOn", "reactor.core.scheduler.Scheduler");
-            if (publishOnMethod != null) {
-                publishOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
-            }
-            final InstrumentMethod subscribeOnMethod = target.getDeclaredMethod("subscribeOn", "reactor.core.scheduler.Scheduler");
-            if (subscribeOnMethod != null) {
-                subscribeOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
-            }
-            final InstrumentMethod delayMethod = target.getDeclaredMethod("delay", "java.time.Duration", "reactor.core.scheduler.Scheduler");
-            if (delayMethod != null) {
-                delayMethod.addInterceptor(FluxAndMonoDelayInterceptor.class);
-            }
-            final InstrumentMethod delayElementMethod = target.getDeclaredMethod("delayElement", "java.time.Duration", "reactor.core.scheduler.Scheduler");
-            if (delayElementMethod != null) {
-                delayElementMethod.addInterceptor(FluxAndMonoDelayInterceptor.class);
-            }
-
-            return target.toBytecode();
+            return transformMonoMethods(instrumentor, loader, className, classfileBuffer, FluxAndMonoPublishOnInterceptor.class);
         }
+    }
+
+    public static class MonoPublishOnSeamMethodTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            return transformMonoMethods(instrumentor, loader, className, classfileBuffer, WrappingFluxAndMonoPublishOnInterceptor.class);
+        }
+    }
+
+    private static byte[] transformMonoMethods(Instrumentor instrumentor, ClassLoader loader, String className, byte[] classfileBuffer,
+                                               Class<? extends Interceptor> publishOnInterceptor) throws InstrumentException {
+        final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+        final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
+        if (subscribeMethod != null) {
+            subscribeMethod.addInterceptor(FluxAndMonoSubscribeMethodInterceptor.class);
+        }
+        final InstrumentMethod publishOnMethod = target.getDeclaredMethod("publishOn", "reactor.core.scheduler.Scheduler");
+        if (publishOnMethod != null) {
+            publishOnMethod.addInterceptor(publishOnInterceptor);
+        }
+        // Keep the pre-existing Mono.subscribeOn wiring unchanged in this PoC so the seam effect
+        // is isolated to publishOn.
+        final InstrumentMethod subscribeOnMethod = target.getDeclaredMethod("subscribeOn", "reactor.core.scheduler.Scheduler");
+        if (subscribeOnMethod != null) {
+            subscribeOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
+        }
+        final InstrumentMethod delayMethod = target.getDeclaredMethod("delay", "java.time.Duration", "reactor.core.scheduler.Scheduler");
+        if (delayMethod != null) {
+            delayMethod.addInterceptor(FluxAndMonoDelayInterceptor.class);
+        }
+        final InstrumentMethod delayElementMethod = target.getDeclaredMethod("delayElement", "java.time.Duration", "reactor.core.scheduler.Scheduler");
+        if (delayElementMethod != null) {
+            delayElementMethod.addInterceptor(FluxAndMonoDelayInterceptor.class);
+        }
+
+        return target.toBytecode();
     }
 
     public static class MonoTransform implements TransformCallback {

@@ -26,6 +26,46 @@ import java.util.Properties;
 public class ReactorPluginConfigTest {
 
     @Test
+    public void subscriberInstrument_defaultsToTrue() {
+        ReactorPluginConfig config = createConfig(new Properties());
+
+        Assertions.assertTrue(config.isSubscriberInstrument());
+    }
+
+    @Test
+    public void publishOnPublisherWrapper_defaultsToFalse() {
+        ReactorPluginConfig config = createConfig(new Properties());
+
+        Assertions.assertFalse(config.isWrapPublisherPublishOn());
+    }
+
+    @Test
+    public void publishOnPublisherWrapper_on() {
+        Properties properties = new Properties();
+        properties.put("profiler.reactor.wrap.publisher.publishOn", "true");
+
+        ReactorPluginConfig config = createConfig(properties);
+
+        Assertions.assertTrue(config.isWrapPublisherPublishOn());
+        Assertions.assertTrue(config.isTracePublishOn());
+    }
+
+    @Test
+    public void subscriberInstrument_off() {
+        Properties properties = new Properties();
+        properties.put("profiler.reactor.subscriber.instrument", "false");
+
+        ReactorPluginConfig config = createConfig(properties);
+
+        Assertions.assertFalse(config.isSubscriberInstrument());
+        // the gate stands alone - the plugin and the retained layers are unaffected.
+        Assertions.assertTrue(config.isEnable());
+        Assertions.assertTrue(config.isTraceSubscribe());
+        Assertions.assertTrue(config.isTraceTimeout());
+        Assertions.assertTrue(config.isTraceRetry());
+    }
+
+    @Test
     public void periodicSchedulerTask_defaultsToFalse() {
         ReactorPluginConfig config = createConfig(new Properties());
 

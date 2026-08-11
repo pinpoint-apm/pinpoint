@@ -40,6 +40,10 @@ public class ReactorPluginConfig {
         return config.readBoolean("profiler.reactor.trace.publishOn", true);
     }
 
+    public static boolean isWrapPublisherPublishOn(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.wrap.publisher.publishOn", false);
+    }
+
     public static boolean isTraceSubscribeOn(ProfilerConfig config) {
         return config.readBoolean("profiler.reactor.trace.subscribeOn", true);
     }
@@ -76,10 +80,15 @@ public class ReactorPluginConfig {
         return config.readBoolean("profiler.reactor.trace.scheduler.task.periodic", false);
     }
 
+    public static boolean isSubscriberInstrument(ProfilerConfig config) {
+        return config.readBoolean("profiler.reactor.subscriber.instrument", true);
+    }
+
     private final boolean enable;
 
     private final boolean traceOnError;
     private final boolean tracePublishOn;
+    private final boolean wrapPublisherPublishOn;
     private final boolean traceSubscribeOn;
     private final boolean traceDelay;
     private final boolean traceInterval;
@@ -88,6 +97,7 @@ public class ReactorPluginConfig {
     private final boolean traceSubscribe;
     private final boolean traceSchedulerTask;
     private final boolean tracePeriodicSchedulerTask;
+    private final boolean subscriberInstrument;
     private final boolean markErrorRetry;
     private final boolean markErrorOnError;
 
@@ -99,6 +109,7 @@ public class ReactorPluginConfig {
         this.traceOnError = isTraceOnError(config);
         this.markErrorOnError = isMarkErrorOnError(config);
         this.tracePublishOn = isTracePublishOn(config);
+        this.wrapPublisherPublishOn = isWrapPublisherPublishOn(config);
         this.traceSubscribeOn = isTraceSubscribeOn(config);
         this.traceDelay = isTraceDelay(config);
         this.traceInterval = isTraceInterval(config);
@@ -110,6 +121,7 @@ public class ReactorPluginConfig {
         this.traceSubscribe = isTraceSubscribe(config);
         this.traceSchedulerTask = isTraceSchedulerTask(config);
         this.tracePeriodicSchedulerTask = isTracePeriodicSchedulerTask(config);
+        this.subscriberInstrument = isSubscriberInstrument(config);
     }
 
     public boolean isEnable() {
@@ -122,6 +134,10 @@ public class ReactorPluginConfig {
 
     public boolean isTracePublishOn() {
         return tracePublishOn;
+    }
+
+    public boolean isWrapPublisherPublishOn() {
+        return wrapPublisherPublishOn;
     }
 
     public boolean isTraceSubscribeOn() {
@@ -156,6 +172,10 @@ public class ReactorPluginConfig {
         return tracePeriodicSchedulerTask;
     }
 
+    public boolean isSubscriberInstrument() {
+        return subscriberInstrument;
+    }
+
     public boolean isMarkErrorRetry() {
         return markErrorRetry;
     }
@@ -170,6 +190,7 @@ public class ReactorPluginConfig {
                 "enable=" + enable +
                 ", traceOnError=" + traceOnError +
                 ", tracePublishOn=" + tracePublishOn +
+                ", wrapPublisherPublishOn=" + wrapPublisherPublishOn +
                 ", traceSubscribeOn=" + traceSubscribeOn +
                 ", traceDelay=" + traceDelay +
                 ", traceInterval=" + traceInterval +
@@ -178,6 +199,7 @@ public class ReactorPluginConfig {
                 ", traceSubscribe=" + traceSubscribe +
                 ", traceSchedulerTask=" + traceSchedulerTask +
                 ", tracePeriodicSchedulerTask=" + tracePeriodicSchedulerTask +
+                ", subscriberInstrument=" + subscriberInstrument +
                 ", markErrorRetry=" + markErrorRetry +
                 ", markErrorOnError=" + markErrorOnError +
                 '}';
