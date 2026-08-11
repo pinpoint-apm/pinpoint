@@ -139,7 +139,9 @@ public interface AnnotationValueMapper {
     @ToPAnnotationValue
     default PAnnotationValue map(Annotation<?> annotation) {
         if (annotation instanceof NullAnnotation) {
-            return null;
+            // Return an empty PAnnotationValue instead of null to avoid NPE in callers
+            // that unconditionally set the result on a PAnnotation.Builder.
+            return PAnnotationValue.getDefaultInstance();
         }
         return mapNonNull(annotation);
     }
