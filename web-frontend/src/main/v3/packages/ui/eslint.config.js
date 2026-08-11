@@ -56,11 +56,31 @@ export default [
 
       // 커스텀 규칙 (기존과 동일)
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-      '@typescript-eslint/no-namespace': 'warn',
+      // API 응답 타입은 `namespace GetServerMap { ... }` 패턴을 규약으로 쓴다.
+      '@typescript-eslint/no-namespace': 'off',
       'no-useless-catch': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'no-extra-boolean-cast': 'off',
-      '@typescript-eslint/no-empty-object-type': 'warn',
+      // `interface XxxProps extends XxxFetcherProps {}` 는 컴포넌트 props 규약이라 허용하고,
+      // `{}` 를 타입으로 직접 쓰는 것만 잡는다.
+      '@typescript-eslint/no-empty-object-type': [
+        'warn',
+        { allowInterfaces: 'with-single-extends' },
+      ],
+    },
+  },
+  // 배럴 파일은 재수출만 하므로 Fast Refresh 규칙을 만족시킬 방법이 없다.
+  {
+    files: ['**/index.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  // jest.mock 팩토리와 jest.isolateModules 안에서는 정적 import 를 쓸 수 없어 require 가 필수다.
+  {
+    files: ['**/*.test.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
 ];

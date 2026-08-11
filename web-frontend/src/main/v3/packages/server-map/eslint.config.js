@@ -40,6 +40,16 @@ export default [
     },
   },
 
+  // 스토리는 tsconfig 의 include 대상이 아니라 타입 정보 기반 파싱을 쓸 수 없다.
+  {
+    files: ['**/*.stories.tsx'],
+    languageOptions: {
+      parserOptions: {
+        project: null,
+      },
+    },
+  },
+
   // Prettier와 충돌하는 규칙 비활성화
   prettierConfig,
 ];
