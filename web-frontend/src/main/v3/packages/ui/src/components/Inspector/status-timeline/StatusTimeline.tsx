@@ -15,11 +15,10 @@ export const AGENT_STATUS_COLOR = {
   EMPTY: colors.blue[300],
 } as const;
 
-export interface StatusTimelineProps
-  extends Pick<
-    TimelineBarProps,
-    'totalRange' | 'activeRange' | 'hideTick' | 'tickCount' | 'formatTick' | 'formatTooltip'
-  > {
+export interface StatusTimelineProps extends Pick<
+  TimelineBarProps,
+  'totalRange' | 'activeRange' | 'hideTick' | 'tickCount' | 'formatTick' | 'formatTooltip'
+> {
   data: InspectorAgentStatusTimeline.Response;
   wrapperClassName?: string;
   barClassName?: string;

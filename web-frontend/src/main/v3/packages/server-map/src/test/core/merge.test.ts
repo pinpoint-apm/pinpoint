@@ -19,7 +19,9 @@ describe('getMergedData', () => {
       expect(result.nodes).toHaveLength(2);
       expect(result.edges).toHaveLength(1);
 
-      const mergedNode = result.nodes.find((n) => n.data.id.includes('MergeSingleNodesByServerMap'));
+      const mergedNode = result.nodes.find((n) =>
+        n.data.id.includes('MergeSingleNodesByServerMap'),
+      );
       expect(mergedNode).toBeDefined();
       expect(mergedNode?.data.label).toBe('total: 2');
       expect(mergedNode?.data.type).toBe('DB');
@@ -74,7 +76,7 @@ describe('getMergedData', () => {
 
       const result = getMergedData({ nodes, edges });
 
-      // 다중 타겟 노드는 같은 소스 조합을 가진 노드들만 병합되므로, 
+      // 다중 타겟 노드는 같은 소스 조합을 가진 노드들만 병합되므로,
       // 단일 노드인 경우 병합되지 않음
       expect(result.nodes.length).toBeGreaterThanOrEqual(3);
       expect(result.edges.length).toBeGreaterThanOrEqual(2);
@@ -223,4 +225,3 @@ describe('getMergedData', () => {
     });
   });
 });
-

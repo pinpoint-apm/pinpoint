@@ -6,8 +6,7 @@ import {
 } from './InspectorApplicationStatusTimelineFetcher';
 import { TimelineSkeleton } from '../TimelineSkeleton';
 
-export interface InspectorApplicationStatusTimelineProps
-  extends InspectorApplicationStatusTimelineFetcherProps {}
+export interface InspectorApplicationStatusTimelineProps extends InspectorApplicationStatusTimelineFetcherProps {}
 
 export const InspectorApplicationStatusTimeline = ({
   ...props

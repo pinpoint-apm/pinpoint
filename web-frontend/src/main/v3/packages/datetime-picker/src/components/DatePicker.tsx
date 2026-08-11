@@ -15,11 +15,10 @@ import AppContext from './context/appContext';
 import { getZonedEndOfDay, getZonedStartOfDay } from '../utils/date';
 import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
-export interface DatePickerProps
-  extends Pick<
-    RichDatetimePickerProps,
-    'startDate' | 'endDate' | 'maxDate' | 'minDate' | 'className'
-  > {
+export interface DatePickerProps extends Pick<
+  RichDatetimePickerProps,
+  'startDate' | 'endDate' | 'maxDate' | 'minDate' | 'className'
+> {
   locale: Locale;
   hideCalendarYearButton?: boolean;
   onUnmount?: () => void;

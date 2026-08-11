@@ -62,4 +62,3 @@ describe('Test url atom', () => {
     });
   });
 });
-

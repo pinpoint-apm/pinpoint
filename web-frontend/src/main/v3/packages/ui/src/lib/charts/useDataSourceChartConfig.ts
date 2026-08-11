@@ -2,7 +2,11 @@ import { isValid } from 'date-fns';
 import { InspectorAgentDataSourceChart } from '@pinpoint-fe/ui/src/constants';
 import { formatNewLinedDateString } from '@pinpoint-fe/ui/src/utils';
 import { useChartType } from './useChartType';
-import { INSPECTOR_CHART_GROUP, InspectorChartOptions, InspectorSeriesOption } from './useChartConfig';
+import {
+  INSPECTOR_CHART_GROUP,
+  InspectorChartOptions,
+  InspectorSeriesOption,
+} from './useChartConfig';
 import { AxisTooltipParam } from './useChartTooltip';
 import { DataSourceTooltipRow, useDataSourceChartTooltip } from './useDataSourceChartTooltip';
 

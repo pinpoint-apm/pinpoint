@@ -50,10 +50,9 @@ export const createCustomizeTheme = () => {
               const date = new Date(value);
               return `${String(date.getFullYear())}.${String(date.getMonth())}.${String(date.getDay())}\n${String(
                 date.getHours(),
-              ).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(
-                2,
-                '0',
-              )}`;
+              ).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(
+                date.getSeconds(),
+              ).padStart(2, '0')}`;
             },
             padding: {
               top: 10,

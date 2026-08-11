@@ -1,6 +1,6 @@
 import React from 'react';
-import {FilteredMapType as FilteredMap} from '@pinpoint-fe/ui/src/constants';
-import {useAtom, useSetAtom} from 'jotai';
+import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
+import { useAtom, useSetAtom } from 'jotai';
 import {
   currentServerAtom,
   scatterDataByApplicationKeyAtom,
@@ -15,10 +15,10 @@ import {
   parseBaseNodeId,
   toBasicISOStringMs,
 } from '@pinpoint-fe/ui/src/utils';
-import {Edge, MergedEdge, MergedNode, Node} from '@pinpoint-fe/server-map';
-import {useFilteredMapParameters, useGetFilteredServerMapData} from '@pinpoint-fe/ui/src/hooks';
-import {useTranslation} from 'react-i18next';
-import {SERVERMAP_MENU_FUNCTION_TYPE, ServerMapCore, ServerMapCoreProps} from '..';
+import { Edge, MergedEdge, MergedNode, Node } from '@pinpoint-fe/server-map';
+import { useFilteredMapParameters, useGetFilteredServerMapData } from '@pinpoint-fe/ui/src/hooks';
+import { useTranslation } from 'react-i18next';
+import { SERVERMAP_MENU_FUNCTION_TYPE, ServerMapCore, ServerMapCoreProps } from '..';
 
 export interface FilteredMapFetcherProps {
   isPaused?: boolean;

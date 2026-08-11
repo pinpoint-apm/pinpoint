@@ -7,8 +7,7 @@ import {
 import { ErrorBoundary, ScatterChartSkeleton } from '../..';
 
 export interface ScatterChartProps
-  extends ScatterChartFetcherProps,
-    ScatterChartRealtimeFetcherProps {
+  extends ScatterChartFetcherProps, ScatterChartRealtimeFetcherProps {
   realtime?: boolean;
 }
 

@@ -67,9 +67,6 @@ describe('useGetTransactionTraceMetadata', () => {
 
   test('should share the query key between the hook and click-time fetchQuery callers', () => {
     const options = getTransactionTraceMetadataQueryOptions('t1');
-    expect(options.queryKey).toEqual([
-      END_POINTS.TRANSACTION_TRACE_METADATA,
-      '?traceId=t1',
-    ]);
+    expect(options.queryKey).toEqual([END_POINTS.TRANSACTION_TRACE_METADATA, '?traceId=t1']);
   });
 });

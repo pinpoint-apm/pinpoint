@@ -1,8 +1,8 @@
-import {useSuspenseQuery} from '@tanstack/react-query';
-import {END_POINTS, InspectorApplicationDataSourceChart} from '@pinpoint-fe/ui/src/constants';
-import {queryFn} from './reactQueryHelper';
-import {convertParamsToQueryString, toBasicISOString} from '@pinpoint-fe/ui/src/utils';
-import {useInspectorSearchParameters} from '../searchParameters';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { END_POINTS, InspectorApplicationDataSourceChart } from '@pinpoint-fe/ui/src/constants';
+import { queryFn } from './reactQueryHelper';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
+import { useInspectorSearchParameters } from '../searchParameters';
 
 const getQueryString = (queryParams: Partial<InspectorApplicationDataSourceChart.Parameters>) => {
   if (

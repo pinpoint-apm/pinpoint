@@ -10,7 +10,7 @@ jest.mock('cytoscape', () => {
   const createMockCy = () => {
     const mockOn = jest.fn().mockReturnThis();
     const mockStyle = jest.fn().mockReturnThis();
-    
+
     return {
       use: mockUseFn,
       style: mockStyle,
@@ -92,10 +92,10 @@ jest.mock('cytoscape', () => {
       })),
     };
   };
-  
+
   const mockCytoscape = jest.fn(() => createMockCy());
   (mockCytoscape as any).use = mockUseFn;
-  
+
   return {
     __esModule: true,
     default: mockCytoscape,
@@ -110,9 +110,7 @@ describe('ServerMap', () => {
     { id: 'n2', label: 'Node 2', type: 'DB' },
   ];
 
-  const mockEdges: Edge[] = [
-    { id: 'e1', source: 'n1', target: 'n2' },
-  ];
+  const mockEdges: Edge[] = [{ id: 'e1', source: 'n1', target: 'n2' }];
 
   const defaultProps = {
     data: {
@@ -144,5 +142,3 @@ describe('ServerMap', () => {
     expect(element.style.height).toBe('300px');
   });
 });
-
-

@@ -22,11 +22,10 @@ export namespace AlarmRule {
 
   export interface PutParameters extends AlarmRuleData {}
 
-  export interface DeleteParmeters
-    extends Pick<
-      AlarmRuleData,
-      'applicationId' | 'emailSend' | 'ruleId' | 'smsSend' | 'webhookSend'
-    > {}
+  export interface DeleteParmeters extends Pick<
+    AlarmRuleData,
+    'applicationId' | 'emailSend' | 'ruleId' | 'smsSend' | 'webhookSend'
+  > {}
 
   export interface MutaionResponse {
     result: string;

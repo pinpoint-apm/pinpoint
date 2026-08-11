@@ -215,11 +215,14 @@ export class Guide extends Layer {
     const xText = `${xAxis.tick?.format!((x - padding.left - xAxis.innerPadding) / ratio.x + xAxis.min)}`;
     const xTextLines = `${xText}`.split('\n');
     const yText = `${yAxis.tick?.format!(
-      Math.floor(Math.abs((height - padding.bottom - yAxis.innerPadding - y) / ratio.y + yAxis.min)),
+      Math.floor(
+        Math.abs((height - padding.bottom - yAxis.innerPadding - y) / ratio.y + yAxis.min),
+      ),
     )}`;
 
     // x1
-    const xTextWidth = this.getTextWidth(xText) + xAxis.tick!.padding!.left! + xAxis.tick!.padding!.right!;
+    const xTextWidth =
+      this.getTextWidth(xText) + xAxis.tick!.padding!.left! + xAxis.tick!.padding!.right!;
     const xTextHeight = this.getTextHeight(xText);
     // y
     const yTextWidth = this.getTextWidth(yText);
@@ -238,7 +241,9 @@ export class Guide extends Layer {
       xTextHeight + xAxis.tick!.padding!.top! + xAxis.tick!.padding!.bottom!,
       { color: backgroundColor },
     );
-    drawLine(context, padding.left - xAxis.tick!.width!, y, padding.left, y, { color: strokeColor });
+    drawLine(context, padding.left - xAxis.tick!.width!, y, padding.left, y, {
+      color: strokeColor,
+    });
 
     xTextLines.reverse().forEach((xLine, i) => {
       drawText(
@@ -256,16 +261,29 @@ export class Guide extends Layer {
     });
 
     // y
-    drawRect(context, padding.left - yAxis.tick!.width! - yRectWidth, y - yRectHeight / 2, yRectWidth, yRectHeight, {
-      color: backgroundColor,
-    });
+    drawRect(
+      context,
+      padding.left - yAxis.tick!.width! - yRectWidth,
+      y - yRectHeight / 2,
+      yRectWidth,
+      yRectHeight,
+      {
+        color: backgroundColor,
+      },
+    );
     drawLine(context, x, height - padding.bottom, x, height - padding.bottom + yAxis.tick!.width!, {
       color: strokeColor,
     });
-    drawText(context, yText, padding.left - yAxis.tick!.width! - yAxis.tick!.padding!.right!, y + yTextHeight / 4, {
-      color,
-      textAlign: 'end',
-    });
+    drawText(
+      context,
+      yText,
+      padding.left - yAxis.tick!.width! - yAxis.tick!.padding!.right!,
+      y + yTextHeight / 4,
+      {
+        color,
+        textAlign: 'end',
+      },
+    );
   }
 
   private isCanvasEmpty() {
@@ -301,7 +319,10 @@ export class Guide extends Layer {
     return this;
   }
 
-  public on<T extends GuideEventTypes>(eventType: GuideEventTypes, callback: GuideEventCallback<T>) {
+  public on<T extends GuideEventTypes>(
+    eventType: GuideEventTypes,
+    callback: GuideEventCallback<T>,
+  ) {
     this.eventHandlers[eventType] = callback;
   }
 

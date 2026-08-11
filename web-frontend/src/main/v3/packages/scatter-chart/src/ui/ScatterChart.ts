@@ -22,7 +22,13 @@ import { Viewport, ViewportEventCallback, ViewportEventTypes } from './Viewport'
 import { drawArea, drawCircle, drawRect } from '../utils/draw';
 import { YAxis } from './YAxis';
 import { XAxis } from './XAxis';
-import { COLORS, CONTAINER_HEIGHT, CONTAINER_PADDING, CONTAINER_WIDTH, LAYER_DEFAULT_PRIORITY } from '../constants/ui';
+import {
+  COLORS,
+  CONTAINER_HEIGHT,
+  CONTAINER_PADDING,
+  CONTAINER_WIDTH,
+  LAYER_DEFAULT_PRIORITY,
+} from '../constants/ui';
 import { GridAxis } from './GridAxis';
 import { Legend, LegendEventCallback, LegendEventTypes } from './Legend';
 import { Guide, GuideEventCallback, GuideEventTypes } from './Guide';
@@ -62,7 +68,10 @@ interface ScatterChartSettedOption {
   render: RenderOption;
 }
 
-export type ScatterChartEventsTypes = Exclude<GuideEventTypes | LegendEventTypes | ViewportEventTypes, 'change'>;
+export type ScatterChartEventsTypes = Exclude<
+  GuideEventTypes | LegendEventTypes | ViewportEventTypes,
+  'change'
+>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EventData<T> = T extends (...args: any[]) => void ? Parameters<T>[1] : never;
 export type EventCallback<T> = T extends 'clickLegend'
@@ -322,7 +331,9 @@ export class ScatterChart {
     const count =
       this.datas[type]?.reduce((acc, curr) => {
         const isInRangeX = curr.x >= minCoord.x && curr.x <= maxCoord.x;
-        const isInRangeY = drawOutOfRange ? curr.y >= minCoord.y : curr.y >= minCoord.y && curr.y <= maxCoord.y;
+        const isInRangeY = drawOutOfRange
+          ? curr.y >= minCoord.y
+          : curr.y >= minCoord.y && curr.y <= maxCoord.y;
         if (isInRangeX && isInRangeY) {
           return ++acc;
         }
@@ -345,7 +356,10 @@ export class ScatterChart {
     const dt = now - this.t0;
     const innerPadding = this.xAxis.innerPadding;
     const pureWidth =
-      this.viewport.styleWidth - this.options.padding.left - this.options.padding.right - innerPadding * 2;
+      this.viewport.styleWidth -
+      this.options.padding.left -
+      this.options.padding.right -
+      innerPadding * 2;
     const pixcelPerFrame = (pureWidth / duration) * dt;
     this.t0 = now;
     this.coordX = this.coordX - pixcelPerFrame;
@@ -375,9 +389,11 @@ export class ScatterChart {
 
     if (this.coordX + innerPadding < -pureWidth) {
       const nextAxisMinX =
-        this.realtimeAxisMinX + (this.realtimeAxisMaxX - this.realtimeAxisMinX) / ScatterChart.REALTIME_MULTIPLE;
+        this.realtimeAxisMinX +
+        (this.realtimeAxisMaxX - this.realtimeAxisMinX) / ScatterChart.REALTIME_MULTIPLE;
       const nextAxisMaxX =
-        this.realtimeAxisMaxX + (this.realtimeAxisMaxX - this.realtimeAxisMinX) / ScatterChart.REALTIME_MULTIPLE;
+        this.realtimeAxisMaxX +
+        (this.realtimeAxisMaxX - this.realtimeAxisMinX) / ScatterChart.REALTIME_MULTIPLE;
       this.realtimeAxisMinX = nextAxisMinX;
       this.realtimeAxisMaxX = nextAxisMaxX;
 
@@ -449,7 +465,9 @@ export class ScatterChart {
       }
 
       const isInRangeX = x >= this.xAxis.min && x <= this.xAxis.max;
-      const isInRangeY = renderOption.drawOutOfRange ? y >= this.yAxis.min : y >= this.yAxis.min && y <= this.yAxis.max;
+      const isInRangeY = renderOption.drawOutOfRange
+        ? y >= this.yAxis.min
+        : y >= this.yAxis.min && y <= this.yAxis.max;
 
       if (isInRangeX && isInRangeY) {
         // 정적/로딩 렌더(비실시간): 범위 내 dot을 범례별로 증분 카운트 (hidden 무관 — 기존 setLegendCount와 동일)
@@ -457,11 +475,18 @@ export class ScatterChart {
           this.legendCounts[legend] = (this.legendCounts[legend] || 0) + 1;
         }
 
-        const xCoordinate = this.xRatio * (x - this.xAxis.min) + padding.left + this.xAxis.innerPadding;
+        const xCoordinate =
+          this.xRatio * (x - this.xAxis.min) + padding.left + this.xAxis.innerPadding;
         const yCoordinate =
           renderOption.drawOutOfRange && y > this.yAxis.max
-            ? styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (this.yAxis.max - this.yAxis.min)
-            : styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (y - this.yAxis.min);
+            ? styleHeight -
+              padding.bottom -
+              this.yAxis.innerPadding -
+              this.yRatio * (this.yAxis.max - this.yAxis.min)
+            : styleHeight -
+              padding.bottom -
+              this.yAxis.innerPadding -
+              this.yRatio * (y - this.yAxis.min);
 
         if (!hidden) {
           if (dataStyle.shape === 'point') {
@@ -474,9 +499,14 @@ export class ScatterChart {
             if (dataLength > 1) {
               const startData = this.datas[legend][dataLength - 2];
               const xCoordinateStart =
-                this.xRatio * (startData.x - this.xAxis.min) + padding.left + this.xAxis.innerPadding;
+                this.xRatio * (startData.x - this.xAxis.min) +
+                padding.left +
+                this.xAxis.innerPadding;
               const yCoordinateStart =
-                styleHeight - padding.bottom - this.yAxis.innerPadding - this.yRatio * (startData.y - this.yAxis.min);
+                styleHeight -
+                padding.bottom -
+                this.yAxis.innerPadding -
+                this.yRatio * (startData.y - this.yAxis.min);
               const ctx = this.dataLayers[legend].context;
 
               drawArea(
@@ -614,7 +644,8 @@ export class ScatterChart {
       (this.options.padding.left + this.options.padding.right + this.xAxis.innerPadding * 2) *
         (ScatterChart.REALTIME_MULTIPLE - 1);
     this.realtimeAxisMinX = xAxisOption.min;
-    this.realtimeAxisMaxX = (xAxisOption.max - xAxisOption.min) * ScatterChart.REALTIME_MULTIPLE + xAxisOption.min;
+    this.realtimeAxisMaxX =
+      (xAxisOption.max - xAxisOption.min) * ScatterChart.REALTIME_MULTIPLE + xAxisOption.min;
     this.coordX = -this.xAxis.innerPadding;
 
     this.xAxis
@@ -623,7 +654,9 @@ export class ScatterChart {
         min: this.realtimeAxisMinX,
         max: this.realtimeAxisMaxX,
         tick: {
-          count: xAxisOption.tick!.count! * ScatterChart.REALTIME_MULTIPLE - (ScatterChart.REALTIME_MULTIPLE - 1),
+          count:
+            xAxisOption.tick!.count! * ScatterChart.REALTIME_MULTIPLE -
+            (ScatterChart.REALTIME_MULTIPLE - 1),
         },
       })
       .render();
@@ -652,7 +685,9 @@ export class ScatterChart {
       .setOption(
         merge({}, xAxisOption, {
           tick: {
-            count: (xAxisOption.tick!.count! + (ScatterChart.REALTIME_MULTIPLE - 1)) / ScatterChart.REALTIME_MULTIPLE,
+            count:
+              (xAxisOption.tick!.count! + (ScatterChart.REALTIME_MULTIPLE - 1)) /
+              ScatterChart.REALTIME_MULTIPLE,
           },
         }),
       )

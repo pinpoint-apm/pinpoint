@@ -19,14 +19,7 @@ import { DataTable } from '../../DataTable/DataTable';
 import { RemovePopup } from '../../Popup';
 import { ServiceAddSheet } from '../../Service/ServiceAddSheet';
 import { useReactToastifyToast } from '../../Toast';
-import {
-  Button,
-  Input,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '../../ui';
+import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui';
 
 type ServiceRow = { name: string };
 
@@ -154,11 +147,7 @@ export const ServiceSettingTable = () => {
         return (
           <RemovePopup
             popupTrigger={
-              <Button
-                variant="ghost"
-                className="px-3"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <Button variant="ghost" className="px-3" onClick={(e) => e.stopPropagation()}>
                 <FaRegTrashCan />
               </Button>
             }

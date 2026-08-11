@@ -58,9 +58,7 @@ export const ServiceAddSheet = ({ open, onOpenChange }: ServiceAddSheetProps) =>
   const trimmed = name.trim();
   const isReserved = !!trimmed && isReservedServiceName(trimmed);
   const isDuplicate =
-    !!trimmed &&
-    !isReserved &&
-    !!services?.some((s) => s.toLowerCase() === trimmed.toLowerCase());
+    !!trimmed && !isReserved && !!services?.some((s) => s.toLowerCase() === trimmed.toLowerCase());
   const errorMessage = isReserved
     ? t('CONFIGURATION.SERVICE_SETTING.RESERVED_NAME', { name: trimmed })
     : isDuplicate
@@ -91,9 +89,7 @@ export const ServiceAddSheet = ({ open, onOpenChange }: ServiceAddSheetProps) =>
         <ScrollArea>
           <div className="flex flex-col gap-4 p-6">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="service-name">
-                {t('CONFIGURATION.SERVICE_SETTING.LABEL.NAME')}
-              </Label>
+              <Label htmlFor="service-name">{t('CONFIGURATION.SERVICE_SETTING.LABEL.NAME')}</Label>
               <Input
                 id="service-name"
                 placeholder={t('CONFIGURATION.SERVICE_SETTING.SERVICE_NAME_PLACEHOLDER')}

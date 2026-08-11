@@ -1,4 +1,4 @@
-import {Chart} from './common/Chart';
+import { Chart } from './common/Chart';
 
 export namespace ErrorAnalysisGroupedErrorList {
   export interface Parameters {

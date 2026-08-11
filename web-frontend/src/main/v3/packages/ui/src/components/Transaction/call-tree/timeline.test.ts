@@ -18,10 +18,9 @@ const row = (r: {
   hasException?: boolean;
   exceptionChainId?: string;
 }): Row => {
-  const beginOffsetNanos =
-    r.beginOffsetNanos === undefined ? (r.begin ?? 0) : r.beginOffsetNanos;
+  const beginOffsetNanos = r.beginOffsetNanos === undefined ? (r.begin ?? 0) : r.beginOffsetNanos;
   const endOffsetNanos = r.endOffsetNanos === undefined ? (r.end ?? 0) : r.endOffsetNanos;
-  return ({
+  return {
     parentId: null,
     begin: 0,
     end: 0,
@@ -32,7 +31,7 @@ const row = (r: {
     excludeFromTimeline: false,
     isMethod: true,
     ...r,
-  }) as unknown as Row;
+  } as unknown as Row;
 };
 
 describe('isTimelineWorkRow', () => {
@@ -41,21 +40,13 @@ describe('isTimelineWorkRow', () => {
   });
 
   test('skips metadata and async invocation rows', () => {
-    expect(isTimelineWorkRow(row({ id: 1, begin: 0, end: 0, beginOffsetNanos: null }))).toBe(
-      false,
-    );
-    expect(isTimelineWorkRow(row({ id: 2, begin: 1000, end: 1100, isMethod: false }))).toBe(
-      false,
-    );
+    expect(isTimelineWorkRow(row({ id: 1, begin: 0, end: 0, beginOffsetNanos: null }))).toBe(false);
+    expect(isTimelineWorkRow(row({ id: 2, begin: 1000, end: 1100, isMethod: false }))).toBe(false);
     expect(
       isTimelineWorkRow(row({ id: 3, begin: 1000, end: 1100, excludeFromTimeline: true })),
     ).toBe(false);
-    expect(isTimelineWorkRow(row({ id: 4, begin: 1000, end: 1100, apiType: 'ASYNC' }))).toBe(
-      false,
-    );
-    expect(isTimelineWorkRow(row({ id: 5, begin: 1000, end: 1100, methodType: 200 }))).toBe(
-      false,
-    );
+    expect(isTimelineWorkRow(row({ id: 4, begin: 1000, end: 1100, apiType: 'ASYNC' }))).toBe(false);
+    expect(isTimelineWorkRow(row({ id: 5, begin: 1000, end: 1100, methodType: 200 }))).toBe(false);
   });
 });
 

@@ -37,7 +37,9 @@ export class YAxis extends Axis {
     const yTickGap = (max - min) / (count - 1);
     this.setStyle();
 
-    drawRect(this.context, 0, 0, padding.left, endY + innerPadding + tickWidth, { color: backgroundColor });
+    drawRect(this.context, 0, 0, padding.left, endY + innerPadding + tickWidth, {
+      color: backgroundColor,
+    });
     drawRect(this.context, width - padding.right, 0, width, endY + innerPadding + tickWidth, {
       color: backgroundColor,
     });
@@ -54,6 +56,8 @@ export class YAxis extends Axis {
       );
       drawLine(this.context, startX - tickWidth, y, startX, y, { color: tickStrokeColor });
     });
-    drawLine(this.context, startX, startY - innerPadding, startX, endY + innerPadding, { color: strokeColor });
+    drawLine(this.context, startX, startY - innerPadding, startX, endY + innerPadding, {
+      color: strokeColor,
+    });
   }
 }
