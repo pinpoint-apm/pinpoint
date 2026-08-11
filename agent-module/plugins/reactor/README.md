@@ -15,6 +15,11 @@ pinpoint.config
 profiler.reactor.enable=true
 # Set whether to trace the Subscriber.onError(Throwable t) method
 profiler.reactor.trace.subscribe.error=true
+# Trace one-shot scheduler task carriers.
+profiler.reactor.trace.scheduler.task=false
+# Periodic scheduler tasks are excluded from instrumentation by default. If enabled, every
+# execution is recorded as a new transaction and never continues the trace that scheduled it.
+profiler.reactor.trace.scheduler.task.periodic=false
 ~~~
 
 ### Trace

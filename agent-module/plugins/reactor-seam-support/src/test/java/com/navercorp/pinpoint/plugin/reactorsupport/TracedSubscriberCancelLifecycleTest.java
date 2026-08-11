@@ -25,6 +25,15 @@ import org.reactivestreams.Subscription;
 import reactor.core.CoreSubscriber;
 import reactor.util.context.Context;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -148,6 +157,47 @@ public class TracedSubscriberCancelLifecycleTest {
     }
 
     @Test
+    public void concurrentCancel_waitsForDeliveryWindowToReleaseHeldTrace() throws Exception {
+        CountDownLatch deliveryEntered = new CountDownLatch(1);
+        CountDownLatch releaseDelivery = new CountDownLatch(1);
+        AtomicReference<Throwable> deliveryFailure = new AtomicReference<>();
+        TracedSubscriber<Integer> traced = traced(new NoopSubscriber() {
+            @Override
+            public void onNext(Integer value) {
+                deliveryEntered.countDown();
+                try {
+                    releaseDelivery.await(5, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        traced.onSubscribe(subscription);
+
+        Thread delivery = new Thread(() -> {
+            try {
+                traced.onNext(1);
+            } catch (Throwable th) {
+                deliveryFailure.set(th);
+            }
+        }, "traced-subscriber-delivery");
+        delivery.start();
+
+        assertTrue(deliveryEntered.await(5, TimeUnit.SECONDS), "delivery window did not open");
+        traced.cancel();
+        // cancel loses IDLE->DONE while the delivery frame owns WINDOW. Closing here would let
+        // the downstream keep using a trace that another thread has already closed.
+        verify(held, never()).close();
+
+        releaseDelivery.countDown();
+        delivery.join(5000);
+        assertFalse(delivery.isAlive(), "delivery thread did not finish");
+        assertNull(deliveryFailure.get());
+        verify(held, times(1)).close();
+        verify(subscription).cancel();
+    }
+
+    @Test
     public void cancelStillCancelsUpstreamWhenHeldTraceCloseFails() {
         // fault injection: the held trace refuses to close. The agent-side cleanup failure must
         // never block the application's reactive cancellation.
@@ -164,6 +214,32 @@ public class TracedSubscriberCancelLifecycleTest {
         traced.cancel();
         verify(held, times(1)).close();
         verify(subscription, times(2)).cancel();
+    }
+
+    @Test
+    public void deliveryUnbindFailureStillClosesTerminalTraceExactlyOnce() {
+        doThrow(new RuntimeException("unbind failure")).when(asyncContext).close();
+        TracedSubscriber<Integer> traced = traced(new NoopSubscriber());
+
+        assertDoesNotThrow(() -> traced.onSubscribe(subscription));
+        assertDoesNotThrow(traced::onComplete);
+
+        verify(held, times(1)).close();
+        traced.cancel();
+        verify(held, times(1)).close();
+        verify(subscription).cancel();
+    }
+
+    @Test
+    public void controlUnbindFailureStillClosesFrameLocalTrace() {
+        doThrow(new RuntimeException("unbind failure")).when(asyncContext).close();
+        TracedSubscriber<Integer> traced = traced(new NoopSubscriber());
+        traced.subscription = subscription;
+
+        assertDoesNotThrow(() -> traced.request(1));
+
+        verify(subscription).request(1);
+        verify(held).close();
     }
 
     @Test

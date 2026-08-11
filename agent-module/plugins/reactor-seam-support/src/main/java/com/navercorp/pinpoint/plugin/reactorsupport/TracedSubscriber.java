@@ -267,10 +267,10 @@ public class TracedSubscriber<T> implements CoreSubscriber<T>, Fuseable.QueueSub
     }
 
     private void endControlWindow(final ControlWindow window) {
-        asyncContext.close();
+        unbindAsyncContext("control");
         if (window.created) {
             // frame-local trace: fully closed here, the held delivery trace is untouched.
-            window.trace.close();
+            closeTrace(window.trace, "control");
         }
     }
 
@@ -412,15 +412,9 @@ public class TracedSubscriber<T> implements CoreSubscriber<T>, Fuseable.QueueSub
             final Trace held = this.heldTrace;
             this.heldTrace = null;
             if (held != null) {
-                try {
-                    held.close();
-                } catch (Throwable th) {
-                    // cleanup failure must never leak into the caller: cancel() still has to
-                    // cancel the upstream subscription after this returns.
-                    if (logger.isWarnEnabled()) {
-                        logger.warn("Failed to close held trace. Caused:{}", th.getMessage(), th);
-                    }
-                }
+                // cleanup failure must never leak into the caller: cancel() still has to cancel
+                // the upstream subscription after this returns.
+                closeTrace(held, "held");
             }
         }
     }
@@ -464,14 +458,16 @@ public class TracedSubscriber<T> implements CoreSubscriber<T>, Fuseable.QueueSub
      * open for rebinding.
      */
     private void endWindow(final Trace trace, final boolean closeTrace) {
-        asyncContext.close();
+        // Unbind and lifecycle transitions are independent. If the agent-side unbind fails, the
+        // held slot must still reach IDLE/DONE and the owned trace must still get its close attempt.
+        unbindAsyncContext("delivery");
         if (closeTrace) {
             // drop the reference so a late (spec-violating) signal creates a fresh trace
             // instead of rebinding a closed one. cancel is fenced out (state is WINDOW), so
             // this close cannot race the cancel-side close.
             this.heldTrace = null;
             heldTraceState.set(DONE);
-            trace.close();
+            closeTrace(trace, "delivery");
         } else {
             // release, then recheck: a cancel that arrived during this window lost its CAS and
             // is waiting for us - without this the subscription could end (no further signals)
@@ -479,6 +475,26 @@ public class TracedSubscriber<T> implements CoreSubscriber<T>, Fuseable.QueueSub
             heldTraceState.set(IDLE);
             if (cancelled) {
                 closeHeldTraceIfIdle();
+            }
+        }
+    }
+
+    private void unbindAsyncContext(final String window) {
+        try {
+            asyncContext.close();
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to unbind {} trace window. Caused:{}", window, th.getMessage(), th);
+            }
+        }
+    }
+
+    private void closeTrace(final Trace trace, final String window) {
+        try {
+            trace.close();
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to close {} trace. Caused:{}", window, th.getMessage(), th);
             }
         }
     }
