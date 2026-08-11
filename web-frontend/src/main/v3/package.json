@@ -10,7 +10,7 @@
     "prepare": "cd ../../../.. && husky web-frontend/src/main/v3/.husky",
     "build": "yarn workspace @pinpoint-fe/web build",
     "dev": "yarn workspace @pinpoint-fe/web dev",
-    "lint": "yarn workspace @pinpoint-fe/web lint",
+    "lint": "yarn workspaces run lint",
     "test": "yarn workspaces run test",
     "test:e2e": "yarn workspace @pinpoint-fe/web test:e2e",
     "clean": "yarn workspace @pinpoint-fe/web clean && rm -rf node_modules"

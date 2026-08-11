@@ -9,7 +9,7 @@
   "main": "./src/index.ts",
   "scripts": {
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint": "yarn format && eslint ./src/**/*.ts",
+    "lint": "yarn format && eslint ./src",
     "test": "jest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
