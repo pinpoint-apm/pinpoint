@@ -39,12 +39,19 @@ export class XAxis extends Axis {
           this.context,
           `${line}`,
           x,
-          height - padding.bottom + tick!.width! + textHeight + tick!.padding!.top! - i * this.getTextHeight(line),
+          height -
+            padding.bottom +
+            tick!.width! +
+            textHeight +
+            tick!.padding!.top! -
+            i * this.getTextHeight(line),
           { textAlign: 'center', textBaseline: 'bottom', color },
         );
       });
       drawLine(this.context, x, endY, x, endY + tickWidth, { color: tickStrokeColor });
     });
-    drawLine(this.context, startX - innerPadding, endY, endX + innerPadding, endY, { color: strokeColor });
+    drawLine(this.context, startX - innerPadding, endY, endX + innerPadding, endY, {
+      color: strokeColor,
+    });
   }
 }

@@ -1,9 +1,9 @@
 import React from 'react';
-import {useSuspenseQuery} from '@tanstack/react-query';
-import {END_POINTS, ErrorAnalysisGroupedErrorList} from '@pinpoint-fe/ui/src/constants';
-import {convertParamsToQueryString, toBasicISOString} from '@pinpoint-fe/ui/src/utils';
-import {useErrorAnalysisSearchParameters} from '../searchParameters';
-import {queryFn} from './reactQueryHelper';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { END_POINTS, ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
+import { useErrorAnalysisSearchParameters } from '../searchParameters';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ErrorAnalysisGroupedErrorList.Parameters>) => {
   if (queryParams.applicationName && queryParams.from && queryParams.to && queryParams.groupBy) {

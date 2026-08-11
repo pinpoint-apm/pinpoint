@@ -47,10 +47,9 @@ describe('transactionDetailRouteLoader', () => {
 
   test('returns application object when transactionInfo param is present', () => {
     const result = transactionDetailRouteLoader(
-      makeArgs(
-        'http://localhost/transactionDetail/TestApp@SPRING_BOOT?transactionInfo=abc123',
-        { application: 'TestApp@SPRING_BOOT' },
-      ),
+      makeArgs('http://localhost/transactionDetail/TestApp@SPRING_BOOT?transactionInfo=abc123', {
+        application: 'TestApp@SPRING_BOOT',
+      }),
     );
     expect(result).toEqual({ applicationName: 'TestApp', serviceType: 'SPRING_BOOT' });
   });

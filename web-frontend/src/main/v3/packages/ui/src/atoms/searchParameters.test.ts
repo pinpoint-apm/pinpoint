@@ -133,4 +133,3 @@ describe('Test searchParameters atom', () => {
     });
   });
 });
-

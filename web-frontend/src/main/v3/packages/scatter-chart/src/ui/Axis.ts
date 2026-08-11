@@ -1,5 +1,10 @@
 import { AXIS_DEFAULT_FORMAT } from '../constants/options';
-import { AXIS_DEFAULT_TICK_COUNT, AXIS_INNER_PADDING, COLOR_STROKE, CONTAINER_PADDING } from '../constants/ui';
+import {
+  AXIS_DEFAULT_TICK_COUNT,
+  AXIS_INNER_PADDING,
+  COLOR_STROKE,
+  CONTAINER_PADDING,
+} from '../constants/ui';
 import { Padding, AxisOption, DeepNonNullable } from '../types/types';
 import { Layer, LayerProps } from './Layer';
 
@@ -21,7 +26,10 @@ export class Axis extends Layer {
     this.min = option?.min ?? 0;
     this.max = option?.max ?? 1;
     this.innerPadding = option?.padding ?? AXIS_INNER_PADDING;
-    this.tick = { ...{ count: AXIS_DEFAULT_TICK_COUNT, format: AXIS_DEFAULT_FORMAT }, ...option?.tick };
+    this.tick = {
+      ...{ count: AXIS_DEFAULT_TICK_COUNT, format: AXIS_DEFAULT_FORMAT },
+      ...option?.tick,
+    };
     this.padding = { ...CONTAINER_PADDING, ...padding };
     this.strokeColor = option?.strokeColor || COLOR_STROKE;
     if (option?.tick?.font) {

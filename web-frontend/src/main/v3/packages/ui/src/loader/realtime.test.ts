@@ -30,10 +30,9 @@ describe('realtimeLoader', () => {
 
   test('redirects to clean realtime URL when query params are present', () => {
     const result = realtimeLoader(
-      makeArgs(
-        'http://localhost/serverMap/realtime/TestApp@SPRING_BOOT?from=2023-11-10-15-00-00',
-        { application: 'TestApp@SPRING_BOOT' },
-      ),
+      makeArgs('http://localhost/serverMap/realtime/TestApp@SPRING_BOOT?from=2023-11-10-15-00-00', {
+        application: 'TestApp@SPRING_BOOT',
+      }),
     );
     expect(result).toEqual({
       __isRedirect: true,

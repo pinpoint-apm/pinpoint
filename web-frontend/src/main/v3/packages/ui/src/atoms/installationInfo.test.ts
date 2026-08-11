@@ -1,9 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useAtom } from 'jotai';
-import {
-  installationApplicationNameAtom,
-  installationAgentIdAtom,
-} from './installationInfo';
+import { installationApplicationNameAtom, installationAgentIdAtom } from './installationInfo';
 
 describe('Test installationInfo atoms', () => {
   describe('Test "installationApplicationNameAtom"', () => {
@@ -84,4 +81,3 @@ describe('Test installationInfo atoms', () => {
     });
   });
 });
-

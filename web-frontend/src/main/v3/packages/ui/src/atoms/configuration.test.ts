@@ -59,4 +59,3 @@ describe('Test configuration atom', () => {
     });
   });
 });
-

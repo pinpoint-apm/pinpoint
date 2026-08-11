@@ -14,7 +14,9 @@ type ViewportEventCallbackData = {
   height: number;
 };
 
-type ViewportEventData<T extends ViewportEventTypes> = T extends 'resize' ? ViewportEventCallbackData : never;
+type ViewportEventData<T extends ViewportEventTypes> = T extends 'resize'
+  ? ViewportEventCallbackData
+  : never;
 
 export interface ViewportEventCallback<T extends ViewportEventTypes> {
   (event: string, data: ViewportEventData<T>): void;
@@ -150,7 +152,10 @@ export class Viewport {
     this.view.context.clearRect(0, 0, this.view.canvas.width, this.view.canvas.height);
   }
 
-  public on<T extends ViewportEventTypes>(eventType: ViewportEventTypes, callback: ViewportEventCallback<T>) {
+  public on<T extends ViewportEventTypes>(
+    eventType: ViewportEventTypes,
+    callback: ViewportEventCallback<T>,
+  ) {
     this.eventHandlers[eventType] = callback;
   }
 

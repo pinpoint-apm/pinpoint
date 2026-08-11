@@ -186,4 +186,3 @@ describe('Test transaction atoms', () => {
     });
   });
 });
-

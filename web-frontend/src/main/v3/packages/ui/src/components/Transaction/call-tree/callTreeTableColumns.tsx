@@ -410,10 +410,7 @@ const calcColor = (data: TransactionInfo.CallStackKeyValueMap) => {
   return color;
 };
 
-const getDurationNanos = (
-  millis?: number | string | null,
-  nanos?: number | string | null,
-) => {
+const getDurationNanos = (millis?: number | string | null, nanos?: number | string | null) => {
   if (nanos !== undefined && nanos !== null && nanos !== '') {
     const nanosValue = Number(nanos);
     if (Number.isFinite(nanosValue)) {
@@ -423,10 +420,7 @@ const getDurationNanos = (
   return (Number(millis) || 0) * 1_000_000;
 };
 
-const formatDurationMillis = (
-  millis?: number | string | null,
-  nanos?: number | string | null,
-) => {
+const formatDurationMillis = (millis?: number | string | null, nanos?: number | string | null) => {
   if (nanos !== undefined && nanos !== null && nanos !== '') {
     const nanosValue = Number(nanos);
     if (Number.isFinite(nanosValue)) {
@@ -440,10 +434,7 @@ const formatDurationMillis = (
   return addCommas(millis);
 };
 
-const renderDurationMillis = (
-  millis?: number | string | null,
-  nanos?: number | string | null,
-) => {
+const renderDurationMillis = (millis?: number | string | null, nanos?: number | string | null) => {
   const value = String(formatDurationMillis(millis, nanos));
   const [integer, fraction] = value.split('.');
   if (!fraction) {

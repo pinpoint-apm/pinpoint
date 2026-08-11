@@ -53,7 +53,11 @@ const getSVGCircle = (style: SVGCircleParam) => {
 };
 
 const calcArc = (sum: number, value: number): number => {
-  return value === 0 ? 0 : value / sum < MIN_ARC_RATIO ? DIAMETER * MIN_ARC_RATIO : (value / sum) * DIAMETER;
+  return value === 0
+    ? 0
+    : value / sum < MIN_ARC_RATIO
+      ? DIAMETER * MIN_ARC_RATIO
+      : (value / sum) * DIAMETER;
 };
 
 // Apdex 등급별 색상 매핑
@@ -132,7 +136,10 @@ const getTimeSeriesApdexStatusSVGCircle = (timeSeriesApdexInfo: TimeSeriesApdexI
   return svgString;
 };
 
-const getTransactionStatusSVGCircle = (transactionInfo: TransactionInfo, isMerged: boolean): string => {
+const getTransactionStatusSVGCircle = (
+  transactionInfo: TransactionInfo,
+  isMerged: boolean,
+): string => {
   const { transactionStatus } = defaultTheme;
 
   if (isMerged || !transactionInfo) {

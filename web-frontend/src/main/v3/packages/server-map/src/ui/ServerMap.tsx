@@ -18,7 +18,10 @@ type ClickEventHandler<T> = (param: {
   isLeftNode?: boolean;
 }) => void;
 
-export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'className' | 'style'> {
+export interface ServerMapProps extends Pick<
+  React.HTMLProps<HTMLDivElement>,
+  'className' | 'style'
+> {
   data: {
     nodes: Node[];
     edges: Edge[];
@@ -33,7 +36,11 @@ export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'c
   onDataMerged?: (mergeInfo: MergeInfo) => void;
   renderNodeLabel?: (node: MergedNode) => string | undefined;
   renderEdgeLabel?: (edge: MergedEdge) => string | undefined;
-  renderNode?: (node: MergedNode, transactionStatusSVGString: string, isSelected?: boolean) => string;
+  renderNode?: (
+    node: MergedNode,
+    transactionStatusSVGString: string,
+    isSelected?: boolean,
+  ) => string;
   cy?: (cy: cytoscape.Core) => void;
 }
 
@@ -142,7 +149,9 @@ export const ServerMap = ({
               node.connectedEdges().remove();
             } else if (shouldAdd) {
               const { data } = newNodes.find(({ data }) => data.id === key)!;
-              const connectedEdges = newEdges.filter(({ data }) => data.source === key || data.target === key);
+              const connectedEdges = newEdges.filter(
+                ({ data }) => data.source === key || data.target === key,
+              );
 
               addedNodes = addedNodes ? [...addedNodes, cy.add({ data })] : [cy.add({ data })]; // add node
               connectedEdges.forEach(({ data }) => {
@@ -188,7 +197,8 @@ export const ServerMap = ({
                   .toArray()
                   .findIndex((ele: any) => ele.id() === baseNodeId) + 1;
               const newX =
-                centerNodeX + rankDiff * (GraphStyle.RANK_SEP + GraphStyle.NODE_WIDTH) * (hasIncomers ? 1 : -1);
+                centerNodeX +
+                rankDiff * (GraphStyle.RANK_SEP + GraphStyle.NODE_WIDTH) * (hasIncomers ? 1 : -1);
 
               const { y } = addedNode.position();
               const { h, y1 } = addedNode.boundingBox();
@@ -208,7 +218,9 @@ export const ServerMap = ({
               if (Math.random() >= 0.5) {
                 // Add at the top
                 const topY = Math.min(
-                  ...overlayableNodes.map((node: any) => node.position().y - GraphStyle.NODE_RADIUS),
+                  ...overlayableNodes.map(
+                    (node: any) => node.position().y - GraphStyle.NODE_RADIUS,
+                  ),
                   centerNodeY - GraphStyle.NODE_RADIUS,
                 );
                 const newY2 = topY - GraphStyle.NODE_RADIUS;
@@ -216,7 +228,10 @@ export const ServerMap = ({
                 newY1 = newY2 - h;
               } else {
                 // Add at the bottom
-                const bottomY = Math.max(...overlayableNodes.map((node: any) => node.boundingBox().y2), centerNodeY2);
+                const bottomY = Math.max(
+                  ...overlayableNodes.map((node: any) => node.boundingBox().y2),
+                  centerNodeY2,
+                );
 
                 newY1 = bottomY + GraphStyle.NODE_RADIUS;
               }

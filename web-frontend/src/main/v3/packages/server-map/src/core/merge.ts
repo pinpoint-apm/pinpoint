@@ -4,7 +4,10 @@ import { getNodeSVGString } from '../ui/template/node';
 import { ServerMapProps } from '../ui';
 type GroupBySource = { [key: string]: string[] };
 
-export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode?: ServerMapProps['renderNode']) => {
+export const getMergedData = (
+  data: { nodes: Node[]; edges: Edge[] },
+  renderNode?: ServerMapProps['renderNode'],
+) => {
   const { edges, nodes } = data;
   const mergedTypes = new Set<string>();
   const targetNodeIds = edges.map((edge) => edge.target);
@@ -45,32 +48,38 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
   );
 
   // { source1: [t4, t5], source2: [t1, t2], source: [t3]}
-  const groupBySourceOnSingle = groupByTargetCount.single.reduce<{ [key: string]: string[] }>((prev, curr) => {
-    const { source } = edges.find((edge) => edge.target === curr)!;
+  const groupBySourceOnSingle = groupByTargetCount.single.reduce<{ [key: string]: string[] }>(
+    (prev, curr) => {
+      const { source } = edges.find((edge) => edge.target === curr)!;
 
-    if (prev[source]) {
-      prev[source].push(curr);
-    } else {
-      prev[source] = [curr];
-    }
-    return prev;
-  }, {});
+      if (prev[source]) {
+        prev[source].push(curr);
+      } else {
+        prev[source] = [curr];
+      }
+      return prev;
+    },
+    {},
+  );
 
   // { source1: [t4, t5], source2: [t1, t2], source: [t3]}
-  const groupBySourceOnMulti = groupByTargetCount.multi.reduce<{ [key: string]: string[] }>((prev, curr) => {
-    const sourcesKey = edges
-      .filter((edge) => edge.target === curr)
-      .map((edge) => edge.source)
-      .sort()
-      .toString();
+  const groupBySourceOnMulti = groupByTargetCount.multi.reduce<{ [key: string]: string[] }>(
+    (prev, curr) => {
+      const sourcesKey = edges
+        .filter((edge) => edge.target === curr)
+        .map((edge) => edge.source)
+        .sort()
+        .toString();
 
-    if (prev[sourcesKey]) {
-      prev[sourcesKey].push(curr);
-    } else {
-      prev[sourcesKey] = [curr];
-    }
-    return prev;
-  }, {});
+      if (prev[sourcesKey]) {
+        prev[sourcesKey].push(curr);
+      } else {
+        prev[sourcesKey] = [curr];
+      }
+      return prev;
+    },
+    {},
+  );
 
   // { source1: { type1: [t4, t5] }, source2: { type:2 [t1]} ...}
   const getGroupByType = (groupBySource: GroupBySource) =>
@@ -115,7 +124,10 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
           const id = `${source}_MergeSingleNodesByServerMap^${type}`;
           const imgPath = mergedNodes.find((node) => node.id === targetIds[0])?.imgPath;
 
-          const [notToMergeNodes, toMergeNodes] = partition(mergedNodes, (node) => !targetIds.includes(node.id));
+          const [notToMergeNodes, toMergeNodes] = partition(
+            mergedNodes,
+            (node) => !targetIds.includes(node.id),
+          );
 
           mergedNodes = [
             ...notToMergeNodes,
@@ -128,7 +140,10 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
             },
           ];
 
-          const [notToMergeEdge, toMergeEdge] = partition(mergedEdges, (edge) => !targetIds.includes(edge.target));
+          const [notToMergeEdge, toMergeEdge] = partition(
+            mergedEdges,
+            (edge) => !targetIds.includes(edge.target),
+          );
           mergedEdges = [
             ...notToMergeEdge,
             {
@@ -162,7 +177,10 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
 
           const id = `${source}_MergeMultiNodesByServerMap^${type}`;
           const imgPath = mergedNodes.find((node) => node.id === targetIds[0])?.imgPath;
-          const [notToMergeNodes, toMergeNodes] = partition(mergedNodes, (node) => !targetIds.includes(node.id));
+          const [notToMergeNodes, toMergeNodes] = partition(
+            mergedNodes,
+            (node) => !targetIds.includes(node.id),
+          );
           mergedNodes = [
             ...notToMergeNodes,
             {

@@ -162,7 +162,9 @@ describe('getServerMapStyle', () => {
     });
 
     const nodeStyle = styles.find((s) => s.selector === 'node');
-    const bgImageFunction = nodeStyle?.style?.['background-image'] as (el: cytoscape.NodeCollection) => string[];
+    const bgImageFunction = nodeStyle?.style?.['background-image'] as (
+      el: cytoscape.NodeCollection,
+    ) => string[];
 
     if (bgImageFunction && cy.nodes().length > 0) {
       const mockNode = cy.nodes().first();

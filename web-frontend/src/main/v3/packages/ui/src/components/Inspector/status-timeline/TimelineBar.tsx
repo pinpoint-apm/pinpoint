@@ -5,8 +5,10 @@ import { colors } from '@pinpoint-fe/ui/src/constants';
 import { InteractiveTimelineBar, InteractiveTimelineBarProps } from './InteractiveTimelineBar';
 import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
-export interface TimelineBarProps
-  extends Pick<InteractiveTimelineBarProps, 'activeRange' | 'formatTooltip'> {
+export interface TimelineBarProps extends Pick<
+  InteractiveTimelineBarProps,
+  'activeRange' | 'formatTooltip'
+> {
   totalRange: [number, number];
   className?: string;
   background?: string;

@@ -13,8 +13,10 @@ import { withPortalPanelContainer } from './hoc/withPortalPanelContainer';
 import AppContext from './context/appContext';
 import { formatInTimeZone } from 'date-fns-tz';
 
-export interface RichDatetimePickerProps
-  extends Omit<DatePanelProps, 'locale' | 'open' | 'className' | 'onChangeDatePicker'> {
+export interface RichDatetimePickerProps extends Omit<
+  DatePanelProps,
+  'locale' | 'open' | 'className' | 'onChangeDatePicker'
+> {
   disable?: boolean;
   startDate?: Date | null;
   endDate?: Date | null;

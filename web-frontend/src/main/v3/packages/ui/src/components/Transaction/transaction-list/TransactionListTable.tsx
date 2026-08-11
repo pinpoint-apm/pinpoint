@@ -11,8 +11,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
 
-export interface TransactionListTableProps
-  extends Pick<VirtualizedDataTableProps<Transaction, unknown>, 'onClickRow'> {
+export interface TransactionListTableProps extends Pick<
+  VirtualizedDataTableProps<Transaction, unknown>,
+  'onClickRow'
+> {
   data?: Transaction[];
 }
 

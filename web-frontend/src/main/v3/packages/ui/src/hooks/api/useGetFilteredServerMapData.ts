@@ -1,10 +1,10 @@
 import React from 'react';
-import {useUpdateEffect} from 'usehooks-ts';
-import {END_POINTS, FilteredMapType as FilteredMap} from '@pinpoint-fe/ui/src/constants';
-import {convertParamsToQueryString, toBasicISOStringMs} from '@pinpoint-fe/ui/src/utils';
-import {useFilteredMapParameters} from '../searchParameters';
-import {keepPreviousData, useQuery} from '@tanstack/react-query';
-import {queryFn} from './reactQueryHelper';
+import { useUpdateEffect } from 'usehooks-ts';
+import { END_POINTS, FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString, toBasicISOStringMs } from '@pinpoint-fe/ui/src/utils';
+import { useFilteredMapParameters } from '../searchParameters';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<FilteredMap.Parameters>) => {
   if (

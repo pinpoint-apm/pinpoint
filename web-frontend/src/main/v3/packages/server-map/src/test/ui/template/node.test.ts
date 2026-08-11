@@ -235,4 +235,3 @@ describe('getTransactionStatusSVGCircle', () => {
     expect(decoded).toContain('circle');
   });
 });
-

@@ -63,4 +63,3 @@ describe('Test toast atom', () => {
     });
   });
 });
-

@@ -53,7 +53,9 @@ export const getServerMapStyle = ({
         // 서비스 그룹 노드는 두 원을 SVG로 직접 그리므로 cytoscape 테두리는 숨긴다(굵기 0).
         'border-width': ((el: cytoscape.NodeCollection) => {
           const nodeData = cy.data(el.data()?.id)?.data;
-          return nodeData?.subNodesCount !== undefined ? 0 : (theme.node?.default?.['border-width'] ?? 3);
+          return nodeData?.subNodesCount !== undefined
+            ? 0
+            : (theme.node?.default?.['border-width'] ?? 3);
         }) as unknown as cytoscape.Css.PropertyValueNode<number>,
       },
     },

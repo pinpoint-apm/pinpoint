@@ -1,7 +1,10 @@
 import data1 from '../mock/data1.json';
 import { newScatterChart } from './createDefault';
 
-const getMinMaxSettingElements = (title: string, defaultMinMax = { defaultMin: 0, defaultMax: 10000 }) => {
+const getMinMaxSettingElements = (
+  title: string,
+  defaultMinMax = { defaultMin: 0, defaultMax: 10000 },
+) => {
   const wrapper = document.createElement('div');
   const titleElement = document.createElement('span');
   const minInputElement = document.createElement('input');

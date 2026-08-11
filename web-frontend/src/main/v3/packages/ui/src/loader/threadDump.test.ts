@@ -21,7 +21,9 @@ describe('threadDumpRouteLoader', () => {
   });
 
   test('redirects to serverMap when no application is provided', () => {
-    const result = threadDumpRouteLoader(makeArgs('http://localhost/threadDump', { application: '' }));
+    const result = threadDumpRouteLoader(
+      makeArgs('http://localhost/threadDump', { application: '' }),
+    );
     expect(result).toEqual({ __isRedirect: true, url: APP_PATH.SERVER_MAP });
   });
 

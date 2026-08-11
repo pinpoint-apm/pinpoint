@@ -43,8 +43,10 @@ export type DateState = {
 
 export type DatetimePickerChangeHandler = (dateState: DateState) => void;
 
-export interface DatetimePickerProps
-  extends Omit<RichDatetimePickerProps, 'onChange' | 'timeUnits'> {
+export interface DatetimePickerProps extends Omit<
+  RichDatetimePickerProps,
+  'onChange' | 'timeUnits'
+> {
   className?: string;
   from?: Date | string;
   to?: Date | string;

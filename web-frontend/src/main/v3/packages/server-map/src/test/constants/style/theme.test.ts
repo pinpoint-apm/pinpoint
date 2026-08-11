@@ -63,4 +63,3 @@ describe('defaultTheme', () => {
     expect(defaultTheme.edge.default['target-arrow-color']).toBe('#C0C3C8');
   });
 });
-

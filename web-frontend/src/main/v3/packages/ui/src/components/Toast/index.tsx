@@ -74,7 +74,11 @@ function useReactToastifyToast() {
         ...options,
         // Radix modal(Sheet/Dialog) 오픈 시 body의 pointer-events:none 때문에 토스트가
         // hover/클릭 불가가 되는 것을 막기 위해 토스트 자체는 항상 클릭 가능하게 둔다.
-        className: cn('pointer-events-auto', defaultToastContainerProps.className, options?.className),
+        className: cn(
+          'pointer-events-auto',
+          defaultToastContainerProps.className,
+          options?.className,
+        ),
         onOpen: (data) => {
           setToastCount((prev) => prev + 1);
           options?.onOpen?.(data);

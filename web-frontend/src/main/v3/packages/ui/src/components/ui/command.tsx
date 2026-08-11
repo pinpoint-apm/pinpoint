@@ -90,9 +90,7 @@ const CommandEmpty = ({
   ...props
 }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty> & {
   ref?: React.Ref<React.ElementRef<typeof CommandPrimitive.Empty>>;
-}) => (
-  <CommandPrimitive.Empty ref={ref} className="py-6 text-sm text-center" {...props} />
-);
+}) => <CommandPrimitive.Empty ref={ref} className="py-6 text-sm text-center" {...props} />;
 
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
 
