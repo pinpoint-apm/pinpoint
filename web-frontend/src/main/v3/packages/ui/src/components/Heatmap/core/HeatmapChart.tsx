@@ -424,7 +424,7 @@ const HeatmapChart = ({
 
     function getDragRect() {
       if (!startCell || !endCell) {
-        return [];
+        return undefined;
       }
 
       const startX = startCell.event?.target?.shape?.x;
@@ -469,13 +469,20 @@ const HeatmapChart = ({
       }
     }
 
+    const dragRect = getDragRect();
+
+    // 선택 영역이 없을 때는 엘리먼트를 지우지 않고 숨긴다.
+    // $action: 'remove'로 지우면, 이미 지워진 상태에서 다시 remove가 나갈 때
+    // echarts가 없는 엘리먼트를 참조해 에러가 난다(예: visualMap을 조작하면
+    // 셀 선택 없이 mouseup만 발생해 remove가 반복된다).
     chartInstanceRef.current.setOption({
       graphic: [
         {
           type: 'rect',
           id: 'drag-rect',
           z: 10,
-          shape: getDragRect(),
+          ignore: !dragRect,
+          shape: dragRect || { x: 0, y: 0, width: 0, height: 0 },
           style: {
             fill: 'rgba(225,225,225,0.4)',
             stroke: '#469ae4',
@@ -566,23 +573,11 @@ const HeatmapChart = ({
       }}
       onMouseUp={() => {
         setIsMouseDown(false);
+        // 선택 영역 표시는 startCell/endCell에서 파생되므로, 비우면 dragRect가 숨겨진다.
         setStartCell(undefined);
         setEndCell(undefined);
 
         handleDragEnd();
-
-        try {
-          chartInstanceRef.current?.setOption({
-            graphic: [
-              {
-                id: 'drag-rect',
-                $action: 'remove',
-              },
-            ],
-          });
-        } catch (err) {
-          console.error('Error onMouseUp', err);
-        }
       }}
     >
       <div ref={chartRef} style={{ width: '100%', height: '100%' }} />
