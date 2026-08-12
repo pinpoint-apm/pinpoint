@@ -13,21 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.batch.alarm.sender;
+package com.navercorp.pinpoint.common.server.webhook;
 
-import com.navercorp.pinpoint.web.webhook.support.WebhookUrlValidator;
 import org.apache.hc.client5.http.DnsResolver;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
 
+/**
+ * Rejects a webhook host whose resolved addresses are not permitted, which is the point where SSRF
+ * is actually enforced: the check runs against the addresses the connection will use, so a host
+ * that passed validation at registration cannot be re-pointed at an internal address later
+ * (DNS rebinding).
+ * <p>
+ * The webhook HTTP client must also disable redirect handling, otherwise a permitted host can hand
+ * out a 30x pointing at an internal address.
+ */
 public class WebhookDnsResolver implements DnsResolver {
 
     private final DnsResolver delegate;
+    private final WebhookHostPolicy hostPolicy;
 
     public WebhookDnsResolver(DnsResolver delegate) {
+        this(delegate, WebhookHostPolicy.denyAll());
+    }
+
+    public WebhookDnsResolver(DnsResolver delegate, WebhookHostPolicy hostPolicy) {
         this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.hostPolicy = Objects.requireNonNull(hostPolicy, "hostPolicy");
     }
 
     @Override
@@ -48,9 +62,9 @@ public class WebhookDnsResolver implements DnsResolver {
         return delegate.resolveCanonicalHostname(host);
     }
 
-    private static void validate(String host, InetAddress address) throws UnknownHostException {
+    private void validate(String host, InetAddress address) throws UnknownHostException {
         try {
-            WebhookUrlValidator.validateResolvedAddress(address);
+            WebhookUrlValidator.validateResolvedAddress(host, address, hostPolicy);
         } catch (IllegalArgumentException e) {
             UnknownHostException exception = new UnknownHostException(
                     "Webhook host resolves to a non-public address. host=" + host + ", address=" + address.getHostAddress()

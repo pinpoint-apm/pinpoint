@@ -47,6 +47,21 @@
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
         </dependency>
+        <!--
+          Only the webhook URL policy is used from here. Its transitive dependencies are excluded to
+          keep this module lean, the same way pinpoint-webhook is pulled in below, so ipaddress is
+          declared explicitly because WebhookUrlValidator needs it at runtime.
+        -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-server</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>com.github.seancfoley</groupId>
             <artifactId>ipaddress</artifactId>

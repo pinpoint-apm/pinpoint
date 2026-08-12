@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.PinotAlarmWebhookPay
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.WebhookPayload;
 import com.navercorp.pinpoint.web.webhook.model.Webhook;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
-import com.navercorp.pinpoint.web.webhook.support.WebhookUrlValidator;
+import com.navercorp.pinpoint.common.server.webhook.WebhookUrlValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;

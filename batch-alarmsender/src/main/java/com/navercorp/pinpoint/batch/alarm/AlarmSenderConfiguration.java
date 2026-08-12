@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.sender.MailSender;
 import com.navercorp.pinpoint.batch.alarm.sender.SpringSmtpMailSender;
-import com.navercorp.pinpoint.batch.alarm.sender.WebhookDnsResolver;
 import com.navercorp.pinpoint.batch.alarm.sender.WebhookPayloadFactory;
 import com.navercorp.pinpoint.batch.alarm.sender.WebhookSender;
 import com.navercorp.pinpoint.batch.alarm.sender.WebhookSenderEmptyImpl;
@@ -10,6 +9,8 @@ import com.navercorp.pinpoint.batch.alarm.sender.WebhookSenderImpl;
 import com.navercorp.pinpoint.user.service.UserGroupService;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
+import com.navercorp.pinpoint.common.server.webhook.WebhookDnsResolver;
+import com.navercorp.pinpoint.common.server.webhook.WebhookHostPolicy;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -17,7 +18,10 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +31,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,6 +44,8 @@ import java.util.concurrent.TimeUnit;
         MailSenderAutoConfiguration.class
 })
 public class AlarmSenderConfiguration {
+
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int CONNECT_TIMEOUT_MILLIS = 3000;
     private static final int READ_TIMEOUT_MILLIS = 6000;
@@ -64,9 +71,26 @@ public class AlarmSenderConfiguration {
         return new WebhookSenderImpl(webhookPayloadFactory, webhookRestTemplate, webhookService);
     }
 
+    /**
+     * Host names allowed to resolve into private ranges. Empty by default, which blocks every
+     * private range; deployments whose webhook targets live on an internal network list them here.
+     */
+    @Bean
+    @ConditionalOnProperty(name = WebhookModule.NAME, havingValue = "true", matchIfMissing = true)
+    public WebhookHostPolicy webhookHostPolicy(
+            @Value("${pinpoint.webhook.allowed-private-hosts:}") List<String> allowedHosts,
+            @Value("${pinpoint.webhook.allowed-private-host-suffixes:}") List<String> allowedHostSuffixes) {
+        WebhookHostPolicy hostPolicy = new WebhookHostPolicy(allowedHosts, allowedHostSuffixes);
+        // the entries name internal hosts, so only the counts go out at INFO
+        logger.info("Install WebhookHostPolicy. allowedHosts={}, allowedHostSuffixes={}",
+                hostPolicy.allowedHostCount(), hostPolicy.allowedHostSuffixCount());
+        logger.debug("Install {}", hostPolicy);
+        return hostPolicy;
+    }
+
     @Bean(destroyMethod = "close")
     @ConditionalOnProperty(name = WebhookModule.NAME, havingValue = "true", matchIfMissing = true)
-    public CloseableHttpClient webhookHttpClient() {
+    public CloseableHttpClient webhookHttpClient(WebhookHostPolicy webhookHostPolicy) {
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectionRequestTimeout(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
                 .setResponseTimeout(READ_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
@@ -78,7 +102,7 @@ public class AlarmSenderConfiguration {
                 .build();
 
         PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
-                .setDnsResolver(new WebhookDnsResolver(SystemDefaultDnsResolver.INSTANCE))
+                .setDnsResolver(new WebhookDnsResolver(SystemDefaultDnsResolver.INSTANCE, webhookHostPolicy))
                 .setDefaultConnectionConfig(connectionConfig)
                 .build();
 

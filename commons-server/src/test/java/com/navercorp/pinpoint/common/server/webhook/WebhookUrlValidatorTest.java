@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.webhook.support;
+package com.navercorp.pinpoint.common.server.webhook;
 
 import org.junit.jupiter.api.Test;
 
