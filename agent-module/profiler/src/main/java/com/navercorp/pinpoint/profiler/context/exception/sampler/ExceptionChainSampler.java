@@ -27,6 +27,7 @@ public class ExceptionChainSampler {
 
     public static final long INITIAL_EXCEPTION_ID = 1L;
 
+    // @Nullable, null means unlimited
     private final RateLimiter rateLimiter;
     private final AtomicLong exceptionChainId = new AtomicLong(INITIAL_EXCEPTION_ID);
 
@@ -43,11 +44,18 @@ public class ExceptionChainSampler {
     };
 
     public ExceptionChainSampler(final double maxNewThroughput) {
-        this.rateLimiter = RateLimiter.create(maxNewThroughput);
+        this.rateLimiter = newRateLimiter(maxNewThroughput);
+    }
+
+    private static RateLimiter newRateLimiter(final double maxNewThroughput) {
+        if (maxNewThroughput > 0) {
+            return RateLimiter.create(maxNewThroughput);
+        }
+        return null;
     }
 
     public SamplingState isNewSampled() {
-        if (rateLimiter.tryAcquire()) {
+        if (rateLimiter == null || rateLimiter.tryAcquire()) {
             long errorId = nextErrorId();
             return newState(errorId);
         }
