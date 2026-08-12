@@ -184,6 +184,17 @@
             <artifactId>ipaddress</artifactId>
         </dependency>
 
+        <!--
+          Only WebhookDnsResolver needs this, so it is optional: a module that installs the resolver
+          into an HttpClient declares httpclient5 itself, and every other consumer of this module is
+          left alone.
+        -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Logging dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>

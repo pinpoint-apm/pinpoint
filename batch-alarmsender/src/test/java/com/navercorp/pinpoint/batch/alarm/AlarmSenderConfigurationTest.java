@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.batch.alarm;
 import com.navercorp.pinpoint.batch.alarm.sender.WebhookSender;
 import com.navercorp.pinpoint.batch.alarm.sender.WebhookSenderImpl;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
+import com.navercorp.pinpoint.common.server.webhook.WebhookHostPolicy;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class AlarmSenderConfigurationTest {
 
         try {
             AlarmSenderConfiguration configuration = new AlarmSenderConfiguration();
-            try (CloseableHttpClient webhookHttpClient = configuration.webhookHttpClient()) {
+            try (CloseableHttpClient webhookHttpClient = configuration.webhookHttpClient(WebhookHostPolicy.denyAll())) {
                 RestTemplate webhookRestTemplate = configuration.webhookRestTemplate(new RestTemplate(), webhookHttpClient);
                 WebhookSender sender = configuration.webhookSender(
                     new AlarmSenderProperties("http://pinpoint.example.com", "test"),

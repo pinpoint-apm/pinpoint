@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.webhook.support;
+package com.navercorp.pinpoint.common.server.webhook;
 
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
@@ -27,18 +27,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public final class WebhookUrlValidator {
 
     private static final int MAX_PORT = 65535;
     private static final List<IPAddress> BLOCKED_IPV4_RANGES = toPrefixBlocks(List.of(
             "0.0.0.0/8",
-            "10.0.0.0/8",
             "127.0.0.0/8",
             "100.64.0.0/10",
             "169.254.0.0/16",
-            "172.16.0.0/12",
-            "192.168.0.0/16",
             "192.0.0.0/24",
             "192.0.2.0/24",
             "192.88.99.0/24",
@@ -51,7 +49,6 @@ public final class WebhookUrlValidator {
     private static final List<IPAddress> BLOCKED_IPV6_RANGES = toPrefixBlocks(List.of(
             "::/96",
             "64:ff9b:1::/48",
-            "fc00::/7",
             "100::/64",
             "100:0:0:1::/64",
             "2001::/23",
@@ -59,6 +56,18 @@ public final class WebhookUrlValidator {
             "2002::/16",
             "3fff::/20",
             "5f00::/16"
+    ));
+    /**
+     * Private ranges are blocked unless the host name is allowed by {@link WebhookHostPolicy}.
+     * Every other blocked range stays blocked regardless of the policy.
+     */
+    private static final List<IPAddress> PRIVATE_IPV4_RANGES = toPrefixBlocks(List.of(
+            "10.0.0.0/8",
+            "172.16.0.0/12",
+            "192.168.0.0/16"
+    ));
+    private static final List<IPAddress> PRIVATE_IPV6_RANGES = toPrefixBlocks(List.of(
+            "fc00::/7"
     ));
 
     private WebhookUrlValidator() {
@@ -152,17 +161,36 @@ public final class WebhookUrlValidator {
 
         IPAddress address = toHostLiteralAddress(normalizedHost);
         if (address != null) {
-            validateResolvedAddress(address.toInetAddress());
+            validateResolvedAddress(normalizedHost, address.toInetAddress(), WebhookHostPolicy.denyAll());
         }
     }
 
-    public static void validateResolvedAddress(InetAddress address) {
+    public static void validateResolvedAddress(String host, InetAddress address, WebhookHostPolicy policy) {
+        Objects.requireNonNull(policy, "policy");
         if (address == null) {
             throw new IllegalArgumentException("Webhook URL resolved address is required");
         }
         if (isBlockedAddress(address)) {
             throw new IllegalArgumentException("Webhook URL resolves to a non-public address");
         }
+        if (isPrivateAddress(address) && !isAllowedPrivateHost(host, policy)) {
+            throw new IllegalArgumentException("Webhook URL resolves to a private address that is not allowed");
+        }
+    }
+
+    /**
+     * The policy matches host names only. Allowing an IP literal to match would let a caller
+     * reach an internal address without going through an allowed host name.
+     */
+    private static boolean isAllowedPrivateHost(String host, WebhookHostPolicy policy) {
+        if (host == null) {
+            return false;
+        }
+        String normalizedHost = normalizeHost(host);
+        if (toHostLiteralAddress(normalizedHost) != null) {
+            return false;
+        }
+        return policy.isAllowed(normalizedHost);
     }
 
     private static String normalizeHost(String host) {
@@ -212,7 +240,6 @@ public final class WebhookUrlValidator {
         if (address.isAnyLocalAddress()
                 || address.isLoopbackAddress()
                 || address.isLinkLocalAddress()
-                || address.isSiteLocalAddress()
                 || address.isMulticastAddress()) {
             return true;
         }
@@ -243,6 +270,34 @@ public final class WebhookUrlValidator {
             return contains(BLOCKED_IPV4_RANGES, address.getEmbeddedIPv4Address());
         }
         return contains(BLOCKED_IPV6_RANGES, address);
+    }
+
+    private static boolean isPrivateAddress(InetAddress address) {
+        if (address.isSiteLocalAddress()) {
+            return true;
+        }
+
+        IPAddress ipAddress = toIpAddress(address);
+        if (ipAddress == null) {
+            // already rejected by isBlockedAddress
+            return false;
+        }
+
+        if (ipAddress.isIPv4()) {
+            return contains(PRIVATE_IPV4_RANGES, ipAddress);
+        }
+        if (ipAddress.isIPv6()) {
+            return isPrivateIpv6(ipAddress.toIPv6());
+        }
+
+        return false;
+    }
+
+    private static boolean isPrivateIpv6(IPv6Address address) {
+        if (address.isWellKnownIPv4Translatable()) {
+            return contains(PRIVATE_IPV4_RANGES, address.getEmbeddedIPv4Address());
+        }
+        return contains(PRIVATE_IPV6_RANGES, address);
     }
 
     private static List<IPAddress> toPrefixBlocks(List<String> cidrs) {

@@ -43,10 +43,6 @@
             <artifactId>pinpoint-commons-server</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.seancfoley</groupId>
-            <artifactId>ipaddress</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
