@@ -8,46 +8,16 @@ import { DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms';
 import { getConfiguration, getRequestService } from '@pinpoint-fe/ui/src/hooks';
 import {
   convertParamsToQueryString,
-  getApplicationTypeAndName,
   getFormattedDateRange,
   getParsedDateRange,
   getServiceMapPath,
-  getServiceNameFromPath,
   getTimezone,
   isValidDateRange,
+  parseServiceScopedPath,
 } from '@pinpoint-fe/ui/src/utils';
 import { parse } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
-
-/**
- * servicemap 경로(`/serviceMap/{serviceName}/{application}?`)를 분해한다.
- *
- * react-router의 `params`는 디코딩된 값이라 serviceName 안의 '%2F'가 '/'로 풀려 세그먼트 경계가
- * 어긋난다. 그래서 인코딩된 원본(raw pathname)에서 직접 읽는다.
- *
- * serviceName이 오기 전에는 이 자리에 application이 있었다(`/serviceMap/{app}@{type}`).
- * 그런 옛 링크·북마크를 새 service로 오해하지 않도록 판정은 화면과 같은 함수
- * (`getServiceNameFromPath`)에 맡긴다. serviceName이 아니라고 판정되면 첫 세그먼트를
- * application으로 읽는다.
- */
-const parseServiceMapPath = (pathname: string) => {
-  const [firstSegment, secondSegment] = pathname
-    .slice(APP_PATH.SERVICE_MAP.length)
-    .replace(/^\//, '')
-    .split('/');
-
-  const serviceName = getServiceNameFromPath(pathname);
-  const applicationSegment = serviceName ? secondSegment : firstSegment;
-
-  return {
-    serviceName,
-    /** 리다이렉트 목적지를 만들 때 쓰는, 인코딩된 그대로의 serviceName 세그먼트. */
-    encodedServiceName: serviceName ? firstSegment : undefined,
-    applicationSegment,
-    application: getApplicationTypeAndName(applicationSegment),
-  };
-};
 
 /**
  * servicemap 페이지의 라우트 로더.
@@ -63,7 +33,7 @@ const parseServiceMapPath = (pathname: string) => {
 export const serviceMapRouteLoader = async ({ request }: LoaderFunctionArgs) => {
   const { pathname, search } = new URL(request.url);
   const { serviceName, encodedServiceName, applicationSegment, application } =
-    parseServiceMapPath(pathname);
+    parseServiceScopedPath(APP_PATH.SERVICE_MAP, pathname);
   const hasApplication = !!(application?.applicationName && application.serviceType);
 
   if (!serviceName || !encodedServiceName) {

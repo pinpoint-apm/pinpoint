@@ -63,6 +63,7 @@
   "SERVER_MAP": {
     "SCATTER_CHART_STATIC_WARN": "Agent별 scatter chart를 보기 위해\nheatmap을 scatter chart로 변경해 주세요.",
     "HEATMAP_API_ERROR_MESSAGE": "Heatmap 호출 에러가 반복될 경우,\nscatter 차트를 참고해 주세요.",
+    "SELECT_NODE_FOR_CHART": "서버맵에서 노드를 선택하면 차트를 볼 수 있습니다.",
     "QUERY_OPTION": {
       "TITLE": "서버맵 조회 옵션",
       "DESC": "서버맵 조회 옵션을 설정합니다",
@@ -75,7 +76,8 @@
       "LOCK_SERVER": "현재 서버 고정",
       "UNLOCK_SERVER": "현재 서버 고정 해제",
       "NOT_WAS": "선택한 대상이 WAS가 아닙니다.",
-      "CONNECTION_CLOSED": "연결이 종료되었습니다."
+      "CONNECTION_CLOSED": "연결이 종료되었습니다.",
+      "SELECT_NODE": "서버맵에서 노드를 선택하면 액티브 요청을 볼 수 있습니다."
     }
   },
   "TRANSACTION_LIST": {

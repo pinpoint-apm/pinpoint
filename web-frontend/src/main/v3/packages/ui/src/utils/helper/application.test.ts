@@ -3,6 +3,7 @@ import {
   getApplicationKey,
   getServiceNameFromPath,
   hasServiceNameInPath,
+  parseServiceScopedPath,
 } from './application';
 import { APP_PATH, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 
@@ -110,6 +111,20 @@ describe('Test application helper utils', () => {
       expect(getServiceNameFromPath('/serviceMap/')).toBeUndefined();
     });
 
+    // `/serviceMap/realtime`은 `/serviceMap`의 하위 경로다.
+    // 'realtime' 세그먼트를 service 이름으로 읽으면 모든 조회가 없는 service로 나간다.
+    test('Read the service name after the realtime segment, not the segment itself', () => {
+      expect(getServiceNameFromPath('/serviceMap/realtime/blogService/appName@TOMCAT')).toBe(
+        'blogService',
+      );
+      expect(getServiceNameFromPath('/serviceMap/realtime/DEFAULT/appName@TOMCAT')).toBe('DEFAULT');
+      expect(getServiceNameFromPath('/serviceMap/realtime/team%2Fa%40b/appName@TOMCAT')).toBe(
+        'team/a@b',
+      );
+      expect(getServiceNameFromPath('/serviceMap/realtime')).toBeUndefined();
+      expect(getServiceNameFromPath('/serviceMap/realtime/appName@TOMCAT')).toBeUndefined();
+    });
+
     test('Return undefined on a path that does not carry a service name', () => {
       expect(getServiceNameFromPath('/serverMap/svc@appName@TOMCAT')).toBeUndefined();
     });
@@ -124,6 +139,59 @@ describe('Test application helper utils', () => {
     // 경로는 사용자가 직접 편집할 수 있다. 렌더 중에 호출되므로 던지면 화면이 죽는다.
     test('Fall back to the raw value on a malformed encoding instead of throwing', () => {
       expect(getServiceNameFromPath('/transactionList/100%/appName@TOMCAT')).toBe('100%');
+    });
+  });
+
+  describe('Test "parseServiceScopedPath"', () => {
+    test('Split a path that carries both a service name and an application', () => {
+      expect(
+        parseServiceScopedPath(APP_PATH.SERVICE_MAP, '/serviceMap/svc/appName@TOMCAT'),
+      ).toEqual({
+        serviceName: 'svc',
+        encodedServiceName: 'svc',
+        applicationSegment: 'appName@TOMCAT',
+        application: { applicationName: 'appName', serviceType: 'TOMCAT' },
+      });
+    });
+
+    // 리다이렉트 목적지는 인코딩된 그대로의 세그먼트로 만들어야 두 번 인코딩되지 않는다.
+    test('Keep the raw segment alongside the decoded service name', () => {
+      const result = parseServiceScopedPath(APP_PATH.SERVICE_MAP, '/serviceMap/team%2Fa%40b');
+
+      expect(result.serviceName).toBe('team/a@b');
+      expect(result.encodedServiceName).toBe('team%2Fa%40b');
+      expect(result.application).toBeNull();
+    });
+
+    // serviceName 세그먼트가 생기기 전 형태. 첫 세그먼트를 application으로 읽어야 한다.
+    test('Read the first segment as an application on a path without a service name', () => {
+      const result = parseServiceScopedPath(APP_PATH.SERVICE_MAP, '/serviceMap/appName@TOMCAT');
+
+      expect(result.serviceName).toBeUndefined();
+      expect(result.encodedServiceName).toBeUndefined();
+      expect(result.application).toEqual({ applicationName: 'appName', serviceType: 'TOMCAT' });
+    });
+
+    // 같은 규칙이 하위 경로에도 그대로 적용된다. 'realtime'을 service 이름으로 읽으면 안 된다.
+    test('Split a realtime path against its own page prefix', () => {
+      expect(
+        parseServiceScopedPath(
+          APP_PATH.SERVICE_MAP_REALTIME,
+          '/serviceMap/realtime/svc/appName@TOMCAT',
+        ),
+      ).toEqual({
+        serviceName: 'svc',
+        encodedServiceName: 'svc',
+        applicationSegment: 'appName@TOMCAT',
+        application: { applicationName: 'appName', serviceType: 'TOMCAT' },
+      });
+    });
+
+    test('Return empty segments on a bare page path', () => {
+      const result = parseServiceScopedPath(APP_PATH.SERVICE_MAP_REALTIME, '/serviceMap/realtime');
+
+      expect(result.serviceName).toBeUndefined();
+      expect(result.application).toBeNull();
     });
   });
 

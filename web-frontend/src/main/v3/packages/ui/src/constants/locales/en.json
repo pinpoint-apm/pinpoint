@@ -63,6 +63,7 @@
   "SERVER_MAP": {
     "SCATTER_CHART_STATIC_WARN": "To view the scatter chart by agent,\nplease switch the heatmap to a scatter chart.",
     "HEATMAP_API_ERROR_MESSAGE": "If the heatmap call error persists,\nplease refer to the scatter chart.",
+    "SELECT_NODE_FOR_CHART": "Select a node on the map to see its charts.",
     "QUERY_OPTION": {
       "TITLE": "Server-map Query Option",
       "DESC": "Set the query options for the Server-map",
@@ -75,7 +76,8 @@
       "LOCK_SERVER": "Lock current server",
       "UNLOCK_SERVER": "Unlock current server",
       "NOT_WAS": "Selected target is not a WAS.",
-      "CONNECTION_CLOSED": "Connection closed."
+      "CONNECTION_CLOSED": "Connection closed.",
+      "SELECT_NODE": "Select a node on the map to see its active requests."
     }
   },
   "TRANSACTION_LIST": {

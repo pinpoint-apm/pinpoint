@@ -66,43 +66,65 @@ export const getHostGroupPath =
 /** /serverMap */
 export const getServerMapPath = getApplicationPath(APP_PATH.SERVER_MAP);
 /**
- * /serviceMap/{serviceName}/{applicationName}@{serviceType}
+ * `/{page}/{serviceName}/{applicationName}@{serviceType}?` 형태의 servicemap 계열 경로 빌더.
  *
  * servicemap은 "어떤 service를 보는 중인지"가 URL의 진실의 원천이다. 그래서 DEFAULT도 예외 없이
  * 항상 싣는다. 전역 선택값(`selectedServiceAtom`)은 탭 간 공유 저장소라, 그것만 믿으면 링크를
  * 새 탭에서 열어 둔 뒤 원래 탭에서 service를 바꿨을 때 화면과 어긋난다.
  *
- * application 세그먼트는 DEFAULT service에서만 붙는다. 그 외 service는 소속 application을 모두
- * 모아 그리므로 기준 application이 없다.
- *
  * serviceName은 백엔드에서 형식이 검증되지 않으므로('ServiceNameRequest'에 제약이 없다) '/'나
  * '@'가 들어올 수 있어 인코딩한다. 인코딩하지 않으면 '/'가 세그먼트를 쪼개 라우트 매칭이 깨지고,
  * '@'는 application 세그먼트의 구분자와 구별되지 않는다.
  * (applicationName/serviceType은 백엔드가 `[a-zA-Z0-9._\-]+`로 검증하므로 그대로 둔다.)
+ */
+const getServiceScopedMapPath =
+  (pagePath: string) =>
+  (
+    serviceName: string,
+    application?: ApplicationType | null,
+    queryParams?: {
+      [k: string]: string;
+    },
+  ) => {
+    const applicationSegment =
+      application?.applicationName && application?.serviceType
+        ? `/${application.applicationName}@${application.serviceType}`
+        : '';
+    const queryString =
+      queryParams?.from && queryParams?.to
+        ? `?${convertParamsToQueryString({ from: queryParams.from, to: queryParams.to })}`
+        : '';
+
+    return `${pagePath}/${encodeURIComponent(serviceName)}${applicationSegment}${queryString}`;
+  };
+
+/**
+ * /serviceMap/{serviceName}/{applicationName}@{serviceType}
+ *
+ * application 세그먼트는 DEFAULT service에서만 붙는다. 그 외 service는 소속 application을 모두
+ * 모아 그리므로 기준 application이 없다.
  *
  * application이 없어도 기간(from/to)은 유지한다. 그 상태로도 map을 그리기 때문에,
  * 다른 화면에서 돌아올 때 보고 있던 기간이 기본값으로 초기화되면 안 된다.
  */
-export const getServiceMapPath = (
-  serviceName: string,
-  application?: ApplicationType | null,
-  queryParams?: {
-    [k: string]: string;
-  },
-) => {
-  const applicationSegment =
-    application?.applicationName && application?.serviceType
-      ? `/${application.applicationName}@${application.serviceType}`
-      : '';
-  const queryString =
-    queryParams?.from && queryParams?.to
-      ? `?${convertParamsToQueryString({ from: queryParams.from, to: queryParams.to })}`
-      : '';
-
-  return `${APP_PATH.SERVICE_MAP}/${encodeURIComponent(serviceName)}${applicationSegment}${queryString}`;
-};
+export const getServiceMapPath = getServiceScopedMapPath(APP_PATH.SERVICE_MAP);
 /** /realtime */
 export const getRealtimePath = getApplicationPath(APP_PATH.SERVER_MAP_REALTIME);
+/**
+ * /serviceMap/realtime/{serviceName}/{applicationName}@{serviceType}
+ *
+ * servicemap의 실시간 보기. servermap의 실시간 보기와 화면이 같고 map을 그리는 API만 다르다
+ * (`/api/servermap/serverMap` → `/api/servermap/serviceMap`).
+ *
+ * application 세그먼트는 map을 그리는 규칙을 그대로 따른다. DEFAULT service는 고른 application
+ * 하나를 기준으로 그리므로 세그먼트가 붙고, 그 외 service는 소속 application을 모두 모아 그려
+ * 기준 application이 없으므로 붙지 않는다(라우트 로더가 실려 들어온 세그먼트를 지운다).
+ * 비DEFAULT에서 우측 패널(스캐터/액티브 스레드)의 조회 대상은 map에서 클릭한 노드로 정해진다.
+ *
+ * 기간은 "지금부터 5분 전"으로 화면이 직접 만들기 때문에 from/to는 싣지 않는다
+ * (라우트 로더가 실려 들어온 query string을 지운다).
+ */
+export const getServiceMapRealtimePath = getServiceScopedMapPath(APP_PATH.SERVICE_MAP_REALTIME);
 /** /scatterFullScreenMode */
 export const getScatterFullScreenPath = getApplicationPath(APP_PATH.SCATTER_FULL_SCREEN);
 /** /scatterFullScreenMode/realtime */

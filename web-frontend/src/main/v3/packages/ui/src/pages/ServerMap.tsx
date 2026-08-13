@@ -43,6 +43,8 @@ export interface ServermapPageProps {
   title?: 'Servermap' | 'Servicemap';
   /** 페이지 내부 이동(애플리케이션 선택, 기간 변경 등)에 사용할 경로 생성 함수 */
   getPagePath?: typeof getServerMapPath;
+  /** 실시간 보기로 이동할 때 사용할 경로 생성 함수 */
+  getRealtimePagePath?: typeof getRealtimePath;
   /**
    * map이 기준 application을 필요로 하는지 여부(기본값 true).
    *
@@ -63,6 +65,7 @@ export const ServerMapPage = ({
   MapView = ServerMap,
   title = 'Servermap',
   getPagePath = getServerMapPath,
+  getRealtimePagePath = getRealtimePath,
   requiresApplication = true,
   serviceName,
 }: ServermapPageProps) => {
@@ -159,7 +162,7 @@ export const ServerMapPage = ({
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate, isRealtime }) => {
       if (isRealtime) {
-        navigate(`${getRealtimePath(application!)}`);
+        navigate(`${getRealtimePagePath(application!)}`);
       } else {
         navigate(
           `${getPagePath(application!)}?${convertParamsToQueryString({
@@ -169,7 +172,7 @@ export const ServerMapPage = ({
         );
       }
     }) as DatetimePickerChangeHandler,
-    [application?.applicationName, queryOption, getPagePath],
+    [application?.applicationName, queryOption, getPagePath, getRealtimePagePath],
   );
 
   const initPage = () => {
@@ -218,8 +221,7 @@ export const ServerMapPage = ({
         {showMap && (
           <div className="flex gap-1 ml-auto">
             <DatetimePicker
-              // 실시간 보기는 application 하나를 기준으로 동작하므로 기준이 없으면 막는다.
-              enableRealtimeButton={requiresApplication}
+              enableRealtimeButton
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}

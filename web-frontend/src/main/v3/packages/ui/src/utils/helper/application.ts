@@ -45,8 +45,14 @@ const decodeServiceName = (serviceName: string) => {
  * `SERVICE_NAME_SEGMENT_PAGES`에 추가하면 되고, 폴백에 의존하는 화면은 그만큼 줄어든다.
  */
 
-/** serviceName을 세그먼트로 싣는 페이지. */
+/**
+ * serviceName을 세그먼트로 싣는 페이지.
+ *
+ * 앞에서부터 처음 매칭되는 항목을 쓰므로(`find`) 더 긴 경로를 먼저 둔다. `/serviceMap/realtime`은
+ * `/serviceMap`의 하위 경로라, 순서가 뒤바뀌면 'realtime' 세그먼트를 serviceName으로 읽는다.
+ */
 const SERVICE_NAME_SEGMENT_PAGES: string[] = [
+  APP_PATH.SERVICE_MAP_REALTIME,
   APP_PATH.SERVICE_MAP,
   APP_PATH.TRANSACTION_LIST,
   APP_PATH.TRANSACTION_DETAIL,
@@ -82,6 +88,38 @@ export const getServiceNameFromPath = (pathname = '') => {
 
 /** 경로가 serviceName을 싣고 있는지 여부. */
 export const hasServiceNameInPath = (pathname = '') => !!getServiceNameFromPath(pathname);
+
+/**
+ * `/{page}/{serviceName}/{applicationName}@{serviceType}?` 형태의 경로를 세그먼트로 분해한다.
+ * servicemap 계열 라우트 로더가 리다이렉트 목적지를 만들 때 쓴다.
+ *
+ * **인코딩된(raw) pathname을 넘겨야 한다.** react-router의 `params`는 디코딩된 값이라
+ * serviceName 안의 '%2F'가 '/'로 풀려 세그먼트 경계가 어긋난다.
+ *
+ * 첫 세그먼트가 serviceName인지의 판정은 화면과 같은 함수(`getServiceNameFromPath`)에 맡긴다.
+ * serviceName이 아니라고 판정되면(세그먼트가 생기기 전 형태의 옛 링크) 첫 세그먼트를
+ * application으로 읽는다.
+ *
+ * @param pagePath 이 경로의 페이지 접두사(`APP_PATH.SERVICE_MAP` 등). pathname이 이 접두사
+ *                 아래에 있어야 한다.
+ */
+export const parseServiceScopedPath = (pagePath: string, pathname = '') => {
+  const [firstSegment, secondSegment] = pathname
+    .slice(pagePath.length)
+    .replace(/^\//, '')
+    .split('/');
+
+  const serviceName = getServiceNameFromPath(pathname);
+  const applicationSegment = serviceName ? secondSegment : firstSegment;
+
+  return {
+    serviceName,
+    /** 리다이렉트 목적지를 만들 때 쓰는, 인코딩된 그대로의 serviceName 세그먼트. */
+    encodedServiceName: serviceName ? firstSegment : undefined,
+    applicationSegment,
+    application: getApplicationTypeAndName(applicationSegment),
+  };
+};
 
 export const getApplicationKey = (application?: ApplicationType) => {
   return `${application?.applicationName}^${application?.serviceType}`;
