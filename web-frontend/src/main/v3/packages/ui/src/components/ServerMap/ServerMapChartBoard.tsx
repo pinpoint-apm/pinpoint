@@ -209,9 +209,13 @@ export const ServerMapChartsBoardFetcher = ({
 
   // 선택된 대상도, 기준이 될 application도 없으면 보여줄 것이 없다. service 전체를 모아 그린
   // servicemap에 처음 들어온 상태가 여기에 해당한다. 이때 억지로 그리면 이름 없는 헤더와
-  // 조회 대상 없는 차트가 남으므로, 사용자가 노드를 고른 뒤에 그린다.
+  // 조회 대상 없는 차트가 남으므로, 차트 대신 무엇을 해야 하는지 알려준다.
   if (!serverMapCurrentTarget && !application) {
-    return null;
+    return (
+      <div className="flex justify-center items-center w-full h-full text-muted-foreground">
+        {t('SERVER_MAP.SELECT_NODE_FOR_CHART')}
+      </div>
+    );
   }
 
   // service group 노드/링크가 선택된 경우(subNodes/subLinks 보유) ChartsBoard를 그리지 않는다.

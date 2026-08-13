@@ -32,7 +32,22 @@ import { APP_SETTING_KEYS, ApplicationType, GetServerMap } from '@pinpoint-fe/ui
 import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 
-export const Realtime = () => {
+export interface RealtimeProps {
+  /**
+   * map 영역에 그릴 컴포넌트(기본값 ServerMap).
+   * servicemap 실시간 보기는 ServiceMap을 넘긴다. 화면은 그대로 두고 map을 그리는 API만 갈린다.
+   */
+  MapView?: typeof ServerMap;
+  /**
+   * map이 기준 application을 필요로 하는지 여부(기본값 true).
+   *
+   * false면 경로에 application이 없어도 map을 그린다. servicemap에서 DEFAULT가 아닌 service를
+   * 볼 때가 여기에 해당하고, 그때는 map에서 노드를 클릭해야 우측 패널의 조회 대상이 정해진다.
+   */
+  requiresApplication?: boolean;
+}
+
+export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: RealtimeProps) => {
   const chartType = useAtomValue(serverMapChartTypeAtom);
   const isFocus = useTabFocus();
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -41,6 +56,8 @@ export const Realtime = () => {
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
   const serverMapData = useAtomValue(serverMapDataAtom);
   const { t } = useTranslation();
+  // 기준 application이 필요 없는 map은 고를 대상이 없으므로 곧바로 그린다.
+  const showMap = !requiresApplication || !!application;
 
   React.useEffect(() => {
     if (application) {
@@ -101,13 +118,13 @@ export const Realtime = () => {
         className="relative h-full"
         style={{ width: `calc(100% - ${currentPanelWidth + resizeHandleWidth}px)` }}
       >
-        {application && (
+        {showMap && (
           <ResizablePanelGroup
             direction="vertical"
             autoSaveId={APP_SETTING_KEYS.REALTIME_ACTIVE_REQUEST_RESIZABLE}
           >
             <ResizablePanel minSize={10} maxSize={90}>
-              {isFocus && <ServerMap shouldPoll={true} />}
+              {isFocus && <MapView shouldPoll={true} />}
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel minSize={10} maxSize={90} className="!overflow-auto">
@@ -137,16 +154,27 @@ export const Realtime = () => {
           emptyMessage={t('COMMON.NO_DATA')}
           header={
             <ChartsBoardHeader
+              // 기준 application이 없는 map에서는 노드를 고르기 전까지 보여줄 대상이 없다.
+              // 빈 객체를 넘기면 이름 없는 아이콘만 덩그러니 남는다.
               currentTarget={
-                serverMapCurrentTarget || {
-                  ...application,
-                  type: 'node',
-                }
+                serverMapCurrentTarget ||
+                (application
+                  ? {
+                      ...application,
+                      type: 'node',
+                    }
+                  : null)
               }
             />
           }
         >
-          {serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges ? (
+          {!serverMapCurrentTarget ? (
+            // 고른 대상이 없으면 헤더도 차트도 그릴 것이 없어 패널이 통째로 비어 보인다.
+            // 무엇을 해야 하는지 알려준다. (기준 application이 없는 map에서만 생기는 상태)
+            <div className="flex justify-center items-center w-full h-full text-muted-foreground">
+              {t('SERVER_MAP.SELECT_NODE_FOR_CHART')}
+            </div>
+          ) : serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges ? (
             <MergedServerSearchList
               list={getClickedMergedNodeList(serverMapCurrentTarget)}
               onClickItem={handleClickMergedItem}

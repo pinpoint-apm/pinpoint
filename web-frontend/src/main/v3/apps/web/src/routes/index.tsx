@@ -3,6 +3,7 @@ import { createBrowserRouter, redirect } from 'react-router-dom';
 import {
   serverMapRouteLoader,
   serviceMapRouteLoader,
+  serviceMapRealtimeLoader,
   realtimeLoader,
   errorAnalysisRouteLoader,
   urlStatisticRouteLoader,
@@ -24,6 +25,7 @@ import { RouteErrorFallback } from '@pinpoint-fe/ui/src/components/Error';
 
 import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
 const ServiceMap = lazy(() => import('@pinpoint-fe/web/src/pages/ServiceMap'));
+const ServiceMapRealtime = lazy(() => import('@pinpoint-fe/web/src/pages/ServiceMap/Realtime'));
 const Realtime = lazy(() => import('@pinpoint-fe/web/src/pages/ServerMap/Realtime'));
 const ScatterOrHeatmapFullScreen = lazy(
   () => import('@pinpoint-fe/web/src/pages/ScatterOrHeatmapFullScreen'),
@@ -98,6 +100,14 @@ const router = createBrowserRouter(
                   path: `${APP_PATH.SERVER_MAP_REALTIME}/:application?`,
                   element: <Realtime />,
                   loader: realtimeLoader,
+                },
+                {
+                  // `/serviceMap/:serviceName?`보다 세그먼트가 더 구체적이라 이 라우트가 먼저
+                  // 매칭된다(react-router의 경로 랭킹). 기준 application은 DEFAULT service에서만
+                  // 쓰고 그 외 service는 로더가 지우므로 두 세그먼트 모두 optional이다.
+                  path: `${APP_PATH.SERVICE_MAP_REALTIME}/:serviceName?/:application?`,
+                  element: <ServiceMapRealtime />,
+                  loader: serviceMapRealtimeLoader,
                 },
                 {
                   // serviceName을 별도 세그먼트로 싣는다. DEFAULT가 아닌 service는 기준

@@ -30,10 +30,7 @@ export interface ServiceMapFetcherProps extends Pick<
   shouldPoll?: boolean;
 }
 
-export const ServiceMapFetcher = ({
-  shouldPoll: _shouldPoll,
-  ...props
-}: ServiceMapFetcherProps) => {
+export const ServiceMapFetcher = ({ shouldPoll, ...props }: ServiceMapFetcherProps) => {
   const setDataAtom = useSetAtom(serverMapDataAtom);
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
@@ -59,7 +56,7 @@ export const ServiceMapFetcher = ({
       to: toBasicISOString(dateRange.to),
       useStatisticsAgentState,
     },
-    { requiresApplication: isDefaultService },
+    { requiresApplication: isDefaultService, shouldPoll: !!shouldPoll },
   );
 
   const data = React.useMemo(() => flattenServiceMapResponse(rawData), [rawData]);
@@ -151,7 +148,8 @@ export const ServiceMapFetcher = ({
       data={data}
       isLoading={isLoading}
       error={error}
-      forceLayoutUpdate
+      // 실시간에서는 2초마다 데이터가 갱신된다. 매번 레이아웃을 다시 잡으면 노드가 계속 튄다.
+      forceLayoutUpdate={!shouldPoll}
       onClickNode={handleClickNode}
       onClickEdge={handleClickEdge}
       onClickSubNode={handleClickSubNode}

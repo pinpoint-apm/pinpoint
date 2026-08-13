@@ -33,7 +33,14 @@ servermap이 사라진 뒤에도 **DEFAULT service 사용자는 여전히 applic
 - `loader/serverMap.ts`, `loader/serverMap.test.ts` → 파일째로 삭제
   (그래서 serviceMap 로더는 날짜 정규화를 **일부러 복사**해 자기 완결적으로 두었다.
   공용 모듈로 빼면 그 시점에 "호출자가 하나뿐인 모듈"을 다시 정리해야 한다.)
-- 실시간 보기 → `getRealtimePath`가 `/serverMap/realtime`을 가리키므로 경로를 옮겨야 함
+
+  > **이 "복사" 근거는 servermap과 공유하는 코드에만 적용된다.** servicemap 로더끼리
+  > (`serviceMap.ts` ↔ `serviceMapRealtime.ts`) 겹치는 부분은 둘 다 끝까지 남으므로 복사하지
+  > 않는다. 경로 분해는 `parseServiceScopedPath` 하나를 공유한다 — 세그먼트 규칙이 바뀔 때
+  > 고칠 곳이 하나여야 한다.
+- 실시간 보기 → `/serviceMap/realtime`이 이미 있다. `RealtimePage`/`Realtime`(컴포넌트)은
+  `MapView` prop으로 map만 갈아 끼우는 구조이므로, servermap이 빠지면 `getRealtimePath`와
+  `loader/realtime.ts`, `pages/ServerMap/Realtime.tsx`를 지우고 기본값을 servicemap 쪽으로 옮긴다.
 - `enableServiceMap` 설정 분기 → 설정이 없어지면 `useIsDefaultService`가 "DEFAULT인가?"만 보면 됨
 
 ## servicemap의 두 모드
@@ -51,7 +58,12 @@ service다** — 모든 조회에 `pServiceName` 헤더가 실리고 캐시도 s
 - 백엔드도 같은 규칙이다: `MapController#getSourceApplications`.
 - application이 많아 노드가 과도해지면 service를 나누도록 가이드한다 (선택 박스를 주지 않는 이유).
 - 비DEFAULT 모드에서는 기준 application이 없으므로: 특정 노드를 센터링/선택하지 않고,
-  실시간 보기를 막고, 경로에 들어온 application 세그먼트는 지운다.
+  경로에 들어온 application 세그먼트는 지운다.
+- **두 모드는 실시간 보기(`/serviceMap/realtime`)에도 그대로 있다.** 비DEFAULT에서는 우측 패널
+  (스캐터/액티브 스레드)의 조회 대상이 map에서 클릭한 노드로 정해진다. 아무것도 고르지 않았으면
+  map만 그리고, 우측 패널은 조회를 시작하지 않은 채 노드를 고르라는 안내 문구를 띄운다
+  (`SERVER_MAP.SELECT_NODE_FOR_CHART`, `SERVER_MAP.REAL_TIME.SELECT_NODE`).
+  로딩 스켈레톤을 그대로 두면 영원히 로딩 중인 화면처럼 보이기 때문이다.
 
 ## serviceName은 URL 경로에 싣는다
 
@@ -93,8 +105,9 @@ service다** — 모든 조회에 `pServiceName` 헤더가 실리고 캐시도 s
 |---|---|
 | DEFAULT 여부 판단 | `hooks/utility/useIsDefaultService.ts` |
 | 경로에 실린 serviceName 읽기 | `utils/helper/application.ts` (`getServiceNameFromPath`) |
-| 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getTransactionListPath`) |
+| 경로 분해 (로더용) | `utils/helper/application.ts` (`parseServiceScopedPath`) |
+| 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getServiceMapRealtimePath`, `getTransactionListPath`) |
 | 요청 헤더 주입 | `hooks/api/serviceNameFetchInterceptor.ts` |
 | service 단위 캐시 키 | `hooks/api/reactQueryHelper.tsx` (`serviceScopedQueryKeyHashFn`) |
 | service 변경 시 초기화 | `hooks/utility/useClearApplicationOnServiceChange.ts` |
-| 라우트 로더 | `loader/serviceMap.ts` |
+| 라우트 로더 | `loader/serviceMap.ts`, `loader/serviceMapRealtime.ts` |

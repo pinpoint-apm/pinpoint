@@ -8,6 +8,7 @@ export * from './Realtime';
 export * from './ScatterOrHeatmapFullScreen';
 export * from './ServerMap';
 export * from './ServiceMap';
+export * from './ServiceMapRealtime';
 export * from './SystemMetric';
 export * from './TransactionList';
 export * from './TransactionDetail';

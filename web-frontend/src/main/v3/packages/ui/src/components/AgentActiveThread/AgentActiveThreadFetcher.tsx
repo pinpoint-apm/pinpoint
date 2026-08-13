@@ -38,6 +38,15 @@ export const AgentActiveThreadFetcher = () => {
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
   const [showSetting, setShowSetting] = React.useState(false);
   const [setting, setSetting] = React.useState<AgentActiveSettingType>(DefaultValue);
+  /**
+   * 조회할 대상이 정해졌는지 여부.
+   *
+   * 대상이 없으면 activeThreadCount 요청을 보내지 않으므로 응답도 오지 않는다. 그러면 연결
+   * 상태가 CONNECTING에 머물러 로딩 스켈레톤이 영영 떠 있게 되므로, 로딩 대신 무엇을 해야
+   * 하는지 알려준다. (기준 application이 없는 servicemap 실시간 보기에서 아직 노드를 고르지
+   * 않은 상태가 여기에 해당한다.)
+   */
+  const hasTarget = !!(applicationName || applicationNameRef.current);
 
   React.useEffect(() => {
     initWebSocket();
@@ -128,7 +137,11 @@ export const AgentActiveThreadFetcher = () => {
 
   return (
     <div className="w-full h-full">
-      {webSocketState === WebSocket.OPEN ? (
+      {!hasTarget ? (
+        <div className="flex justify-center items-center w-full h-full text-muted-foreground">
+          {t('SERVER_MAP.REAL_TIME.SELECT_NODE')}
+        </div>
+      ) : webSocketState === WebSocket.OPEN ? (
         isApplicationLocked ||
         currentTargetData?.nodeCategory === GetServerMap.NodeCategory.SERVER ? (
           <div className="flex flex-col items-center p-4 h-full">
