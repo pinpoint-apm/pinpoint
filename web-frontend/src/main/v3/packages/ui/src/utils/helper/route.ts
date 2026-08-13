@@ -137,19 +137,65 @@ export const getHeatmapFullScreenPath = getApplicationPath(APP_PATH.HEATMAP_FULL
 export const getHeatmapFullScreenRealtimePath = getApplicationPath(
   APP_PATH.HEATMAP_FULL_SCREEN_REALTIME,
 );
-/** /filtedMap */
-export const getFilteredMapPath = (filterState: FilteredMap.FilterState, soureIsWas?: boolean) => {
-  let applicationNameAndType = '';
-  if (filterState?.applicationName) {
-    applicationNameAndType = `${filterState?.applicationName}@${filterState.serviceType}`;
-  } else {
-    if (soureIsWas) {
-      applicationNameAndType = `${filterState?.fromApplication}@${filterState.fromServiceType}`;
-    } else {
-      applicationNameAndType = `${filterState?.toApplication}@${filterState.toServiceType}`;
-    }
+/**
+ * 필터 대상에서 filteredMap의 기준 application을 고른다. 고를 수 없으면 null이다.
+ *
+ * 노드에 걸린 필터는 그 노드가, 링크에 걸린 필터는 sourceIsWas에 따라 출발지/도착지가 기준이다.
+ * filteredMap은 기준 application 없이는 조회가 성립하지 않으므로(`useGetFilteredServerMapData`가
+ * applicationName을 필수로 요구한다) 호출자는 null이면 화면을 열지 않는다.
+ *
+ * servicemap의 service group(접힌 service) 노드·링크가 여기에 해당한다. 그 id는 serviceName
+ * 하나뿐이어서 어떤 application을 기준으로 삼을지 정해지지 않는다.
+ */
+export const getFilterTargetApplication = (
+  filterState: FilteredMap.FilterState,
+  soureIsWas?: boolean,
+): ApplicationType | null => {
+  const [applicationName, serviceType] = filterState?.applicationName
+    ? [filterState.applicationName, filterState.serviceType]
+    : soureIsWas
+      ? [filterState?.fromApplication, filterState?.fromServiceType]
+      : [filterState?.toApplication, filterState?.toServiceType];
+
+  if (!applicationName || !serviceType) {
+    return null;
   }
-  return `${APP_PATH.FILTERED_MAP}/${applicationNameAndType}`;
+
+  return { applicationName, serviceType };
+};
+
+/**
+ * /filteredMap/{serviceName}?/{applicationName}@{serviceType}
+ *
+ * 필터를 거는 화면(map, filteredMap)이 그 결과를 볼 화면으로 넘기는 경로. application은 필터
+ * 대상에서 뽑는다(노드는 그 노드, 링크는 sourceIsWas에 따라 출발지/도착지).
+ *
+ * serviceName은 servicemap에서 왔을 때만 주어진다. 그래야 새 탭에서 열려도 어떤 service를 보던
+ * 중이었는지 URL에 남아 모든 조회에 pServiceName 헤더가 실린다(전역 선택값은 탭 간 공유
+ * 저장소라 믿을 수 없다). servermap에서 왔을 때는 주어지지 않아 경로 형태가 예전과 같다.
+ *
+ * serviceName은 백엔드에서 형식이 검증되지 않으므로 인코딩한다. 이유는 `getServiceScopedMapPath`와
+ * 같다. (applicationName/serviceType은 백엔드가 검증하므로 그대로 둔다.)
+ *
+ * TODO: DEFAULT가 아닌 service에서 어떤 형태여야 하는지는 아직 논의 중이다. 지금은 DEFAULT와
+ * 똑같이 필터 대상 application을 싣는다(map은 service 전체를 그리지만, filteredMap은 기준
+ * application 없이는 조회할 수 없다 — `useGetFilteredServerMapData`가 applicationName을 필수로
+ * 요구한다). service 전체를 대상으로 필터를 걸 수 있게 할지 정해지면 그때 형태를 맞춘다.
+ */
+export const getFilteredMapPath = (
+  filterState: FilteredMap.FilterState,
+  soureIsWas?: boolean,
+  serviceName?: string,
+) => {
+  const target = getFilterTargetApplication(filterState, soureIsWas);
+  const serviceSegment = serviceName ? `/${encodeURIComponent(serviceName)}` : '';
+
+  // 기준 application이 없으면 세그먼트를 붙이지 않는다(다른 경로 빌더와 같은 처리).
+  if (!target) {
+    return `${APP_PATH.FILTERED_MAP}${serviceSegment}`;
+  }
+
+  return `${APP_PATH.FILTERED_MAP}${serviceSegment}/${target.applicationName}@${target.serviceType}`;
 };
 
 export const getErrorAnalysisPath = getApplicationPath(APP_PATH.ERROR_ANALYSIS);

@@ -1,4 +1,10 @@
-import { getBaseNodeId, getTimeSeriesApdexInfo } from './serverMap';
+import {
+  findLinkOfApplications,
+  findNodeOfApplication,
+  getBaseNodeId,
+  getTimeSeriesApdexInfo,
+  parseNodeApplication,
+} from './serverMap';
 import {
   ApplicationType,
   GetServerMap,
@@ -278,6 +284,131 @@ describe('Test serverMap helper utils', () => {
 
       const result = getBaseNodeId({ application, applicationMapData });
       expect(result).toBe('test-app^UNAUTHORIZED');
+    });
+  });
+
+  describe('Test "parseNodeApplication"', () => {
+    // servermap 응답의 node/link id.
+    test('Read a 2-part id (servermap)', () => {
+      expect(parseNodeApplication('ACL-PORTAL-DEV^SPRING_BOOT')).toEqual({
+        applicationName: 'ACL-PORTAL-DEV',
+        serviceType: 'SPRING_BOOT',
+      });
+    });
+
+    // servicemap 응답의 node/link id. 앞에 serviceName이 붙는다(백엔드 `ServiceNodeName`).
+    test('Read a 3-part id (servicemap) without the service name leaking into the application', () => {
+      expect(parseNodeApplication('DEFAULT^ACL-PORTAL-DEV^SPRING_BOOT')).toEqual({
+        applicationName: 'ACL-PORTAL-DEV',
+        serviceType: 'SPRING_BOOT',
+      });
+      expect(parseNodeApplication('blogService^ACL-PORTAL-DEV^SPRING_BOOT')).toEqual({
+        applicationName: 'ACL-PORTAL-DEV',
+        serviceType: 'SPRING_BOOT',
+      });
+    });
+
+    // serviceName은 escape되지 않아 '^'가 들어올 수 있다. application은 뒤에서 세면 안전하다.
+    test('Read the application from the tail when the service name contains the delimiter', () => {
+      expect(parseNodeApplication('team^a^ACL-PORTAL-DEV^SPRING_BOOT')).toEqual({
+        applicationName: 'ACL-PORTAL-DEV',
+        serviceType: 'SPRING_BOOT',
+      });
+    });
+
+    // servicemap의 service group(접힌 service) 노드·링크는 id가 serviceName 하나뿐이다.
+    test('Return null when the id carries no application', () => {
+      expect(parseNodeApplication('blogService')).toBeNull();
+      expect(parseNodeApplication('')).toBeNull();
+      expect(parseNodeApplication()).toBeNull();
+      expect(parseNodeApplication('ACL-PORTAL-DEV^')).toBeNull();
+      expect(parseNodeApplication('^SPRING_BOOT')).toBeNull();
+    });
+  });
+
+  describe('Test "findNodeOfApplication"', () => {
+    const application: ApplicationType = {
+      applicationName: 'ACL-PORTAL-DEV',
+      serviceType: 'SPRING_BOOT',
+    };
+    const makeNodes = (keys: string[]) =>
+      keys.map((key) => ({ key, applicationName: 'ACL-PORTAL-DEV' }) as GetServerMap.NodeData);
+
+    // filterServerMap은 enableServiceMap 설정에 따라 2단/3단으로 갈린다
+    // (`NodeRender.detailedRender`). 두 형식 모두에서 기준 노드를 찾아야 한다.
+    test('Find the node whichever key format the API used', () => {
+      expect(
+        findNodeOfApplication(makeNodes(['ACL-PORTAL-DEV^SPRING_BOOT']), application)?.key,
+      ).toBe('ACL-PORTAL-DEV^SPRING_BOOT');
+      expect(
+        findNodeOfApplication(makeNodes(['DEFAULT^ACL-PORTAL-DEV^SPRING_BOOT']), application)?.key,
+      ).toBe('DEFAULT^ACL-PORTAL-DEV^SPRING_BOOT');
+      expect(
+        findNodeOfApplication(makeNodes(['blogService^ACL-PORTAL-DEV^SPRING_BOOT']), application)
+          ?.key,
+      ).toBe('blogService^ACL-PORTAL-DEV^SPRING_BOOT');
+    });
+
+    // 권한 없는 노드는 백엔드가 serviceType을 UNAUTHORIZED로 치환해 내려준다.
+    test('Match an unauthorized node by name alone', () => {
+      const nodes = [
+        {
+          key: 'DEFAULT^ACL-PORTAL-DEV^UNAUTHORIZED',
+          applicationName: 'ACL-PORTAL-DEV',
+          serviceType: 'UNAUTHORIZED',
+        } as GetServerMap.NodeData,
+      ];
+
+      expect(findNodeOfApplication(nodes, application)?.serviceType).toBe('UNAUTHORIZED');
+    });
+
+    test('Return undefined when nothing matches', () => {
+      expect(findNodeOfApplication(makeNodes(['OTHER^TOMCAT']), application)).toBeUndefined();
+      expect(findNodeOfApplication(undefined, application)).toBeUndefined();
+      expect(
+        findNodeOfApplication(makeNodes(['ACL-PORTAL-DEV^SPRING_BOOT']), null),
+      ).toBeUndefined();
+    });
+
+    // service group 노드는 특정 application을 가리키지 않는다.
+    test('Never match a service group node', () => {
+      expect(findNodeOfApplication(makeNodes(['blogService']), application)).toBeUndefined();
+    });
+  });
+
+  describe('Test "findLinkOfApplications"', () => {
+    const from: ApplicationType = { applicationName: 'FRONT', serviceType: 'TOMCAT' };
+    const to: ApplicationType = { applicationName: 'ACL-PORTAL-DEV', serviceType: 'SPRING_BOOT' };
+    const makeLinks = (keys: string[]) => keys.map((key) => ({ key }) as GetServerMap.LinkData);
+
+    test('Find the link whichever key format the API used', () => {
+      expect(
+        findLinkOfApplications(makeLinks(['FRONT^TOMCAT~ACL-PORTAL-DEV^SPRING_BOOT']), from, to)
+          ?.key,
+      ).toBe('FRONT^TOMCAT~ACL-PORTAL-DEV^SPRING_BOOT');
+      expect(
+        findLinkOfApplications(
+          makeLinks(['DEFAULT^FRONT^TOMCAT~DEFAULT^ACL-PORTAL-DEV^SPRING_BOOT']),
+          from,
+          to,
+        )?.key,
+      ).toBe('DEFAULT^FRONT^TOMCAT~DEFAULT^ACL-PORTAL-DEV^SPRING_BOOT');
+    });
+
+    // 방향이 뒤바뀐 링크를 같은 것으로 보면 안 된다.
+    test('Respect the link direction', () => {
+      expect(
+        findLinkOfApplications(makeLinks(['FRONT^TOMCAT~ACL-PORTAL-DEV^SPRING_BOOT']), to, from),
+      ).toBeUndefined();
+    });
+
+    test('Return undefined when nothing matches', () => {
+      expect(findLinkOfApplications(makeLinks(['A^TOMCAT~B^TOMCAT']), from, to)).toBeUndefined();
+      expect(findLinkOfApplications(undefined, from, to)).toBeUndefined();
+      // service group 링크(양쪽이 serviceName 하나뿐)
+      expect(
+        findLinkOfApplications(makeLinks(['blogService~shopService']), from, to),
+      ).toBeUndefined();
     });
   });
 });

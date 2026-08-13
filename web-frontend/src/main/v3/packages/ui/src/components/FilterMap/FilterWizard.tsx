@@ -19,8 +19,8 @@ import { PiDotOutlineLight } from 'react-icons/pi';
 import { GoDot } from 'react-icons/go';
 import { FilterStatus } from './FilterStatus';
 import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
-import { addCommas, getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
-import { Edge, Node } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
+import { addCommas } from '@pinpoint-fe/ui/src/utils';
+import { Edge, Node, parseNodeApplication } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
 import { PopoverArrow } from '@radix-ui/react-popover';
 
 export interface FilterWizardProps {
@@ -57,8 +57,10 @@ export const getDefaultFilters = (
   if ('source' in data) {
     const edgeData = data as Edge;
     // edge
-    const from = getApplicationTypeAndName(edgeData.source);
-    const to = getApplicationTypeAndName(edgeData.target);
+    // servicemap의 id는 3-part(serviceName^applicationName^serviceType)다. URL 세그먼트를
+    // 파싱하는 `getApplicationTypeAndName`으로 읽으면 applicationName에 serviceName까지 붙는다.
+    const from = parseNodeApplication(edgeData.source);
+    const to = parseNodeApplication(edgeData.target);
     return {
       fromApplication: from?.applicationName,
       fromServiceType: from?.serviceType,
@@ -81,7 +83,7 @@ export const getDefaultFilters = (
   } else if ('type' in data) {
     // node
     const nodeData = data as Node;
-    const app = getApplicationTypeAndName(nodeData.id);
+    const app = parseNodeApplication(nodeData.id);
     return {
       fromApplication: '',
       fromServiceType: '',

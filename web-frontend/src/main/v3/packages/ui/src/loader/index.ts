@@ -1,4 +1,5 @@
 export * from './errorAnalysis';
+export * from './filteredMap';
 export * from './handleV2';
 export * from './inspector';
 export * from './openTelemetry';

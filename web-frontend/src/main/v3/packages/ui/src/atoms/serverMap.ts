@@ -7,6 +7,7 @@ import {
   AgentOverview,
 } from '@pinpoint-fe/ui/src/constants';
 import { Node, Edge } from '@pinpoint-fe/server-map';
+import { isNodeOfApplication } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
 
 export type CurrentTarget = {
   id?: string;
@@ -57,7 +58,12 @@ export const serverMapCurrentTargetDataAtom = atom((get) => {
         node.key === currentTarget?.id ||
         node.key === fallbackKey ||
         nodeKey === currentTarget?.id ||
-        nodeKey === fallbackKey
+        nodeKey === fallbackKey ||
+        // 기준 노드(base node)로 세운 target은 id가 없어 이름으로만 찾을 수 있다. key 형식이
+        // map API마다 다르므로(servermap 2단, servicemap 3단) 형식에 무관하게 비교한다.
+        // `nodeKey`(2단)의 serviceType은 `getName()` 형식이라 여기서 만든 desc 형식과
+        // 어긋나는 타입이 있어(UNKNOWN_DB_EXECUTE_QUERY→UNKNOWN_DB) 그것만으로는 부족하다.
+        isNodeOfApplication(node as GetServerMap.NodeData, currentTarget)
       );
     });
   } else if (currentTarget?.type === 'edge') {

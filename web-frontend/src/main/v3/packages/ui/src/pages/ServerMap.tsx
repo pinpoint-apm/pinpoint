@@ -6,7 +6,7 @@ import {
   getServerMapPath,
   convertParamsToQueryString,
   getServerImagePath,
-  getApplicationKey,
+  findNodeOfApplication,
   getFormattedDateRange,
   getRealtimePath,
 } from '@pinpoint-fe/ui/src/utils';
@@ -131,17 +131,11 @@ export const ServerMapPage = ({
         currentTarget = serverMapCurrentTarget;
         setServerMapCurrentTarget(currentTarget);
       } else {
-        const applicationKey = getApplicationKey(application!);
-        const applicationInfo = (
-          serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[]
-        ).find((node) => {
-          return (
-            applicationKey === node.key ||
-            applicationKey === node.nodeKey ||
-            (node.applicationName === application?.applicationName &&
-              node.serviceType === 'UNAUTHORIZED')
-          );
-        })!;
+        // key 형식이 map API마다 다르므로(servermap 2단, servicemap 3단) 형식에 무관한 매처를 쓴다.
+        const applicationInfo = findNodeOfApplication(
+          serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[],
+          application,
+        );
 
         if (applicationInfo) {
           const { applicationName, serviceType } = applicationInfo;
@@ -181,9 +175,12 @@ export const ServerMapPage = ({
   };
 
   // FilterWizard
+  // filteredMap은 새 탭으로 열리므로, servicemap에서 열었다면 그 service를 경로에 실어야 한다.
+  // (servermap에서는 serviceName prop이 없어 예전과 같은 경로가 된다.)
   const handleClickApply = useFilterWizardOnClickApply<GetServerMap.LinkData>({
     from: searchParameters.from,
     to: searchParameters.to,
+    serviceName,
   });
 
   const handleClickMenuItem = useServerMapOnClickMenuItem<
@@ -194,6 +191,7 @@ export const ServerMapPage = ({
     to: searchParameters.to,
     setFilter,
     setShowFilter,
+    serviceName,
   });
 
   return (
