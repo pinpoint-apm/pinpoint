@@ -126,4 +126,33 @@
         </plugins>
     </build>
 
+    <profiles>
+        <!-- Opt-in multi-JDK verification of the JDK 9+ define path (Java9DefineClass and the
+             interceptor guard codegen that defines classes through it). A plain test JVM cannot
+             reach jdk.internal.misc/access SharedSecrets - at runtime the agent opens them via
+             its module support, so the unit fork needs explicit add-exports. Both packages are
+             requested because OpenJDK 9-11 uses jdk.internal.misc and 12+ uses
+             jdk.internal.access; the flag for a package a JDK does not have only warns.
+             JDK 9+ forks only - a JDK 8 JVM does not start with add-exports flags.
+             Usage: mvn test -pl agent-module/profiler-optional/profiler-optional-jdk9
+                    -Pjdk9-define-test -Dtest.jdk.home=<jdk 9+ home> -->
+        <profile>
+            <id>jdk9-define-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>--add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.access=ALL-UNNAMED</argLine>
+                            <systemPropertyVariables>
+                                <pinpoint.jdk9.define.test>true</pinpoint.jdk9.define.test>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
