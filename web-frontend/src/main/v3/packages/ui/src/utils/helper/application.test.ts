@@ -129,6 +129,16 @@ describe('Test application helper utils', () => {
       expect(getServiceNameFromPath('/serverMap/svc@appName@TOMCAT')).toBeUndefined();
     });
 
+    // filteredMap은 servicemap에서 넘어오면 serviceName을 싣고, servermap에서 넘어오면 싣지 않는다.
+    // 그 구분이 유지되어야 화면이 돌아갈 map을 정할 수 있다.
+    test('Read the service name on a filteredMap path only when one is carried', () => {
+      expect(getServiceNameFromPath('/filteredMap/DEFAULT/appName@TOMCAT')).toBe('DEFAULT');
+      expect(getServiceNameFromPath('/filteredMap/blogService/appName@TOMCAT')).toBe('blogService');
+      expect(getServiceNameFromPath('/filteredMap/team%2Fa%40b/appName@TOMCAT')).toBe('team/a@b');
+      expect(getServiceNameFromPath('/filteredMap/appName@TOMCAT')).toBeUndefined();
+      expect(getServiceNameFromPath('/filteredMap')).toBeUndefined();
+    });
+
     // 경로 빌더가 인코딩해서 넣은 값을 되돌린다.
     test('Decode the encoded service name', () => {
       expect(getServiceNameFromPath('/transactionList/a%2Fb/appName@TOMCAT')).toBe('a/b');

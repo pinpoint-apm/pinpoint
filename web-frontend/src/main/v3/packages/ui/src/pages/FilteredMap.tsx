@@ -5,8 +5,10 @@ import {
   convertParamsToQueryString,
   getServerImagePath,
   getFilteredMapPath,
-  getApplicationKey,
   getServerMapPath,
+  getServiceMapPath,
+  findNodeOfApplication,
+  findLinkOfApplications,
 } from '@pinpoint-fe/ui/src/utils';
 import { useConfiguration, useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
@@ -55,8 +57,20 @@ export const FilteredMapPage = ({
   const periodInterval = configuration?.['periodInterval.serverMap'];
   const containerRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { dateRange, application, parsedFilters, parsedHint, searchParameters, search } =
-    useFilteredMapParameters();
+  const {
+    dateRange,
+    application,
+    serviceName,
+    parsedFilters,
+    parsedHint,
+    searchParameters,
+    search,
+  } = useFilteredMapParameters();
+  // 경로에 serviceName이 실려 있으면 servicemap에서 넘어온 화면이다. 돌아갈 map도 그쪽이어야 한다.
+  // (servermap에서 넘어온 화면은 예전과 같이 servermap으로 돌아간다.)
+  const parentMap = serviceName
+    ? { title: 'Servicemap', path: getServiceMapPath(serviceName, application) }
+    : { title: 'Servermap', path: getServerMapPath(application) };
   const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
   const [serverMapData, setServerMapData] = useAtom(serverMapDataAtom);
   const [appliedFilters, setAppliedFilters] =
@@ -81,9 +95,10 @@ export const FilteredMapPage = ({
         if (prevFilter.applicationName && prevFilter.serviceType) {
           return {
             ...prevFilter,
-            agents: (serverMapData?.applicationMapData.nodeDataArray as FilteredMap.NodeData[])
-              ?.find((n) => n.key === `${prevFilter.applicationName}^${prevFilter.serviceType}`)
-              ?.agents?.map((agent) => agent.id),
+            agents: findNodeOfApplication(
+              serverMapData?.applicationMapData.nodeDataArray as FilteredMap.NodeData[],
+              { applicationName: prevFilter.applicationName, serviceType: prevFilter.serviceType },
+            )?.agents?.map((agent) => agent.id),
           };
         } else if (
           prevFilter.fromApplication &&
@@ -91,12 +106,13 @@ export const FilteredMapPage = ({
           prevFilter.toApplication &&
           prevFilter.toServiceType
         ) {
-          const linkData = (
-            serverMapData?.applicationMapData.linkDataArray as FilteredMap.LinkData[]
-          )?.find(
-            (n) =>
-              n.key ===
-              `${prevFilter.fromApplication}^${prevFilter.fromServiceType}~${prevFilter.toApplication}^${prevFilter.toServiceType}`,
+          const linkData = findLinkOfApplications(
+            serverMapData?.applicationMapData.linkDataArray as FilteredMap.LinkData[],
+            {
+              applicationName: prevFilter.fromApplication,
+              serviceType: prevFilter.fromServiceType,
+            },
+            { applicationName: prevFilter.toApplication, serviceType: prevFilter.toServiceType },
           );
 
           return {
@@ -118,25 +134,24 @@ export const FilteredMapPage = ({
       const isTargetIncluded =
         serverMapCurrentTarget &&
         ((serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[]).some(
-          ({ key }) => key === serverMapCurrentTarget.id,
+          ({ key, nodeKey }) =>
+            key === serverMapCurrentTarget.id || nodeKey === serverMapCurrentTarget.id,
         ) ||
           (serverMapData.applicationMapData.linkDataArray as GetServerMap.LinkData[]).some(
-            ({ key }) => key === serverMapCurrentTarget.id,
+            ({ key, linkKey }) =>
+              key === serverMapCurrentTarget.id || linkKey === serverMapCurrentTarget.id,
           ));
 
       if (isTargetIncluded || serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges) {
         currentTarget = serverMapCurrentTarget;
         setServerMapCurrentTarget(currentTarget);
       } else {
-        const applicationInfo = (
-          serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[]
-        ).find((node) => {
-          return (
-            getApplicationKey(application!) === node.key ||
-            (node.applicationName === application?.applicationName &&
-              node.serviceType === 'UNAUTHORIZED')
-          );
-        })!;
+        // 경로의 application에 해당하는 노드를 골라 기준(base node)으로 세운다. key 형식이
+        // 설정에 따라 2단/3단으로 갈리므로(`NodeRender.detailedRender`) 형식에 무관한 매처를 쓴다.
+        const applicationInfo = findNodeOfApplication(
+          serverMapData.applicationMapData.nodeDataArray as GetServerMap.NodeData[],
+          application,
+        );
         if (applicationInfo) {
           const { applicationName, serviceType } = applicationInfo;
           currentTarget = {
@@ -165,6 +180,8 @@ export const FilteredMapPage = ({
         navigate(
           `${getFilteredMapPath(
             parsedFilters[parsedFilters.length - 1],
+            undefined,
+            serviceName,
           )}?${convertParamsToQueryString(formattedDates)}&${convertParamsToQueryString({
             filter: searchParameters.filter,
             hint: searchParameters.hint,
@@ -172,14 +189,16 @@ export const FilteredMapPage = ({
         );
       }
     }) as DatetimePickerChangeHandler,
-    [application?.applicationName, searchParameters.filter, searchParameters.hint],
+    [application?.applicationName, searchParameters.filter, searchParameters.hint, serviceName],
   );
 
   // FilterWizard
+  // 여기서 필터를 더 걸면 또 새 탭이 열린다. 지금 보고 있는 service를 그대로 이어야 한다.
   const handleClickApply = useFilterWizardOnClickApply<FilteredMap.LinkData>({
     from: searchParameters.from,
     to: searchParameters.to,
     parsedHint,
+    serviceName,
   });
 
   // ServerMapCore
@@ -193,6 +212,7 @@ export const FilteredMapPage = ({
     parsedFilters,
     setFilter,
     setShowFilterConfig,
+    serviceName,
   });
 
   return (
@@ -201,8 +221,8 @@ export const FilteredMapPage = ({
         title={
           <div className="flex items-center gap-2">
             <PiTreeStructureDuotone />
-            <Link className="hover:underline" to={getServerMapPath(application)}>
-              Servermap
+            <Link className="hover:underline" to={parentMap.path}>
+              {parentMap.title}
             </Link>{' '}
             / Filtered
           </div>

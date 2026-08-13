@@ -4,6 +4,7 @@ import {
   getApplicationPath,
   getHostGroupPath,
   getFilteredMapPath,
+  getFilterTargetApplication,
   getTransactionListPath,
   getTransactionDetailPath,
   getServiceMapPath,
@@ -192,6 +193,130 @@ describe('Test route helper utils', () => {
 
       const result = getFilteredMapPath(filterState, sourceIsWas);
       expect(result).toEqual('/filteredMap/toApplication@toServiceType');
+    });
+
+    // servicemap에서 넘어오면 어떤 service를 보던 중이었는지 URL에 남아야 한다.
+    // filteredMap은 새 탭으로 열려서 전역 선택값을 믿을 수 없다.
+    describe('with a service name', () => {
+      const filterState = {
+        fromApplication: '',
+        fromServiceType: '',
+        toApplication: '',
+        toServiceType: '',
+        transactionResult: null,
+        applicationName: 'ACL-PORTAL-DEV',
+        serviceType: 'SPRING_BOOT',
+        agentName: '',
+        responseFrom: 0,
+        responseTo: 'max',
+        url: '',
+        fromAgentName: '',
+        toAgentName: '',
+      };
+
+      test('Carry the service name as its own segment', () => {
+        expect(getFilteredMapPath(filterState, false, 'DEFAULT')).toEqual(
+          '/filteredMap/DEFAULT/ACL-PORTAL-DEV@SPRING_BOOT',
+        );
+        expect(getFilteredMapPath(filterState, false, 'blogService')).toEqual(
+          '/filteredMap/blogService/ACL-PORTAL-DEV@SPRING_BOOT',
+        );
+      });
+
+      // 백엔드가 serviceName 형식을 검증하지 않으므로 '/'나 '@'가 들어올 수 있다.
+      // 그대로 실으면 세그먼트가 쪼개져 라우트 매칭이 깨진다.
+      test('Encode a service name that would break the path', () => {
+        expect(getFilteredMapPath(filterState, false, 'team/a@b')).toEqual(
+          '/filteredMap/team%2Fa%40b/ACL-PORTAL-DEV@SPRING_BOOT',
+        );
+      });
+
+      // servermap에서 넘어올 때는 주어지지 않는다. 경로 형태가 예전과 같아야 한다.
+      test('Keep the path unchanged when no service name is given', () => {
+        expect(getFilteredMapPath(filterState, false, undefined)).toEqual(
+          '/filteredMap/ACL-PORTAL-DEV@SPRING_BOOT',
+        );
+      });
+    });
+
+    // servicemap의 service group(접힌 service)처럼 기준 application을 고를 수 없는 필터.
+    test('Return only the page path when no application can be picked', () => {
+      const emptyFilterState = {
+        fromApplication: '',
+        fromServiceType: '',
+        toApplication: '',
+        toServiceType: '',
+        transactionResult: null,
+        applicationName: '',
+        serviceType: '',
+        agentName: '',
+        responseFrom: 0,
+        responseTo: 'max',
+        url: '',
+        fromAgentName: '',
+        toAgentName: '',
+      };
+
+      expect(getFilteredMapPath(emptyFilterState, false)).toEqual('/filteredMap');
+      expect(getFilteredMapPath(emptyFilterState, false, 'DEFAULT')).toEqual(
+        '/filteredMap/DEFAULT',
+      );
+    });
+  });
+
+  describe('Test "getFilterTargetApplication"', () => {
+    const base = {
+      fromApplication: 'FRONT',
+      fromServiceType: 'TOMCAT',
+      toApplication: 'ACL-PORTAL-DEV',
+      toServiceType: 'SPRING_BOOT',
+      transactionResult: null,
+      applicationName: '',
+      serviceType: '',
+      agentName: '',
+      responseFrom: 0,
+      responseTo: 'max',
+      url: '',
+      fromAgentName: '',
+      toAgentName: '',
+    };
+
+    test('Pick the node application when the filter is on a node', () => {
+      expect(
+        getFilterTargetApplication({
+          ...base,
+          applicationName: 'ACL-PORTAL-DEV',
+          serviceType: 'SPRING_BOOT',
+        }),
+      ).toEqual({ applicationName: 'ACL-PORTAL-DEV', serviceType: 'SPRING_BOOT' });
+    });
+
+    test('Pick the link side by sourceIsWas', () => {
+      expect(getFilterTargetApplication(base, true)).toEqual({
+        applicationName: 'FRONT',
+        serviceType: 'TOMCAT',
+      });
+      expect(getFilterTargetApplication(base, false)).toEqual({
+        applicationName: 'ACL-PORTAL-DEV',
+        serviceType: 'SPRING_BOOT',
+      });
+    });
+
+    // filteredMap은 기준 application 없이 조회가 성립하지 않는다. 호출자가 화면을 열지 않는다.
+    test('Return null when neither side carries an application', () => {
+      expect(
+        getFilterTargetApplication({
+          ...base,
+          fromApplication: '',
+          fromServiceType: '',
+          toApplication: '',
+          toServiceType: '',
+        }),
+      ).toBeNull();
+    });
+
+    test('Return null when the service type is missing', () => {
+      expect(getFilterTargetApplication({ ...base, toServiceType: '' }, false)).toBeNull();
     });
   });
 

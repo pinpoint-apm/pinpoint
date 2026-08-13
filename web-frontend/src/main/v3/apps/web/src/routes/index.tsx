@@ -3,6 +3,7 @@ import { createBrowserRouter, redirect } from 'react-router-dom';
 import {
   serverMapRouteLoader,
   serviceMapRouteLoader,
+  filteredMapRouteLoader,
   serviceMapRealtimeLoader,
   realtimeLoader,
   errorAnalysisRouteLoader,
@@ -117,9 +118,12 @@ const router = createBrowserRouter(
                   loader: serviceMapRouteLoader,
                 },
                 {
-                  path: `${APP_PATH.FILTERED_MAP}/:application?`,
+                  // servicemap에서 넘어오면 serviceName이 함께 실린다. servermap에서 넘어온
+                  // 형태(`/filteredMap/{application}`)도 그대로 받으므로 두 세그먼트 모두
+                  // optional이다.
+                  path: `${APP_PATH.FILTERED_MAP}/:serviceName?/:application?`,
                   element: <FilteredMap />,
-                  loader: serverMapRouteLoader,
+                  loader: filteredMapRouteLoader,
                 },
                 {
                   path: `${APP_PATH.SCATTER_FULL_SCREEN}/:application?`,

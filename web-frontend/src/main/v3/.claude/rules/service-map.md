@@ -41,6 +41,8 @@ servermap이 사라진 뒤에도 **DEFAULT service 사용자는 여전히 applic
 - 실시간 보기 → `/serviceMap/realtime`이 이미 있다. `RealtimePage`/`Realtime`(컴포넌트)은
   `MapView` prop으로 map만 갈아 끼우는 구조이므로, servermap이 빠지면 `getRealtimePath`와
   `loader/realtime.ts`, `pages/ServerMap/Realtime.tsx`를 지우고 기본값을 servicemap 쪽으로 옮긴다.
+- filteredMap → 경로에 serviceName이 항상 실리므로 `FilteredMapPage`의 돌아갈 map 분기
+  (`Servermap` ↔ `Servicemap`)와 로더의 serviceName 없는 형태 처리를 지운다.
 - `enableServiceMap` 설정 분기 → 설정이 없어지면 `useIsDefaultService`가 "DEFAULT인가?"만 보면 됨
 
 ## servicemap의 두 모드
@@ -65,6 +67,32 @@ service다** — 모든 조회에 `pServiceName` 헤더가 실리고 캐시도 s
   (`SERVER_MAP.SELECT_NODE_FOR_CHART`, `SERVER_MAP.REAL_TIME.SELECT_NODE`).
   로딩 스켈레톤을 그대로 두면 영원히 로딩 중인 화면처럼 보이기 때문이다.
 
+## filteredMap 연결
+
+servicemap에서 필터를 걸면 `/filteredMap/{serviceName}/{application}@{serviceType}`으로 새 탭이
+열린다. 화면은 복제하지 않는다 — map을 그리는 API(`/api/servermap/filterServerMap`)가 같아서
+`FilteredMapPage` 하나로 servermap/servicemap 양쪽을 받는다.
+
+- **경로에 serviceName이 실려 있는지가 "어느 map에서 왔는가"다.** 그것으로 헤더의 돌아갈 링크를
+  정한다(`Servicemap / Filtered` ↔ `Servermap / Filtered`). 그래서 `useFilteredMapParameters`의
+  `serviceName`은 전역 선택값으로 **폴백하지 않는다**(`useServiceNameForLink`와 다른 점).
+  폴백하면 servermap에서 온 화면도 servicemap에서 온 것처럼 보인다.
+- 같은 이유로 **로더는 빠진 serviceName 세그먼트를 채워 넣지 않는다.** servicemap 로더와 반대다.
+- 경로에 실을 serviceName은 `ServerMapPage`의 `serviceName` prop에서 온다(servicemap 계열에서만
+  주어진다). filteredMap 안에서 필터를 더 걸 때는 지금 경로의 serviceName을 그대로 잇는다.
+- 날짜 정규화는 `loader/mapDateRange.ts`를 servicemap 로더와 공유한다. 둘 다 servermap이 빠진
+  뒤에도 남는 화면이라 규칙이 바뀔 때 고칠 곳이 하나여야 한다.
+  (예전에는 filteredMap이 servermap 로더를 그대로 써서, 날짜를 고치는 리다이렉트가 화면을
+  `/serverMap/...`으로 보내며 filter까지 떨어뜨렸다. from/to 외의 query string은 목적지에도 싣는다.)
+
+### TODO: DEFAULT가 아닌 service
+
+**아직 논의 중이다.** 지금은 DEFAULT와 똑같이 필터 대상 application을 싣는다
+(`/filteredMap/myService/{application}@{serviceType}`). map은 service 전체를 그리지만
+filteredMap은 기준 application 없이는 조회가 성립하지 않기 때문이다
+(`useGetFilteredServerMapData`가 `applicationName`을 필수로 요구한다).
+service 전체를 대상으로 필터를 걸 수 있게 할지 정해지면 경로 형태를 그때 맞춘다.
+
 ## serviceName은 URL 경로에 싣는다
 
 `/{page}/{serviceName}/{applicationName}@{serviceType}?` — **세그먼트 표기 하나만** 쓴다.
@@ -82,6 +110,39 @@ service다** — 모든 조회에 `pServiceName` 헤더가 실리고 캐시도 s
   `%2F`가 `/`로 풀려 세그먼트 경계가 어긋난다. 로더에서 특히 주의.
 - 첫 세그먼트가 `{app}@{type}`으로 파싱되면 serviceName이 아니다. serviceName 세그먼트가 생기기
   전 형태(`/serviceMap/myApp@TOMCAT`)의 링크·북마크를 살리기 위한 가드다.
+
+## map 노드/링크 id 형식이 API마다 다르다
+
+| API | render | node key |
+|---|---|---|
+| `/api/servermap/serverMap` | `NodeRender.forServerMap()` | **항상** `applicationName^serviceType` (2단) |
+| `/api/servermap/serviceMap` | `NodeRender.forServiceMap()` | **항상** `serviceName^applicationName^serviceType` (3단) |
+| `/api/servermap/filterServerMap` | `NodeRender.detailedRender(mapProperties)` | **`enableServiceMap` 설정에 따라 2단/3단** |
+
+link key는 노드 이름 둘을 `~`로 이은 것이라 같은 규칙을 따른다(`{from}~{to}`).
+
+> **filteredMap의 형식은 "어디서 왔는가"가 아니라 설정에 달려 있다.** servermap에서 들어온
+> filteredMap도 `enableServiceMap`이 켜져 있으면 3단으로 온다. 경로에 serviceName이 실렸는지와
+> 무관하다.
+
+- **id에서 application을 읽을 때는 `parseNodeApplication`을 쓴다.** 뒤 두 토큰이 application이다.
+  URL 세그먼트용인 `getApplicationTypeAndName`으로 읽으면 3단에서 applicationName에
+  `serviceName^applicationName`이 들어온다(정규식이 greedy).
+- **노드/링크를 application으로 찾을 때는 `findNodeOfApplication`·`findLinkOfApplications`를 쓴다.**
+  `key`의 뒤 두 토큰으로 비교하므로 2단/3단 어느 쪽이든 찾는다.
+- serviceName은 escape되지 않으므로(applicationName만 `ApplicationNameEscaper`로 escape된다)
+  앞쪽 토큰이 더 늘어날 수 있다. 그래서 **앞에서 세지 않고 뒤에서 센다.**
+- **2단짜리 `nodeKey`/`linkKey` 필드와 비교하는 것으로는 부족하다.** 그 필드의 serviceType은
+  `ServiceType.getName()` 형식인데 `key`와 URL은 `getDesc()` 형식이고, 둘이 다른 타입이 있다
+  (`UNKNOWN_DB_EXECUTE_QUERY`→`UNKNOWN_DB`, `SPRING_ORM_IBATIS`→`SPRING`).
+- 스캐터(`applicationScatterData`)의 키는 `ScatterDataMapView`가 `NodeName`으로 만들어
+  **항상 2단**이다. `getApplicationKey`로 그대로 조회하면 된다.
+- servicemap의 **service group**(접힌 service) 노드·링크는 id가 serviceName 하나뿐이라 기준
+  application이 없다. filteredMap은 기준 application 없이 조회가 성립하지 않으므로
+  (`getFilterTargetApplication`이 null) 새 탭을 열지 않는다. service 단위로 필터를 걸 수 있게
+  할지는 위 TODO와 같은 미결 사안이다.
+- 접히는 기준은 백엔드 `ServiceMapViewBuilder`의 `expandedServiceNames`다. 보고 있는 service는
+  펼쳐지므로 그 service의 노드는 3단 app 노드로, 다른 service는 group으로 온다.
 
 ## 함정 (실제로 겪은 것들)
 
@@ -106,8 +167,10 @@ service다** — 모든 조회에 `pServiceName` 헤더가 실리고 캐시도 s
 | DEFAULT 여부 판단 | `hooks/utility/useIsDefaultService.ts` |
 | 경로에 실린 serviceName 읽기 | `utils/helper/application.ts` (`getServiceNameFromPath`) |
 | 경로 분해 (로더용) | `utils/helper/application.ts` (`parseServiceScopedPath`) |
-| 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getServiceMapRealtimePath`, `getTransactionListPath`) |
+| 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getServiceMapRealtimePath`, `getFilteredMapPath`, `getTransactionListPath`) |
 | 요청 헤더 주입 | `hooks/api/serviceNameFetchInterceptor.ts` |
 | service 단위 캐시 키 | `hooks/api/reactQueryHelper.tsx` (`serviceScopedQueryKeyHashFn`) |
 | service 변경 시 초기화 | `hooks/utility/useClearApplicationOnServiceChange.ts` |
-| 라우트 로더 | `loader/serviceMap.ts`, `loader/serviceMapRealtime.ts` |
+| 라우트 로더 | `loader/serviceMap.ts`, `loader/serviceMapRealtime.ts`, `loader/filteredMap.ts` |
+| 로더의 날짜 정규화 (공유) | `loader/mapDateRange.ts` |
+| filteredMap 경로 읽기 | `hooks/searchParameters/useFilteredMapParameters.ts` |
