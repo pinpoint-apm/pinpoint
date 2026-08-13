@@ -87,6 +87,7 @@ acceptable for your service.
 | Per-attempt retry failure events | not recorded at the re-subscription boundary - the restore-only window deliberately records no span event per attempt (`retryWhen` failures are still visible through its companion `whenError` instrumentation) | same |
 | `timeout` | traced | unchanged |
 | `Flux` / `Mono` subscribe, `publishOn` / `subscribeOn`, `delay` / `interval`, `onError` | traced | unchanged - these are exact-name transforms and are not gated |
+| Timer tick downstream - user code assembled below `interval` / `delay`, e.g. a WebClient call inside `flatMap` per tick | the operator relay carries the trace from the tick emission into the downstream chain, so per-tick outbound calls stay in the originating transaction | the tick task itself stays instrumented (exact-name, see above), but the emission's downstream travels the operator relay that this mode removes - per-tick user code runs outside the trace and outbound header propagation breaks, so each self-call lands as a new root transaction. No option restores this link: the periodic carrier does not apply to `Flux.interval` and the one-shot carrier only covers scheduler hops, so the only switch is leaving this mode off |
 
 Weigh the boundary-event loss against the throughput gain: single-endpoint WebFlux benchmarks
 measured 5 to 8% more throughput with the mode on (JDK 25), and how much of that a given service
