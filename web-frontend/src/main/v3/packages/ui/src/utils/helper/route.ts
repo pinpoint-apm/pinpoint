@@ -149,11 +149,11 @@ export const getHeatmapFullScreenRealtimePath = getApplicationPath(
  */
 export const getFilterTargetApplication = (
   filterState: FilteredMap.FilterState,
-  soureIsWas?: boolean,
+  sourceIsWas?: boolean,
 ): ApplicationType | null => {
   const [applicationName, serviceType] = filterState?.applicationName
     ? [filterState.applicationName, filterState.serviceType]
-    : soureIsWas
+    : sourceIsWas
       ? [filterState?.fromApplication, filterState?.fromServiceType]
       : [filterState?.toApplication, filterState?.toServiceType];
 
@@ -184,10 +184,10 @@ export const getFilterTargetApplication = (
  */
 export const getFilteredMapPath = (
   filterState: FilteredMap.FilterState,
-  soureIsWas?: boolean,
+  sourceIsWas?: boolean,
   serviceName?: string,
 ) => {
-  const target = getFilterTargetApplication(filterState, soureIsWas);
+  const target = getFilterTargetApplication(filterState, sourceIsWas);
   const serviceSegment = serviceName ? `/${encodeURIComponent(serviceName)}` : '';
 
   // 기준 application이 없으면 세그먼트를 붙이지 않는다(다른 경로 빌더와 같은 처리).

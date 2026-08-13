@@ -71,16 +71,16 @@ export function useServerMapOnClickMenuItem<
       const link = (serverMapData?.applicationMapData?.linkDataArray as R[])?.find(
         (l) => l?.key === data?.id,
       );
-      const soureIsWas = link?.sourceInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER;
+      const sourceIsWas = link?.sourceInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER;
 
       // 기준 application이 없으면 filteredMap은 조회 자체를 못 한다. 빈 화면을 새 탭으로
       // 열어 보여주는 대신 아무 것도 하지 않는다. (servicemap의 service group 링크)
-      if (!defaultFilterState || !getFilterTargetApplication(defaultFilterState, soureIsWas)) {
+      if (!defaultFilterState || !getFilterTargetApplication(defaultFilterState, sourceIsWas)) {
         return;
       }
 
       const addedHint =
-        soureIsWas && link?.targetInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER
+        sourceIsWas && link?.targetInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER
           ? {
               [link?.targetInfo?.applicationName]: link?.filter?.outRpcList,
             }
@@ -89,7 +89,7 @@ export function useServerMapOnClickMenuItem<
       window.open(
         `${BASE_PATH}${getFilteredMapPath(
           defaultFilterState,
-          soureIsWas,
+          sourceIsWas,
           serviceName,
         )}?from=${from}&to=${to}${getFilteredMapQueryString({
           filterStates: [...(parsedFilters || [])!, defaultFilterState],

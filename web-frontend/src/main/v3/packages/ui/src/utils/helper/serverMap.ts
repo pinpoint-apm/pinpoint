@@ -8,43 +8,84 @@ import { Edge as ServerMapEdge, Node as ServerMapNode } from '@pinpoint-fe/serve
 export type Edge = ServerMapEdge;
 export type Node = ServerMapNode;
 
-// node/link key는 2-part(applicationName^serviceType) 또는 3-part(serviceName^applicationName^serviceType)로 들어올 수 있다.
-// 마지막 두 토큰이 항상 [applicationName, serviceType]이므로 뒤에서 잘라낸다.
+/**
+ * 기준 노드 id에서 application을 읽는다. 읽을 수 없으면 빈 문자열이다.
+ * (`getBaseNodeId`가 실제 node.key를 돌려주므로 그 형식들을 그대로 받는다.)
+ *
+ * 형식 판별은 `parseNodeApplication` 하나에 맡긴다 — 규칙이 바뀔 때 고칠 곳이 하나여야 한다.
+ */
 export const parseBaseNodeId = (
   baseNodeId: string,
 ): { applicationName: string; serviceType: string } => {
-  const tokens = baseNodeId.split('^');
+  const parsed = parseNodeApplication(baseNodeId);
+
   return {
-    applicationName: tokens[tokens.length - 2] ?? '',
-    serviceType: tokens[tokens.length - 1] ?? '',
+    applicationName: parsed?.applicationName ?? '',
+    serviceType: parsed?.serviceType ?? '',
   };
 };
+
+/**
+ * 앞에서부터 첫 번째 **escape되지 않은** '^'의 위치. 없으면 -1.
+ * 앞에 붙은 '\'의 개수가 짝수면 escape되지 않은 것이다(백엔드 `ServiceNodeNameParser`와 같은 규칙).
+ */
+const findServiceDelimiter = (value: string) => {
+  for (let i = 0; i < value.length; i++) {
+    if (value[i] !== '^') {
+      continue;
+    }
+
+    let backslashCount = 0;
+    for (let j = i - 1; j >= 0 && value[j] === '\\'; j--) {
+      backslashCount++;
+    }
+
+    if (backslashCount % 2 === 0) {
+      return i;
+    }
+  }
+
+  return -1;
+};
+
+/** 백엔드 `ApplicationNameEscaper.unescape`와 같다. '\X'를 'X'로 되돌린다. */
+const unescapeApplicationName = (value: string) => value.replace(/\\(.)/g, '$1');
 
 /**
  * map에서 클릭한 노드/링크의 id에서 application을 읽는다. 읽을 수 없으면 null이다.
  *
  * id의 형태가 API마다 다르다(백엔드 `NodeName` / `ServiceNodeName`).
- * - servermap: `applicationName^serviceType` (2-part)
- * - servicemap: `serviceName^applicationName^serviceType` (3-part)
+ * - servermap: `applicationName^serviceType` (2단, applicationName을 escape하지 않는다)
+ * - servicemap: `serviceName^escape(applicationName)^serviceType` (3단)
  *
- * 뒤 두 토큰이 항상 application이라 `parseBaseNodeId`와 같은 규칙으로 읽는다. serviceName은
- * escape되지 않으므로 앞쪽 토큰은 더 늘어날 수 있지만, applicationName은 백엔드가 '^'를
- * escape하므로(`ApplicationNameEscaper`) 뒤에서 세는 것은 안전하다.
+ * **백엔드 `ServiceNodeNameParser`와 같은 규칙으로 읽는다.** serviceType은 마지막 '^' 뒤,
+ * applicationName은 그 앞부분을 첫 번째 escape되지 않은 '^'에서 잘라낸 나머지다.
+ * 단순히 '^'로 쪼개 뒤 두 토큰을 쓰면, applicationName 안의 escape된 '^'(`a\^b`)를 구분자로
+ * 읽어 이름이 잘린다(`svc^a\^b^TOMCAT` → `b`).
+ *
+ * 3단일 때만 unescape한다. 2단은 백엔드가 escape하지 않으므로(`NodeName.newNodeKey`)
+ * unescape하면 이름에 든 '\'가 사라진다.
+ *
  * 마지막 토큰(serviceType)은 두 API 모두 `ServiceType.toString()`이라 값이 같다.
  *
  * servicemap의 service group(접힌 service) 노드·링크는 id가 serviceName 하나뿐이라 기준
- * application이 없다. URL 세그먼트를 파싱하는 `getApplicationTypeAndName`을 쓰면 3-part id에서
+ * application이 없다. URL 세그먼트를 파싱하는 `getApplicationTypeAndName`을 쓰면 3단 id에서
  * applicationName에 `serviceName^applicationName`이 들어오므로 이 함수를 쓴다.
  */
 export const parseNodeApplication = (nodeId = ''): ApplicationType | null => {
-  const tokens = nodeId.split('^');
+  const lastDelimiter = nodeId.lastIndexOf('^');
 
-  if (tokens.length < 2) {
+  if (lastDelimiter === -1) {
     return null;
   }
 
-  const applicationName = tokens[tokens.length - 2];
-  const serviceType = tokens[tokens.length - 1];
+  const serviceType = nodeId.slice(lastDelimiter + 1);
+  const serviceNameAndApplication = nodeId.slice(0, lastDelimiter);
+  const serviceDelimiter = findServiceDelimiter(serviceNameAndApplication);
+  const applicationName =
+    serviceDelimiter === -1
+      ? serviceNameAndApplication
+      : unescapeApplicationName(serviceNameAndApplication.slice(serviceDelimiter + 1));
 
   if (!applicationName || !serviceType) {
     return null;
