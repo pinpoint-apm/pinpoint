@@ -19,6 +19,14 @@ import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './c
 import { useStoragedAxisY } from './core/useStoragedAxisY';
 import { subMinutes, subSeconds } from 'date-fns';
 
+/**
+ * 실시간 꼬리를 아직 요청하지 않을 때 넘기는 빈 구간.
+ *
+ * `useGetScatterRealtimeData`는 from/to가 0이면 요청하지 않는다. 렌더마다 새로 만들지 않도록
+ * 모듈 상수로 둔다(훅 내부 effect가 from/to를 의존성으로 본다).
+ */
+const EMPTY_RANGE = { from: new Date(0), to: new Date(0), isRealtime: true };
+
 export interface ScatterChartRealtimeFetcherProps {
   node: CurrentTarget;
   agentId?: string;
@@ -43,14 +51,19 @@ export const ScatterChartRealtimeFetcher = ({
   const [defaultDateRange, setDefaultDateRange] = React.useState(dateRange);
   const { data, isLoading, setQueryParams } = useGetScatterData(node, defaultDateRange);
 
+  // 5분 밑그림이 덮은 끝 시각. 마운트 직후의 2초 구간은 이미 이 안에 들어 있어서, 그대로 요청하면
+  // 같은 구간을 한 번 더 받는다. 시계가 이 시각을 지난 다음부터 꼬리를 물기 시작한다.
+  const [backfilledTo, setBackfilledTo] = React.useState(0);
+  const hasTailToFetch = backfilledTo > 0 && to > backfilledTo;
+
   const {
     data: realtimeData,
     isLoading: isRealtimeLoading,
     setQueryParams: setRealtimeQueryParams,
-  } = useGetScatterRealtimeData(node, {
-    ...dateRange,
-    from: subSeconds(dateRange.to, 2),
-  });
+  } = useGetScatterRealtimeData(
+    node,
+    hasTailToFetch ? { ...dateRange, from: subSeconds(dateRange.to, 2) } : EMPTY_RANGE,
+  );
   const sc = scatterRef.current;
   const isScatterMounted = scatterRef.current?.isMounted();
 
@@ -101,6 +114,7 @@ export const ScatterChartRealtimeFetcher = ({
         yGroupUnit,
         timestamp,
       }));
+      setBackfilledTo(to);
 
       setRealtimeQueryParams((prev: GetScatter.Parameters) => ({
         ...prev,
