@@ -24,11 +24,10 @@ import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.batch.service.BatchServiceConfig;
+import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
-import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
-import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.datasource.MetaDataSourceConfiguration;
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
@@ -56,6 +55,7 @@ import java.util.List;
         BatchServiceConfig.class,
         ComponentConfiguration.class,
         HyperLinkConfiguration.class,
+        CommonsServerConfiguration.class,
 
         MainDataSourceConfiguration.class,
         MetaDataSourceConfiguration.class,
@@ -86,10 +86,6 @@ public class BatchModule {
         return new AgentProperties();
     }
 
-    @Bean
-    public TimeSlot timeSlot() {
-        return new DefaultTimeSlot();
-    }
 
     @Bean
     StartupJobLauncher startupJobLauncher(
