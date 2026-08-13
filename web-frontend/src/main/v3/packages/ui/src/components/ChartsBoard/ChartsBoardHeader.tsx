@@ -46,7 +46,7 @@ export const ChartsBoardHeader = ({ currentTarget }: ChartsBoardHeaderProps) => 
                   <HiOutlineArrowRight />
                 </div>
                 <div className="flex items-center flex-1 gap-2">
-                  <ServerIcon application={sourceApp ?? {}} className="" />
+                  <ServerIcon application={targetApp ?? {}} className="" />
                   <div className="truncate">{targetApp?.applicationName}</div>
                 </div>
               </div>

@@ -308,11 +308,32 @@ describe('Test serverMap helper utils', () => {
       });
     });
 
-    // serviceName은 escape되지 않아 '^'가 들어올 수 있다. application은 뒤에서 세면 안전하다.
-    test('Read the application from the tail when the service name contains the delimiter', () => {
-      expect(parseNodeApplication('team^a^ACL-PORTAL-DEV^SPRING_BOOT')).toEqual({
-        applicationName: 'ACL-PORTAL-DEV',
-        serviceType: 'SPRING_BOOT',
+    // 3단 id의 applicationName은 백엔드가 '^'를 escape해서 싣는다(`ApplicationNameEscaper`).
+    // 단순히 '^'로 쪼개면 escape된 구분자를 진짜 구분자로 읽어 이름이 잘린다.
+    test('Keep an escaped delimiter inside the application name', () => {
+      expect(parseNodeApplication('DEFAULT^a\\^b^TOMCAT')).toEqual({
+        applicationName: 'a^b',
+        serviceType: 'TOMCAT',
+      });
+      expect(parseNodeApplication('blogService^a\\^b\\^c^TOMCAT')).toEqual({
+        applicationName: 'a^b^c',
+        serviceType: 'TOMCAT',
+      });
+    });
+
+    // escape 문자 자체도 escape되어 온다('\\' → '\\\\').
+    test('Unescape an escaped backslash', () => {
+      expect(parseNodeApplication('DEFAULT^a\\\\b^TOMCAT')).toEqual({
+        applicationName: 'a\\b',
+        serviceType: 'TOMCAT',
+      });
+    });
+
+    // 2단은 백엔드가 escape하지 않으므로(`NodeName.newNodeKey`) 되돌리지 않는다.
+    test('Leave a 2-part application name untouched', () => {
+      expect(parseNodeApplication('a\\b^TOMCAT')).toEqual({
+        applicationName: 'a\\b',
+        serviceType: 'TOMCAT',
       });
     });
 
