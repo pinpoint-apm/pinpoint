@@ -148,7 +148,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
                                        ExceptionHandlerFactory exceptionHandlerFactory,
                                        RequestRecorderFactory requestRecorderFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
-        this.guardCodegen = profilerConfig.readBoolean(GUARD_CODEGEN_KEY, false);
+        this.guardCodegen = profilerConfig.readBoolean(GUARD_CODEGEN_KEY, true);
         if (this.guardCodegen) {
             // nullable outside the DI wiring (tests); the scoped template fallback then stays off
             ASMGuardedInterceptorFactory.initTemplateSource(bootstrapCore);
