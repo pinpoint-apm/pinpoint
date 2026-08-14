@@ -114,4 +114,17 @@ public class ApplicationMapModel {
                 ", acceptorHosts=" + CollectionUtils.nullSafeSize(acceptorHosts) +
                 '}';
     }
+
+    /**
+     * Dumps every collected row, unlike {@link #toString()} which only prints the list sizes.
+     */
+    public String dump() {
+        return "ApplicationMapModel{" +
+                "requestTime=" + requestTime +
+                ", outLinks=" + nonNull(outLinks) +
+                ", inLinks=" + nonNull(inLinks) +
+                ", responseTimes=" + nonNull(responseTimes) +
+                ", acceptorHosts=" + nonNull(acceptorHosts) +
+                '}';
+    }
 }

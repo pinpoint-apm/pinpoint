@@ -30,4 +30,10 @@ public record InLinkRow(Vertex inVertex,
         Objects.requireNonNull(inVertex, "inVertex");
         Objects.requireNonNull(selfVertex, "selfVertex");
     }
+
+    @Override
+    public String toString() {
+        return "InLink{" + inVertex + " <- " + selfVertex + '/' + selfHost +
+                " elapsed=" + elapsed + " error=" + error + '}';
+    }
 }

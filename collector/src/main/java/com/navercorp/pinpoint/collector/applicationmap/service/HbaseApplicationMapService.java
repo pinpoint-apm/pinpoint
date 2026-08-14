@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.collector.applicationmap.model.ResponseTimeRow;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -37,6 +39,7 @@ import java.util.Objects;
 @Service
 public class HbaseApplicationMapService implements ApplicationMapService {
 
+    private final Logger logger = LogManager.getLogger(getClass());
     private final HostApplicationMapDao hostApplicationMapDao;
 
     private final LinkService linkService;
@@ -65,6 +68,10 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     }
 
     private void write(ApplicationMapModel model) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("MapModel {}", model.dump());
+        }
+
         final long requestTime = model.getRequestTime();
 
         for (AcceptorHostRow row : model.getAcceptorHosts()) {

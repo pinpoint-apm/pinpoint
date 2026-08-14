@@ -28,4 +28,10 @@ public record ResponseTimeRow(Vertex selfVertex, String agentId,
     public ResponseTimeRow {
         Objects.requireNonNull(selfVertex, "selfVertex");
     }
+
+    @Override
+    public String toString() {
+        return "ResponseTime{" + selfVertex + '/' + agentId +
+                " elapsed=" + elapsed + " error=" + error + '}';
+    }
 }

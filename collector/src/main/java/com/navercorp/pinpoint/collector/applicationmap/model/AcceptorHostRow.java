@@ -28,4 +28,9 @@ public record AcceptorHostRow(Vertex parentVertex, Vertex vertex, String host) {
         Objects.requireNonNull(parentVertex, "parentVertex");
         Objects.requireNonNull(vertex, "vertex");
     }
+
+    @Override
+    public String toString() {
+        return "AcceptorHost{" + parentVertex + " -> " + vertex + '/' + host + '}';
+    }
 }
