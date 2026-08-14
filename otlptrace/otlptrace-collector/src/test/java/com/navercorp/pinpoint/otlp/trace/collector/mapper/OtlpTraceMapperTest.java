@@ -102,6 +102,7 @@ class OtlpTraceMapperTest {
                 new OtlpAttributeBoMapper(8192));
         OtlpTraceSpanEventMapper spanEventMapper = new OtlpTraceSpanEventMapper(
                 eventMapper,
+                new OtlpTraceLinkMapper(json, 8192),
                 REGISTRY,
                 new OtlpMessagingTypeResolver(REGISTRY),
                 new OtlpClientTypeResolver(REGISTRY),
@@ -425,6 +426,74 @@ class OtlpTraceMapperTest {
             assertThat(scopeAnnotation(spanBo.getAnnotationBoList()))
                     .isEqualTo("io.opentelemetry.kafka-clients-2.6");
         }
+    }
+
+    // =======================================================================
+    // Span.Link on child spans → OPENTELEMETRY_LINK annotation (end-to-end)
+    // =======================================================================
+
+    private static final byte[] LINK_TRACE_ID = {9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9};
+    private static final byte[] LINK_SPAN_ID = {8, 7, 6, 5, 4, 3, 2, 1};
+
+    private static Object linkAnnotation(List<AnnotationBo> annotations) {
+        return annotations.stream()
+                .filter(a -> a.getKey() == AnnotationKey.OPENTELEMETRY_LINK.getCode())
+                .map(AnnotationBo::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    // kind=0 span shape as exported by non-SDK tracers (e.g. Claude Code): every span is
+    // SPAN_KIND_UNSPECIFIED and cross-trace links ride on child spans, never on the root.
+    private static Span unspecifiedSpan(byte[] spanId, byte[] parentSpanId, Span.Link link) {
+        Span.Builder builder = Span.newBuilder()
+                .setName("claude_code.op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(spanId))
+                .setKindValue(Span.SpanKind.SPAN_KIND_UNSPECIFIED_VALUE)
+                .setStartTimeUnixNano(1_000_000_000L)
+                .setEndTimeUnixNano(2_000_000_000L);
+        if (parentSpanId != null) {
+            builder.setParentSpanId(ByteString.copyFrom(parentSpanId));
+        }
+        if (link != null) {
+            builder.addLinks(link);
+        }
+        return builder.build();
+    }
+
+    private static Span.Link crossTraceLink() {
+        return Span.Link.newBuilder()
+                .setTraceId(ByteString.copyFrom(LINK_TRACE_ID))
+                .setSpanId(ByteString.copyFrom(LINK_SPAN_ID))
+                .addAttributes(kv("link.type", strVal("parent_of")))
+                .build();
+    }
+
+    @Test
+    void childLink_survivesOnRootLinkedSpanEvent() {
+        Span root = unspecifiedSpan(ROOT_A, null, null);
+        Span child = unspecifiedSpan(CHILD, ROOT_A, crossTraceLink());
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root, child));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        SpanEventBo childEvent = data.getSpanBoList().get(0).getSpanEventBoList().get(0);
+        Object value = linkAnnotation(childEvent.getAnnotationBoList());
+        assertThat(value).isNotNull();
+        assertThat((String) value).contains("09090909090909090909090909090909");
+    }
+
+    @Test
+    void childLink_survivesOnOrphanSpanChunk() {
+        // Split arrival: the link-bearing child lands in a batch without its root and is
+        // stored as an orphan SpanChunk — the link must survive on that path too.
+        Span orphan = unspecifiedSpan(ORPHAN, ABSENT_PARENT, crossTraceLink());
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(orphan));
+
+        SpanEventBo orphanEvent = data.getSpanChunkBoList().get(0).getSpanEventBoList().get(0);
+        assertThat(linkAnnotation(orphanEvent.getAnnotationBoList())).isNotNull();
     }
 
     // =======================================================================

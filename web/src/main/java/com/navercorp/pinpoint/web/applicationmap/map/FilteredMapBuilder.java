@@ -113,23 +113,43 @@ public class FilteredMapBuilder {
                 if (host.getTraceSourceType() != TraceSourceType.OPENTELEMETRY) {
                     continue;
                 }
-                final List<AnnotationBo> annotationBoList = host.getAnnotationBoList();
-                if (annotationBoList == null || annotationBoList.isEmpty()) {
-                    continue;
-                }
-                for (AnnotationBo annotation : annotationBoList) {
-                    if (annotation.getKey() != AnnotationKey.OPENTELEMETRY_LINK.getCode()) {
-                        continue;
-                    }
-                    final OtelLinkValue value = OtelLinkValueSerde.parse(annotation.getValue());
-                    if (value == null || value.traceId() == null || value.spanId() == null) {
-                        continue;
-                    }
-                    index.add(new TraceSpanKey(value.traceId(), value.spanId()), host);
+                // 1) Top-level OTel span carrying the Link annotation
+                indexOtelLinks(host, host.getAnnotationBoList(), index);
+
+                // 2) OTel sub-span(s) inside SpanEvents can carry links too — attribute them to
+                //    the owning SpanBo, mirroring the upstream-side matchSpanEvents.
+                indexSpanEventLinks(host, host.getSpanEventBoList(), index);
+                for (SpanChunkBo chunk : host.getSpanChunkBoList()) {
+                    indexSpanEventLinks(host, chunk.getSpanEventBoList(), index);
                 }
             }
         }
         return index;
+    }
+
+    private void indexSpanEventLinks(SpanBo host, List<SpanEventBo> events, MultiValueMap<TraceSpanKey, SpanBo> index) {
+        if (events == null || events.isEmpty()) {
+            return;
+        }
+        for (SpanEventBo event : events) {
+            indexOtelLinks(host, event.getAnnotationBoList(), index);
+        }
+    }
+
+    private void indexOtelLinks(SpanBo host, List<AnnotationBo> annotationBoList, MultiValueMap<TraceSpanKey, SpanBo> index) {
+        if (annotationBoList == null || annotationBoList.isEmpty()) {
+            return;
+        }
+        for (AnnotationBo annotation : annotationBoList) {
+            if (annotation.getKey() != AnnotationKey.OPENTELEMETRY_LINK.getCode()) {
+                continue;
+            }
+            final OtelLinkValue value = OtelLinkValueSerde.parse(annotation.getValue());
+            if (value == null || value.traceId() == null || value.spanId() == null) {
+                continue;
+            }
+            index.add(new TraceSpanKey(value.traceId(), value.spanId()), host);
+        }
     }
 
     private void addOtelLinksByUpstream(List<SpanBo> transaction, MultiValueMap<TraceSpanKey, SpanBo> otelLinkIndex) {
