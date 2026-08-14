@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapApplicationResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
+import com.navercorp.pinpoint.collector.applicationmap.model.ApplicationMapBuilder;
 import com.navercorp.pinpoint.collector.applicationmap.service.ApplicationMapService;
 import com.navercorp.pinpoint.collector.applicationmap.service.HbaseApplicationMapService;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
@@ -63,11 +64,16 @@ public class ApplicationMapModule {
     }
 
     @Bean
+    public ApplicationMapBuilder applicationMapBuilder(ServiceTypeRegistryService registry) {
+        return new ApplicationMapBuilder(registry);
+    }
+
+    @Bean
     public ApplicationMapService applicationMapService(HostApplicationMapDao[] hostApplicationMapDaos,
                                                        LinkService linkService,
-                                                       ServiceTypeRegistryService registry) {
+                                                       ApplicationMapBuilder applicationMapBuilder) {
         HostApplicationMapDao hostApplicationMapDao = deleageHostApplicationMapDao(hostApplicationMapDaos);
-        return new HbaseApplicationMapService(hostApplicationMapDao, linkService, registry);
+        return new HbaseApplicationMapService(hostApplicationMapDao, linkService, applicationMapBuilder);
     }
 
     private HostApplicationMapDao deleageHostApplicationMapDao(HostApplicationMapDao[] hostApplicationMapDaos) {
