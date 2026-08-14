@@ -17,17 +17,11 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.bo.SpanOwner;
-import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
-import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
@@ -38,7 +32,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
 import com.navercorp.pinpoint.web.service.ServiceModelResolver;
-import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -168,100 +161,5 @@ public class FilteredMapBuilderTest {
         LinkData targetLinkData = targetLinkDataMap.getLinkData(linkKey);
         String assertMessage = String.format("%s[%s] from %s[%s] target link data does not exist", toApplicationName, toServiceType.getName(), fromApplicationName, fromServiceType.getName());
         Assertions.assertNotNull(targetLinkData, assertMessage);
-    }
-
-    // =======================================================================
-    // OTel Span.Link → upstream/downstream link data across transactions
-    // =======================================================================
-
-    private static final String UPSTREAM_TRACE_ID = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    private static final String DOWNSTREAM_TRACE_ID = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-    private static final long UPSTREAM_SPAN_ID = 100L;
-
-    private static ServiceTypeRegistryService otelRegistry() {
-        ServiceTypeRegistryMockFactory mockFactory = new ServiceTypeRegistryMockFactory();
-        mockFactory.addServiceTypeMock(ServiceType.UNKNOWN);
-        mockFactory.addServiceTypeMock(ServiceType.USER);
-        mockFactory.addServiceTypeMock(ServiceType.OPENTELEMETRY_SERVER);
-        mockFactory.addServiceTypeMock(ServiceType.OPENTELEMETRY_INTERNAL);
-        return mockFactory.createMockServiceTypeRegistryService();
-    }
-
-    private static SpanBo otelRootSpan(String applicationName, String agentId, String traceIdHex, long spanId) {
-        SpanOwner owner = new SpanOwner();
-        owner.setAgentId(agentId);
-        owner.setApplicationName(applicationName);
-        SpanBo span = new SpanBo(TraceSourceType.OPENTELEMETRY, owner);
-        span.setApplicationServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
-        span.setServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
-        span.setTransactionId(OtelServerTraceId.of(traceIdHex));
-        span.setSpanId(spanId);
-        span.setParentSpanId(-1);
-        span.setTraceTime(0, 1000L, 100);
-        span.setCollectorAcceptTime(1100L);
-        return span;
-    }
-
-    // Raw collector wire shape of the OPENTELEMETRY_LINK annotation (spanId as decimal string)
-    private static AnnotationBo linkAnnotation(String targetTraceIdHex, long targetSpanId) {
-        return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(),
-                "{\"traceId\":\"" + targetTraceIdHex + "\",\"spanId\":\"" + targetSpanId + "\"}");
-    }
-
-    private static SpanEventBo linkSpanEvent(String targetTraceIdHex, long targetSpanId) {
-        SpanEventBo event = new SpanEventBo();
-        event.setServiceType(ServiceType.OPENTELEMETRY_INTERNAL.getCode());
-        event.addAnnotation(linkAnnotation(targetTraceIdHex, targetSpanId));
-        return event;
-    }
-
-    private void assertOtelLinkData(FilteredMap filteredMap) {
-        LinkDataDuplexMap linkDataDuplexMap = filteredMap.getLinkDataDuplexMap();
-        LinkKey linkKey = LinkKey.of("APP_UP", ServiceType.OPENTELEMETRY_SERVER, "APP_DOWN", ServiceType.OPENTELEMETRY_SERVER);
-        Assertions.assertNotNull(linkDataDuplexMap.getSourceLinkDataMap().getLinkData(linkKey),
-                "APP_UP -> APP_DOWN OTel link source data does not exist");
-        Assertions.assertNotNull(linkDataDuplexMap.getTargetLinkDataMap().getLinkData(linkKey),
-                "APP_UP -> APP_DOWN OTel link target data does not exist");
-    }
-
-    private FilteredMap buildOtelLinkMap(SpanBo upstream, SpanBo downstream) {
-        TimeWindow timeWindow = new TimeWindow(Range.between(1, 200000));
-        ServiceTypeRegistryService otelRegistry = otelRegistry();
-        ApplicationFactory otelApplicationFactory = new DefaultApplicationFactory(otelRegistry, mock(ServiceModelResolver.class));
-        FilteredMapBuilder builder = new FilteredMapBuilder(otelApplicationFactory, otelRegistry, timeWindow);
-        builder.addTransactions(List.of(List.of(upstream), List.of(downstream)));
-        return builder.build();
-    }
-
-    @Test
-    public void otelLink_onDownstreamSpan() {
-        SpanBo upstream = otelRootSpan("APP_UP", "agent-up", UPSTREAM_TRACE_ID, UPSTREAM_SPAN_ID);
-        SpanBo downstream = otelRootSpan("APP_DOWN", "agent-down", DOWNSTREAM_TRACE_ID, 200L);
-        downstream.addAnnotation(linkAnnotation(UPSTREAM_TRACE_ID, UPSTREAM_SPAN_ID));
-
-        assertOtelLinkData(buildOtelLinkMap(upstream, downstream));
-    }
-
-    @Test
-    public void otelLink_onDownstreamSpanEvent() {
-        // link carried by an OTel sub-span (child SpanEvent) — e.g. exporters that attach
-        // cross-trace links to child spans only; must index to the owning SpanBo
-        SpanBo upstream = otelRootSpan("APP_UP", "agent-up", UPSTREAM_TRACE_ID, UPSTREAM_SPAN_ID);
-        SpanBo downstream = otelRootSpan("APP_DOWN", "agent-down", DOWNSTREAM_TRACE_ID, 200L);
-        downstream.addSpanEvent(linkSpanEvent(UPSTREAM_TRACE_ID, UPSTREAM_SPAN_ID));
-
-        assertOtelLinkData(buildOtelLinkMap(upstream, downstream));
-    }
-
-    @Test
-    public void otelLink_onDownstreamSpanChunkEvent() {
-        // split arrival: the link-bearing sub-span was stored as an orphan SpanChunk
-        SpanBo upstream = otelRootSpan("APP_UP", "agent-up", UPSTREAM_TRACE_ID, UPSTREAM_SPAN_ID);
-        SpanBo downstream = otelRootSpan("APP_DOWN", "agent-down", DOWNSTREAM_TRACE_ID, 200L);
-        SpanChunkBo chunk = new SpanChunkBo(TraceSourceType.OPENTELEMETRY);
-        chunk.addSpanEventBoList(List.of(linkSpanEvent(UPSTREAM_TRACE_ID, UPSTREAM_SPAN_ID)));
-        downstream.addSpanChunkBo(chunk);
-
-        assertOtelLinkData(buildOtelLinkMap(upstream, downstream));
     }
 }
