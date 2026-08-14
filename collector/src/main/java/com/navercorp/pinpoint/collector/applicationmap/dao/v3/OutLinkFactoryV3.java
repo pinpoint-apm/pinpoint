@@ -36,7 +36,7 @@ public class OutLinkFactoryV3 implements OutLinkFactory {
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
-    public OutLink newOutLink(Vertex selfVertex, String selfAgentId, Vertex outVertex, String outSubLink) {
+    public OutLink newOutLink(Vertex selfVertex, Vertex outVertex, String outSubLink) {
         return new OutLinkV3(selfVertex, outVertex, outSubLink);
     }
 

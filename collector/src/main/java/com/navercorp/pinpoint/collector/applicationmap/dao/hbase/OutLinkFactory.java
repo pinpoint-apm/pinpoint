@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 
 public interface OutLinkFactory {
 
-    OutLink newOutLink(Vertex selfVertex, String selfAgentId, Vertex outVertex, String outSubLink);
+    OutLink newOutLink(Vertex selfVertex, Vertex outVertex, String outSubLink);
 
     interface OutLink {
         RowKey rowkey(long rowTimeSlot);
