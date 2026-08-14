@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.collector.applicationmap.model.OutLinkRow;
 import com.navercorp.pinpoint.collector.applicationmap.model.ResponseTimeRow;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -48,11 +47,10 @@ public class HbaseApplicationMapService implements ApplicationMapService {
 
     public HbaseApplicationMapService(HostApplicationMapDao hostApplicationMapDao,
                                       LinkService linkService,
-                                      ServiceTypeRegistryService registry) {
+                                      ApplicationMapBuilder applicationMapBuilder) {
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
         this.linkService = Objects.requireNonNull(linkService, "linkService");
-        Objects.requireNonNull(registry, "registry");
-        this.applicationMapBuilder = new ApplicationMapBuilder(registry);
+        this.applicationMapBuilder = Objects.requireNonNull(applicationMapBuilder, "applicationMapBuilder");
     }
 
     @Override
