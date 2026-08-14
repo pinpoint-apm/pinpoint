@@ -71,7 +71,7 @@ public class HbaseApplicationMapService implements ApplicationMapService {
             hostApplicationMapDao.insert(requestTime, row.parentVertex(), row.vertex(), row.host());
         }
         for (OutLinkRow row : model.getOutLinks()) {
-            linkService.updateOutLink(requestTime, row.selfVertex(), row.selfAgentId(),
+            linkService.updateOutLink(requestTime, row.selfVertex(),
                     row.outVertex(), row.outHost(), row.elapsed(), row.error());
         }
         for (InLinkRow row : model.getInLinks()) {

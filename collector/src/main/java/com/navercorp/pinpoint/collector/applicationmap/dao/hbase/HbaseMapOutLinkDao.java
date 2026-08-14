@@ -66,20 +66,20 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
 
     @Override
-    public void outLink(long requestTime, Vertex selfVertex, String selfAgentId,
+    public void outLink(long requestTime, Vertex selfVertex,
                         Vertex outVertex, String outHost, int elapsed, boolean isError) {
         Objects.requireNonNull(selfVertex, "selfVertex");
         Objects.requireNonNull(outVertex, "outVertex");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[OutLink] {}/{} -> {}/{}", selfVertex, selfAgentId, outVertex, outHost);
+            logger.debug("[OutLink] {} -> {}/{}", selfVertex, outVertex, outHost);
         }
 
         // there may be no endpoint in case of httpclient
         outHost = Objects.toString(outHost, "");
 
         // make row key. rowkey is me
-        OutLinkFactory.OutLink outLink = outLinkFactory.newOutLink(selfVertex, selfAgentId, outVertex, outHost);
+        OutLinkFactory.OutLink outLink = outLinkFactory.newOutLink(selfVertex, outVertex, outHost);
 
         final RowKey selfLinkRowKey = outLink.rowkey(requestTime);
 

@@ -50,12 +50,11 @@ public class LinkServiceImpl implements LinkService {
     public void updateOutLink(
             long requestTime,
             Vertex selfVertex,
-            String selfAgentId,
             Vertex outVertex,
             String outHost,
             int elapsed, boolean isError
     ) {
-        outLinkDao.outLink(requestTime, selfVertex, selfAgentId,
+        outLinkDao.outLink(requestTime, selfVertex,
                 outVertex, outHost, elapsed, isError);
     }
 

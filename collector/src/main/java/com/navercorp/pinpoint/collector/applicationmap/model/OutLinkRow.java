@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import java.util.Objects;
 
 /**
- * selfVertex/selfAgentId -> outVertex/outHost
+ * selfVertex -> outVertex/outHost
  */
-public record OutLinkRow(Vertex selfVertex, String selfAgentId,
+public record OutLinkRow(Vertex selfVertex,
                          Vertex outVertex, String outHost,
                          int elapsed, boolean error) {
     public OutLinkRow {

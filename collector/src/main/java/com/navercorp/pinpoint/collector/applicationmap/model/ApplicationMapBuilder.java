@@ -165,7 +165,7 @@ public class ApplicationMapBuilder {
                 // create virtual queue node
                 Vertex acceptVertex = getQueueAcceptVertex(span, spanServiceType);
 
-                model.addOutLink(new OutLinkRow(acceptVertex, span.getRemoteAddr(),
+                model.addOutLink(new OutLinkRow(acceptVertex,
                         selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError()));
 
                 if (logger.isDebugEnabled()) {
@@ -208,7 +208,7 @@ public class ApplicationMapBuilder {
                         if (logger.isDebugEnabled()) {
                             logger.debug("[OutLink] child-queue {}:{} -> {}:{}", queueAcceptVertex, span.getRemoteAddr(), selfVertex, span.getEndPoint());
                         }
-                        model.addOutLink(new OutLinkRow(queueAcceptVertex, span.getRemoteAddr(),
+                        model.addOutLink(new OutLinkRow(queueAcceptVertex,
                                 selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError()));
 
                         parentVertex = queueAcceptVertex;
@@ -312,7 +312,7 @@ public class ApplicationMapBuilder {
              * save information to draw a server map based on statistics
              */
             // save the information of outLink (the spanevent that called span)
-            model.addOutLink(new OutLinkRow(selfVertex, MERGE_AGENT,
+            model.addOutLink(new OutLinkRow(selfVertex,
                     outVertex, spanEventEndPoint, elapsed, hasException));
 
             // save the information of inLink (the span that spanevent called)

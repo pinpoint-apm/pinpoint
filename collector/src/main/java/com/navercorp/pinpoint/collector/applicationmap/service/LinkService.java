@@ -28,7 +28,6 @@ public interface LinkService {
      * MySQL (MYSQL) <- emeroad-app (TOMCAT)[localhost:8080]
      *
      * @param selfVertex  outVertex
-     * @param selfAgentId outAgentId
      * @param outVertex   inVertex
      * @param outHost     inHost
      * @param elapsed    elapsed
@@ -37,7 +36,6 @@ public interface LinkService {
     void updateOutLink(
             long requestTime,
             Vertex selfVertex,
-            String selfAgentId,
             Vertex outVertex,
             String outHost,
             int elapsed, boolean isError

@@ -101,7 +101,7 @@ class ApplicationMapBuilderTest {
 
         // span event: self -> dest
         assertThat(model.getOutLinks()).containsExactly(
-                new OutLinkRow(self, "_", dest, "dest:8080", 20, false));
+                new OutLinkRow(self, dest, "dest:8080", 20, false));
 
         assertThat(model.getResponseTimes()).containsExactly(
                 new ResponseTimeRow(self, "agent1", 100, false));
@@ -178,7 +178,7 @@ class ApplicationMapBuilderTest {
         final Vertex dest = Vertex.of(self.serviceUid(), "dest", RPC_TYPE);
 
         assertThat(model.getOutLinks()).containsExactly(
-                new OutLinkRow(self, "_", dest, "dest:8080", 20, false));
+                new OutLinkRow(self, dest, "dest:8080", 20, false));
         assertThat(model.getInLinks()).containsExactly(
                 new InLinkRow(dest, self, "self:8080", 20, false));
         assertThat(model.getResponseTimes()).isEmpty();
