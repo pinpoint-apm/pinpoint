@@ -56,6 +56,7 @@ import java.util.function.Predicate;
 public class OtlpTraceSpanEventMapper {
 
     private final OtlpTraceEventMapper eventMapper;
+    private final OtlpTraceLinkMapper linkMapper;
     private final OtlpDbSystemTypeResolver dbSystemTypeResolver;
     private final OtlpMessagingTypeResolver messagingTypeResolver;
     private final OtlpClientTypeResolver clientTypeResolver;
@@ -65,6 +66,7 @@ public class OtlpTraceSpanEventMapper {
     private final int sqlMaxBytes;
 
     public OtlpTraceSpanEventMapper(OtlpTraceEventMapper eventMapper,
+                                    OtlpTraceLinkMapper linkMapper,
                                     ServiceTypeRegistryService serviceTypeRegistryService,
                                     OtlpMessagingTypeResolver messagingTypeResolver,
                                     OtlpClientTypeResolver clientTypeResolver,
@@ -73,6 +75,7 @@ public class OtlpTraceSpanEventMapper {
                                     OtlpAttributeBoMapper attributeBoMapper,
                                     @Value("${pinpoint.collector.otlptrace.sql.max-bytes:8192}") int sqlMaxBytes) {
         this.eventMapper = Objects.requireNonNull(eventMapper, "eventMapper");
+        this.linkMapper = Objects.requireNonNull(linkMapper, "linkMapper");
         this.dbSystemTypeResolver = new OtlpDbSystemTypeResolver(
                 Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService"));
         this.messagingTypeResolver = Objects.requireNonNull(messagingTypeResolver, "messagingTypeResolver");
@@ -215,6 +218,13 @@ public class OtlpTraceSpanEventMapper {
             final AnnotationBo eventAnnotation = eventMapper.toAnnotation(event, truncatedCounts::event);
             if (eventAnnotation != null) {
                 spanEventBo.addAnnotation(eventAnnotation);
+            }
+        }
+        // link
+        for (Span.Link link : span.getLinksList()) {
+            final AnnotationBo linkAnnotation = linkMapper.toAnnotation(link, truncatedCounts::link);
+            if (linkAnnotation != null) {
+                spanEventBo.addAnnotation(linkAnnotation);
             }
         }
         // SDK-side data-loss hints (Span proto fields 10/12/14). Only emit when > 0.

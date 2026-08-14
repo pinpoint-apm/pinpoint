@@ -65,6 +65,7 @@ class OtlpTraceSpanEventMapperTest {
     void setUp() {
         mapper = new OtlpTraceSpanEventMapper(
                 new OtlpTraceEventMapper(new ObjectMapper(), 8192),
+                new OtlpTraceLinkMapper(new ObjectMapper(), 8192),
                 TEST_REGISTRY,
                 new OtlpMessagingTypeResolver(TEST_REGISTRY),
                 new OtlpClientTypeResolver(TEST_REGISTRY),
@@ -914,6 +915,88 @@ class OtlpTraceSpanEventMapperTest {
         assertThat(event.getAnnotationBoList())
                 .extracting(com.navercorp.pinpoint.common.server.bo.AnnotationBo::getKey)
                 .doesNotContain(com.navercorp.pinpoint.common.trace.AnnotationKey.OPENTELEMETRY_DROPPED.getCode());
+    }
+
+    // =======================================================================
+    // map() — Span.Link → OPENTELEMETRY_LINK annotation on SpanEvent
+    // =======================================================================
+
+    private static final byte[] LINK_TRACE_ID = {
+            9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9
+    };
+    private static final byte[] LINK_SPAN_ID = {8, 7, 6, 5, 4, 3, 2, 1};
+
+    private static Object findLinkAnnotation(SpanEventBo event) {
+        return findAnnotation(event, AnnotationKey.OPENTELEMETRY_LINK.getCode());
+    }
+
+    @Test
+    void map_link_recordsLinkAnnotation() throws Exception {
+        // Mirrors the root-span path: a child span's Span.Link must survive as an
+        // OPENTELEMETRY_LINK annotation instead of being silently lost.
+        Span span = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_UNSPECIFIED_VALUE)
+                .addLinks(Span.Link.newBuilder()
+                        .setTraceId(ByteString.copyFrom(LINK_TRACE_ID))
+                        .setSpanId(ByteString.copyFrom(LINK_SPAN_ID))
+                        .addAttributes(kv("link.type", strVal("parent_of"))))
+                .build();
+
+        SpanEventBo event = mapSingle(span);
+        Object value = findLinkAnnotation(event);
+        assertThat(value).isNotNull();
+
+        ObjectMapper om = new ObjectMapper();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> root = om.readValue((String) value, Map.class);
+        assertThat(root).containsEntry("traceId", "09090909090909090909090909090909");
+        assertThat(root).containsEntry("spanId", String.valueOf(
+                com.navercorp.pinpoint.common.server.util.ByteStringUtils.parseLong(ByteString.copyFrom(LINK_SPAN_ID))));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> linkAttrs = (Map<String, Object>) root.get("attributes");
+        assertThat(linkAttrs).containsEntry("link.type", "parent_of");
+    }
+
+    @Test
+    void map_link_invalidLink_dropped() {
+        // All-zero SpanContext cannot reference a real span — only the link is dropped,
+        // the owning SpanEvent maps normally (same rule as the root path).
+        Span span = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_CLIENT_VALUE)
+                .addLinks(Span.Link.newBuilder()
+                        .setTraceId(ByteString.copyFrom(new byte[16]))
+                        .setSpanId(ByteString.copyFrom(new byte[8])))
+                .build();
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findLinkAnnotation(event)).isNull();
+    }
+
+    @Test
+    void map_link_truncatedTraceState_countsInTruncatedAnnotation() {
+        // Over-long link traceState is capped by the link mapper; the truncation must
+        // surface in the SpanEvent's OPENTELEMETRY_TRUNCATED annotation.
+        Span span = Span.newBuilder()
+                .setName("op")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_CLIENT_VALUE)
+                .addLinks(Span.Link.newBuilder()
+                        .setTraceId(ByteString.copyFrom(LINK_TRACE_ID))
+                        .setSpanId(ByteString.copyFrom(LINK_SPAN_ID))
+                        .setTraceState("x".repeat(9000)))
+                .build();
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findLinkAnnotation(event)).isNotNull();
+        assertThat(findAnnotation(event, AnnotationKey.OPENTELEMETRY_TRUNCATED.getCode()))
+                .isEqualTo("links=1");
     }
 
     // =======================================================================
