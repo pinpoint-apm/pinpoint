@@ -294,18 +294,18 @@ public class ApplicationMapBuilder {
             }
 
             final String spanEventApplicationName = normalize(spanEvent.getDestinationId(), spanEventType);
-            final String spanEventEndPoint = spanEvent.getEndPoint();
-
-            // if terminal update statistics
-            final int elapsed = spanEvent.getEndElapsed();
-            final boolean hasException = spanEvent.hasException();
-
             if (spanEventApplicationName == null) {
                 throttledLogger.info("Failed to insert statistics. Cause:SpanEvent has invalid format " +
                                 "selfApplication:{}/{}, spanEventApplication:{}/{}",
                         selfVertex, agentId, spanEventApplicationName, spanEventType);
                 continue;
             }
+
+            final String spanEventEndPoint = spanEvent.getEndPoint();
+
+            // if terminal update statistics
+            final int elapsed = spanEvent.getEndElapsed();
+            final boolean hasException = spanEvent.hasException();
 
             Vertex outVertex = Vertex.of(selfVertex.serviceUid(), spanEventApplicationName, spanEventType);
             /*

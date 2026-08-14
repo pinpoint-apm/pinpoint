@@ -192,7 +192,7 @@ class ApplicationMapBuilderTest {
 
         ApplicationMapModel model = builder.build(spanChunk);
 
-        assertThat(model.isEmpty()).isTrue();
+        assertThat(model.hasRows()).isFalse();
         assertThat(model.getRequestTime()).isEqualTo(ACCEPT_TIME);
     }
 }
