@@ -68,25 +68,27 @@ public class HbaseApplicationMapService implements ApplicationMapService {
     }
 
     private void write(ApplicationMapModel model) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("MapModel {}", model.dump());
-        }
+        if (model.hasRows()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("MapModel {}", model.dump());
+            }
 
-        final long requestTime = model.getRequestTime();
+            final long requestTime = model.getRequestTime();
 
-        for (AcceptorHostRow row : model.getAcceptorHosts()) {
-            hostApplicationMapDao.insert(requestTime, row.parentVertex(), row.vertex(), row.host());
-        }
-        for (OutLinkRow row : model.getOutLinks()) {
-            linkService.updateOutLink(requestTime, row.selfVertex(),
-                    row.outVertex(), row.outHost(), row.elapsed(), row.error());
-        }
-        for (InLinkRow row : model.getInLinks()) {
-            linkService.updateInLink(requestTime, row.inVertex(),
-                    row.selfVertex(), row.selfHost(), row.elapsed(), row.error());
-        }
-        for (ResponseTimeRow row : model.getResponseTimes()) {
-            linkService.updateResponseTime(requestTime, row.selfVertex(), row.agentId(), row.elapsed(), row.error());
+            for (AcceptorHostRow row : model.getAcceptorHosts()) {
+                hostApplicationMapDao.insert(requestTime, row.parentVertex(), row.vertex(), row.host());
+            }
+            for (OutLinkRow row : model.getOutLinks()) {
+                linkService.updateOutLink(requestTime, row.selfVertex(),
+                        row.outVertex(), row.outHost(), row.elapsed(), row.error());
+            }
+            for (InLinkRow row : model.getInLinks()) {
+                linkService.updateInLink(requestTime, row.inVertex(),
+                        row.selfVertex(), row.selfHost(), row.elapsed(), row.error());
+            }
+            for (ResponseTimeRow row : model.getResponseTimes()) {
+                linkService.updateResponseTime(requestTime, row.selfVertex(), row.agentId(), row.elapsed(), row.error());
+            }
         }
     }
 }

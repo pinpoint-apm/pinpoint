@@ -99,9 +99,9 @@ public class ApplicationMapModel {
         return list;
     }
 
-    public boolean isEmpty() {
-        return CollectionUtils.isEmpty(outLinks) && CollectionUtils.isEmpty(inLinks)
-                && CollectionUtils.isEmpty(responseTimes) && CollectionUtils.isEmpty(acceptorHosts);
+    public boolean hasRows() {
+        return CollectionUtils.hasLength(outLinks) || CollectionUtils.hasLength(inLinks)
+                || CollectionUtils.hasLength(responseTimes) || CollectionUtils.hasLength(acceptorHosts);
     }
 
     @Override
@@ -116,15 +116,31 @@ public class ApplicationMapModel {
     }
 
     /**
-     * Dumps every collected row, unlike {@link #toString()} which only prints the list sizes.
+     * Dumps every collected row as an indented multi-line string, one row per line.
+     * Empty lists are omitted, unlike {@link #toString()} which only prints the list sizes.
      */
     public String dump() {
-        return "ApplicationMapModel{" +
-                "requestTime=" + requestTime +
-                ", outLinks=" + nonNull(outLinks) +
-                ", inLinks=" + nonNull(inLinks) +
-                ", responseTimes=" + nonNull(responseTimes) +
-                ", acceptorHosts=" + nonNull(acceptorHosts) +
-                '}';
+        if (hasRows()) {
+            StringBuilder builder = new StringBuilder(128);
+            builder.append("ApplicationMapModel{");
+            builder.append("\n  requestTime=").append(requestTime);
+            dump(builder, "outLinks", outLinks);
+            dump(builder, "inLinks", inLinks);
+            dump(builder, "responseTimes", responseTimes);
+            dump(builder, "acceptorHosts", acceptorHosts);
+            builder.append("\n}");
+            return builder.toString();
+        }
+        return "ApplicationMapModel{requestTime=" + requestTime + '}';
+    }
+
+    private static void dump(StringBuilder builder, String name, List<?> rows) {
+        if (CollectionUtils.isEmpty(rows)) {
+            return;
+        }
+        builder.append("\n  ").append(name).append('=');
+        for (Object row : rows) {
+            builder.append("\n    ").append(row);
+        }
     }
 }
