@@ -18,6 +18,11 @@ package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
+/**
+ * @deprecated Retained for compatibility with third-party plugins. New Reactor
+ * instrumentation should use the standard async-context accessor.
+ */
+@Deprecated
 public final class ReactorSubscriberAccessorUtils {
 
     public static ReactorSubscriber get(Object[] array, int index) {

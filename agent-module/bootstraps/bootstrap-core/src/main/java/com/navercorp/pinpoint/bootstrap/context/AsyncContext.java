@@ -30,6 +30,25 @@ public interface AsyncContext {
     Trace continueAsyncTraceObject();
     Trace continueAsyncTraceObject(boolean asyncTraceBlock);
 
+    /**
+     * Like {@link #continueAsyncTraceObject(boolean)} with {@code false}, but when no trace is
+     * bound to the current thread the given previously-created {@code reuse} trace is rebound
+     * instead of creating a new one. This lets a caller that receives many signals for one
+     * logical async operation (e.g. a reactive subscription) pay the trace creation cost once
+     * and rebind per signal, instead of a create/close cycle per signal.
+     * <p>
+     * If a trace is already bound to the current thread, it is returned (nested) just like
+     * {@link #continueAsyncTraceObject(boolean)}. The caller remains responsible for unbinding
+     * with {@link #close()} when its outermost activation ends, and for eventually closing the
+     * reused trace itself.
+     * <p>
+     * The default implementation ignores {@code reuse} and creates a new trace, so
+     * implementations without rebinding support degrade to the per-signal behavior.
+     */
+    default Trace continueAsyncTraceObject(Trace reuse) {
+        return continueAsyncTraceObject(false);
+    }
+
     Trace currentAsyncTraceObject();
 
     void close();

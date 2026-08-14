@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransfor
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -37,8 +38,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnSubscribe
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberConstructorInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnNextInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorActualAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessor;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.AbstractHandlerMethodMappingInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.AbstractUrlHandlerMappingInterceptor;
@@ -49,6 +48,11 @@ import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DispatchHandlerG
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DispatchHandlerHandleMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.DispatchHandlerInvokeHandlerMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.ExchangeFunctionMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.WrappingBodyInserterRequestBuilderWriteToInterceptor;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.WrappingDefaultWebClientExchangeMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.WrappingDispatchHandlerInvokeHandlerMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.WrappingDispatchHandlerHandleMethodInterceptor;
+import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.WrappingExchangeFunctionMethodInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.InvocableHandlerMethodInterceptor;
 
 import java.security.ProtectionDomain;
@@ -61,6 +65,47 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
 public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private MatchableTransformTemplate transformTemplate;
+
+    // profiler.spring.webflux.wrap.publisher selects the wrapping variants, which hand the
+    // AsyncContext to a wrapped publisher instead of injecting it into the returned one.
+    static Class<? extends Interceptor> dispatchHandlerHandleMethodInterceptor(Instrumentor instrumentor) {
+        if (isWrapPublisher(instrumentor)) {
+            return WrappingDispatchHandlerHandleMethodInterceptor.class;
+        }
+        return DispatchHandlerHandleMethodInterceptor.class;
+    }
+
+    static Class<? extends Interceptor> defaultWebClientExchangeMethodInterceptor(Instrumentor instrumentor) {
+        if (isWrapPublisher(instrumentor)) {
+            return WrappingDefaultWebClientExchangeMethodInterceptor.class;
+        }
+        return DefaultWebClientExchangeMethodInterceptor.class;
+    }
+
+    static Class<? extends Interceptor> exchangeFunctionMethodInterceptor(Instrumentor instrumentor) {
+        if (isWrapPublisher(instrumentor)) {
+            return WrappingExchangeFunctionMethodInterceptor.class;
+        }
+        return ExchangeFunctionMethodInterceptor.class;
+    }
+
+    static Class<? extends Interceptor> dispatchHandlerInvokeHandlerMethodInterceptor(Instrumentor instrumentor) {
+        if (isWrapPublisher(instrumentor)) {
+            return WrappingDispatchHandlerInvokeHandlerMethodInterceptor.class;
+        }
+        return DispatchHandlerInvokeHandlerMethodInterceptor.class;
+    }
+
+    static Class<? extends Interceptor> bodyInserterRequestBuilderWriteToInterceptor(Instrumentor instrumentor) {
+        if (isWrapPublisher(instrumentor)) {
+            return WrappingBodyInserterRequestBuilderWriteToInterceptor.class;
+        }
+        return BodyInserterRequestBuilderWriteToInterceptor.class;
+    }
+
+    private static boolean isWrapPublisher(Instrumentor instrumentor) {
+        return new SpringWebFluxPluginConfig(instrumentor.getProfilerConfig()).isWrapPublisher();
+    }
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -143,27 +188,27 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             // Dispatch
             final InstrumentMethod handleMethod = target.getDeclaredMethod("handle", "org.springframework.web.server.ServerWebExchange");
             if (handleMethod != null) {
-                handleMethod.addInterceptor(DispatchHandlerHandleMethodInterceptor.class);
+                handleMethod.addInterceptor(dispatchHandlerHandleMethodInterceptor(instrumentor));
             }
             // Invoke
             final InstrumentMethod invokerHandlerMethod = target.getDeclaredMethod("invokeHandler", "org.springframework.web.server.ServerWebExchange", "java.lang.Object");
             if (invokerHandlerMethod != null) {
-                invokerHandlerMethod.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class, va(this.uriStatEnable, Boolean.FALSE));
+                invokerHandlerMethod.addInterceptor(dispatchHandlerInvokeHandlerMethodInterceptor(instrumentor), va(this.uriStatEnable, Boolean.FALSE));
             }
             // 6.x
             final InstrumentMethod handleRequestWithMethod = target.getDeclaredMethod("handleRequestWith", "org.springframework.web.server.ServerWebExchange", "java.lang.Object");
             if (handleRequestWithMethod != null) {
-                handleRequestWithMethod.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class, va(this.uriStatEnable, Boolean.FALSE));
+                handleRequestWithMethod.addInterceptor(dispatchHandlerInvokeHandlerMethodInterceptor(instrumentor), va(this.uriStatEnable, Boolean.FALSE));
             }
             // Result
             final InstrumentMethod handleResultMethod = target.getDeclaredMethod("handleResult", "org.springframework.web.server.ServerWebExchange", "org.springframework.web.reactive.HandlerResult");
             if (handleResultMethod != null) {
-                handleResultMethod.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class, va(this.uriStatEnable, this.uriStatUseUserInput));
+                handleResultMethod.addInterceptor(dispatchHandlerInvokeHandlerMethodInterceptor(instrumentor), va(this.uriStatEnable, this.uriStatUseUserInput));
             }
             // 6.x
             final InstrumentMethod handleResultMethod2 = target.getDeclaredMethod("handleResult", "org.springframework.web.server.ServerWebExchange", "org.springframework.web.reactive.HandlerResult", "java.lang.String");
             if (handleResultMethod2 != null) {
-                handleResultMethod2.addInterceptor(DispatchHandlerInvokeHandlerMethodInterceptor.class, va(this.uriStatEnable, this.uriStatUseUserInput));
+                handleResultMethod2.addInterceptor(dispatchHandlerInvokeHandlerMethodInterceptor(instrumentor), va(this.uriStatEnable, this.uriStatUseUserInput));
             }
 
             return target.toBytecode();
@@ -219,7 +264,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             // Set AsyncContext
             final InstrumentMethod exchangeMethod = target.getDeclaredMethod("exchange");
             if (exchangeMethod != null) {
-                exchangeMethod.addInterceptor(DefaultWebClientExchangeMethodInterceptor.class);
+                exchangeMethod.addInterceptor(defaultWebClientExchangeMethodInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -233,7 +278,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             // Set AsyncContext
             final InstrumentMethod exchangeMethod = target.getDeclaredMethod("exchange", "org.springframework.web.reactive.function.client.ClientRequest");
             if (exchangeMethod != null) {
-                exchangeMethod.addInterceptor(ExchangeFunctionMethodInterceptor.class);
+                exchangeMethod.addInterceptor(exchangeFunctionMethodInterceptor(instrumentor));
             }
 
             final InstrumentMethod logResponseMethod = target.getDeclaredMethod("logResponse", "org.springframework.http.client.reactive.ClientHttpResponse", "java.lang.String");
@@ -255,7 +300,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             // RPC
             final InstrumentMethod method = target.getDeclaredMethod("writeTo", "org.springframework.http.client.reactive.ClientHttpRequest", "org.springframework.web.reactive.function.client.ExchangeStrategies");
             if (method != null) {
-                method.addInterceptor(BodyInserterRequestBuilderWriteToInterceptor.class);
+                method.addInterceptor(bodyInserterRequestBuilderWriteToInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -325,8 +370,6 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
-            target.addField(ReactorActualAccessor.class);
-            target.addField(ReactorSubscriberAccessor.class);
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();

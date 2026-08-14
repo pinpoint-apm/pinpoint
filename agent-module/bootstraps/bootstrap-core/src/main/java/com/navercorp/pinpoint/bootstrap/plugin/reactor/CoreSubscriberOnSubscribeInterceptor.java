@@ -17,12 +17,16 @@
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
-import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 
-public class CoreSubscriberOnSubscribeInterceptor implements AroundInterceptor {
+/**
+ * Links the AsyncContext of a subscriber with its upstream Subscription, so that whichever of the two
+ * already carries the context shares it with the other.
+ */
+public class CoreSubscriberOnSubscribeInterceptor implements InjectedAsyncContextApiIdAwareAroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -30,47 +34,38 @@ public class CoreSubscriberOnSubscribeInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, AsyncContext ownAsyncContext, int apiId, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
         try {
-            // args[0]
-            final ReactorSubscriber subscriptionReactorSubscriber = getSubscriptionReactorSubscriber(args);
-            // actual
-            final ReactorSubscriber actualReactorSubscriber = getActualReactorSubscriber(target);
-            // target
-            ReactorSubscriber thisReactorSubscriber = getThisReactorSubscriber(target);
-
-            // set this
-            if (thisReactorSubscriber == null) {
-                // e.g. actual.onSubscribe(this);
-                thisReactorSubscriber = passSubscriptionToThis(subscriptionReactorSubscriber);
-            }
-
-            if (thisReactorSubscriber == null) {
-                // Fill in the missing part of the subscriptionOrReturn
-                thisReactorSubscriber = passActualToThis(actualReactorSubscriber);
-            }
-
-            if (thisReactorSubscriber == null) {
-                // not found reactorSubscriber
+            // ownAsyncContext is this subscriber's own context, supplied by the weaver
+            // (monomorphic getfield of the injected accessor field).
+            if (ownAsyncContext != null) {
+                // The carrier is already here - CoreSubscriberConstructorInterceptor copied it from the
+                // actual while the chain was built - so only the upstream Subscription may be missing it.
+                if (AsyncContextAccessorUtils.getAsyncContext(args, 0) == null) {
+                    AsyncContextAccessorUtils.setAsyncContext(ownAsyncContext, args, 0);
+                    if (isDebug) {
+                        logger.debug("Pass this to subscription(args[0]). asyncContext={}", ownAsyncContext);
+                    }
+                }
                 return;
             }
 
-            // set subscription
-            if (subscriptionReactorSubscriber == null) {
-                // TODO need to check
-                passThisToSubscription(thisReactorSubscriber, args);
+            // The carrier has not reached this subscriber yet - take it from the upstream Subscription.
+            // Nothing is pushed down to the actual here: the actual receives this subscriber as its own
+            // Subscription right after, and picks the carrier up through this same path.
+            final AsyncContext subscriptionAsyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 0);
+            if (subscriptionAsyncContext == null) {
+                return;
             }
 
-            // set actual
-            if (actualReactorSubscriber == null) {
-                passThisToActual(thisReactorSubscriber, target);
+            AsyncContextAccessorUtils.setAsyncContext(subscriptionAsyncContext, target);
+            if (isDebug) {
+                logger.debug("Set asyncContext to this. asyncContext={}", subscriptionAsyncContext);
             }
-
-            onSubscribe(thisReactorSubscriber, target);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
@@ -78,100 +73,7 @@ public class CoreSubscriberOnSubscribeInterceptor implements AroundInterceptor {
         }
     }
 
-
-    private ReactorSubscriber getThisReactorSubscriber(Object target) {
-        final ReactorSubscriber thisReactorSubscriber = ReactorSubscriberAccessorUtils.get(target);
-        if (thisReactorSubscriber != null) {
-            if (isDebug) {
-                logger.debug("this reactorSubscriber={}", thisReactorSubscriber);
-            }
-        }
-        return thisReactorSubscriber;
-    }
-
-    private ReactorSubscriber getSubscriptionReactorSubscriber(Object[] args) {
-        final ReactorSubscriber subscriptionReactorSubscriber = ReactorSubscriberAccessorUtils.get(args, 0);
-        if (subscriptionReactorSubscriber != null) {
-            if (isDebug) {
-                logger.debug("subscription(args[0]) reactorSubscriber={}", subscriptionReactorSubscriber);
-            }
-        }
-        return subscriptionReactorSubscriber;
-    }
-
-    private ReactorSubscriber getActualReactorSubscriber(Object target) {
-        if (target instanceof ReactorActualAccessor) {
-            final ReactorSubscriberAccessor reactorSubscriberAccessor = ((ReactorActualAccessor) target)._$PINPOINT$_getReactorActual();
-            if (reactorSubscriberAccessor != null) {
-                final ReactorSubscriber reactorSubscriber = reactorSubscriberAccessor._$PINPOINT$_getReactorSubscriber();
-                if (reactorSubscriber != null) {
-                    if (isDebug) {
-                        logger.debug("actual(parent) reactorSubscriber={}", reactorSubscriber);
-                    }
-                    return reactorSubscriber;
-                }
-            }
-        }
-        return null;
-    }
-
-    private ReactorSubscriber passSubscriptionToThis(ReactorSubscriber reactorSubscriber) {
-        if (reactorSubscriber != null) {
-            if (isDebug) {
-                logger.debug("Pass subscription(args[0]) to this");
-            }
-            return new ReactorSubscriber(reactorSubscriber.getAsyncContext());
-        }
-
-        return null;
-    }
-
-    private ReactorSubscriber passActualToThis(ReactorSubscriber reactorSubscriber) {
-        if (reactorSubscriber != null) {
-            if (isDebug) {
-                logger.debug("Pass actual(parent) to this");
-            }
-            return new ReactorSubscriber(reactorSubscriber.getAsyncContext());
-        }
-        return null;
-    }
-
-    private ReactorSubscriber passThisToSubscription(ReactorSubscriber reactorSubscriber, Object[] args) {
-        ReactorSubscriberAccessor reactorSubscriberAccessor = ArrayArgumentUtils.getArgument(args, 0, ReactorSubscriberAccessor.class);
-        if (reactorSubscriberAccessor != null) {
-            final ReactorSubscriber subscriptionReactorSubscriber = new ReactorSubscriber(reactorSubscriber.getAsyncContext());
-            ReactorSubscriberAccessorUtils.set(subscriptionReactorSubscriber, args, 0);
-            if (isDebug) {
-                logger.debug("Pass this to subscription(args[0])");
-            }
-            return subscriptionReactorSubscriber;
-        }
-
-        return null;
-    }
-
-    private ReactorSubscriber passThisToActual(ReactorSubscriber reactorSubscriber, Object target) {
-        if (target instanceof ReactorActualAccessor) {
-            final ReactorSubscriberAccessor reactorSubscriberAccessor = ((ReactorActualAccessor) target)._$PINPOINT$_getReactorActual();
-            if (reactorSubscriberAccessor != null) {
-                ReactorSubscriber actualReactorSubscriber = new ReactorSubscriber(reactorSubscriber.getAsyncContext());
-                reactorSubscriberAccessor._$PINPOINT$_setReactorSubscriber(actualReactorSubscriber);
-                if (isDebug) {
-                    logger.debug("Pass this to actual(parent)");
-                }
-                return actualReactorSubscriber;
-            }
-        }
-
-        return null;
-    }
-
-    private void onSubscribe(ReactorSubscriber reactorSubscriber, Object target) {
-        reactorSubscriber.setSubscribe(Boolean.TRUE);
-        AsyncContextAccessorUtils.setAsyncContext(reactorSubscriber.getAsyncContext(), target);
-    }
-
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

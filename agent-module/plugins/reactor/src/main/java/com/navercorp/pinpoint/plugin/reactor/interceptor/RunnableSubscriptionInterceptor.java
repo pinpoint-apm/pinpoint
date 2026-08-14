@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.plugin.reactor.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 
-public class RunnableSubscriptionInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class RunnableSubscriptionInterceptor extends InjectedAsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     public RunnableSubscriptionInterceptor(TraceContext traceContext) {
         super(traceContext, false);

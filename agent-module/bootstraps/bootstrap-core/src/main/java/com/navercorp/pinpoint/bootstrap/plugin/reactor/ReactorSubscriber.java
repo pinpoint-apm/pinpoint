@@ -18,6 +18,11 @@ package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 
+/**
+ * @deprecated Retained for compatibility with third-party plugins. New Reactor
+ * instrumentation should propagate {@link AsyncContext} directly.
+ */
+@Deprecated
 public class ReactorSubscriber {
 
     private AsyncContext asyncContext;

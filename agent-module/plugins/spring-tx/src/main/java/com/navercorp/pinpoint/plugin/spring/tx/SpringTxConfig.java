@@ -21,10 +21,16 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 public class SpringTxConfig {
     private final boolean enabled;
     private final boolean markError;
+    private final boolean wrapPublisher;
 
     public SpringTxConfig(ProfilerConfig config) {
         this.enabled = config.readBoolean("profiler.spring.tx.enable", true);
         this.markError = config.readBoolean("profiler.spring.tx.mark.error", false);
+        this.wrapPublisher = config.readBoolean("profiler.spring.tx.wrap.publisher", false);
+    }
+
+    public boolean isWrapPublisher() {
+        return wrapPublisher;
     }
 
     public boolean isEnabled() {
@@ -40,6 +46,7 @@ public class SpringTxConfig {
         return "SpringTxConfig{" +
                 "enabled=" + enabled +
                 ", markError=" + markError +
+                ", wrapPublisher=" + wrapPublisher +
                 '}';
     }
 }

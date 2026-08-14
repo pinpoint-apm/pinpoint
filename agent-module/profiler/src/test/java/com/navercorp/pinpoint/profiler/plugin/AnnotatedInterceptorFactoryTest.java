@@ -85,7 +85,7 @@ public class AnnotatedInterceptorFactoryTest {
 
     private AnnotatedInterceptorFactory newAnnotatedInterceptorFactory() {
         return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
-                apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory);
+                apiMetaDataService, pluginContext, null, exceptionHandlerFactory, requestRecorderFactory);
     }
 
     private ScopeInfo newEmptyScopeInfo() {
@@ -99,6 +99,37 @@ public class AnnotatedInterceptorFactoryTest {
         Interceptor interceptor = factory.newInterceptor(TestInterceptor0.class, null, scopeInfo, instrumentMethod.getDescriptor());
 
         assertEquals(TestInterceptor0.class, interceptor.getClass());
+    }
+
+    public static class TestInjectedAsyncContextInterceptor implements com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor {
+        @Override
+        public void before(Object target, com.navercorp.pinpoint.bootstrap.context.AsyncContext asyncContext, int apiId, Object[] args) {
+        }
+
+        @Override
+        public void after(Object target, com.navercorp.pinpoint.bootstrap.context.AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
+        }
+    }
+
+    @Test
+    public void injectedAsyncContextInterceptor_scoped() {
+        AnnotatedInterceptorFactory factory = newAnnotatedInterceptorFactory();
+        final com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope scope = mock(com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope.class);
+        final ScopeInfo scopeInfo = new ScopeInfo(scope, com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy.BOUNDARY);
+        Interceptor interceptor = factory.newInterceptor(TestInjectedAsyncContextInterceptor.class, null, scopeInfo, instrumentMethod.getDescriptor());
+
+        assertEquals(com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInjectedAsyncContextApiIdAwareAroundInterceptor.class, interceptor.getClass());
+    }
+
+    @Test
+    public void injectedAsyncContextInterceptor_exceptionHandleScoped() {
+        AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
+                apiMetaDataService, pluginContext, null, new ExceptionHandlerFactory(true), requestRecorderFactory);
+        final com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope scope = mock(com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope.class);
+        final ScopeInfo scopeInfo = new ScopeInfo(scope, com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy.BOUNDARY);
+        Interceptor interceptor = factory.newInterceptor(TestInjectedAsyncContextInterceptor.class, null, scopeInfo, instrumentMethod.getDescriptor());
+
+        assertEquals(com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInjectedAsyncContextApiIdAwareAroundInterceptor.class, interceptor.getClass());
     }
 
 

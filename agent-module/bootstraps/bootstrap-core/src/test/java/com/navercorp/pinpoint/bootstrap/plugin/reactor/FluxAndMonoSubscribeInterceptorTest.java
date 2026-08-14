@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -34,33 +35,52 @@ public class FluxAndMonoSubscribeInterceptorTest {
     public void targetContainAsyncContext() {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextImpl target = new MockAsyncContextImpl();
-        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        MockAsyncContextAccessor arg0 = new MockAsyncContextAccessor();
         FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor();
 
         // Set asyncContext to target
         target._$PINPOINT$_setAsyncContext(mockAsyncContext);
-        // before
-        interceptor.before(target, 1, new Object[]{arg0});
+        // before (asyncContext is read by the weaver from target and passed in)
+        interceptor.before(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0});
         // after
-        interceptor.after(target, 1, new Object[]{arg0}, new Object(), null);
+        interceptor.after(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0}, new Object(), null);
 
-        assertNotNull(arg0._$PINPOINT$_getReactorSubscriber());
-        assertEquals(arg0._$PINPOINT$_getReactorSubscriber().getAsyncContext(), mockAsyncContext);
+        assertNotNull(arg0._$PINPOINT$_getAsyncContext());
+        assertEquals(arg0._$PINPOINT$_getAsyncContext(), mockAsyncContext);
+    }
+
+    @Test
+    public void relayOverwritesSubscriberContext() {
+        // pins last-write-wins: the publisher-side context always overwrites whatever the
+        // subscriber already carries. Hop relays (publishOn/subscribeOn/timer) depend on this -
+        // a target-first guard here was tried and refuted by the propagation ITs (2026-08-05).
+        // Misattribution on shared/cached publishers is the documented trade-off of this rule.
+        AsyncContext publisherAsyncContext = mock(AsyncContext.class);
+        AsyncContext subscriberAsyncContext = mock(AsyncContext.class);
+        MockAsyncContextImpl target = new MockAsyncContextImpl();
+        MockAsyncContextAccessor arg0 = new MockAsyncContextAccessor();
+        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor();
+
+        target._$PINPOINT$_setAsyncContext(publisherAsyncContext);
+        arg0._$PINPOINT$_setAsyncContext(subscriberAsyncContext);
+        interceptor.before(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0});
+
+        assertEquals(publisherAsyncContext, arg0._$PINPOINT$_getAsyncContext());
     }
 
     @Test
     public void targetNotContainAsyncContext() {
         MockAsyncContextImpl target = new MockAsyncContextImpl();
-        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        MockAsyncContextAccessor arg0 = new MockAsyncContextAccessor();
         FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor();
 
         // Not set asyncContext to target
-        // before
-        interceptor.before(target, 1, new Object[]{arg0});
+        // before (weaver reads null from target)
+        interceptor.before(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0});
         // after
-        interceptor.after(target, 1, new Object[]{arg0}, new Object(), null);
+        interceptor.after(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0}, new Object(), null);
 
         assertNull(target._$PINPOINT$_getAsyncContext());
-        assertNull(arg0._$PINPOINT$_getReactorSubscriber());
+        assertNull(arg0._$PINPOINT$_getAsyncContext());
     }
 }

@@ -37,7 +37,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockStaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleInjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor1;
@@ -55,10 +57,15 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleBlockAroundIn
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleBlockAroundInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleBlockStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleStaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleResultReplaceAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleResultReplaceBlockAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceBlockAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedBlockInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedBlockInterceptor0;
@@ -75,10 +82,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedI
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedResultReplaceAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedResultReplaceBlockAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedBlockInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedBlockInterceptor0;
@@ -95,11 +105,15 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor2;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedResultReplaceAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedResultReplaceBlockAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
+import com.navercorp.pinpoint.profiler.instrument.ASMGuardedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
+import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
@@ -111,7 +125,10 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
+    public static final String GUARD_CODEGEN_KEY = "profiler.interceptor.exception.guard.codegen";
+
     private final ProfilerConfig profilerConfig;
+    private final boolean guardCodegen;
     private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final CustomMetricRegistry customMetricRegistry;
@@ -127,9 +144,15 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
                                        CustomMetricRegistry customMetricRegistry,
                                        ApiMetaDataService apiMetaDataService,
                                        InstrumentContext pluginContext,
+                                       BootstrapCore bootstrapCore,
                                        ExceptionHandlerFactory exceptionHandlerFactory,
                                        RequestRecorderFactory requestRecorderFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.guardCodegen = profilerConfig.readBoolean(GUARD_CODEGEN_KEY, true);
+        if (this.guardCodegen) {
+            // nullable outside the DI wiring (tests); the scoped template fallback then stays off
+            ASMGuardedInterceptorFactory.initTemplateSource(bootstrapCore);
+        }
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.dataSourceMonitorRegistry = Objects.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry");
         this.customMetricRegistry = Objects.requireNonNull(customMetricRegistry, "customMetricRegistry");
@@ -195,6 +218,12 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new ScopedInterceptor0((AroundInterceptor0) interceptor, scope, policy);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
             return new ScopedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, scope, policy);
+        } else if (interceptor instanceof InjectedAsyncContextApiIdAwareAroundInterceptor) {
+            return new ScopedInjectedAsyncContextApiIdAwareAroundInterceptor((InjectedAsyncContextApiIdAwareAroundInterceptor) interceptor, scope, policy);
+        } else if (interceptor instanceof ResultReplaceAroundInterceptor) {
+            return new ScopedResultReplaceAroundInterceptor((ResultReplaceAroundInterceptor) interceptor, scope, policy);
+        } else if (interceptor instanceof ResultReplaceBlockAroundInterceptor) {
+            return new ScopedResultReplaceBlockAroundInterceptor((ResultReplaceBlockAroundInterceptor) interceptor, scope, policy);
         } else if (interceptor instanceof BlockAroundInterceptor) {
             return new ScopedBlockInterceptor((BlockAroundInterceptor) interceptor, scope, policy);
         } else if (interceptor instanceof BlockStaticAroundInterceptor) {
@@ -220,6 +249,15 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
 
     private Interceptor wrapByExceptionHandleScope(Interceptor interceptor, InterceptorScope scope, ExecutionPolicy policy) {
         final ExceptionHandler exceptionHandler = exceptionHandlerFactory.getExceptionHandler();
+        if (guardCodegen) {
+            // Experimental: per-interceptor rewrite of the scoped guard template, keeping the
+            // delegate call monomorphic. Ineligible shapes and any generation failure return null
+            // and take the shared scoped wrapper as before.
+            final Interceptor generated = ASMGuardedInterceptorFactory.wrapScoped(interceptor, scope, policy, exceptionHandler);
+            if (generated != null) {
+                return generated;
+            }
+        }
         if (interceptor instanceof AroundInterceptor) {
             return new ExceptionHandleScopedInterceptor((AroundInterceptor) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof StaticAroundInterceptor) {
@@ -238,6 +276,12 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new ExceptionHandleScopedInterceptor0((AroundInterceptor0) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
             return new ExceptionHandleScopedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, scope, policy, exceptionHandler);
+        } else if (interceptor instanceof InjectedAsyncContextApiIdAwareAroundInterceptor) {
+            return new ExceptionHandleScopedInjectedAsyncContextApiIdAwareAroundInterceptor((InjectedAsyncContextApiIdAwareAroundInterceptor) interceptor, scope, policy, exceptionHandler);
+        } else if (interceptor instanceof ResultReplaceAroundInterceptor) {
+            return new ExceptionHandleScopedResultReplaceAroundInterceptor((ResultReplaceAroundInterceptor) interceptor, scope, policy, exceptionHandler);
+        } else if (interceptor instanceof ResultReplaceBlockAroundInterceptor) {
+            return new ExceptionHandleScopedResultReplaceBlockAroundInterceptor((ResultReplaceBlockAroundInterceptor) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof BlockAroundInterceptor) {
             return new ExceptionHandleScopedBlockInterceptor((BlockAroundInterceptor) interceptor, scope, policy, exceptionHandler);
         } else if (interceptor instanceof BlockStaticAroundInterceptor) {
@@ -263,6 +307,16 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
 
     private Interceptor wrapByExceptionHandle(Interceptor interceptor) {
         final ExceptionHandler exceptionHandler = exceptionHandlerFactory.getExceptionHandler();
+        if (guardCodegen) {
+            // Experimental: a guard class generated per interceptor class keeps the delegate call
+            // monomorphic, instead of funnelling every interceptor of a shape through the shared
+            // wrapper's single (megamorphic) call site below. Ineligible shapes and any generation
+            // failure return null and take the shared wrapper as before.
+            final Interceptor generated = ASMGuardedInterceptorFactory.wrap(interceptor, exceptionHandler);
+            if (generated != null) {
+                return generated;
+            }
+        }
         if (interceptor instanceof AroundInterceptor) {
             return new ExceptionHandleAroundInterceptor((AroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof StaticAroundInterceptor) {
@@ -281,6 +335,12 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new ExceptionHandleAroundInterceptor0((AroundInterceptor0) interceptor, exceptionHandler);
         } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
             return new ExceptionHandleApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor) interceptor, exceptionHandler);
+        } else if (interceptor instanceof InjectedAsyncContextApiIdAwareAroundInterceptor) {
+            return new ExceptionHandleInjectedAsyncContextApiIdAwareAroundInterceptor((InjectedAsyncContextApiIdAwareAroundInterceptor) interceptor, exceptionHandler);
+        } else if (interceptor instanceof ResultReplaceAroundInterceptor) {
+            return new ExceptionHandleResultReplaceAroundInterceptor((ResultReplaceAroundInterceptor) interceptor, exceptionHandler);
+        } else if (interceptor instanceof ResultReplaceBlockAroundInterceptor) {
+            return new ExceptionHandleResultReplaceBlockAroundInterceptor((ResultReplaceBlockAroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof BlockAroundInterceptor) {
             return new ExceptionHandleBlockAroundInterceptor((BlockAroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof BlockStaticAroundInterceptor) {

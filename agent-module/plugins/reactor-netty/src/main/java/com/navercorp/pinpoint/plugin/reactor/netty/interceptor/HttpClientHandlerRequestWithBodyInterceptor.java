@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -34,7 +34,7 @@ import java.net.InetSocketAddress;
 /**
  * @author jaehong.kim
  */
-public class HttpClientHandlerRequestWithBodyInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class HttpClientHandlerRequestWithBodyInterceptor extends InjectedAsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     public HttpClientHandlerRequestWithBodyInterceptor(TraceContext traceContext) {
         super(traceContext);

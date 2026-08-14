@@ -39,6 +39,7 @@ import org.springframework.web.reactive.result.method.annotation.RequestMappingH
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.time.Duration;
@@ -170,5 +171,26 @@ public class SpringBoot3WebfluxPluginController {
         return Flux.interval(Duration.ofSeconds(1))
                 .map(sequence -> "Stream Data " + sequence)
                 .take(10);
+    }
+
+    @GetMapping("/seam/publishOn/flux")
+    public Mono<String> seamPublishOnFlux() {
+        // Response-coupled publishOn chain for the seam wrapper A/B: assembled per request under
+        // the server trace, 1000 elements so the publishOn->map ASYNC fusion the wrapper suppresses
+        // actually carries weight. The response completes only after the hop.
+        return Flux.range(1, 1000)
+                .publishOn(Schedulers.parallel())
+                .map(value -> value + 1)
+                .reduce(0, Integer::sum)
+                .map(String::valueOf);
+    }
+
+    @GetMapping("/seam/publishOn/mono")
+    public Mono<String> seamPublishOnMono() {
+        // Single-element variant: dominated by the per-subscription wrapper and window cost
+        // rather than fusion.
+        return Mono.just("seam")
+                .publishOn(Schedulers.parallel())
+                .map(value -> value + "-done");
     }
 }

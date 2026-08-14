@@ -25,8 +25,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
+import com.navercorp.pinpoint.profiler.instrument.mock.ResultReplaceBlockInterceptor;
+import com.navercorp.pinpoint.profiler.instrument.mock.ResultReplaceInterceptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -77,6 +80,37 @@ public class InterceptorDefinitionFactoryTest {
 
     }
 
+
+    @Test
+    public void testGetInterceptorType_ResultReplace() {
+        InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
+
+        final InterceptorDefinition definition = typeDetector.createInterceptorDefinition(ResultReplaceInterceptor.class);
+        Assertions.assertSame(InterceptorType.RESULT_REPLACE, definition.getInterceptorType());
+        Assertions.assertSame(CaptureType.AROUND, definition.getCaptureType());
+        Assertions.assertEquals(Object.class, definition.getAfterMethod().getReturnType());
+    }
+
+    @Test
+    public void testGetInterceptorType_ResultReplaceBlock() {
+        InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
+
+        final InterceptorDefinition definition = typeDetector.createInterceptorDefinition(ResultReplaceBlockInterceptor.class);
+        Assertions.assertSame(InterceptorType.RESULT_REPLACE, definition.getInterceptorType());
+        // before() returning TraceBlock switches the capture type, composing the block channel
+        // with the result-replace calling convention.
+        Assertions.assertSame(CaptureType.BLOCK_AROUND, definition.getCaptureType());
+        Assertions.assertEquals(Object.class, definition.getAfterMethod().getReturnType());
+    }
+
+    @Test
+    public void testGetInterceptorType_ResultReplace_covariantAfterRejected() {
+        // a covariant override changes the weaved call descriptor and must be rejected.
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            InterceptorDefinitionFactory typeDetector = new InterceptorDefinitionFactory();
+            typeDetector.createInterceptorDefinition(CovariantResultReplaceInterceptor.class);
+        });
+    }
 
     @Test
     public void testGetType_Error() {
@@ -178,5 +212,16 @@ public class InterceptorDefinitionFactoryTest {
 
     public static class InheritedAroundInterceptor extends TestAroundInterceptor {
 
+    }
+
+    public static class CovariantResultReplaceInterceptor implements ResultReplaceAroundInterceptor {
+        @Override
+        public void before(Object target, Class<?> returnType, Object[] args) {
+        }
+
+        @Override
+        public String after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
+            return null;
+        }
     }
 }
