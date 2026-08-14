@@ -35,8 +35,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class BasicLoginProperties implements InitializingBean {
 
-    private static final String DEFAULT_JWT_SECRET_KEY = "__PINPOINT_JWT_SECRET__";
-
     private static final long DEFAULT_EXPIRATION_TIME_SECONDS = TimeUnit.HOURS.toSeconds(12);
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -48,7 +46,7 @@ public class BasicLoginProperties implements InitializingBean {
     private List<String> adminIdAndPasswordPairList;
 
     @Value("${web.security.auth.jwt.secretkey:#{null}}")
-    private String jwtSecretKey = DEFAULT_JWT_SECRET_KEY;
+    private String jwtSecretKey;
 
     @Value("${web.security.auth.jwt.cookie.http-only:true}")
     private boolean jwtCookieHttpOnly;
