@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextSpanEventApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseHeaderRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServerResponseHeaderRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -34,7 +33,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 /**
  * @author jaehong.kim
  */
-public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class HttpClientOperationsOnInboundNextInterceptor extends InjectedAsyncContextSpanEventApiIdAwareAroundInterceptor {
 
     private final ServerResponseHeaderRecorder<HttpResponse> responseHeaderRecorder;
 
@@ -43,17 +42,23 @@ public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSp
         this.responseHeaderRecorder = ResponseHeaderRecorderFactory.newResponseHeaderRecorder(traceContext.getProfilerConfig(), new ReactorNettyResponseHeaderAdaptor());
     }
 
-    // BEFORE
+    // The AsyncContext is supplied by the weaver (monomorphic read). The previous getAsyncContext
+    // override also skipped non-HttpResponse signals (e.g. LastHttpContent) via validate(args); that
+    // guard is preserved here so we don't begin a trace block for those signals.
     @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args) {
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (asyncContext == null) {
-            return null;
-        }
+    public void before(Object target, AsyncContext asyncContext, int apiId, Object[] args) {
         if (Boolean.FALSE == validate(args)) {
-            return null;
+            return;
         }
-        return asyncContext;
+        super.before(target, asyncContext, apiId, args);
+    }
+
+    @Override
+    public void after(Object target, AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
+        if (Boolean.FALSE == validate(args)) {
+            return;
+        }
+        super.after(target, asyncContext, apiId, args, result, throwable);
     }
 
     @Override
@@ -74,19 +79,6 @@ public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSp
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
         recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
-    }
-
-    // AFTER
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (asyncContext == null) {
-            return null;
-        }
-        if (Boolean.FALSE == validate(args)) {
-            return null;
-        }
-        return asyncContext;
     }
 
     @Override

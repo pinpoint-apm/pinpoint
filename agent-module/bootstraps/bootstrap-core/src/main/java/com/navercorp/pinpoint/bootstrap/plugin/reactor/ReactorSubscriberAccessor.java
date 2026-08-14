@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
+/**
+ * @deprecated Retained for compatibility with third-party plugins. New Reactor
+ * instrumentation should use the standard async-context accessor.
+ */
+@Deprecated
 public interface ReactorSubscriberAccessor {
     void _$PINPOINT$_setReactorSubscriber(ReactorSubscriber subscriber);
 

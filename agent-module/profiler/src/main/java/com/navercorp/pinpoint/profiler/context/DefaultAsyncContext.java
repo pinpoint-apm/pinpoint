@@ -110,6 +110,26 @@ public class DefaultAsyncContext implements AsyncContext {
         return asyncTrace;
     }
 
+    @Override
+    public Trace continueAsyncTraceObject(Trace reuse) {
+        if (reuse == null) {
+            return continueAsyncTraceObject(false);
+        }
+        final Reference<Trace> reference = remote.binder().get();
+        final Trace nestedTrace = reference.get();
+        if (nestedTrace != null) {
+            // same nesting semantics as continueAsyncTraceObject(boolean)
+            if (nestedTrace.canSampled()) {
+                return nestedTrace;
+            }
+            return null;
+        }
+        // rebind the caller's previously-created trace: no new LocalAsyncId, ChildTrace,
+        // recorders or scope registration - just the thread binding.
+        reference.set(reuse);
+        return reuse;
+    }
+
     private void bind(Reference<Trace> reference, Trace asyncTrace) {
         if (reference.get() != null) {
             throw new IllegalStateException("traceReference is null");

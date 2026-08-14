@@ -123,7 +123,7 @@ public class ASMClassTest {
     private final RequestRecorderFactory requestRecorderFactory = mock(RequestRecorderFactory.class);
 
     private final ObjectBinderFactory objectBinderFactory = new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService,
-            customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory, requestRecorderFactory);
+            customMetricRegistryService, apiMetaDataService, null, exceptionHandlerFactory, requestRecorderFactory);
     private final ScopeFactory scopeFactory = new ScopeFactory();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
     private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator();

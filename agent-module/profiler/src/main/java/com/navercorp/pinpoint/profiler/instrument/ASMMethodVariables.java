@@ -60,6 +60,12 @@ public class ASMMethodVariables {
 
     private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
 
+    private static final String ASYNC_CONTEXT_ACCESSOR_UTILS = "com/navercorp/pinpoint/bootstrap/async/AsyncContextAccessorUtils";
+    private static final String ASYNC_CONTEXT_DESC = "Lcom/navercorp/pinpoint/bootstrap/context/AsyncContext;";
+
+    private static final Type VOID_OBJECT_TYPE = Type.getObjectType("java/lang/Void");
+    private static final String RESULT_REPLACE_UTILS = "com/navercorp/pinpoint/bootstrap/interceptor/ResultReplaceUtils";
+
     private static final Comparator<LocalVariableNode> INDEX_COMPARATOR = new Comparator<LocalVariableNode>() {
         @Override
         public int compare(LocalVariableNode o1, LocalVariableNode o2) {
@@ -92,6 +98,7 @@ public class ASMMethodVariables {
     private int methodNameVarIndex;
     private int parameterDescriptionVarIndex;
     private int apiIdVarIndex;
+    private int asyncContextVarIndex;
 
     private int resultVarIndex;
     private int throwableVarIndex;
@@ -250,6 +257,14 @@ public class ASMMethodVariables {
             // Object target, int apiId, Object[] args
             initApiIdVar(apiId, instructions);
             initArgsVar(instructions);
+        } else if (interceptorType == InterceptorType.ASYNC_CONTEXT_API_ID_AWARE) {
+            // Object target, AsyncContext asyncContext, int apiId, Object[] args
+            initApiIdVar(apiId, instructions);
+            initArgsVar(instructions);
+            initAsyncContextVar(instructions);
+        } else if (interceptorType == InterceptorType.RESULT_REPLACE) {
+            // Object target, Class returnType, Object[] args
+            initArgsVar(instructions);
         } else if (interceptorType == InterceptorType.BASIC) {
             int interceptorMethodParameterCount = getInterceptorParameterCount(interceptorDefinition);
             final int methodParameterCount = this.argumentTypes.length;
@@ -348,6 +363,20 @@ public class ASMMethodVariables {
         storeInt(instructions, this.apiIdVarIndex);
     }
 
+    private void initAsyncContextVar(InsnList instructions) {
+        assertInitializedInterceptorLocalVariables();
+        this.asyncContextVarIndex = addInterceptorLocalVariable("_$PINPOINT$_asyncContext", ASYNC_CONTEXT_DESC);
+        // Read the injected AsyncContext from `this` at this per-class weave site. Because `this` is a
+        // single concrete type here, the util call inlines to a monomorphic field load, avoiding the
+        // megamorphic invokeinterface a single shared call site (e.g. the interceptor) would incur.
+        // AsyncContextAccessorUtils.getAsyncContext returns null when the target is not an
+        // AsyncContextAccessor, so a class instrumented without addField(AsyncContextAccessor) is still
+        // safe. Static targets have no `this`; loadThis pushes null and the util returns null.
+        loadThis(instructions);
+        instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, ASYNC_CONTEXT_ACCESSOR_UTILS, "getAsyncContext", "(Ljava/lang/Object;)" + ASYNC_CONTEXT_DESC, false));
+        storeVar(instructions, this.asyncContextVarIndex);
+    }
+
     private void initArg0Var(InsnList instructions) {
         assertInitializedInterceptorLocalVariables();
         this.arg0VarIndex = addInterceptorLocalVariable("_$PINPOINT$_arg0", "Ljava/lang/String;");
@@ -436,6 +465,52 @@ public class ASMMethodVariables {
         storeVar(instructions, this.blockVarIndex);
     }
 
+    /**
+     * Emitted after a result-replace interceptor's {@code after} call on a normal exit whose
+     * opcode is ARETURN. Stack on entry: the original return value with the interceptor's
+     * candidate on top. Selects between the two through
+     * {@link com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceUtils#replace} — plain Java
+     * instead of a branch here, so both verifier paths keep a single frame — and CHECKCASTs the
+     * winner to the declared return type for the original ARETURN.
+     */
+    public void replaceReturnValue(final InsnList instructions) {
+        assertInitializedInterceptorLocalVariables();
+        // stack: original, candidate
+        instructions.add(new LdcInsnNode(this.returnType));
+        instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, RESULT_REPLACE_UTILS, "replace", "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Class;)Ljava/lang/Object;", false));
+        // stack: selected
+        final String internalName = this.returnType.getSort() == Type.ARRAY ? this.returnType.getDescriptor() : this.returnType.getInternalName();
+        instructions.add(new TypeInsnNode(Opcodes.CHECKCAST, internalName));
+    }
+
+    /**
+     * Pops the value a result-replace interceptor's {@code after} call left on the stack when
+     * there is no reference return value to replace: the exception handler path, and — only when
+     * the instrument-time reference-return validation was bypassed — void/primitive exits.
+     */
+    public void discardReturnValue(final InsnList instructions) {
+        assertInitializedInterceptorLocalVariables();
+        pop(instructions);
+    }
+
+    private void loadReturnTypeClass(final InsnList instructions) {
+        Type type = this.returnType;
+        final int sort = type.getSort();
+        if (sort == Type.VOID) {
+            type = VOID_OBJECT_TYPE;
+        } else if (sort != Type.OBJECT && sort != Type.ARRAY) {
+            // LDC cannot push a primitive class constant; the boxed class is informative enough
+            // for the degraded (validation-bypassed) path where the result is discarded anyway.
+            type = getBoxedType(type);
+        }
+        instructions.add(new LdcInsnNode(type));
+    }
+
+    boolean hasObjectOrArrayReturnType() {
+        final int sort = this.returnType.getSort();
+        return sort == Type.OBJECT || sort == Type.ARRAY;
+    }
+
     public void loadInterceptorLocalVariables(final InsnList instructions, final InterceptorDefinition interceptorDefinition, final boolean after) {
         assertInitializedInterceptorLocalVariables();
         loadVar(instructions, this.interceptorVarIndex);
@@ -464,6 +539,15 @@ public class ASMMethodVariables {
         } else if (interceptorType == InterceptorType.API_ID_AWARE) {
             // Object target, int apiId, Object[] args
             loadInt(instructions, this.apiIdVarIndex);
+            loadVar(instructions, this.argsVarIndex);
+        } else if (interceptorType == InterceptorType.ASYNC_CONTEXT_API_ID_AWARE) {
+            // Object target, AsyncContext asyncContext, int apiId, Object[] args
+            loadVar(instructions, this.asyncContextVarIndex);
+            loadInt(instructions, this.apiIdVarIndex);
+            loadVar(instructions, this.argsVarIndex);
+        } else if (interceptorType == InterceptorType.RESULT_REPLACE) {
+            // Object target, Class returnType, Object[] args
+            loadReturnTypeClass(instructions);
             loadVar(instructions, this.argsVarIndex);
         } else if (interceptorType == InterceptorType.BASIC) {
             int interceptorMethodParameterCount = getInterceptorParameterCount(interceptorDefinition);

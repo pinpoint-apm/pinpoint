@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
@@ -49,6 +50,9 @@ import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.SetDatabaseInfoCon
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementBindInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementBindNullInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.StatementExecuteInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.WrappingConnectionFactoryCreateInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.WrappingDefaultFetchSpecInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.WrappingStatementExecuteInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2.H2ConnectionConfigurationConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2.H2ConnectionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.h2.H2ConnectionFactoryConstructorInterceptor;
@@ -67,6 +71,7 @@ import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlConnect
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlStatementBindInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlStatementBindNullInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.MssqlStatementExecuteInterceptor;
+import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mssql.WrappingMssqlStatementExecuteInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.AsyncerInitFlowInitHandshakeInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.AsyncerMySqlStatementConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.mysql.MySqlConnectionConfigurationInterceptor;
@@ -90,6 +95,30 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private MatchableTransformTemplate transformTemplate;
+
+    // profiler.spring.data.r2dbc.wrap.publisher selects the wrapping variants, which hand the
+    // AsyncContext to a wrapped publisher instead of injecting it into the returned one.
+    static Class<? extends Interceptor> connectionFactoryCreateInterceptor(Instrumentor instrumentor) {
+        final SpringDataR2dbcConfiguration config = new SpringDataR2dbcConfiguration(instrumentor.getProfilerConfig());
+        if (config.isWrapPublisher()) {
+            return WrappingConnectionFactoryCreateInterceptor.class;
+        }
+        return ConnectionFactoryCreateInterceptor.class;
+    }
+
+    static Class<? extends Interceptor> statementExecuteInterceptor(SpringDataR2dbcConfiguration config) {
+        if (config.isWrapPublisher()) {
+            return WrappingStatementExecuteInterceptor.class;
+        }
+        return StatementExecuteInterceptor.class;
+    }
+
+    static Class<? extends Interceptor> mssqlStatementExecuteInterceptor(SpringDataR2dbcConfiguration config) {
+        if (config.isWrapPublisher()) {
+            return WrappingMssqlStatementExecuteInterceptor.class;
+        }
+        return MssqlStatementExecuteInterceptor.class;
+    }
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -232,7 +261,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
             }
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -284,7 +313,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(StatementExecuteInterceptor.class, va(postgresqlConfig.getMaxSqlBindValueSize()));
+                executeMethod.addInterceptor(statementExecuteInterceptor(config), va(postgresqlConfig.getMaxSqlBindValueSize()));
             }
 
             return target.toBytecode();
@@ -323,7 +352,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -392,7 +421,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(StatementExecuteInterceptor.class, va(h2Config.getMaxSqlBindValueSize()));
+                executeMethod.addInterceptor(statementExecuteInterceptor(config), va(h2Config.getMaxSqlBindValueSize()));
             }
 
             return target.toBytecode();
@@ -430,7 +459,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -482,7 +511,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(StatementExecuteInterceptor.class, va(mysqlConfig.getMaxSqlBindValueSize()));
+                executeMethod.addInterceptor(statementExecuteInterceptor(config), va(mysqlConfig.getMaxSqlBindValueSize()));
             }
 
             return target.toBytecode();
@@ -533,7 +562,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -592,7 +621,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(StatementExecuteInterceptor.class, va(mysqlConfig.getMaxSqlBindValueSize()));
+                executeMethod.addInterceptor(statementExecuteInterceptor(config), va(mysqlConfig.getMaxSqlBindValueSize()));
             }
 
             return target.toBytecode();
@@ -681,7 +710,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -733,7 +762,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(StatementExecuteInterceptor.class, va(mysqlConfig.getMaxSqlBindValueSize()));
+                executeMethod.addInterceptor(statementExecuteInterceptor(config), va(mysqlConfig.getMaxSqlBindValueSize()));
             }
 
             return target.toBytecode();
@@ -770,7 +799,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -820,7 +849,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(StatementExecuteInterceptor.class, va(mariadbConfig.getMaxSqlBindValueSize()));
+                executeMethod.addInterceptor(statementExecuteInterceptor(config), va(mariadbConfig.getMaxSqlBindValueSize()));
             }
 
             return target.toBytecode();
@@ -841,7 +870,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -910,7 +939,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(StatementExecuteInterceptor.class, va(oracleConfig.getMaxSqlBindValueSize()));
+                executeMethod.addInterceptor(statementExecuteInterceptor(config), va(oracleConfig.getMaxSqlBindValueSize()));
             }
 
             return target.toBytecode();
@@ -951,7 +980,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -1011,7 +1040,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
             // public Publisher<? extends Result> execute()
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(MssqlStatementExecuteInterceptor.class, va(mssqlConfig.getMaxSqlBindValueSize()));
+                executeMethod.addInterceptor(mssqlStatementExecuteInterceptor(config), va(mssqlConfig.getMaxSqlBindValueSize()));
             }
 
             return target.toBytecode();
@@ -1094,8 +1123,14 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
             target.addField(DatabaseInfoAccessor.class);
             target.addField(AsyncContextAccessor.class);
 
+            final SpringDataR2dbcConfiguration config = new SpringDataR2dbcConfiguration(instrumentor.getProfilerConfig());
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("one", "first", "all", "rowsUpdated"))) {
-                method.addScopedInterceptor(DefaultFetchSpecInterceptor.class, "DefaultFetchSpec", ExecutionPolicy.BOUNDARY);
+                if (config.isWrapPublisher()) {
+                    // PoC: wrap the returned row publisher instead of injecting the AsyncContext into it.
+                    method.addScopedInterceptor(WrappingDefaultFetchSpecInterceptor.class, "DefaultFetchSpec", ExecutionPolicy.BOUNDARY);
+                } else {
+                    method.addScopedInterceptor(DefaultFetchSpecInterceptor.class, "DefaultFetchSpec", ExecutionPolicy.BOUNDARY);
+                }
             }
 
             return target.toBytecode();
@@ -1134,7 +1169,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
             }
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -1155,7 +1190,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
             }
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -1176,7 +1211,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
             }
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -1192,7 +1227,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();
@@ -1207,7 +1242,7 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
 
             final InstrumentMethod createMethod = target.getDeclaredMethod("create");
             if (createMethod != null) {
-                createMethod.addInterceptor(ConnectionFactoryCreateInterceptor.class);
+                createMethod.addInterceptor(connectionFactoryCreateInterceptor(instrumentor));
             }
 
             return target.toBytecode();

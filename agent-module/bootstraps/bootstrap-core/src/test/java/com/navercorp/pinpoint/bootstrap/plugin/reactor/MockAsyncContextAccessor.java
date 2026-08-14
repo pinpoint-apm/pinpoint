@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,19 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
-public class MockReactorActualAccessor implements ReactorActualAccessor {
-    private ReactorSubscriberAccessor reactorActual;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+
+public class MockAsyncContextAccessor implements AsyncContextAccessor {
+    private AsyncContext asyncContext;
 
     @Override
-    public void _$PINPOINT$_setReactorActual(ReactorSubscriberAccessor reactorActual) {
-        this.reactorActual = reactorActual;
+    public void _$PINPOINT$_setAsyncContext(AsyncContext asyncContext) {
+        this.asyncContext = asyncContext;
     }
 
     @Override
-    public ReactorSubscriberAccessor _$PINPOINT$_getReactorActual() {
-        return reactorActual;
+    public AsyncContext _$PINPOINT$_getAsyncContext() {
+        return asyncContext;
     }
 }

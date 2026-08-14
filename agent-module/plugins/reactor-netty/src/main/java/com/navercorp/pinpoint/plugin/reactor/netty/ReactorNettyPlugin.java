@@ -38,8 +38,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnNextInter
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeOrReturnInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorActualAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsChannelMethodInterceptor;
@@ -336,8 +334,6 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
-            target.addField(ReactorActualAccessor.class);
-            target.addField(ReactorSubscriberAccessor.class);
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
@@ -364,8 +360,6 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
-            target.addField(ReactorActualAccessor.class);
-            target.addField(ReactorSubscriberAccessor.class);
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();

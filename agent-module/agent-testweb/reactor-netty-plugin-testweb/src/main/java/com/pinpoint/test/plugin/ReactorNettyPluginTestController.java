@@ -46,9 +46,9 @@ public class ReactorNettyPluginTestController {
 
     @RequestMapping(value = "/client/get", method = RequestMethod.GET)
     @ResponseBody
-    public String clientGet() {
-        HttpClient client = HttpClient.create().port(80);
-        String response = client.get().uri("https://www.google.com?foo=bar").responseContent().aggregate().asString().block();
+    public String clientGet(HttpServletRequest request) {
+        HttpClient client = HttpClient.create().port(request.getLocalPort());
+        String response = client.get().uri("/client/echo?foo=bar").responseContent().aggregate().asString().block();
         if (response != null) {
             return response;
         }
@@ -57,7 +57,7 @@ public class ReactorNettyPluginTestController {
 
     @RequestMapping(value = "/client/local", method = RequestMethod.GET)
     @ResponseBody
-    public String clientError(HttpServletRequest request) {
+    public String clientLocal(HttpServletRequest request) {
         HttpClient client = HttpClient.create().port(request.getLocalPort());
         String response = client.get().uri("/client/echo").responseContent().aggregate().asString().block();
         if (response != null) {
@@ -68,9 +68,9 @@ public class ReactorNettyPluginTestController {
 
     @RequestMapping(value = "/client/post", method = RequestMethod.GET)
     @ResponseBody
-    public String clientPost() {
-        HttpClient client = HttpClient.create().port(80);
-        HttpClientResponse response = client.post().uri("https://www.google.com/").send(ByteBufFlux.fromString(Mono.just("hello"))).response().block();
+    public String clientPost(HttpServletRequest request) {
+        HttpClient client = HttpClient.create().port(request.getLocalPort());
+        HttpClientResponse response = client.post().uri("/client/post/body").send(ByteBufFlux.fromString(Mono.just("hello"))).response().block();
         if (response != null) {
             return response.toString();
         }
@@ -79,13 +79,25 @@ public class ReactorNettyPluginTestController {
 
     @RequestMapping(value = "/client/unknown", method = RequestMethod.GET)
     @ResponseBody
-    public String clientError() {
+    public String clientUnknown() {
         HttpClient client = HttpClient.create().port(80);
         String response = client.get().uri("http://fjalkjdlfaj.com").responseContent().aggregate().asString().block();
         if (response != null) {
             return response;
         }
         return "OK";
+    }
+
+    @RequestMapping(value = "/client/transportError", method = RequestMethod.GET)
+    @ResponseBody
+    public String clientTransportError() {
+        // Nothing listens on port 1, so the connect fails with an immediate connection-refused.
+        HttpClient client = HttpClient.create().host("127.0.0.1").port(1);
+        try {
+            return client.get().uri("/").responseContent().aggregate().asString().block();
+        } catch (Exception e) {
+            return "TRANSPORT-ERROR " + e.getClass().getSimpleName() + ": " + e.getMessage();
+        }
     }
 
     @GetMapping("/client/get/param")

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -36,33 +37,33 @@ public class FluxAndMonoOperatorSubscribeInterceptorTest {
     public void targetContainAsyncContext() {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
         MockAsyncContextImpl target = new MockAsyncContextImpl();
-        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        MockAsyncContextAccessor arg0 = new MockAsyncContextAccessor();
         FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor();
 
         // Set asyncContext to target
         target._$PINPOINT$_setAsyncContext(mockAsyncContext);
-        // before
-        interceptor.before(target, 1, new Object[]{arg0});
+        // before (asyncContext is read by the weaver from target and passed in)
+        interceptor.before(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0});
         // after
-        interceptor.after(target, 1, new Object[]{arg0}, new Object(), null);
+        interceptor.after(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0}, new Object(), null);
         assertNotNull(target._$PINPOINT$_getAsyncContext());
-        assertNotNull(arg0._$PINPOINT$_getReactorSubscriber());
-        assertEquals(arg0._$PINPOINT$_getReactorSubscriber().getAsyncContext(), mockAsyncContext);
+        assertNotNull(arg0._$PINPOINT$_getAsyncContext());
+        assertEquals(arg0._$PINPOINT$_getAsyncContext(), mockAsyncContext);
     }
 
     @Test
     public void targetNotContainAsyncContext() {
         MockAsyncContextImpl target = new MockAsyncContextImpl();
-        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        MockAsyncContextAccessor arg0 = new MockAsyncContextAccessor();
         FluxAndMonoOperatorSubscribeInterceptor interceptor = new FluxAndMonoOperatorSubscribeInterceptor();
 
         // Not set asyncContext to target
-        // before
-        interceptor.before(target, 1, new Object[]{arg0});
+        // before (weaver reads null from target)
+        interceptor.before(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0});
         // after
-        interceptor.after(target, 1, new Object[]{arg0}, new Object(), null);
+        interceptor.after(target, AsyncContextAccessorUtils.getAsyncContext(target), 1, new Object[]{arg0}, new Object(), null);
 
         assertNull(target._$PINPOINT$_getAsyncContext());
-        assertNull(arg0._$PINPOINT$_getReactorSubscriber());
+        assertNull(arg0._$PINPOINT$_getAsyncContext());
     }
 }

@@ -25,10 +25,16 @@ public class RedissonPluginConfig {
 
     private final boolean enable;
     private final boolean keyTrace;
+    private final boolean wrapPublisher;
 
     public RedissonPluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.redis.redisson.enable", true);
         this.keyTrace = src.readBoolean("profiler.redis.redisson.keytrace", false);
+        this.wrapPublisher = src.readBoolean("profiler.redis.redisson.wrap.publisher", false);
+    }
+
+    public boolean isWrapPublisher() {
+        return wrapPublisher;
     }
 
     public boolean isEnable() {
@@ -44,6 +50,7 @@ public class RedissonPluginConfig {
         final StringBuilder sb = new StringBuilder("RedissonPluginConfig{");
         sb.append("enable=").append(enable);
         sb.append(", keyTrace=").append(keyTrace);
+        sb.append(", wrapPublisher=").append(wrapPublisher);
         sb.append('}');
         return sb.toString();
     }

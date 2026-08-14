@@ -245,7 +245,7 @@ public class ASMMethod implements InstrumentMethod {
         return ASMInterceptorHolder.create(interceptorHolderIdGenerator, declaringClass.getClassLoader(), factory, interceptorClass, constructorArgs, scopeInfo, descriptor);
     }
 
-    private void addInterceptor0(Class<? extends Interceptor> interceptorClass, ASMInterceptorHolder interceptorHolder) {
+    private void addInterceptor0(Class<? extends Interceptor> interceptorClass, ASMInterceptorHolder interceptorHolder) throws InstrumentException {
         Objects.requireNonNull(interceptorClass, "interceptorClass");
 
         final InterceptorDefinition interceptorDefinition = this.engineComponent.createInterceptorDefinition(interceptorClass);
@@ -261,8 +261,16 @@ public class ASMMethod implements InstrumentMethod {
         }
 
         int apiId = 0;
-        if (interceptorDefinition.getInterceptorType() == InterceptorType.API_ID_AWARE) {
+        final InterceptorType interceptorType = interceptorDefinition.getInterceptorType();
+        if (interceptorType == InterceptorType.API_ID_AWARE || interceptorType == InterceptorType.ASYNC_CONTEXT_API_ID_AWARE) {
             apiId = this.engineComponent.cacheApi(this.descriptor);
+        }
+
+        if (interceptorType == InterceptorType.RESULT_REPLACE && !this.methodNode.hasObjectOrArrayReturnType()) {
+            // constructors and void/primitive returns have no reference return value to replace.
+            throw new InstrumentException("result-replace interceptor requires an object or array return type."
+                    + " class=" + this.declaringClass.getName() + ", method=" + this.methodNode.getName() + this.methodNode.getDesc()
+                    + ", interceptor=" + interceptorClass.getName());
         }
 
         // add before interceptor.

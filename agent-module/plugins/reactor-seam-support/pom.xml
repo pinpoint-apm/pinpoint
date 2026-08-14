@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-plugins</artifactId>
+        <version>3.1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-reactor-seam-support</artifactId>
+    <name>pinpoint-reactor-seam-support</name>
+    <packaging>jar</packaging>
+
+    <!--
+        Shared seam-wrapper support (TracedSubscriber / SeamPublisherWrapper). NOT a plugin:
+        consumers embed it with maven-shade-plugin and MUST relocate
+        com.navercorp.pinpoint.plugin.reactorsupport under their own plugin package
+        (e.g. com.navercorp.pinpoint.plugin.<consumer>.reactorsupport). Reactor-family plugins
+        inject into the same application classloader, and PlainClassLoaderHandler tolerates no
+        duplicate definitions across plugin jars - an unrelocated copy in two plugins fails with
+        a LinkageError. See the tomcat plugin's common-servlet shading for the pattern.
+    -->
+
+    <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-bootstrap-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+   </dependencies>
+</project>
