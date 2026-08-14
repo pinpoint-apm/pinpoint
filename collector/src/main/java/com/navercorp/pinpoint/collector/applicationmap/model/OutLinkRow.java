@@ -30,4 +30,10 @@ public record OutLinkRow(Vertex selfVertex,
         Objects.requireNonNull(selfVertex, "selfVertex");
         Objects.requireNonNull(outVertex, "outVertex");
     }
+
+    @Override
+    public String toString() {
+        return "OutLink{" + selfVertex + " -> " + outVertex + '/' + outHost +
+                " elapsed=" + elapsed + " error=" + error + '}';
+    }
 }
