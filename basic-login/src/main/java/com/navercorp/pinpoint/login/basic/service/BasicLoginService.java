@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.login.basic.service;
 
 import com.navercorp.pinpoint.login.basic.config.BasicLoginProperties;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,6 +67,9 @@ public class BasicLoginService {
 
             if (BasicLoginConstants.PINPOINT_JWT_COOKIE_NAME.equals(name)) {
                 String pinpointJwtToken = cookie.getValue();
+                if (pinpointJwtToken == null || pinpointJwtToken.isBlank()) {
+                    continue;
+                }
 
                 try {
                     Date expirationDate = jwtService.getExpirationDate(pinpointJwtToken);
@@ -78,6 +82,8 @@ public class BasicLoginService {
                     }
                 } catch (ExpiredJwtException e) {
                     logger.warn("This token already expired. message:{}", e.getMessage(), e);
+                } catch (JwtException e) {
+                    logger.warn("Invalid JWT token. message:{}", e.getMessage());
                 } catch (UsernameNotFoundException e) {
                     logger.warn("Could not find user for JWT token. message:{}", e.getMessage());
                 }
