@@ -80,13 +80,6 @@ import java.util.List;
 )
 public interface AgentStatMapper {
 
-    PAgentStatBatch.Builder pAgentStatBatchBuilder = PAgentStatBatch.newBuilder();
-
-    default PAgentStatBatch.Builder newBuilder() {
-        pAgentStatBatchBuilder.clear();
-        return pAgentStatBatchBuilder;
-    }
-
     @Mapping(source = "agentStats", target = "agentStat")
     PAgentStatBatch map(AgentStatMetricSnapshotBatch batch);
 
