@@ -42,3 +42,6 @@ dist/
 # logs
 logs/
 manager-logs/
+
+# git mergetool temp files
+.merge_file_*
