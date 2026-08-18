@@ -45,28 +45,6 @@ public interface ExceptionMetaDataMapper {
 
     String EMPTY_STRING = "";
 
-    PExceptionMetaData.Builder pExceptionMetaDataBuilder = PExceptionMetaData.newBuilder();
-    PException.Builder pExceptionBuilder = PException.newBuilder();
-    PStackTraceElement.Builder pStackTraceElementBuilder = PStackTraceElement.newBuilder();
-
-    default PExceptionMetaData.Builder getpExceptionMetaDataBuilder() {
-        PExceptionMetaData.Builder builder = pExceptionMetaDataBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default PException.Builder getpExceptionBuilder() {
-        PException.Builder builder = pExceptionBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default PStackTraceElement.Builder getpStackTraceElementBuilder() {
-        PStackTraceElement.Builder builder = pStackTraceElementBuilder;
-        builder.clear();
-        return builder;
-    }
-
     @Mapping(source = "exceptionWrappers", target = "exceptions")
     @Mapping(source = "traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class)
     @Mapping(source = "traceRoot.traceId.spanId", target = "spanId")
