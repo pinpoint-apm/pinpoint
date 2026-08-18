@@ -35,6 +35,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class BasicLoginProperties implements InitializingBean {
 
+    // shipped as the example value until 4.0.0, so it is publicly known - see git history
+    private static final String LEAKED_JWT_SECRET_KEY = "__PINPOINT_JWT_SECRET__";
+
     private static final long DEFAULT_EXPIRATION_TIME_SECONDS = TimeUnit.HOURS.toSeconds(12);
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -95,7 +98,10 @@ public class BasicLoginProperties implements InitializingBean {
 
         this.adminList = createAdmin(adminIdAndPasswordPairList);
 
-        Assert.hasLength(jwtSecretKey, "jwtSecretKey must not be empty");
+        Assert.hasLength(jwtSecretKey, "web.security.auth.jwt.secretkey must not be empty. " +
+                "Set it in pinpoint-web.properties to a random string of 24 characters or more");
+        Assert.isTrue(!LEAKED_JWT_SECRET_KEY.equals(jwtSecretKey), "web.security.auth.jwt.secretkey must not be " +
+                LEAKED_JWT_SECRET_KEY + ". It was shipped as an example value and is publicly known - rotate it");
     }
 
     private List<UserDetails> createUser(List<String> idAndPasswordList) {
