@@ -167,6 +167,8 @@ public class OtlpTraceSpanMapper {
             spanBo.addAnnotation(AnnotationBo.of(OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS, grpcStatus.name()));
             consumedKeys.add(grpcStatus.sourceKey());
         }
+        // GenAI (LLM call) → gen_ai.model (409) / gen_ai.usage (410) annotations
+        OtlpGenAiRecorder.record(spanBo::addAnnotation, attributes, consumedKeys);
         final Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY.or(consumedKeys::contains);
         final TruncatedCounts truncatedCounts = new TruncatedCounts();
         // attributes

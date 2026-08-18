@@ -274,4 +274,11 @@ public interface AnnotationKey {
     // carries one, so a call-tree child row per span would be pure noise. The web surfaces it as
     // a dedicated Scope row (RecordFactory.getScope) that the frontend lifts into a row icon.
     AnnotationKey OPENTELEMETRY_SCOPE = AnnotationKeyFactory.of(408, "Scope");
+    // GenAI (LLM call) semconv promotion, attached by the otlptrace collector's OtlpGenAiRecorder.
+    // The model that served the call: gen_ai.response.model (the model that actually responded,
+    // which may differ from the requested alias) wins over gen_ai.request.model.
+    AnnotationKey GEN_AI_MODEL = AnnotationKeyFactory.of(409, "gen_ai.model", VIEW_IN_RECORD_SET);
+    // Token usage summary composed from the gen_ai.usage.* attributes (bare nonstandard token
+    // keys as fallback), e.g. "in:1200 out:340 cache_r:5000 cache_w:0" — present parts only.
+    AnnotationKey GEN_AI_USAGE = AnnotationKeyFactory.of(410, "gen_ai.usage", VIEW_IN_RECORD_SET);
 }

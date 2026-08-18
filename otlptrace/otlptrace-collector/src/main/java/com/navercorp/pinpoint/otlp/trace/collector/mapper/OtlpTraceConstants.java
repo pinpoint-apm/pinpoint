@@ -122,6 +122,23 @@ public class OtlpTraceConstants {
     // NAME (io.grpc Status.getCode().name()); the OTel numeric code is translated accordingly
     // by OtlpGrpcStatusResolver.
     public static final int ANNOTATION_KEY_GRPC_STATUS = 160;
+    // GenAI (LLM) semconv, promoted to the gen_ai.model (409) / gen_ai.usage (410) annotations
+    // by OtlpGenAiRecorder. Model: response.model is the model that actually served the call
+    // (may differ from the requested alias) and wins over request.model. Tokens: current semconv
+    // names input_tokens/output_tokens, the pre-rename semconv used prompt_tokens/completion_tokens,
+    // and Claude Code emits bare nonstandard keys (input_tokens/output_tokens/cache_read_tokens/
+    // cache_creation_tokens); the cache pair has no semconv equivalent. Only the key actually
+    // consumed is filtered from the raw attributes — non-promoted variants survive.
+    public static final String ATTRIBUTE_KEY_GEN_AI_RESPONSE_MODEL = "gen_ai.response.model";
+    public static final String ATTRIBUTE_KEY_GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
+    public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_INPUT_TOKENS = "gen_ai.usage.input_tokens";
+    public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_PROMPT_TOKENS = "gen_ai.usage.prompt_tokens";
+    public static final String ATTRIBUTE_KEY_INPUT_TOKENS = "input_tokens";
+    public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_OUTPUT_TOKENS = "gen_ai.usage.output_tokens";
+    public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_COMPLETION_TOKENS = "gen_ai.usage.completion_tokens";
+    public static final String ATTRIBUTE_KEY_OUTPUT_TOKENS = "output_tokens";
+    public static final String ATTRIBUTE_KEY_CACHE_READ_TOKENS = "cache_read_tokens";
+    public static final String ATTRIBUTE_KEY_CACHE_CREATION_TOKENS = "cache_creation_tokens";
     // OTel HTTP server semconv: the matched route template (low-cardinality, e.g. "/users/{id}").
     // Takes precedence over url.path/http.url/http.target so the rpc field groups by endpoint
     // pattern instead of the raw, high-cardinality request path. This is the OTel equivalent of
