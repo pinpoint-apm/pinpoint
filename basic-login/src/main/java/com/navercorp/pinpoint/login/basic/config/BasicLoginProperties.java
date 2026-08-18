@@ -35,7 +35,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class BasicLoginProperties implements InitializingBean {
 
-    private static final String DEFAULT_JWT_SECRET_KEY = "__PINPOINT_JWT_SECRET__";
+    // shipped as the commented-out example value in earlier releases, so it is publicly known
+    private static final String LEAKED_JWT_SECRET_KEY = "__PINPOINT_JWT_SECRET__";
 
     private static final long DEFAULT_EXPIRATION_TIME_SECONDS = TimeUnit.HOURS.toSeconds(12);
 
@@ -48,7 +49,7 @@ public class BasicLoginProperties implements InitializingBean {
     private List<String> adminIdAndPasswordPairList;
 
     @Value("${web.security.auth.jwt.secretkey:#{null}}")
-    private String jwtSecretKey = DEFAULT_JWT_SECRET_KEY;
+    private String jwtSecretKey;
 
     @Value("${web.security.auth.jwt.cookie.http-only:true}")
     private boolean jwtCookieHttpOnly;
@@ -97,7 +98,10 @@ public class BasicLoginProperties implements InitializingBean {
 
         this.adminList = createAdmin(adminIdAndPasswordPairList);
 
-        Assert.hasLength(jwtSecretKey, "jwtSecretKey must not be empty");
+        Assert.hasLength(jwtSecretKey, "web.security.auth.jwt.secretkey must not be empty. " +
+                "Set it in pinpoint-web.properties to a random string of 24 characters or more");
+        Assert.isTrue(!LEAKED_JWT_SECRET_KEY.equals(jwtSecretKey), "web.security.auth.jwt.secretkey must not be " +
+                LEAKED_JWT_SECRET_KEY + ". It was shipped as an example value and is publicly known - rotate it");
     }
 
     private List<UserDetails> createUser(List<String> idAndPasswordList) {
