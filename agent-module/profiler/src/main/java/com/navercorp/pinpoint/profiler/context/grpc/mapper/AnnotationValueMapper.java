@@ -174,7 +174,7 @@ public interface AnnotationValueMapper {
         final DataType dataType = annotation.getValue();
         if (dataType instanceof IntStringValue) {
             final IntStringValue v = (IntStringValue) dataType;
-            PIntStringValue pIntStringValue = map((IntStringValue) dataType);
+            PIntStringValue pIntStringValue = map(v);
             builder.setIntStringValue(pIntStringValue);
             return builder.build();
         } else if (dataType instanceof StringStringValue) {
