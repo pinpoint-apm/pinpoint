@@ -72,63 +72,6 @@ import java.lang.annotation.Target;
 )
 public interface AnnotationValueMapper {
 
-    PAnnotationValue.Builder annotationBuilder = PAnnotationValue.newBuilder();
-    StringValue.Builder stringValueBuilder = StringValue.newBuilder();
-    PIntBooleanIntBooleanValue.Builder intBoolBoolBuilder = PIntBooleanIntBooleanValue.newBuilder();
-    PLongIntIntByteByteStringValue.Builder longIntIntByteByteStringBuilder = PLongIntIntByteByteStringValue.newBuilder();
-    PIntStringStringValue.Builder intStringStringBuilder = PIntStringStringValue.newBuilder();
-    PIntStringValue.Builder intStringBuilder = PIntStringValue.newBuilder();
-    PStringStringValue.Builder stringStringBuilder = PStringStringValue.newBuilder();
-    PBytesStringStringValue.Builder bytesStringStringBuilder = PBytesStringStringValue.newBuilder();
-
-    default PAnnotationValue.Builder getAnnotationBuilder() {
-        final PAnnotationValue.Builder builder = this.annotationBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default StringValue.Builder getStringValueBuilder() {
-        final StringValue.Builder builder = this.stringValueBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default PIntBooleanIntBooleanValue.Builder getIntBoolIntBoolBuilder() {
-        final PIntBooleanIntBooleanValue.Builder builder = this.intBoolBoolBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default PLongIntIntByteByteStringValue.Builder getLongIntIntByteByteStringBuilder() {
-        final PLongIntIntByteByteStringValue.Builder builder = this.longIntIntByteByteStringBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default PIntStringStringValue.Builder getIntStringStringBuilder() {
-        final PIntStringStringValue.Builder builder = this.intStringStringBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default PIntStringValue.Builder getIntStringBuilder() {
-        final PIntStringValue.Builder builder = this.intStringBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default PStringStringValue.Builder getStringStringBuilder() {
-        final PStringStringValue.Builder builder = this.stringStringBuilder;
-        builder.clear();
-        return builder;
-    }
-
-    default PBytesStringStringValue.Builder getBytesStringStringBuilder() {
-        final PBytesStringStringValue.Builder builder = this.bytesStringStringBuilder;
-        builder.clear();
-        return builder;
-    }
-
     @Qualifier
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.CLASS)
