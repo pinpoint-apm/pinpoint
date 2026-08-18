@@ -4,6 +4,7 @@ import {
   getApplicationPath,
   getHostGroupPath,
   getFilteredMapPath,
+  getFilteredMapPathOfApplication,
   getFilterTargetApplication,
   getTransactionListPath,
   getTransactionDetailPath,
@@ -260,6 +261,65 @@ describe('Test route helper utils', () => {
       expect(getFilteredMapPath(emptyFilterState, false)).toEqual('/filteredMap');
       expect(getFilteredMapPath(emptyFilterState, false, 'DEFAULT')).toEqual(
         '/filteredMap/DEFAULT',
+      );
+    });
+  });
+
+  describe('Test "getFilteredMapPathOfApplication"', () => {
+    const application = { applicationName: 'ACL-PORTAL-DEV', serviceType: 'SPRING_BOOT' };
+
+    test('Build the path from the application already in hand', () => {
+      expect(getFilteredMapPathOfApplication(application)).toEqual(
+        '/filteredMap/ACL-PORTAL-DEV@SPRING_BOOT',
+      );
+      expect(getFilteredMapPathOfApplication(application, 'blogService')).toEqual(
+        '/filteredMap/blogService/ACL-PORTAL-DEV@SPRING_BOOT',
+      );
+    });
+
+    test('Encode the service name', () => {
+      expect(getFilteredMapPathOfApplication(application, 'team/a@b')).toEqual(
+        '/filteredMap/team%2Fa%40b/ACL-PORTAL-DEV@SPRING_BOOT',
+      );
+    });
+
+    test('Return only the page path when there is no application', () => {
+      expect(getFilteredMapPathOfApplication(null)).toEqual('/filteredMap');
+      expect(getFilteredMapPathOfApplication(undefined, 'DEFAULT')).toEqual('/filteredMap/DEFAULT');
+      expect(getFilteredMapPathOfApplication({ applicationName: 'A', serviceType: '' })).toEqual(
+        '/filteredMap',
+      );
+    });
+
+    // 기간만 바꿀 때 이 함수를 쓴다. 필터에서 다시 뽑으면 sourceIsWas를 알 수 없어 출발지가
+    // 기준이던 경로가 도착지로 뒤집힌다. 그 차이를 고정해 둔다.
+    test('Keep the source-based path that rebuilding from the filter would flip', () => {
+      const linkFilter = {
+        fromApplication: 'pasta-naver-dev',
+        fromServiceType: 'STAND_ALONE',
+        toApplication: 'API-PORTAL-DEV',
+        toServiceType: 'SPRING_BOOT',
+        transactionResult: null,
+        applicationName: '',
+        serviceType: '',
+        agentName: '',
+        responseFrom: 0,
+        responseTo: 'max',
+        url: '',
+        fromAgentName: '',
+        toAgentName: '',
+      };
+      const pathApplication = {
+        applicationName: 'pasta-naver-dev',
+        serviceType: 'STAND_ALONE',
+      };
+
+      expect(getFilteredMapPathOfApplication(pathApplication)).toEqual(
+        '/filteredMap/pasta-naver-dev@STAND_ALONE',
+      );
+      // sourceIsWas 없이 필터에서 다시 뽑으면 도착지로 넘어간다.
+      expect(getFilteredMapPath(linkFilter, undefined)).toEqual(
+        '/filteredMap/API-PORTAL-DEV@SPRING_BOOT',
       );
     });
   });

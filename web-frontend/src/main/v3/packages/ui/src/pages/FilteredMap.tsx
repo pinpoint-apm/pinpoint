@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   convertParamsToQueryString,
   getServerImagePath,
-  getFilteredMapPath,
+  getFilteredMapPathOfApplication,
   getServerMapPath,
   getServiceMapPath,
   findNodeOfApplication,
@@ -177,10 +177,11 @@ export const FilteredMapPage = ({
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates }) => {
       if (formattedDates) {
+        // 기간만 바꾼다. 경로의 application은 지금 것을 그대로 유지한다 — 필터에서 다시 뽑으면
+        // 링크 필터의 기준이 sourceIsWas 없이 도착지로 고정돼, 출발지가 기준이던 경로가 뒤집힌다.
         navigate(
-          `${getFilteredMapPath(
-            parsedFilters[parsedFilters.length - 1],
-            undefined,
+          `${getFilteredMapPathOfApplication(
+            application,
             serviceName,
           )}?${convertParamsToQueryString(formattedDates)}&${convertParamsToQueryString({
             filter: searchParameters.filter,
@@ -189,7 +190,13 @@ export const FilteredMapPage = ({
         );
       }
     }) as DatetimePickerChangeHandler,
-    [application?.applicationName, searchParameters.filter, searchParameters.hint, serviceName],
+    [
+      application?.applicationName,
+      application?.serviceType,
+      searchParameters.filter,
+      searchParameters.hint,
+      serviceName,
+    ],
   );
 
   // FilterWizard
