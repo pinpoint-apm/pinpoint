@@ -89,3 +89,44 @@ export const flattenServiceMapResponse = (
     },
   };
 };
+
+/**
+ * service group(접힌 service) 노드인지 찾는다. 아니면 undefined다.
+ *
+ * 판별은 `subNodes`로 한다 — `flattenServiceMapResponse`가 `type:'service'` 응답에만 담아 두는
+ * 필드라, 이 필드의 유무가 곧 "접힌 service인가"다. servermap/filteredMap 응답에는 없으므로
+ * 그 화면들에서는 항상 undefined가 되어 동작이 달라지지 않는다.
+ *
+ * 두 곳에서 쓴다.
+ * 1. 좌클릭 — 자식 노드 목록 팝업을 연다.
+ * 2. 우클릭 — 필터 메뉴를 **열지 않는다**. group 노드의 id는 serviceName 하나뿐이라 기준
+ *    application이 없고, filteredMap은 기준 application 없이 조회가 성립하지 않는다
+ *    (`getFilterTargetApplication`이 null). 메뉴를 띄우면 눌러도 아무 일이 일어나지 않는
+ *    항목이 된다. 필터를 걸 수 없는 노드에 메뉴를 띄우지 않는 기존 처리와 같은 방식이다.
+ */
+export const findServiceGroupNode = <T extends GetServerMap.NodeData>(
+  nodes: T[] | undefined,
+  key?: string,
+): T | undefined =>
+  nodes?.find(
+    (node) => node.key === key && Array.isArray(node.subNodes) && node.subNodes.length > 0,
+  );
+
+/**
+ * service group 링크인지 찾는다. 아니면 undefined다.
+ *
+ * 백엔드는 **양쪽 끝이 모두 펼쳐진 service일 때만** 평범한 링크로 내려준다
+ * (`ServiceMapViewBuilder#buildLinks`의 `fromExpanded && toExpanded`). 한쪽이라도 접혀 있으면
+ * `type:'service'`로 묶여 내려오고, `flattenServiceMapResponse`가 `subLinks`에 담는다.
+ *
+ * 즉 **`subLinks`가 있으면 Application→Application이 아니다** — Application→Service,
+ * Service→Application, Service→Service 세 경우가 모두 여기에 해당한다. 이 링크들은 한쪽 끝에
+ * application이 없어 필터가 반쪽만 걸리므로 filteredMap으로 연결하지 않는다. (노드와 같은 이유)
+ */
+export const findServiceGroupLink = <T extends GetServerMap.LinkData>(
+  links: T[] | undefined,
+  key?: string,
+): T | undefined =>
+  links?.find(
+    (link) => link.key === key && Array.isArray(link.subLinks) && link.subLinks.length > 0,
+  );

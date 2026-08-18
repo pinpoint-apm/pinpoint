@@ -1,4 +1,8 @@
-import { flattenServiceMapResponse } from './serviceMap';
+import {
+  findServiceGroupLink,
+  findServiceGroupNode,
+  flattenServiceMapResponse,
+} from './serviceMap';
 import { GetServerMap, GetServiceMap } from '@pinpoint-fe/ui/src/constants';
 
 const makeAppNode = (overrides: Partial<GetServiceMap.AppNode> = {}): GetServiceMap.AppNode =>
@@ -182,5 +186,47 @@ describe('flattenServiceMapResponse', () => {
 
     expect(result?.applicationMapData.range).toEqual({ from: 1, to: 2 });
     expect(result?.applicationMapData.timestamp).toEqual([1, 2, 3]);
+  });
+});
+
+describe('findServiceGroupNode / findServiceGroupLink', () => {
+  const groupNode = {
+    key: 'svcA',
+    subNodes: [makeAppNode()],
+  } as unknown as GetServerMap.NodeData;
+  const appNode = { key: 'svcA^app^TOMCAT' } as GetServerMap.NodeData;
+
+  const groupLink = {
+    key: 'svcA~svcB',
+    subLinks: [makeAppLink()],
+  } as unknown as GetServerMap.LinkData;
+  const appLink = { key: 'svcA^a^TOMCAT~svcA^b^TOMCAT' } as GetServerMap.LinkData;
+
+  test('finds the collapsed service node by key', () => {
+    expect(findServiceGroupNode([appNode, groupNode], 'svcA')).toBe(groupNode);
+  });
+
+  // 3단 id를 가진 application 노드는 group이 아니다. 우클릭 메뉴가 그대로 떠야 한다.
+  test('returns undefined for an application node', () => {
+    expect(findServiceGroupNode([appNode, groupNode], 'svcA^app^TOMCAT')).toBeUndefined();
+  });
+
+  test('finds the link that touches a collapsed service', () => {
+    expect(findServiceGroupLink([appLink, groupLink], 'svcA~svcB')).toBe(groupLink);
+  });
+
+  // Application→Application 링크만 filteredMap으로 연결된다.
+  test('returns undefined for an application to application link', () => {
+    expect(
+      findServiceGroupLink([appLink, groupLink], 'svcA^a^TOMCAT~svcA^b^TOMCAT'),
+    ).toBeUndefined();
+  });
+
+  // servermap/filteredMap 응답에는 subNodes/subLinks가 없어 동작이 달라지지 않는다.
+  test('returns undefined when the map carries no group data', () => {
+    expect(findServiceGroupNode([appNode], 'svcA^app^TOMCAT')).toBeUndefined();
+    expect(findServiceGroupLink([appLink], 'svcA^a^TOMCAT~svcA^b^TOMCAT')).toBeUndefined();
+    expect(findServiceGroupNode(undefined, 'svcA')).toBeUndefined();
+    expect(findServiceGroupLink(undefined, 'svcA~svcB')).toBeUndefined();
   });
 });

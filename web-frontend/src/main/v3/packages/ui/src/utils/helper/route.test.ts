@@ -318,6 +318,18 @@ describe('Test route helper utils', () => {
     test('Return null when the service type is missing', () => {
       expect(getFilterTargetApplication({ ...base, toServiceType: '' }, false)).toBeNull();
     });
+
+    // servicemap의 Application→Service 링크. 출발지가 WAS라 기준은 잡히지만, 도착지가 service
+    // group이라 필터가 반쪽만 걸린다. Application→Application만 filteredMap으로 연결한다.
+    test('Return null when only one side of the link carries an application', () => {
+      const toServiceGroup = { ...base, toApplication: '', toServiceType: '' };
+      expect(getFilterTargetApplication(toServiceGroup, true)).toBeNull();
+      expect(getFilterTargetApplication(toServiceGroup, false)).toBeNull();
+
+      const fromServiceGroup = { ...base, fromApplication: '', fromServiceType: '' };
+      expect(getFilterTargetApplication(fromServiceGroup, true)).toBeNull();
+      expect(getFilterTargetApplication(fromServiceGroup, false)).toBeNull();
+    });
   });
 
   describe('Test "getServiceMapPath"', () => {

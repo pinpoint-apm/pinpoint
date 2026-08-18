@@ -8,7 +8,13 @@ import {
   MergedEdge,
 } from '@pinpoint-fe/server-map';
 import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import { addCommas, getServerImagePath, getTimeSeriesApdexInfo } from '@pinpoint-fe/ui/src/utils';
+import {
+  addCommas,
+  findServiceGroupLink,
+  findServiceGroupNode,
+  getServerImagePath,
+  getTimeSeriesApdexInfo,
+} from '@pinpoint-fe/ui/src/utils';
 import {
   ServerMapMenu,
   SERVERMAP_MENU_CONTENT_TYPE,
@@ -274,16 +280,19 @@ export const ServerMapCore = ({
 
   const handleClickNode: ServerMapCoreProps['onClickNode'] = (params) => {
     const { eventType, position, data: clickedData } = params;
-    if (eventType === 'right' && clickedData?.transactionInfo) {
+    const serviceGroup = findServiceGroupNode(
+      data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined,
+      clickedData?.id,
+    );
+
+    // service group 노드는 필터 메뉴를 열지 않는다. 기준 application이 없어 filteredMap 조회가
+    // 성립하지 않으므로(`getFilterTargetApplication`이 null) 메뉴를 띄워봐야 눌러도 아무 일이
+    // 일어나지 않는다. transactionInfo가 없는 노드에 메뉴를 띄우지 않는 것과 같은 처리다.
+    if (eventType === 'right' && clickedData?.transactionInfo && !serviceGroup) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.NODE);
       rightClickTargetRef.current = clickedData;
     } else if (eventType === 'left' && clickedData) {
-      const serviceGroup = (
-        data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined
-      )?.find(
-        (n) => n.key === clickedData.id && Array.isArray(n.subNodes) && n.subNodes.length > 0,
-      );
       if (serviceGroup) {
         setPopperPosition(position);
         setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST);
@@ -300,16 +309,19 @@ export const ServerMapCore = ({
 
   const handleClickEdge: ServerMapCoreProps['onClickEdge'] = (params) => {
     const { eventType, position, data: clickedData } = params;
-    if (eventType === 'right' && clickedData?.transactionInfo) {
+    const serviceGroupLink = findServiceGroupLink(
+      data?.applicationMapData?.linkDataArray as GetServerMap.LinkData[] | undefined,
+      clickedData?.id,
+    );
+
+    // service group 링크(Application→Service, Service→Application, Service→Service)는 필터
+    // 메뉴를 열지 않는다. 한쪽 끝에 application이 없어 필터가 반쪽만 걸린 filteredMap이 열리기
+    // 때문이다. 노드와 같은 이유이고, filteredMap으로 연결되는 것은 Application→Application뿐이다.
+    if (eventType === 'right' && clickedData?.transactionInfo && !serviceGroupLink) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.EDGE);
       rightClickTargetRef.current = clickedData;
     } else if (eventType === 'left' && clickedData) {
-      const serviceGroupLink = (
-        data?.applicationMapData?.linkDataArray as GetServerMap.LinkData[] | undefined
-      )?.find(
-        (l) => l.key === clickedData.id && Array.isArray(l.subLinks) && l.subLinks.length > 0,
-      );
       if (serviceGroupLink) {
         setPopperPosition(position);
         setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST);
