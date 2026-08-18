@@ -19,7 +19,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": "./src",
     "sourceMap": true
   },
   "include": ["src"],
