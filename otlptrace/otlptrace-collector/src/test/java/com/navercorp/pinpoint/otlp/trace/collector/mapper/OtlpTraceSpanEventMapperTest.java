@@ -1075,4 +1075,66 @@ class OtlpTraceSpanEventMapperTest {
         assertThat(event.hasException()).isFalse();
         assertThat(countEventAnnotations(event)).isEqualTo(1);
     }
+
+    // =======================================================================
+    // map() — GenAI annotation promotion (gen_ai.model / gen_ai.usage)
+    // =======================================================================
+
+    private static final int GEN_AI_MODEL =
+            com.navercorp.pinpoint.common.trace.AnnotationKey.GEN_AI_MODEL.getCode();
+
+    private static final int GEN_AI_USAGE =
+            com.navercorp.pinpoint.common.trace.AnnotationKey.GEN_AI_USAGE.getCode();
+
+    @Test
+    void map_genAi_claudeCodeShape_kindUnspecified() {
+        // Claude Code fixture: an llm_request child span — kind=0 (UNSPECIFIED), semconv model
+        // key, bare nonstandard token keys (see the otel-console dump this mirrors).
+        Span span = span(Span.SpanKind.SPAN_KIND_UNSPECIFIED,
+                kv(OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_REQUEST_MODEL, strVal("claude-sonnet-4-5")),
+                kv(OtlpTraceConstants.ATTRIBUTE_KEY_INPUT_TOKENS, intVal(1200)),
+                kv(OtlpTraceConstants.ATTRIBUTE_KEY_OUTPUT_TOKENS, intVal(340)),
+                kv(OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_READ_TOKENS, intVal(5000)),
+                kv(OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_CREATION_TOKENS, intVal(0)),
+                kv("gen_ai.response.finish_reasons", strVal("end_turn")));
+
+        SpanEventBo event = mapSingle(span);
+
+        // unclassified kind keeps the INTERNAL_METHOD fallback — the promotion is annotation-only
+        assertThat(event.getServiceType()).isEqualTo(ServiceType.INTERNAL_METHOD.getCode());
+        assertThat(findAnnotation(event, GEN_AI_MODEL)).isEqualTo("claude-sonnet-4-5");
+        assertThat(findAnnotation(event, GEN_AI_USAGE)).isEqualTo("in:1200 out:340 cache_r:5000 cache_w:0");
+        // consumed keys leave the raw attribute list; non-promoted gen_ai keys survive
+        assertThat(attributeKeys(event))
+                .doesNotContain(
+                        OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_REQUEST_MODEL,
+                        OtlpTraceConstants.ATTRIBUTE_KEY_INPUT_TOKENS,
+                        OtlpTraceConstants.ATTRIBUTE_KEY_OUTPUT_TOKENS,
+                        OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_READ_TOKENS,
+                        OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_CREATION_TOKENS)
+                .contains("gen_ai.response.finish_reasons");
+    }
+
+    @Test
+    void map_genAi_absent_noAnnotations() {
+        SpanEventBo event = mapSingle(span(Span.SpanKind.SPAN_KIND_UNSPECIFIED));
+
+        assertThat(findAnnotation(event, GEN_AI_MODEL)).isNull();
+        assertThat(findAnnotation(event, GEN_AI_USAGE)).isNull();
+    }
+
+    @Test
+    void map_genAi_clientKind_annotationsStillRecorded() {
+        // a semconv-conformant LLM SDK emits the call as a CLIENT span — the promotion is
+        // kind-independent and must not disturb the CLIENT classification
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv(OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_RESPONSE_MODEL, strVal("gpt-oss-120b")),
+                kv(OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_INPUT_TOKENS, intVal(10)));
+
+        SpanEventBo event = mapSingle(span);
+
+        assertThat(findAnnotation(event, GEN_AI_MODEL)).isEqualTo("gpt-oss-120b");
+        assertThat(findAnnotation(event, GEN_AI_USAGE)).isEqualTo("in:10");
+        assertThat(event.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+    }
 }

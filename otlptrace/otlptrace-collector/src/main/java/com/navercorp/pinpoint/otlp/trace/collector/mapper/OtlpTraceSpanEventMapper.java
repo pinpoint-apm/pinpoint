@@ -201,6 +201,11 @@ public class OtlpTraceSpanEventMapper {
             spanEventBo.addAnnotation(AnnotationBo.of(OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS, grpcStatus.name()));
             consumedKeys.add(grpcStatus.sourceKey());
         }
+        // GenAI (LLM call) → gen_ai.model (409) / gen_ai.usage (410) annotations. Claude Code
+        // carries these on kind=0 child spans (claude_code.llm_request), so the SpanEvent path
+        // is the primary consumer; the root-span path is wired symmetrically for SDKs that
+        // emit an LLM call as a root/local-root span.
+        OtlpGenAiRecorder.record(spanEventBo::addAnnotation, attributes, consumedKeys);
         // attributes
         if (!attributes.isEmpty()) {
             final Predicate<String> attributeFilter = OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY.or(consumedKeys::contains);
