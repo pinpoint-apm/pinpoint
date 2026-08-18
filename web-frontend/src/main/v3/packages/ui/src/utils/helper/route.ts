@@ -146,22 +146,36 @@ export const getHeatmapFullScreenRealtimePath = getApplicationPath(
  *
  * servicemap의 service group(접힌 service) 노드·링크가 여기에 해당한다. 그 id는 serviceName
  * 하나뿐이어서 어떤 application을 기준으로 삼을지 정해지지 않는다.
+ *
+ * **링크는 양쪽 끝이 모두 application이어야 한다.** 기준으로 삼을 한쪽만 보고 통과시키면
+ * Application→Service 링크가 새어나간다 — 출발지가 WAS라 출발지를 기준으로 잡고 열리지만,
+ * 도착지가 service group이라 `toApplication`이 빈 채로 필터가 반쪽만 걸린다. 어느 쪽이 기준이
+ * 되는지(sourceIsWas)는 map에서 링크를 찾아야 정해지므로, 그것과 무관하게 양쪽을 다 본다.
  */
 export const getFilterTargetApplication = (
   filterState: FilteredMap.FilterState,
   sourceIsWas?: boolean,
 ): ApplicationType | null => {
-  const [applicationName, serviceType] = filterState?.applicationName
-    ? [filterState.applicationName, filterState.serviceType]
-    : sourceIsWas
-      ? [filterState?.fromApplication, filterState?.fromServiceType]
-      : [filterState?.toApplication, filterState?.toServiceType];
+  // 노드에 걸린 필터.
+  if (filterState?.applicationName) {
+    return filterState.serviceType
+      ? { applicationName: filterState.applicationName, serviceType: filterState.serviceType }
+      : null;
+  }
 
-  if (!applicationName || !serviceType) {
+  // 링크에 걸린 필터.
+  const fromApplication = filterState?.fromApplication;
+  const fromServiceType = filterState?.fromServiceType;
+  const toApplication = filterState?.toApplication;
+  const toServiceType = filterState?.toServiceType;
+
+  if (!fromApplication || !fromServiceType || !toApplication || !toServiceType) {
     return null;
   }
 
-  return { applicationName, serviceType };
+  return sourceIsWas
+    ? { applicationName: fromApplication, serviceType: fromServiceType }
+    : { applicationName: toApplication, serviceType: toServiceType };
 };
 
 /**

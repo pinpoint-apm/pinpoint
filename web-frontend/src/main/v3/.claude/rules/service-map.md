@@ -138,11 +138,34 @@ link key는 노드 이름 둘을 `~`로 이은 것이라 같은 규칙을 따른
 - 스캐터(`applicationScatterData`)의 키는 `ScatterDataMapView`가 `NodeName`으로 만들어
   **항상 2단**이다. `getApplicationKey`로 그대로 조회하면 된다.
 - servicemap의 **service group**(접힌 service) 노드·링크는 id가 serviceName 하나뿐이라 기준
-  application이 없다. filteredMap은 기준 application 없이 조회가 성립하지 않으므로
-  (`getFilterTargetApplication`이 null) 새 탭을 열지 않는다. service 단위로 필터를 걸 수 있게
-  할지는 위 TODO와 같은 미결 사안이다.
+  application이 없다. filteredMap은 기준 application 없이 조회가 성립하지 않으므로 연결하지
+  않는다 → 아래 "filteredMap으로 연결되는 것은 Application→Application뿐" 참고.
 - 접히는 기준은 백엔드 `ServiceMapViewBuilder`의 `expandedServiceNames`다. 보고 있는 service는
   펼쳐지므로 그 service의 노드는 3단 app 노드로, 다른 service는 group으로 온다.
+
+### filteredMap으로 연결되는 것은 Application→Application뿐
+
+servicemap의 edge는 네 가지다. 이 중 **Application→Application만** filteredMap으로 연결한다.
+나머지 셋(Application→Service, Service→Application, Service→Service)은 한쪽 끝이 service
+group이라 그쪽 application이 없고, 그대로 열면 필터가 반쪽만 걸린 filteredMap이 열린다.
+service 단위로 필터를 걸 수 있게 할지는 위 TODO와 같은 미결 사안이다.
+
+**판별은 `subLinks`/`subNodes`로 한다.** 백엔드는 양쪽 끝이 모두 펼쳐진 service일 때만 평범한
+링크로 내려주고(`ServiceMapViewBuilder#buildLinks`의 `fromExpanded && toExpanded`), 한쪽이라도
+접혀 있으면 `type:'service'`로 묶어 내려준다. `flattenServiceMapResponse`가 그것을 `subLinks`에
+담으므로, **`subLinks`가 있으면 곧 Application→Application이 아니다.** 노드도 같다(`subNodes`).
+servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작은 달라지지 않는다.
+→ `findServiceGroupNode`, `findServiceGroupLink` (`utils/helper/serviceMap.ts`)
+
+막는 방식은 **우클릭 메뉴를 아예 열지 않는 것**이다. 필터를 걸 수 없는 노드에 메뉴를 띄우지 않는
+기존 처리(`getTransactionInfo`가 undefined면 메뉴 없음)와 같은 방식이다. 메뉴를 띄우고 항목만
+무반응으로 두면 눌러도 아무 일이 없는 죽은 버튼이 된다.
+
+- **엣지의 `transactionInfo`를 비우는 방식은 안 된다.** 그 필드는 엣지 라벨(호출 수·평균
+  응답시간, `renderEdgeLabel`)이 쓴다. group 엣지도 합산 수치는 보여줘야 하므로 별도 판별이 필요하다.
+- 안전망으로 `getFilterTargetApplication`은 **링크의 양쪽 끝이 모두 application일 때만** 기준을
+  돌려준다. 기준으로 삼을 한쪽만 보고 통과시키면 Application→Service가 새어나간다(출발지가
+  WAS라 출발지를 기준으로 잡고 열린다). 어느 쪽이 기준인지(`sourceIsWas`)와 무관하게 양쪽을 본다.
 
 ## 함정 (실제로 겪은 것들)
 
