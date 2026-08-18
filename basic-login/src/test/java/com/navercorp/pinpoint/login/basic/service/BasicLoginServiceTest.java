@@ -110,8 +110,43 @@ class BasicLoginServiceTest {
         }
     }
 
+    @Test
+    void getUserDetailsShouldIgnoreInvalidJwt() {
+        try (AnnotationConfigApplicationContext context = newContext(Map.of(
+                "web.security.auth.user", "user:password"
+        ))) {
+            BasicLoginService service = context.getBean(BasicLoginService.class);
+            Cookie cookie = new Cookie(BasicLoginConstants.PINPOINT_JWT_COOKIE_NAME, "not-a-jwt");
+
+            assertThat(service.getUserDetails(new Cookie[]{cookie})).isNull();
+        }
+    }
+
+    @Test
+    void getUserDetailsShouldIgnoreEmptyJwt() {
+        try (AnnotationConfigApplicationContext context = newContext(Map.of(
+                "web.security.auth.user", "user:password"
+        ))) {
+            BasicLoginService service = context.getBean(BasicLoginService.class);
+            Cookie cookie = new Cookie(BasicLoginConstants.PINPOINT_JWT_COOKIE_NAME, "");
+
+            assertThat(service.getUserDetails(new Cookie[]{cookie})).isNull();
+        }
+    }
+
+    @Test
+    void leakedSecretKeyShouldFailStartup() {
+        assertThatThrownBy(() -> newContext(Map.of(
+                "web.security.auth.jwt.secretkey", "__PINPOINT_JWT_SECRET__"
+        ))).hasRootCauseInstanceOf(IllegalArgumentException.class)
+                .rootCause()
+                .hasMessageContaining("publicly known");
+    }
+
     private AnnotationConfigApplicationContext newContext(Map<String, Object> properties) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.getEnvironment().getPropertySources().addLast(new MapPropertySource("test-default",
+                Map.of("web.security.auth.jwt.secretkey", "test-jwt-secret-key-for-unit-test")));
         context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("test", properties));
         context.register(BasicLoginConfiguration.class);
         context.refresh();
