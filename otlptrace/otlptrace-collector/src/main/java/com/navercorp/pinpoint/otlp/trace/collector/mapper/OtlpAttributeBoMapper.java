@@ -64,7 +64,8 @@ public class OtlpAttributeBoMapper {
             if (excludeFilter.test(key) || OtlpSensitiveAttributeFilter.isSensitive(key)) {
                 continue;
             }
-            // Strip query/fragment/userinfo from URL values before truncation.
+            // Strip query/fragment/userinfo from URL values and reduce shell command content
+            // to its presence marker before truncation.
             final AttributeValue sanitized = sanitizeValue(key, entry.getValue());
             final AttributeValue value = truncateValue(sanitized, onTruncated);
             result.add(new AttributeBo(key, value));
@@ -77,7 +78,8 @@ public class OtlpAttributeBoMapper {
             return value;
         }
         final String original = (String) value.getValue();
-        final String sanitized = OtlpSensitiveAttributeFilter.sanitizeUrl(key, original);
+        String sanitized = OtlpSensitiveAttributeFilter.sanitizeUrl(key, original);
+        sanitized = OtlpSensitiveAttributeFilter.sanitizeCommand(key, sanitized);
         if (sanitized == null || sanitized.equals(original)) {
             return value;
         }

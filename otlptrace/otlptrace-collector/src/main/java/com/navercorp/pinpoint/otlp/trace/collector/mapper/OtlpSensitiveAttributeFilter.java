@@ -33,6 +33,8 @@ import java.util.Set;
  *   <li>{@link #sanitizeUrl(String, String)} — URL-valued attributes ({@code url.full} /
  *       {@code http.url} / {@code http.target}) are kept but reduced to {@code scheme://host[:port]/path}
  *       (query, fragment and userinfo removed).</li>
+ *   <li>{@link #sanitizeCommand(String, String)} — shell command content ({@code full_command})
+ *       is kept but reduced to its first character + {@code "..."} as a presence marker.</li>
  * </ul>
  *
  * <p>Only Span and SpanEvent attributes pass through {@code toAttributeBoList}; Span Event and
@@ -59,7 +61,19 @@ final class OtlpSensitiveAttributeFilter {
             "http.response.body",
             "messaging.message.body",
             "rpc.request.body",
-            "rpc.response.body"
+            "rpc.response.body",
+            // Free-form prompt text, emitted by Claude Code on its interaction root span. The
+            // content can carry anything the user typed (secrets, PII) and has no safe partial
+            // form; the separately-emitted user_prompt_length stays as the size signal.
+            "user_prompt"
+    );
+
+    // Shell command content, emitted by Claude Code on tool spans. Kept as a presence marker
+    // only — see sanitizeCommand: arguments routinely carry secrets (tokens in curl headers)
+    // and even the leading word can leak via VAR=secret assignment prefixes, so the value is
+    // reduced to its first character.
+    private static final Set<String> COMMAND_KEYS = Set.of(
+            "full_command"
     );
 
     private static final Set<String> END_USER_KEYS = Set.of(
@@ -70,8 +84,18 @@ final class OtlpSensitiveAttributeFilter {
             "enduser.email",
             "user.id",
             "user.email",
+            // Anthropic account identifiers, emitted by Claude Code on every span. Same
+            // end-user-identity category as user.id/user.email — only the key names differ.
+            "user.account_id",
+            "user.account_uuid",
             "tenant.id",
-            "tenant.name"
+            "tenant.name",
+            // Anthropic organization identifier, emitted by Claude Code on every span. A
+            // tenant-like external identifier: near-constant in a single-org deployment (no
+            // observability value) and useful only as social-engineering material if exposed.
+            // session.id is deliberately NOT dropped — it is the only explicit key correlating
+            // the transactions of one session and adds little linkability beyond the agentId.
+            "organization.id"
     );
 
     private static final Set<String> CREDENTIAL_KEYS = Set.of(
@@ -201,6 +225,24 @@ final class OtlpSensitiveAttributeFilter {
             return sanitized;
         }
         return sanitized.substring(0, authorityStart) + sanitized.substring(userInfoEnd + 1);
+    }
+
+    /**
+     * For shell-command-valued attributes, keeps only the first character of the command followed
+     * by {@code "..."} (e.g. {@code "curl -H ..."} → {@code "c..."}) — a presence marker that
+     * structurally cannot leak arguments, assignment prefixes or paths. Every other key returns
+     * its value unchanged.
+     */
+    static String sanitizeCommand(String key, String value) {
+        if (value == null || value.isEmpty() || !COMMAND_KEYS.contains(normalize(key))) {
+            return value;
+        }
+        final String trimmed = value.strip();
+        if (trimmed.isEmpty()) {
+            return "...";
+        }
+        final int firstCodePoint = trimmed.codePointAt(0);
+        return new StringBuilder(5).appendCodePoint(firstCodePoint).append("...").toString();
     }
 
     private static String normalize(String key) {
