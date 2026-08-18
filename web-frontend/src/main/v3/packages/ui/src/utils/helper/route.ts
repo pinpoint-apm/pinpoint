@@ -200,16 +200,35 @@ export const getFilteredMapPath = (
   filterState: FilteredMap.FilterState,
   sourceIsWas?: boolean,
   serviceName?: string,
+) =>
+  getFilteredMapPathOfApplication(
+    getFilterTargetApplication(filterState, sourceIsWas),
+    serviceName,
+  );
+
+/**
+ * /filteredMap/{serviceName}?/{applicationName}@{serviceType}
+ *
+ * 기준 application이 **이미 정해져 있을 때** 쓰는 형태. 지금 경로에 실려 있는 application을
+ * 그대로 유지해야 하는 곳(기간만 바꾸는 경우)이 여기에 해당한다.
+ *
+ * 그럴 때 `getFilteredMapPath`로 필터에서 다시 뽑으면 안 된다. 링크 필터의 기준은 `sourceIsWas`
+ * 로 갈리는데 그 값은 map에서 링크를 찾아야 알 수 있어서, 필터만 들고 다시 만들면 출발지가
+ * 기준이던 경로가 도착지로 뒤집힌다(`/filteredMap/A@STAND_ALONE` → `/filteredMap/B@SPRING_BOOT`).
+ * 기간을 바꿨을 뿐인데 조회 대상이 달라진다.
+ */
+export const getFilteredMapPathOfApplication = (
+  application?: ApplicationType | null,
+  serviceName?: string,
 ) => {
-  const target = getFilterTargetApplication(filterState, sourceIsWas);
   const serviceSegment = serviceName ? `/${encodeURIComponent(serviceName)}` : '';
 
   // 기준 application이 없으면 세그먼트를 붙이지 않는다(다른 경로 빌더와 같은 처리).
-  if (!target) {
+  if (!application?.applicationName || !application.serviceType) {
     return `${APP_PATH.FILTERED_MAP}${serviceSegment}`;
   }
 
-  return `${APP_PATH.FILTERED_MAP}${serviceSegment}/${target.applicationName}@${target.serviceType}`;
+  return `${APP_PATH.FILTERED_MAP}${serviceSegment}/${application.applicationName}@${application.serviceType}`;
 };
 
 export const getErrorAnalysisPath = getApplicationPath(APP_PATH.ERROR_ANALYSIS);
