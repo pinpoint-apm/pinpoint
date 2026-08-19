@@ -23,7 +23,8 @@ export interface ServerListFetcherProps extends ServerListProps {
 
 export const ServerListFetcher = ({ nodeStatistics }: ServerListFetcherProps) => {
   const { searchParameters } = useSearchParameters();
-  const currentTarget = useAtomValue(serverMapCurrentTargetAtom);
+  // 값은 쓰지 않지만 atom 구독은 유지해야 하므로 호출은 남긴다.
+  useAtomValue(serverMapCurrentTargetAtom);
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
   const setCurrentServer = useSetAtom(currentServerAtom);
   const currentServerAgent = useAtomValue(currentServerAgentIdAtom);

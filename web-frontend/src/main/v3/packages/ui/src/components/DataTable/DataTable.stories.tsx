@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from './DataTable';
 import { paymentData, paymentColumns } from './mockData';
 
@@ -24,6 +25,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     data: paymentData,
-    columns: paymentColumns,
+    columns: paymentColumns as ColumnDef<unknown, unknown>[],
   },
 };

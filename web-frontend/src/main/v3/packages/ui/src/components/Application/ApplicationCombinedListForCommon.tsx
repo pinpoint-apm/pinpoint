@@ -340,7 +340,7 @@ export const ApplicationCombinedListForCommon = ({
                       list={favoriteList}
                       filterKeyword={props?.filterKeyword}
                       onClickItem={handleClickItem}
-                      onMouseEnter={(idx, item) => {
+                      onMouseEnter={(idx, _item) => {
                         setMouseEnterInfo({ id: 'favoriteList', index: idx });
                       }}
                       itemChild={(application) => {
@@ -374,7 +374,7 @@ export const ApplicationCombinedListForCommon = ({
                     getFilteredList(filteredList, 'applicationList')
                   }
                   onClickItem={handleClickItem}
-                  onMouseEnter={(idx, item) => {
+                  onMouseEnter={(idx, _item) => {
                     setMouseEnterInfo({ id: 'applicationList', index: idx });
                   }}
                   itemAs={PopoverClose}

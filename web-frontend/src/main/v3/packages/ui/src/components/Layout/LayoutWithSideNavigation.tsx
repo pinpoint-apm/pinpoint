@@ -55,11 +55,6 @@ export type SideNavigationMenuItem = MenuItem & {
   rightSectionTitle?: string;
 };
 
-interface MenuItemProps {
-  item: SideNavigationMenuItem;
-  className?: string;
-}
-
 interface TooltipProps {
   trigger: React.ReactNode;
   content: React.ReactNode;

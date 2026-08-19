@@ -1,6 +1,5 @@
 import { atom } from 'jotai';
 import {
-  EXPERIMENTAL_CONFIG_KEYS,
   FilteredMapType as FilteredMap,
   GetHistogramStatistics,
   GetServerMap,

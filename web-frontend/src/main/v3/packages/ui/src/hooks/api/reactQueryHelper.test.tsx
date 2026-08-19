@@ -27,7 +27,12 @@ import {
 } from './reactQueryHelper';
 
 const makeQuery = (over: Partial<Query> = {}) =>
-  ({ queryHash: '["/api/test",""]', meta: undefined, ...over }) as unknown as Query;
+  ({ queryHash: '["/api/test",""]', meta: undefined, ...over }) as unknown as Query<
+    unknown,
+    unknown,
+    unknown,
+    readonly unknown[]
+  >;
 
 describe('reactQueryHelper global query error handling', () => {
   beforeEach(() => {

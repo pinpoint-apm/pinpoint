@@ -62,7 +62,7 @@ const setServerMapData = (sourceIsWas: boolean) => {
             applicationName: 'FRONT',
             nodeCategory: sourceIsWas
               ? GetServerMap.NodeCategory.SERVER
-              : GetServerMap.NodeCategory.UNKNOWN_GROUP,
+              : GetServerMap.NodeCategory.UNKNOWN,
           },
           targetInfo: {
             applicationName: 'ACL-PORTAL-DEV',

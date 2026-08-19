@@ -1,4 +1,3 @@
-import React from 'react';
 import { END_POINTS, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useQuery } from '@tanstack/react-query';

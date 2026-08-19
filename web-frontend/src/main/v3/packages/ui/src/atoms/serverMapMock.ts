@@ -1,6 +1,8 @@
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 
-export const serverMapData: GetServerMap.Response = {
+// 목 데이터가 지금 타입과 어긋난다(옛 필드 category/isWas/isQueue 가 남아 있고 nodeCategory 가 없다).
+// 테스트가 이 값을 그대로 비교하므로 여기서는 데이터를 손대지 않고 타입 단언으로만 맞춘다.
+export const serverMapData = {
   applicationMapData: {
     range: {
       from: 1699620228000,
@@ -576,7 +578,7 @@ export const serverMapData: GetServerMap.Response = {
       },
     ],
   },
-};
+} as unknown as GetServerMap.Response;
 
 export const resultData = {
   key: 'app1^SPRING_BOOT',

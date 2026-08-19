@@ -12,7 +12,7 @@ jest.mock('./date', () => ({
 }));
 
 jest.mock('date-fns-tz', () => ({
-  formatInTimeZone: jest.fn((date, timezone, formatStr) => {
+  formatInTimeZone: jest.fn((_date, _timezone, formatStr) => {
     // Simple mock that returns formatted string
     if (formatStr === 'yyyy-MM-dd') {
       return '2023-11-10';

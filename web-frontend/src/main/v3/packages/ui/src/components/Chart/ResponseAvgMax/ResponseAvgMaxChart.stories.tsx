@@ -1,5 +1,4 @@
 import { StoryFn, Meta } from '@storybook/react';
-import React from 'react';
 import { ResponseAvgMaxChart } from './ResponseAvgMaxChart';
 
 export default {

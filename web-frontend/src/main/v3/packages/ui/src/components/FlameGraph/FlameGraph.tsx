@@ -286,7 +286,7 @@ export const FlameGraph = <T,>({
             <FlameAxis width={containerWidth} zoom={zoom} />
             {containerWidth &&
               // group별 렌더링
-              dataForRender.map((group, i) => {
+              dataForRender.map((group, _i) => {
                 // node별 렌더링
                 return group.map((node) => {
                   return (

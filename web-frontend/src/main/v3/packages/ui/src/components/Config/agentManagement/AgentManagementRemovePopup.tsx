@@ -54,7 +54,7 @@ export const AgentManagementRemovePopup = ({
 
   return (
     <RemovePopup
-      onOpenChange={(open) => {
+      onOpenChange={(_open) => {
         form.reset();
       }}
       popupTrigger={popupTrigger}

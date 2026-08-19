@@ -17,7 +17,7 @@ const configWithServiceMap = (enable: boolean) =>
 const lastCall = () => originalFetch.mock.calls[originalFetch.mock.calls.length - 1];
 
 const headerOfLastCall = (): string | null => {
-  const [, init] = lastCall() as [RequestInfo | URL, RequestInit | undefined];
+  const [, init] = lastCall() as unknown as [RequestInfo | URL, RequestInit | undefined];
   return new Headers(init?.headers).get(SERVICE_NAME_HEADER);
 };
 
@@ -82,7 +82,7 @@ describe('serviceNameFetchInterceptor', () => {
       body: JSON.stringify({}),
     });
 
-    const [, init] = lastCall() as [RequestInfo | URL, RequestInit | undefined];
+    const [, init] = lastCall() as unknown as [RequestInfo | URL, RequestInit | undefined];
     const headers = new Headers(init?.headers);
     expect(headers.get('Content-Type')).toBe('application/json');
     expect(headers.get(SERVICE_NAME_HEADER)).toBe('my-service');

@@ -180,7 +180,7 @@ export const ServerMap = ({
           if (addedNodes && addedNodes.length > 0) {
             const centerNode = cy.getElementById(baseNodeId);
             const { x: centerNodeX, y: centerNodeY } = centerNode.position();
-            const { y1: centerNodeY1, y2: centerNodeY2 } = centerNode.boundingBox();
+            const { y1: _centerNodeY1, y2: centerNodeY2 } = centerNode.boundingBox();
             let rankDiff: number; // Indicates rank diff between added node and the center node
 
             addedNodes.forEach((addedNode: any) => {
@@ -325,40 +325,43 @@ export const ServerMap = ({
           }
           cy.container()!.style.cursor = 'default';
         })
-        .on('tap', ({ target, originalEvent, renderedPosition }: InputEventObject) => {
-          const eventType = renderedPosition ? 'left' : 'programmatic';
-          const position = {
-            x: renderedPosition?.x,
-            y: renderedPosition?.y,
-          };
+        .on(
+          'tap',
+          ({ target, originalEvent: _originalEvent, renderedPosition }: InputEventObject) => {
+            const eventType = renderedPosition ? 'left' : 'programmatic';
+            const position = {
+              x: renderedPosition?.x,
+              y: renderedPosition?.y,
+            };
 
-          if (target === cy) {
-            handleClickBackground({
-              eventType,
-              position,
-            });
-          } else if (target.isNode()) {
-            highlightNode(target);
+            if (target === cy) {
+              handleClickBackground({
+                eventType,
+                position,
+              });
+            } else if (target.isNode()) {
+              highlightNode(target);
 
-            handleClickNode({
-              eventType,
-              position,
-              data: target.data(),
-            });
+              handleClickNode({
+                eventType,
+                position,
+                data: target.data(),
+              });
 
-            setSelectedElementId(target.id());
-          } else if (target.isEdge()) {
-            highlightEdge(target);
+              setSelectedElementId(target.id());
+            } else if (target.isEdge()) {
+              highlightEdge(target);
 
-            handleClickLink({
-              eventType,
-              position,
-              data: target.data(),
-            });
+              handleClickLink({
+                eventType,
+                position,
+                data: target.data(),
+              });
 
-            setSelectedElementId(target.id());
-          }
-        })
+              setSelectedElementId(target.id());
+            }
+          },
+        )
         .on('cxttap', ({ target, renderedPosition }: InputEventObject) => {
           const eventType = 'right';
           const position = {
