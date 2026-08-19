@@ -281,4 +281,8 @@ public interface AnnotationKey {
     // Token usage summary composed from the gen_ai.usage.* attributes (bare nonstandard token
     // keys as fallback), e.g. "in:1200 out:340 cache_r:5000 cache_w:0" — present parts only.
     AnnotationKey GEN_AI_USAGE = AnnotationKeyFactory.of(410, "gen_ai.usage", VIEW_IN_RECORD_SET);
+    // Time to first token, e.g. "2659 ms". Kept separate from GEN_AI_USAGE: usage is the token
+    // namespace and a time value inside it would read as a token count. Source is the bare
+    // ttft_ms key (Claude Code) — OTel semconv defines TTFT only as a metric, not a span attribute.
+    AnnotationKey GEN_AI_TTFT = AnnotationKeyFactory.of(411, "gen_ai.ttft", VIEW_IN_RECORD_SET);
 }
