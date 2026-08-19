@@ -139,6 +139,10 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_OUTPUT_TOKENS = "output_tokens";
     public static final String ATTRIBUTE_KEY_CACHE_READ_TOKENS = "cache_read_tokens";
     public static final String ATTRIBUTE_KEY_CACHE_CREATION_TOKENS = "cache_creation_tokens";
+    // Time to first token in milliseconds — bare nonstandard key emitted by Claude Code. OTel
+    // semconv has no span-attribute counterpart (only the gen_ai.server.time_to_first_token
+    // metric), so the ladder is this single key until one is standardized.
+    public static final String ATTRIBUTE_KEY_TTFT_MS = "ttft_ms";
     // OTel HTTP server semconv: the matched route template (low-cardinality, e.g. "/users/{id}").
     // Takes precedence over url.path/http.url/http.target so the rpc field groups by endpoint
     // pattern instead of the raw, high-cardinality request path. This is the OTel equivalent of

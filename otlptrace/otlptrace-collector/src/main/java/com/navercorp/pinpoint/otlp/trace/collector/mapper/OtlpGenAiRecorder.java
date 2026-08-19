@@ -38,6 +38,9 @@ import java.util.function.Consumer;
  *   <li>{@code gen_ai.usage} (410): a composed summary such as
  *       {@code "in:1200 out:340 cache_r:5000 cache_w:0"}. Only the parts present on the span
  *       are included; when no token attribute is present the annotation is omitted entirely.</li>
+ *   <li>{@code gen_ai.ttft} (411): time to first token, e.g. {@code "2659 ms"} — the streaming
+ *       latency half of the span duration (the rest is token generation). Sourced from the bare
+ *       {@code ttft_ms} key; OTel semconv defines TTFT only as a metric, not a span attribute.</li>
  * </ul>
  *
  * <p>Each token part resolves through a key ladder, mirroring {@link OtlpGrpcStatusResolver}:
@@ -73,6 +76,9 @@ public final class OtlpGenAiRecorder {
     private static final String[] CACHE_CREATION_TOKEN_KEYS = {
             OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_CREATION_TOKENS,
     };
+    private static final String[] TTFT_KEYS = {
+            OtlpTraceConstants.ATTRIBUTE_KEY_TTFT_MS,
+    };
 
     private static final long ABSENT = -1;
 
@@ -91,6 +97,12 @@ public final class OtlpGenAiRecorder {
         final String usage = composeUsage(attributes, consumedKeys);
         if (usage != null) {
             sink.accept(AnnotationBo.of(AnnotationKey.GEN_AI_USAGE.getCode(), usage));
+        }
+        // Kept out of the usage line: usage is the token namespace and a time value inside it
+        // would read as a token count.
+        final long ttftMillis = firstLong(attributes, consumedKeys, TTFT_KEYS);
+        if (ttftMillis != ABSENT) {
+            sink.accept(AnnotationBo.of(AnnotationKey.GEN_AI_TTFT.getCode(), ttftMillis + " ms"));
         }
     }
 

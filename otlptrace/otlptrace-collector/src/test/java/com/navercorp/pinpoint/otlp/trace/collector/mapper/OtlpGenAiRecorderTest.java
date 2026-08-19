@@ -140,6 +140,46 @@ class OtlpGenAiRecorderTest {
     }
 
     // =======================================================================
+    // ttft — time to first token (bare ttft_ms only; no semconv span attribute exists)
+    // =======================================================================
+
+    @Test
+    void ttft_promotedWithMillisUnit() {
+        record(Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_TTFT_MS, AttributeValue.of(2659L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_TTFT)).isEqualTo("2659 ms");
+        assertThat(consumedKeys).containsExactly(OtlpTraceConstants.ATTRIBUTE_KEY_TTFT_MS);
+    }
+
+    @Test
+    void ttft_zeroIsPromoted() {
+        record(Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_TTFT_MS, AttributeValue.of(0L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_TTFT)).isEqualTo("0 ms");
+    }
+
+    @Test
+    void ttft_stringTypedNotPromoted() {
+        record(Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_TTFT_MS, AttributeValue.of("2659")));
+
+        assertThat(annotations).isEmpty();
+        assertThat(consumedKeys).isEmpty();
+    }
+
+    @Test
+    void ttft_keptOutOfUsageLine() {
+        record(Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_INPUT_TOKENS, AttributeValue.of(3L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_TTFT_MS, AttributeValue.of(2659L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("in:3");
+        assertThat(annotationValue(AnnotationKey.GEN_AI_TTFT)).isEqualTo("2659 ms");
+    }
+
+    // =======================================================================
     // no-op on non-GenAI spans
     // =======================================================================
 
