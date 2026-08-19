@@ -18,9 +18,10 @@ export const getRowEndOffsetNanos = (r: TransactionInfo.CallStackKeyValueMap): n
 export type TimelineAxis = { durationNanos: number };
 
 export const isTimelineWorkRow = (r: TransactionInfo.CallStackKeyValueMap): boolean => {
-  if (r.excludeFromTimeline) {
-    return false;
-  }
+  // excludeFromTimeline is deliberately ignored here: the server sets it on INTERNAL_METHOD
+  // rows for the RPC-oriented Timeline view, but Call Tree bars must render for every executed
+  // row — OTel kind-unclassified spans (e.g. Claude Code) map entirely to INTERNAL_METHOD and
+  // would otherwise lose their whole Exec(%) column. Metadata rows are excluded by isMethod.
   if (r.isMethod === false) {
     return false;
   }
