@@ -137,6 +137,9 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_OUTPUT_TOKENS = "gen_ai.usage.output_tokens";
     public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_COMPLETION_TOKENS = "gen_ai.usage.completion_tokens";
     public static final String ATTRIBUTE_KEY_OUTPUT_TOKENS = "output_tokens";
+    // Some SDKs report only the total; consumed only when neither the input nor the output half
+    // resolved — next to them a total is a derived duplicate and survives raw.
+    public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_TOTAL_TOKENS = "gen_ai.usage.total_tokens";
     public static final String ATTRIBUTE_KEY_CACHE_READ_TOKENS = "cache_read_tokens";
     public static final String ATTRIBUTE_KEY_CACHE_CREATION_TOKENS = "cache_creation_tokens";
     // Time to first token in milliseconds — bare nonstandard key emitted by Claude Code. OTel
