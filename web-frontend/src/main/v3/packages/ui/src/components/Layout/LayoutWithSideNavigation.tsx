@@ -211,7 +211,7 @@ export const LayoutWithSideNavigation = ({
         fallbackRender={({ error }) => (
           <div className="flex flex-col items-center justify-center w-[200px] h-full gap-5 p-3">
             <div className="w-full text-center max-w-[28rem]">
-              <p className="mb-2 text-sm truncate">{error?.message}</p>
+              <p className="mb-2 text-sm truncate">{(error as Error | undefined)?.message}</p>
             </div>
           </div>
         )}
