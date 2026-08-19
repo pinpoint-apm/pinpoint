@@ -95,6 +95,7 @@
     "@babel/preset-env": "^7.29.4",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.27.0",
+    "@playwright/test": "^1.56.1",
     "@storybook/addon-docs": "^9.1.19",
     "@storybook/addon-links": "^9.1.19",
     "@storybook/addon-onboarding": "^9.1.19",

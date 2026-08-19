@@ -83,4 +83,15 @@ export default [
       '@typescript-eslint/no-require-imports': 'off',
     },
   },
+  // tsconfig 의 include('src') 밖에 있는 파일은 타입 정보 기반 파싱을 쓸 수 없다.
+  // 그대로 두면 파싱 단계에서 멈춰 파일 전체가 검사되지 않는다(에디터에만 보이던 에러 —
+  // lint 스크립트는 `eslint ./src` 로 경로를 지정해 이 파일들을 아예 지나친다).
+  {
+    files: ['*.{js,cjs,ts}', 'e2e/**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: null,
+      },
+    },
+  },
 ];

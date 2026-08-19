@@ -16,7 +16,9 @@ test.describe('Configuration General UI', () => {
     await expect(languageSelect).toBeEnabled();
   });
 
-  test('Three setting selects are rendered (language, date format, timezone).', async ({ page }) => {
+  test('Three setting selects are rendered (language, date format, timezone).', async ({
+    page,
+  }) => {
     const selects = page.locator('button[role="combobox"]');
     await expect(selects).toHaveCount(3);
   });
