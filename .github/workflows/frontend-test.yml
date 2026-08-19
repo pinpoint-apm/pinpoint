@@ -21,6 +21,14 @@ jobs:
         with:
           node-version: '22.13.1'
 
-      - name: Install yarn & test
+      - name: Install dependencies
         working-directory: ./web-frontend/src/main/v3
-        run: yarn install && yarn test
+        run: yarn install --frozen-lockfile
+
+      - name: Test
+        working-directory: ./web-frontend/src/main/v3
+        run: yarn test
+
+      - name: Build
+        working-directory: ./web-frontend/src/main/v3
+        run: yarn build
