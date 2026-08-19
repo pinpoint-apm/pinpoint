@@ -20,7 +20,7 @@ export const getServerMapStyle = ({
 }) => {
   return [
     {
-      selector: 'node',
+      selector: 'node' as const,
       style: {
         ...theme.node?.default,
         width: (el: cytoscape.NodeCollection) => {
@@ -60,7 +60,7 @@ export const getServerMapStyle = ({
       },
     },
     {
-      selector: 'edge',
+      selector: 'edge' as const,
       style: {
         ...theme.edge?.default,
         label: (el: cytoscape.EdgeCollection) => {
@@ -70,7 +70,7 @@ export const getServerMapStyle = ({
       },
     },
     {
-      selector: 'edge:loop',
+      selector: 'edge:loop' as const,
       style: {
         ...theme.edge?.loop,
       },

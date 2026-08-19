@@ -144,8 +144,8 @@ const getTransactionStatusSVGCircle = (
 
   if (isMerged || !transactionInfo) {
     return getSVGCircle({
-      stroke: transactionStatus!.default!.stroke,
-      strokeWidth: transactionStatus!.default!.strokeWidth,
+      stroke: transactionStatus.default.stroke,
+      strokeWidth: transactionStatus.default.strokeWidth,
     });
   } else {
     const sum = Object.keys(transactionInfo).reduce(
@@ -160,18 +160,18 @@ const getTransactionStatusSVGCircle = (
 
     return (
       getSVGCircle({
-        stroke: transactionStatus.good!.stroke,
-        strokeWidth: transactionStatus.good!.strokeWidth,
+        stroke: transactionStatus.good.stroke,
+        strokeWidth: transactionStatus.good.strokeWidth,
       }) +
       getSVGCircle({
-        stroke: transactionStatus.slow!.stroke,
-        strokeWidth: transactionStatus.slow!.strokeWidth,
+        stroke: transactionStatus.slow.stroke,
+        strokeWidth: transactionStatus.slow.strokeWidth,
         strokeDashOffset: slowArcOffset,
         strokeDashArray: slowArc,
       }) +
       getSVGCircle({
-        stroke: transactionStatus.bad!.stroke,
-        strokeWidth: transactionStatus.bad!.strokeWidth,
+        stroke: transactionStatus.bad.stroke,
+        strokeWidth: transactionStatus.bad.strokeWidth,
         strokeDashOffset: badArcOffset,
         strokeDashArray: badArc,
       })

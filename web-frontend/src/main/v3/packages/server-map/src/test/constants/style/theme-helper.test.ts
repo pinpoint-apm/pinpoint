@@ -2,6 +2,18 @@ import { getTheme, getServerMapStyle } from '../../../constants/style/theme-help
 import { defaultTheme, ServerMapTheme } from '../../../constants/style/theme';
 import cytoscape from 'cytoscape';
 
+// getServerMapStyle의 반환값은 selector마다 style 모양이 다른 배열이라, find()의 결과는
+// 세 모양의 union으로 남는다. selector로 좁혀 주어야 node에만 있는 속성을 읽을 수 있다.
+type ServerMapStyle = ReturnType<typeof getServerMapStyle>[number];
+
+const findStyleBySelector = <S extends ServerMapStyle['selector']>(
+  styles: ServerMapStyle[],
+  selector: S,
+) =>
+  styles.find(
+    (style): style is Extract<ServerMapStyle, { selector: S }> => style.selector === selector,
+  );
+
 describe('getTheme', () => {
   it('기본 테마를 반환해야 함', () => {
     const theme = getTheme({});
@@ -68,7 +80,7 @@ describe('getServerMapStyle', () => {
       theme: defaultTheme,
     });
 
-    const nodeStyle = styles.find((s) => s.selector === 'node');
+    const nodeStyle = findStyleBySelector(styles, 'node');
     expect(nodeStyle).toBeDefined();
     expect(typeof nodeStyle?.style?.width).toBe('function');
     expect(typeof nodeStyle?.style?.height).toBe('function');
@@ -80,7 +92,7 @@ describe('getServerMapStyle', () => {
       theme: defaultTheme,
     });
 
-    const edgeStyle = styles.find((s) => s.selector === 'edge');
+    const edgeStyle = findStyleBySelector(styles, 'edge');
     expect(edgeStyle).toBeDefined();
     expect(edgeStyle?.style).toBeDefined();
   });
@@ -91,7 +103,7 @@ describe('getServerMapStyle', () => {
       theme: defaultTheme,
     });
 
-    const loopStyle = styles.find((s) => s.selector === 'edge:loop');
+    const loopStyle = findStyleBySelector(styles, 'edge:loop');
     expect(loopStyle).toBeDefined();
   });
 
@@ -103,7 +115,7 @@ describe('getServerMapStyle', () => {
       nodeLabelRenderer,
     });
 
-    const nodeStyle = styles.find((s) => s.selector === 'node');
+    const nodeStyle = findStyleBySelector(styles, 'node');
     const labelFunction = nodeStyle?.style?.label as (el: cytoscape.NodeCollection) => string;
 
     if (labelFunction) {
@@ -121,7 +133,7 @@ describe('getServerMapStyle', () => {
       edgeLabelRenderer,
     });
 
-    const edgeStyle = styles.find((s) => s.selector === 'edge');
+    const edgeStyle = findStyleBySelector(styles, 'edge');
     const labelFunction = edgeStyle?.style?.label as (el: cytoscape.EdgeCollection) => string;
 
     if (labelFunction) {
@@ -132,17 +144,18 @@ describe('getServerMapStyle', () => {
   });
 
   it('nodeLabelRenderer가 없으면 기본 label을 사용해야 함', () => {
-    // cy.data를 mock하여 노드 데이터를 반환하도록 설정
-    cy.data = jest.fn((id) => ({
+    // cy.data를 mock하여 노드 데이터를 반환하도록 설정.
+    // cytoscape의 data()는 오버로드된 시그니처라 jest.fn()이 그대로 대입되지 않는다.
+    cy.data = jest.fn((id: string) => ({
       data: { id: 'n1', label: 'Node 1' },
-    }));
+    })) as unknown as cytoscape.Core['data'];
 
     const styles = getServerMapStyle({
       cy,
       theme: defaultTheme,
     });
 
-    const nodeStyle = styles.find((s) => s.selector === 'node');
+    const nodeStyle = findStyleBySelector(styles, 'node');
     const labelFunction = nodeStyle?.style?.label as (el: cytoscape.NodeCollection) => string;
 
     if (labelFunction) {
@@ -161,7 +174,7 @@ describe('getServerMapStyle', () => {
       theme: defaultTheme,
     });
 
-    const nodeStyle = styles.find((s) => s.selector === 'node');
+    const nodeStyle = findStyleBySelector(styles, 'node');
     const bgImageFunction = nodeStyle?.style?.['background-image'] as (
       el: cytoscape.NodeCollection,
     ) => string[];
