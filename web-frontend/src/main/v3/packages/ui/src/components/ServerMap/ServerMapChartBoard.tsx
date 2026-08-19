@@ -327,9 +327,11 @@ export const ServerMapChartsBoardFetcher = ({
         destroyOnClose
         open={openServerView}
         getContainer={`#${SERVERMAP_CONTAINER_ID}`}
-        contentWrapperStyle={{
-          width: currentPanelWidth + SERVER_LIST_WIDTH,
-          right: currentPanelWidth + resizeHandleWidth,
+        styles={{
+          wrapper: {
+            width: currentPanelWidth + SERVER_LIST_WIDTH,
+            right: currentPanelWidth + resizeHandleWidth,
+          },
         }}
         onClose={() => setOpenServerView(false)}
       >

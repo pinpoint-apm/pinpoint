@@ -30,26 +30,24 @@ export const ErrorBoundary = ({
         if (fallbackRender) {
           return fallbackRender({ error, resetErrorBoundary });
         }
+        // react-error-boundary v6 부터 error 가 unknown 이다(무엇이든 throw 될 수 있으므로).
+        // 이 앱이 throw 하는 것은 Error 아니면 ProblemDetail(ErrorLike) 둘 뿐이라 좁혀서 쓴다.
+        const err = error as (ErrorLike & Error) | undefined;
         return (
           <div className="flex flex-col gap-5 justify-center items-center p-3 w-full h-full">
             <div className="w-full text-center max-w-[28rem]">
               {errorMessage ? (
                 typeof errorMessage === 'function' ? (
-                  errorMessage(
-                    (error as ErrorLike)?.detail ?? error?.message ?? (error as ErrorLike)?.title,
-                  )
+                  errorMessage(err?.detail ?? err?.message ?? err?.title)
                 ) : (
                   errorMessage
                 )
               ) : (
                 <p className="mb-2 text-sm truncate">
-                  {(error as ErrorLike)?.detail ??
-                    error?.message ??
-                    (error as ErrorLike)?.title ??
-                    t('COMMON.SOMETHING_WENT_WRONG')}
+                  {err?.detail ?? err?.message ?? err?.title ?? t('COMMON.SOMETHING_WENT_WRONG')}
                 </p>
               )}
-              <ErrorDetailDialog error={error} />
+              <ErrorDetailDialog error={err as ErrorLike} />
             </div>
             <div className="flex gap-2">
               <Button className="text-xs" variant="outline" onClick={resetErrorBoundary}>

@@ -240,9 +240,11 @@ export const FilteredMapChartsBoard = ({
         destroyOnClose
         open={openServerView}
         getContainer={`#${FILTERED_MAP_CONTAINER_ID}`}
-        contentWrapperStyle={{
-          width: currentPanelWidth + SERVER_LIST_WIDTH,
-          right: currentPanelWidth + resizeHandleWidth,
+        styles={{
+          wrapper: {
+            width: currentPanelWidth + SERVER_LIST_WIDTH,
+            right: currentPanelWidth + resizeHandleWidth,
+          },
         }}
         // afterOpenChange={(openChange) => setServerViewTransitionEnd(openChange)}
         onClose={() => setOpenServerView(false)}
