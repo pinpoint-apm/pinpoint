@@ -81,11 +81,8 @@ export const FilteredMapChartsBoard = ({
       return true;
     }
     return !(
-      (
-        currentTargetData &&
-        (currentTargetData as FilteredMap.NodeData)?.nodeCategory ===
-          GetServerMap.NodeCategory.SERVER
-      )
+      currentTargetData &&
+      (currentTargetData as FilteredMap.NodeData)?.nodeCategory === GetServerMap.NodeCategory.SERVER
       // && !currentTargetData?.isMerged
     );
   };
@@ -251,7 +248,7 @@ export const FilteredMapChartsBoard = ({
         onClose={() => setOpenServerView(false)}
       >
         <div style={{ width: SERVER_LIST_WIDTH }}>
-          <div className="flex gap-1 items-center h-12 font-semibold border-b-1 shrink-0">
+          <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
             <img src={serverMapCurrentTarget?.imgPath} width={52} />
             <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
           </div>
@@ -262,8 +259,8 @@ export const FilteredMapChartsBoard = ({
         <div style={{ width: currentPanelWidth }}>
           <ChartsBoard
             header={
-              <div className="flex gap-1 items-center h-12 font-semibold border-b-1 shrink-0">
-                <div className="flex justify-center items-center">
+              <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
+                <div className="flex items-center justify-center">
                   <MdArrowForwardIos />
                 </div>
                 {currentServer?.agentId}
@@ -296,9 +293,8 @@ export const FilteredMapChartsBoard = ({
                     onDragEnd={(data, checkedLables) => {
                       if (checkedLables.length) {
                         window.__pp_scatter_data__ =
-                          scatterDataByApplicationKey?.[
-                            getApplicationKey(serverMapCurrentTarget)
-                          ]?.acc;
+                          scatterDataByApplicationKey?.[getApplicationKey(serverMapCurrentTarget)]
+                            ?.acc;
                         window.open(
                           `${BASE_PATH}${getTransactionListPath(
                             application,

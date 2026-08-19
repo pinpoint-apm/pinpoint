@@ -35,7 +35,6 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.2.1",
-    "@types/cytoscape": "^3.21.9",
     "@types/cytoscape-dagre": "^2.3.3",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.0.0",

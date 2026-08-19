@@ -48,9 +48,7 @@ export interface AlarmDetailProps {
 }
 
 type AlarmTypeKeys =
-  | keyof Pick<AlarmRule.AlarmRuleData, 'smsSend' | 'emailSend' | 'webhookSend'>
-  | 'all'
-  | 'none';
+  keyof Pick<AlarmRule.AlarmRuleData, 'smsSend' | 'emailSend' | 'webhookSend'> | 'all' | 'none';
 
 const getAlarmTypeSelectList = (webhookEnable: boolean) => {
   const defaultList = [

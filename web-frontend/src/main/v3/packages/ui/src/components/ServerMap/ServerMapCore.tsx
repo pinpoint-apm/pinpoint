@@ -619,8 +619,7 @@ export const ServerMapCore = ({
                     const linkToKey = serviceGroupLinkTargetRef.current?.to;
                     const nodes =
                       (data?.applicationMapData?.nodeDataArray as
-                        | GetServerMap.NodeData[]
-                        | undefined) ?? [];
+                        GetServerMap.NodeData[] | undefined) ?? [];
                     const fromNode = nodes.find((n) => n.key === linkFromKey);
                     const toNode = nodes.find((n) => n.key === linkToKey);
                     const linkTitle = serviceGroupLinkTargetRef.current
