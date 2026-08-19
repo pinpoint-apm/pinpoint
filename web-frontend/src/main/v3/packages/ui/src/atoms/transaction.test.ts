@@ -24,7 +24,7 @@ describe('Test transaction atoms', () => {
           traceId: 'trace1',
           spanId: 'span1',
           elapsedTime: 100,
-        } as Transaction,
+        } as unknown as Transaction,
       ];
 
       act(() => {
@@ -48,7 +48,7 @@ describe('Test transaction atoms', () => {
         {
           agentId: 'agent1',
           applicationId: 'app1',
-        } as Transaction,
+        } as unknown as Transaction,
       ];
 
       act(() => {
@@ -68,7 +68,7 @@ describe('Test transaction atoms', () => {
         {
           agentId: 'agent1',
           applicationId: 'app1',
-        } as Transaction,
+        } as unknown as Transaction,
       ];
 
       act(() => {
@@ -94,7 +94,7 @@ describe('Test transaction atoms', () => {
         agentId: 'agent1',
         applicationId: 'app1',
         traceId: 'trace1',
-      } as TransactionInfo.Response;
+      } as unknown as TransactionInfo.Response;
 
       act(() => {
         result.current[1](mockData);
@@ -108,7 +108,7 @@ describe('Test transaction atoms', () => {
       const mockData: TransactionInfo.Response = {
         agentId: 'agent1',
         applicationId: 'app1',
-      } as TransactionInfo.Response;
+      } as unknown as TransactionInfo.Response;
 
       act(() => {
         result.current[1](mockData);

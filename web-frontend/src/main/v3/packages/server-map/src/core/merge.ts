@@ -202,7 +202,7 @@ export const getMergedData = (
             mergedEdges,
             (edge) => !(sources.includes(edge.source) && targetIds.includes(edge.target)),
           );
-          const newEdges = toMergeEdge.reduce<{ [key: string]: MergedEdge }>((prev, curr, i) => {
+          const newEdges = toMergeEdge.reduce<{ [key: string]: MergedEdge }>((prev, curr, _i) => {
             if (prev[curr.source]) {
               prev[curr.source].edges!.push(curr);
             } else {

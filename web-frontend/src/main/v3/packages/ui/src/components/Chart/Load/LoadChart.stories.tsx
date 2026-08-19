@@ -1,4 +1,3 @@
-import React from 'react';
 import { StoryFn, Meta } from '@storybook/react';
 import { LoadChart } from './LoadChart';
 
@@ -23,13 +22,6 @@ Default.args = {
     '5s': [10, 5, 0, 0, 0, 0],
     Slow: [0, 0, 0, 0, 0, 0],
     Error: [0, 0, 0, 0, 0, 0],
-  },
-  colors: {
-    '1s': 'rgba(52, 185, 148, 0.5)',
-    '3s': 'rgba(81, 175, 223, 0.5)',
-    '5s': 'rgba(255, 186, 0, 0.5)',
-    Error: 'rgba(233, 84, 89, 0.5)',
-    Slow: 'rgba(230, 127, 34, 0.5)',
   },
 };
 
@@ -61,10 +53,6 @@ AvgMax.args = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 5, 4, 3, 2, 1,
     ],
-  },
-  colors: {
-    Avg: 'rgb(151,227,134)',
-    Max: 'rgb(19,182,231)',
   },
 };
 

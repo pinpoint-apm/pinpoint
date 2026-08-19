@@ -19,7 +19,6 @@ import {
 import { LuChevronsUpDown } from 'react-icons/lu';
 import { RxArrowUp, RxArrowDown } from 'react-icons/rx';
 import { cn } from '../../../lib';
-import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 interface ErrorTableColumnProps {
   orderBy?: string;

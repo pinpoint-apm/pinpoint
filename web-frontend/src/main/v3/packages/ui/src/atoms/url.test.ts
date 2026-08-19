@@ -17,7 +17,7 @@ describe('Test url atom', () => {
         totalCount: 100,
         failureCount: 5,
         avgElapsed: 50,
-      } as UrlStatSummary.SummaryData;
+      } as unknown as UrlStatSummary.SummaryData;
 
       act(() => {
         result.current[1](mockData);
@@ -31,12 +31,12 @@ describe('Test url atom', () => {
       const mockData1: UrlStatSummary.SummaryData = {
         url: '/test1',
         totalCount: 100,
-      } as UrlStatSummary.SummaryData;
+      } as unknown as UrlStatSummary.SummaryData;
 
       const mockData2: UrlStatSummary.SummaryData = {
         url: '/test2',
         totalCount: 200,
-      } as UrlStatSummary.SummaryData;
+      } as unknown as UrlStatSummary.SummaryData;
 
       act(() => {
         result.current[1](mockData1);
@@ -51,7 +51,7 @@ describe('Test url atom', () => {
       const mockData: UrlStatSummary.SummaryData = {
         url: '/test',
         totalCount: 100,
-      } as UrlStatSummary.SummaryData;
+      } as unknown as UrlStatSummary.SummaryData;
 
       act(() => {
         result.current[1](mockData);

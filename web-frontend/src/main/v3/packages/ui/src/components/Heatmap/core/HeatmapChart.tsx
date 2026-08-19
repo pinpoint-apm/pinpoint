@@ -190,7 +190,7 @@ const HeatmapChart = ({
         data: yAxisData,
         offset: 0.5,
         axisLabel: {
-          interval: (index: number, value: string) => {
+          interval: (index: number, _value: string) => {
             if (yAxisData.length <= 5) {
               return true;
             }

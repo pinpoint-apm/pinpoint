@@ -8,7 +8,9 @@ export const nextTimestamp = [
   1699604100000, 1699604160000, 1699604220000, 1699604280000, 1699604340000, 1699604400000,
 ];
 
-export const prevNode: FilteredMap.NodeData = {
+// 목 데이터가 지금 타입과 어긋난다(옛 필드 category/isWas/isQueue 가 남아 있고 nodeCategory 가 없다).
+// 테스트가 이 값을 그대로 비교하므로 여기서는 데이터를 손대지 않고 타입 단언으로만 맞춘다.
+export const prevNode = {
   key: 'key',
   applicationName: 'application',
   category: 'UNAUTHORIZED',
@@ -108,9 +110,9 @@ export const prevNode: FilteredMap.NodeData = {
       },
     },
   },
-};
+} as unknown as FilteredMap.NodeData;
 
-export const newNode: FilteredMap.NodeData = {
+export const newNode = {
   key: 'key',
   applicationName: 'application',
   category: 'UNAUTHORIZED',
@@ -210,9 +212,9 @@ export const newNode: FilteredMap.NodeData = {
       },
     },
   },
-};
+} as unknown as FilteredMap.NodeData;
 
-export const resultNode: FilteredMap.NodeData = {
+export const resultNode = {
   key: 'key',
   applicationName: 'application',
   category: 'UNAUTHORIZED',
@@ -312,9 +314,9 @@ export const resultNode: FilteredMap.NodeData = {
       },
     },
   },
-};
+} as unknown as FilteredMap.NodeData;
 
-export const prevLink: FilteredMap.LinkData = {
+export const prevLink = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
@@ -412,8 +414,8 @@ export const prevLink: FilteredMap.LinkData = {
   sourceResponseStatistics: {},
   targetResponseStatistics: {},
   hasAlert: false,
-};
-export const newLink: FilteredMap.LinkData = {
+} as unknown as FilteredMap.LinkData;
+export const newLink = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
@@ -511,8 +513,8 @@ export const newLink: FilteredMap.LinkData = {
   sourceResponseStatistics: {},
   targetResponseStatistics: {},
   hasAlert: false,
-};
-export const resultLink: FilteredMap.LinkData = {
+} as unknown as FilteredMap.LinkData;
+export const resultLink = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
@@ -611,4 +613,4 @@ export const resultLink: FilteredMap.LinkData = {
   sourceResponseStatistics: {},
   targetResponseStatistics: {},
   hasAlert: false,
-};
+} as unknown as FilteredMap.LinkData;

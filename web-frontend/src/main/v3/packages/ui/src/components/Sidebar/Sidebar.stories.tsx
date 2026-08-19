@@ -1,4 +1,3 @@
-import React from 'react';
 import { StoryFn, Meta } from '@storybook/react';
 import {
   Menu,
@@ -26,7 +25,7 @@ export default {
   },
 } as Meta<typeof Sidebar>;
 
-const Template: StoryFn<typeof Sidebar> = (args) => {
+const Template: StoryFn<typeof Sidebar> = (_args) => {
   return (
     // <SidebarProvider {...args}>
     <div style={{ display: 'flex', height: '100vh' }}>

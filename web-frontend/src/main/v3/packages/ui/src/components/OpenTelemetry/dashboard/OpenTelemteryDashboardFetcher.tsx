@@ -93,7 +93,7 @@ export const OpenTelemetryDashboardFetcher = () => {
 
   // grid-layout 변경 시 사용
   const onLayoutChange = (
-    currentLayout: ReactGridLayout.Layout[],
+    _currentLayout: ReactGridLayout.Layout[],
     allLayouts: ReactGridLayout.Layouts,
   ) => {
     setState((prev) => ({

@@ -77,9 +77,7 @@ export const FilteredMapPage = ({
     React.useState<FilteredMap.FilterState[]>(parsedFilters);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();
   const [showFilterConfig, setShowFilterConfig] = React.useState(false);
-  const [scatterDataByApplicationKey, setScatterDataByApplicationKey] = useAtom(
-    scatterDataByApplicationKeyAtom,
-  );
+  const [, setScatterDataByApplicationKey] = useAtom(scatterDataByApplicationKeyAtom);
   const [pauseFilteredMapFetcher, setPauseFilteredMapFetcher] = React.useState(false);
   const { t } = useTranslation();
 

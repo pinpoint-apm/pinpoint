@@ -19,7 +19,7 @@ describe('handleV2RouteLoader', () => {
         period: '30m',
         endTime: '2023-11-10-15-00-00',
       }),
-    ) as { __isRedirect: boolean; url: string };
+    ) as unknown as { __isRedirect: boolean; url: string };
 
     expect(result.__isRedirect).toBe(true);
     expect(result.url).toContain(`${APP_PATH.SERVER_MAP}/TestApp@SPRING_BOOT`);

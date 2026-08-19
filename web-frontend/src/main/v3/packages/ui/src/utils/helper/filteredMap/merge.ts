@@ -210,7 +210,7 @@ function mergeTimeSeriesHistogram(
           });
           return;
         }
-        old.data?.timeSeriesHistogram?.[outerIndex]?.values?.forEach((value, valueIndex) => {
+        old.data?.timeSeriesHistogram?.[outerIndex]?.values?.forEach((_value, valueIndex) => {
           const oldTimestamp = old?.timestamp?.[valueIndex];
           const newTimestampIndex = neo?.timestamp?.findIndex(
             (timestamp) => timestamp === oldTimestamp,
@@ -254,7 +254,7 @@ function updateAvgTimeSeriesHistogram(
     }
   });
   if (avgHistogram) {
-    avgHistogram.values.forEach((info: number, valueIndex) => {
+    avgHistogram.values.forEach((_info: number, valueIndex) => {
       const timestampV = timestamp[valueIndex];
       avgHistogram!.values[valueIndex] =
         mapTot[timestampV] > 0 ? Math.floor(mapSum[timestampV] / mapTot[timestampV]) : 0;
@@ -303,7 +303,7 @@ function mergeAgentTimeSeriesHistogramByType(
 
               return;
             }
-            old[agentId][outerIndex].values.forEach((value, valueIndex) => {
+            old[agentId][outerIndex].values.forEach((_value, valueIndex) => {
               const oldTimestamp = old?.timestamp?.[valueIndex];
               const newTimestampIndex = neo?.timestamp?.findIndex(
                 (timestamp) => timestamp === oldTimestamp,

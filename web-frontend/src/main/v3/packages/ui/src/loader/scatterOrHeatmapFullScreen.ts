@@ -1,8 +1,4 @@
-import {
-  SEARCH_PARAMETER_DATE_FORMAT,
-  APP_PATH,
-  Configuration,
-} from '@pinpoint-fe/ui/src/constants';
+import { SEARCH_PARAMETER_DATE_FORMAT, Configuration } from '@pinpoint-fe/ui/src/constants';
 import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import {
   getApplicationTypeAndName,

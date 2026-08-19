@@ -18,7 +18,7 @@ const renderWithFreshModule = () => {
   jest.isolateModules(() => {
     const reloaded = require('./selectedService');
     const { result } = renderHook(() => useAtomValue(reloaded.selectedServiceAtom));
-    value = result.current;
+    value = result.current as string | undefined;
   });
 
   return value;
