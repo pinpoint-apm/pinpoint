@@ -1,9 +1,5 @@
 import { Css } from 'cytoscape';
 
-type DeepNonNullable<T> = {
-  [P in keyof T]-?: NonNullable<T[P]>;
-};
-
 export enum GraphStyle {
   NODE_WIDTH = 100,
   // 노드가 정사각형이라 폭과 높이가 같은 값인 것은 의도된 것이다.
@@ -45,7 +41,18 @@ export type ServerMapTheme = {
   };
 };
 
-export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
+// ServerMapTheme은 사용자가 일부만 덮어쓸 수 있도록 모든 속성이 optional이다.
+// defaultTheme은 그 값들이 빠짐없이 채워진 것이므로 두 단계(섹션 -> 상태/역할)까지 필수로 만든다.
+// cytoscape의 Css.Node/Css.Edge 안쪽까지 재귀하면 스타일 속성을 전부 적어야 하므로 그 앞에서 멈춘다.
+type RequiredProps<T> = {
+  [P in keyof T]-?: NonNullable<T[P]>;
+};
+
+type CompleteServerMapTheme = RequiredProps<{
+  [P in keyof ServerMapTheme]: RequiredProps<NonNullable<ServerMapTheme[P]>>;
+}>;
+
+export const defaultTheme: CompleteServerMapTheme = {
   transactionStatus: {
     default: {
       stroke: 'transparent',
