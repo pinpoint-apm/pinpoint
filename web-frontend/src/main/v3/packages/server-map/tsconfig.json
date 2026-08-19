@@ -1,6 +1,6 @@
 {
   "include": ["src"],
-  "exclude": ["build", "node_modules", "dist", "build", "node_modules", "**/*.stories.tsx"],
+  "exclude": ["build", "dist", "node_modules", "**/*.stories.tsx"],
   "compilerOptions": {
     "composite": false,
     "declaration": true,
@@ -9,7 +9,7 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "preserveWatchOutput": true,
     "skipLibCheck": true,
     "strict": true,
@@ -17,6 +17,7 @@
     "module": "ESNext",
     "target": "ES6",
     "jsx": "react-jsx",
+    "rootDir": "src",
     "outDir": "dist"
   }
 }
