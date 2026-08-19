@@ -45,6 +45,7 @@ export namespace GetServerMap {
     sourceInfo: SourceInfo;
     targetInfo: TargetInfo;
     filter: {
+      serviceName: string;
       applicationName: string;
       serviceTypeCode: number;
       serviceTypeName: string;
@@ -69,6 +70,7 @@ export namespace GetServerMap {
   }
 
   export interface SourceInfo {
+    serviceName: string;
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
@@ -76,6 +78,7 @@ export namespace GetServerMap {
   }
 
   export interface TargetInfo {
+    serviceName: string;
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
@@ -111,9 +114,12 @@ export namespace GetServerMap {
   export interface NodeData {
     key: string;
     nodeKey?: string;
+    serviceKey: string;
+    serviceName: string;
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
+    isQueue: boolean;
     isAuthorized: boolean;
     totalCount: number;
     errorCount: number;

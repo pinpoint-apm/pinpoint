@@ -10,10 +10,13 @@ export const nextTimestamp = [
 
 export const prevNode: FilteredMap.NodeData = {
   key: 'key',
+  serviceKey: 'DEFAULT^application^UNAUTHORIZED',
+  serviceName: 'DEFAULT',
   applicationName: 'application',
   serviceType: 'UNAUTHORIZED',
   serviceTypeCode: 1007,
   nodeCategory: GetServerMap.NodeCategory.SERVER,
+  isQueue: false,
   isAuthorized: false,
   totalCount: 0,
   errorCount: 0,
@@ -112,10 +115,13 @@ export const prevNode: FilteredMap.NodeData = {
 
 export const newNode: FilteredMap.NodeData = {
   key: 'key',
+  serviceKey: 'DEFAULT^application^UNAUTHORIZED',
+  serviceName: 'DEFAULT',
   applicationName: 'application',
   serviceType: 'UNAUTHORIZED',
   serviceTypeCode: 1007,
   nodeCategory: GetServerMap.NodeCategory.SERVER,
+  isQueue: false,
   isAuthorized: false,
   totalCount: 0,
   errorCount: 0,
@@ -214,10 +220,13 @@ export const newNode: FilteredMap.NodeData = {
 
 export const resultNode: FilteredMap.NodeData = {
   key: 'key',
+  serviceKey: 'DEFAULT^application^UNAUTHORIZED',
+  serviceName: 'DEFAULT',
   applicationName: 'application',
   serviceType: 'UNAUTHORIZED',
   serviceTypeCode: 1007,
   nodeCategory: GetServerMap.NodeCategory.SERVER,
+  isQueue: false,
   isAuthorized: false,
   totalCount: 0,
   errorCount: 0,
@@ -335,18 +344,21 @@ export const prevLink: FilteredMap.LinkData = {
     },
   ],
   sourceInfo: {
+    serviceName: 'DEFAULT',
     applicationName: 'app3',
     serviceType: 'VERTX',
     serviceTypeCode: 1050,
     nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   targetInfo: {
+    serviceName: 'DEFAULT',
     applicationName: 'toApp',
     serviceType: 'UNAUTHORIZED',
     serviceTypeCode: 1007,
     nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   filter: {
+    serviceName: 'DEFAULT',
     applicationName: 'app3',
     serviceTypeCode: 1050,
     serviceTypeName: 'VERTX',
@@ -434,18 +446,21 @@ export const newLink: FilteredMap.LinkData = {
     },
   ],
   sourceInfo: {
+    serviceName: 'DEFAULT',
     applicationName: 'app3',
     serviceType: 'VERTX',
     serviceTypeCode: 1050,
     nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   targetInfo: {
+    serviceName: 'DEFAULT',
     applicationName: 'toApp',
     serviceType: 'UNAUTHORIZED',
     serviceTypeCode: 1007,
     nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   filter: {
+    serviceName: 'DEFAULT',
     applicationName: 'app3',
     serviceTypeCode: 1050,
     serviceTypeName: 'VERTX',
@@ -534,18 +549,21 @@ export const resultLink: FilteredMap.LinkData = {
     },
   ],
   sourceInfo: {
+    serviceName: 'DEFAULT',
     applicationName: 'app3',
     serviceType: 'VERTX',
     serviceTypeCode: 1050,
     nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   targetInfo: {
+    serviceName: 'DEFAULT',
     applicationName: 'toApp',
     serviceType: 'UNAUTHORIZED',
     serviceTypeCode: 1007,
     nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   filter: {
+    serviceName: 'DEFAULT',
     applicationName: 'app3',
     serviceTypeCode: 1050,
     serviceTypeName: 'VERTX',
