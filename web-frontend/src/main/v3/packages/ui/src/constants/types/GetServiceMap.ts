@@ -30,9 +30,6 @@ export namespace GetServiceMap {
 
   export interface AppNode extends GetServerMap.NodeData {
     type: 'app';
-    serviceKey: string;
-    serviceName: string;
-    isQueue: boolean;
   }
 
   export interface ServiceGroupNode {

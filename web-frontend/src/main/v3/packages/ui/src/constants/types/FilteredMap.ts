@@ -117,6 +117,7 @@ export namespace FilteredMapType {
     sourceInfo: SourceInfo;
     targetInfo: TargetInfo;
     filter: {
+      serviceName: string;
       applicationName: string;
       serviceTypeCode: number;
       serviceTypeName: string;
@@ -145,6 +146,7 @@ export namespace FilteredMapType {
   }
 
   export interface SourceInfo {
+    serviceName: string;
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
@@ -152,6 +154,7 @@ export namespace FilteredMapType {
   }
 
   export interface TargetInfo {
+    serviceName: string;
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
@@ -206,9 +209,12 @@ export namespace FilteredMapType {
 
   export interface NodeData {
     key: string;
+    serviceKey: string;
+    serviceName: string;
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
+    isQueue: boolean;
     isAuthorized: boolean;
     totalCount: number;
     errorCount: number;

@@ -29,10 +29,15 @@ export const flattenServiceMapResponse = (
       const firstNode = innerNodes[0];
       nodeDataArray.push({
         key: entry.key,
+        // group 노드는 백엔드가 key/serviceName/nodes 만 내려준다(ServiceGroupNodeView).
+        // 나머지는 여기서 합성하므로, 소속 노드들이 공유하는 값은 firstNode 에서 가져온다.
+        serviceKey: entry.key,
+        serviceName: entry.serviceName,
         applicationName: entry.serviceName,
         serviceType: firstNode?.serviceType ?? 'UNKNOWN',
         serviceTypeCode: firstNode?.serviceTypeCode ?? 0,
         nodeCategory: firstNode?.nodeCategory ?? GetServerMap.NodeCategory.SERVER,
+        isQueue: firstNode?.isQueue ?? false,
         isAuthorized: true,
         totalCount: innerNodes.reduce((acc, n) => acc + (n.totalCount ?? 0), 0),
         errorCount: innerNodes.reduce((acc, n) => acc + (n.errorCount ?? 0), 0),
