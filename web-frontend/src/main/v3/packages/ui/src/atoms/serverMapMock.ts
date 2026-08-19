@@ -1,8 +1,6 @@
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 
-// 목 데이터가 지금 타입과 어긋난다(옛 필드 category/isWas/isQueue 가 남아 있고 nodeCategory 가 없다).
-// 테스트가 이 값을 그대로 비교하므로 여기서는 데이터를 손대지 않고 타입 단언으로만 맞춘다.
-export const serverMapData = {
+export const serverMapData: GetServerMap.Response = {
   applicationMapData: {
     range: {
       from: 1699620228000,
@@ -28,13 +26,13 @@ export const serverMapData = {
           applicationName: 'app1_SPRING_BOOT',
           serviceType: 'USER',
           serviceTypeCode: 2,
-          isWas: false,
+          nodeCategory: GetServerMap.NodeCategory.UNDEFINED,
         },
         targetInfo: {
           applicationName: 'app1',
           serviceType: 'SPRING_BOOT',
           serviceTypeCode: 1210,
-          isWas: true,
+          nodeCategory: GetServerMap.NodeCategory.SERVER,
         },
         filter: {
           applicationName: 'app1',
@@ -111,13 +109,13 @@ export const serverMapData = {
           applicationName: 'app1',
           serviceType: 'SPRING_BOOT',
           serviceTypeCode: 1210,
-          isWas: true,
+          nodeCategory: GetServerMap.NodeCategory.SERVER,
         },
         targetInfo: {
           applicationName: 'acl',
           serviceType: 'MYSQL',
           serviceTypeCode: 2101,
-          isWas: false,
+          nodeCategory: GetServerMap.NodeCategory.DATABASE,
         },
         filter: {
           applicationName: 'app1',
@@ -194,13 +192,13 @@ export const serverMapData = {
           applicationName: 'app1',
           serviceType: 'SPRING_BOOT',
           serviceTypeCode: 1210,
-          isWas: true,
+          nodeCategory: GetServerMap.NodeCategory.SERVER,
         },
         targetInfo: {
           applicationName: 'app2',
           serviceType: 'REDIS',
           serviceTypeCode: 8201,
-          isWas: false,
+          nodeCategory: GetServerMap.NodeCategory.CACHE,
         },
         filter: {
           applicationName: 'app1',
@@ -268,11 +266,9 @@ export const serverMapData = {
       {
         key: 'app2^REDIS',
         applicationName: 'app2',
-        category: 'REDIS',
         serviceType: 'REDIS',
         serviceTypeCode: 8201,
-        isWas: false,
-        isQueue: false,
+        nodeCategory: GetServerMap.NodeCategory.CACHE,
         isAuthorized: true,
         totalCount: 720,
         errorCount: 0,
@@ -291,11 +287,13 @@ export const serverMapData = {
           Slow: 0,
           Error: 0,
         },
-        apdexScore: 1,
-        apdexFormula: {
-          satisfiedCount: 720,
-          toleratingCount: 0,
-          totalSamples: 720,
+        apdex: {
+          apdexScore: 1,
+          apdexFormula: {
+            satisfiedCount: 720,
+            toleratingCount: 0,
+            totalSamples: 720,
+          },
         },
         timeSeriesHistogram: [
           {
@@ -347,11 +345,9 @@ export const serverMapData = {
       {
         key: 'acl^MYSQL',
         applicationName: 'acl',
-        category: 'MYSQL',
         serviceType: 'MYSQL',
         serviceTypeCode: 2101,
-        isWas: false,
-        isQueue: false,
+        nodeCategory: GetServerMap.NodeCategory.DATABASE,
         isAuthorized: true,
         totalCount: 360,
         errorCount: 0,
@@ -370,11 +366,13 @@ export const serverMapData = {
           Slow: 0,
           Error: 0,
         },
-        apdexScore: 1,
-        apdexFormula: {
-          satisfiedCount: 360,
-          toleratingCount: 0,
-          totalSamples: 360,
+        apdex: {
+          apdexScore: 1,
+          apdexFormula: {
+            satisfiedCount: 360,
+            toleratingCount: 0,
+            totalSamples: 360,
+          },
         },
         timeSeriesHistogram: [
           {
@@ -426,11 +424,9 @@ export const serverMapData = {
       {
         key: 'app1_SPRING_BOOT^USER',
         applicationName: 'USER',
-        category: 'USER',
         serviceType: 'USER',
         serviceTypeCode: 2,
-        isWas: false,
-        isQueue: false,
+        nodeCategory: GetServerMap.NodeCategory.UNDEFINED,
         isAuthorized: true,
         totalCount: 180,
         errorCount: 0,
@@ -449,11 +445,13 @@ export const serverMapData = {
           Slow: 0,
           Error: 0,
         },
-        apdexScore: 1,
-        apdexFormula: {
-          satisfiedCount: 180,
-          toleratingCount: 0,
-          totalSamples: 180,
+        apdex: {
+          apdexScore: 1,
+          apdexFormula: {
+            satisfiedCount: 180,
+            toleratingCount: 0,
+            totalSamples: 180,
+          },
         },
         timeSeriesHistogram: [
           {
@@ -500,11 +498,9 @@ export const serverMapData = {
       {
         key: 'app1^SPRING_BOOT',
         applicationName: 'app1',
-        category: 'SPRING_BOOT',
         serviceType: 'SPRING_BOOT',
         serviceTypeCode: 1210,
-        isWas: true,
-        isQueue: false,
+        nodeCategory: GetServerMap.NodeCategory.SERVER,
         isAuthorized: true,
         totalCount: 180,
         errorCount: 0,
@@ -523,11 +519,13 @@ export const serverMapData = {
           Slow: 0,
           Error: 0,
         },
-        apdexScore: 1,
-        apdexFormula: {
-          satisfiedCount: 180,
-          toleratingCount: 0,
-          totalSamples: 180,
+        apdex: {
+          apdexScore: 1,
+          apdexFormula: {
+            satisfiedCount: 180,
+            toleratingCount: 0,
+            totalSamples: 180,
+          },
         },
         timeSeriesHistogram: [
           {
@@ -578,16 +576,14 @@ export const serverMapData = {
       },
     ],
   },
-} as unknown as GetServerMap.Response;
+};
 
 export const resultData = {
   key: 'app1^SPRING_BOOT',
   applicationName: 'app1',
-  category: 'SPRING_BOOT',
   serviceType: 'SPRING_BOOT',
   serviceTypeCode: 1210,
-  isWas: true,
-  isQueue: false,
+  nodeCategory: GetServerMap.NodeCategory.SERVER,
   isAuthorized: true,
   totalCount: 180,
   errorCount: 0,
@@ -606,11 +602,13 @@ export const resultData = {
     Slow: 0,
     Error: 0,
   },
-  apdexScore: 1,
-  apdexFormula: {
-    satisfiedCount: 180,
-    toleratingCount: 0,
-    totalSamples: 180,
+  apdex: {
+    apdexScore: 1,
+    apdexFormula: {
+      satisfiedCount: 180,
+      toleratingCount: 0,
+      totalSamples: 180,
+    },
   },
   timeSeriesHistogram: [
     {

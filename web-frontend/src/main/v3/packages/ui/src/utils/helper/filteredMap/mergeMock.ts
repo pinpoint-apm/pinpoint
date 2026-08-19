@@ -1,4 +1,4 @@
-import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
+import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 
 export const prevTimestamp = [
   1699604100000, 1699604160000, 1699604220000, 1699604280000, 1699604340000, 1699604400000,
@@ -8,16 +8,12 @@ export const nextTimestamp = [
   1699604100000, 1699604160000, 1699604220000, 1699604280000, 1699604340000, 1699604400000,
 ];
 
-// 목 데이터가 지금 타입과 어긋난다(옛 필드 category/isWas/isQueue 가 남아 있고 nodeCategory 가 없다).
-// 테스트가 이 값을 그대로 비교하므로 여기서는 데이터를 손대지 않고 타입 단언으로만 맞춘다.
-export const prevNode = {
+export const prevNode: FilteredMap.NodeData = {
   key: 'key',
   applicationName: 'application',
-  category: 'UNAUTHORIZED',
   serviceType: 'UNAUTHORIZED',
   serviceTypeCode: 1007,
-  isWas: true,
-  isQueue: false,
+  nodeCategory: GetServerMap.NodeCategory.SERVER,
   isAuthorized: false,
   totalCount: 0,
   errorCount: 0,
@@ -36,11 +32,13 @@ export const prevNode = {
     Slow: 0,
     Error: 0,
   },
-  apdexScore: 0,
-  apdexFormula: {
-    satisfiedCount: 0,
-    toleratingCount: 0,
-    totalSamples: 0,
+  apdex: {
+    apdexScore: 0,
+    apdexFormula: {
+      satisfiedCount: 0,
+      toleratingCount: 0,
+      totalSamples: 0,
+    },
   },
   agentHistogram: {},
   agentResponseStatistics: {},
@@ -110,16 +108,14 @@ export const prevNode = {
       },
     },
   },
-} as unknown as FilteredMap.NodeData;
+};
 
-export const newNode = {
+export const newNode: FilteredMap.NodeData = {
   key: 'key',
   applicationName: 'application',
-  category: 'UNAUTHORIZED',
   serviceType: 'UNAUTHORIZED',
   serviceTypeCode: 1007,
-  isWas: true,
-  isQueue: false,
+  nodeCategory: GetServerMap.NodeCategory.SERVER,
   isAuthorized: false,
   totalCount: 0,
   errorCount: 0,
@@ -138,11 +134,13 @@ export const newNode = {
     Slow: 0,
     Error: 0,
   },
-  apdexScore: 0,
-  apdexFormula: {
-    satisfiedCount: 0,
-    toleratingCount: 0,
-    totalSamples: 0,
+  apdex: {
+    apdexScore: 0,
+    apdexFormula: {
+      satisfiedCount: 0,
+      toleratingCount: 0,
+      totalSamples: 0,
+    },
   },
   agentHistogram: {},
   agentResponseStatistics: {},
@@ -212,16 +210,14 @@ export const newNode = {
       },
     },
   },
-} as unknown as FilteredMap.NodeData;
+};
 
-export const resultNode = {
+export const resultNode: FilteredMap.NodeData = {
   key: 'key',
   applicationName: 'application',
-  category: 'UNAUTHORIZED',
   serviceType: 'UNAUTHORIZED',
   serviceTypeCode: 1007,
-  isWas: true,
-  isQueue: false,
+  nodeCategory: GetServerMap.NodeCategory.SERVER,
   isAuthorized: false,
   totalCount: 0,
   errorCount: 0,
@@ -240,11 +236,13 @@ export const resultNode = {
     Slow: 0,
     Error: 0,
   },
-  apdexScore: 0,
-  apdexFormula: {
-    satisfiedCount: 0,
-    toleratingCount: 0,
-    totalSamples: 0,
+  apdex: {
+    apdexScore: 0,
+    apdexFormula: {
+      satisfiedCount: 0,
+      toleratingCount: 0,
+      totalSamples: 0,
+    },
   },
   agentHistogram: {},
   agentResponseStatistics: {},
@@ -314,9 +312,9 @@ export const resultNode = {
       },
     },
   },
-} as unknown as FilteredMap.NodeData;
+};
 
-export const prevLink = {
+export const prevLink: FilteredMap.LinkData = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
@@ -340,13 +338,13 @@ export const prevLink = {
     applicationName: 'app3',
     serviceType: 'VERTX',
     serviceTypeCode: 1050,
-    isWas: true,
+    nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   targetInfo: {
     applicationName: 'toApp',
     serviceType: 'UNAUTHORIZED',
     serviceTypeCode: 1007,
-    isWas: true,
+    nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   filter: {
     applicationName: 'app3',
@@ -414,8 +412,8 @@ export const prevLink = {
   sourceResponseStatistics: {},
   targetResponseStatistics: {},
   hasAlert: false,
-} as unknown as FilteredMap.LinkData;
-export const newLink = {
+};
+export const newLink: FilteredMap.LinkData = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
@@ -439,13 +437,13 @@ export const newLink = {
     applicationName: 'app3',
     serviceType: 'VERTX',
     serviceTypeCode: 1050,
-    isWas: true,
+    nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   targetInfo: {
     applicationName: 'toApp',
     serviceType: 'UNAUTHORIZED',
     serviceTypeCode: 1007,
-    isWas: true,
+    nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   filter: {
     applicationName: 'app3',
@@ -513,8 +511,8 @@ export const newLink = {
   sourceResponseStatistics: {},
   targetResponseStatistics: {},
   hasAlert: false,
-} as unknown as FilteredMap.LinkData;
-export const resultLink = {
+};
+export const resultLink: FilteredMap.LinkData = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
@@ -539,13 +537,13 @@ export const resultLink = {
     applicationName: 'app3',
     serviceType: 'VERTX',
     serviceTypeCode: 1050,
-    isWas: true,
+    nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   targetInfo: {
     applicationName: 'toApp',
     serviceType: 'UNAUTHORIZED',
     serviceTypeCode: 1007,
-    isWas: true,
+    nodeCategory: GetServerMap.NodeCategory.SERVER,
   },
   filter: {
     applicationName: 'app3',
@@ -613,4 +611,4 @@ export const resultLink = {
   sourceResponseStatistics: {},
   targetResponseStatistics: {},
   hasAlert: false,
-} as unknown as FilteredMap.LinkData;
+};
