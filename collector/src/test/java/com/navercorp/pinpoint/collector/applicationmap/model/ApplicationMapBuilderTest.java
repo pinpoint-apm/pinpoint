@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.model;
 
+import com.navercorp.pinpoint.collector.uid.service.ServiceLookupService;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.bo.ParentApplication;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -51,8 +54,10 @@ class ApplicationMapBuilderTest {
         when(registry.findServiceType(APP_TYPE.getCode())).thenReturn(APP_TYPE);
         when(registry.findServiceType(RPC_TYPE.getCode())).thenReturn(RPC_TYPE);
         when(registry.findServiceType(INTERNAL_TYPE.getCode())).thenReturn(INTERNAL_TYPE);
-
-        this.builder = new ApplicationMapBuilder(registry);
+        ServiceLookupService serviceLookupService = Mockito.mock(ServiceLookupService.class);
+        when(serviceLookupService.getServiceUid(Mockito.any()))
+                .thenReturn(CompletableFuture.completedFuture(ServiceUid.DEFAULT));
+        this.builder = new ApplicationMapBuilder(registry, serviceLookupService);
     }
 
     private SpanBo newSpan() {
