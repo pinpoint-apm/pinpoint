@@ -42,11 +42,16 @@ describe('isTimelineWorkRow', () => {
   test('skips metadata and async invocation rows', () => {
     expect(isTimelineWorkRow(row({ id: 1, begin: 0, end: 0, beginOffsetNanos: null }))).toBe(false);
     expect(isTimelineWorkRow(row({ id: 2, begin: 1000, end: 1100, isMethod: false }))).toBe(false);
-    expect(
-      isTimelineWorkRow(row({ id: 3, begin: 1000, end: 1100, excludeFromTimeline: true })),
-    ).toBe(false);
     expect(isTimelineWorkRow(row({ id: 4, begin: 1000, end: 1100, apiType: 'ASYNC' }))).toBe(false);
     expect(isTimelineWorkRow(row({ id: 5, begin: 1000, end: 1100, methodType: 200 }))).toBe(false);
+  });
+
+  test('accepts excludeFromTimeline (INTERNAL_METHOD) rows — they are executed work', () => {
+    // The server flags INTERNAL_METHOD rows for the RPC Timeline view; the Call Tree still
+    // draws their bars (OTel kind-unclassified spans map entirely to INTERNAL_METHOD).
+    expect(
+      isTimelineWorkRow(row({ id: 3, begin: 1000, end: 1100, excludeFromTimeline: true })),
+    ).toBe(true);
   });
 });
 
@@ -90,14 +95,17 @@ describe('computeParallelGroups', () => {
     expect(computeParallelGroups(rows).size).toBe(0);
   });
 
-  test('annotation (no begin) and excludeFromTimeline rows are skipped', () => {
+  test('annotation (no begin) rows are skipped; excludeFromTimeline rows participate', () => {
     const rows = [
       row({ id: 1, parentId: null, begin: 1000, end: 1100 }),
-      row({ id: 2, parentId: 1, begin: 0, end: 0, isMethod: false }), // annotation
+      row({ id: 2, parentId: 1, begin: 0, end: 0, isMethod: false }), // annotation — skipped
       row({ id: 3, parentId: 1, begin: 1000, end: 1010, excludeFromTimeline: true }),
-      row({ id: 4, parentId: 1, begin: 1000, end: 1010 }), // only this remains -> no group
+      row({ id: 4, parentId: 1, begin: 1005, end: 1015 }), // overlaps id3 -> group of 2
     ];
-    expect(computeParallelGroups(rows).size).toBe(0);
+    const g = computeParallelGroups(rows);
+    expect(g.size).toBe(2);
+    expect(g.get('3')?.group).toEqual({ start: 1000, end: 1015, size: 2 });
+    expect(g.get('2')).toBeUndefined();
   });
 
   test('exception detail rows are skipped', () => {
