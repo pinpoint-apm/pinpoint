@@ -27,9 +27,11 @@ import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
+import io.netty.channel.Channel;
 import reactor.netty.channel.ChannelOperations;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * @author jaehong.kim
@@ -47,9 +49,10 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends InjectedAsyncCo
             return;
         }
 
+        final Object arg0 = args[0];
         // Set HttpClientOptions
-        if (args[0] instanceof AsyncContextAccessor) {
-            ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
+        if (arg0 instanceof AsyncContextAccessor) {
+            ((AsyncContextAccessor) arg0)._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
                 logger.debug("Set asyncContext to args[0]. asyncContext={}", asyncContext);
             }
@@ -57,11 +60,13 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends InjectedAsyncCo
 
         if (trace.canSampled()) {
             // Set hostname
-            if (args[0] instanceof ChannelOperations) {
+            if (arg0 instanceof ChannelOperations) {
                 try {
-                    final ChannelOperations channelOperations = (ChannelOperations) args[0];
-                    final InetSocketAddress inetSocketAddress = (InetSocketAddress) channelOperations.channel().remoteAddress();
-                    if (inetSocketAddress != null) {
+                    final ChannelOperations channelOperations = (ChannelOperations) arg0;
+                    final Channel channel = channelOperations.channel();
+                    final SocketAddress socketAddress = channel.remoteAddress();
+                    if (socketAddress instanceof InetSocketAddress) {
+                        InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
                         final String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
                         if (hostName != null) {
                             recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, HostAndPort.toHostAndPortString(hostName, inetSocketAddress.getPort()));
