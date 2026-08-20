@@ -36,7 +36,7 @@
                 AND agentId = #{agentId}
             </if>
             AND uri = #{uri}
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         GROUP BY "timestamp", version
         ORDER BY "timestamp" asc
         LIMIT ${limit}
@@ -64,7 +64,7 @@
                 AND agentId = #{agentId}
             </if>
             AND uri = #{uri}
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         GROUP BY "timestamp", version
         ORDER BY "timestamp" asc
         LIMIT ${limit}
@@ -86,7 +86,7 @@
                 AND agentId = #{agentId}
             </if>
             AND uri = #{uri}
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         GROUP BY "timestamp", version
         ORDER BY "timestamp" asc
         LIMIT ${limit}
@@ -109,7 +109,7 @@
                 AND agentId = #{agentId}
             </if>
             AND uri = #{uri}
-            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND "timestamp" >= #{range.from} AND "timestamp" <![CDATA[<]]> #{range.to}
         GROUP BY "timestamp", version
         ORDER BY "timestamp" asc
         LIMIT ${limit}
