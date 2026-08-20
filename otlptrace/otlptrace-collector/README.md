@@ -14,7 +14,7 @@ layer. (Analysis baseline: 2026-07 master branch)
 ```
 OTLP exporter
   ├─ gRPC  :9998 (plaintext) / :9448 (TLS, opt-in)  ── GrpcOtlpTraceService
-  └─ HTTP  :9997  POST /v1/traces (protobuf)        ── OtlpTraceController
+  └─ HTTP  :9997  POST /v1/traces (protobuf | JSON) ── OtlpTraceController
                      │
                      ▼
              OtlpTraceMapper (OTLP span → SpanBo/SpanChunkBo/AgentInfoBo/ExceptionMetaDataBo)
@@ -79,10 +79,15 @@ OTLP exporter
 
 ## 3. HTTP Layer
 
-- Endpoint: a single mapping `POST /v1/traces`, `consumes = application/x-protobuf`.
-  **OTLP/HTTP JSON encoding is not supported** (415). **`Content-Encoding: gzip` is supported**
-  (decompressed by `OtlpTraceDecompressionFilter`); any other encoding → **415**.
-- Body parsing: `ProtobufHttpMessageConverter` (`OtlpTraceCollectorHttpModule.java:36-40`)
+- Endpoint: a single mapping `POST /v1/traces`, `consumes = application/x-protobuf | application/json`,
+  dispatched on the request Content-Type; the response body mirrors the request encoding (per the
+  OTLP/HTTP spec, no Accept negotiation). Any other Content-Type → **415**.
+  **`Content-Encoding: gzip` is supported** (decompressed by `OtlpTraceDecompressionFilter`,
+  Content-Type agnostic); any other encoding → **415**.
+- Body parsing: raw `byte[]` + explicit branch — protobuf via `ExportTraceServiceRequest.parseFrom`,
+  OTLP/JSON via `OtlpJsonTraceParser` (a Jackson streaming rewrite of the spec's hex-encoded
+  `traceId`/`spanId`/`parentSpanId` fields to base64, then the standard proto3 `JsonFormat` parse).
+  A body that fails to parse → **400 + `google.rpc.Status`** in the request encoding.
 - Executed synchronously on the Tomcat request thread (no worker offload)
 
 ### Admission Filter (`OtlpTraceHttpAdmissionFilter`)

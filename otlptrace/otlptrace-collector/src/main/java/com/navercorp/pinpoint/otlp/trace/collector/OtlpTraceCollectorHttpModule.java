@@ -23,22 +23,11 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 @Configuration
-public class OtlpTraceCollectorHttpModule implements WebMvcConfigurer {
+public class OtlpTraceCollectorHttpModule {
 
     public static final String OTLP_HTTP_TRACES_PATH = "/v1/traces";
-
-    @Override
-    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        ProtobufHttpMessageConverter protobufHttpMessageConverter = new ProtobufHttpMessageConverter();
-        converters.add(protobufHttpMessageConverter);
-    }
 
     /**
      * Admission control for OTLP/HTTP trace ingestion, scoped to {@value #OTLP_HTTP_TRACES_PATH} so

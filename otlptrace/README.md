@@ -11,7 +11,7 @@ spans produced by the native Pinpoint agent.
 
 | Module | Role |
 |---|---|
-| `otlptrace-collector` | Spring Boot collector. Listens for OTLP trace exports over gRPC (`:9998`) and HTTP (`POST /v1/traces`, `application/x-protobuf`), maps `ResourceSpans` into Pinpoint `SpanBo` / `SpanChunkBo` / `AgentInfoBo`, and inserts them into HBase. |
+| `otlptrace-collector` | Spring Boot collector. Listens for OTLP trace exports over gRPC (`:9998`) and HTTP (`POST /v1/traces`, `application/x-protobuf` or OTLP/JSON `application/json`), maps `ResourceSpans` into Pinpoint `SpanBo` / `SpanChunkBo` / `AgentInfoBo`, and inserts them into HBase. |
 | `otlptrace-otel-extension` | OTel Java SDK extension that emits a `pp=...` entry into the W3C `tracestate` header so the collector can identify the upstream Pinpoint service / application on cross-process spans. See [its README](otlptrace-otel-extension/README.md). |
 
 The collector is enabled by setting `pinpoint.modules.collector.otlptrace.enabled=true`.
