@@ -8,7 +8,8 @@ public interface ServiceLookupService {
 
     /**
      * Resolve a single serviceName to its serviceUid. The future completes with null when the serviceName is not
-     * registered.
+     * registered. When service lookup is disabled, the static fallback registered by
+     * {@code StaticServiceLookupConfiguration} completes with {@link ServiceUid#DEFAULT} instead.
      */
     CompletableFuture<ServiceUid> getServiceUid(String serviceName);
 }
