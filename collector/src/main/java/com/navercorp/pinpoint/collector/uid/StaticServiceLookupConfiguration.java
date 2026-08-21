@@ -1,15 +1,13 @@
 package com.navercorp.pinpoint.collector.uid;
 
 import com.navercorp.pinpoint.collector.uid.service.ServiceLookupService;
+import com.navercorp.pinpoint.collector.uid.service.StaticServiceLookupService;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.server.uid.ServiceUidService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Fallback for the disabled case, mirroring the condition of {@link ServiceLookupConfiguration}.
@@ -31,9 +29,6 @@ public class StaticServiceLookupConfiguration {
     public ServiceLookupService staticServiceLookupService() {
         logger.warn("Service lookup is disabled, falling back to static DEFAULT serviceUid resolution. " +
                 "Set `{}=true`, it will be mandatory in 4.0.0", ServiceLookupConfiguration.ENABLED_KEY);
-        return serviceName -> {
-            ServiceUid serviceUid = ServiceUidService.getServiceUid(serviceName);
-            return CompletableFuture.completedFuture(serviceUid);
-        };
+        return new StaticServiceLookupService();
     }
 }
