@@ -89,6 +89,19 @@ describe('serviceNameFetchInterceptor', () => {
     expect(init?.method).toBe('POST');
   });
 
+  // 조회 대상이 화면과 다른 service에 속할 때 호출자가 직접 헤더를 싣는다.
+  // 인터셉터는 경로/전역 선택값만 보므로 그 사실을 알 수 없어, 실린 값을 덮어쓰면 안 된다.
+  test('keeps the service header the caller already set', async () => {
+    store.set(configurationAtom, configWithServiceMap(true));
+    store.set(selectedServiceAtom, 'my-service');
+
+    await window.fetch('/api/getApdexScore', {
+      headers: { [SERVICE_NAME_HEADER]: 'other-service' },
+    });
+
+    expect(headerOfLastCall()).toBe('other-service');
+  });
+
   test.each([
     ['/serverMap/app-name@TOMCAT?from=1&to=2'],
     ['/serverMap/realtime/app-name@TOMCAT'],

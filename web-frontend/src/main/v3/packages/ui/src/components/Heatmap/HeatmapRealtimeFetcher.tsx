@@ -29,11 +29,12 @@ function ceilTo10SecAndSubtract30(date: Date): Date {
 export type HeatmapRealtimeFetcherProps = {
   nodeData: GetServerMap.NodeData | ApplicationType;
   agentId?: string;
-} & Pick<HeatmapChartCoreProps, 'toolbarOption'>;
+} & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'serviceName'>;
 
 export const HeatmapRealtimeFetcher = ({
   nodeData,
   agentId,
+  serviceName,
   ...props
 }: HeatmapRealtimeFetcherProps) => {
   const now = new Date();
@@ -77,7 +78,12 @@ export const HeatmapRealtimeFetcher = ({
     maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
     agentId: agentId,
   });
-  const { data, isLoading } = useGetHeatmapAppData(parameters);
+  // 조회 파라미터가 effect로 한 박자 늦게 따라오므로 serviceName도 같은 effect에서 함께 갱신한다.
+  // 그러지 않으면 대상이 바뀌는 렌더에서 (이전 application, 새 service) 짝의 queryKey가 한 번
+  // 만들어져, 그 service에 없는 application을 조회하는 요청이 나간다.
+  // (아래 HeatmapChartCore에 넘기는 값은 링크 생성용이라 최신값 그대로 쓴다.)
+  const [requestServiceName, setRequestServiceName] = React.useState(serviceName);
+  const { data, isLoading } = useGetHeatmapAppData(parameters, requestServiceName);
 
   React.useEffect(() => {
     setParameters({
@@ -92,6 +98,7 @@ export const HeatmapRealtimeFetcher = ({
       maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
       agentId: agentId,
     });
+    setRequestServiceName(serviceName);
   }, [
     realtimeDateRange.from.getTime(),
     realtimeDateRange.to.getTime(),
@@ -100,6 +107,7 @@ export const HeatmapRealtimeFetcher = ({
     nodeData?.applicationName,
     nodeData?.serviceType,
     agentId,
+    serviceName,
   ]);
 
   React.useEffect(() => {
@@ -164,6 +172,7 @@ export const HeatmapRealtimeFetcher = ({
       isLoading={isLoading && !realtimeData}
       nodeData={nodeData}
       data={realtimeData}
+      serviceName={serviceName}
       {...props}
     />
   );

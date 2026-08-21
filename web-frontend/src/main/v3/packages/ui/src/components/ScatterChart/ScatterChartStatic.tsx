@@ -33,6 +33,11 @@ export interface ScatterChartStaticProps extends Pick<
   data?: ScatterDataType[];
   range: [number, number];
   selectedAgentId?: string;
+  /**
+   * 조회 대상이 소속된 service. 화면의 service와 다를 때만 넘긴다(map에서 다른 service의 노드를
+   * 고른 경우). 넘기지 않으면 화면의 service로 조회한다.
+   */
+  serviceName?: string;
 }
 
 export const ScatterChartStatic = ({
@@ -40,10 +45,13 @@ export const ScatterChartStatic = ({
   data = [],
   range,
   selectedAgentId,
+  serviceName,
   ...props
 }: ScatterChartStaticProps) => {
   const { searchParameters } = useServerMapSearchParameters();
-  const serviceNameForLink = useServiceNameForLink();
+  // 넘어온 값이 없으면 화면의 service로 조회한다(map 밖에서 쓰이는 경우).
+  const screenServiceName = useServiceNameForLink();
+  const requestServiceName = serviceName ?? screenServiceName;
   const [timezone] = useTimezone();
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const [x, setX] = React.useState<[number, number]>([range[0], range[1]]);
@@ -117,7 +125,7 @@ export const ScatterChartStatic = ({
             `${BASE_PATH}${getTransactionListPath(
               application,
               searchParameters,
-              serviceNameForLink,
+              requestServiceName,
             )}&${getTransactionListQueryString({
               ...data,
               checkedLegends,
