@@ -6,11 +6,9 @@ import { END_POINTS, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 // reactQueryHelper transitively imports the ECharts (ESM) chart stack via ErrorToast,
 // which babel-jest does not transform. Mock queryFn with an equivalent fetch-based
 // implementation so this test can focus on the hook's URL/enabled logic.
+const mockQueryFn = jest.fn();
 jest.mock('./reactQueryHelper', () => ({
-  queryFn: (url: string) => async () => {
-    const response = await fetch(url);
-    return response.json();
-  },
+  queryFn: (url: string, options?: { serviceName?: string }) => mockQueryFn(url, options),
 }));
 
 import { useGetScatterData } from './useGetScatterData';
@@ -38,6 +36,11 @@ const dateRange = {
 describe('useGetScatterData', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
+    // afterEach의 resetAllMocks가 구현까지 지우므로 매번 다시 심는다.
+    mockQueryFn.mockImplementation((url: string) => async () => {
+      const response = await fetch(url);
+      return response.json();
+    });
   });
 
   afterEach(() => {
@@ -80,6 +83,26 @@ describe('useGetScatterData', () => {
     expect(calledUrl).toContain('serviceTypeName=SPRING_BOOT');
     expect(calledUrl).toContain('xGroupUnit=10');
     expect(calledUrl).toContain('yGroupUnit=100');
+  });
+
+  // 다른 service의 노드를 골랐을 때 그 service로 조회해야 한다. 헤더는 queryFn이 싣는다.
+  test('passes the given service down to queryFn', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ complete: true }),
+    });
+
+    const { result } = renderHook(() => useGetScatterData(application, dateRange, 'bService'), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.setQueryParams((prev) => ({ ...prev, xGroupUnit: 10, yGroupUnit: 100 }));
+    });
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+
+    expect(mockQueryFn).toHaveBeenCalledWith(expect.any(String), { serviceName: 'bService' });
   });
 
   test('does not fetch when the application is missing even if group units are set', async () => {

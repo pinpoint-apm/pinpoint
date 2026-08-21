@@ -26,6 +26,12 @@ const getQueryString = (queryParams: GetScatter.Parameters, application?: Applic
   return '';
 };
 
+/**
+ * @param serviceName 이 조회가 나갈 service. 지정하면 `pServiceName` 헤더를 직접 싣고 캐시도 그
+ * 단위로 갈린다. 화면의 service와 조회 대상의 service가 다를 때 넘긴다 — servicemap은 다른
+ * service의 application도 함께 그리기 때문이다(`useServerMapTargetServiceName`). 넘기지 않으면
+ * 기존대로 fetch 인터셉터가 경로/전역 선택값으로 결정한다.
+ */
 export const useGetScatterRealtimeData = (
   application: ApplicationType,
   dateRange: {
@@ -33,6 +39,7 @@ export const useGetScatterRealtimeData = (
     to: Date;
     isRealtime: boolean;
   },
+  serviceName?: string,
 ) => {
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
@@ -52,11 +59,17 @@ export const useGetScatterRealtimeData = (
     backwardDirection: true,
     timestamp: undefined,
   });
+  // 조회 파라미터가 effect로 한 박자 늦게 따라오므로 serviceName도 같은 effect에서 함께 갱신한다.
+  // 그러지 않으면 대상이 바뀌는 렌더에서 (이전 application, 새 service) 짝의 queryKey가 한 번
+  // 만들어져, 그 service에 없는 application을 조회하는 요청이 나간다.
+  const [requestServiceName, setRequestServiceName] = React.useState(serviceName);
   const queryString = getQueryString(queryParams, application);
 
   const { data, isLoading } = useQuery({
-    queryKey: [END_POINTS.SCATTER_DATA, queryString],
-    queryFn: queryFn(`${END_POINTS.SCATTER_DATA}${queryString}`),
+    queryKey: [END_POINTS.SCATTER_DATA, queryString, requestServiceName],
+    queryFn: queryFn(`${END_POINTS.SCATTER_DATA}${queryString}`, {
+      serviceName: requestServiceName,
+    }),
     enabled: !!queryString,
     gcTime: 0,
   });
@@ -69,7 +82,8 @@ export const useGetScatterRealtimeData = (
       application: application.applicationName,
       serviceTypeName: application.serviceType,
     }));
-  }, [application.applicationName, application.serviceType, from, to]);
+    setRequestServiceName(serviceName);
+  }, [application.applicationName, application.serviceType, from, to, serviceName]);
 
   React.useEffect(() => {
     if (!isLoading && data) {

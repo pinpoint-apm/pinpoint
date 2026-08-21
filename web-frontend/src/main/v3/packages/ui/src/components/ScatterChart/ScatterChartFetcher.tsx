@@ -21,23 +21,35 @@ export interface ScatterChartFetcherProps {
   node: CurrentTarget;
   agentId?: string;
   toolbarOption?: ScatterChartCoreProps['toolbarOption'];
+  /**
+   * 조회 대상이 소속된 service. 화면의 service와 다를 때만 넘긴다(map에서 다른 service의 노드를
+   * 고른 경우). 넘기지 않으면 화면의 service로 조회한다.
+   */
+  serviceName?: string;
 }
 
 export const ScatterChartFetcher = ({
   node,
   agentId = SCATTER_DATA_TOTAL_KEY,
   toolbarOption,
+  serviceName,
 }: ScatterChartFetcherProps) => {
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const { dateRange, searchParameters } = useServerMapSearchParameters();
-  const serviceNameForLink = useServiceNameForLink();
+  // 넘어온 값이 없으면 화면의 service로 조회한다(map 밖에서 쓰이는 경우).
+  const screenServiceName = useServiceNameForLink();
+  const requestServiceName = serviceName ?? screenServiceName;
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
   const currentNode = `${node.applicationName}^${node.serviceType}`;
   const [x, setX] = React.useState<[number, number]>([from, to]);
   const [y, setY] = useStoragedAxisY();
   const isScatterMounted = scatterRef.current?.isMounted();
-  const { data, isLoading, setQueryParams } = useGetScatterData(node, dateRange);
+  const { data, isLoading, setQueryParams } = useGetScatterData(
+    node,
+    dateRange,
+    requestServiceName,
+  );
   const [scatterData, setScatterData] = useAtom(scatterDataAtom);
 
   React.useEffect(() => {
@@ -106,7 +118,7 @@ export const ScatterChartFetcher = ({
           `${BASE_PATH}${getTransactionListPath(
             node,
             searchParameters,
-            serviceNameForLink,
+            requestServiceName,
           )}&${getTransactionListQueryString({
             ...data,
             checkedLegends,

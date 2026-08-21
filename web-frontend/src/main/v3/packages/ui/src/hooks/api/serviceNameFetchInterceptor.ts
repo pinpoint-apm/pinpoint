@@ -93,7 +93,12 @@ export const installServiceNameFetchInterceptor = () => {
           const headers = new Headers(
             init?.headers ?? (isRequestObject(input) ? input.headers : undefined),
           );
-          headers.set(SERVICE_NAME_HEADER, selectedService);
+
+          // 호출자가 직접 실은 값이 우선이다. 인터셉터는 경로/전역 선택값만 보므로, 조회 대상이
+          // 화면과 다른 service에 속한다는 사실(`useServerMapTargetServiceName`)을 알 수 없다.
+          if (!headers.has(SERVICE_NAME_HEADER)) {
+            headers.set(SERVICE_NAME_HEADER, selectedService);
+          }
           return originalFetch(input, { ...init, headers });
         }
       }

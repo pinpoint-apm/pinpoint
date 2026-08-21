@@ -111,6 +111,66 @@ service 전체를 대상으로 필터를 걸 수 있게 할지 정해지면 경�
 - 첫 세그먼트가 `{app}@{type}`으로 파싱되면 serviceName이 아니다. serviceName 세그먼트가 생기기
   전 형태(`/serviceMap/myApp@TOMCAT`)의 링크·북마크를 살리기 위한 가드다.
 
+## 화면의 service ≠ 조회 대상의 service
+
+경로의 serviceName은 **map을 그리는 service**다. 그런데 map에는 다른 service의 application도
+함께 그려진다(service group을 펼쳐 고른 자식 노드). 그런 노드를 고르면 우측 패널의 조회는
+경로의 service가 아니라 **그 노드의 service**로 나가야 한다.
+
+```
+(A service) -> (B service)
+```
+A의 servicemap에서 B의 `b-1`을 고르면 chartBoard 조회는 `pServiceName: B`로 나간다.
+A로 나가면 백엔드가 A service에서 `b-1`을 찾으므로 데이터가 비어서 온다. (이슈 #10497)
+
+### 전달은 prop으로 한다
+
+`useServerMapTargetServiceName`이 고른 대상의 service를 읽고, 우측 패널의 컴포넌트들에
+`serviceName` prop으로 내려준다. 받은 컴포넌트는 조회 훅과 링크 생성에 그 값을 쓴다.
+**prop을 받지 않으면 화면의 service로 조회한다**(`serviceName ?? useServiceNameForLink()`).
+그래서 filteredMap·inspector처럼 이 값을 넘기지 않는 화면은 동작이 그대로다.
+
+- 값의 출처는 백엔드가 노드마다 내려주는 `serviceName`(= `application.getService()`)이다.
+  링크는 자기 service가 없어 출발지 노드의 service를 쓴다(링크 통계의 기준 application과 같다).
+- `enableServiceMap`이 꺼져 있으면 `useServerMapTargetServiceName`이 undefined를 반환한다.
+  설정이 꺼진 저장소로 헤더가 새어 나가지 않도록 **그 한 곳에서** 막는다.
+- **prop을 내려주는 곳을 빠뜨리면 그 차트만 조용히 화면의 service로 조회한다.** 화면은 멀쩡히
+  그려지고 숫자만 비어서, 타입 검사로도 잡히지 않는다. 우측 패널에 조회하는 컴포넌트를 새로
+  추가하면 `serviceName`도 함께 내려야 한다.
+  → 지금 내려주는 곳: `ServerMapChartsBoardFetcher`, `Realtime`
+
+### 헤더와 캐시 키는 같은 값에서 나온다
+
+- 조회 훅은 `queryFn(url, { serviceName })`으로 헤더를 직접 싣고, **queryKey에도 같은 값을 넣는다.**
+  헤더만 갈리고 캐시 키가 같으면 이름이 같은 다른 service의 application끼리 캐시가 섞인다.
+- fetch 인터셉터는 **이미 실린 헤더를 덮어쓰지 않는다.** 인터셉터는 경로/전역 선택값만 보므로
+  "고른 노드가 다른 service 소속"이라는 사실을 알 수 없다.
+
+### serviceName은 기준 application과 같은 commit에 바뀌어야 한다
+
+조회 훅 상당수가 파라미터를 state에 담고 `useEffect`로 동기화한다(그 자리에서 계산하지 않는다).
+그래서 대상이 바뀌는 렌더에서는 파라미터가 한 박자 뒤처진다. serviceName을 prop 그대로 쓰면
+그 한 렌더 동안 **(이전 application, 새 service)** 짝의 queryKey가 만들어지고, 캐시에 없는 키라
+React Query가 곧바로 요청을 날린다 — 그 service에 없는 application을 묻는 요청이라 400이 온다.
+
+그래서 serviceName도 **파라미터를 갱신하는 그 effect 안에서** 함께 state로 옮긴다(두 setState가
+같은 commit에 배치되므로 짝이 어긋나지 않는다). queryKey와 헤더에는 prop이 아니라 그 state
+(`requestServiceName`)를 쓴다. deferred를 쓰는 스캐터는 serviceName도 같이 deferred로 넘긴다.
+
+→ `useGetApdexScore`, `useGetHistogramStatistics`, `useGetScatterData`,
+`useGetScatterRealtimeData`, `HeatmapFetcher`, `HeatmapRealtimeFetcher`
+
+파라미터를 그 자리에서 계산하는 훅(`useGetAgentOverview`)은 이 처리가 필요 없다.
+링크 생성에 쓰는 값은 요청이 아니므로 최신 prop을 그대로 쓴다(`HeatmapChartCore`).
+
+### 통계 API는 기준 application도 함께 갈아야 한다
+
+경로의 application은 화면 service 소속이라, 대상의 service로 나가는 요청의 기준이 될 수 없다
+(백엔드가 그 이름을 대상의 service에서 찾는다). 대상이 다른 service면 노드 자신을 기준으로 삼는다.
+→ `useGetHistogramStatistics`의 `ignorePathApplication`
+
+액티브 스레드(실시간)는 WebSocket이라 헤더가 없다. 지금도 service를 싣지 않는다.
+
 ## map 노드/링크 id 형식이 API마다 다르다
 
 | API | render | node key |
@@ -191,6 +251,7 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 | 경로에 실린 serviceName 읽기 | `utils/helper/application.ts` (`getServiceNameFromPath`) |
 | 경로 분해 (로더용) | `utils/helper/application.ts` (`parseServiceScopedPath`) |
 | 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getServiceMapRealtimePath`, `getFilteredMapPath`, `getTransactionListPath`) |
+| 조회 대상의 service | `hooks/serverMap/useServerMapTargetServiceName.ts` |
 | 요청 헤더 주입 | `hooks/api/serviceNameFetchInterceptor.ts` |
 | service 단위 캐시 키 | `hooks/api/reactQueryHelper.tsx` (`serviceScopedQueryKeyHashFn`) |
 | service 변경 시 초기화 | `hooks/utility/useClearApplicationOnServiceChange.ts` |
