@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "dev:mock": "MOCK_SERVICE_MAP=1 vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx}\"",

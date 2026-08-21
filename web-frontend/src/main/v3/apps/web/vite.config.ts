@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgr from 'vite-plugin-svgr';
+// [MOCK #10497] 로컬 확인용 임시 mock. 삭제 방법은 ./dev-mock/README.md 참고.
+import { serviceMapMockPlugin } from './dev-mock';
 // import { visualizer } from 'rollup-plugin-visualizer';
 // import react from '@vitejs/plugin-react';
 
@@ -34,6 +36,8 @@ export default defineConfig({
   },
   plugins: [
     svgr(),
+    // [MOCK #10497] MOCK_SERVICE_MAP=1 일 때만 동작한다(= yarn dev:mock).
+    serviceMapMockPlugin(),
     compression(),
     compression({
       algorithm: 'brotliCompress',

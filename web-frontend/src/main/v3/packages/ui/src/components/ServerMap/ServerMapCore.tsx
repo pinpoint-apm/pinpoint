@@ -44,6 +44,9 @@ import cytoscape from 'cytoscape';
 import { cn } from '../../lib';
 import { Input } from '../ui/input';
 
+/** 팝업이 map 영역 가장자리에 닿지 않도록 두는 여백(px) */
+const POPPER_EDGE_GAP = 8;
+
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
   isLoading?: boolean;
@@ -112,6 +115,12 @@ export const ServerMapCore = ({
   const serviceGroupTargetRef = React.useRef<GetServerMap.NodeData | undefined>(undefined);
   const serviceGroupLinkTargetRef = React.useRef<GetServerMap.LinkData | undefined>(undefined);
   const [serviceGroupSearch, setServiceGroupSearch] = React.useState('');
+  const serviceGroupSearchRef = React.useRef<HTMLInputElement>(null);
+  // 팝업이 map 영역을 넘칠 때만 채워지는 대체 좌표. 넘치지 않으면 undefined로 두고
+  // popperPosition을 그대로 쓴다 — 팝업이 열려 있는 동안 pan/zoom마다 좌표가 갱신되는데,
+  // 그때마다 상태를 새로 쓰면 이동 한 번에 렌더가 두 번씩 돈다.
+  const [clampedPosition, setClampedPosition] = React.useState<{ x: number; y: number }>();
+  const menuPosition = clampedPosition ?? popperPosition;
   // cytoscape 이벤트 핸들러는 한 번 등록되어 popperContentType의 최신값을 stale closure로 놓친다.
   // 가드는 ref를 통해 항상 최신 상태를 본다.
   const popperContentTypeRef = React.useRef<SERVERMAP_MENU_CONTENT_TYPE | undefined>(undefined);
@@ -122,6 +131,61 @@ export const ServerMapCore = ({
       popperContentType !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST
     ) {
       setServiceGroupSearch('');
+    }
+  }, [popperContentType]);
+
+  /**
+   * 팝업을 map 영역 안쪽으로 접어 넣는다.
+   *
+   * 팝업은 노드의 렌더 좌표에 절대 위치로 그려지므로, 오른쪽/아래 가장자리의 노드에서 열면 map
+   * 컨테이너를 넘친다. 넘치면 조상(overflow hidden)의 scrollWidth가 늘어나고, 그 상태에서 검색
+   * 입력에 포커스가 가면 브라우저가 입력을 보이게 하려고 scrollLeft를 옮긴다. 그러면 map 전체가
+   * 왼쪽으로 밀려 사이드 네비게이션 아래로 들어간다.
+   *
+   * 넘칠 때만 기준점 반대편으로 뒤집고(popper의 flip), 그래도 모자라면 가장자리에 맞춘다.
+   * 넘치지 않는 경우에는 기존 위치 그대로다.
+   */
+  React.useLayoutEffect(() => {
+    const container = containerRef.current;
+    // popperContentRef는 테두리를 그리는 래퍼 안에 있으므로, 실제 팝업 크기는 부모에서 잰다.
+    const content = popperContentRef.current?.parentElement ?? popperContentRef.current;
+
+    // 값이 그대로면 이전 참조를 돌려줘 리렌더를 만들지 않는다.
+    const update = (next?: { x: number; y: number }) =>
+      setClampedPosition((prev) => {
+        if (!next) {
+          return undefined;
+        }
+        return prev && prev.x === next.x && prev.y === next.y ? prev : next;
+      });
+
+    if (!popperContentType || !container || !content) {
+      update();
+      return;
+    }
+
+    const { width, height } = content.getBoundingClientRect();
+    const fit = (start: number, size: number, limit: number) => {
+      const flipped = start + size + POPPER_EDGE_GAP > limit ? start - size : start;
+      const max = Math.max(POPPER_EDGE_GAP, limit - size - POPPER_EDGE_GAP);
+      return Math.min(Math.max(flipped, POPPER_EDGE_GAP), max);
+    };
+
+    const x = fit(popperPosition.x ?? 0, width, container.clientWidth);
+    const y = fit(popperPosition.y ?? 0, height, container.clientHeight);
+
+    // 넘치지 않으면 popperPosition을 그대로 쓰면 되므로 대체 좌표를 두지 않는다.
+    update(x === popperPosition.x && y === popperPosition.y ? undefined : { x, y });
+  }, [popperContentType, popperPosition.x, popperPosition.y]);
+
+  // service group 팝업의 검색 입력에 포커스를 준다. autoFocus를 쓰지 않는 이유는 위 클램프 주석과
+  // 같다 — 팝업이 조금이라도 넘친 순간에 포커스가 가면 브라우저가 화면을 스크롤해 버린다.
+  React.useEffect(() => {
+    if (
+      popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST ||
+      popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST
+    ) {
+      serviceGroupSearchRef.current?.focus({ preventScroll: true });
     }
   }, [popperContentType]);
 
@@ -463,7 +527,7 @@ export const ServerMapCore = ({
             </TooltipProvider>
           </div>
           {!disableMenu && (
-            <ServerMapMenu contentType={popperContentType} position={popperPosition}>
+            <ServerMapMenu contentType={popperContentType} position={menuPosition}>
               <div ref={popperContentRef}>
                 {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.BACKGROUND && (
                   <ServerMapMenuContent title="Merge">
@@ -570,7 +634,7 @@ export const ServerMapCore = ({
                           <div className="relative">
                             <FaSearch className="absolute -translate-y-1/2 pointer-events-none left-2 top-1/2 text-muted-foreground" />
                             <Input
-                              autoFocus
+                              ref={serviceGroupSearchRef}
                               placeholder={t('COMMON.SEARCH_INPUT')}
                               value={serviceGroupSearch}
                               onChange={(e) => setServiceGroupSearch(e.target.value)}
@@ -635,7 +699,7 @@ export const ServerMapCore = ({
                           <div className="relative">
                             <FaSearch className="absolute -translate-y-1/2 pointer-events-none left-2 top-1/2 text-muted-foreground" />
                             <Input
-                              autoFocus
+                              ref={serviceGroupSearchRef}
                               placeholder={t('COMMON.SEARCH_INPUT')}
                               value={serviceGroupSearch}
                               onChange={(e) => setServiceGroupSearch(e.target.value)}

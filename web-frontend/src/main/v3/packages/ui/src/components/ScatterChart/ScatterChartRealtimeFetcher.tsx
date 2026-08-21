@@ -31,16 +31,24 @@ export interface ScatterChartRealtimeFetcherProps {
   node: CurrentTarget;
   agentId?: string;
   toolbarOption?: ScatterChartCoreProps['toolbarOption'];
+  /**
+   * 조회 대상이 소속된 service. 화면의 service와 다를 때만 넘긴다(map에서 다른 service의 노드를
+   * 고른 경우). 넘기지 않으면 화면의 service로 조회한다.
+   */
+  serviceName?: string;
 }
 
 export const ScatterChartRealtimeFetcher = ({
   node,
   agentId = SCATTER_DATA_TOTAL_KEY,
   toolbarOption,
+  serviceName,
 }: ScatterChartRealtimeFetcherProps) => {
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const { dateRange } = useServerMapSearchParameters();
-  const serviceNameForLink = useServiceNameForLink();
+  // 넘어온 값이 없으면 화면의 service로 조회한다(map 밖에서 쓰이는 경우).
+  const screenServiceName = useServiceNameForLink();
+  const requestServiceName = serviceName ?? screenServiceName;
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
   const currentNode = `${node.applicationName}^${node.serviceType}`;
@@ -49,7 +57,11 @@ export const ScatterChartRealtimeFetcher = ({
 
   // 5분 전 ~ 현재까지의 데이터
   const [defaultDateRange, setDefaultDateRange] = React.useState(dateRange);
-  const { data, isLoading, setQueryParams } = useGetScatterData(node, defaultDateRange);
+  const { data, isLoading, setQueryParams } = useGetScatterData(
+    node,
+    defaultDateRange,
+    requestServiceName,
+  );
 
   // 5분 밑그림이 덮은 끝 시각. 마운트 직후의 2초 구간은 이미 이 안에 들어 있어서, 그대로 요청하면
   // 같은 구간을 한 번 더 받는다. 시계가 이 시각을 지난 다음부터 꼬리를 물기 시작한다.
@@ -63,6 +75,7 @@ export const ScatterChartRealtimeFetcher = ({
   } = useGetScatterRealtimeData(
     node,
     hasTailToFetch ? { ...dateRange, from: subSeconds(dateRange.to, 2) } : EMPTY_RANGE,
+    requestServiceName,
   );
   const sc = scatterRef.current;
   const isScatterMounted = scatterRef.current?.isMounted();
@@ -161,7 +174,7 @@ export const ScatterChartRealtimeFetcher = ({
           `${getTransactionListPath(
             node,
             getFormattedDateRange(dateRange),
-            serviceNameForLink,
+            requestServiceName,
           )}&${getTransactionListQueryString({
             ...data,
             checkedLegends,

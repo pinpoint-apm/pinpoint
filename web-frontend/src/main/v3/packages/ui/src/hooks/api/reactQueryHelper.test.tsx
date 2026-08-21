@@ -20,8 +20,10 @@ import { getDefaultStore } from 'jotai';
 import { QueryClient } from '@tanstack/react-query';
 import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import { SERVICE_NAME_HEADER } from './serviceNameFetchInterceptor';
 import {
   handleGlobalQueryError,
+  queryFn,
   serviceScopedQueryKeyHashFn,
   showGlobalErrorToast,
 } from './reactQueryHelper';
@@ -65,6 +67,32 @@ describe('reactQueryHelper global query error handling', () => {
     showGlobalErrorToast(new Error('x'), { toastId: 'abc' });
 
     expect((toast.error as jest.Mock).mock.calls[0][1].toastId).toBe('abc');
+  });
+});
+
+describe('queryFn', () => {
+  const fetchMock = jest.fn(() =>
+    Promise.resolve({ ok: true, json: () => Promise.resolve({}) } as Response),
+  );
+
+  beforeEach(() => {
+    fetchMock.mockClear();
+    global.fetch = fetchMock as unknown as typeof fetch;
+  });
+
+  // 헤더를 붙이는 것은 fetch 인터셉터의 몫이다. 여기서 빈 init을 넘기면 그 판단을 흐린다.
+  test('requests without an init when no service is given', async () => {
+    await queryFn('/api/getApdexScore')();
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/getApdexScore');
+  });
+
+  // 조회 대상이 화면과 다른 service에 속할 때 그 service로 나가야 한다.
+  test('carries the given service in the request header', async () => {
+    await queryFn('/api/getApdexScore', { serviceName: 'other-service' })();
+
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(new Headers(init.headers).get(SERVICE_NAME_HEADER)).toBe('other-service');
   });
 });
 

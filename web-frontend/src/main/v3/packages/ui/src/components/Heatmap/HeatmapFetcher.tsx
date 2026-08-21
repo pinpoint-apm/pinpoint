@@ -13,9 +13,14 @@ const DefaultAxisY = [0, 10000];
 
 export type HeatmapFetcherProps = {
   agentId?: string;
-} & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'nodeData'>;
+} & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'nodeData' | 'serviceName'>;
 
-export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherProps) => {
+export const HeatmapFetcher = ({
+  nodeData,
+  agentId,
+  serviceName,
+  ...props
+}: HeatmapFetcherProps) => {
   const { t } = useTranslation();
   const { dateRange } = useServerMapSearchParameters();
   const [setting] = useStoragedSetting(APP_SETTING_KEYS.HEATMAP_SETTING);
@@ -29,7 +34,12 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
     maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
     agentId: agentId,
   });
-  const { data, isLoading, error } = useGetHeatmapAppData(parameters);
+  // 조회 파라미터가 effect로 한 박자 늦게 따라오므로 serviceName도 같은 effect에서 함께 갱신한다.
+  // 그러지 않으면 대상이 바뀌는 렌더에서 (이전 application, 새 service) 짝의 queryKey가 한 번
+  // 만들어져, 그 service에 없는 application을 조회하는 요청이 나간다.
+  // (아래 HeatmapChartCore에 넘기는 값은 링크 생성용이라 최신값 그대로 쓴다.)
+  const [requestServiceName, setRequestServiceName] = React.useState(serviceName);
+  const { data, isLoading, error } = useGetHeatmapAppData(parameters, requestServiceName);
 
   React.useEffect(() => {
     setParameters({
@@ -41,6 +51,7 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
       maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
       agentId: agentId,
     });
+    setRequestServiceName(serviceName);
   }, [
     dateRange.from.getTime(),
     dateRange.to.getTime(),
@@ -49,6 +60,7 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
     nodeData?.applicationName,
     nodeData?.serviceType,
     agentId,
+    serviceName,
   ]);
 
   return (
@@ -69,6 +81,7 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
         isLoading={isLoading}
         data={data || ({} as GetHeatmapAppData.Response)}
         nodeData={nodeData}
+        serviceName={serviceName}
         {...props}
       />
     </div>

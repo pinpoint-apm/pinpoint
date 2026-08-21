@@ -37,6 +37,11 @@ export type HeatmapChartCoreProps = {
       hide?: boolean;
     };
   };
+  /**
+   * 조회 대상이 소속된 service. 화면의 service와 다를 때만 넘긴다(map에서 다른 service의 노드를
+   * 고른 경우). 넘기지 않으면 화면의 service로 조회한다.
+   */
+  serviceName?: string;
 };
 
 const HeatmapChartCore = ({
@@ -46,11 +51,14 @@ const HeatmapChartCore = ({
   data,
   agentId,
   toolbarOption,
+  serviceName,
 }: HeatmapChartCoreProps) => {
   const chartContainerRef = React.useRef<HTMLDivElement>(null);
 
   const { dateRange, searchParameters } = useServerMapSearchParameters();
-  const serviceNameForLink = useServiceNameForLink();
+  // 넘어온 값이 없으면 화면의 service로 조회한다(map 밖에서 쓰이는 경우).
+  const screenServiceName = useServiceNameForLink();
+  const requestServiceName = serviceName ?? screenServiceName;
   const [showSetting, setShowSetting] = React.useState(false);
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
 
@@ -111,7 +119,7 @@ const HeatmapChartCore = ({
       `${BASE_PATH}${getTransactionListPath(
         nodeData,
         isRealtime ? getFormattedDateRange(dateRange) : searchParameters,
-        serviceNameForLink,
+        requestServiceName,
       )}&${getTransactionListQueryString({
         ...data,
         checkedLegends,

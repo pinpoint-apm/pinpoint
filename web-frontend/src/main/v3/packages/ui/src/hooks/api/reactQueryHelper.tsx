@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 import { getDefaultStore } from 'jotai';
 import { toastCountAtom } from '@pinpoint-fe/ui/src/atoms';
 import { ErrorToast } from '../../components/Error/ErrorToast';
-import { getRequestService } from './serviceNameFetchInterceptor';
+import { getRequestService, SERVICE_NAME_HEADER } from './serviceNameFetchInterceptor';
 
 declare module '@tanstack/react-query' {
   interface Register {
@@ -65,8 +65,24 @@ export async function parseResponseError(response: Response): Promise<never> {
   throw new Error((detail as string) || 'An error occurred while fetching the data.');
 }
 
-export const queryFn = (url: string) => async () => {
-  const response = await fetch(url);
+export interface QueryFnOptions {
+  /**
+   * 이 요청이 조회할 service. 지정하면 `pServiceName` 헤더를 여기서 직접 싣고,
+   * fetch 인터셉터는 이미 실린 헤더를 덮어쓰지 않는다.
+   *
+   * 화면의 service와 조회 대상의 service가 다를 때 쓴다(`useServerMapTargetServiceName`).
+   * 인터셉터는 경로/전역 선택값만 보므로 "고른 노드가 다른 service 소속"이라는 사실을 알 수 없다.
+   *
+   * 이 값을 싣는 훅은 queryKey에도 같은 값을 넣어야 한다. 헤더만 갈리고 캐시 키가 같으면
+   * 이름이 같은 다른 service의 application끼리 캐시가 섞인다.
+   */
+  serviceName?: string;
+}
+
+export const queryFn = (url: string, options?: QueryFnOptions) => async () => {
+  const response = options?.serviceName
+    ? await fetch(url, { headers: { [SERVICE_NAME_HEADER]: options.serviceName } })
+    : await fetch(url);
 
   if (!response.ok) {
     await parseResponseError(response);
