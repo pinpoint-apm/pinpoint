@@ -116,11 +116,11 @@ export const ServerMapCore = ({
   const serviceGroupLinkTargetRef = React.useRef<GetServerMap.LinkData | undefined>(undefined);
   const [serviceGroupSearch, setServiceGroupSearch] = React.useState('');
   const serviceGroupSearchRef = React.useRef<HTMLInputElement>(null);
-  // 팝업이 map 영역을 넘치지 않도록 접어 넣은 좌표. ServerMapMenu에는 이 값을 넘긴다.
-  const [menuPosition, setMenuPosition] = React.useState<Partial<{ x: number; y: number }>>({
-    x: 0,
-    y: 0,
-  });
+  // 팝업이 map 영역을 넘칠 때만 채워지는 대체 좌표. 넘치지 않으면 undefined로 두고
+  // popperPosition을 그대로 쓴다 — 팝업이 열려 있는 동안 pan/zoom마다 좌표가 갱신되는데,
+  // 그때마다 상태를 새로 쓰면 이동 한 번에 렌더가 두 번씩 돈다.
+  const [clampedPosition, setClampedPosition] = React.useState<{ x: number; y: number }>();
+  const menuPosition = clampedPosition ?? popperPosition;
   // cytoscape 이벤트 핸들러는 한 번 등록되어 popperContentType의 최신값을 stale closure로 놓친다.
   // 가드는 ref를 통해 항상 최신 상태를 본다.
   const popperContentTypeRef = React.useRef<SERVERMAP_MENU_CONTENT_TYPE | undefined>(undefined);
@@ -150,8 +150,17 @@ export const ServerMapCore = ({
     // popperContentRef는 테두리를 그리는 래퍼 안에 있으므로, 실제 팝업 크기는 부모에서 잰다.
     const content = popperContentRef.current?.parentElement ?? popperContentRef.current;
 
+    // 값이 그대로면 이전 참조를 돌려줘 리렌더를 만들지 않는다.
+    const update = (next?: { x: number; y: number }) =>
+      setClampedPosition((prev) => {
+        if (!next) {
+          return undefined;
+        }
+        return prev && prev.x === next.x && prev.y === next.y ? prev : next;
+      });
+
     if (!popperContentType || !container || !content) {
-      setMenuPosition(popperPosition);
+      update();
       return;
     }
 
@@ -162,10 +171,11 @@ export const ServerMapCore = ({
       return Math.min(Math.max(flipped, POPPER_EDGE_GAP), max);
     };
 
-    setMenuPosition({
-      x: fit(popperPosition.x ?? 0, width, container.clientWidth),
-      y: fit(popperPosition.y ?? 0, height, container.clientHeight),
-    });
+    const x = fit(popperPosition.x ?? 0, width, container.clientWidth);
+    const y = fit(popperPosition.y ?? 0, height, container.clientHeight);
+
+    // 넘치지 않으면 popperPosition을 그대로 쓰면 되므로 대체 좌표를 두지 않는다.
+    update(x === popperPosition.x && y === popperPosition.y ? undefined : { x, y });
   }, [popperContentType, popperPosition.x, popperPosition.y]);
 
   // service group 팝업의 검색 입력에 포커스를 준다. autoFocus를 쓰지 않는 이유는 위 클램프 주석과
