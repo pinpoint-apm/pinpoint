@@ -9,6 +9,8 @@ import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
 import com.navercorp.pinpoint.service.config.ServiceMysqlConfiguration;
 import com.navercorp.pinpoint.service.dao.ServiceRegistryDao;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -25,14 +27,23 @@ import java.util.concurrent.ExecutorService;
 
 @Configuration
 //@ConditionalOnProperty(name = ObjectNameVersion.KEY, havingValue = "v4")
-@ConditionalOnProperty(name = "pinpoint.collector.service.lookup.enabled", havingValue = "true")
+@ConditionalOnProperty(name = ServiceLookupConfiguration.ENABLED_KEY, havingValue = "true")
 @Import({
         ServiceMysqlConfiguration.class,
         ServiceLookupCacheConfiguration.class,
 })
 public class ServiceLookupConfiguration {
 
+    // Service lookup becomes mandatory in 4.0.0, remove StaticServiceLookupConfiguration then
+    public static final String ENABLED_KEY = "pinpoint.collector.service.lookup.enabled";
+
     public static final String EXECUTOR_NAME = "collectorServiceLookupExecutor";
+
+    private static final Logger logger = LogManager.getLogger(ServiceLookupConfiguration.class);
+
+    public ServiceLookupConfiguration() {
+        logger.info("Install ServiceLookupConfiguration");
+    }
 
     @Bean
     @Validated
