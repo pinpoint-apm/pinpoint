@@ -23,5 +23,7 @@ public class KtorConstants {
 
     public static final ServiceType KTOR = ServiceTypeProvider.getByName("KTOR");
     public static final ServiceType KTOR_INTERNAL = ServiceTypeProvider.getByName("KTOR_INTERNAL");
+    public static final ServiceType KTOR_CLIENT = ServiceTypeProvider.getByName("KTOR_CLIENT");
+    public static final ServiceType KTOR_CLIENT_INTERNAL = ServiceTypeProvider.getByName("KTOR_CLIENT_INTERNAL");
 
 }
