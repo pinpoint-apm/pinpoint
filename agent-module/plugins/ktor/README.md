@@ -1,6 +1,8 @@
 ## Ktor
 * Since: Pinpoint 3.0.1
 * See: https://ktor.io/
+* Range (client): io.ktor/ktor-client-core-jvm [2.3, 3.5]
+  (built against 2.3.12; validated against Ktor 3.5.1 clients in production deployments)
 
 ### Pinpoint Configuration
 pinpoint.config
@@ -38,8 +40,8 @@ profiler.ktor.http.server.retransform.configure-routing=true
 # Client (outbound)
 # Traces io.ktor.client.plugins.HttpSend$DefaultSender.execute(...) and records
 # an outbound span event per HTTP attempt (including HttpRequestRetry retries).
-# Disabled by default — opt in only when the JVM runs a Ktor HTTP client.
-profiler.ktor.client.enable=false
+# Enabled by default; set false to skip the Ktor client transforms.
+profiler.ktor.client.enable=true
 # record the request URL on the span event, default true
 profiler.ktor.client.param=true
 # treat a thrown Throwable from the client as an error on the span event, default true

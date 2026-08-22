@@ -6,11 +6,11 @@ serviceTypes:
   - code: 1161
     name: 'KTOR_INTERNAL'
     desc: 'KTOR'
-  - code: 1900
+  - code: 9068
     name: 'KTOR_CLIENT'
     property:
       recordStatistics: true
-  - code: 1901
+  - code: 9069
     name: 'KTOR_CLIENT_INTERNAL'
     desc: 'KTOR_CLIENT'
     matcher:

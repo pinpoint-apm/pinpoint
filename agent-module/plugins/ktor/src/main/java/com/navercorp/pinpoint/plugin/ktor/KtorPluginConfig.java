@@ -60,7 +60,7 @@ public class KtorPluginConfig {
         this.retransformConfigureRouting = config.readBoolean("profiler.ktor.http.server.retransform.configure-routing", Boolean.TRUE);
 
         // Client
-        this.clientEnable = config.readBoolean("profiler.ktor.client.enable", Boolean.FALSE);
+        this.clientEnable = config.readBoolean("profiler.ktor.client.enable", Boolean.TRUE);
         this.clientParam = config.readBoolean("profiler.ktor.client.param", Boolean.TRUE);
         this.clientMarkError = config.readBoolean("profiler.ktor.client.mark.error", Boolean.TRUE);
     }

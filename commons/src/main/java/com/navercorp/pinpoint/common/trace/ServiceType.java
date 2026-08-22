@@ -268,6 +268,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>9065</td><td><i>JDK_HTTP_CLIENT</i></td></tr>
  * <tr><td>9066</td><td><i>JDK_HTTP_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>9067</td><td>JDK_HTTPURLCONNECTOR_INTERNAL</td></tr>
+ * <tr><td>9068</td><td><i>KTOR_CLIENT</i></td></tr>
+ * <tr><td>9069</td><td><i>KTOR_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>9070</td><td><i>RESERVED</i></td></tr>
  * <tr><td><s>9080</s></td><td><s>APACHE_CXF_CLIENT</s></td></tr>
  * <tr><td>9081</td><td>APACHE_CXF_SERVICE_INVOKER</td></tr>

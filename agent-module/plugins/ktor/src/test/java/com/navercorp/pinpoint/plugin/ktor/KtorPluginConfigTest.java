@@ -26,23 +26,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class KtorPluginConfigTest {
 
     @Test
-    void clientDisabledByDefault() {
+    void clientEnabledByDefault() {
         ProfilerConfig config = new DefaultProfilerConfig();
         KtorPluginConfig pluginConfig = new KtorPluginConfig(config);
 
-        assertFalse(pluginConfig.isClientEnable());
+        assertTrue(pluginConfig.isClientEnable());
         assertTrue(pluginConfig.isClientParam());
         assertTrue(pluginConfig.isClientMarkError());
     }
 
     @Test
-    void clientEnabledFlagReadsTrue() {
+    void clientDisabledFlagRespected() {
         DefaultProfilerConfig config = new DefaultProfilerConfig();
-        config.getProperties().setProperty("profiler.ktor.client.enable", "true");
+        config.getProperties().setProperty("profiler.ktor.client.enable", "false");
 
         KtorPluginConfig pluginConfig = new KtorPluginConfig(config);
 
-        assertTrue(pluginConfig.isClientEnable());
+        assertFalse(pluginConfig.isClientEnable());
         assertTrue(pluginConfig.isClientParam());
         assertTrue(pluginConfig.isClientMarkError());
     }
