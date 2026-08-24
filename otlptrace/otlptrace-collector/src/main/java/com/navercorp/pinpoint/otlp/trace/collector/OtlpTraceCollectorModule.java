@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.collector.heatmap.HeatmapCollectorModule;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
+import com.navercorp.pinpoint.collector.uid.ServiceLookupConfiguration;
+import com.navercorp.pinpoint.collector.uid.StaticServiceLookupConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
@@ -56,6 +58,8 @@ import java.util.concurrent.Executor;
         ApplicationMapModule.class,
         TypeLoaderConfiguration.class,
 
+        ServiceLookupConfiguration.class,
+        StaticServiceLookupConfiguration.class,
         HeatmapCollectorModule.class,
 
         OtlpTraceCollectorPropertySources.class,
