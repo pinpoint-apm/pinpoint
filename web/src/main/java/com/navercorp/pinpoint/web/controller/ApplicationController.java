@@ -138,7 +138,7 @@ public class ApplicationController {
             );
         }
 
-        if (applicationIndexService.isExistApplicationName(applicationName)) {
+        if (applicationIndexService.isExistApplicationName(Service.DEFAULT, applicationName)) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "applicationName already exists");
         }
 

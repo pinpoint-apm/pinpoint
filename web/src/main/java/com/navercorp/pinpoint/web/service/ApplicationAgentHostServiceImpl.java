@@ -63,13 +63,13 @@ public class ApplicationAgentHostServiceImpl implements ApplicationAgentHostServ
 
     private List<AgentInfo> getAgentInfoList(Application application, long timestamp, int durationHours, Predicate<AgentInfo> agentInfoFilter) {
         if (durationHours <= 0) {
-            return applicationAgentListService.allAgentList(application.getApplicationName(), application.getServiceType(), timestamp, agentInfoFilter.and(ACTUAL_AGENT_INFO_PREDICATE)).stream()
+            return applicationAgentListService.allAgentList(application.getService(), application.getApplicationName(), application.getServiceType(), timestamp, agentInfoFilter.and(ACTUAL_AGENT_INFO_PREDICATE)).stream()
                     .map(AgentAndStatus::getAgentInfo)
                     .collect(Collectors.toList());
         } else {
             Range range = Range.between(timestamp - TimeUnit.HOURS.toMillis(durationHours), timestamp);
             TimeWindow timeWindow = new TimeWindow(range);
-            return applicationAgentListService.activeStatusAgentList(application.getApplicationName(), application.getServiceType(), timeWindow, agentInfoFilter).stream()
+            return applicationAgentListService.activeStatusAgentList(application.getService(), application.getApplicationName(), application.getServiceType(), timeWindow, agentInfoFilter).stream()
                     .map(AgentAndStatus::getAgentInfo)
                     .collect(Collectors.toList());
         }

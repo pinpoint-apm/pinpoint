@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
@@ -70,6 +71,7 @@ public class AgentsController {
 
     private final AgentsService agentsService;
     private final HyperLinkFactory hyperLinkFactory;
+    private final ServiceModelResolver serviceModelResolver;
     private final RangeValidator rangeValidator;
 
     public AgentsController(
@@ -78,6 +80,7 @@ public class AgentsController {
             ResponseTimeHistogramService responseTimeHistogramService,
             AgentsService agentsService,
             HyperLinkFactory hyperLinkFactory,
+            ServiceModelResolver serviceModelResolver,
             ConfigProperties configProperties) {
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
@@ -85,6 +88,7 @@ public class AgentsController {
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         this.agentsService = Objects.requireNonNull(agentsService, "agentsService");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
         Objects.requireNonNull(configProperties, "configProperties");
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
     }
@@ -101,7 +105,8 @@ public class AgentsController {
         final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule
                 .getByValue(query, ApplicationAgentListQueryRule.ALL);
         final long timestamp = System.currentTimeMillis();
-        final Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
         Range between = Range.between(timestamp, timestamp);
         TimeWindow timeWindow = new TimeWindow(between);
         return agentsService.getAgentsByApplicationName(
@@ -123,7 +128,8 @@ public class AgentsController {
             @RequestParam("to") Timestamp to,
             @RequestParam(value = "query", required = false) String query) {
         final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ACTIVE_STATUS);
-        final Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
@@ -161,12 +167,13 @@ public class AgentsController {
         rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        final Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceType.getCode());
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        final Application application = applicationFactory.createApplication(service, applicationName, serviceType.getCode());
 
         final List<Application> fromApplications =
-                pairsToList(applicationPairs.getFromApplications());
+                pairsToList(service, applicationPairs.getFromApplications());
         final List<Application> toApplications =
-                pairsToList(applicationPairs.getToApplications());
+                pairsToList(service, applicationPairs.getToApplications());
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
                 .Builder(application, timeWindow,
                 fromApplications, toApplications)
@@ -180,7 +187,7 @@ public class AgentsController {
         return AgentsFactory.extractVirtualNode(nodeHistogramSummary, hyperLinkFactory);
     }
 
-    private List<Application> pairsToList(List<ApplicationPair> applicationPairs) {
+    private List<Application> pairsToList(Service service, List<ApplicationPair> applicationPairs) {
         if (CollectionUtils.isEmpty(applicationPairs)) {
             return Collections.emptyList();
         }
@@ -188,7 +195,7 @@ public class AgentsController {
         for (ApplicationPair applicationPair : applicationPairs) {
             final String applicationName = applicationPair.getApplicationName();
             final int serviceTypeCode = applicationPair.getServiceTypeCode();
-            final Application application = this.applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
+            final Application application = this.applicationFactory.createApplication(service, applicationName, serviceTypeCode);
             applications.add(application);
         }
         return applications;
@@ -203,7 +210,7 @@ public class AgentsController {
             }
         }
         // return application without service type
-        return new Application(applicationName, ServiceType.UNDEFINED);
+        return new Application(service, applicationName, ServiceType.UNDEFINED);
     }
 
 }

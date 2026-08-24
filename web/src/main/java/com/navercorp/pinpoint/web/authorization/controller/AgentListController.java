@@ -5,8 +5,12 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,21 +30,28 @@ import java.util.Objects;
 @Validated
 public class AgentListController implements AccessDeniedExceptionHandler {
     private final AgentInfoService agentInfoService;
+    private final ServiceModelResolver serviceModelResolver;
     private final RangeValidator rangeValidator;
 
     public AgentListController(
             AgentInfoService agentInfoService,
+            ServiceModelResolver serviceModelResolver,
             ConfigProperties configProperties) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
         Objects.requireNonNull(configProperties, "configProperties");
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
     }
 
     @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/statistics")
-    public List<DetailedAgentAndStatus> getAllAgentStatistics() {
+    public List<DetailedAgentAndStatus> getAllAgentStatistics(
+            @ServiceParam ServiceName serviceName
+    ) {
         final long timestamp = System.currentTimeMillis();
+        final Service service = serviceModelResolver.getService(serviceName.getName());
         return this.agentInfoService.getAgentsStatisticsList(
+                        service,
                         Range.between(0, timestamp)
                 );
     }
@@ -48,12 +59,15 @@ public class AgentListController implements AccessDeniedExceptionHandler {
     @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/statistics", params = {"from", "to"})
     public List<DetailedAgentAndStatus> getAllAgentStatistics(
+            @ServiceParam ServiceName serviceName,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to
     ) {
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
         return this.agentInfoService.getAgentsStatisticsList(
+                        service,
                         range
                 );
     }

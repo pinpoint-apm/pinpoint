@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
-@Service
+@org.springframework.stereotype.Service
 public class AgentsServiceImpl implements AgentsService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -79,18 +79,19 @@ public class AgentsServiceImpl implements AgentsService {
             ApplicationAgentListQueryRule applicationAgentListQueryRule,
             AgentInfoFilter agentInfoFilter
     ) {
+        final Service service = application.getService();
         final String applicationName = application.getApplicationName();
         final ServiceType serviceType = application.getServiceType();
         final Range windowRange = timeWindow.getWindowRange();
         return switch (applicationAgentListQueryRule) {
             case ACTIVE_STATUS ->
-                    applicationAgentListService.activeStatusAgentList(applicationName, serviceType, timeWindow, agentInfoFilter);
+                    applicationAgentListService.activeStatusAgentList(service, applicationName, serviceType, timeWindow, agentInfoFilter);
             case ACTIVE_STATISTICS ->
-                    applicationAgentListService.activeStatisticsAgentList(applicationName, serviceType, timeWindow, agentInfoFilter);
+                    applicationAgentListService.activeStatisticsAgentList(service, applicationName, serviceType, timeWindow, agentInfoFilter);
             case ACTIVE_ALL ->
-                    applicationAgentListService.activeAllAgentList(applicationName, serviceType, timeWindow, agentInfoFilter);
+                    applicationAgentListService.activeAllAgentList(service, applicationName, serviceType, timeWindow, agentInfoFilter);
             case ALL ->
-                    applicationAgentListService.allAgentList(applicationName, serviceType, windowRange.getTo(), agentInfoFilter);
+                    applicationAgentListService.allAgentList(service, applicationName, serviceType, windowRange.getTo(), agentInfoFilter);
         };
     }
 }

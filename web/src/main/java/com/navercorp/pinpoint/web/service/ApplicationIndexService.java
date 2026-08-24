@@ -27,25 +27,22 @@ import java.util.List;
 @org.springframework.stereotype.Service
 public interface ApplicationIndexService {
 
-    List<Application> selectAllApplications();
-
     List<Application> selectAllApplications(Service service);
 
-    List<Application> selectApplication(String applicationName);
+    List<Application> selectApplication(Service service, String applicationName);
 
     @Deprecated
     void deleteApplicationName(String applicationName);
 
     void deleteApplication(Service service, String applicationName, int serviceTypeCode);
 
-    boolean isExistApplicationName(String applicationName);
+    boolean isExistApplicationName(Service service, String applicationName);
 
-    List<String> selectAgentIds(String applicationName);
+    List<String> selectAgentIds(Service service, String applicationName);
 
-    List<String> selectAgentIds(String applicationName, int serviceTypeCode);
+    List<String> selectAgentIds(Service service, String applicationName, int serviceTypeCode);
 
-    @Deprecated
-    void deleteAgentIds(String applicationName, List<String> agentIds);
+    void deleteAgentIds(Service service, String applicationName, List<String> agentIds);
 
     void deleteAgentIds(Service service, String applicationName, int serviceTypeCode, List<String> agentIds);
 
