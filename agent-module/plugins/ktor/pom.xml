@@ -27,6 +27,11 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-profiler</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>io.ktor</groupId>
