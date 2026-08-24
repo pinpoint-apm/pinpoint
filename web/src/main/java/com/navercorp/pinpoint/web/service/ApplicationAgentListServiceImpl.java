@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
@@ -33,7 +34,6 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,7 +45,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
-@Service
+@org.springframework.stereotype.Service
 public class ApplicationAgentListServiceImpl implements ApplicationAgentListService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -77,8 +77,8 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     }
 
     @Override
-    public List<AgentAndStatus> allAgentList(String applicationName, ServiceType serviceType, long toTimestamp, Predicate<AgentInfo> agentInfoPredicate) {
-        final List<String> agentIds = this.applicationIndexService.selectAgentIds(applicationName);
+    public List<AgentAndStatus> allAgentList(Service service, String applicationName, ServiceType serviceType, long toTimestamp, Predicate<AgentInfo> agentInfoPredicate) {
+        final List<String> agentIds = this.applicationIndexService.selectAgentIds(service, applicationName);
         final List<AgentInfo> agentInfoList = getNullHandledAgentInfo(applicationName, serviceType, agentIds, toTimestamp);
         final Predicate<AgentInfo> agentServiceTypeFilter = getServiceTypeFilter(serviceType);
 
@@ -91,10 +91,10 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     }
 
     @Override
-    public List<AgentAndStatus> activeStatusAgentList(String applicationName, ServiceType serviceType, TimeWindow timeWindow, Predicate<AgentInfo> agentInfoPredicate) {
+    public List<AgentAndStatus> activeStatusAgentList(Service service, String applicationName, ServiceType serviceType, TimeWindow timeWindow, Predicate<AgentInfo> agentInfoPredicate) {
 
         Range range = timeWindow.getWindowRange();
-        final List<String> agentIds = this.applicationIndexService.selectAgentIds(applicationName);
+        final List<String> agentIds = this.applicationIndexService.selectAgentIds(service, applicationName);
         final List<AgentInfo> agentInfoList = getNullHandledAgentInfo(applicationName, serviceType, agentIds, range.getTo());
         final Predicate<AgentInfo> agentServiceTypeFilter = getServiceTypeFilter(serviceType);
 
@@ -135,12 +135,13 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     }
 
     @Override
-    public List<AgentAndStatus> activeStatisticsAgentList(String applicationName,
+    public List<AgentAndStatus> activeStatisticsAgentList(Service service,
+                                                          String applicationName,
                                                           ServiceType serviceType,
                                                           TimeWindow timeWindow,
                                                           Predicate<AgentInfo> agentInfoPredicate) {
         Range range = timeWindow.getWindowRange();
-        final List<String> agentIds = getActiveAgentIdsFromStatistics(applicationName, serviceType, timeWindow);
+        final List<String> agentIds = getActiveAgentIdsFromStatistics(service, applicationName, serviceType, timeWindow);
         final List<AgentInfo> agentInfoList = getNullHandledAgentInfo(applicationName, serviceType, agentIds, range.getTo());
 
         List<AgentAndStatus> result = agentInfoList.stream()
@@ -151,13 +152,13 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
         return result;
     }
 
-    private List<String> getActiveAgentIdsFromStatistics(String applicationName, ServiceType serviceType, TimeWindow timeWindow) {
+    private List<String> getActiveAgentIdsFromStatistics(Service service, String applicationName, ServiceType serviceType, TimeWindow timeWindow) {
         if (isValidServiceType(serviceType)) {
-            return List.copyOf(getAgentIdsFromStatistics(new Application(applicationName, serviceType), timeWindow));
+            return List.copyOf(getAgentIdsFromStatistics(new Application(service, applicationName, serviceType), timeWindow));
         }
 
         // find all serviceType with applicationName
-        List<Application> applications = applicationIndexService.selectApplication(applicationName);
+        List<Application> applications = applicationIndexService.selectApplication(service, applicationName);
         Set<String> result = new HashSet<>();
         for (Application application : applications) {
             result.addAll(getAgentIdsFromStatistics(application, timeWindow));
@@ -196,12 +197,13 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     }
 
     @Override
-    public List<AgentAndStatus> activeAllAgentList(String applicationName,
+    public List<AgentAndStatus> activeAllAgentList(Service service,
+                                                   String applicationName,
                                                    ServiceType serviceType,
                                                    TimeWindow timeWindow,
                                                    Predicate<AgentInfo> agentInfoPredicate) {
-        final List<AgentAndStatus> activeStatusAgentList = activeStatusAgentList(applicationName, serviceType, timeWindow, agentInfoPredicate);
-        final List<AgentAndStatus> activeResponseAgentList = activeStatisticsAgentList(applicationName, serviceType, timeWindow, agentInfoPredicate);
+        final List<AgentAndStatus> activeStatusAgentList = activeStatusAgentList(service, applicationName, serviceType, timeWindow, agentInfoPredicate);
+        final List<AgentAndStatus> activeResponseAgentList = activeStatisticsAgentList(service, applicationName, serviceType, timeWindow, agentInfoPredicate);
 
         Set<AgentAndStatus> result = new HashSet<>();
         result.addAll(activeStatusAgentList);

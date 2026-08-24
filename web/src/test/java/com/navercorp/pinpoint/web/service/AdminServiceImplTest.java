@@ -110,7 +110,7 @@ public class AdminServiceImplTest {
     public void whenApplicationDoesNotHaveAnyAgentIdsGetAgentIdMapReturnsEmptyMap() {
         // given
         List<Application> emptyApplicationList = List.of();
-        when(applicationIndexService.selectAllApplications()).thenReturn(emptyApplicationList);
+        when(applicationIndexService.selectAllApplications(eq(Service.DEFAULT))).thenReturn(emptyApplicationList);
 
         // when
         Map<String, List<Application>> agentIdMap = adminService.getAgentIdMap();
@@ -122,17 +122,17 @@ public class AdminServiceImplTest {
     @Test
     public void testDuplicateAgentIdMap() {
         // given
-        when(applicationIndexService.selectAllApplications())
+        when(applicationIndexService.selectAllApplications(eq(Service.DEFAULT)))
                 .thenReturn(List.of(
                         new Application(APPLICATION_NAME1, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME2, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME3, ServiceType.UNDEFINED)));
 
-        when(applicationIndexService.selectAgentIds(eq(APPLICATION_NAME1)))
+        when(applicationIndexService.selectAgentIds(eq(Service.DEFAULT), eq(APPLICATION_NAME1)))
                 .thenReturn(List.of(AGENT_ID1, AGENT_ID2, AGENT_ID3));
-        when(applicationIndexService.selectAgentIds(eq(APPLICATION_NAME2)))
+        when(applicationIndexService.selectAgentIds(eq(Service.DEFAULT), eq(APPLICATION_NAME2)))
                 .thenReturn(List.of(AGENT_ID2, AGENT_ID3));
-        when(applicationIndexService.selectAgentIds(eq(APPLICATION_NAME3)))
+        when(applicationIndexService.selectAgentIds(eq(Service.DEFAULT), eq(APPLICATION_NAME3)))
                 .thenReturn(List.of(AGENT_ID1));
 
         // then

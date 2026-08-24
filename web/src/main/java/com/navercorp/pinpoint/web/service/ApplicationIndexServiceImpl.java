@@ -49,18 +49,13 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     }
 
     @Override
-    public List<Application> selectAllApplications() {
-        return selectAllApplications(Service.DEFAULT);
-    }
-
-    @Override
     public List<Application> selectAllApplications(Service service) {
         return this.applicationDao.getApplications(service.getServiceUid().getUid());
     }
 
     @Override
-    public List<Application> selectApplication(String applicationName) {
-        return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
+    public List<Application> selectApplication(Service service, String applicationName) {
+        return this.applicationDao.getApplications(service.getServiceUid().getUid(), applicationName);
     }
 
     @Deprecated
@@ -82,16 +77,16 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     }
 
     @Override
-    public boolean isExistApplicationName(String applicationName) {
+    public boolean isExistApplicationName(Service service, String applicationName) {
         if (applicationName == null) {
             return false;
         }
-        return !applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName).isEmpty();
+        return !applicationDao.getApplications(service.getServiceUid().getUid(), applicationName).isEmpty();
     }
 
     @Override
-    public List<String> selectAgentIds(String applicationName) {
-        return this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName).stream()
+    public List<String> selectAgentIds(Service service, String applicationName) {
+        return this.agentIdDao.getAgentIdEntry(service.getServiceUid().getUid(), applicationName).stream()
                 .map(AgentIdEntry::getAgentId)
                 .distinct()
                 .sorted()
@@ -99,8 +94,8 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     }
 
     @Override
-    public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
-        return agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode).stream()
+    public List<String> selectAgentIds(Service service, String applicationName, int serviceTypeCode) {
+        return agentIdDao.getAgentIdEntry(service.getServiceUid().getUid(), applicationName, serviceTypeCode).stream()
                 .map(AgentIdEntry::getAgentId)
                 .distinct()
                 .sorted()
@@ -108,11 +103,11 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     }
 
     @Override
-    @Deprecated
-    public void deleteAgentIds(String applicationName, List<String> agentIds) {
-        List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
+    public void deleteAgentIds(Service service, String applicationName, List<String> agentIds) {
+        logger.info("delete AgentIds. applicationName:{}, agentIds:{}", applicationName, agentIds);
+        List<Application> applicationList = this.applicationDao.getApplications(service.getServiceUid().getUid(), applicationName);
         for (Application application : applicationList) {
-            deleteAgentIds(application.getService().getServiceUid().getUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
+            deleteAgentIds(service.getServiceUid().getUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
         }
     }
 
@@ -125,7 +120,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     @Deprecated
     public void deleteAgentId(String applicationName, String agentId) {
-        deleteAgentIds(applicationName, List.of(agentId));
+        deleteAgentIds(Service.DEFAULT, applicationName, List.of(agentId));
     }
 
     @Override

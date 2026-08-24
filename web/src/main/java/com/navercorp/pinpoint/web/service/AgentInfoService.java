@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
@@ -34,7 +35,7 @@ import java.util.Optional;
  */
 public interface AgentInfoService {
 
-    List<DetailedAgentAndStatus> getAgentsStatisticsList(Range range);
+    List<DetailedAgentAndStatus> getAgentsStatisticsList(Service service, Range range);
 
     @Deprecated
     List<AgentInfo> getAgentInfoByApplicationName(String applicationName, long timestamp);

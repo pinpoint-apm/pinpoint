@@ -82,7 +82,7 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
 
-        List<Application> applications = this.applicationIndexService.selectAllApplications();
+        List<Application> applications = this.applicationIndexService.selectAllApplications(Service.DEFAULT);
 
 
         int index = 1;
@@ -142,15 +142,15 @@ public class AdminServiceImpl implements AdminService {
 
     private List<String> selectAgentIds(String applicationName, Integer serviceTypeCode) {
         if (serviceTypeCode == null) {
-            return this.applicationIndexService.selectAgentIds(applicationName);
+            return this.applicationIndexService.selectAgentIds(Service.DEFAULT, applicationName);
         } else {
-            return this.applicationIndexService.selectAgentIds(applicationName, serviceTypeCode);
+            return this.applicationIndexService.selectAgentIds(Service.DEFAULT, applicationName, serviceTypeCode);
         }
     }
 
     private void deleteAgentInfos(String applicationName, Integer serviceTypeCode, List<String> agentsToDelete) {
         if (serviceTypeCode == null) {
-            applicationIndexService.deleteAgentIds(applicationName, agentsToDelete);
+            applicationIndexService.deleteAgentIds(Service.DEFAULT, applicationName, agentsToDelete);
         } else {
             applicationIndexService.deleteAgentIds(Service.DEFAULT, applicationName, serviceTypeCode, agentsToDelete);
         }
@@ -159,9 +159,9 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Map<String, List<Application>> getAgentIdMap() {
         Map<String, List<Application>> agentIdMap = new TreeMap<>();
-        List<Application> applications = this.applicationIndexService.selectAllApplications();
+        List<Application> applications = this.applicationIndexService.selectAllApplications(Service.DEFAULT);
         for (Application application : applications) {
-            List<String> agentIds = this.applicationIndexService.selectAgentIds(application.getApplicationName());
+            List<String> agentIds = this.applicationIndexService.selectAgentIds(application.getService(), application.getApplicationName());
             for (String agentId : agentIds) {
                 List<Application> applicationList = agentIdMap.computeIfAbsent(agentId, k -> new ArrayList<>());
                 applicationList.add(application);
@@ -191,7 +191,7 @@ public class AdminServiceImpl implements AdminService {
         if (durationDays < MIN_DURATION_DAYS_FOR_INACTIVITY) {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
-        List<String> agentIds = this.applicationIndexService.selectAgentIds(applicationName);
+        List<String> agentIds = this.applicationIndexService.selectAgentIds(Service.DEFAULT, applicationName);
         if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyMap();
         }

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
@@ -40,7 +41,6 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegme
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * @author netspider
  * @author HyunGil Jeong
  */
-@Service
+@org.springframework.stereotype.Service
 public class AgentInfoServiceImpl implements AgentInfoService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -77,8 +77,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public List<DetailedAgentAndStatus> getAgentsStatisticsList(Range range) {
-        List<Application> applicationList = applicationIndexService.selectAllApplications();
+    public List<DetailedAgentAndStatus> getAgentsStatisticsList(Service service, Range range) {
+        List<Application> applicationList = applicationIndexService.selectAllApplications(service);
 
         List<DetailedAgentAndStatus> agents = new ArrayList<>();
         for (Application application : applicationList) {
@@ -114,7 +114,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
 
-        List<String> agentIds = this.applicationIndexService.selectAgentIds(application.getApplicationName(), application.getServiceTypeCode());
+        List<String> agentIds = this.applicationIndexService.selectAgentIds(application.getService(), application.getApplicationName(), application.getServiceTypeCode());
         List<DetailedAgentInfo> agentInfos = this.agentInfoDao.findDetailedAgentInfos(agentIds, timestamp, AgentInfoQuery.jvm());
 
         return agentInfos.stream()
@@ -130,7 +130,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
 
-        List<String> agentIds = this.applicationIndexService.selectAgentIds(applicationName);
+        List<String> agentIds = this.applicationIndexService.selectAgentIds(Service.DEFAULT, applicationName);
         List<AgentInfo> agentInfos = this.agentInfoDao.findAgentInfos(agentIds, timestamp);
         return agentInfos.stream()
                 .filter(Objects::nonNull)

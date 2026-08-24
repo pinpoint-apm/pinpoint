@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ClusterKeyAndMetadata;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 
@@ -52,7 +53,7 @@ class AgentLookupServiceImpl implements AgentLookupService {
         Range between = Range.between(from, now);
         TimeWindow timeWindow = new TimeWindow(between);
 
-        return intoClusterKeyAndMetadataList(this.applicationAgentListService.activeStatisticsAgentList(applicationName, null,
+        return intoClusterKeyAndMetadataList(this.applicationAgentListService.activeStatisticsAgentList(Service.DEFAULT, applicationName, null,
                 timeWindow,
                 ACTUAL_AGENT_INFO_PREDICATE
         ));

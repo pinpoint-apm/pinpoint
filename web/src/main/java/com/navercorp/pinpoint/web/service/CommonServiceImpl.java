@@ -37,7 +37,7 @@ public class CommonServiceImpl implements CommonService {
 
     @Override
     public List<Application> selectAllApplicationNames() {
-        return applicationIndexService.selectAllApplications();
+        return applicationIndexService.selectAllApplications(Service.DEFAULT);
     }
 
     @Override
