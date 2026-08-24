@@ -30,6 +30,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.ktor.client.KtorClientContinuationConstructorInterceptor;
+import com.navercorp.pinpoint.plugin.ktor.client.KtorClientContinuationInterceptor;
+import com.navercorp.pinpoint.plugin.ktor.client.KtorClientSendInterceptor;
+import com.navercorp.pinpoint.plugin.ktor.client.KtorClientTraceAccessor;
 import com.navercorp.pinpoint.plugin.ktor.interceptor.ConfigureRoutingFactoryInterceptor;
 import com.navercorp.pinpoint.plugin.ktor.interceptor.NettyApplicationCallHandlerInterceptor;
 import com.navercorp.pinpoint.plugin.ktor.interceptor.NettyHttp1HandlerHandleRequestInterceptor;
@@ -70,6 +74,12 @@ public class KtorPlugin implements ProfilerPlugin, MatchableTransformTemplateAwa
         transformTemplate.transform("io.ktor.util.pipeline.SuspendFunctionGun", SuspendFunctionGunTransform.class);
         if (config.isRetransformConfigureRouting()) {
             transformTemplate.transform("io.ktor.server.routing.Route", RouteTransform.class);
+        }
+
+        // Client
+        if (config.isClientEnable()) {
+            transformTemplate.transform("io.ktor.client.plugins.HttpSend$DefaultSender", KtorClientDefaultSenderTransform.class);
+            transformTemplate.transform("io.ktor.client.plugins.HttpSend$DefaultSender$execute$1", KtorClientDefaultSenderContinuationTransform.class);
         }
     }
 
@@ -147,6 +157,59 @@ public class KtorPlugin implements ProfilerPlugin, MatchableTransformTemplateAwa
             final RouteMethodTransformer routeMethodTransformer = new RouteMethodTransformer(Boolean.FALSE);
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("handle"))) {
                 method.addInterceptor(ConfigureRoutingFactoryInterceptor.class, va(routeMethodTransformer));
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class KtorClientDefaultSenderTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(
+                Instrumentor instrumentor,
+                ClassLoader loader,
+                String className,
+                Class<?> classBeingRedefined,
+                ProtectionDomain protectionDomain,
+                byte[] classfileBuffer
+        ) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            final InstrumentMethod execute = target.getDeclaredMethod(
+                    "execute",
+                    "io.ktor.client.request.HttpRequestBuilder",
+                    "kotlin.coroutines.Continuation"
+            );
+            if (execute != null) {
+                execute.addInterceptor(KtorClientSendInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class KtorClientDefaultSenderContinuationTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(
+                Instrumentor instrumentor,
+                ClassLoader loader,
+                String className,
+                Class<?> classBeingRedefined,
+                ProtectionDomain protectionDomain,
+                byte[] classfileBuffer
+        ) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(KtorClientTraceAccessor.class);
+
+            final InstrumentMethod constructor = target.getConstructor(
+                    "io.ktor.client.plugins.HttpSend$DefaultSender",
+                    "kotlin.coroutines.Continuation"
+            );
+            if (constructor != null) {
+                constructor.addInterceptor(KtorClientContinuationConstructorInterceptor.class);
+            }
+
+            final InstrumentMethod invokeSuspend = target.getDeclaredMethod("invokeSuspend", "java.lang.Object");
+            if (invokeSuspend != null) {
+                invokeSuspend.addInterceptor(KtorClientContinuationInterceptor.class);
             }
 
             return target.toBytecode();

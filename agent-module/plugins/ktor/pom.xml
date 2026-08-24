@@ -40,6 +40,18 @@
             <version>2.3.12</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-core-jvm</artifactId>
+            <version>2.3.12</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core-jvm</artifactId>
+            <version>1.7.3</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
