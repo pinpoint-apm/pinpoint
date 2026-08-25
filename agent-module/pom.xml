@@ -52,6 +52,12 @@
     <properties>
         <jetty9-version>9.4.57.v20241219</jetty9-version>
         <postgresql-jdbc-version>42.3.10</postgresql-jdbc-version>
+
+        <!-- START : plugins-it, agent-testweb dependency -->
+        <plugins-ning-asynchttpclient.version>1.8.17</plugins-ning-asynchttpclient.version>
+        <plugins-org-asynchttpclient.version>2.0.40</plugins-org-asynchttpclient.version>
+
+        <!-- END : plugins-it, agent-testweb dependency -->
     </properties>
 
 
