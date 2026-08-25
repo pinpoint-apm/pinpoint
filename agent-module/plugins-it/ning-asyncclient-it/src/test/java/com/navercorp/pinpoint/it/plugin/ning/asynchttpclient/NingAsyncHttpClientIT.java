@@ -58,13 +58,9 @@ public class NingAsyncHttpClientIT {
 
     @Test
     public void test() throws Exception {
-        AsyncHttpClient client = new AsyncHttpClient();
-        
-        try {
+        try (AsyncHttpClient client = new AsyncHttpClient()) {
             Future<Response> f = client.preparePost(webServer.getCallHttpUrl()).addParameter("param1", "value1").execute();
             Response response = f.get();
-        } finally {
-            client.close();
         }
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
