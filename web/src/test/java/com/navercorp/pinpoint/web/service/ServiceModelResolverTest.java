@@ -32,7 +32,7 @@ class ServiceModelResolverTest {
         ServiceModelResolver resolver = new ServiceModelResolver(serviceRegistryService);
 
         assertThat(resolver.getService(Service.DEFAULT.getServiceName())).isEqualTo(Service.DEFAULT);
-        assertThat(resolver.getService(Service.DEFAULT.getServiceUid().getUid())).isEqualTo(Service.DEFAULT);
+        assertThat(resolver.getService(Service.DEFAULT.getServiceUid())).isEqualTo(Service.DEFAULT);
 
         Mockito.verifyNoInteractions(serviceRegistryService);
     }

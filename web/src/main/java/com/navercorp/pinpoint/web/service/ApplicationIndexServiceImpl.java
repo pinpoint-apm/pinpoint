@@ -50,12 +50,12 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<Application> selectAllApplications(Service service) {
-        return this.applicationDao.getApplications(service.getServiceUid().getUid());
+        return this.applicationDao.getApplications(service.getServiceUid());
     }
 
     @Override
     public List<Application> selectApplication(Service service, String applicationName) {
-        return this.applicationDao.getApplications(service.getServiceUid().getUid(), applicationName);
+        return this.applicationDao.getApplications(service.getServiceUid(), applicationName);
     }
 
     @Deprecated
@@ -69,7 +69,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public void deleteApplication(Service service, String applicationName, int serviceTypeCode) {
-        deleteApplication(service.getServiceUid().getUid(), applicationName, serviceTypeCode);
+        deleteApplication(service.getServiceUid(), applicationName, serviceTypeCode);
     }
 
     private void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode) {
@@ -81,12 +81,12 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         if (applicationName == null) {
             return false;
         }
-        return !applicationDao.getApplications(service.getServiceUid().getUid(), applicationName).isEmpty();
+        return !applicationDao.getApplications(service.getServiceUid(), applicationName).isEmpty();
     }
 
     @Override
     public List<String> selectAgentIds(Service service, String applicationName) {
-        return this.agentIdDao.getAgentIdEntry(service.getServiceUid().getUid(), applicationName).stream()
+        return this.agentIdDao.getAgentIdEntry(service.getServiceUid(), applicationName).stream()
                 .map(AgentIdEntry::getAgentId)
                 .distinct()
                 .sorted()
@@ -95,7 +95,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public List<String> selectAgentIds(Service service, String applicationName, int serviceTypeCode) {
-        return agentIdDao.getAgentIdEntry(service.getServiceUid().getUid(), applicationName, serviceTypeCode).stream()
+        return agentIdDao.getAgentIdEntry(service.getServiceUid(), applicationName, serviceTypeCode).stream()
                 .map(AgentIdEntry::getAgentId)
                 .distinct()
                 .sorted()
@@ -105,16 +105,16 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     public void deleteAgentIds(Service service, String applicationName, List<String> agentIds) {
         logger.info("delete AgentIds. applicationName:{}, agentIds:{}", applicationName, agentIds);
-        List<Application> applicationList = this.applicationDao.getApplications(service.getServiceUid().getUid(), applicationName);
+        List<Application> applicationList = this.applicationDao.getApplications(service.getServiceUid(), applicationName);
         for (Application application : applicationList) {
-            deleteAgentIds(service.getServiceUid().getUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
+            deleteAgentIds(service.getServiceUid(), application.getApplicationName(), application.getServiceTypeCode(), agentIds);
         }
     }
 
     @Override
     public void deleteAgentIds(Service service, String applicationName, int serviceTypeCode, List<String> agentIds) {
         logger.info("delete AgentIds. applicationName:{}, serviceTypeCode:{}, agentIds:{}", applicationName, serviceTypeCode, agentIds);
-        deleteAgentIds(service.getServiceUid().getUid(), applicationName, serviceTypeCode, agentIds);
+        deleteAgentIds(service.getServiceUid(), applicationName, serviceTypeCode, agentIds);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     public void deleteAgentId(Service service, String applicationName, int serviceTypeCode, String agentId) {
         logger.info("delete AgentId. applicationName:{}, serviceTypeCode:{}, agentId:{}", applicationName, serviceTypeCode, agentId);
-        deleteAgentId(service.getServiceUid().getUid(), applicationName, serviceTypeCode, agentId);
+        deleteAgentId(service.getServiceUid(), applicationName, serviceTypeCode, agentId);
     }
 
     private void deleteAgentId(int serviceUid, String applicationName, int serviceTypeCode, String agentId) {

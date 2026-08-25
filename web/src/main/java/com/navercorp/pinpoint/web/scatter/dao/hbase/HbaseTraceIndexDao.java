@@ -118,7 +118,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
             throw new IllegalArgumentException("negative limitWithTies:" + limitWithTies);
         }
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
-        final int serviceUid = service.getServiceUid().getUid();
+        final int serviceUid = service.getServiceUid();
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
 
         RowMapper<List<Dot>> dotMapper = new TraceIndexDotMapper(TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName));
@@ -143,7 +143,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         DragArea dragArea = dragAreaQuery.getDragArea();
         Range range = Range.unchecked(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceScatterData-range:{}", range);
-        final int serviceUid = service.getServiceUid().getUid();
+        final int serviceUid = service.getServiceUid();
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
         setHbaseFilter(scan, dragAreaQuery, rpcRegex);
         scan.addFamily(META.getName());

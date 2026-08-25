@@ -15,8 +15,9 @@ public class ServiceModelResolver {
     }
 
     public Service getService(int serviceUid) {
-        if (Service.DEFAULT.getServiceUid().getUid() == serviceUid) {
-            return Service.DEFAULT;
+        final Service wellKnown = Service.wellKnownService(serviceUid);
+        if (wellKnown != null) {
+            return wellKnown;
         }
         Service service = resolveService(serviceUid);
         if (service == null) {
@@ -26,8 +27,9 @@ public class ServiceModelResolver {
     }
 
     public Service getService(String serviceName) {
-        if (Service.DEFAULT.getServiceName().equals(serviceName)) {
-            return Service.DEFAULT;
+        final Service wellKnown = Service.wellKnownService(serviceName);
+        if (wellKnown != null) {
+            return wellKnown;
         }
         Service service = resolveService(serviceName);
         if (service == null) {

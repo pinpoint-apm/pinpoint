@@ -86,7 +86,7 @@ public class HbaseMapAgentResponseTimeDao implements MapAgentResponseDao {
         }
 
         Range windowRange = timeWindow.getWindowRange();
-        Scan scan = scanFactory.createScan("MAgeRes", application.getService().getServiceUid().getUid(), application, windowRange, table.getName());
+        Scan scan = scanFactory.createScan("MAgeRes", application.getService().getServiceUid(), application, windowRange, table.getName());
 
         ResultsExtractor<List<ResponseTime>> resultsExtractor = resultExtractFactory.newMapper(timeWindow, application);
 

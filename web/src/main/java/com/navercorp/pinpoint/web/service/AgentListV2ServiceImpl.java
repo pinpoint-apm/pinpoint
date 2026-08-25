@@ -50,7 +50,7 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
 
     @Override
     public List<AgentIdEntry> getAllAgentList(Service service, String applicationName, ServiceType serviceType) {
-        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(service.getServiceUid().getUid(), applicationName, serviceType.getCode());
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(service.getServiceUid(), applicationName, serviceType.getCode());
         return dedupeConsecutiveAgentId(agentIdEntryList);
     }
 
@@ -66,7 +66,7 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
      * For service types that may not send steady pings — fetch all entries, then filter by span statistics.
      */
     private List<AgentIdEntry> getActiveAgentListByStatistics(Service service, String applicationName, ServiceType serviceType, Range range) {
-        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(service.getServiceUid().getUid(), applicationName, serviceType.getCode());
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(service.getServiceUid(), applicationName, serviceType.getCode());
         agentIdEntryList = filterByAgentStartTime(agentIdEntryList, range);
         agentIdEntryList = dedupeConsecutiveAgentId(agentIdEntryList);
 
@@ -81,7 +81,7 @@ public class AgentListV2ServiceImpl implements AgentListV2Service {
      * For service types that send pings — filter by status timestamp.
      */
     private List<AgentIdEntry> getActiveAgentListByStatus(Service service, String applicationName, ServiceType serviceType, Range range) {
-        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntryByMinStateTimestamp(service.getServiceUid().getUid(), applicationName, serviceType.getCode(), range.getFrom());
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntryByMinStateTimestamp(service.getServiceUid(), applicationName, serviceType.getCode(), range.getFrom());
         agentIdEntryList = filterByAgentStartTime(agentIdEntryList, range);
         agentIdEntryList = dedupeConsecutiveAgentId(agentIdEntryList);
         return agentIdEntryList;
