@@ -82,7 +82,7 @@ class OtlpTraceMapperTest {
         };
     }
 
-    private static OtlpTraceMapper newMapper() {
+    static OtlpTraceMapper newMapper() {
         ObjectMapper json = new ObjectMapper();
         OtlpTraceEventMapper eventMapper = new OtlpTraceEventMapper(json, 8192);
         OtlpExceptionInfoResolver exceptionInfoResolver = new OtlpExceptionInfoResolver();

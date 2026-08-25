@@ -116,7 +116,7 @@ public class OtlpTraceMapper {
                         // the stored transaction (root SpanBo) via (transactionId, rootSpanId).
                         final Map<String, AttributeValue> rootAttributes =
                                 OtlpTraceMapperUtils.getAttributeValueMap(rootSpan.getAttributesList());
-                        final String rootUriTemplate = spanMapper.getServerSpanToRpc(rootSpan, rootAttributes);
+                        final String rootUriTemplate = spanMapper.getServerSpanToRpc(rootSpan, rootAttributes, rootScopedSpan.scope());
                         final long rootSpanId = OtlpTraceMapperUtils.getSpanId(rootSpan.getSpanId());
 
                         final SpanBo spanBo = spanMapper.map(idAndName, rootSpan, rootScopedSpan.scope(), agentStartTime);
