@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-testweb</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-micronaut-opentelemetry-testweb</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <!-- Micronaut 5.x is compiled for Java 25 (class file 69.0): compile, run AND the Maven JVM itself must be JDK 25.
+             jdk.home = the JVM running Maven (JAVA_HOME=<jdk25>). -->
+        <jdk.version>25</jdk.version>
+        <jdk.home>${java.home}</jdk.home>
+        <micronaut.platform.version>5.1.2</micronaut.platform.version>
+        <micronaut.core.version>5.1.12</micronaut.core.version>
+        <micronaut.serialization.version>3.1.1</micronaut.serialization.version>
+        <!-- the pinpoint parent pins the netty artifacts with netty4.version (4.1.x); Micronaut 5 needs Netty 4.2 -->
+        <netty4.version>4.2.17.Final</netty4.version>
+
+        <!-- OTel SDK app: the pinpoint agent must NOT be attached (duplicate instrumentation).
+             Reused as the packaging switch: -Dspring-boot-build-skip=false builds the shaded exec jar. -->
+        <spring-boot-build-skip>true</spring-boot-build-skip>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.micronaut.platform</groupId>
+                <artifactId>micronaut-platform</artifactId>
+                <version>${micronaut.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-http-server-netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-http-client</artifactId>
+        </dependency>
+        <!-- the JSON error-response provider of the HTTP server needs a JSON codec at startup -->
+        <dependency>
+            <groupId>io.micronaut.serde</groupId>
+            <artifactId>micronaut-serde-jackson</artifactId>
+        </dependency>
+        <!-- OTel SDK autoconfigure (otel.*) + HTTP server/client filters + @NewSpan/@WithSpan -->
+        <dependency>
+            <groupId>io.micronaut.tracing</groupId>
+            <artifactId>micronaut-tracing-opentelemetry-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <parameters>true</parameters>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.micronaut</groupId>
+                            <artifactId>micronaut-inject-java</artifactId>
+                            <version>${micronaut.core.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.micronaut.serde</groupId>
+                            <artifactId>micronaut-serde-processor</artifactId>
+                            <version>${micronaut.serialization.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Amicronaut.processing.group=com.pinpoint.test</arg>
+                        <arg>-Amicronaut.processing.module=micronaut-opentelemetry-testweb</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <!-- JDK 25 is required (also for Maven itself):
+                 JAVA_HOME=<jdk25> ./mvnw -Potel-framework-testweb -pl agent-module/agent-testweb/micronaut-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${spring-boot-build-skip}</skip>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>exec</shadedClassifierName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.pinpoint.test.micronautotel.MicronautOpenTelemetryTestApplication</mainClass>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

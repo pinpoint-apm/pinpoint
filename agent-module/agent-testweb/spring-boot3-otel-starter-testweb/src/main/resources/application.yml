@@ -1,0 +1,35 @@
+server:
+  port: 18081
+
+logging:
+  level:
+    root: info
+    # exporters log only on failure ("Failed to export spans"); no such log means export succeeded
+    io.opentelemetry.exporter: info
+
+# OpenTelemetry Spring Boot Starter (otel.* = SDK autoconfigure keys)
+otel:
+  traces:
+    # add ",logging-otlp" to also dump every exported span as OTLP JSON
+    exporter: otlp
+  metrics:
+    exporter: none
+  logs:
+    exporter: none
+  exporter:
+    otlp:
+      # the app's existing OTLP backend. Default protocol is http/protobuf (NOT grpc).
+      endpoint: http://localhost:4317
+      protocol: grpc
+  resource:
+    attributes:
+      # the starter auto-generates service.instance.id (UUID) and host/os/process resource attributes
+      pinpoint.applicationName: otel-starter-testweb
+      pinpoint.agentName: otel-starter-testweb-001
+
+# Pinpoint exporter (additional AutoConfigurationCustomizerProvider bean)
+pinpoint:
+  otel:
+    trace:
+      enabled: true
+      endpoint: http://localhost:9998

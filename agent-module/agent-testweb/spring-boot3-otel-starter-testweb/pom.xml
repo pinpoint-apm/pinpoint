@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-testweb</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-spring-boot3-otel-starter-testweb</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <jdk.version>17</jdk.version>
+        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
+        <spring.version>${spring6.version}</spring.version>
+        <spring-boot.version>${spring-boot3.version}</spring-boot.version>
+        <jakarta.annotation-api.version>${jakarta.annotation-api2.version}</jakarta.annotation-api.version>
+        <jaxb.version>${jaxb4.version}</jaxb.version>
+        <opentelemetry-instrumentation.version>2.28.1</opentelemetry-instrumentation.version>
+
+        <!-- OTel SDK app: the pinpoint agent must NOT be attached (duplicate instrumentation) -->
+        <spring-boot-build-skip>true</spring-boot-build-skip>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- pinpoint-plugins-bom pins okhttp 3.8.1 (plugin target); the OTel OTLP sender needs okhttp 4.x -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>4.12.0</version>
+            </dependency>
+            <!-- the OTel instrumentation BOM must come before spring-boot-dependencies -->
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>${opentelemetry-instrumentation.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+
+        <!-- OpenTelemetry Spring Boot Starter (OTel SDK autoconfigure + Spring instrumentation, no javaagent) -->
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-spring-boot-starter</artifactId>
+        </dependency>
+        <!-- otel.traces.exporter=otlp,logging-otlp -> additionally dump spans as OTLP JSON -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-logging-otlp</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- jdk 17 is required: ./mvnw -Pjdk17 -pl agent-module/agent-testweb/spring-boot3-otel-starter-testweb package -Dspring-boot-build-skip=false -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>${spring-boot-build-skip}</skip>
+                    <!-- this app is instrumented by its own OTel SDK: never attach the pinpoint agent -->
+                    <agents combine.self="override"/>
+                    <jvmArguments combine.self="override"/>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
