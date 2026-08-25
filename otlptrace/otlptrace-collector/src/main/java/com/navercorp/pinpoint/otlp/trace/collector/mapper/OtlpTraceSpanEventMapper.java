@@ -197,13 +197,23 @@ public class OtlpTraceSpanEventMapper {
         // SpanEventRecorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, ...). Only the consumed
         // raw key is excluded below, so a non-promoted variant survives. Fires only when an HTTP
         // status attribute is present (gRPC clients carry rpc.grpc.status_code instead → no-op).
-        final OtlpHttpStatusResolver.ResponseStatus responseStatus = OtlpHttpStatusResolver.resolve(attributes);
+        // Spring Boot micrometer-tracing bridge (Micrometer key names, see OtlpMicrometerAttributes): its
+        // string-typed `status` / `method` complement the semconv keys on HTTP client spans only — on
+        // @Observed (INTERNAL) spans `method` is the Java method name.
+        final boolean micrometerHttpClient = isClient(span) && OtlpMicrometerAttributes.isMicrometerScope(scope);
+        OtlpHttpStatusResolver.ResponseStatus responseStatus = OtlpHttpStatusResolver.resolve(attributes);
+        if (responseStatus == null && micrometerHttpClient) {
+            responseStatus = OtlpMicrometerAttributes.getResponseStatus(attributes);
+        }
         if (responseStatus != null) {
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatus.code()));
             consumedKeys.add(responseStatus.sourceKey());
         }
         // http method → HTTP_METHOD annotation (e.g. an HTTP client SpanEvent's request method)
-        final String httpMethod = OtlpTraceSpanMapper.getHttpMethod(attributes, consumedKeys);
+        String httpMethod = OtlpTraceSpanMapper.getHttpMethod(attributes, consumedKeys);
+        if (httpMethod == null && micrometerHttpClient) {
+            httpMethod = OtlpMicrometerAttributes.getHttpMethod(attributes, consumedKeys);
+        }
         if (httpMethod != null) {
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_METHOD.getCode(), httpMethod));
         }

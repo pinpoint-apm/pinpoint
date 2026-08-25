@@ -119,12 +119,20 @@ public class OtlpTraceSpanMapper {
         // raw attribute list below — "filter only what was actually consumed". Keys consumed by
         // the messaging/db collaborators are covered by the static FILTERED_ATTRIBUTE_KEY_SET.
         final Set<String> consumedKeys = new HashSet<>();
+        // Spring Boot micrometer-tracing bridge: Micrometer key names instead of semconv (see OtlpMicrometerAttributes).
+        final boolean micrometer = OtlpMicrometerAttributes.isMicrometerScope(scope);
+        final boolean isServerKind = span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE;
+        // Micrometer `status` / `method` are HTTP-typed only on the HTTP observations (SERVER, and a
+        // CLIENT root when the app has no inbound span, e.g. a batch job) — on @Observed (INTERNAL)
+        // roots `method` is the Java method name. Same rule as the SpanEvent path.
+        final boolean micrometerHttp = micrometer
+                && (isServerKind || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE);
         final String messagingSystem = isConsumer(span) ? MessagingAttributeUtils.getSystem(attributes) : null;
         final MessageConsumerRecorder messageConsumerRecorder = messagingConsumerResolver.resolve(messagingSystem);
         if (messageConsumerRecorder != null) {
             messageConsumerRecorder.recordMessagingConsumer(spanBo, attributes);
         } else {
-            recordServer(spanBo, span, attributes, consumedKeys);
+            recordServer(spanBo, span, attributes, consumedKeys, micrometer);
         }
 
         // Apply Pinpoint context propagated via tracestate from an upstream OTel-traced service.
@@ -149,13 +157,19 @@ public class OtlpTraceSpanMapper {
         // response — promote the HTTP status code (int, or Envoy's numeric string) to an annotation.
         // Only the raw attribute key actually consumed here is excluded from the attribute list below,
         // so a non-promoted status variant (or a non-numeric value that could not be promoted) survives.
-        final OtlpHttpStatusResolver.ResponseStatus responseStatus = OtlpHttpStatusResolver.resolve(attributes);
+        OtlpHttpStatusResolver.ResponseStatus responseStatus = OtlpHttpStatusResolver.resolve(attributes);
+        if (responseStatus == null && micrometerHttp) {
+            responseStatus = OtlpMicrometerAttributes.getResponseStatus(attributes);
+        }
         if (responseStatus != null) {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatus.code()));
             consumedKeys.add(responseStatus.sourceKey());
         }
         // http method → HTTP_METHOD annotation (surfaced as a 1st-class field in the web UI)
-        final String httpMethod = getHttpMethod(attributes, consumedKeys);
+        String httpMethod = getHttpMethod(attributes, consumedKeys);
+        if (httpMethod == null && micrometerHttp) {
+            httpMethod = OtlpMicrometerAttributes.getHttpMethod(attributes, consumedKeys);
+        }
         if (httpMethod != null) {
             spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_METHOD.getCode(), httpMethod));
         }
@@ -289,8 +303,8 @@ public class OtlpTraceSpanMapper {
      * to the server-style mapping). acceptorHost is only set when the span has a parent
      * (i.e. is not a trace root), since a root server span has no upstream caller.
      */
-    private void recordServer(SpanBo spanBo, Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
-        spanBo.setRpc(getServerSpanToRpc(span, attributes, consumedKeys));
+    private void recordServer(SpanBo spanBo, Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys, boolean micrometer) {
+        spanBo.setRpc(getServerSpanToRpc(span, attributes, consumedKeys, micrometer));
         spanBo.setEndPoint(getServerSpanToEndPoint(span, attributes, consumedKeys));
         spanBo.setRemoteAddr(getServerSpanToRemoteAddress(span, attributes, consumedKeys));
 
@@ -383,10 +397,19 @@ public class OtlpTraceSpanMapper {
      * uriTemplate in {@link OtlpTraceMapper}) — consumed keys are collected into a throwaway set.
      */
     String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes) {
-        return getServerSpanToRpc(span, attributes, new HashSet<>());
+        return getServerSpanToRpc(span, attributes, new HashSet<>(), false);
+    }
+
+    /** rpc as {@link #map} computes it for this span — used for the exception-trace uriTemplate of a root span. */
+    String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes, InstrumentationScope scope) {
+        return getServerSpanToRpc(span, attributes, new HashSet<>(), OtlpMicrometerAttributes.isMicrometerScope(scope));
     }
 
     String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
+        return getServerSpanToRpc(span, attributes, consumedKeys, false);
+    }
+
+    String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys, boolean micrometer) {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
             // http.route is the matched route template ("/users/{id}") — prefer it over the raw
             // url.path ("/users/12345") so the rpc field stays low-cardinality, matching the agent's
@@ -403,6 +426,14 @@ public class OtlpTraceSpanMapper {
             if (nextRoute != null) {
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE);
                 return nextRoute;
+            }
+            // Spring Boot micrometer-tracing: `uri` is the route template ("/user/{id}"). Prefer it over the raw
+            // path below; no-route placeholders ("/**", "NOT_FOUND", ...) return null and fall through to http.url.
+            if (micrometer && span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
+                final String uriTemplate = OtlpMicrometerAttributes.getUriTemplate(attributes, consumedKeys);
+                if (uriTemplate != null) {
+                    return uriTemplate;
+                }
             }
             final String urlPath = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
