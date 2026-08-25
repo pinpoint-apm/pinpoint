@@ -1,3 +1,4 @@
+import React from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
@@ -41,8 +42,11 @@ export const useGetTransactionInfo = () => {
     queryKey: [endpoint, queryString],
     queryFn: queryString ? queryFn(`${endpoint}${queryString}`) : async () => null,
   });
-  const mapData = getMapData(data);
-  const tableData = convertToTree(mapData, null);
+  // Memoized so consumers can use these as effect/memo dependencies. Rebuilding them on every
+  // render would give every derived value (columns, parallel groups, focus subtree) a fresh
+  // identity each time and defeat the memoization downstream.
+  const mapData = React.useMemo(() => getMapData(data), [data]);
+  const tableData = React.useMemo(() => convertToTree(mapData, null), [mapData]);
 
   return { data, tableData, isLoading, isValidating: isFetching, mapData };
 };

@@ -89,7 +89,11 @@
     "TRANSACTION_RETRIEVE_ERROR": "Transaction information is missing.",
     "TRANSACTION_RETRIEVE_ERROR_DESC": "Please start it over from the Servermap/Filtered page.  (If you close this dialog, you will be redirected to the Servermap page.)",
     "CALL_TREE_FILTER": "Filter",
-    "CALL_TREE_FILTER_PLACEHOLDER": "Filter call tree..."
+    "CALL_TREE_FILTER_PLACEHOLDER": "Filter call tree...",
+    "STEP_IN_SPAN": "Step in",
+    "STEP_OUT_SPAN": "Step out",
+    "STEP_IN_SELECT_SPAN": "Select a span to step into",
+    "STEP_IN_NO_SPANS": "The span you stepped into has nothing to draw here."
   },
   "METRIC": {
     "HOST_GROUP_LIST": "Host-Group List",

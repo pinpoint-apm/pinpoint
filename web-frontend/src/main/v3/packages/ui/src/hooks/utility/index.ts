@@ -15,4 +15,5 @@ export * from './useStoragedSetting';
 export * from './useSyncSelectedServiceWithPath';
 export * from './useTabFocus';
 export * from './useTimezone';
+export * from './useUpdateEffect';
 // export * from './useSearchParameters';

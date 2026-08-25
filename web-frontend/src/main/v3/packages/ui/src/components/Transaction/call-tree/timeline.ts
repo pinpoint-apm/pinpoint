@@ -15,7 +15,9 @@ export const getRowStartOffsetNanos = (r: TransactionInfo.CallStackKeyValueMap):
 export const getRowEndOffsetNanos = (r: TransactionInfo.CallStackKeyValueMap): number =>
   toTimelineNumber(r.endOffsetNanos);
 
-export type TimelineAxis = { durationNanos: number };
+// `startNanos` is the offset the axis begins at. It is 0 for the whole transaction and moves to
+// the stepped-into span's start, so that subtree fills the column.
+export type TimelineAxis = { durationNanos: number; startNanos?: number };
 
 export const isTimelineWorkRow = (r: TransactionInfo.CallStackKeyValueMap): boolean => {
   // excludeFromTimeline is deliberately ignored here: the server sets it on INTERNAL_METHOD
@@ -32,6 +34,36 @@ export const isTimelineWorkRow = (r: TransactionInfo.CallStackKeyValueMap): bool
   const start = getRowStartOffsetNanos(r);
   const end = getRowEndOffsetNanos(r);
   return Number.isFinite(start) && Number.isFinite(end);
+};
+
+/**
+ * Timeline axis covering only the stepped-into span and its descendants. Spans the whole subtree
+ * rather than just its root, because an async descendant can outlive its parent and would
+ * otherwise be drawn past the right edge. Returns `undefined` when the subtree has no measurable
+ * window, so callers fall back to the transaction-wide axis.
+ */
+export const getSteppedInTimelineAxis = (
+  rows: TransactionInfo.CallStackKeyValueMap[] | undefined,
+  steppedInIds: Set<string> | undefined,
+): TimelineAxis | undefined => {
+  if (!steppedInIds?.size || !rows?.length) {
+    return undefined;
+  }
+
+  let start = Number.POSITIVE_INFINITY;
+  let end = Number.NEGATIVE_INFINITY;
+  rows.forEach((row) => {
+    if (!steppedInIds.has(String(row.id)) || !isTimelineWorkRow(row)) {
+      return;
+    }
+    start = Math.min(start, getRowStartOffsetNanos(row));
+    end = Math.max(end, getRowEndOffsetNanos(row));
+  });
+
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+    return undefined;
+  }
+  return { startNanos: start, durationNanos: end - start };
 };
 
 export type ParallelGroup = { start: number; end: number; size: number };

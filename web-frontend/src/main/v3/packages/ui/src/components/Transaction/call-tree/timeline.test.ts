@@ -1,4 +1,4 @@
-import { computeParallelGroups, isTimelineWorkRow } from './timeline';
+import { computeParallelGroups, getSteppedInTimelineAxis, isTimelineWorkRow } from './timeline';
 import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 
 type Row = TransactionInfo.CallStackKeyValueMap;
@@ -132,5 +132,55 @@ describe('computeParallelGroups', () => {
       row({ id: 3, parentId: 2, begin: 1000, end: 1010 }), // child of id2, not a sibling
     ];
     expect(computeParallelGroups(rows).size).toBe(0);
+  });
+});
+
+describe('getSteppedInTimelineAxis', () => {
+  // 1 (0..1000) ─ 2 (200..600) ─ 4 (300..500)
+  //             └ 3 (700..900)
+  const rows = [
+    row({ id: 1, parentId: null, begin: 0, end: 1000 }),
+    row({ id: 2, parentId: 1, begin: 200, end: 600 }),
+    row({ id: 4, parentId: 2, begin: 300, end: 500 }),
+    row({ id: 3, parentId: 1, begin: 700, end: 900 }),
+  ];
+
+  test('spans exactly the stepped-into subtree so it fills the column', () => {
+    expect(getSteppedInTimelineAxis(rows, new Set(['2', '4']))).toEqual({
+      startNanos: 200,
+      durationNanos: 400,
+    });
+  });
+
+  test('covers a descendant that outlives its parent (async work)', () => {
+    const asyncRows = [
+      row({ id: 1, parentId: null, begin: 0, end: 100 }),
+      row({ id: 2, parentId: 1, begin: 50, end: 400 }),
+    ];
+    expect(getSteppedInTimelineAxis(asyncRows, new Set(['1', '2']))).toEqual({
+      startNanos: 0,
+      durationNanos: 400,
+    });
+  });
+
+  test('falls back (undefined) with nothing stepped into, no rows, or no measurable window', () => {
+    expect(getSteppedInTimelineAxis(rows, undefined)).toBeUndefined();
+    expect(getSteppedInTimelineAxis(rows, new Set())).toBeUndefined();
+    expect(getSteppedInTimelineAxis(undefined, new Set(['2']))).toBeUndefined();
+    // a single zero-duration row leaves nothing to scale to
+    expect(
+      getSteppedInTimelineAxis([row({ id: 9, begin: 500, end: 500 })], new Set(['9'])),
+    ).toBeUndefined();
+  });
+
+  test('ignores rows that are not timeline work', () => {
+    const withMetadata = [
+      row({ id: 1, parentId: null, begin: 100, end: 300 }),
+      row({ id: 2, parentId: 1, begin: 0, end: 900, isMethod: false }), // annotation row
+    ];
+    expect(getSteppedInTimelineAxis(withMetadata, new Set(['1', '2']))).toEqual({
+      startNanos: 100,
+      durationNanos: 200,
+    });
   });
 });

@@ -2,8 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { formatInTimeZone } from 'date-fns-tz';
-import { usePostBind, useTimezone } from '@pinpoint-fe/ui/src/hooks';
-import { useUpdateEffect } from 'usehooks-ts';
+import { usePostBind, useTimezone, useUpdateEffect } from '@pinpoint-fe/ui/src/hooks';
 import { IoMdClose } from 'react-icons/io';
 import { LuMoveUp, LuMoveDown } from 'react-icons/lu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../ui/sheet';
@@ -28,9 +27,19 @@ import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/cons
 import { addCommas } from '@pinpoint-fe/ui/src/utils';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { HighLightCode } from '../../HighLightCode';
-import { useAtomValue } from 'jotai';
-import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import {
+  transactionInfoCallTreeFocusId,
+  transactionInfoSteppedInSpanId,
+} from '@pinpoint-fe/ui/src/atoms';
 import { CallTreeTableColumnsSetting } from './CallTreeTableColumnsSetting';
+import {
+  collectSteppedInSpanIds,
+  findSteppedInTreeNode,
+  flattenTreeRowIds,
+  rebaseTreeIndent,
+} from '../stepInSpan';
+import { getSteppedInTimelineAxis } from './timeline';
 
 export interface CallTreeProps {
   data: TransactionInfo.CallStackKeyValueMap[];
@@ -119,10 +128,42 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
     0,
   );
   const hasFilteredList = Boolean(filteredListIds?.length);
+
+  // "Step in": re-root the tree at one row so only that row and its descendants show.
+  const [steppedInSpanId, setSteppedInSpanId] = useAtom(transactionInfoSteppedInSpanId);
+  const steppedInSpanIds = React.useMemo(
+    () => collectSteppedInSpanIds(mapData, steppedInSpanId),
+    [mapData, steppedInSpanId],
+  );
+  const steppedInData = React.useMemo(() => {
+    if (!steppedInSpanIds) {
+      return data;
+    }
+    const steppedInRoot = findSteppedInTreeNode(data, steppedInSpanId);
+    // The stepped-into row can be one the tree does not render (Attribute/Scope rows are lifted
+    // onto their parent). Falling back to the whole tree beats showing nothing.
+    return steppedInRoot ? [rebaseTreeIndent(steppedInRoot)] : data;
+  }, [data, steppedInSpanId, steppedInSpanIds]);
+  const steppedInTimelineAxis = React.useMemo(
+    () => getSteppedInTimelineAxis(mapData, steppedInSpanIds),
+    [mapData, steppedInSpanIds],
+  );
+  // Searching stays inside what is on screen, so the "n of m" counter matches the visible rows.
+  const searchScope = React.useMemo(
+    () => (steppedInSpanIds ? mapData.filter((d) => steppedInSpanIds.has(String(d.id))) : mapData),
+    [mapData, steppedInSpanIds],
+  );
+  // Row order of the fully expanded table; a stepped-into tree no longer lines up with row ids.
+  const visibleRowIds = React.useMemo(() => flattenTreeRowIds(steppedInData), [steppedInData]);
+  const scrollRowIndex = focusRowId === undefined ? -1 : visibleRowIds.indexOf(String(focusRowId));
+
   const { defaultColumns, columns, updateColumns } = useCallTreeTableColumns({
     metaData,
     mapData,
     onClickDetailView,
+    onStepSpan: setSteppedInSpanId,
+    steppedInSpanId,
+    steppedInTimelineAxis,
   });
   const focusIdFromTimeline = useAtomValue(transactionInfoCallTreeFocusId);
   const [timezone] = useTimezone();
@@ -146,32 +187,43 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
   useUpdateEffect(() => {
     let filteredList: TransactionInfo.CallStackKeyValueMap[] = [];
     if (filter === 'hasException') {
-      filteredList = mapData.filter((d) => d[filter]);
-      const indexLists = filteredList.map((item) => item.id);
+      filteredList = searchScope.filter((d) => d[filter]);
+      const indexLists = filteredList.map((item) => String(item.id));
       setFilteredListIds(indexLists);
       setFocusRowId(indexLists[0]);
     } else if (filterInput) {
       let filteredList: TransactionInfo.CallStackKeyValueMap[] = [];
 
       if (filter === 'all') {
-        filteredList = mapData.filter((d) =>
+        filteredList = searchScope.filter((d) =>
           Object.values(d).some((value) => `${value}`.toLowerCase().includes(filterInput)),
         );
       } else if (filter === 'executionMilliseconds') {
-        filteredList = mapData.filter((d) => getExecutionMilliseconds(d) >= Number(filterInput));
+        filteredList = searchScope.filter(
+          (d) => getExecutionMilliseconds(d) >= Number(filterInput),
+        );
       } else if (filter === 'arguments') {
-        filteredList = mapData.filter((d) =>
+        filteredList = searchScope.filter((d) =>
           d[filter as keyof typeof d].toLowerCase().includes(filterInput),
         );
       }
-      const indexLists = filteredList.map((item) => item.id);
+      const indexLists = filteredList.map((item) => String(item.id));
       setFilteredListIds(indexLists);
       setFocusRowId(indexLists[0]);
     } else {
       setFilteredListIds(undefined);
       setFocusRowId(undefined);
     }
-  }, [filterInput]);
+    // Re-runs on a step in/out so the match list never points outside the visible rows.
+  }, [filterInput, searchScope]);
+
+  // Stepping into a span marks it, the same way loading the page marks `focusCallStackId`. From
+  // then on the mark belongs to the search: it moves with the hits and clears when the search is
+  // cancelled, exactly as it does with nothing stepped into. Declared after the search effect so
+  // it wins on the render where both fire (a step in/out also re-runs the search).
+  useUpdateEffect(() => {
+    setFocusRowId(steppedInSpanId || undefined);
+  }, [steppedInSpanId]);
 
   const goToNextSearchIndex = () => {
     if ((filteredListIds?.length || 0) > focusRowIdIndex + 1) {
@@ -193,7 +245,7 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
     <div className="flex flex-wrap items-center justify-end gap-1 gap-y-1">
       <CallTreeTableColumnsSetting defaultColumns={defaultColumns} updateColumns={updateColumns} />
       <Select value={filter} onValueChange={(value) => setFilter(value)}>
-        <SelectTrigger className="w-24 h-7 text-xs">
+        <SelectTrigger className="w-24 text-xs h-7">
           <SelectValue placeholder={t('TRANSACTION_LIST.CALL_TREE_FILTER')} />
         </SelectTrigger>
         <SelectContent>
@@ -273,10 +325,12 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
       <div className="flex-1 min-h-0">
         <CallTreeTable
           columns={columns || defaultColumns || []}
-          data={data}
+          data={steppedInData}
           metaData={metaData}
-          // scrollToIndex={(row) => row.findIndex((r) => r.original.id === callTreeFocusId)}
-          focusRowIndex={Number(focusRowId) - 1}
+          // Index within the rendered rows: the row ids no longer equal their position once the
+          // tree is re-rooted (and Attribute/Scope rows consume ids without taking a row).
+          focusRowIndex={scrollRowIndex}
+          highlightRowId={focusRowId}
           filteredRowIds={filteredListIds}
           onDoubleClickCell={(cell) => {
             const originalData = cell.getContext().row.original;

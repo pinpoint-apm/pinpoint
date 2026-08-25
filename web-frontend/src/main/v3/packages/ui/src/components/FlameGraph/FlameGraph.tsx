@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { throttle } from 'lodash';
 import cloneDeep from 'lodash.clonedeep';
 import { FlameNode, FlameNodeType, FlameNodeProps } from './FlameNode';
@@ -23,6 +24,12 @@ export interface FlameGraphProps<T> extends Pick<
     selected?: string;
     next: string[];
   };
+  // Optional DOM node to portal the graph controls into, so they share one row with the host's
+  // own toolbar instead of floating above the graph and overlapping it.
+  toolbarSlot?: HTMLElement | null;
+  // Host-supplied controls sharing the toolbar row, placed before / after the zoom buttons.
+  toolbarStart?: React.ReactNode;
+  toolbarEnd?: React.ReactNode;
 }
 
 export const FlameGraph = <T,>({
@@ -33,6 +40,9 @@ export const FlameGraph = <T,>({
   onClickNode,
   customNodeStyle,
   customTextStyle,
+  toolbarSlot,
+  toolbarStart,
+  toolbarEnd,
 }: FlameGraphProps<T>) => {
   const widthOffset = end - start || 1;
   const [config] = React.useState(flameGraphDefaultConfig);
@@ -250,12 +260,13 @@ export const FlameGraph = <T,>({
     });
   }
 
-  return (
-    <FlameGraphConfigContext.Provider value={{ config }}>
+  const toolbar = (
+    <div className="flex flex-wrap items-center justify-end gap-1">
+      {toolbarStart}
       <TooltipProvider>
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
-            <div className="absolute space-x-1 right-[275px] -top-10">
+            <div className="space-x-1">
               <Button
                 variant={'outline'}
                 size="sm"
@@ -277,6 +288,17 @@ export const FlameGraph = <T,>({
           <TooltipContent>Zoom In/Out: Command + Scroll</TooltipContent>
         </Tooltip>
       </TooltipProvider>
+      {toolbarEnd}
+    </div>
+  );
+
+  return (
+    <FlameGraphConfigContext.Provider value={{ config }}>
+      {toolbarSlot ? (
+        createPortal(toolbar, toolbarSlot)
+      ) : (
+        <div className="absolute right-4 -top-10">{toolbar}</div>
+      )}
       <div className="relative w-full h-full overflow-x-auto" ref={containerRef}>
         <svg width={containerWidth} height={config.height.timeline} className="shadow-md">
           <FlameTimeline width={containerWidth} start={start} end={end} zoom={zoom} />

@@ -1,5 +1,6 @@
 import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { VirtualizedDataTable, VirtualizedDataTableProps } from '../../DataTable';
+import { getCallTreeRowClasses } from './rowClasses';
 
 export interface CallTreeTableProps extends VirtualizedDataTableProps<
   TransactionInfo.CallStackKeyValueMap,
@@ -8,6 +9,9 @@ export interface CallTreeTableProps extends VirtualizedDataTableProps<
   data: TransactionInfo.CallStackKeyValueMap[];
   metaData: TransactionInfo.Response;
   filteredRowIds?: string[];
+  // Row to highlight. Kept separate from `focusRowIndex` (which only scrolls) because the two
+  // diverge as soon as the tree is re-rooted by "Step in".
+  highlightRowId?: string;
 }
 
 export const CallTreeTable = ({
@@ -15,27 +19,16 @@ export const CallTreeTable = ({
   metaData,
   data,
   filteredRowIds,
+  highlightRowId,
   ...props
 }: CallTreeTableProps) => {
   return (
     <VirtualizedDataTable
       enableColumnResizing
       tableClassName="text-xs [&_td]:p-1.5"
-      rowClassName={(row) => {
-        const classes = [];
-
-        if (row.original.hasException) {
-          classes.push('bg-rose-50');
-        }
-        if (filteredRowIds?.some((id) => id === row.original.id)) {
-          classes.push('bg-yellow-100');
-        }
-        if (Number(row.original.id) - 1 === props.focusRowIndex) {
-          classes.push('bg-yellow-200');
-        }
-
-        return classes;
-      }}
+      rowClassName={(row) =>
+        getCallTreeRowClasses(row.original, { filteredRowIds, highlightRowId })
+      }
       data={data || []}
       columns={columns || []}
       {...props}
