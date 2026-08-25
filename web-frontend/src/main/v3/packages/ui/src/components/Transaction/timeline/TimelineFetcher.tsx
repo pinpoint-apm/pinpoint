@@ -94,13 +94,6 @@ export const TimelineFetcher = ({
   );
   const isSteppedIn = Boolean(steppedInSpanIds);
 
-  React.useEffect(() => {
-    setInput('');
-    setSearchInput('');
-    setFocusedNodeId(undefined);
-    setSelectedTrace(undefined);
-  }, [transactionInfo]);
-
   // Searching stays inside what is on screen, so the "n of m" counter matches the visible nodes.
   const searchTargets = React.useMemo(() => {
     const traceEvents = data?.traceEvents || [];
@@ -195,6 +188,15 @@ export const TimelineFetcher = ({
     setSelectedTrace(undefined);
     setFocusedNodeId(undefined);
   };
+
+  // A new transaction starts with nothing selected. `nodeFlows` has to go with it: the ids in it
+  // are per-trace record indices, so they would match unrelated nodes in the next trace and draw
+  // arrows between them. Placed after `clearSelection` so it can reuse it.
+  React.useEffect(() => {
+    setInput('');
+    setSearchInput('');
+    clearSelection();
+  }, [transactionInfo]);
 
   // Stepping in from the Call Tree can exclude whatever was selected here; keeping it would
   // leave the detail panel describing a node that is no longer drawn.
