@@ -36,7 +36,7 @@ import { CallTreeTableColumnsSetting } from './CallTreeTableColumnsSetting';
 import {
   collectSteppedInSpanIds,
   findSteppedInTreeNode,
-  flattenTreeRowIds,
+  flattenTreeRows,
   rebaseTreeIndent,
 } from '../stepInSpan';
 import { getSteppedInTimelineAxis } from './timeline';
@@ -148,13 +148,17 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
     () => getSteppedInTimelineAxis(mapData, steppedInSpanIds),
     [mapData, steppedInSpanIds],
   );
-  // Searching stays inside what is on screen, so the "n of m" counter matches the visible rows.
-  const searchScope = React.useMemo(
-    () => (steppedInSpanIds ? mapData.filter((d) => steppedInSpanIds.has(String(d.id))) : mapData),
-    [mapData, steppedInSpanIds],
+  // The rows the table actually draws, in render order. Everything that has to agree with what
+  // the user sees is derived from this one list: which rows the search may match (so the "n of m"
+  // counter cannot count rows that are not there), and which position to scroll to. Reading it
+  // from the rendered tree rather than the flat call stack also drops the Attribute/Scope rows,
+  // which the tree lifts onto their parent instead of drawing.
+  const visibleRows = React.useMemo(() => flattenTreeRows(steppedInData), [steppedInData]);
+  const visibleRowIds = React.useMemo(
+    () => visibleRows.map((row) => String(row.id)),
+    [visibleRows],
   );
-  // Row order of the fully expanded table; a stepped-into tree no longer lines up with row ids.
-  const visibleRowIds = React.useMemo(() => flattenTreeRowIds(steppedInData), [steppedInData]);
+  const searchScope = visibleRows;
   const scrollRowIndex = focusRowId === undefined ? -1 : visibleRowIds.indexOf(String(focusRowId));
 
   const { defaultColumns, columns, updateColumns } = useCallTreeTableColumns({
@@ -196,7 +200,11 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
 
       if (filter === 'all') {
         filteredList = searchScope.filter((d) =>
-          Object.values(d).some((value) => `${value}`.toLowerCase().includes(filterInput)),
+          // `subRows` holds the children themselves; stringifying them would match on nothing
+          // meaningful. Every other field, including the lifted `attributes`/`scope`, is fair game.
+          Object.entries(d).some(
+            ([key, value]) => key !== 'subRows' && `${value}`.toLowerCase().includes(filterInput),
+          ),
         );
       } else if (filter === 'executionMilliseconds') {
         filteredList = searchScope.filter(

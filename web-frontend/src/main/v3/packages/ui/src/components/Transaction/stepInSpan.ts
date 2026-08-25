@@ -96,19 +96,23 @@ export const rebaseTreeIndent = (
   subRows: node.subRows?.map((subRow) => rebaseTreeIndent(subRow, indentOffset)),
 });
 
-/** Row ids in the order the fully expanded table renders them, used to scroll to a row. */
-export const flattenTreeRowIds = (
+/**
+ * The rows the fully expanded table draws, in render order. This is the authoritative "what is on
+ * screen" list: it excludes the flat call stack's Attribute/Scope rows (the tree lifts those onto
+ * their parent) as well as anything outside the stepped-into subtree.
+ */
+export const flattenTreeRows = (
   rows: TransactionInfo.CallStackKeyValueMap[] | undefined,
-): string[] => {
-  const ids: string[] = [];
+): TransactionInfo.CallStackKeyValueMap[] => {
+  const flat: TransactionInfo.CallStackKeyValueMap[] = [];
   const walk = (nodes: TransactionInfo.CallStackKeyValueMap[] | undefined) => {
     nodes?.forEach((node) => {
-      ids.push(String(node.id));
+      flat.push(node);
       walk(node.subRows);
     });
   };
   walk(rows);
-  return ids;
+  return flat;
 };
 
 /**

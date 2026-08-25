@@ -2,7 +2,7 @@ import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/cons
 import {
   collectSteppedInSpanIds,
   findSteppedInTreeNode,
-  flattenTreeRowIds,
+  flattenTreeRows,
   getFlameGroupsTimeRange,
   pruneFlameGroupsToSteppedIn,
   rebaseTreeIndent,
@@ -90,8 +90,15 @@ describe('findSteppedInTreeNode / rebaseTreeIndent', () => {
     expect(steppedInRoot.subRows?.[0].tab).toBe(2);
   });
 
-  test('lists row ids in rendered order', () => {
-    expect(flattenTreeRowIds(tree)).toEqual(['1', '2', '4', '3']);
+  test('lists the rendered rows in render order', () => {
+    expect(flattenTreeRows(tree).map((r) => String(r.id))).toEqual(['1', '2', '4', '3']);
+  });
+
+  test('lists only what the tree draws, so search cannot match a row that is not there', () => {
+    // `convertToTree` drops the backend's Attribute/Scope rows, lifting their values onto the
+    // parent, so they must not appear here either.
+    const withLifted = [row({ id: 1, title: 'method', subRows: [row({ id: 2, title: 'child' })] })];
+    expect(flattenTreeRows(withLifted).map((r) => String(r.id))).toEqual(['1', '2']);
   });
 });
 
