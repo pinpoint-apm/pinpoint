@@ -18,10 +18,19 @@ import {
   FaListUl,
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
+import { VscDebugStepInto, VscDebugStepOut } from 'react-icons/vsc';
 import { PiStackDuotone } from 'react-icons/pi';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../..';
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipPortal,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../..';
+import { cn } from '@pinpoint-fe/ui/src/lib';
 import {
   addCommas,
   convertParamsToQueryString,
@@ -54,6 +63,11 @@ export interface CallTreeTableColumnsProps {
   // The Attribute/SQL icons trigger the detail view; the handler infers the type from the row data.
   onClickDetailView?: (data: TransactionInfo.CallStackKeyValueMap) => void;
   mapData?: TransactionInfo.CallStackKeyValueMap[];
+  // "Step in": re-roots the tree at the given row, or steps back out when given ''.
+  // Omitted -> no step in/out affordance.
+  onStepSpan?: (id: string) => void;
+  // The row that has been stepped into; its button stays filled in as the way back out.
+  steppedInSpanId?: string;
 }
 
 export type CallTreeTableColumnId =
@@ -75,30 +89,50 @@ export const useCallTreeTableColumns = ({
   metaData,
   onClickDetailView,
   mapData,
-}: CallTreeTableColumnsProps) => {
-  const timelineAxis = React.useMemo<TimelineAxis>(
+  onStepSpan,
+  steppedInSpanId,
+  steppedInTimelineAxis,
+}: CallTreeTableColumnsProps & { steppedInTimelineAxis?: TimelineAxis }) => {
+  const transactionTimelineAxis = React.useMemo<TimelineAxis>(
     () => ({
       durationNanos: metaData.callTreeTimelineDurationNanos,
     }),
     [metaData.callTreeTimelineDurationNanos],
   );
+  // After stepping in, the bars are drawn on that span's window instead, so the subtree fills
+  // the column the same way the Flame Graph rescales.
+  const timelineAxis = steppedInTimelineAxis ?? transactionTimelineAxis;
   const parallelGroups = React.useMemo(() => computeParallelGroups(mapData), [mapData]);
   const defaultColumns = React.useMemo(
-    () => callTreeTableColumns({ metaData, onClickDetailView, timelineAxis, parallelGroups }),
-    [metaData, onClickDetailView, timelineAxis, parallelGroups],
+    () =>
+      callTreeTableColumns({
+        metaData,
+        onClickDetailView,
+        timelineAxis,
+        parallelGroups,
+        onStepSpan,
+        steppedInSpanId,
+      }),
+    [metaData, onClickDetailView, timelineAxis, parallelGroups, onStepSpan, steppedInSpanId],
   );
 
-  const [columns, setColumns] =
-    React.useState<ColumnDef<TransactionInfo.CallStackKeyValueMap>[]>(defaultColumns);
-
-  const updateColumns = React.useCallback(
-    (columnIds: CallTreeTableColumnId[]) => {
-      setColumns(
-        defaultColumns.filter((column) => columnIds.includes(column.id as CallTreeTableColumnId)),
-      );
-    },
-    [defaultColumns],
+  // Only the *selection* is state; the column definitions are always derived from the current
+  // `defaultColumns`. Holding built columns in state would freeze the closures they were created
+  // with, so a new transaction (or a changed timeline axis) would keep rendering with stale data.
+  const [visibleColumnIds, setVisibleColumnIds] = React.useState<CallTreeTableColumnId[]>();
+  const columns = React.useMemo(
+    () =>
+      visibleColumnIds
+        ? defaultColumns.filter((column) =>
+            visibleColumnIds.includes(column.id as CallTreeTableColumnId),
+          )
+        : defaultColumns,
+    [defaultColumns, visibleColumnIds],
   );
+
+  const updateColumns = React.useCallback((columnIds: CallTreeTableColumnId[]) => {
+    setVisibleColumnIds(columnIds);
+  }, []);
 
   return { defaultColumns, columns, updateColumns };
 };
@@ -108,6 +142,8 @@ export const callTreeTableColumns = ({
   onClickDetailView,
   timelineAxis,
   parallelGroups,
+  onStepSpan,
+  steppedInSpanId,
 }: CallTreeTableColumnsProps & {
   timelineAxis: TimelineAxis;
   parallelGroups: ParallelInfo;
@@ -136,6 +172,7 @@ export const callTreeTableColumns = ({
     header: 'Method',
     cell: (props) => {
       const rowData = props.row.original;
+      const isSteppedIn = String(rowData.id) === steppedInSpanId;
       return (
         <div className="flex items-center" style={{ paddingLeft: `${props.row.original.tab}rem` }}>
           {props.row.getCanExpand() && (
@@ -150,6 +187,20 @@ export const callTreeTableColumns = ({
               onClickDetailView,
             }}
           />
+          {/* Pinned to the right edge of the Method column (`ml-auto`) so it always sits in the
+              same place instead of drifting with the method name's length.
+
+              Only method rows can be stepped into — leaves included, since a leaf here can still
+              be the parent of async work in another thread. The rest (SQL, annotations, exception
+              details) describe the method above them rather than being spans of their own.
+              The row already stepped into keeps its button whatever it is, so a root that somehow
+              is not a method row still offers the way back out instead of a dead end. */}
+          {onStepSpan && (rowData.isMethod || isSteppedIn) && (
+            <StepSpanButton
+              steppedIn={isSteppedIn}
+              onClick={() => onStepSpan(isSteppedIn ? '' : String(rowData.id))}
+            />
+          )}
         </div>
       );
     },
@@ -237,8 +288,10 @@ export const callTreeTableColumns = ({
       const end = getRowEndOffsetNanos(rowData);
       const elapsed = Math.max(end - start, 0);
 
-      // Each row is positioned on the Call Tree timeline axis supplied by the server.
+      // Each row is positioned on the Call Tree timeline axis supplied by the server, or on the
+      // stepped-into span's window once the user has stepped in.
       const total = timelineAxis.durationNanos;
+      const axisStart = timelineAxis.startNanos ?? 0;
       if (!Number.isFinite(total) || total <= 0) {
         return null;
       }
@@ -246,7 +299,7 @@ export const callTreeTableColumns = ({
       // gaps (empty space) and overlaps (vertically overlapping bars) become visible.
       // A zero-duration row keeps elapsed 0; the `max(width, 2px)` floor below still draws a
       // minimum-width bar so the event's position stays visible instead of vanishing.
-      const rawOffset = (start / total) * 100;
+      const rawOffset = ((start - axisStart) / total) * 100;
       const rawWidth = (elapsed / total) * 100;
       const offset = Math.min(Math.max(rawOffset, 0), 100); // keep the bar start within the axis
       const width = Math.max(rawWidth, 0);
@@ -263,7 +316,7 @@ export const callTreeTableColumns = ({
       // form one continuous band, making the parallel block explicit.
       const parallel = parallelGroups.get(String(rowData.id));
       const laneLeft = parallel
-        ? Math.min(Math.max((parallel.group.start / total) * 100, 0), 100)
+        ? Math.min(Math.max(((parallel.group.start - axisStart) / total) * 100, 0), 100)
         : 0;
       const laneWidth = parallel
         ? Math.max(((parallel.group.end - parallel.group.start) / total) * 100, 0)
@@ -459,6 +512,45 @@ const addDurationCommas = (value: string) => {
     return `${addCommas(integer)}.${fraction}`;
   }
   return addCommas(integer);
+};
+
+/**
+ * Steps into this row's span (redrawing the tree from it) or, on the row already stepped into,
+ * back out. Revealed on row hover (and on keyboard focus) so it adds no permanent noise, except
+ * on the stepped-into row, where it stays filled in and visible as the way back out.
+ */
+const StepSpanButton = ({ steppedIn, onClick }: { steppedIn: boolean; onClick: () => void }) => {
+  const { t } = useTranslation();
+  const label = steppedIn
+    ? t('TRANSACTION_LIST.STEP_OUT_SPAN')
+    : t('TRANSACTION_LIST.STEP_IN_SPAN');
+
+  return (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant={steppedIn ? 'default' : 'outline'}
+            className={cn('flex-none w-5 h-5 p-0 ml-auto rounded', {
+              'opacity-0 text-muted-foreground group-hover:opacity-100 focus-visible:opacity-100 hover:text-foreground':
+                !steppedIn,
+            })}
+            aria-label={label}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+          >
+            {steppedIn ? <VscDebugStepOut /> : <VscDebugStepInto />}
+          </Button>
+        </TooltipTrigger>
+        {/* Portalled: the Method cell clips its overflow, so an inline tooltip would be cut off. */}
+        <TooltipPortal>
+          <TooltipContent>{label}</TooltipContent>
+        </TooltipPortal>
+      </Tooltip>
+    </TooltipProvider>
+  );
 };
 
 const MethodCell = (props: {

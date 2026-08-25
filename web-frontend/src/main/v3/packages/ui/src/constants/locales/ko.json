@@ -89,7 +89,11 @@
     "TRANSACTION_RETRIEVE_ERROR": "Transaction 정보가 없습니다.",
     "TRANSACTION_RETRIEVE_ERROR_DESC": "Servermap/Filtered 페이지에서 다시 시도해 주세요. (이 창을 닫으면 Servermap 페이지로 이동합니다)",
     "CALL_TREE_FILTER": "필터",
-    "CALL_TREE_FILTER_PLACEHOLDER": "콜 트리 필터..."
+    "CALL_TREE_FILTER_PLACEHOLDER": "콜 트리 필터...",
+    "STEP_IN_SPAN": "Step In",
+    "STEP_OUT_SPAN": "Step Out",
+    "STEP_IN_SELECT_SPAN": "Step In 할 span을 선택하세요.",
+    "STEP_IN_NO_SPANS": "들어간 span은 이 화면에 그릴 내용이 없습니다."
   },
   "METRIC": {
     "HOST_GROUP_LIST": "호스트 그룹 목록",

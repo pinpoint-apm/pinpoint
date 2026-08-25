@@ -14,7 +14,7 @@ import {
 } from '@tanstack/react-table';
 import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useUpdateEffect } from 'usehooks-ts';
+import { useUpdateEffect } from '../../hooks/utility/useUpdateEffect';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { cn } from '../../lib';
@@ -112,6 +112,13 @@ export function VirtualizedDataTable<TData, TValue>({
         ? (element) => element?.getBoundingClientRect().height
         : undefined,
     overscan: 5,
+    // `measureElement` above runs from each row's ref callback, i.e. during commit. Rows measure
+    // taller than the estimate, so when the list is scrolled the virtualizer corrects the scroll
+    // offset and, by default, re-renders through `flushSync` — which React rejects mid-commit
+    // ("flushSync was called from inside a lifecycle method"). Letting that re-render batch
+    // normally is the library's own escape hatch and is enough here: React still commits it
+    // before paint, and rows are near-uniform in height so the correction is a few pixels.
+    useFlushSync: false,
   });
 
   React.useEffect(() => {

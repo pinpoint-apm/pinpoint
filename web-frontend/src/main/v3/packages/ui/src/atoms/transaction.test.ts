@@ -5,6 +5,7 @@ import {
   transactionInfoDatasAtom,
   transactionInfoCurrentTabId,
   transactionInfoCallTreeFocusId,
+  transactionInfoSteppedInSpanId,
 } from './transaction';
 import { Transaction, TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 
@@ -179,6 +180,45 @@ describe('Test transaction atoms', () => {
 
       act(() => {
         result.current[1]('focus-1');
+        result.current[1]('');
+      });
+
+      expect(result.current[0]).toBe('');
+    });
+  });
+
+  describe('Test "transactionInfoSteppedInSpanId"', () => {
+    test('should initialize unfocused', () => {
+      const { result } = renderHook(() => useAtom(transactionInfoSteppedInSpanId));
+      expect(result.current[0]).toBe('');
+    });
+
+    test('should hold the focused call stack id', () => {
+      const { result } = renderHook(() => useAtom(transactionInfoSteppedInSpanId));
+
+      act(() => {
+        result.current[1]('12');
+      });
+
+      expect(result.current[0]).toBe('12');
+    });
+
+    test('should move the focus to another span', () => {
+      const { result } = renderHook(() => useAtom(transactionInfoSteppedInSpanId));
+
+      act(() => {
+        result.current[1]('12');
+        result.current[1]('34');
+      });
+
+      expect(result.current[0]).toBe('34');
+    });
+
+    test('should clear the focus with an empty string', () => {
+      const { result } = renderHook(() => useAtom(transactionInfoSteppedInSpanId));
+
+      act(() => {
+        result.current[1]('12');
         result.current[1]('');
       });
 

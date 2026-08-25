@@ -13,7 +13,11 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { RxExternalLink } from 'react-icons/rx';
-import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/ui/src/atoms';
+import {
+  transactionInfoCurrentTabId,
+  transactionInfoDatasAtom,
+  transactionInfoSteppedInSpanId,
+} from '@pinpoint-fe/ui/src/atoms';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui';
 import { Timeline } from '../timeline/Timeline';
 import { ServerIcon } from '../../Application/ServerIcon';
@@ -37,8 +41,17 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
   const { data, tableData, mapData } = useGetTransactionInfo();
   const setTransactionInfo = useSetAtom(transactionInfoDatasAtom);
   const [currentTab, setCurrentTab] = useAtom(transactionInfoCurrentTabId);
+  const setSteppedInSpanId = useSetAtom(transactionInfoSteppedInSpanId);
   const [toolbarSlot, setToolbarSlot] = React.useState<HTMLDivElement | null>(null);
   const { t } = useTranslation();
+
+  const currentTabId = currentTab || tabList[0].id;
+
+  // Stepping in is a view state on one trace; a different transaction must start stepped out.
+  // Atoms survive remounts, so this has to be cleared explicitly.
+  React.useEffect(() => {
+    setSteppedInSpanId('');
+  }, [data?.transactionId, data?.spanId, setSteppedInSpanId]);
 
   React.useEffect(() => {
     setTransactionInfo(data);
@@ -72,7 +85,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
 
   return (
     <Tabs
-      value={currentTab || tabList[0].id}
+      value={currentTabId}
       className="flex flex-col h-full"
       onValueChange={(id) => setCurrentTab(id)}
     >
@@ -140,8 +153,9 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
             ></PopoverContent>
           </Popover>
 
-          {/* Toolbar slot: CallTree portals its column/filter controls here so the tabs and the
-              toolbar share one flex-wrap row and wrap instead of overlapping when space is tight. */}
+          {/* Toolbar slot: the Call Tree and the Flame Graph portal their own controls here so the
+              tabs and the toolbar share one flex-wrap row and wrap instead of overlapping when
+              space is tight. */}
           <div ref={setToolbarSlot} className="flex items-center ml-auto" />
         </div>
       </div>
@@ -159,7 +173,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
         } else if (tab.id === 'serverMap' && data) {
           Content = <TraceServerMap />;
         } else if (tab.id === 'flameGraph') {
-          Content = <Timeline transactionInfo={data} />;
+          Content = <Timeline transactionInfo={data} mapData={mapData} toolbarSlot={toolbarSlot} />;
         }
         return (
           <TabsContent

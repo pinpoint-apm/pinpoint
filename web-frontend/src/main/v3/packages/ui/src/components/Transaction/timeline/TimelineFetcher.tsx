@@ -1,6 +1,10 @@
 import React from 'react';
 import Fuse from 'fuse.js';
+import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { VscDebugStepInto, VscDebugStepOut } from 'react-icons/vsc';
 import { RxMagnifyingGlass } from 'react-icons/rx';
+import { transactionInfoSteppedInSpanId } from '@pinpoint-fe/ui/src/atoms';
 import { useGetTraceViewerData, useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   TraceViewerData,
@@ -15,16 +19,40 @@ import {
 import { FlameGraph } from '../../FlameGraph';
 import { cn } from '../../../lib';
 import { TimelineDetail } from './TimelineDetail';
-import { FlameNodeType } from '../../FlameGraph/FlameNode';
 import { LuMoveDown, LuMoveUp } from 'react-icons/lu';
-import { Button, Input } from '../..';
+import {
+  Button,
+  Input,
+  Tooltip,
+  TooltipContent,
+  TooltipPortal,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../..';
 import { TimelineInfo } from './TimelineInfo';
+import {
+  collectSteppedInSpanIds,
+  getFlameGroupsTimeRange,
+  pruneFlameGroupsToSteppedIn,
+} from '../stepInSpan';
+import { genFlameGraphData } from './flameGraphData';
 
 export interface TimelineFetcherProps {
   transactionInfo?: TransactionInfo.Response;
+  // Flat call stack, the only view that holds the complete parent/child relation. "Step in"
+  // needs it because async descendants live in their own flame graph groups.
+  mapData?: TransactionInfo.CallStackKeyValueMap[];
+  // Optional DOM node in the tab header to portal the toolbar into, so the tabs and the toolbar
+  // share one flex-wrap row and never overlap when the panel narrows.
+  toolbarSlot?: HTMLElement | null;
 }
 
-export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
+export const TimelineFetcher = ({
+  transactionInfo,
+  mapData,
+  toolbarSlot,
+}: TimelineFetcherProps) => {
+  const { t } = useTranslation();
   const { transactionInfo: transactionSearchParams } = useTransactionSearchParameters();
   const [selectedTrace, setSelectedTrace] = React.useState<TraceViewerData.TraceEvent>();
   const [input, setInput] = React.useState('');
@@ -45,7 +73,26 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
     linkTraceId: transactionSearchParams?.linkTraceId,
     linkSpanId: transactionSearchParams?.linkSpanId,
   });
-  const flameGraphData = genFlameGraphData(data);
+  // "Step in" is shared with the Call Tree through the atom, and this tab can set it too.
+  // `undefined` when nothing is stepped into, or when the id does not belong to this trace.
+  const [steppedInSpanId, setSteppedInSpanId] = useAtom(transactionInfoSteppedInSpanId);
+  const steppedInSpanIds = React.useMemo(
+    () => collectSteppedInSpanIds(mapData, steppedInSpanId),
+    [mapData, steppedInSpanId],
+  );
+  const allFlameGraphData = React.useMemo(() => genFlameGraphData(data), [data]);
+  const flameGraphData = React.useMemo(
+    () =>
+      steppedInSpanIds
+        ? pruneFlameGroupsToSteppedIn(allFlameGraphData, steppedInSpanIds)
+        : allFlameGraphData,
+    [allFlameGraphData, steppedInSpanIds],
+  );
+  const steppedInTimeRange = React.useMemo(
+    () => (steppedInSpanIds ? getFlameGroupsTimeRange(flameGraphData) : undefined),
+    [steppedInSpanIds, flameGraphData],
+  );
+  const isSteppedIn = Boolean(steppedInSpanIds);
 
   React.useEffect(() => {
     setInput('');
@@ -54,13 +101,21 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
     setSelectedTrace(undefined);
   }, [transactionInfo]);
 
+  // Searching stays inside what is on screen, so the "n of m" counter matches the visible nodes.
+  const searchTargets = React.useMemo(() => {
+    const traceEvents = data?.traceEvents || [];
+    return steppedInSpanIds
+      ? traceEvents.filter((ev) => steppedInSpanIds.has(String(ev.args.id)))
+      : traceEvents;
+  }, [data?.traceEvents, steppedInSpanIds]);
+
   const fuzzySearch = React.useMemo(() => {
-    return new Fuse(data?.traceEvents || [], {
+    return new Fuse(searchTargets, {
       keys: ['name'],
       threshold: 0.3,
       shouldSort: false,
     });
-  }, [data?.traceEvents]);
+  }, [searchTargets]);
 
   const searchedList = searchInput
     ? fuzzySearch.search(searchInput).map(({ item }) => item)
@@ -131,74 +186,147 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
     });
   };
 
+  const clearSelection = () => {
+    setNodeFlows({
+      prev: [],
+      selected: undefined,
+      next: [],
+    });
+    setSelectedTrace(undefined);
+    setFocusedNodeId(undefined);
+  };
+
+  // Stepping in from the Call Tree can exclude whatever was selected here; keeping it would
+  // leave the detail panel describing a node that is no longer drawn.
+  React.useEffect(() => {
+    if (selectedTrace && steppedInSpanIds && !steppedInSpanIds.has(String(selectedTrace.args.id))) {
+      clearSelection();
+    }
+  }, [steppedInSpanIds, selectedTrace]);
+
+  // Always present, and its direction follows what the click would do:
+  //   stepped in, and either nothing selected or the root selected -> step back out
+  //   a span selected that is not the current root                 -> step into it (drill deeper)
+  //   nothing stepped into and nothing selected                    -> nothing to do, disabled
+  const selectedSpanId = selectedTrace?.args?.id ? String(selectedTrace.args.id) : undefined;
+  const canStepOut =
+    Boolean(steppedInSpanIds) && (!selectedSpanId || selectedSpanId === steppedInSpanId);
+  const canStepIn = !canStepOut && Boolean(selectedSpanId) && selectedSpanId !== steppedInSpanId;
+  const stepDisabled = !canStepOut && !canStepIn;
+  const stepLabel = canStepOut
+    ? t('TRANSACTION_LIST.STEP_OUT_SPAN')
+    : stepDisabled
+      ? t('TRANSACTION_LIST.STEP_IN_SELECT_SPAN')
+      : t('TRANSACTION_LIST.STEP_IN_SPAN');
+  const stepButton = (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        {/* The span keeps the trigger hoverable while the button is disabled: a disabled button
+            emits no pointer events, so the tooltip explaining *why* would never show. */}
+        <TooltipTrigger asChild>
+          <span className="inline-flex">
+            <Button
+              variant={canStepOut ? 'default' : 'outline'}
+              size="sm"
+              className="w-7 h-7 p-0"
+              disabled={stepDisabled}
+              aria-label={stepLabel}
+              onClick={() => {
+                if (canStepOut) {
+                  setSteppedInSpanId('');
+                } else if (selectedSpanId) {
+                  setSteppedInSpanId(selectedSpanId);
+                }
+              }}
+            >
+              {canStepOut ? <VscDebugStepOut size={14} /> : <VscDebugStepInto size={14} />}
+            </Button>
+          </span>
+        </TooltipTrigger>
+        {/* Portalled like the Call Tree's button: the toolbar is portalled into the tab header,
+            so an inline tooltip would be laid out inside that row instead of over the graph. */}
+        <TooltipPortal>
+          <TooltipContent>{stepLabel}</TooltipContent>
+        </TooltipPortal>
+      </Tooltip>
+    </TooltipProvider>
+  );
+
+  const searchBox = (
+    <div className="flex border rounded h-7 pr-0.5 w-64">
+      <Input
+        className="h-full text-xs border-none shadow-none focus-visible:ring-0 placeholder:text-xs"
+        placeholder="Search trace events..."
+        value={input}
+        onChange={(e) => setInput(e.currentTarget.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            if (e.shiftKey) {
+              setSearchInput((prev) => {
+                if (prev === input) {
+                  backToPrevSearchIndex();
+                }
+                return input;
+              });
+            } else {
+              setSearchInput((prev) => {
+                if (prev === input) {
+                  goToNextSearchIndex();
+                }
+                return input;
+              });
+            }
+          } else if (e.key === 'Escape') {
+            if (input) {
+              setInput('');
+              setSearchInput('');
+            } else {
+              clearSelection();
+            }
+          }
+        }}
+      />
+      <div className="flex items-center opacity-50">
+        {searchedListIds && (
+          <>
+            <span className="whitespace-nowrap text-xxs">
+              {searchedListIds?.findIndex((id) => id === focusedNodeId) + 1} of{' '}
+              {searchedListIds?.length}
+            </span>
+            <Button
+              variant="ghost"
+              className="h-full p-0.5"
+              onClick={() => backToPrevSearchIndex()}
+            >
+              <LuMoveUp />
+            </Button>
+            <Button variant="ghost" className="h-full p-0.5" onClick={() => goToNextSearchIndex()}>
+              <LuMoveDown />
+            </Button>
+          </>
+        )}
+        <Button variant="ghost" className="h-full p-0.5" onClick={() => setSearchInput(input)}>
+          <RxMagnifyingGlass />
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <div className={cn('h-full flex relative')}>
-      <div className="absolute -top-10 right-4 h-7 border flex rounded pr-0.5 w-64 placeholder">
-        <Input
-          className="h-full text-xs border-none shadow-none focus-visible:ring-0 placeholder:text-xs"
-          placeholder="Search trace events..."
-          value={input}
-          onChange={(e) => setInput(e.currentTarget.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              if (e.shiftKey) {
-                setSearchInput((prev) => {
-                  if (prev === input) {
-                    backToPrevSearchIndex();
-                  }
-                  return input;
-                });
-              } else {
-                setSearchInput((prev) => {
-                  if (prev === input) {
-                    goToNextSearchIndex();
-                  }
-                  return input;
-                });
-              }
-            } else if (e.key === 'Escape') {
-              if (input) {
-                setInput('');
-                setSearchInput('');
-              } else {
-                setSelectedTrace(undefined);
-                setFocusedNodeId(undefined);
-              }
-            }
-          }}
-        />
-        <div className="flex items-center opacity-50">
-          {searchedListIds && (
-            <>
-              <span className="whitespace-nowrap text-xxs">
-                {searchedListIds?.findIndex((id) => id === focusedNodeId) + 1} of{' '}
-                {searchedListIds?.length}
-              </span>
-              <Button
-                variant="ghost"
-                className="h-full p-0.5"
-                onClick={() => backToPrevSearchIndex()}
-              >
-                <LuMoveUp />
-              </Button>
-              <Button
-                variant="ghost"
-                className="h-full p-0.5"
-                onClick={() => goToNextSearchIndex()}
-              >
-                <LuMoveDown />
-              </Button>
-            </>
-          )}
-          <Button variant="ghost" className="h-full p-0.5" onClick={() => setSearchInput(input)}>
-            <RxMagnifyingGlass />
-          </Button>
+      {isSteppedIn && flameGraphData.length === 0 && (
+        <div className="absolute inset-x-0 top-16 z-[1] text-sm text-center text-muted-foreground">
+          {t('TRANSACTION_LIST.STEP_IN_NO_SPANS')}
         </div>
-      </div>
+      )}
       <FlameGraph<TraceViewerData.TraceEvent>
         data={flameGraphData}
-        start={transactionInfo?.callStackStart}
-        end={transactionInfo?.callStackEnd}
+        // After stepping in, the graph is rescaled to that subtree's own window.
+        start={steppedInTimeRange?.start ?? transactionInfo?.callStackStart}
+        end={steppedInTimeRange?.end ?? transactionInfo?.callStackEnd}
+        toolbarSlot={toolbarSlot}
+        toolbarStart={stepButton}
+        toolbarEnd={searchBox}
         nodeFlows={nodeFlows}
         customNodeStyle={(node, _color) => {
           const nodeApplicationName = node?.detail?.args?.['Application Name'] || '';
@@ -246,76 +374,10 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
         <TimelineDetail
           start={transactionInfo?.callStackStart || 0}
           data={selectedTrace}
-          onClose={() => {
-            setNodeFlows({
-              prev: [],
-              selected: undefined,
-              next: [],
-            });
-            setSelectedTrace(undefined);
-            setFocusedNodeId(undefined);
-          }}
+          onClose={clearSelection}
         />
       )}
       <TimelineInfo data={data?.traceEvents} selectedTrace={selectedTrace} />
     </div>
   );
-};
-
-const genFlameGraphData = (data?: TraceViewerData.Response | null) => {
-  let result: FlameNodeType<TraceViewerData.TraceEvent>[][] = [];
-  if (data) {
-    const traceEvents = data?.traceEvents || [];
-    const mapByTid: { [key: number]: TraceViewerData.TraceEvent[] } = {};
-
-    traceEvents.forEach((item) => {
-      const { tid } = item;
-
-      if (mapByTid[tid]) {
-        mapByTid[tid].push(item);
-      } else {
-        mapByTid[tid] = [];
-        mapByTid[tid].push(item);
-      }
-    });
-
-    result = Object.values(mapByTid).map((traceEventsByTid) => {
-      const roots: FlameNodeType<TraceViewerData.TraceEvent>[] = [];
-      const map: { [key: string]: FlameNodeType<TraceViewerData.TraceEvent> } = {};
-
-      traceEventsByTid.forEach((item) => {
-        const { name } = item;
-
-        if (name !== 'Async Trace') {
-          const { id } = item.args;
-          map[id] = {
-            id,
-            children: [],
-            start: item.ts / 1000,
-            duration: item.dur / 1000,
-            detail: item,
-            name,
-          };
-        }
-      });
-
-      // find Roots
-      Object.values(map).forEach((item) => {
-        const { parentId } = item.detail.args;
-        if (!map[parentId]) {
-          roots.push(item);
-        }
-      });
-
-      traceEventsByTid.forEach((item) => {
-        const { id, parentId } = item.args;
-        const node = map[id];
-
-        map[parentId]?.children.push(node);
-      });
-      return roots;
-    });
-  }
-
-  return result;
 };
