@@ -65,7 +65,7 @@ class CachingServiceModelResolverTest {
         CachingServiceModelResolver resolver = newResolver(Duration.ofMinutes(1));
 
         assertThat(resolver.getService(Service.DEFAULT.getServiceName())).isEqualTo(Service.DEFAULT);
-        assertThat(resolver.getService(Service.DEFAULT.getServiceUid().getUid())).isEqualTo(Service.DEFAULT);
+        assertThat(resolver.getService(Service.DEFAULT.getServiceUid())).isEqualTo(Service.DEFAULT);
 
         Mockito.verifyNoInteractions(serviceRegistryService);
     }

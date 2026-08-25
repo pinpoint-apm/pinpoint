@@ -105,7 +105,7 @@ public class ApplicationCleanupTasklet implements Tasklet {
     }
 
     private void processApplication(Application application, long baseTimestamp) {
-        int serviceUid = application.getService().getServiceUid().getUid();
+        int serviceUid = application.getService().getServiceUid();
         String applicationName = application.getApplicationName();
         int serviceTypeCode = application.getServiceTypeCode();
         int agentCount = agentIdDao.countAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
@@ -266,7 +266,7 @@ public class ApplicationCleanupTasklet implements Tasklet {
         }
         logger.info("delete application. application={}", application);
         applicationDao.deleteApplication(
-                application.getService().getServiceUid().getUid(),
+                application.getService().getServiceUid(),
                 application.getApplicationName(),
                 application.getServiceTypeCode(),
                 baseTimestamp - Duration.ofHours(1).toMillis()

@@ -80,7 +80,7 @@ public class HbaseMapResponseDao implements MapResponseDao {
         }
 
         Range windowRange = timeWindow.getWindowRange();
-        Scan scan = scanFactory.createScan("MAppRes", application.getService().getServiceUid().getUid(), application, windowRange, table.getName());
+        Scan scan = scanFactory.createScan("MAppRes", application.getService().getServiceUid(), application, windowRange, table.getName());
 
         ResultsExtractor<ApplicationResponse> mapper = resultExtractor.newMapper(timeWindow, application);
         TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(table.getTable());

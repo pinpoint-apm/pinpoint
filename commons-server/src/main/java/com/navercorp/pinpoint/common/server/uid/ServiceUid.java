@@ -10,6 +10,7 @@ public class ServiceUid {
 
     public static final int DEFAULT_SERVICE_UID_CODE = 0;
     public static final String DEFAULT_SERVICE_UID_NAME = "DEFAULT";
+    public static final String ERROR_SERVICE_UID_NAME = "ERROR";
     public static final String UNKNOWN_SERVICE_UID_NAME = "UNKNOWN";
 
     // serviceUid
@@ -25,12 +26,28 @@ public class ServiceUid {
         return (-RESERVED_NEGATIVE_UID_COUNT <= uid && uid <= RESERVED_POSITIVE_UID_COUNT);
     }
 
-    public static ServiceUid of(int uid) {
+    /**
+     * Resolves a reserved uid to its well-known constant.
+     * Returns null for uids outside the well-known set.
+     * NULL(-3) is an in-memory cache sentinel and is deliberately excluded.
+     */
+    public static ServiceUid wellKnownServiceUid(int uid) {
         if (uid == DEFAULT.getUid()) {
             return DEFAULT;
         }
         if (uid == ERROR.getUid()) {
             return ERROR;
+        }
+        if (uid == UNKNOWN.getUid()) {
+            return UNKNOWN;
+        }
+        return null;
+    }
+
+    public static ServiceUid of(int uid) {
+        final ServiceUid wellKnown = wellKnownServiceUid(uid);
+        if (wellKnown != null) {
+            return wellKnown;
         }
         if (isReservedUid(uid)) {
             throw new IllegalArgumentException("Range check failed: " + uid + " is invalid");
