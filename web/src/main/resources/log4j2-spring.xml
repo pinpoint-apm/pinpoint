@@ -138,9 +138,6 @@
         <Logger name="org.apache.hadoop" level="${logger_level}" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
-        <Logger name="org.apache.pinot.client.Connection" level="FATAL" additivity="false">
-            <AppenderRef ref="console"/>
-        </Logger>
         <Root level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
