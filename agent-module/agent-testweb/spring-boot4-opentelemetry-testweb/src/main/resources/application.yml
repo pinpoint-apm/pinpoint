@@ -1,0 +1,39 @@
+server:
+  port: 18083
+
+logging:
+  level:
+    root: info
+    # exporters log only on failure ("Failed to export spans"); no such log means export succeeded
+    io.opentelemetry.exporter: info
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  opentelemetry:
+    # keys contain '.' and upper-case letters -> bracket notation is mandatory
+    resource-attributes:
+      "[service.name]": boot4-otel-testweb
+      "[pinpoint.applicationName]": boot4-otel-testweb
+      "[pinpoint.agentName]": boot4-otel-testweb-001
+      # Boot does not generate service.instance.id; without it the collector rejects the spans
+      "[service.instance.id]": ${random.uuid}
+    tracing:
+      export:
+        otlp:
+          # Boot 4 moved the OTLP keys here (Boot 3: management.otlp.tracing.*). The exporter auto-configured by Boot is
+          # created only when an endpoint is set, e.g. --management.opentelemetry.tracing.export.otlp.endpoint=http://localhost:4317
+          transport: grpc
+  endpoints:
+    web:
+      exposure:
+        include: health,beans
+
+# Pinpoint exporter (additional SpanExporter bean)
+pinpoint:
+  otel:
+    trace:
+      enabled: true
+      endpoint: http://localhost:9998
+      debug: false

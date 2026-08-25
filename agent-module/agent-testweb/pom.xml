@@ -145,9 +145,21 @@
             <modules>
                 <module>spring-boot3-testweb</module>
                 <module>spring-boot3-webflux-plugin-testweb</module>
+                <module>spring-boot3-micrometer-tracing-testweb</module>
+                <module>spring-boot3-otel-starter-testweb</module>
                 <module>jetty12-plugin-testweb</module>
                 <module>spring-boot4-plugin-testweb</module>
                 <module>spring-boot4-webflux-plugin-testweb</module>
+                <module>spring-boot4-opentelemetry-testweb</module>
+            </modules>
+        </profile>
+        <profile>
+            <!-- OTel-SDK sample apps on non-Spring frameworks. Off by default: they pull their own build plugins
+                 (quarkus-maven-plugin, maven-shade) and Micronaut 5 needs JDK 25 for Maven itself. -->
+            <id>otel-framework-testweb</id>
+            <modules>
+                <module>quarkus-opentelemetry-testweb</module>
+                <module>micronaut-opentelemetry-testweb</module>
             </modules>
         </profile>
     </profiles>

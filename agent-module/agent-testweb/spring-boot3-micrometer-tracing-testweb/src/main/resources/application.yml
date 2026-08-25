@@ -1,0 +1,37 @@
+server:
+  port: 18080
+
+logging:
+  level:
+    root: info
+    # exporters log only on failure ("Failed to export spans"); no such log means export succeeded
+    io.opentelemetry.exporter: info
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  opentelemetry:
+    # keys contain '.' and upper-case letters -> bracket notation is mandatory
+    resource-attributes:
+      "[service.name]": micrometer-tracing-testweb
+      "[pinpoint.applicationName]": micrometer-tracing-testweb
+      "[pinpoint.agentName]": micrometer-tracing-testweb-001
+      "[service.instance.id]": ${random.uuid}
+  otlp:
+    tracing:
+      # Boot's own OTLP exporter = the "existing backend". It is created only when an endpoint is set
+      # (an empty value is NOT "unset" and breaks startup), e.g. --management.otlp.tracing.endpoint=http://localhost:4317
+      # To switch it off while keeping tracing: management.otlp.tracing.export.enabled=false (Boot 3.4+).
+      transport: grpc
+  endpoints:
+    web:
+      exposure:
+        include: health,beans
+
+# Pinpoint exporter (additional SpanExporter bean)
+pinpoint:
+  otel:
+    trace:
+      enabled: true
+      endpoint: http://localhost:9998
