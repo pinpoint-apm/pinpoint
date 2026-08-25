@@ -137,7 +137,7 @@ A로 나가면 백엔드가 A service에서 `b-1`을 찾으므로 데이터가 �
 - **prop을 내려주는 곳을 빠뜨리면 그 차트만 조용히 화면의 service로 조회한다.** 화면은 멀쩡히
   그려지고 숫자만 비어서, 타입 검사로도 잡히지 않는다. 우측 패널에 조회하는 컴포넌트를 새로
   추가하면 `serviceName`도 함께 내려야 한다.
-  → 지금 내려주는 곳: `ServerMapChartsBoardFetcher`, `Realtime`
+  → 지금 내려주는 곳: `ServerMapChartsBoardFetcher`, `Realtime`(차트들 + `AgentActiveThreadFetcher`)
 
 ### 헤더와 캐시 키는 같은 값에서 나온다
 
@@ -169,7 +169,51 @@ React Query가 곧바로 요청을 날린다 — 그 service에 없는 applicati
 (백엔드가 그 이름을 대상의 service에서 찾는다). 대상이 다른 service면 노드 자신을 기준으로 삼는다.
 → `useGetHistogramStatistics`의 `ignorePathApplication`
 
-액티브 스레드(실시간)는 WebSocket이라 헤더가 없다. 지금도 service를 싣지 않는다.
+### 액티브 스레드(실시간)는 헤더가 아니라 메시지에 싣는다
+
+WebSocket이라 요청 헤더를 붙일 수 없다. 그래서 `activeThreadCount` 요청 메시지의 `parameters`에
+`serviceName`·`serviceType`을 함께 담아 보낸다(`AgentActiveThreadFetcher`).
+
+- **세 값(`applicationName`/`serviceType`/`serviceName`)은 한 벌로 움직인다.** 하나만 새 노드의
+  값으로 갈리면 그 service에 없는 application을 묻는 요청이 된다. 그래서 값 셋을 담은 객체를 두고
+  통째로 갈아 끼운다. 그 객체는 ref가 아니라 **state**다 — 값이 바뀌는 렌더에서 곧바로 요청이
+  나가야 한다(ref로 두면 다른 이유로 렌더가 일어날 때까지 밀려, 대상을 바꿔도 다음 응답이 올
+  때까지 최대 1초를 기다린다).
+- **핀(📌)은 클릭을 막지 않는다.** 노드를 고르면 핀과 무관하게 그 노드로 조회한다 — 클릭한 노드의
+  액티브 스레드를 보여주는 것이 이 패널의 목적이다.
+  > 예전에는 핀이 걸려 있으면(기본값) 클릭을 통째로 무시해서, 다른 노드를 눌러도 **이전 노드의
+  > 응답만 계속 오는** 상태가 됐다. WAS가 아닌 노드를 눌렀을 때 안내 문구가 뜨지 않는 것도
+  > 같은 원인이었다.
+  >
+  > 그래서 지금 핀은 조회 대상에 영향을 주지 않는다. 링크(엣지)처럼 applicationName이 없는 것을
+  > 골랐을 때 직전 대상을 유지하는 데만 쓰인다. **버튼의 역할을 다시 정하거나 없애야 한다.**
+- **service 정보는 경로에 serviceName을 싣는 화면에서만 싣는다.** servermap 실시간 보기
+  (`/serverMap/realtime`)는 예전과 **완전히 같은 메시지**(`applicationName` 하나)를 보내야 하므로,
+  `useServiceNameForLink`의 전역 선택값 폴백을 쓰지 않고 `getServiceNameFromPath`로 경로를 본다.
+  폴백을 그대로 쓰면 servermap에서도 실려 나간다(`useFilteredMapParameters`가 같은 이유로
+  폴백하지 않는다). `serviceType`도 같은 판단을 따른다 — 한 벌로 싣거나 아예 안 싣는다.
+- `enableServiceMap`이 꺼져 있으면 `useServiceNameForLink`가 undefined를 반환해 servicemap
+  경로에서도 빠진다. 그러면 JSON 직렬화에서 두 필드가 함께 빠지므로 예전 형태로 나간다.
+- **요청은 고른 노드로 그대로 보낸다.** WAS가 아닌 노드(USER·DB·캐시·큐)도 보낸다 — 예전 동작이다.
+  요청을 막는 것은 **service group**(접힌 service) 하나뿐이다. group은 기준 application이 없는데도
+  `applicationName` 자리에 serviceName이 들어 있어(`flattenServiceMapResponse`), 보내면 service를
+  application인 것처럼 묻는 요청이 된다.
+- **"WAS가 아니다"(`NOT_WAS`)는 화면 표시만의 판단이고, 핀과 무관하다.** 액티브 스레드는 agent가
+  붙은 WAS만 가지므로 차트 대신 안내 문구를 띄운다. 판단은 고른 노드의 `nodeCategory`로 한다
+  (`SERVER`가 아니면 안내). 핀이 걸려 있을 때 이 판단을 건너뛰면 **WAS가 아닌 노드를 고른 채
+  직전 WAS의 액티브 스레드가 그려진다** — USER 노드는 진입점 WAS와 이름이 같을 수 있어 특히
+  헷갈린다. map 응답이 아직 없어 노드를 모를 때는 판단을 보류한다(안내가 잠깐 스치지 않게).
+- **조회할 수 없는 대상(group)을 거쳐 같은 노드로 돌아왔을 때는 값이 그대로여도 요청을 다시
+  보낸다.** 그 사이 구독이 끊겼을 수 있고, "값이 같으니 보낼 필요 없다"고 건너뛰면 WAS가 하나뿐인
+  map에서는(진입 시 이미 그 WAS가 대상) 클릭해도 요청이 한 번도 나가지 않는다. 반대로 핀을
+  눌렀을 때는 보내지 않는다 — 같은 요청을 또 받으면 서버가 `Already started` 에러를 남긴다.
+- **조회 대상이 없어져도 소켓은 닫지 않는다.** 연결은 화면이 열려 있는 동안 유지한다(기존 동작).
+  > 서버는 소켓 하나에 구독 하나이고(`RedisActiveThreadCountWebSocketHandler`의 `HandlerSession`)
+  > **구독을 취소하는 명령이 없다**(`activeThreadCount` 하나뿐이다). 그래서 WAS가 아닌 노드를
+  > 골라 대상이 없어져도 **직전 대상의 응답은 계속 온다.** 멈추려면 소켓을 닫는 수밖에 없는데,
+  > 그러면 예전에 없던 동작이 된다. 그래서 새 요청을 보내지 않고 화면에도 쓰지 않은 채 흘려보낸다.
+- **자동 재연결은 예기치 않게 끊긴 경우에만 한다**(`shouldConnectRef`). 구분하지 않으면 언마운트
+  때 닫은 소켓이 곧바로 다시 붙어, 화면을 떠난 뒤에도(탭 포커스를 잃어도) 소켓이 살아남는다.
 
 ## map 노드/링크 id 형식이 API마다 다르다
 
@@ -239,6 +283,16 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 - **통계 API는 기준 application이 필수다.** service 전체 map에는 URL에 application이 없으므로,
   선택된 노드(링크는 출발지 노드)를 기준으로 삼는다. → `useGetHistogramStatistics`의
   `fallbackApplication`
+- **service group 노드는 겉보기로 application 노드와 구별되지 않는다.** `flattenServiceMapResponse`가
+  화면에 이름을 그리려고 `applicationName` 자리에 serviceName을 넣고 `serviceType`도 자식 노드에서
+  합성해 채운다. 그래서 그 대상을 그대로 조회에 쓰면 **service를 application인 것처럼 묻는 요청**이
+  나간다(예: `applicationName: "B", serviceType: "TOMCAT"`). 그 이름의 application은 없으니 데이터가
+  비어서 오거나 400이 온다. 조회하는 컴포넌트는 `isServiceGroupTarget`으로 걸러 내고, 자식 노드를
+  고를 때까지 조회를 시작하지 않는다(안내 문구를 띄운다).
+  → 지금 걸러 내는 곳: `ServerMapChartsBoardFetcher`(통계 조회 + ChartsBoard),
+  `Realtime`(우측 패널), `AgentActiveThreadFetcher`(소켓)
+  > 조회하는 컴포넌트를 새로 추가하면 이 판별도 함께 넣어야 한다. `serviceName` prop과 마찬가지로
+  > 빠뜨려도 화면은 멀쩡히 그려지고 숫자만 비어서, 타입 검사로 잡히지 않는다.
 - **`useSuspenseQuery`는 `enabled`를 지원하지 않는다.** `useGetApdexScore`처럼 `shouldPoll`에 따라
   suspense를 쓰는 훅은 `enabled`로 막을 수 없다. `skipToken`을 쓰면 영원히 suspend 되므로,
   컴포넌트에서 조회 대상이 없을 때 fetcher를 마운트하지 않는 쪽으로 막는다.
@@ -257,4 +311,5 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 | service 변경 시 초기화 | `hooks/utility/useClearApplicationOnServiceChange.ts` |
 | 라우트 로더 | `loader/serviceMap.ts`, `loader/serviceMapRealtime.ts`, `loader/filteredMap.ts` |
 | 로더의 날짜 정규화 (공유) | `loader/mapDateRange.ts` |
+| service group(접힌 service) 판별 | `utils/helper/serviceMap.ts` (`isServiceGroupTarget`) |
 | filteredMap 경로 읽기 | `hooks/searchParameters/useFilteredMapParameters.ts` |

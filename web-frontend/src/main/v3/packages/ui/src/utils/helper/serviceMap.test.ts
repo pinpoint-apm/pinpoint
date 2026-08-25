@@ -1,6 +1,7 @@
 import {
   findServiceGroupLink,
   findServiceGroupNode,
+  isServiceGroupTarget,
   flattenServiceMapResponse,
 } from './serviceMap';
 import { GetServerMap, GetServiceMap } from '@pinpoint-fe/ui/src/constants';
@@ -228,5 +229,39 @@ describe('findServiceGroupNode / findServiceGroupLink', () => {
     expect(findServiceGroupLink([appLink], 'svcA^a^TOMCAT~svcA^b^TOMCAT')).toBeUndefined();
     expect(findServiceGroupNode(undefined, 'svcA')).toBeUndefined();
     expect(findServiceGroupLink(undefined, 'svcA~svcB')).toBeUndefined();
+  });
+});
+
+describe('isServiceGroupTarget', () => {
+  // group 노드는 applicationName에 serviceName이 들어 있어(flattenServiceMapResponse) 겉보기로는
+  // application 노드와 구별되지 않는다. 조회 대상으로 삼으면 service를 application인 것처럼
+  // 묻게 되므로, 조회하는 화면들은 이 판별로 걸러 낸다.
+  test('service group 노드를 걸러 낸다', () => {
+    const groupNode = {
+      key: 'svcB',
+      serviceName: 'svcB',
+      applicationName: 'svcB',
+      serviceType: 'TOMCAT',
+      subNodes: [makeAppNode()],
+    } as unknown as GetServerMap.NodeData;
+
+    expect(isServiceGroupTarget(groupNode)).toBe(true);
+  });
+
+  test('service group 링크를 걸러 낸다', () => {
+    const groupLink = {
+      key: 'svcA~svcB',
+      subLinks: [makeAppLink()],
+    } as unknown as GetServerMap.LinkData;
+
+    expect(isServiceGroupTarget(groupLink)).toBe(true);
+  });
+
+  // servermap/filteredMap 응답에는 subNodes/subLinks가 없다 — 그 화면들의 동작은 그대로여야 한다.
+  test('application 노드·링크와 빈 값은 group이 아니다', () => {
+    expect(isServiceGroupTarget(makeAppNode())).toBe(false);
+    expect(isServiceGroupTarget(makeAppLink())).toBe(false);
+    expect(isServiceGroupTarget({ key: 'svcA', subNodes: [] })).toBe(false);
+    expect(isServiceGroupTarget(undefined)).toBe(false);
   });
 });

@@ -95,12 +95,36 @@ export const flattenServiceMapResponse = (
   };
 };
 
+// 고른 대상은 servermap/servicemap/filteredMap 노드·링크 중 무엇이든 될 수 있다. 타입 유니온을
+// 늘리는 대신 판별에 쓰는 두 필드만 구조로 본다.
+type ServiceGroupCandidate = { subNodes?: unknown[]; subLinks?: unknown[] };
+
 /**
- * service group(접힌 service) 노드인지 찾는다. 아니면 undefined다.
+ * 고른 대상이 service group(접힌 service)인지.
  *
- * 판별은 `subNodes`로 한다 — `flattenServiceMapResponse`가 `type:'service'` 응답에만 담아 두는
- * 필드라, 이 필드의 유무가 곧 "접힌 service인가"다. servermap/filteredMap 응답에는 없으므로
- * 그 화면들에서는 항상 undefined가 되어 동작이 달라지지 않는다.
+ * 판별은 `subNodes`/`subLinks`로 한다 — `flattenServiceMapResponse`가 `type:'service'` 응답에만
+ * 담아 두는 필드라, 이 필드의 유무가 곧 "접힌 service인가"다. servermap/filteredMap 응답에는
+ * 없으므로 그 화면들에서는 항상 false가 되어 동작이 달라지지 않는다.
+ *
+ * group 노드는 **기준 application이 없다.** 그런데 `flattenServiceMapResponse`가 화면에 이름을
+ * 그리려고 `applicationName`에 serviceName을 넣어 두기 때문에, 그대로 조회에 쓰면 service를
+ * application인 것처럼 묻게 된다(그 이름의 application은 없으니 데이터가 비어서 온다).
+ * 그래서 **조회하는 컴포넌트는 group 대상을 조회 대상으로 삼지 않는다.**
+ */
+export const isServiceGroupNode = (node?: unknown): boolean =>
+  ((node as ServiceGroupCandidate)?.subNodes?.length ?? 0) > 0;
+
+/** 고른 대상이 service group 링크인지. 판별 근거는 {@link isServiceGroupNode}와 같다. */
+export const isServiceGroupLink = (link?: unknown): boolean =>
+  ((link as ServiceGroupCandidate)?.subLinks?.length ?? 0) > 0;
+
+/** 고른 대상(노드 또는 링크)이 service group인지. */
+export const isServiceGroupTarget = (data?: unknown): boolean =>
+  isServiceGroupNode(data) || isServiceGroupLink(data);
+
+/**
+ * 주어진 key의 노드가 service group(접힌 service)인지 찾는다. 아니면 undefined다.
+ * 판별 근거는 {@link isServiceGroupNode} 참고.
  *
  * 두 곳에서 쓴다.
  * 1. 좌클릭 — 자식 노드 목록 팝업을 연다.
@@ -112,13 +136,10 @@ export const flattenServiceMapResponse = (
 export const findServiceGroupNode = <T extends GetServerMap.NodeData>(
   nodes: T[] | undefined,
   key?: string,
-): T | undefined =>
-  nodes?.find(
-    (node) => node.key === key && Array.isArray(node.subNodes) && node.subNodes.length > 0,
-  );
+): T | undefined => nodes?.find((node) => node.key === key && isServiceGroupNode(node));
 
 /**
- * service group 링크인지 찾는다. 아니면 undefined다.
+ * 주어진 key의 링크가 service group 링크인지 찾는다. 아니면 undefined다.
  *
  * 백엔드는 **양쪽 끝이 모두 펼쳐진 service일 때만** 평범한 링크로 내려준다
  * (`ServiceMapViewBuilder#buildLinks`의 `fromExpanded && toExpanded`). 한쪽이라도 접혀 있으면
@@ -131,7 +152,4 @@ export const findServiceGroupNode = <T extends GetServerMap.NodeData>(
 export const findServiceGroupLink = <T extends GetServerMap.LinkData>(
   links: T[] | undefined,
   key?: string,
-): T | undefined =>
-  links?.find(
-    (link) => link.key === key && Array.isArray(link.subLinks) && link.subLinks.length > 0,
-  );
+): T | undefined => links?.find((link) => link.key === key && isServiceGroupLink(link));

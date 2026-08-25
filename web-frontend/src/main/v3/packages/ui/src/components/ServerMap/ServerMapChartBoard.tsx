@@ -36,7 +36,11 @@ import {
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { useAtom, useAtomValue } from 'jotai';
-import { getApplicationKey, getServerImagePath } from '@pinpoint-fe/ui/src/utils';
+import {
+  getApplicationKey,
+  getServerImagePath,
+  isServiceGroupTarget,
+} from '@pinpoint-fe/ui/src/utils';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 import { RxChevronRight } from 'react-icons/rx';
 import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
@@ -127,12 +131,19 @@ export const ServerMapChartsBoardFetcher = ({
     ? selectedTargetApplication
     : (application ?? selectedTargetApplication);
 
+  // service group(접힌 service) 대상은 기준 application이 없다 — applicationName 자리에
+  // serviceName이 들어 있어(`flattenServiceMapResponse`) 그대로 조회하면 service를 application인
+  // 것처럼 묻는 요청이 된다. key를 둘 다 비우면 훅이 조회를 시작하지 않는다(`enabled`).
+  // 아래에서 ChartsBoard도 그리지 않으므로 보여줄 데이터도 없다.
+  const isGroupTarget = isServiceGroupTarget(currentTargetData);
+
   const { data, isLoading } = useGetHistogramStatistics({
     useStatisticsAgentState,
-    nodeKey:
-      (currentTargetData as GetServerMap.NodeData)?.nodeKey ||
-      (baseApplication ? getApplicationKey(baseApplication) : undefined), // 원래 optional인데 첫 페이지 로딩 시 currentTargetData가 없을 때, currentTargetData가 application으로 잡힐 때 두번 중복 call 방지를 위해 required 처럼 사용
-    linkKey: (currentTargetData as GetServerMap.LinkData)?.linkKey,
+    nodeKey: isGroupTarget
+      ? undefined
+      : (currentTargetData as GetServerMap.NodeData)?.nodeKey ||
+        (baseApplication ? getApplicationKey(baseApplication) : undefined), // 원래 optional인데 첫 페이지 로딩 시 currentTargetData가 없을 때, currentTargetData가 application으로 잡힐 때 두번 중복 call 방지를 위해 required 처럼 사용
+    linkKey: isGroupTarget ? undefined : (currentTargetData as GetServerMap.LinkData)?.linkKey,
     fallbackApplication: selectedTargetApplication,
     ignorePathApplication: isCrossServiceTarget,
     serviceName: targetServiceName,
@@ -238,12 +249,9 @@ export const ServerMapChartsBoardFetcher = ({
     );
   }
 
-  // service group 노드/링크가 선택된 경우(subNodes/subLinks 보유) ChartsBoard를 그리지 않는다.
+  // service group 노드/링크가 선택된 경우 ChartsBoard를 그리지 않는다.
   // 팝업에서 자식 노드/링크를 선택하면 currentTarget이 자식 key로 바뀌어 다시 렌더된다.
-  if (
-    ((currentTargetData as GetServerMap.NodeData)?.subNodes?.length ?? 0) > 0 ||
-    ((currentTargetData as GetServerMap.LinkData)?.subLinks?.length ?? 0) > 0
-  ) {
+  if (isGroupTarget) {
     return null;
   }
 

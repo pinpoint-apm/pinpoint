@@ -33,7 +33,7 @@ import {
   serverMapChartTypeAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { APP_SETTING_KEYS, ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
+import { getServerImagePath, isServiceGroupTarget } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 
 export interface RealtimeProps {
@@ -62,6 +62,15 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
   const { t } = useTranslation();
   // 기준 application이 필요 없는 map은 고를 대상이 없으므로 곧바로 그린다.
   const showMap = !requiresApplication || !!application;
+  /**
+   * service group(접힌 service)을 고른 상태.
+   *
+   * group 노드/링크에는 기준 application이 없는데도 `applicationName`에 serviceName이 들어 있어
+   * (`flattenServiceMapResponse`), 그대로 조회하면 service를 application인 것처럼 묻게 된다.
+   * 그래서 우측 패널은 조회를 시작하지 않고, 팝업에서 자식 노드를 고르라고 알려준다.
+   * (servicemap이 아닌 화면에서는 group이 없으므로 항상 false다.)
+   */
+  const isGroupTarget = isServiceGroupTarget(currentTargetData);
 
   React.useEffect(() => {
     if (application) {
@@ -137,7 +146,7 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
             <ResizablePanel minSize={10} maxSize={90} className="!overflow-auto">
               {isFocus && (
                 <ErrorBoundary>
-                  <AgentActiveThreadFetcher />
+                  <AgentActiveThreadFetcher serviceName={targetServiceName} />
                 </ErrorBoundary>
               )}
             </ResizablePanel>
@@ -157,7 +166,11 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
             serverMapData?.applicationMapData
               ?.timestamp as GetServerMap.ApplicationMapData['timestamp']
           }
-          nodeData={currentTargetData?.isAuthorized === false ? undefined : currentTargetData}
+          nodeData={
+            currentTargetData?.isAuthorized === false || isGroupTarget
+              ? undefined
+              : currentTargetData
+          }
           emptyMessage={t('COMMON.NO_DATA')}
           header={
             <ChartsBoardHeader
@@ -175,9 +188,11 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
             />
           }
         >
-          {!serverMapCurrentTarget ? (
-            // 고른 대상이 없으면 헤더도 차트도 그릴 것이 없어 패널이 통째로 비어 보인다.
-            // 무엇을 해야 하는지 알려준다. (기준 application이 없는 map에서만 생기는 상태)
+          {!serverMapCurrentTarget || isGroupTarget ? (
+            // 조회할 application이 정해지지 않은 상태다 — 아무것도 고르지 않았거나(기준
+            // application이 없는 map), service group을 골랐거나. 억지로 차트를 그리면 빈 차트만
+            // 남으므로 무엇을 해야 하는지 알려준다.
+            // (group을 좌클릭하면 자식 노드 목록 팝업이 열리므로, 그중 하나를 고르면 된다.)
             <div className="flex justify-center items-center w-full h-full text-muted-foreground">
               {t('SERVER_MAP.SELECT_NODE_FOR_CHART')}
             </div>
