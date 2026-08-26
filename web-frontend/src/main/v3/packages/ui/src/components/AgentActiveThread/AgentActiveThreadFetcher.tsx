@@ -38,9 +38,26 @@ export interface AgentActiveThreadFetcherProps {
   serviceName?: string;
 }
 
+/**
+ * 끊긴 소켓을 다시 붙이기까지 기다리는 시간(ms). 시도할수록 늘리고 마지막 값에서 멈춘다.
+ *
+ * 서버가 요청을 거절하며 곧바로 끊는 경우가 있다(모르는 serviceName이면
+ * `ActiveThreadCountHandler`가 BAD_DATA로 세션을 닫는다). 이때 지체 없이 다시 붙으면
+ * 연결→요청→끊김이 쉼 없이 반복되며 서버와 브라우저를 함께 태운다.
+ *
+ * 간격을 되돌리는 기준은 "연결됐다"가 아니라 "응답이 왔다"이다. 거절당하는 세션도 open까지는
+ * 정상으로 열리므로, open에서 되돌리면 간격이 1초에 묶인 채 영원히 반복된다.
+ */
+const RECONNECT_DELAYS_MS = [1000, 2000, 5000, 10000, 30000];
+
 export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetcherProps) => {
   const { t } = useTranslation();
   const wsRef = React.useRef<WebSocket | undefined>(undefined);
+  const reconnectTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const reconnectCountRef = React.useRef(0);
+  // 화면을 떠났는지 여부. 떠날 때 부르는 close()도 close 이벤트를 일으키므로, 이 표시가 없으면
+  // 사라진 화면이 소켓을 다시 열고 그 소켓은 아무도 닫지 않는다.
+  const isUnmountedRef = React.useRef(false);
   const [timezone] = useTimezone();
   const [webSocketState, setWebSocketState] = React.useState<number>(WebSocket.CLOSED);
   const currentServerMapTarget = useAtomValue(serverMapCurrentTargetAtom);
@@ -67,9 +84,12 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
   const hasTarget = !!(applicationName || target?.applicationName);
 
   React.useEffect(() => {
+    isUnmountedRef.current = false;
     initWebSocket();
 
     return () => {
+      isUnmountedRef.current = true;
+      clearTimeout(reconnectTimerRef.current);
       close();
     };
   }, []);
@@ -147,6 +167,8 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
       'message',
       (message) => {
         const parsedMessage = parseMessage(message.data);
+        // 응답이 왔다는 것은 이 세션이 실제로 살아 있다는 뜻이다. 다음에 끊기면 처음 간격부터.
+        reconnectCountRef.current = 0;
         if (parsedMessage?.type === 'PING') {
           sendMessage({ type: 'PONG' });
         } else if (parsedMessage?.result) {
@@ -159,13 +181,31 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
     ws.addEventListener(
       'close',
       () => {
-        setWebSocketState(WebSocket.CLOSED);
         eventController.abort();
-        initWebSocket();
+        // 화면을 떠나며 부른 close()도 여기로 온다. 그때 다시 붙으면 사라진 화면의 소켓이
+        // 남아 아무도 닫지 못한 채 재연결을 반복한다.
+        if (isUnmountedRef.current) {
+          return;
+        }
+
+        setWebSocketState(WebSocket.CLOSED);
+        scheduleReconnect();
         // wsRef.current = undefined;
       },
       { signal },
     );
+  };
+
+  const scheduleReconnect = () => {
+    const delay =
+      RECONNECT_DELAYS_MS[Math.min(reconnectCountRef.current, RECONNECT_DELAYS_MS.length - 1)];
+    reconnectCountRef.current += 1;
+    reconnectTimerRef.current = setTimeout(() => {
+      if (isUnmountedRef.current) {
+        return;
+      }
+      initWebSocket();
+    }, delay);
   };
 
   const parseMessage = (message: string): AgentActiveThread.Response => {
