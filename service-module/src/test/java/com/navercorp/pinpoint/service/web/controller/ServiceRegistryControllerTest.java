@@ -4,8 +4,9 @@ import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.Result;
 import com.navercorp.pinpoint.service.component.ReservedServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.service.web.controller.vo.ServiceNameRequest;
+import com.navercorp.pinpoint.service.web.controller.vo.ServiceView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,10 +46,8 @@ class ServiceRegistryControllerTest {
     void insertService_returnsSuccess() {
         ServiceNameRequest serviceNameRequest = new ServiceNameRequest("my-service");
 
-        ServiceEntity entity = new ServiceEntity();
-        entity.setUid(100);
-        entity.setName("my-service");
-        when(serviceRegistryService.insertService("my-service")).thenReturn(entity);
+        Service service = new Service("my-service", 100);
+        when(serviceRegistryService.insertService("my-service")).thenReturn(service);
 
         Response response = controller.insertService(serviceNameRequest);
 
@@ -90,12 +89,10 @@ class ServiceRegistryControllerTest {
 
     @Test
     void getService_found_returns200() {
-        ServiceEntity entity = new ServiceEntity();
-        entity.setUid(100);
-        entity.setName("my-svc");
-        when(serviceRegistryService.getService("my-svc")).thenReturn(entity);
+        Service service = new Service("my-svc", 100);
+        when(serviceRegistryService.getService("my-svc")).thenReturn(service);
 
-        ResponseEntity<ServiceEntity> response = controller.getService("my-svc");
+        ResponseEntity<ServiceView> response = controller.getService("my-svc");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -107,7 +104,7 @@ class ServiceRegistryControllerTest {
     void getService_notFound_returns204() {
         when(serviceRegistryService.getService("missing")).thenReturn(null);
 
-        ResponseEntity<ServiceEntity> response = controller.getService("missing");
+        ResponseEntity<ServiceView> response = controller.getService("missing");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(response.getBody()).isNull();

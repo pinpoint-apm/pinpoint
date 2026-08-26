@@ -3,7 +3,8 @@ package com.navercorp.pinpoint.service.service;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.service.dao.ServiceRegistryDao;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.common.server.uid.Service;
+import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,11 +45,11 @@ class ServiceRegistryServiceImplTest {
         ServiceUid serviceUid = ServiceUid.of(12345);
         when(serviceUidGenerator.generate()).thenReturn(serviceUid);
 
-        ServiceEntity result = serviceRegistryService.insertService("my-service");
+        Service result = serviceRegistryService.insertService("my-service");
 
         verify(serviceRegistryDao).insertService(12345, "my-service");
-        assertThat(result.getUid()).isEqualTo(12345);
-        assertThat(result.getName()).isEqualTo("my-service");
+        assertThat(result.getServiceUid()).isEqualTo(12345);
+        assertThat(result.getServiceName()).isEqualTo("my-service");
     }
 
     @Test
@@ -110,17 +111,18 @@ class ServiceRegistryServiceImplTest {
         expected.setName("test-svc");
         when(serviceRegistryDao.selectService("test-svc")).thenReturn(expected);
 
-        ServiceEntity result = serviceRegistryService.getService("test-svc");
+        Service result = serviceRegistryService.getService("test-svc");
 
         assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo("test-svc");
+        assertThat(result.getServiceName()).isEqualTo("test-svc");
+        assertThat(result.getServiceUid()).isEqualTo(100);
     }
 
     @Test
     void getService_notFound() {
         when(serviceRegistryDao.selectService("no-svc")).thenReturn(null);
 
-        ServiceEntity result = serviceRegistryService.getService("no-svc");
+        Service result = serviceRegistryService.getService("no-svc");
 
         assertThat(result).isNull();
     }

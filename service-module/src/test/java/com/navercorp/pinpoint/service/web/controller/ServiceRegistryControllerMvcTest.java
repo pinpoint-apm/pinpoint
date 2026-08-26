@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.service.web.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.service.component.ReservedServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.service.web.controller.vo.ServiceNameRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,10 +50,8 @@ class ServiceRegistryControllerMvcTest {
     void insertService_200() throws Exception {
         ServiceNameRequest serviceNameRequest = new ServiceNameRequest("my-service");
 
-        ServiceEntity entity = new ServiceEntity();
-        entity.setUid(100);
-        entity.setName("my-service");
-        when(serviceRegistryService.insertService("my-service")).thenReturn(entity);
+        Service service = new Service("my-service", 100);
+        when(serviceRegistryService.insertService("my-service")).thenReturn(service);
 
         MvcResult result = mockMvc.perform(post("/api/v2/services")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,10 +75,8 @@ class ServiceRegistryControllerMvcTest {
 
     @Test
     void getService_found_200() throws Exception {
-        ServiceEntity entity = new ServiceEntity();
-        entity.setUid(100);
-        entity.setName("my-svc");
-        when(serviceRegistryService.getService("my-svc")).thenReturn(entity);
+        Service service = new Service("my-svc", 100);
+        when(serviceRegistryService.getService("my-svc")).thenReturn(service);
 
         MvcResult result = mockMvc.perform(get("/api/v2/services/service").param("serviceName", "my-svc"))
                 .andExpect(status().isOk())

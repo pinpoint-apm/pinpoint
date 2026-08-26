@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,7 +18,7 @@ class ServiceModelResolverTest {
         String serviceName = "serviceName";
         ServiceModelResolver resolver = new ServiceModelResolver(serviceRegistryService);
 
-        Mockito.when(serviceRegistryService.getService(serviceName)).thenReturn(serviceEntity(100000, serviceName));
+        Mockito.when(serviceRegistryService.getService(serviceName)).thenReturn(service(100000, serviceName));
 
         assertThat(resolver.getService(serviceName)).isEqualTo(new Service(serviceName, 100000));
         assertThat(resolver.getService(serviceName)).isEqualTo(new Service(serviceName, 100000));
@@ -59,10 +58,7 @@ class ServiceModelResolverTest {
         assertThat(resolver.getService(unRegisteredServiceUid)).isEqualTo(Service.DEFAULT);
     }
 
-    private ServiceEntity serviceEntity(int uid, String name) {
-        ServiceEntity service = new ServiceEntity();
-        service.setUid(uid);
-        service.setName(name);
-        return service;
+    private Service service(int uid, String name) {
+        return new Service(name, uid);
     }
 }

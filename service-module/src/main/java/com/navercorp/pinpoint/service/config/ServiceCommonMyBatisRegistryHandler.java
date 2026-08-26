@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.service.config;
 
 import com.navercorp.pinpoint.service.dao.dto.ServiceParam;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 

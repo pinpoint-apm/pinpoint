@@ -1,20 +1,20 @@
 package com.navercorp.pinpoint.service.service;
 
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.common.server.uid.Service;
 
 import java.util.List;
 
 public interface ServiceRegistryService {
 
-    ServiceEntity insertService(String name);
+    Service insertService(String name);
 
     List<String> getServiceNames();
 
-    List<ServiceEntity> getServiceList(int limit);
+    List<Service> getServiceList(int limit);
 
-    ServiceEntity getService(String name);
+    Service getService(String name);
 
-    ServiceEntity getService(int uid);
+    Service getService(int uid);
 
     void deleteService(String name);
 }

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.service.vo;
+package com.navercorp.pinpoint.service.dao.dto;
 
 import org.junit.jupiter.api.Test;
 

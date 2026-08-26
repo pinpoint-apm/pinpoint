@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ class CachingServiceModelResolverTest {
         String serviceName = "serviceName";
         CachingServiceModelResolver resolver = newResolver(Duration.ofMinutes(1));
 
-        Mockito.when(serviceRegistryService.getService(serviceName)).thenReturn(serviceEntity(100001, serviceName));
+        Mockito.when(serviceRegistryService.getService(serviceName)).thenReturn(service(100001, serviceName));
 
         assertThat(resolver.getService(serviceName)).isEqualTo(new Service(serviceName, 100001));
         assertThat(resolver.getService(serviceName)).isEqualTo(new Service(serviceName, 100001));
@@ -52,7 +51,7 @@ class CachingServiceModelResolverTest {
         int serviceUid = 100002;
         CachingServiceModelResolver resolver = newResolver(Duration.ofMinutes(1));
 
-        Mockito.when(serviceRegistryService.getService(serviceUid)).thenReturn(serviceEntity(serviceUid, serviceName));
+        Mockito.when(serviceRegistryService.getService(serviceUid)).thenReturn(service(serviceUid, serviceName));
 
         assertThat(resolver.getService(serviceUid)).isEqualTo(new Service(serviceName, serviceUid));
         assertThat(resolver.getService(serviceUid)).isEqualTo(new Service(serviceName, serviceUid));
@@ -89,7 +88,7 @@ class CachingServiceModelResolverTest {
         String unRegisteredServiceName = "unRegisteredServiceName";
         CachingServiceModelResolver resolver = newResolver(Duration.ZERO);
 
-        Mockito.when(serviceRegistryService.getService(serviceName)).thenReturn(serviceEntity(100004, serviceName));
+        Mockito.when(serviceRegistryService.getService(serviceName)).thenReturn(service(100004, serviceName));
         Mockito.when(serviceRegistryService.getService(unRegisteredServiceName)).thenReturn(null);
 
         assertThat(resolver.getService(serviceName)).isEqualTo(new Service(serviceName, 100004));
@@ -111,7 +110,7 @@ class CachingServiceModelResolverTest {
         CachingServiceModelResolver resolver = newResolver(Duration.ofMinutes(1));
 
         Mockito.when(serviceRegistryService.getServiceList(anyInt()))
-                .thenReturn(List.of(serviceEntity(serviceUid, serviceName)));
+                .thenReturn(List.of(service(serviceUid, serviceName)));
 
         resolver.refresh();
 
@@ -129,7 +128,7 @@ class CachingServiceModelResolverTest {
         CachingServiceModelResolver resolver = newResolver(Duration.ofMinutes(1));
 
         Mockito.when(serviceRegistryService.getServiceList(anyInt()))
-                .thenReturn(List.of(serviceEntity(serviceUid, serviceName)));
+                .thenReturn(List.of(service(serviceUid, serviceName)));
 
         resolver.warmup();
 
@@ -146,10 +145,7 @@ class CachingServiceModelResolverTest {
         return new CachingServiceModelResolver(serviceRegistryService, cacheManager, properties, loadProperties);
     }
 
-    private ServiceEntity serviceEntity(int uid, String name) {
-        ServiceEntity service = new ServiceEntity();
-        service.setUid(uid);
-        service.setName(name);
-        return service;
+    private Service service(int uid, String name) {
+        return new Service(name, uid);
     }
 }
