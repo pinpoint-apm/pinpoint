@@ -2,8 +2,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AgentActiveThread, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
-import { useAtomValue } from 'jotai';
+import { useLocation } from 'react-router-dom';
+import { useAtom, useAtomValue } from 'jotai';
 import {
+  activeThreadTargetAtom,
   serverMapCurrentTargetAtom,
   serverMapCurrentTargetDataAtom,
 } from '@pinpoint-fe/ui/src/atoms';
@@ -36,25 +38,16 @@ export interface AgentActiveThreadFetcherProps {
   serviceName?: string;
 }
 
-/**
- * activeThreadCount 요청의 조회 대상.
- *
- * 세 값을 한 객체로 묶어 둔다. applicationName만 따로 고정하면 잠금(lock) 상태에서 이름은
- * 그대로인데 service만 새로 고른 노드를 따라가, 그 service에 없는 application을 묻게 된다.
- */
-type ActiveThreadTarget = {
-  applicationName: string;
-  serviceName?: string;
-  serviceType?: string;
-};
-
 export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetcherProps) => {
   const { t } = useTranslation();
   const wsRef = React.useRef<WebSocket | undefined>(undefined);
   const [timezone] = useTimezone();
   const [webSocketState, setWebSocketState] = React.useState<number>(WebSocket.CLOSED);
   const currentServerMapTarget = useAtomValue(serverMapCurrentTargetAtom);
-  const targetRef = React.useRef<ActiveThreadTarget>({ applicationName: '' });
+  const { pathname } = useLocation();
+  const [storedTarget, setStoredTarget] = useAtom(activeThreadTargetAtom);
+  // 다른 화면에서 고정해 둔 대상은 이 화면의 것이 아니다. 경로가 같을 때만 이어 쓴다.
+  const target = storedTarget?.path === pathname ? storedTarget : undefined;
   const applicationName = currentServerMapTarget?.applicationName || '';
   const serviceType = currentServerMapTarget?.serviceType;
   // const { activeThreadCountsWithTotal, setActiveThreadCounts } = useActiveThread();
@@ -71,7 +64,7 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
    * 하는지 알려준다. (기준 application이 없는 servicemap 실시간 보기에서 아직 노드를 고르지
    * 않은 상태가 여기에 해당한다.)
    */
-  const hasTarget = !!(applicationName || targetRef.current.applicationName);
+  const hasTarget = !!(applicationName || target?.applicationName);
 
   React.useEffect(() => {
     initWebSocket();
@@ -82,18 +75,39 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
   }, []);
 
   React.useEffect(() => {
-    if ((applicationName && !isApplicationLocked) || targetRef.current.applicationName === '') {
-      // 세 값을 한 번에 갈아 끼운다. 아래 effect는 객체가 아니라 값 하나하나를 비교하므로,
-      // 핀만 껐다 켠 경우처럼 내용이 그대로면 요청을 다시 보내지 않는다.
-      targetRef.current = { applicationName, serviceName, serviceType };
+    if (!applicationName) {
+      return;
     }
-  }, [applicationName, serviceName, serviceType, isApplicationLocked]);
+    // 핀이 걸려 있으면 map에서 다른 노드를 골라도 조회 대상은 그대로다. 아직 대상이 없을 때
+    // (이 화면에 처음 들어왔거나 다른 화면의 대상만 남아 있을 때)만 지금 고른 노드로 정한다.
+    if (isApplicationLocked && target) {
+      return;
+    }
+    // 값이 그대로면 새로 담지 않는다. 담으면 참조가 바뀌어 아래 effect가 다시 돌고, 같은
+    // application에 같은 요청을 한 번 더 보내게 된다(핀만 껐다 켠 경우).
+    if (
+      target?.applicationName === applicationName &&
+      target?.serviceName === serviceName &&
+      target?.serviceType === serviceType
+    ) {
+      return;
+    }
+
+    setStoredTarget({ path: pathname, applicationName, serviceName, serviceType });
+  }, [
+    pathname,
+    applicationName,
+    serviceName,
+    serviceType,
+    isApplicationLocked,
+    target,
+    setStoredTarget,
+  ]);
 
   React.useEffect(() => {
     const isSocketOpen = wsRef.current?.readyState === WebSocket.OPEN;
-    const target = targetRef.current;
 
-    if (target.applicationName && isSocketOpen) {
+    if (target?.applicationName && isSocketOpen) {
       sendMessage({
         type: 'REQUEST',
         command: 'activeThreadCount',
@@ -110,12 +124,7 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
         },
       });
     }
-  }, [
-    targetRef.current.applicationName,
-    targetRef.current.serviceName,
-    targetRef.current.serviceType,
-    wsRef.current?.readyState,
-  ]);
+  }, [target, wsRef.current?.readyState]);
 
   const initWebSocket = () => {
     const location = window.location;
@@ -208,7 +217,7 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
                 </Tooltip>
               </TooltipProvider>
               <div className="flex flex-row gap-1 w-full truncate">
-                {targetRef.current.applicationName}
+                {target?.applicationName}
                 <HelpPopover helpKey="HELP_VIEWER.REAL_TIME" />
               </div>
               <div className="flex gap-1 items-center font-normal text-gray-400">
@@ -227,7 +236,7 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
             </div>
             <div className="flex flex-grow w-full h-[-webkit-fill-available] overflow-hidden">
               <AgentActiveThreadView
-                applicationName={targetRef.current.applicationName}
+                applicationName={target?.applicationName}
                 activeThreadCounts={activeThreadCounts?.result}
                 setting={setting}
               />
