@@ -102,6 +102,7 @@ export const AgentListFetcher = ({
                 key={instance?.agentId}
                 agentId={instance.agentId}
                 agentName={instance.agentName}
+                side="right"
               >
                 <div
                   className={cn(

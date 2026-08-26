@@ -50,6 +50,7 @@ export const ServerList = ({
                 key={instance.agentId}
                 agentId={instance.agentId}
                 agentName={instance.agentName}
+                side="right"
               >
                 <div
                   className={cn(
@@ -73,7 +74,7 @@ export const ServerList = ({
                   )}
                   {instance?.hasInspector && (
                     <Button
-                      className="z-10 p-1 ml-auto h-5 rounded-sm text-xxs"
+                      className="z-10 h-5 p-1 ml-auto rounded-sm text-xxs"
                       onClick={() => onClickInspectorLink?.(instance.agentId)}
                     >
                       <FaChartLine className="text-white" />

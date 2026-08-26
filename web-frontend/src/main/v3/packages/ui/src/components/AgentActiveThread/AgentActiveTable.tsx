@@ -50,9 +50,14 @@ export const AgentActiveTable = ({
 
           return (
             <TooltipProvider delayDuration={0}>
-              <div className="flex gap-1 items-center">
-                <AgentIdNameTooltip agentId={value} agentName={agentName} usePortal={true}>
-                  <div className="flex gap-1 items-center">
+              <div className="flex items-center gap-1">
+                <AgentIdNameTooltip
+                  agentId={value}
+                  agentName={agentName}
+                  usePortal={true}
+                  side="left"
+                >
+                  <div className="flex items-center gap-1">
                     <span>{agentName}</span>
                   </div>
                 </AgentIdNameTooltip>
