@@ -5,7 +5,6 @@ import com.google.common.hash.Hashing;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -46,20 +45,6 @@ public class TraceIndexRowKeyUtils {
         buffer.putShort(toAgentIdHash(agentId));
 
         buffer.putPrefixedBytes(applicationNameBytes);
-        return buffer.getBuffer();
-    }
-
-    public static byte[] createScanRowKey(int serviceUid, String applicationName, int serviceTypeCode, long timestamp) {
-        long reverseTimestamp = LongInverter.invert(timestamp);
-        Buffer buffer = new FixedBuffer(4 + 4 + 4 + 8 +
-                12
-        );
-        buffer.putInt(toApplicationNameHash(applicationName));
-        buffer.putInt(serviceUid);
-        buffer.putInt(serviceTypeCode);
-        buffer.putLong(reverseTimestamp);
-
-        buffer.putPadBytes(null, 12);  // pad 12 bytes to Prevent ArrayIndexOutOfBoundsException
         return buffer.getBuffer();
     }
 
