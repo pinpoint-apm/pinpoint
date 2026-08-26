@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.web.service.ServiceNotFoundException;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessage;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageType;
@@ -38,6 +42,8 @@ import java.util.Objects;
  */
 public abstract class ActiveThreadCountHandler extends TextWebSocketHandler implements PinpointWebSocketHandler {
 
+    public static final String SERVICE_NAME_KEY = "serviceName";
+    public static final String SERVICE_TYPE_NAME_KEY = "serviceTypeName";
     public static final String APPLICATION_NAME_KEY = "applicationName";
     public static final String DEFAULT_REQUEST_MAPPING = "/api/agent/activeThread";
 
@@ -47,14 +53,17 @@ public abstract class ActiveThreadCountHandler extends TextWebSocketHandler impl
     private final PinpointWebSocketMessageConverter messageConverter;
     private final String requestMapping;
     private final ServerMapDataFilter serverMapDataFilter;
+    private final ServiceModelResolver serviceModelResolver;
 
     public ActiveThreadCountHandler(
             PinpointWebSocketMessageConverter converter,
             ServerMapDataFilter serverMapDataFilter,
+            ServiceModelResolver serviceModelResolver,
             String requestMapping
     ) {
         this.messageConverter = Objects.requireNonNull(converter, "converter");
         this.serverMapDataFilter = serverMapDataFilter;
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
         this.requestMapping = Objects.requireNonNullElse(requestMapping, DEFAULT_REQUEST_MAPPING);
     }
 
@@ -105,15 +114,32 @@ public abstract class ActiveThreadCountHandler extends TextWebSocketHandler impl
 
     private void handleActiveThreadCount(WebSocketSession webSocketSession, RequestMessage requestMessage) {
         final String applicationName = MapUtils.getString(requestMessage.getParameters(), APPLICATION_NAME_KEY);
-        if (applicationName != null) {
-            handleActiveThreadCount(webSocketSession, applicationName);
-        } else {
+        if (applicationName == null) {
             CloseStatus status = CloseStatus.BAD_DATA.withReason("applicationName not found");
             closeSession(webSocketSession, status);
+            return;
         }
+
+        final String serviceName = MapUtils.getString(requestMessage.getParameters(), SERVICE_NAME_KEY);
+        final Service service;
+        try {
+            service = resolveService(serviceName);
+        } catch (ServiceNotFoundException e) {
+            CloseStatus status = CloseStatus.BAD_DATA.withReason("Unknown serviceName " + serviceName);
+            closeSession(webSocketSession, status);
+            return;
+        }
+        handleActiveThreadCount(webSocketSession, service.getServiceName(), applicationName);
     }
 
-    protected abstract void handleActiveThreadCount(WebSocketSession webSocketSession, String applicationName);
+    private Service resolveService(String serviceName) {
+        if (StringUtils.isEmpty(serviceName)) {
+            return Service.DEFAULT;
+        }
+        return serviceModelResolver.getService(serviceName);
+    }
+
+    protected abstract void handleActiveThreadCount(WebSocketSession webSocketSession, String serviceName, String applicationName);
 
     private void closeSession(WebSocketSession session, CloseStatus status) {
         try {

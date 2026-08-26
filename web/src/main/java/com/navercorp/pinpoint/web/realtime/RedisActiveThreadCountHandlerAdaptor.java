@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.RedisActiveThreadCountWebSocketHandler;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.apache.logging.log4j.LogManager;
@@ -39,9 +40,10 @@ public class RedisActiveThreadCountHandlerAdaptor extends ActiveThreadCountHandl
             RedisActiveThreadCountWebSocketHandler delegate,
             PinpointWebSocketMessageConverter converter,
             ServerMapDataFilter serverMapDataFilter,
+            ServiceModelResolver serviceModelResolver,
             String requestMapping
     ) {
-        super(converter, serverMapDataFilter, requestMapping);
+        super(converter, serverMapDataFilter, serviceModelResolver, requestMapping);
         this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
@@ -68,8 +70,8 @@ public class RedisActiveThreadCountHandlerAdaptor extends ActiveThreadCountHandl
     }
 
     @Override
-    protected void handleActiveThreadCount(WebSocketSession session, String applicationName) {
-        this.delegate.handleActiveThreadCount(session, applicationName);
+    protected void handleActiveThreadCount(WebSocketSession session, String serviceName, String applicationName) {
+        this.delegate.handleActiveThreadCount(session, serviceName, applicationName);
     }
 
     @Override

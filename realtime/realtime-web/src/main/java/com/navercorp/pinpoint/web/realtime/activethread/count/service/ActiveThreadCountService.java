@@ -25,7 +25,7 @@ import java.time.Duration;
  */
 public interface ActiveThreadCountService {
 
-    Flux<ActiveThreadCountResponse> getResponses(String applicationName) throws Exception;
+    Flux<ActiveThreadCountResponse> getResponses(String serviceName, String applicationName) throws Exception;
 
     class ATCPeriods {
         private final Duration periodEmit;

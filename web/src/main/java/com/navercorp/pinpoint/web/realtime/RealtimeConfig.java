@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.service.EchoService;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import com.navercorp.pinpoint.web.websocket.WebSocketTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
@@ -68,17 +69,19 @@ public class RealtimeConfig {
         Duration agentRecentness;
 
         @Bean
-        AgentLookupService agentLookupService(ApplicationAgentListService applicationAgentListService) {
-            return new AgentLookupServiceImpl(applicationAgentListService, agentRecentness);
+        AgentLookupService agentLookupService(ApplicationAgentListService applicationAgentListService,
+                                              ServiceModelResolver serviceModelResolver) {
+            return new AgentLookupServiceImpl(applicationAgentListService, serviceModelResolver, agentRecentness);
         }
 
         @Bean
         PinpointWebSocketHandler redisActiveThreadCountHandler(
                 RedisActiveThreadCountWebSocketHandler delegate,
                 PinpointWebSocketMessageConverter converter,
-                @Autowired(required = false) ServerMapDataFilter serverMapDataFilter
+                @Autowired(required = false) ServerMapDataFilter serverMapDataFilter,
+                ServiceModelResolver serviceModelResolver
         ) {
-            return new RedisActiveThreadCountHandlerAdaptor(delegate, converter, serverMapDataFilter, null);
+            return new RedisActiveThreadCountHandlerAdaptor(delegate, converter, serverMapDataFilter, serviceModelResolver, null);
         }
 
         @Bean
