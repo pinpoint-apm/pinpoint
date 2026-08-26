@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
+import com.navercorp.pinpoint.web.trace.callstacks.ErrorKey;
 import com.navercorp.pinpoint.web.trace.callstacks.Record;
 import com.navercorp.pinpoint.web.trace.callstacks.RecordSet;
 import com.navercorp.pinpoint.web.trace.span.TraceState;
@@ -193,7 +194,7 @@ public class TransactionCallTreeViewModel {
         lineNumber,
         location,
         applicationServiceType,
-        exceptionChainId,
+        errorKey,
         serviceName,
         gapNanos,
         elapsedTimeNanos,
@@ -268,7 +269,8 @@ public class TransactionCallTreeViewModel {
         private final String serviceName;
 
         private final boolean hasException;
-        private final long exceptionChainId;
+        @Nullable
+        private final ErrorKey errorKey;
         private final boolean isAuthorized;
         private final int lineNumber;
         private final String location;
@@ -318,7 +320,7 @@ public class TransactionCallTreeViewModel {
             serviceName = record.getServiceName();
 
             hasException = record.getHasException();
-            exceptionChainId = record.getExceptionChainId();
+            errorKey = record.getErrorKey();
             isAuthorized = record.isAuthorized();
             lineNumber = record.getLineNumber();
             location = record.getLocation();
@@ -468,8 +470,9 @@ public class TransactionCallTreeViewModel {
             return hasException;
         }
 
-        public String getExceptionChainId() {
-            return exceptionChainId  >= 0 ? String.valueOf(exceptionChainId) : "";
+        @Nullable
+        public ErrorKey getErrorKey() {
+            return errorKey;
         }
 
         public boolean isAuthorized() {

@@ -140,6 +140,53 @@ public class RecordFactoryTest {
     }
 
     @Test
+    public void getException_withExceptionChainId_buildsErrorKey() {
+        final RecordFactory factory = newRecordFactory();
+
+        SpanBo spanBo = new SpanBo();
+        spanBo.getSpanOwner().setApplicationName("app-name");
+        spanBo.getSpanOwner().setAgentId("agent-id");
+        spanBo.setTransactionId(new PinpointServerTraceId("test", 0, 30));
+        spanBo.setSpanId(100L);
+        spanBo.setExceptionInfo(new ExceptionInfo(1, "error"));
+        spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.EXCEPTION_CHAIN_ID.getCode(), 1400L));
+        Align align = new SpanAlign(spanBo);
+
+        Record exceptionRecord = factory.getException(0, 0, align);
+
+        ErrorKey errorKey = exceptionRecord.getErrorKey();
+        assertThat(errorKey).isNotNull();
+        assertThat(errorKey.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+        assertThat(errorKey.applicationName()).isEqualTo("app-name");
+        assertThat(errorKey.agentId()).isEqualTo("agent-id");
+        assertThat(errorKey.transactionId()).isEqualTo(align.getTransactionId());
+        assertThat(errorKey.spanId()).isEqualTo(100L);
+        assertThat(errorKey.exceptionId()).isEqualTo(1400L);
+    }
+
+    @Test
+    public void getException_withoutExceptionChainId_hasNoErrorKey() {
+        final RecordFactory factory = newRecordFactory();
+
+        SpanBo spanBo = new SpanBo();
+        spanBo.setTransactionId(new PinpointServerTraceId("test", 0, 0));
+        spanBo.setExceptionInfo(new ExceptionInfo(1, "error"));
+        Align align = new SpanAlign(spanBo);
+
+        Record exceptionRecord = factory.getException(0, 0, align);
+
+        assertThat(exceptionRecord.getErrorKey()).isNull();
+    }
+
+    @Test
+    public void errorCategoryRecord_hasNoErrorKey() {
+        Record errorCategoryRecord = ParameterRecord.errorRecord(0, 1, 0, "HTTP_STATUS(500)");
+
+        assertThat(errorCategoryRecord.getHasException()).isTrue();
+        assertThat(errorCategoryRecord.getErrorKey()).isNull();
+    }
+
+    @Test
     public void getParameter_check_argument() {
 
         final RecordFactory factory = newRecordFactory();

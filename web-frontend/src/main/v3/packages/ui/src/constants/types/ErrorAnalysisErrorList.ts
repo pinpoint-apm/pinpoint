@@ -13,8 +13,8 @@ export namespace ErrorAnalysisErrorList {
   export interface ErrorData {
     timestamp: number;
     transactionId: string;
-    spanId: number;
-    exceptionId: number;
+    spanId: string;
+    exceptionId: string;
     applicationServiceType: string;
     applicationName: string;
     agentId: string;

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.trace.callstacks;
 
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
+import org.jspecify.annotations.Nullable;
 
 /**
  * each stack
@@ -81,7 +82,8 @@ public interface Record {
 
     boolean getHasException();
 
-    long getExceptionChainId();
+    @Nullable
+    ErrorKey getErrorKey();
 
     String getTransactionId();
 

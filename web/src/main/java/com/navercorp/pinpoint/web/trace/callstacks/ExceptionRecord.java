@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.trace.span.Align;
+import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -57,7 +57,9 @@ public class ExceptionRecord extends BaseRecord {
         this.applicationName = align.getApplicationName();
         this.serviceName = align.getServiceName();
         this.applicationServiceType = applicationServiceType;
-        this.exceptionChainId = toExceptionChainId(align.getAnnotationBoList());
+        this.transactionId = align.getTransactionId();
+        this.spanId = align.getSpanId();
+        this.errorKey = toErrorKey(align);
     }
 
     String toSimpleExceptionName(String exceptionClass) {
@@ -71,16 +73,6 @@ public class ExceptionRecord extends BaseRecord {
         return exceptionClass;
     }
 
-    long toExceptionChainId(List<AnnotationBo> annotationBoList) {
-        for (AnnotationBo annotationBo : annotationBoList) {
-            if (annotationBo.getKey() == AnnotationKey.EXCEPTION_CHAIN_ID.getCode()
-                    && annotationBo.getValue() instanceof Long longValue) {
-                return longValue;
-            }
-        }
-        return -1;
-    }
-
     String buildArgument(Align align) {
         final ExceptionInfo exceptionInfo = align.getExceptionInfo();
         if (exceptionInfo == null) {
@@ -92,5 +84,23 @@ public class ExceptionRecord extends BaseRecord {
             return Objects.toString(ExceptionInfo.otelMessageBody(exceptionInfo.message()), "");
         }
         return Objects.toString(exceptionInfo.message(), "");
+    }
+
+    @Nullable
+    static ErrorKey toErrorKey(Align align) {
+        for (AnnotationBo annotationBo : align.getAnnotationBoList()) {
+            if (annotationBo.getKey() == AnnotationKey.EXCEPTION_CHAIN_ID.getCode()
+                    && annotationBo.getValue() instanceof Long exceptionId) {
+                return new ErrorKey(
+                        align.getServiceName(),
+                        align.getApplicationName(),
+                        align.getAgentId(),
+                        align.getTransactionId(),
+                        align.getSpanId(),
+                        exceptionId
+                );
+            }
+        }
+        return null;
     }
 }
