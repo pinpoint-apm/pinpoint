@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.springframework.stereotype.Component;
 
@@ -56,6 +57,7 @@ public class OtlpClientTypeResolver {
             OtlpTraceConstants.RPC_SYSTEM_DUBBO,        "APACHE_DUBBO_CONSUMER");
 
     private static final int DEFAULT_CLIENT = ServiceType.OPENTELEMETRY_CLIENT.getCode();
+    private static final int HTTP_CLIENT = ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode();
 
     // rpc.system → resolved code, eagerly populated at construction.
     private final Map<String, Integer> codeMap;
@@ -83,5 +85,31 @@ public class OtlpClientTypeResolver {
         }
         Integer code = codeMap.get(rpcSystem.toLowerCase());
         return code != null ? code : DEFAULT_CLIENT;
+    }
+
+    /**
+     * {@link #resolveClientServiceType(String)} plus the HTTP client fallback: a CLIENT span without
+     * {@code rpc.system} that carries an HTTP request method or URL key ({@code http.request.method} /
+     * {@code http.method} / {@code url.full} / {@code http.url}) becomes
+     * {@link ServiceType#OPENTELEMETRY_HTTP_CLIENT} instead of the generic client type, so the web can
+     * apply the HTTP-specific display rule (HTTP_URL argument, like the native HTTP client plugins).
+     * The framework itself still cannot be derived (see the class Javadoc). A span with an unknown
+     * {@code rpc.system} stays generic even if it also carries HTTP keys.
+     */
+    public int resolveClientServiceType(String rpcSystem, Map<String, AttributeValue> attributes) {
+        if (rpcSystem == null && isHttpClient(attributes)) {
+            return HTTP_CLIENT;
+        }
+        return resolveClientServiceType(rpcSystem);
+    }
+
+    static boolean isHttpClient(Map<String, AttributeValue> attributes) {
+        for (String key : OtlpTraceConstants.HTTP_METHOD_KEYS) {
+            if (attributes.containsKey(key)) {
+                return true;
+            }
+        }
+        return attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_URL_FULL)
+                || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL);
     }
 }

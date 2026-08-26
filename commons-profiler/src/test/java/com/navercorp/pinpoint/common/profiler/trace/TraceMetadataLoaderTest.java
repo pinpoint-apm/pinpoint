@@ -132,6 +132,23 @@ public class TraceMetadataLoaderTest {
     }
 
     @Test
+    public void openTelemetryClientDisplayArgumentTest() {
+        // HTTP client spans show the request URL like the native HTTP client plugins; the generic
+        // client type must NOT pick up HTTP_URL (it also carries non-HTTP spans).
+        TraceMetadataLoader traceMetadataLoader = new TraceMetadataLoader();
+        AnnotationKeyMatcherRegistry annotationKeyMatcherRegistry = traceMetadataLoader.createAnnotationKeyMatcherRegistry();
+
+        AnnotationKeyMatcher httpClientMatcher = annotationKeyMatcherRegistry.findAnnotationKeyMatcher(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode());
+        Assertions.assertNotNull(httpClientMatcher);
+        Assertions.assertTrue(httpClientMatcher.matches(AnnotationKey.HTTP_URL.getCode()));
+        Assertions.assertFalse(httpClientMatcher.matches(AnnotationKey.ARGS0.getCode()));
+
+        AnnotationKeyMatcher genericClientMatcher = annotationKeyMatcherRegistry.findAnnotationKeyMatcher(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+        Assertions.assertNotNull(genericClientMatcher);
+        Assertions.assertFalse(genericClientMatcher.matches(AnnotationKey.HTTP_URL.getCode()));
+    }
+
+    @Test
     public void unregisteredAnnotationKeyMatcherTest() {
         final ServiceType registeredServiceType = ServiceTypeFactory.of(999, "REGISTERED_SERVICE_TYPE", ServiceTypeProperty.RECORD_STATISTICS);
         final AnnotationKeyMatcher registeredAnnotationKeyMatcher = AnnotationKeyMatchers.ARGS_MATCHER;
