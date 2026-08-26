@@ -58,16 +58,17 @@ public class RedisActiveThreadCountWebSocketHandler {
         HandlerSession.dispose(session);
     }
 
-    public void handleActiveThreadCount(WebSocketSession wsSession, String applicationName) {
+    public void handleActiveThreadCount(WebSocketSession wsSession, String serviceName, String applicationName) {
+        Objects.requireNonNull(serviceName, "serviceName");
         Objects.requireNonNull(applicationName, "applicationName");
 
-        logger.info("ATC Requested. session: {}, applicationName: {}", wsSession, applicationName);
+        logger.info("ATC Requested. session: {}, serviceName: {}, applicationName: {}", wsSession, serviceName, applicationName);
         HandlerSession handlerSession = HandlerSession.get(wsSession);
         if (handlerSession == null) {
             logger.error("CustomSession is not initialized");
             return;
         }
-        handlerSession.start(applicationName);
+        handlerSession.start(serviceName, applicationName);
     }
 
     private static class HandlerSession implements Disposable {
@@ -77,6 +78,7 @@ public class RedisActiveThreadCountWebSocketHandler {
         private final WebSocketSession wsSession;
         private final ActiveThreadCountService atcService;
         private final Serializer<ActiveThreadCountResponse> responseSerializer;
+        private String serviceName;
         private String applicationName;
         private Disposable disposable;
 
@@ -120,21 +122,23 @@ public class RedisActiveThreadCountWebSocketHandler {
             }
         }
 
-        void start(String applicationName) {
+        void start(String serviceName, String applicationName) {
             synchronized (lock) {
-                if (this.applicationName != null && this.applicationName.equals(applicationName)) {
-                    logger.error("Already started with application {}", this.applicationName);
+                if (this.applicationName != null && this.applicationName.equals(applicationName)
+                        && Objects.equals(this.serviceName, serviceName)) {
+                    logger.error("Already started with service {}, application {}", this.serviceName, this.applicationName);
                     return;
                 }
                 dispose();
-                start0(applicationName);
+                start0(serviceName, applicationName);
             }
         }
 
-        private void start0(String applicationName) {
+        private void start0(String serviceName, String applicationName) {
             try {
+                this.serviceName = serviceName;
                 this.applicationName = applicationName;
-                Flux<ActiveThreadCountResponse> responses = this.atcService.getResponses(applicationName);
+                Flux<ActiveThreadCountResponse> responses = this.atcService.getResponses(serviceName, applicationName);
                 this.disposable = responses.subscribe(this::sendMessage);
             } catch (Exception e) {
                 logger.error("Failed to start atc session");
@@ -148,6 +152,7 @@ public class RedisActiveThreadCountWebSocketHandler {
                 if (this.disposable != null) {
                     this.disposable.dispose();
                 }
+                this.serviceName = null;
                 this.applicationName = null;
                 this.disposable = null;
             }

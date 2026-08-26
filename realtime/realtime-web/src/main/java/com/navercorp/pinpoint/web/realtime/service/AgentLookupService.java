@@ -24,6 +24,6 @@ import java.util.List;
  */
 public interface AgentLookupService {
 
-    List<ClusterKeyAndMetadata> getRecentAgents(String applicationName);
+    List<ClusterKeyAndMetadata> getRecentAgents(String serviceName, String applicationName);
 
 }

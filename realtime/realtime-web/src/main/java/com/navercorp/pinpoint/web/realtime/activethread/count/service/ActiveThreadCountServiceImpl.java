@@ -69,14 +69,14 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
     }
 
     @Override
-    public Flux<ActiveThreadCountResponse> getResponses(String applicationName) {
+    public Flux<ActiveThreadCountResponse> getResponses(String serviceName, String applicationName) {
         TaskDecorator taskDecorator = taskDecoratorFactory.createDecorator();
         SupplyCollector collector = new SupplyCollector(applicationName, emitPeriod.toMillis() * 2);
 
         Map<ClusterKey, Disposable> disposableMap = new ConcurrentHashMap<>();
 
         Disposable updateDisposable = this.scheduler.schedulePeriodically(() -> {
-            getAgents(taskDecorator, applicationName).subscribe(agents -> {
+            getAgents(taskDecorator, serviceName, applicationName).subscribe(agents -> {
                 for (ClusterKeyAndMetadata agentMetadata : agents) {
                     ClusterKey agent = agentMetadata.key();
                     Flux<ATCSupply> supplies = this.atcDao.getSupplies(agent);
@@ -106,12 +106,12 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         return new ClusterKey(supply.getServiceName(), supply.getApplicationName(), supply.getAgentId(), supply.getStartTimestamp());
     }
 
-    private Mono<List<ClusterKeyAndMetadata>> getAgents(TaskDecorator taskDecorator, String applicationName) {
+    private Mono<List<ClusterKeyAndMetadata>> getAgents(TaskDecorator taskDecorator, String serviceName, String applicationName) {
         return Mono.create(sink -> {
             taskDecorator.decorate(new Runnable() {
                 @Override
                 public void run() {
-                    sink.success(agentLookupService.getRecentAgents(applicationName));
+                    sink.success(agentLookupService.getRecentAgents(serviceName, applicationName));
                 }
             }).run();
         });
