@@ -569,7 +569,8 @@ const MethodCell = (props: {
   if (rowData.hasException) {
     Icon = <FaFire className="fill-status-fail" />;
 
-    if (rowData.exceptionChainId) {
+    const errorKey: TransactionInfo.ErrorKey | null = rowData.errorKey;
+    if (errorKey) {
       // The call stack's begin/end can be empty (0) for many nodes, which would
       // produce a window around epoch 0 and a negative `from` that the backend
       // (Timestamp) rejects. Center the window on the transaction's focus
@@ -583,11 +584,7 @@ const MethodCell = (props: {
         from,
         to,
         transactionInfo: JSON.stringify({
-          applicationName: rowData.applicationName,
-          agentId: rowData.agent,
-          spanId: transactionInfo.spanId,
-          transactionId: metaData.transactionId,
-          exceptionId: rowData.exceptionChainId,
+          ...errorKey,
           timestamp: transactionInfo.focusTimestamp,
           uriTemplate: metaData.uri,
         }),

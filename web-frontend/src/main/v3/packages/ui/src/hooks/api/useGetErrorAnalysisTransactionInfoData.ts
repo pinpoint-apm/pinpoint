@@ -17,18 +17,13 @@ const getQueryString = (queryParams: Partial<ErrorAnalysisTransactionInfo.Parame
 };
 
 export const useGetErrorAnalysisTransactionInfoData = ({
+  serviceName,
   applicationName,
   agentId,
   transactionId,
   spanId,
   exceptionId,
-}: {
-  applicationName: string;
-  agentId: string;
-  transactionId: string;
-  spanId: number;
-  exceptionId: number;
-}) => {
+}: ErrorAnalysisTransactionInfo.Parameters) => {
   const queryString = getQueryString({
     applicationName,
     agentId,
@@ -39,9 +34,9 @@ export const useGetErrorAnalysisTransactionInfoData = ({
 
   const { data, isLoading, isFetching } =
     useSuspenseQuery<ErrorAnalysisTransactionInfo.Response | null>({
-      queryKey: [END_POINTS.ERROR_ANALYSIS_TRANSACTION_INFO, queryString],
+      queryKey: [END_POINTS.ERROR_ANALYSIS_TRANSACTION_INFO, queryString, serviceName],
       queryFn: queryString
-        ? queryFn(`${END_POINTS.ERROR_ANALYSIS_TRANSACTION_INFO}${queryString}`)
+        ? queryFn(`${END_POINTS.ERROR_ANALYSIS_TRANSACTION_INFO}${queryString}`, { serviceName })
         : () => null,
     });
 

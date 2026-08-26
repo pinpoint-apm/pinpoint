@@ -16,7 +16,7 @@ const row = (r: {
   excludeFromTimeline?: boolean;
   isMethod?: boolean;
   hasException?: boolean;
-  exceptionChainId?: string;
+  errorKey?: TransactionInfo.ErrorKey;
 }): Row => {
   const beginOffsetNanos = r.beginOffsetNanos === undefined ? (r.begin ?? 0) : r.beginOffsetNanos;
   const endOffsetNanos = r.endOffsetNanos === undefined ? (r.end ?? 0) : r.endOffsetNanos;
@@ -118,7 +118,14 @@ describe('computeParallelGroups', () => {
         end: 1010,
         isMethod: false,
         hasException: true,
-        exceptionChainId: '4',
+        errorKey: {
+          serviceName: 'DEFAULT',
+          applicationName: 'app',
+          agentId: 'agent',
+          transactionId: 'agent^0^1',
+          spanId: '4',
+          exceptionId: '4',
+        },
       }),
       row({ id: 3, parentId: 1, begin: 1005, end: 1015 }),
     ];

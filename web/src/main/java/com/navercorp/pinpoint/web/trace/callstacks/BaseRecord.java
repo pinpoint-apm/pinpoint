@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.trace.callstacks;
 
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +49,7 @@ public abstract class BaseRecord implements Record {
     protected String destinationId;
     protected boolean hasChild;
     protected boolean hasException;
-    protected long exceptionChainId;
+    protected ErrorKey errorKey;
     protected String transactionId;
     protected long spanId;
     protected long executionMilliseconds;
@@ -197,8 +198,9 @@ public abstract class BaseRecord implements Record {
         return hasException;
     }
 
-    public long getExceptionChainId() {
-        return exceptionChainId;
+    @Nullable
+    public ErrorKey getErrorKey() {
+        return errorKey;
     }
 
     public String getTransactionId() {
@@ -260,7 +262,7 @@ public abstract class BaseRecord implements Record {
                 ", destinationId='" + destinationId + '\'' +
                 ", hasChild=" + hasChild +
                 ", hasException=" + hasException +
-                ", exceptionChainId=" + exceptionChainId +
+                ", errorKey=" + errorKey +
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
                 ", executionMilliseconds=" + executionMilliseconds +

@@ -18,13 +18,15 @@ package com.navercorp.pinpoint.web.trace.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.web.trace.callstacks.ErrorKey;
 
 import java.io.IOException;
 
 public class TransactionCallTreeCallStackSerializer extends JsonSerializer<TransactionCallTreeViewModel.CallStack> {
 
     @Override
-    public void serialize(TransactionCallTreeViewModel.CallStack value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(TransactionCallTreeViewModel.CallStack value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
         jgen.writeStartArray();
         jgen.writeNumber(value.getBegin());
         jgen.writeNumber(value.getEnd());
@@ -54,8 +56,7 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         jgen.writeNumber(value.getLineNumber());
         jgen.writeString(value.getLocation());
         jgen.writeString(value.getApplicationServiceType());
-        // json number overflow
-        jgen.writeString(String.valueOf(value.getExceptionChainId()));
+        writeErrorKey(jgen, value.getErrorKey());
         jgen.writeString(value.getServiceName());
         writeLong(jgen, value.getGapNanos());
         writeLong(jgen, value.getElapsedTimeNanos());
@@ -79,5 +80,21 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         } else {
             jgen.writeNumber(value);
         }
+    }
+
+    void writeErrorKey(JsonGenerator jgen, ErrorKey errorKey) throws IOException {
+        if (errorKey == null) {
+            jgen.writeNull();
+            return;
+        }
+        jgen.writeStartObject();
+        jgen.writeStringField("serviceName", errorKey.serviceName());
+        jgen.writeStringField("applicationName", errorKey.applicationName());
+        jgen.writeStringField("agentId", errorKey.agentId());
+        jgen.writeStringField("transactionId", errorKey.transactionId());
+        // json number overflow
+        jgen.writeStringField("spanId", String.valueOf(errorKey.spanId()));
+        jgen.writeStringField("exceptionId", String.valueOf(errorKey.exceptionId()));
+        jgen.writeEndObject();
     }
 }

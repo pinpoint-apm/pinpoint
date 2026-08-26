@@ -22,7 +22,7 @@ export namespace TransactionInfoType {
     callTreeTimelineEnd: number;
     callTreeTimelineDurationNanos: number;
     callStackIndex: CallStackIndex;
-    callStack: any[][]; // ['begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'exceptionChainId', 'serviceName', 'gapNanos', 'elapsedTimeNanos', 'executionNanos', 'beginOffsetNanos', 'endOffsetNanos']
+    callStack: any[][]; // ['begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'errorKey', 'serviceName', 'gapNanos', 'elapsedTimeNanos', 'executionNanos', 'beginOffsetNanos', 'endOffsetNanos']
     loggingTransactionInfo: boolean;
     agentId: string;
     agentName: string;
@@ -59,13 +59,22 @@ export namespace TransactionInfoType {
     lineNumber: number;
     location: number;
     applicationServiceType: number;
-    exceptionChainId: number;
+    errorKey: number;
     serviceName: number;
     gapNanos: number;
     elapsedTimeNanos: number;
     executionNanos: number;
     beginOffsetNanos: number;
     endOffsetNanos: number;
+  }
+
+  export interface ErrorKey {
+    serviceName: string;
+    applicationName: string;
+    agentId: string;
+    transactionId: string;
+    spanId: string;
+    exceptionId: string;
   }
 
   export type CallStackKeyValueMap = {

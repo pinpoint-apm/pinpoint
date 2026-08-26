@@ -18,9 +18,9 @@ export const Default: Story = {
     errorInfo: {
       applicationName: '',
       agentId: '',
-      spanId: 0,
+      spanId: '',
       transactionId: '',
-      exceptionId: 0,
+      exceptionId: '',
     },
   },
 };

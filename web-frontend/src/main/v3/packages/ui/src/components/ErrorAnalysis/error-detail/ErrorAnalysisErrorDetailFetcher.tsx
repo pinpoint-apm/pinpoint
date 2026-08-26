@@ -1,4 +1,8 @@
-import { useGetErrorAnalysisTransactionInfoData, useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useGetErrorAnalysisTransactionInfoData,
+  useServiceNameForLink,
+  useTimezone,
+} from '@pinpoint-fe/ui/src/hooks';
 import { ErrorAnalysisTransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../ui';
 import { ClipboardCopyButton } from '../../Button';
@@ -13,7 +17,13 @@ export const ErrorAnalysisErrorDetailFetcher = ({
   errorInfo,
 }: ErrorAnalysisErrorDetailFetcherProps) => {
   const [timezone] = useTimezone();
-  const { data } = useGetErrorAnalysisTransactionInfoData(errorInfo);
+  // TODO #14196: drop the screen-service fallback once list responses carry serviceName
+  const screenServiceName = useServiceNameForLink();
+  const requestServiceName = errorInfo.serviceName ?? screenServiceName;
+  const { data } = useGetErrorAnalysisTransactionInfoData({
+    ...errorInfo,
+    serviceName: requestServiceName,
+  });
 
   return (
     <div className="p-5 space-y-5 overflow-auto">
