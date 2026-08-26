@@ -15,6 +15,8 @@ import {
 } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import {
+  findServiceGroupLink,
+  findServiceGroupNode,
   flattenServiceMapResponse,
   getBaseNodeId,
   getServerImagePath,
@@ -72,9 +74,17 @@ export const ServiceMapFetcher = ({ shouldPoll, ...props }: ServiceMapFetcherPro
     setDataAtom(data);
   }, [data]);
 
-  const handleClickNode: ServerMapCoreProps['onClickNode'] = ({ data, eventType }) => {
-    const { label, type, imgPath, id, nodes } = data as MergedNode;
+  const handleClickNode: ServerMapCoreProps['onClickNode'] = ({ data: clickedData, eventType }) => {
+    const { label, type, imgPath, id, nodes } = clickedData as MergedNode;
     if (eventType === 'left' || eventType === 'programmatic') {
+      // service group(접힌 service) 노드는 그 자체로 조회 대상이 될 수 없다. 좌클릭은 자식
+      // application 목록 팝업을 열 뿐이고, 목록에서 b-1 같은 application을 골라야 비로소
+      // 선택이다(→ handleClickSubNode). group을 선택으로 만들면 우측 패널이 열리면서
+      // 고르지도 않은 service가 선택된 것처럼 보인다(패널에 그릴 것은 없어 비어 있다).
+      if (findServiceGroupNode(data?.applicationMapData?.nodeDataArray, id)) {
+        return;
+      }
+
       setServerMapCurrentTarget({
         id,
         applicationName: label,
@@ -87,9 +97,15 @@ export const ServiceMapFetcher = ({ shouldPoll, ...props }: ServiceMapFetcherPro
     }
   };
 
-  const handleClickEdge: ServerMapCoreProps['onClickEdge'] = ({ data, eventType }) => {
-    const { id, source, target, edges } = data as MergedEdge;
+  const handleClickEdge: ServerMapCoreProps['onClickEdge'] = ({ data: clickedData, eventType }) => {
+    const { id, source, target, edges } = clickedData as MergedEdge;
     if (eventType === 'left') {
+      // 한쪽 끝이 service group인 링크도 마찬가지다. 팝업에서 자식 링크를 골라야 선택이다.
+      // (→ handleClickSubLink)
+      if (findServiceGroupLink(data?.applicationMapData?.linkDataArray, id)) {
+        return;
+      }
+
       setServerMapCurrentTarget({
         id,
         source,
