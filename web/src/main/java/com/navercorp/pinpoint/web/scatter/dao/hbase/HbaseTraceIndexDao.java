@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.scatter.TraceIndexFilterBuilder;
 import com.navercorp.pinpoint.common.server.scatter.TraceIndexRowKeyUtils;
+import com.navercorp.pinpoint.common.server.scatter.TraceIndexScanKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.scatter.DragArea;
@@ -173,11 +174,10 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
 
-        byte[] traceIndexStartKey = TraceIndexRowKeyUtils.createScanRowKey(serviceUid, applicationName, serviceTypeCode, range.getFrom());
-        byte[] traceIndexEndKey = TraceIndexRowKeyUtils.createScanRowKey(serviceUid, applicationName, serviceTypeCode, range.getTo());
-        // start key is replaced by end key because row timestamp has been reversed
-        scan.withStartRow(traceIndexEndKey);
-        scan.withStopRow(traceIndexStartKey);
+        // reversed row timestamp is handled by TraceIndexScanKey: startKey <- range.to, endKey <- range.from
+        TraceIndexScanKey scanKey = new TraceIndexScanKey(serviceUid, applicationName, serviceTypeCode, range);
+        scan.withStartRow(scanKey.startKey());
+        scan.withStopRow(scanKey.endKey());
 
         scan.addColumn(INDEX.getName(), INDEX.getName());
         scan.setId(INDEX.getTable().getName() + "scan");
