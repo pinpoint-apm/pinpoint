@@ -24,14 +24,39 @@ import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 export interface ActiveRequestProps {}
 
-export const AgentActiveThreadFetcher = () => {
+export interface AgentActiveThreadFetcherProps {
+  /**
+   * 조회 대상 노드가 소속된 service.
+   *
+   * servicemap은 다른 service의 노드도 함께 그리므로, 조회는 화면의 service가 아니라 고른
+   * 노드의 service로 나가야 한다. 값은 `useServerMapTargetServiceName`에서 오고, 그 훅이
+   * `enableServiceMap`이 꺼져 있으면 undefined를 돌려주므로 설정이 꺼진 저장소에서는 항상
+   * undefined다.
+   */
+  serviceName?: string;
+}
+
+/**
+ * activeThreadCount 요청의 조회 대상.
+ *
+ * 세 값을 한 객체로 묶어 둔다. applicationName만 따로 고정하면 잠금(lock) 상태에서 이름은
+ * 그대로인데 service만 새로 고른 노드를 따라가, 그 service에 없는 application을 묻게 된다.
+ */
+type ActiveThreadTarget = {
+  applicationName: string;
+  serviceName?: string;
+  serviceType?: string;
+};
+
+export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetcherProps) => {
   const { t } = useTranslation();
   const wsRef = React.useRef<WebSocket | undefined>(undefined);
   const [timezone] = useTimezone();
   const [webSocketState, setWebSocketState] = React.useState<number>(WebSocket.CLOSED);
   const currentServerMapTarget = useAtomValue(serverMapCurrentTargetAtom);
-  const applicationNameRef = React.useRef('');
+  const targetRef = React.useRef<ActiveThreadTarget>({ applicationName: '' });
   const applicationName = currentServerMapTarget?.applicationName || '';
+  const serviceType = currentServerMapTarget?.serviceType;
   // const { activeThreadCountsWithTotal, setActiveThreadCounts } = useActiveThread();
   const [activeThreadCounts, setActiveThreadCounts] = React.useState<AgentActiveThread.Response>();
   const [isApplicationLocked, setApplicationLock] = React.useState(true);
@@ -46,7 +71,7 @@ export const AgentActiveThreadFetcher = () => {
    * 하는지 알려준다. (기준 application이 없는 servicemap 실시간 보기에서 아직 노드를 고르지
    * 않은 상태가 여기에 해당한다.)
    */
-  const hasTarget = !!(applicationName || applicationNameRef.current);
+  const hasTarget = !!(applicationName || targetRef.current.applicationName);
 
   React.useEffect(() => {
     initWebSocket();
@@ -57,24 +82,40 @@ export const AgentActiveThreadFetcher = () => {
   }, []);
 
   React.useEffect(() => {
-    if ((applicationName && !isApplicationLocked) || applicationNameRef.current === '') {
-      applicationNameRef.current = applicationName;
+    if ((applicationName && !isApplicationLocked) || targetRef.current.applicationName === '') {
+      // 세 값을 한 번에 갈아 끼운다. 아래 effect는 객체가 아니라 값 하나하나를 비교하므로,
+      // 핀만 껐다 켠 경우처럼 내용이 그대로면 요청을 다시 보내지 않는다.
+      targetRef.current = { applicationName, serviceName, serviceType };
     }
-  }, [applicationName, isApplicationLocked]);
+  }, [applicationName, serviceName, serviceType, isApplicationLocked]);
 
   React.useEffect(() => {
     const isSocketOpen = wsRef.current?.readyState === WebSocket.OPEN;
+    const target = targetRef.current;
 
-    if (applicationNameRef.current && isSocketOpen) {
+    if (target.applicationName && isSocketOpen) {
       sendMessage({
         type: 'REQUEST',
         command: 'activeThreadCount',
         parameters: {
-          applicationName: applicationNameRef.current,
+          applicationName: target.applicationName,
+          // 키 이름은 백엔드가 정한 것을 그대로 쓴다
+          // (ActiveThreadCountHandler의 SERVICE_NAME_KEY / SERVICE_TYPE_NAME_KEY).
+          // enableServiceMap이 꺼져 있으면 serviceName이 undefined로 들어오므로
+          // (useServerMapTargetServiceName이 한 곳에서 막는다) 파라미터도 붙지 않는다.
+          // 설정이 꺼진 저장소에는 지금까지와 똑같은 요청이 나간다(백엔드도 DEFAULT로 해석한다).
+          ...(target.serviceName
+            ? { serviceName: target.serviceName, serviceTypeName: target.serviceType }
+            : {}),
         },
       });
     }
-  }, [applicationNameRef.current, wsRef.current?.readyState]);
+  }, [
+    targetRef.current.applicationName,
+    targetRef.current.serviceName,
+    targetRef.current.serviceType,
+    wsRef.current?.readyState,
+  ]);
 
   const initWebSocket = () => {
     const location = window.location;
@@ -167,7 +208,7 @@ export const AgentActiveThreadFetcher = () => {
                 </Tooltip>
               </TooltipProvider>
               <div className="flex flex-row gap-1 w-full truncate">
-                {applicationNameRef.current}
+                {targetRef.current.applicationName}
                 <HelpPopover helpKey="HELP_VIEWER.REAL_TIME" />
               </div>
               <div className="flex gap-1 items-center font-normal text-gray-400">
@@ -186,7 +227,7 @@ export const AgentActiveThreadFetcher = () => {
             </div>
             <div className="flex flex-grow w-full h-[-webkit-fill-available] overflow-hidden">
               <AgentActiveThreadView
-                applicationName={applicationNameRef.current}
+                applicationName={targetRef.current.applicationName}
                 activeThreadCounts={activeThreadCounts?.result}
                 setting={setting}
               />
