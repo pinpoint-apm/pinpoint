@@ -3,17 +3,18 @@ package com.navercorp.pinpoint.service.service;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.service.dao.ServiceRegistryDao;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.common.server.uid.Service;
+import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Service
+@org.springframework.stereotype.Service
 public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 
     private final ServiceRegistryDao serviceRegistryDao;
@@ -28,7 +29,7 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     @Retryable(retryFor = DuplicateKeyException.class, maxAttempts = 3)
-    public ServiceEntity insertService(String name) {
+    public Service insertService(String name) {
         Objects.requireNonNull(name, "name");
         int uid = serviceUidGenerator.generate().getUid();
         try {
@@ -40,10 +41,7 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
             throw e;
         }
 
-        ServiceEntity entity = new ServiceEntity();
-        entity.setUid(uid);
-        entity.setName(name);
-        return entity;
+        return new Service(name, uid);
     }
 
     @Override
@@ -54,21 +52,26 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ServiceEntity> getServiceList(int limit) {
-        return serviceRegistryDao.selectServiceList(limit);
+    public List<Service> getServiceList(int limit) {
+        List<ServiceEntity> entityList = serviceRegistryDao.selectServiceList(limit);
+        List<Service> serviceList = new ArrayList<>(entityList.size());
+        for (ServiceEntity entity : entityList) {
+            serviceList.add(toService(entity));
+        }
+        return serviceList;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ServiceEntity getService(String name) {
+    public Service getService(String name) {
         Objects.requireNonNull(name, "name");
-        return serviceRegistryDao.selectService(name);
+        return toService(serviceRegistryDao.selectService(name));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ServiceEntity getService(int uid) {
-        return serviceRegistryDao.selectService(uid);
+    public Service getService(int uid) {
+        return toService(serviceRegistryDao.selectService(uid));
     }
 
     @Override
@@ -80,5 +83,12 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
             return;
         }
         serviceRegistryDao.deleteService(service.getUid());
+    }
+
+    private static Service toService(ServiceEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new Service(entity.getName(), entity.getUid());
     }
 }

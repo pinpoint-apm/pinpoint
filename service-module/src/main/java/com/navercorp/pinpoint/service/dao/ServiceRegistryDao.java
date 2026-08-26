@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.service.dao;
 
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
 
 import java.util.List;
 

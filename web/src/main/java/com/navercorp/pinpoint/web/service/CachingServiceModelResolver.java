@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,9 +103,8 @@ public class CachingServiceModelResolver extends ServiceModelResolver implements
         }
 
         try {
-            List<ServiceEntity> serviceList = serviceRegistryService.getServiceList(limit);
-            for (ServiceEntity entity : serviceList) {
-                Service service = toService(entity);
+            List<Service> serviceList = serviceRegistryService.getServiceList(limit);
+            for (Service service : serviceList) {
                 serviceByNameCache.put(service.getServiceName(), service);
                 serviceByUidCache.put(service.getServiceUid(), service);
             }

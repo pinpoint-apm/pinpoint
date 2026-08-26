@@ -2,10 +2,11 @@ package com.navercorp.pinpoint.service.web.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.service.component.ReservedServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
 import com.navercorp.pinpoint.service.web.controller.vo.ServiceNameRequest;
+import com.navercorp.pinpoint.service.web.controller.vo.ServiceView;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
@@ -54,14 +55,13 @@ public class ServiceRegistryController {
     }
 
     // TODO: (minwoo) 이게 진짜 필요한지 추후 검토 필요함.
-    // TODO: (minwoo) serviceEntity는 dao 개념이 더 맞아서 controller에서 return 타입으로 써도될지 고민필요하고 애초에 이런 메소드가 필요없다면 고민 필요없음.
     @GetMapping("/service")
-    public ResponseEntity<ServiceEntity> getService(@RequestParam("serviceName") @NotBlank String serviceName) {
-        ServiceEntity service = serviceRegistryService.getService(serviceName);
+    public ResponseEntity<ServiceView> getService(@RequestParam("serviceName") @NotBlank String serviceName) {
+        Service service = serviceRegistryService.getService(serviceName);
         if (service == null) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(service);
+        return ResponseEntity.ok(ServiceView.of(service));
     }
 
     @PreAuthorize("hasPermission(#serviceName, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_SERVICEAUTHORIZATION_EDIT_AUTHOR_ONLY_MANAGER)")

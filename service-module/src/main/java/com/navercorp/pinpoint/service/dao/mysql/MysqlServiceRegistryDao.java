@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.service.dao.mysql;
 
 import com.navercorp.pinpoint.service.dao.ServiceRegistryDao;
 import com.navercorp.pinpoint.service.dao.dto.ServiceParam;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
 import org.mybatis.spring.SqlSessionTemplate;
 
 import java.util.List;

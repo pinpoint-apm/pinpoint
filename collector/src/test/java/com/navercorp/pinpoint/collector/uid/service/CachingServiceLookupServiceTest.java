@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.collector.uid.config.ServiceLookupLoadProperties;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
 import com.navercorp.pinpoint.service.dao.ServiceRegistryDao;
-import com.navercorp.pinpoint.service.vo.ServiceEntity;
+import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
