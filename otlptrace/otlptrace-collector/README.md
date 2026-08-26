@@ -199,13 +199,17 @@ the ServerMap element.
 | SERVER | root SpanBo (node) | `OtlpServerTypeResolver` | `rpc.system` → `GRPC_SERVER` / `APACHE_DUBBO_PROVIDER` | `OPENTELEMETRY_SERVER` (1220) |
 | SERVER + Envoy tags | root SpanBo (node) | `OtlpEnvoyTypeResolver` | Envoy gate (below) | `ENVOY` (1550) → `OPENTELEMETRY_SERVER` |
 | CLIENT | SpanEventBo (call) | `OtlpClientTypeResolver` | `rpc.system` → `GRPC` / `APACHE_DUBBO_CONSUMER` | `OPENTELEMETRY_CLIENT` (9310) |
-| CLIENT + Envoy tags | SpanEventBo (call) | `OtlpEnvoyTypeResolver` | Envoy gate (below) | `ENVOY_EGRESS` (9302) → `OPENTELEMETRY_CLIENT` |
+| CLIENT + HTTP key, no `rpc.system` | SpanEventBo (call) | `OtlpClientTypeResolver` | `http.request.method` / `http.method` / `url.full` / `http.url` | `OPENTELEMETRY_HTTP_CLIENT` (9311) — display argument = `HTTP_URL` |
+| CLIENT + Envoy tags | SpanEventBo (call) | `OtlpEnvoyTypeResolver` | Envoy gate (below) | `ENVOY_EGRESS` (9302) → `OPENTELEMETRY_HTTP_CLIENT` |
 | CLIENT + `db.system` | SpanEventBo (call) | `OtlpDbSystemTypeResolver` | `db.system` / `db.system.name` | per DB system |
 | PRODUCER | SpanEventBo (call) | `OtlpMessagingTypeResolver` | `messaging.system` | `OPENTELEMETRY_CLIENT` |
 | INTERNAL / other | SpanEventBo | — | — | `OPENTELEMETRY_INTERNAL` (1221) / `INTERNAL_METHOD` |
 
 HTTP client/server *framework* (Tomcat, OkHttp, …) cannot be derived from OTel attributes, so plain
-HTTP spans stay on the `OPENTELEMETRY_SERVER` / `OPENTELEMETRY_CLIENT` generics.
+HTTP spans stay on the `OPENTELEMETRY_SERVER` / `OPENTELEMETRY_HTTP_CLIENT` generics. The HTTP client
+type is split from `OPENTELEMETRY_CLIENT` only so the Call Tree shows the request URL (`HTTP_URL`
+annotation) for HTTP calls, as the native HTTP client plugins do; a CLIENT span with neither an HTTP
+key nor a known `rpc.system` stays on the generic type.
 
 ### Envoy proxy spans
 

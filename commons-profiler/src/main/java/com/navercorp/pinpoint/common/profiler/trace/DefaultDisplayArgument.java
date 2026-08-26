@@ -35,6 +35,8 @@ public class DefaultDisplayArgument {
     public static final DisplayArgumentMatcher COLLECTOR_MATCHER = createArgumentMatcher(ServiceType.COLLECTOR, AnnotationKey.ARGS0);
 
     public static final DisplayArgumentMatcher OPENTELEMETRY_CLIENT_MATCHER = createArgumentMatcher(ServiceType.OPENTELEMETRY_CLIENT, AnnotationKey.ARGS0);
+    // Same display rule as the native HTTP client plugins (OkHttp / HttpClient4 / ...): the request URL.
+    public static final DisplayArgumentMatcher OPENTELEMETRY_HTTP_CLIENT_MATCHER = createArgumentMatcher(ServiceType.OPENTELEMETRY_HTTP_CLIENT, AnnotationKey.HTTP_URL);
     public static final DisplayArgumentMatcher OPENTELEMETRY_INTERNAL_MATCHER = createArgumentMatcher(ServiceType.OPENTELEMETRY_INTERNAL, AnnotationKey.ARGS0);
 
     private static AnnotationKeyMatcher createMatcher(AnnotationKey displayArgument) {

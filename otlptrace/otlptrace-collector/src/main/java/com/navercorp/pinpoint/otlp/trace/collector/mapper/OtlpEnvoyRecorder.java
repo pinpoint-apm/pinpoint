@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * annotations ({@code envoy.operation} + {@code upstream.cluster}) on the Span/SpanEvent.
  *
  * <p><b>No ServiceType override.</b> Envoy spans keep the regular OTLP types
- * (OPENTELEMETRY_SERVER / OPENTELEMETRY_CLIENT): re-typing them to ENVOY (1550) /
+ * (OPENTELEMETRY_SERVER / OPENTELEMETRY_HTTP_CLIENT via their HTTP tags): re-typing them to ENVOY (1550) /
  * ENVOY_EGRESS (9302) mixed two node types under a single applicationName whenever the
  * tag-based detection missed a span (the gate depends on Envoy's deployment-specific tag
  * configuration), causing ApplicationIndex/ServerMap type conflicts. The dedicated Envoy

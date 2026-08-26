@@ -457,6 +457,8 @@ class OtlpTraceSpanEventMapperTest {
 
     private static final int HTTP_STATUS_CODE =
             com.navercorp.pinpoint.common.trace.AnnotationKey.HTTP_STATUS_CODE.getCode();
+    private static final int HTTP_URL =
+            com.navercorp.pinpoint.common.trace.AnnotationKey.HTTP_URL.getCode();
 
     private static final int OPENTELEMETRY_SCOPE =
             com.navercorp.pinpoint.common.trace.AnnotationKey.OPENTELEMETRY_SCOPE.getCode();
@@ -518,6 +520,105 @@ class OtlpTraceSpanEventMapperTest {
         assertThat(event.getEndPoint()).isEqualTo("frontend-proxy:8080");
         assertThat(event.getDestinationId()).isEqualTo("frontend-proxy:8080");
         assertThat(attributeKeys(event)).contains("http.url");
+        assertThat(findAnnotation(event, HTTP_URL)).isEqualTo("http://frontend-proxy:8080/api/cart");
+    }
+
+    @Test
+    void map_client_urlFull_recordsHttpUrlAnnotation_stripsQueryAndUserinfo() {
+        // Mirrors the native HTTP client plugins: the request URL is recorded as the HTTP_URL (40)
+        // annotation (Call Tree display argument / RpcURLPatternFilter), query and userinfo removed.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("server.address", strVal("api.example.com")),
+                kv("server.port", intVal(443)),
+                kv("url.full", strVal("https://user:pw@api.example.com/users/123?token=abc#frag")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_URL)).isEqualTo("https://api.example.com/users/123");
+        // the raw URL attribute is not consumed by the promotion
+        assertThat(attributeKeys(event)).contains("url.full");
+    }
+
+    @Test
+    void map_client_micrometerKeys_becomesHttpClient_andRecordsHttpUrl() {
+        // Spring Boot micrometer-tracing bridge: no semconv keys, only Micrometer tags — the full
+        // http.url alone selects the HTTP client type and feeds the HTTP_URL annotation.
+        InstrumentationScope scope = InstrumentationScope.newBuilder()
+                .setName("org.springframework.boot").setVersion("4.1.0").build();
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("client.name", strVal("localhost")),
+                kv("exception", strVal("none")),
+                kv("http.url", strVal("http://localhost:18083/user/42")),
+                kv("method", strVal("GET")),
+                kv("outcome", strVal("SUCCESS")),
+                kv("status", strVal("200")),
+                kv("uri", strVal("/user/{id}")));
+
+        SpanEventBo event = mapSingle(span, scope);
+        assertThat(event.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode());
+        assertThat(findAnnotation(event, HTTP_URL)).isEqualTo("http://localhost:18083/user/42");
+        assertThat(event.getDestinationId()).isEqualTo("localhost:18083");
+        // the route template stays a raw attribute (no SpanEvent-level rpc field)
+        assertThat(attributeKeys(event)).contains("uri", "http.url");
+    }
+
+    @Test
+    void map_producer_urlFull_noHttpUrlAnnotation_notHttpClient() {
+        // HTTP-transported messaging producer: the PRODUCER branch owns the span, HTTP_URL is a
+        // CLIENT-only annotation and the HTTP client type is never applied.
+        Span span = span(Span.SpanKind.SPAN_KIND_PRODUCER,
+                kv("messaging.system", strVal("aws_sqs")),
+                kv("messaging.destination.name", strVal("orders")),
+                kv("url.full", strVal("https://sqs.ap-northeast-2.amazonaws.com/123/orders")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_URL)).isNull();
+        assertThat(event.getServiceType()).isNotEqualTo(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode());
+    }
+
+    @Test
+    void map_client_degenerateUrls_noHttpUrlAnnotation() {
+        // empty / query-only / bare scheme values carry no request target → nothing recorded,
+        // but the key still marks the span as an HTTP client
+        for (String url : new String[]{"", "?q=1", "https://", "http://?x=1"}) {
+            Span span = span(Span.SpanKind.SPAN_KIND_CLIENT, kv("url.full", strVal(url)));
+            SpanEventBo event = mapSingle(span);
+            assertThat(findAnnotation(event, HTTP_URL)).as("url=%s", url).isNull();
+            assertThat(event.getServiceType()).as("url=%s", url).isEqualTo(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode());
+        }
+        // a path-only value (no scheme) is a valid request target and is kept
+        SpanEventBo pathOnly = mapSingle(span(Span.SpanKind.SPAN_KIND_CLIENT, kv("http.url", strVal("/api/cart?x=1"))));
+        assertThat(findAnnotation(pathOnly, HTTP_URL)).isEqualTo("/api/cart");
+    }
+
+    @Test
+    void map_client_urlFullPreferredOverLegacyHttpUrl() {
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("url.full", strVal("https://api.example.com/v2/users")),
+                kv("http.url", strVal("https://api.example.com/v1/users")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_URL)).isEqualTo("https://api.example.com/v2/users");
+    }
+
+    @Test
+    void map_client_noUrl_noHttpUrlAnnotation() {
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system", strVal("grpc")),
+                kv("server.address", strVal("cart")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_URL)).isNull();
+    }
+
+    @Test
+    void map_database_noHttpUrlAnnotation() {
+        // HTTP_URL is an HTTP client annotation; DB client spans are untouched even with a URL-ish key.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("db.system", strVal("mysql")),
+                kv("url.full", strVal("jdbc:mysql://db:3306/shop")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, HTTP_URL)).isNull();
     }
 
     @Test
@@ -775,13 +876,35 @@ class OtlpTraceSpanEventMapperTest {
     }
 
     @Test
-    void map_client_http_keepsOpenTelemetryClient() {
+    void map_client_http_becomesOpenTelemetryHttpClient() {
         // Generic HTTP client (Apache HttpClient / OkHttp / java-http-client / async-http-client)
-        // emits no rpc.system and no framework identifier — stays on OPENTELEMETRY_CLIENT.
+        // emits no rpc.system and no framework identifier — the HTTP keys select the HTTP client
+        // type so the web applies the HTTP_URL display rule.
         Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
                 kv("http.request.method", strVal("GET")),
                 kv("url.full", strVal("https://api.example.com/users/123")),
                 kv("network.protocol.name", strVal("http")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode());
+    }
+
+    @Test
+    void map_client_legacyHttpUrlOnly_becomesOpenTelemetryHttpClient() {
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("http.url", strVal("http://frontend-proxy:8080/api/cart")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode());
+    }
+
+    @Test
+    void map_client_unknownRpcSystemWithHttpKeys_keepsOpenTelemetryClient() {
+        // rpc.system wins over the HTTP fallback: an RPC over HTTP (connect_rpc) is not an HTTP client call.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system", strVal("connect_rpc")),
+                kv("http.request.method", strVal("POST")),
+                kv("url.full", strVal("https://api.example.com/rpc")));
 
         SpanEventBo event = mapSingle(span);
         assertThat(event.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
@@ -807,19 +930,20 @@ class OtlpTraceSpanEventMapperTest {
     }
 
     @Test
-    void map_client_envoy_keepsOpenTelemetryClient_andRecordsAnnotations() {
-        // Envoy egress leg keeps the regular OPENTELEMETRY_CLIENT type — no ServiceType
-        // override (see OtlpEnvoyRecorder Javadoc). Envoy identification is carried by the
-        // upstream.cluster / envoy.operation annotations only.
+    void map_client_envoy_isOpenTelemetryHttpClient_andRecordsAnnotations() {
+        // Envoy egress leg is not re-typed to ENVOY_EGRESS (see OtlpEnvoyRecorder Javadoc); its
+        // HTTP tags make it a regular OPENTELEMETRY_HTTP_CLIENT. Envoy identification is carried
+        // by the upstream.cluster / envoy.operation annotations only.
         Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
                 kv("response_flags", strVal("-")),
+                kv("http.method", strVal("GET")),
                 kv("http.status_code", strVal("200")),
                 kv("upstream_cluster", strVal("frontend")),
                 kv("upstream_cluster.name", strVal("frontend")),
                 kv("upstream_address", strVal("172.18.0.27:8080")));
 
         SpanEventBo event = mapSingle(span);
-        assertThat(event.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+        assertThat(event.getServiceType()).isEqualTo(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode());
         assertThat(event.getEndPoint()).isEqualTo("172.18.0.27:8080");
         assertThat(event.getDestinationId()).isEqualTo("frontend");
         assertThat(annotationValue(event.getAnnotationBoList(), OtlpTraceConstants.ANNOTATION_KEY_UPSTREAM_CLUSTER))

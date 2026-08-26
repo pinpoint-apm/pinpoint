@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +45,34 @@ class OtlpClientTypeResolverTest {
     @Test
     void resolve_null_returnsOtlpClientFallback() {
         assertThat(resolver.resolveClientServiceType(null))
+                .isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+    }
+
+    @Test
+    void resolveWithAttributes_httpKeysWithoutRpcSystem_returnsHttpClient() {
+        for (String key : List.of("http.request.method", "http.method", "url.full", "http.url")) {
+            Map<String, AttributeValue> attributes = Map.of(key, AttributeValue.of("x"));
+            assertThat(resolver.resolveClientServiceType(null, attributes))
+                    .as(key)
+                    .isEqualTo(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode());
+        }
+    }
+
+    @Test
+    void resolveWithAttributes_noHttpKeys_returnsOtlpClientFallback() {
+        Map<String, AttributeValue> attributes = Map.of("network.protocol.name", AttributeValue.of("http"));
+        assertThat(resolver.resolveClientServiceType(null, attributes))
+                .isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+        assertThat(resolver.resolveClientServiceType(null, Map.of()))
+                .isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
+    }
+
+    @Test
+    void resolveWithAttributes_rpcSystemWinsOverHttpKeys() {
+        Map<String, AttributeValue> attributes = Map.of("http.request.method", AttributeValue.of("POST"));
+        assertThat(resolver.resolveClientServiceType("grpc", attributes)).isEqualTo(9160);
+        // unknown rpc.system stays on the generic client type even with HTTP keys
+        assertThat(resolver.resolveClientServiceType("connect_rpc", attributes))
                 .isEqualTo(ServiceType.OPENTELEMETRY_CLIENT.getCode());
     }
 

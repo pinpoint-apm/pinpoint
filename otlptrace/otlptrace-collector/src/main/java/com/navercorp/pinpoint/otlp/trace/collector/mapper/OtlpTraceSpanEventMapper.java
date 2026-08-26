@@ -133,15 +133,28 @@ public class OtlpTraceSpanEventMapper {
             spanEventBo.setEndPoint(getClientSpanToEndPoint(attributes, consumedKeys));
             spanEventBo.setDestinationId(getClientSpanToDestinationId(attributes, consumedKeys));
             // rpc.system(.name) dispatch: grpc → GRPC, dubbo/apache_dubbo → APACHE_DUBBO_CONSUMER.
-            // HTTP clients emit no rpc system → OPENTELEMETRY_CLIENT fallback.
+            // No rpc system + HTTP method/URL key → OPENTELEMETRY_HTTP_CLIENT; otherwise the
+            // generic OPENTELEMETRY_CLIENT fallback.
             final String rpcSystem = OtlpTraceSpanMapper.getRpcSystem(attributes, consumedKeys);
-            spanEventBo.setServiceType(clientTypeResolver.resolveClientServiceType(rpcSystem));
+            spanEventBo.setServiceType(clientTypeResolver.resolveClientServiceType(rpcSystem, attributes));
             // Envoy egress detection → identification annotations only. The ServiceType is NOT
-            // overridden to ENVOY_EGRESS (see OtlpEnvoyRecorder Javadoc).
+            // overridden to ENVOY_EGRESS (see OtlpEnvoyRecorder Javadoc); Envoy's HTTP tags make
+            // it an OPENTELEMETRY_HTTP_CLIENT like any other HTTP call.
             if (envoyRecorder.isEnvoy(attributes)) {
                 envoyRecorder.recordAnnotations(spanEventBo::addAnnotation, attributes, false, consumedKeys);
             }
             spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), getSpanNameOrDefault(span, OtlpTraceMapper.CLIENT_METHOD_NAME)));
+            // Request URL → HTTP_URL (40) annotation, mirroring the native HTTP client plugins
+            // (ClientRequestRecorder records InterceptorUtils.getHttpUrl(url) on the SpanEvent).
+            // The web reads this key for the Call Tree display argument and for the filtered
+            // ServerMap URL-pattern filter (RpcURLPatternFilter), neither of which sees raw
+            // attributes. Query / fragment / userinfo are stripped like the raw attribute
+            // (OtlpSensitiveAttributeFilter) and the plugins' default (param=false). The URL key
+            // is not consumed: the raw attribute keeps the full value under the same redaction.
+            final String httpUrl = getClientRequestUrl(attributes);
+            if (httpUrl != null) {
+                spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_URL.getCode(), httpUrl));
+            }
         } else if (isProducer(span)) {
             final String messagingSystem = MessagingAttributeUtils.getSystem(attributes);
             final String endPoint = MessagingAttributeUtils.resolveEndPoint(attributes);
@@ -329,6 +342,33 @@ public class OtlpTraceSpanEventMapper {
             consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_UPSTREAM_ADDRESS);
         }
         return upstreamAddress;
+    }
+
+    /**
+     * HTTP client request URL for the {@link AnnotationKey#HTTP_URL} annotation — {@code url.full}
+     * (new semconv) before {@code http.url} (legacy) — with the query string, fragment and userinfo
+     * removed. Returns {@code null} when neither key is present, the value is empty (also after
+     * stripping, e.g. {@code "?q=1"}), or an absolute URL has no host (bare {@code "https://"}).
+     */
+    static @Nullable String getClientRequestUrl(Map<String, AttributeValue> attributes) {
+        String url = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_FULL, null);
+        if (url == null) {
+            url = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL, null);
+        }
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
+        final String stripped = OtlpSensitiveAttributeFilter.stripUrl(url);
+        if (stripped.isEmpty()) {
+            return null;
+        }
+        if (stripped.contains("://")) {
+            final String hostAndPort = OtlpTraceSpanMapper.extractHostAndPort(stripped);
+            if (hostAndPort == null || hostAndPort.isEmpty()) {
+                return null;
+            }
+        }
+        return stripped;
     }
 
     /**
