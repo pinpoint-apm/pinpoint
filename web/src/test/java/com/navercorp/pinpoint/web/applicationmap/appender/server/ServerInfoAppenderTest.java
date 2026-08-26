@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;

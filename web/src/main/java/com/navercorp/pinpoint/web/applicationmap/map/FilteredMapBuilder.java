@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.web.util.OtelLinkValue;
 import com.navercorp.pinpoint.web.util.OtelLinkValueSerde;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.LinkedMultiValueMap;

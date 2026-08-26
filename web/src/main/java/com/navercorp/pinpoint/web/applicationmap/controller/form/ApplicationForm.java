@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.applicationmap.controller.form;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import jakarta.validation.constraints.NotBlank;
 
 public class ApplicationForm {

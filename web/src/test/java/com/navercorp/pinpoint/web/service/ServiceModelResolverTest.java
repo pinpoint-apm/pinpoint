@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.service.vo.ServiceEntity;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

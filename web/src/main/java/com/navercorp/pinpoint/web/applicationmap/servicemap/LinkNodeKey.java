@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.servicemap;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServiceNodeName;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 
 public interface LinkNodeKey {
 
