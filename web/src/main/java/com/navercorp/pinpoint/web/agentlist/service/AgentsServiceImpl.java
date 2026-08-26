@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;

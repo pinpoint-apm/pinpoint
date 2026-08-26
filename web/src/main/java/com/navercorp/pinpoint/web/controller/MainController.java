@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.service.CacheService;
 import com.navercorp.pinpoint.web.service.CommonService;
 import com.navercorp.pinpoint.web.service.ServiceModelResolver;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.util.TagApplicationsUtils;
 import com.navercorp.pinpoint.web.util.etag.ETag;
 import com.navercorp.pinpoint.web.util.etag.ETagUtils;

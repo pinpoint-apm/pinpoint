@@ -1,6 +1,5 @@
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.common.server.uid;
 
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 import java.util.Objects;

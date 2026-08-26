@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.util.JsonNodeUtils;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;

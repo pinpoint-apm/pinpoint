@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.service.ServiceNotFoundException;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.apache.logging.log4j.LogManager;

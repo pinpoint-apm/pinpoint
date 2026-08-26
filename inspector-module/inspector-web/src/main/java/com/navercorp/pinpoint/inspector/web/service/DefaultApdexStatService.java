@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentApdexScoreChart;

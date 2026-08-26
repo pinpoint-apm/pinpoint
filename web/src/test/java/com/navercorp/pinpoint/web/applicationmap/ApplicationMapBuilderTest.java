@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.junit.jupiter.api.AutoClose;

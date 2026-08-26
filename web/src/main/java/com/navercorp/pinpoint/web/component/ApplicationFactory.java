@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.component;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 
 /**
  * @author emeroad

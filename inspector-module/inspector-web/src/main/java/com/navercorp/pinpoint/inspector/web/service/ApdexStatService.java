@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.inspector.web.service;
 
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 
 import java.util.List;
 

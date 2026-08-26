@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
 import com.navercorp.pinpoint.web.trace.service.SpanService;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

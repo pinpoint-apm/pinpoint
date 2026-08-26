@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.transactionlist.DotMetaDataView;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionDotMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
