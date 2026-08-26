@@ -137,7 +137,7 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
             <ResizablePanel minSize={10} maxSize={90} className="!overflow-auto">
               {isFocus && (
                 <ErrorBoundary>
-                  <AgentActiveThreadFetcher />
+                  <AgentActiveThreadFetcher serviceName={targetServiceName} />
                 </ErrorBoundary>
               )}
             </ResizablePanel>
