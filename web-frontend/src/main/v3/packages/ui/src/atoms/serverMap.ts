@@ -88,6 +88,28 @@ export const currentNodeStatisticsAtom = atom<GetHistogramStatistics.Response | 
   undefined,
 );
 
+/**
+ * 실시간 activeThreadCount(WebSocket)의 조회 대상.
+ *
+ * 핀(잠금)이 걸려 있으면 map에서 다른 노드를 골라도 이 대상은 그대로다. 컴포넌트 안에 두면
+ * 다른 화면에 다녀오는 것만으로 사라져(브라우저 탭 전환도 포함된다 — `useTabFocus`가 패널을
+ * 통째로 내린다), 돌아왔을 때 핀은 그대로 꽂혀 있는데 대상만 지금 고른 노드로 바뀐다.
+ * 소켓이 다시 연결되면 떠나기 전에 보고 있던 application을 그대로 이어 보라고 아톰에 둔다.
+ *
+ * `path`는 이 대상을 고른 화면의 경로다. 경로에는 service와 기준 application이 실려 있으므로,
+ * 경로가 다르면 다른 화면을 보고 있는 것이라 고정해 둔 대상도 무효다. (아톰은 전역이라
+ * 화면 remount로 지워지지 않는다. 이 비교가 없으면 다른 application의 실시간 화면에 들어가도
+ * 이전 application의 수치를 보여준다.)
+ */
+export type ActiveThreadTarget = {
+  path: string;
+  applicationName: string;
+  serviceName?: string;
+  serviceType?: string;
+};
+
+export const activeThreadTargetAtom = atom<ActiveThreadTarget | undefined>(undefined);
+
 // server-list 선택시
 export const currentServerAtom = atom<AgentOverview.Instance | undefined>(undefined);
 
