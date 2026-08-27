@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.pair.LongPair;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -90,7 +91,7 @@ public class LinkMap {
 
     public List<Node> getFirstKey(long firstKey) {
         List<Node> nodes = this.firstKeyIndex.get(firstKey);
-        if (nodes == null || nodes.isEmpty()) {
+        if (CollectionUtils.isEmpty(nodes)) {
             return new ArrayList<>();
         }
         return new ArrayList<>(nodes);
