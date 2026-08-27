@@ -30,6 +30,16 @@ public class OtlpTraceConstants {
     // without this fallback such client spans lose their endPoint/destinationId entirely.
     public static final String ATTRIBUTE_KEY_NET_PEER_NAME = "net.peer.name";
     public static final String ATTRIBUTE_KEY_NET_PEER_PORT = "net.peer.port";
+    // Legacy (semconv 1.x) SERVER-side network keys, still the default output of
+    // opentelemetry-go-contrib <= 0.60, opentelemetry-python-contrib and otel-js < 0.221:
+    //   net.host.name / net.host.port   -> server.address / server.port   (endPoint)
+    //   net.sock.peer.addr / .port      -> network.peer.address / .port   (remoteAddr)
+    //   http.client_ip                  -> client.address                 (remoteAddr)
+    public static final String ATTRIBUTE_KEY_NET_HOST_NAME = "net.host.name";
+    public static final String ATTRIBUTE_KEY_NET_HOST_PORT = "net.host.port";
+    public static final String ATTRIBUTE_KEY_NET_SOCK_PEER_ADDR = "net.sock.peer.addr";
+    public static final String ATTRIBUTE_KEY_NET_SOCK_PEER_PORT = "net.sock.peer.port";
+    public static final String ATTRIBUTE_KEY_HTTP_CLIENT_IP = "http.client_ip";
     // Full request URL of an HTTP client span. New semconv: url.full; legacy: http.url
     // (ATTRIBUTE_KEY_HTTP_URL). Host:port is extracted as an endPoint/destinationId fallback;
     // the raw attribute is kept (path/query carry information beyond the extracted host).
