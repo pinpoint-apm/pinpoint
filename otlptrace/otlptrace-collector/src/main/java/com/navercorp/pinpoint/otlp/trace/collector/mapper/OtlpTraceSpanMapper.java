@@ -338,7 +338,16 @@ public class OtlpTraceSpanMapper {
                 final long serverPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS);
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT);
-                return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
+                return toEndPoint(serverAddress, serverPort);
+            }
+            // legacy (semconv 1.x) equivalent of server.address/server.port — still the default of
+            // opentelemetry-go-contrib <= 0.60, opentelemetry-python-contrib and otel-js < 0.221.
+            final String netHostName = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_HOST_NAME, null);
+            if (netHostName != null) {
+                final long netHostPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_HOST_PORT, 0L);
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_HOST_NAME);
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_HOST_PORT);
+                return toEndPoint(netHostName, netHostPort);
             }
             // http.url is deliberately NOT collected: only host:port is consumed and the raw URL
             // retains path/query information beyond the promoted field.
@@ -357,6 +366,41 @@ public class OtlpTraceSpanMapper {
             return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
         }
         return null;
+    }
+
+    /**
+     * Joins the host and port attributes into {@code host:port}. Some instrumentations put the raw
+     * HTTP {@code Host} header into the address attribute (opentelemetry-python-contrib util-http:
+     * {@code server.address} / {@code net.host.name} = {@code "localhost:18120"}) while also emitting
+     * the port attribute; appending the port again would yield {@code localhost:18120:18120}, so a
+     * host that already ends in {@code :<port>} is returned as-is. A bare IPv6 literal such as
+     * {@code ::1} has more than one colon and no bracket, so it still gets the port appended.
+     */
+    static String toEndPoint(String host, long port) {
+        if (port != 0 && hasPortSuffix(host)) {
+            return host;
+        }
+        return HostAndPort.toHostAndPortString(host, (int) port, 0);
+    }
+
+    static boolean hasPortSuffix(String host) {
+        final int colon = host.lastIndexOf(':');
+        if (colon <= 0 || colon == host.length() - 1) {
+            return false;
+        }
+        for (int i = colon + 1; i < host.length(); i++) {
+            if (!Character.isDigit(host.charAt(i))) {
+                return false;
+            }
+        }
+        // "host:8080" has a single colon; "[::1]:8080" closes the IPv6 literal right before it.
+        // Anything else with more colons ("::1", "fe80::1") is a bare IPv6 address.
+        return host.indexOf(':') == colon || host.charAt(colon - 1) == ']';
+    }
+
+    /** Route-template keys count only when they carry a non-blank value. */
+    static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     public static String extractHostAndPort(String url) {
@@ -414,8 +458,11 @@ public class OtlpTraceSpanMapper {
             // http.route is the matched route template ("/users/{id}") — prefer it over the raw
             // url.path ("/users/12345") so the rpc field stays low-cardinality, matching the agent's
             // recordUriTemplate behavior. Falls through to url.path when the request is unrouted.
+            // A blank value is treated as absent: otelgin (Go) emits http.route="" for unmatched
+            // routes (404), which would otherwise be stored as an empty rpc. The blank key is not
+            // consumed, so it stays visible in the raw attribute list.
             final String httpRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE, null);
-            if (httpRoute != null) {
+            if (hasText(httpRoute)) {
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE);
                 return httpRoute;
             }
@@ -423,7 +470,7 @@ public class OtlpTraceSpanMapper {
             // not emit http.route, so prefer next.route over the raw url.path/http.url/http.target
             // to keep the rpc field low-cardinality (e.g. "/api/products/[productId]/index").
             final String nextRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE, null);
-            if (nextRoute != null) {
+            if (hasText(nextRoute)) {
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE);
                 return nextRoute;
             }
@@ -517,6 +564,22 @@ public class OtlpTraceSpanMapper {
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_IP);
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NETWORK_PEER_PORT);
                 return HostAndPort.toHostAndPortString(networkPeerIp, (int) networkPeerPort, 0);
+            }
+            // legacy (semconv 1.x) equivalents — net.sock.peer.addr/.port is the old
+            // network.peer.address/.port (same host:port shape as above), http.client_ip the old
+            // client.address. Default output of opentelemetry-go-contrib <= 0.60 and
+            // opentelemetry-python-contrib.
+            final String netSockPeerAddr = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_SOCK_PEER_ADDR, null);
+            if (netSockPeerAddr != null) {
+                final long netSockPeerPort = AttributeUtils.getAttributeIntValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NET_SOCK_PEER_PORT, 0L);
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_SOCK_PEER_ADDR);
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NET_SOCK_PEER_PORT);
+                return HostAndPort.toHostAndPortString(netSockPeerAddr, (int) netSockPeerPort, 0);
+            }
+            final String httpClientIp = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_CLIENT_IP, null);
+            if (httpClientIp != null) {
+                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_CLIENT_IP);
+                return httpClientIp;
             }
             return null;
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {

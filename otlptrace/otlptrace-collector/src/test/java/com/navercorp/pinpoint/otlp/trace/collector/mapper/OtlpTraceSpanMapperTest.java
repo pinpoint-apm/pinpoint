@@ -691,6 +691,205 @@ class OtlpTraceSpanMapperTest {
         assertThat(bo.getRpc()).isEqualTo("/api/users/123");
     }
 
+    @Test
+    void map_server_blankHttpRoute_treatedAsAbsent() {
+        // otelgin (Go) emits http.route="" for an unmatched route (404). A blank template must not
+        // become the rpc; fall through to url.path and leave the blank key in the raw attributes.
+        Span span = serverSpan(
+                kv("http.route", strVal("")),
+                kv("url.path", strVal("/nosuchpath")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo("/nosuchpath");
+        assertThat(attributeKeys(bo)).contains("http.route").doesNotContain("url.path");
+    }
+
+    @Test
+    void map_server_whitespaceHttpRoute_treatedAsAbsent() {
+        Span span = serverSpan(
+                kv("http.route", strVal("  ")),
+                kv("url.path", strVal("/nosuchpath")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo("/nosuchpath");
+    }
+
+    @Test
+    void map_server_blankNextRoute_treatedAsAbsent() {
+        Span span = serverSpan(
+                kv("next.route", strVal("")),
+                kv("url.path", strVal("/api/products/1")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo("/api/products/1");
+        assertThat(attributeKeys(bo)).contains("next.route");
+    }
+
+    @Test
+    void map_server_blankHttpRoute_noOtherPathKeys_fallsToSpanName() {
+        // no path key at all → the existing span-name fallback applies, never the empty string
+        Span span = serverSpan(kv("http.route", strVal("")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo(span.getName()).isNotEmpty();
+    }
+
+    // =======================================================================
+    // map() — legacy (semconv 1.x) server-side network keys
+    // =======================================================================
+
+    @Test
+    void map_server_legacyNetHost_setsEndPoint() {
+        // opentelemetry-go-contrib <= 0.60 / python default: net.host.name + net.host.port instead of
+        // server.address + server.port. Previously the endPoint stayed null.
+        Span span = serverSpan(
+                kv("http.target", strVal("/remote")),
+                kv("net.host.name", strVal("localhost")),
+                kv("net.host.port", intVal(18092)));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("localhost:18092");
+        assertThat(attributeKeys(bo)).doesNotContain("net.host.name", "net.host.port");
+    }
+
+    @Test
+    void map_server_legacyNetHost_withoutPort() {
+        Span span = serverSpan(kv("net.host.name", strVal("api.internal")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("api.internal");
+    }
+
+    @Test
+    void map_server_serverAddressAlreadyHasPort_doesNotAppendPortAgain() {
+        // opentelemetry-python-contrib (util-http) copies the raw Host header into server.address and
+        // still emits server.port — previously stored as "localhost:18120:18120"
+        Span span = serverSpan(
+                kv("server.address", strVal("localhost:18120")),
+                kv("server.port", intVal(18120)));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("localhost:18120");
+    }
+
+    @Test
+    void map_server_legacyNetHostAlreadyHasPort_doesNotAppendPortAgain() {
+        // same instrumentation in old-semconv mode (Flask default)
+        Span span = serverSpan(
+                kv("net.host.name", strVal("localhost:18120")),
+                kv("net.host.port", intVal(18120)));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("localhost:18120");
+    }
+
+    @Test
+    void map_server_ipv6ServerAddress_stillGetsPort() {
+        Span span = serverSpan(
+                kv("server.address", strVal("::1")),
+                kv("server.port", intVal(18120)));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("::1:18120");
+    }
+
+    @Test
+    void hasPortSuffix() {
+        assertThat(OtlpTraceSpanMapper.hasPortSuffix("localhost:18120")).isTrue();
+        assertThat(OtlpTraceSpanMapper.hasPortSuffix("127.0.0.1:18131")).isTrue();
+        assertThat(OtlpTraceSpanMapper.hasPortSuffix("[::1]:18120")).isTrue();
+        assertThat(OtlpTraceSpanMapper.hasPortSuffix("localhost")).isFalse();
+        assertThat(OtlpTraceSpanMapper.hasPortSuffix("::1")).isFalse();
+        assertThat(OtlpTraceSpanMapper.hasPortSuffix("fe80::1")).isFalse();
+        assertThat(OtlpTraceSpanMapper.hasPortSuffix("localhost:")).isFalse();
+        assertThat(OtlpTraceSpanMapper.hasPortSuffix("host:abc")).isFalse();
+    }
+
+    @Test
+    void map_server_serverAddressAlreadyHasPort_withoutPortAttribute() {
+        // no server.port at all → the value is stored as-is either way
+        Span span = serverSpan(kv("server.address", strVal("localhost:18120")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("localhost:18120");
+    }
+
+    @Test
+    void map_server_blankHttpRoute_fallsToNextRoute() {
+        // the blank key is skipped, not the whole route-template stage: next.route still wins over url.path
+        Span span = serverSpan(
+                kv("http.route", strVal("")),
+                kv("next.route", strVal("/api/products/[id]")),
+                kv("url.path", strVal("/api/products/1")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo("/api/products/[id]");
+        assertThat(attributeKeys(bo)).contains("http.route").doesNotContain("next.route");
+    }
+
+    @Test
+    void map_server_legacyNetSockPeer_withoutPort() {
+        Span span = serverSpan(kv("net.sock.peer.addr", strVal("10.0.0.7")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRemoteAddr()).isEqualTo("10.0.0.7");
+    }
+
+    @Test
+    void map_server_legacyNetSockPeer_winsOverHttpClientIp() {
+        // both legacy keys present: the socket peer (the direct connection) is preferred, and only it is consumed
+        Span span = serverSpan(
+                kv("net.sock.peer.addr", strVal("::1")),
+                kv("net.sock.peer.port", intVal(5686)),
+                kv("http.client_ip", strVal("10.0.0.7")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRemoteAddr()).isEqualTo("::1:5686");
+        assertThat(attributeKeys(bo)).contains("http.client_ip").doesNotContain("net.sock.peer.addr");
+    }
+
+    @Test
+    void map_server_legacyNetPeerIp_winsOverNetSockPeer() {
+        // net.peer.ip (semconv <= 1.12, otel-js <= 0.220) sits before the semconv 1.x socket keys in the chain
+        Span span = serverSpan(
+                kv("net.peer.ip", strVal("127.0.0.1")),
+                kv("net.sock.peer.addr", strVal("::1")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRemoteAddr()).isEqualTo("127.0.0.1");
+        assertThat(attributeKeys(bo)).contains("net.sock.peer.addr").doesNotContain("net.peer.ip");
+    }
+
+    @Test
+    void map_server_stableServerAddress_winsOverLegacyNetHost() {
+        // http/dup mode emits both key sets — the stable key wins and only it is consumed
+        Span span = serverSpan(
+                kv("server.address", strVal("stable")),
+                kv("server.port", intVal(8080)),
+                kv("net.host.name", strVal("legacy")),
+                kv("net.host.port", intVal(18092)));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("stable:8080");
+        assertThat(attributeKeys(bo)).contains("net.host.name", "net.host.port").doesNotContain("server.address");
+    }
+
+    @Test
+    void map_server_legacyNetSockPeer_setsRemoteAddr() {
+        // net.sock.peer.addr/.port is the legacy network.peer.address/.port → same host:port shape
+        Span span = serverSpan(
+                kv("net.sock.peer.addr", strVal("::1")),
+                kv("net.sock.peer.port", intVal(5686)));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        // HostAndPort joins with ':' without bracketing IPv6, exactly like the network.peer.address branch
+        assertThat(bo.getRemoteAddr()).isEqualTo("::1:5686");
+        assertThat(attributeKeys(bo)).doesNotContain("net.sock.peer.addr", "net.sock.peer.port");
+    }
+
+    @Test
+    void map_server_legacyHttpClientIp_setsRemoteAddr() {
+        Span span = serverSpan(kv("http.client_ip", strVal("10.0.0.7")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRemoteAddr()).isEqualTo("10.0.0.7");
+        assertThat(attributeKeys(bo)).doesNotContain("http.client_ip");
+    }
+
+    @Test
+    void map_server_stableClientAddress_winsOverLegacyPeerKeys() {
+        Span span = serverSpan(
+                kv("client.address", strVal("192.168.0.1")),
+                kv("net.sock.peer.addr", strVal("::1")),
+                kv("http.client_ip", strVal("10.0.0.7")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRemoteAddr()).isEqualTo("192.168.0.1");
+        assertThat(attributeKeys(bo)).contains("net.sock.peer.addr", "http.client_ip");
+    }
+
     // =======================================================================
     // map() — consumedKeys: filter only what was actually promoted
     // =======================================================================
