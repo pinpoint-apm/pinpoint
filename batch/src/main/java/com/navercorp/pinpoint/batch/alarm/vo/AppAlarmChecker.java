@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.batch.alarm.vo;
 
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class AppAlarmChecker {
     }
 
     private List<AlarmChecker<?>> haveSameApplication(List<AlarmChecker<?>> children) {
-        if (children == null || children.isEmpty()) {
+        if (CollectionUtils.isEmpty(children)) {
             throw new IllegalArgumentException("children should not be empty");
         }
 

@@ -128,7 +128,7 @@ public class FilteredMapBuilder {
     }
 
     private void indexSpanEventLinks(SpanBo host, List<SpanEventBo> events, MultiValueMap<TraceSpanKey, SpanBo> index) {
-        if (events == null || events.isEmpty()) {
+        if (CollectionUtils.isEmpty(events)) {
             return;
         }
         for (SpanEventBo event : events) {
@@ -137,7 +137,7 @@ public class FilteredMapBuilder {
     }
 
     private void indexOtelLinks(SpanBo host, List<AnnotationBo> annotationBoList, MultiValueMap<TraceSpanKey, SpanBo> index) {
-        if (annotationBoList == null || annotationBoList.isEmpty()) {
+        if (CollectionUtils.isEmpty(annotationBoList)) {
             return;
         }
         for (AnnotationBo annotation : annotationBoList) {
@@ -172,7 +172,7 @@ public class FilteredMapBuilder {
     }
 
     private void matchSpanEvents(SpanBo host, List<SpanEventBo> events, MultiValueMap<TraceSpanKey, SpanBo> otelLinkIndex) {
-        if (events == null || events.isEmpty()) {
+        if (CollectionUtils.isEmpty(events)) {
             return;
         }
         for (SpanEventBo event : events) {
@@ -187,7 +187,7 @@ public class FilteredMapBuilder {
     private void matchAndAddLink(SpanBo upstream, long candidateSpanId, MultiValueMap<TraceSpanKey, SpanBo> otelLinkIndex) {
         final List<SpanBo> downstreams = otelLinkIndex.get(
                 new TraceSpanKey(upstream.getTransactionId(), candidateSpanId));
-        if (downstreams == null || downstreams.isEmpty()) {
+        if (CollectionUtils.isEmpty(downstreams)) {
             return;
         }
         for (SpanBo downstream : downstreams) {

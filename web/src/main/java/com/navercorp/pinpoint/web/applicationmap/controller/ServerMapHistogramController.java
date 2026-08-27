@@ -261,7 +261,7 @@ public class ServerMapHistogramController {
     }
 
     private Application newApplication(Service service, String nodeKey) {
-        if (nodeKey == null || nodeKey.isEmpty()) {
+        if (!StringUtils.hasLength(nodeKey)) {
             throw new IllegalArgumentException("Node key must not be null or empty");
         }
         if (!NODE_KEY_VALIDATION_PATTERN.matcher(nodeKey).matches()) {

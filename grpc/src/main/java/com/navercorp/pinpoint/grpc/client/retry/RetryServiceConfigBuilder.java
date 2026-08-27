@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.client.retry;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import io.grpc.Status;
 
 import java.util.Collections;
@@ -56,7 +57,7 @@ public class RetryServiceConfigBuilder implements ServiceConfigBuilder {
         retryPolicy.put("initialBackoff", initialBackoff);
         retryPolicy.put("maxBackoff", maxBackoff);
         retryPolicy.put("backoffMultiplier", backoffMultiplier);
-        if (retryableStatusCodes == null || retryableStatusCodes.isEmpty()) {
+        if (CollectionUtils.isEmpty(retryableStatusCodes)) {
             retryableStatusCodes = DEFAULT_RETRYABLE_STATUS_CODES;
         }
         retryPolicy.put("retryableStatusCodes", retryableStatusCodes);

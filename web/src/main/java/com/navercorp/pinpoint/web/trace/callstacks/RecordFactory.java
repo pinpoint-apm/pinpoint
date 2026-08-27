@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ErrorCategorySet;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
@@ -245,7 +246,7 @@ public class RecordFactory {
 
     public Record getAttribute(final int depth, final int parentId, Align align) {
         List<AttributeBo> attributeBoList = align.getAttributeBoList();
-        if (attributeBoList == null || attributeBoList.isEmpty()) {
+        if (CollectionUtils.isEmpty(attributeBoList)) {
             return null;
         }
         String arguments = attributeBoWriter.toJson(attributeBoList);
