@@ -1,8 +1,11 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -11,6 +14,9 @@ import org.mockito.stubbing.Answer;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,5 +67,29 @@ public class DefaultAsyncTraceContextTest {
 //        assertTrue(newTraceDisabled instanceof DisableAsyncChildTrace);
 //        assertNull(asyncTraceContext.currentRawTraceObject().get());
 //    }
+
+    @Test
+    public void baseTraceFactoryProvider_isResolvedLazilyAndOnce() {
+        BaseTraceFactory baseTraceFactory = mock(DefaultBaseTraceFactory.class);
+        BaseTraceFactoryProvider baseTraceFactoryProvider = mock(BaseTraceFactoryProvider.class);
+        when(baseTraceFactoryProvider.get()).thenReturn(baseTraceFactory);
+        when(baseTraceFactory.continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class), any(Boolean.class)))
+                .thenReturn(mock(ChildTrace.class));
+        when(baseTraceFactory.continueDisableAsyncContextTraceObject(any(LocalTraceRoot.class)))
+                .thenReturn(mock(DisableChildTrace.class));
+
+        AsyncTraceContext asyncTraceContext = new DefaultAsyncTraceContext(baseTraceFactoryProvider);
+        // the Provider breaks a Guice construction cycle: it must not be resolved in the constructor
+        verify(baseTraceFactoryProvider, never()).get();
+
+        Assertions.assertNotNull(asyncTraceContext.continueAsyncContextTraceObject(traceRoot, localAsyncId, true));
+        Assertions.assertNotNull(asyncTraceContext.continueAsyncContextTraceObject(traceRoot, localAsyncId, false));
+        Assertions.assertNotNull(asyncTraceContext.continueDisableAsyncContextTraceObject(traceRoot));
+
+        // every Provider.get() enters a new Guice InternalContext; the singleton must be cached after the first call
+        verify(baseTraceFactoryProvider, times(1)).get();
+        verify(baseTraceFactory, times(2)).continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class), any(Boolean.class));
+        verify(baseTraceFactory, times(1)).continueDisableAsyncContextTraceObject(any(LocalTraceRoot.class));
+    }
 
 }

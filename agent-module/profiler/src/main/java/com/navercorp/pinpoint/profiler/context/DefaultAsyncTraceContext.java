@@ -30,20 +30,32 @@ import java.util.Objects;
 public class DefaultAsyncTraceContext implements AsyncTraceContext {
 
     private final Provider<BaseTraceFactory> baseTraceFactoryProvider;
+    // Lazily resolved singleton; see DefaultRecorderFactory for why the Provider is kept.
+    private volatile BaseTraceFactory baseTraceFactory;
 
     public DefaultAsyncTraceContext(Provider<BaseTraceFactory> baseTraceFactoryProvider) {
         this.baseTraceFactoryProvider = Objects.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
     }
 
+    private BaseTraceFactory baseTraceFactory() {
+        BaseTraceFactory factory = this.baseTraceFactory;
+        if (factory == null) {
+            // Benign race: the binding is a singleton, so concurrent first calls resolve the same instance.
+            factory = baseTraceFactoryProvider.get();
+            this.baseTraceFactory = factory;
+        }
+        return factory;
+    }
+
     @Override
     public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean asyncTraceBlock) {
-        final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
+        final BaseTraceFactory baseTraceFactory = baseTraceFactory();
         return baseTraceFactory.continueAsyncContextTraceObject(traceRoot, localAsyncId, asyncTraceBlock);
     }
 
     @Override
     public Trace continueDisableAsyncContextTraceObject(LocalTraceRoot traceRoot) {
-        final BaseTraceFactory baseTraceFactory = baseTraceFactoryProvider.get();
+        final BaseTraceFactory baseTraceFactory = baseTraceFactory();
         return baseTraceFactory.continueDisableAsyncContextTraceObject(traceRoot);
     }
 
