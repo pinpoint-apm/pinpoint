@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.hbase.it;
 
-import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.PostConstruct;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
@@ -32,6 +31,7 @@ import org.apache.hadoop.hbase.testing.TestingHBaseCluster;
 import org.apache.hadoop.hbase.testing.TestingHBaseClusterOption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
@@ -145,7 +145,7 @@ public class HbaseTestCluster implements AutoCloseable {
 
 
     public void createNamespaceIfMissing(String namespace) throws Exception {
-        if (!StringUtils.isEmpty(namespace)) {
+        if (!StringUtils.hasLength(namespace)) {
             throw new IllegalArgumentException("namespace must not be empty");
         }
         try (Connection connection = ConnectionFactory.createConnection(cluster.getConf());
