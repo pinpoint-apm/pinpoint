@@ -43,6 +43,11 @@ public class DefaultRecorderFactory implements RecorderFactory {
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
     private final Provider<AsyncContextFactory> asyncContextFactoryProvider;
+    // Lazily resolved singleton. The Provider only exists to break the
+    // BaseTraceFactory -> RecorderFactory -> AsyncContextFactory -> AsyncTraceContext -> BaseTraceFactory
+    // construction cycle; every Guice Provider.get() enters a new InternalContext, which is too
+    // expensive to pay per span event recorder on the request path.
+    private volatile AsyncContextFactory asyncContextFactory;
     private final IgnoreErrorHandler errorHandler;
 
     private final ExceptionRecorderFactory exceptionRecorderFactory;
@@ -64,6 +69,16 @@ public class DefaultRecorderFactory implements RecorderFactory {
         this.exceptionRecorderFactory = Objects.requireNonNull(exceptionRecorderFactory, "exceptionRecorderFactory");
         this.errorRecorderFactory = Objects.requireNonNull(errorRecorderFactory, "errorRecorderFactory");
         this.sqlCountService = Objects.requireNonNull(sqlCountService, "sqlCountService");
+    }
+
+    private AsyncContextFactory asyncContextFactory() {
+        AsyncContextFactory factory = this.asyncContextFactory;
+        if (factory == null) {
+            // Benign race: the binding is a singleton, so concurrent first calls resolve the same instance.
+            factory = asyncContextFactoryProvider.get();
+            this.asyncContextFactory = factory;
+        }
+        return factory;
     }
 
     @Override
@@ -98,7 +113,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot) {
         Objects.requireNonNull(traceRoot, "traceRoot");
 
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        final AsyncContextFactory asyncContextFactory = asyncContextFactory();
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
         ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(traceRoot);
 
@@ -111,7 +126,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncState, "asyncState");
 
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        final AsyncContextFactory asyncContextFactory = asyncContextFactory();
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
         ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(traceRoot);
 
@@ -123,7 +138,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
     public WrappedSpanEventRecorder newChildTraceSpanEventRecorder(TraceRoot traceRoot) {
         Objects.requireNonNull(traceRoot, "traceRoot");
 
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        final AsyncContextFactory asyncContextFactory = asyncContextFactory();
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
         ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(traceRoot);
 
@@ -147,7 +162,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
     }
 
     private DisableSpanEventRecorder newDisableSpanEventRecorder0(LocalTraceRoot traceRoot, AsyncState asyncState) {
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        final AsyncContextFactory asyncContextFactory = asyncContextFactory();
         return new DisableSpanEventRecorder(traceRoot, asyncContextFactory, asyncState);
     }
 
@@ -156,7 +171,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncState, "asyncState");
 
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
+        final AsyncContextFactory asyncContextFactory = asyncContextFactory();
         return new DisableChildTraceSpanEventRecorder(traceRoot, asyncContextFactory, asyncState);
     }
 }
