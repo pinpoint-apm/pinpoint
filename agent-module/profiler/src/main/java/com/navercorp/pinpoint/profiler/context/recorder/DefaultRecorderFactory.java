@@ -47,7 +47,9 @@ public class DefaultRecorderFactory implements RecorderFactory {
     // BaseTraceFactory -> RecorderFactory -> AsyncContextFactory -> AsyncTraceContext -> BaseTraceFactory
     // construction cycle; every Guice Provider.get() enters a new InternalContext, which is too
     // expensive to pay per span event recorder on the request path.
-    private volatile AsyncContextFactory asyncContextFactory;
+    // Plain (non-volatile) racy cache: the singleton is immutable (final fields only), so a stale null
+    // just re-reads the same instance from the provider.
+    private AsyncContextFactory asyncContextFactory;
     private final IgnoreErrorHandler errorHandler;
 
     private final ExceptionRecorderFactory exceptionRecorderFactory;
@@ -74,7 +76,6 @@ public class DefaultRecorderFactory implements RecorderFactory {
     private AsyncContextFactory asyncContextFactory() {
         AsyncContextFactory factory = this.asyncContextFactory;
         if (factory == null) {
-            // Benign race: the binding is a singleton, so concurrent first calls resolve the same instance.
             factory = asyncContextFactoryProvider.get();
             this.asyncContextFactory = factory;
         }
