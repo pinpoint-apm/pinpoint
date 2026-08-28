@@ -30,8 +30,9 @@ import java.util.Objects;
 public class DefaultAsyncTraceContext implements AsyncTraceContext {
 
     private final Provider<BaseTraceFactory> baseTraceFactoryProvider;
-    // Lazily resolved singleton; see DefaultRecorderFactory for why the Provider is kept.
-    private volatile BaseTraceFactory baseTraceFactory;
+    // Lazily resolved singleton; see DefaultRecorderFactory for why the Provider is kept and why the
+    // plain (non-volatile) field is enough.
+    private BaseTraceFactory baseTraceFactory;
 
     public DefaultAsyncTraceContext(Provider<BaseTraceFactory> baseTraceFactoryProvider) {
         this.baseTraceFactoryProvider = Objects.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
@@ -40,7 +41,6 @@ public class DefaultAsyncTraceContext implements AsyncTraceContext {
     private BaseTraceFactory baseTraceFactory() {
         BaseTraceFactory factory = this.baseTraceFactory;
         if (factory == null) {
-            // Benign race: the binding is a singleton, so concurrent first calls resolve the same instance.
             factory = baseTraceFactoryProvider.get();
             this.baseTraceFactory = factory;
         }
