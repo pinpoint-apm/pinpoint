@@ -15,12 +15,12 @@
  */
 package com.navercorp.pinpoint.collector.monitor.micrometer.binder;
 
-import io.micrometer.common.lang.NonNull;
 import io.micrometer.core.instrument.FunctionCounter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.binder.MeterBinder;
+import org.jspecify.annotations.NonNull;
 import oshi.SystemInfo;
 import oshi.hardware.NetworkIF;
 import oshi.software.os.OSProcess;
