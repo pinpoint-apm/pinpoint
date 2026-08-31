@@ -1,3 +1,4 @@
+import { makeArgs } from './__fixtures__/loaderArgs';
 import { serverMapRouteLoader } from './serverMap';
 
 jest.mock('react-router', () => ({
@@ -9,14 +10,6 @@ jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
 }));
 
 import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
-
-const makeArgs = (url: string, params: Record<string, string> = {}) => ({
-  params,
-  request: { url } as Request,
-  url: new URL(url),
-  pattern: '',
-  context: {},
-});
 
 const APP = 'TestApp@SPRING_BOOT';
 const BASE = `/serverMap/${APP}`;

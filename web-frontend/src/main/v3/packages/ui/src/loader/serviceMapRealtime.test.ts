@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from 'react-router';
+import { makeArgs } from './__fixtures__/loaderArgs';
 import { serviceMapRealtimeLoader } from './serviceMapRealtime';
 
 jest.mock('react-router', () => ({
@@ -10,14 +10,6 @@ jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
 }));
 
 import { getRequestService } from '@pinpoint-fe/ui/src/hooks';
-
-const makeArgs = (url: string) => ({
-  params: {},
-  request: { url } as Request,
-  url: new URL(url),
-  pattern: '',
-  context: {},
-});
 
 const APP = 'TestApp@SPRING_BOOT';
 const BASE = `/serviceMap/realtime/DEFAULT/${APP}`;
@@ -112,13 +104,7 @@ describe('serviceMapRealtimeLoader', () => {
   test('returns null when an exception is thrown', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(
-      serviceMapRealtimeLoader({
-        params: {},
-        request: { url: 'not-a-valid-url' } as unknown as Request,
-        context: {},
-      } as unknown as LoaderFunctionArgs),
-    ).toBeNull();
+    expect(serviceMapRealtimeLoader(makeArgs('not-a-valid-url'))).toBeNull();
 
     jest.restoreAllMocks();
   });

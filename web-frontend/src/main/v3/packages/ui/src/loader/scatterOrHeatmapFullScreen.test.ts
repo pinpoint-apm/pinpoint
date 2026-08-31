@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from 'react-router';
+import { makeArgs } from './__fixtures__/loaderArgs';
 import {
   scatterOrHeatmapFullScreenLoader,
   scatterOrHeatmapFullScreenRealtimeLoader,
@@ -13,14 +13,6 @@ jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
 }));
 
 import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
-
-const makeArgs = (url: string, params: Record<string, string> = {}) => ({
-  params,
-  request: { url } as Request,
-  url: new URL(url),
-  pattern: '',
-  context: {},
-});
 
 const APP = 'TestApp@SPRING_BOOT';
 // The loader derives the base path from the first URL path segment.
@@ -95,11 +87,9 @@ describe('scatterOrHeatmapFullScreenRealtimeLoader', () => {
 
   test('returns null when an exception is thrown', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    const result = scatterOrHeatmapFullScreenRealtimeLoader({
-      params: { application: APP },
-      request: { url: 'not-a-valid-url' } as unknown as Request,
-      context: {},
-    } as unknown as LoaderFunctionArgs);
+    const result = scatterOrHeatmapFullScreenRealtimeLoader(
+      makeArgs('not-a-valid-url', { application: APP }),
+    );
     expect(result).toBeNull();
   });
 });

@@ -1,18 +1,10 @@
-import type { LoaderFunctionArgs } from 'react-router';
+import { makeArgs } from './__fixtures__/loaderArgs';
 import { transactionDetailRouteLoader } from './transactionDetail';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 
 jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
-
-const makeArgs = (url: string, params: Record<string, string> = {}) => ({
-  params,
-  request: { url } as Request,
-  url: new URL(url),
-  pattern: '',
-  context: {},
-});
 
 describe('transactionDetailRouteLoader', () => {
   beforeEach(() => {
@@ -58,11 +50,9 @@ describe('transactionDetailRouteLoader', () => {
   });
 
   test('returns null when an exception is thrown', () => {
-    const result = transactionDetailRouteLoader({
-      params: { application: 'TestApp@SPRING_BOOT' },
-      request: { url: 'not-a-valid-url' } as unknown as Request,
-      context: {},
-    } as unknown as LoaderFunctionArgs);
+    const result = transactionDetailRouteLoader(
+      makeArgs('not-a-valid-url', { application: 'TestApp@SPRING_BOOT' }),
+    );
     expect(result).toBeNull();
   });
 });

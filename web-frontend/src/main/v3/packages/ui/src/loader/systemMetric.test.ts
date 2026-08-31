@@ -1,3 +1,4 @@
+import { makeArgs } from './__fixtures__/loaderArgs';
 import { systemMetricRouteLoader } from './systemMetric';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 
@@ -10,14 +11,6 @@ jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
 }));
 
 import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
-
-const makeArgs = (url: string, params: Record<string, string> = {}) => ({
-  params,
-  request: { url } as Request,
-  url: new URL(url),
-  pattern: '',
-  context: {},
-});
 
 const HOST_GROUP = 'my-host-group';
 const BASE = `${APP_PATH.SYSTEM_METRIC}/${HOST_GROUP}`;
