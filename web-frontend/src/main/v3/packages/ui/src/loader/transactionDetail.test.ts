@@ -1,13 +1,16 @@
+import type { LoaderFunctionArgs } from 'react-router';
 import { transactionDetailRouteLoader } from './transactionDetail';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
 
 const makeArgs = (url: string, params: Record<string, string> = {}) => ({
   params,
   request: { url } as Request,
+  url: new URL(url),
+  pattern: '',
   context: {},
 });
 
@@ -59,7 +62,7 @@ describe('transactionDetailRouteLoader', () => {
       params: { application: 'TestApp@SPRING_BOOT' },
       request: { url: 'not-a-valid-url' } as unknown as Request,
       context: {},
-    });
+    } as unknown as LoaderFunctionArgs);
     expect(result).toBeNull();
   });
 });

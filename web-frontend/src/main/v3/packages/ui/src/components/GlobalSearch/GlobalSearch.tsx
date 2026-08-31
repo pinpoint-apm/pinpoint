@@ -17,7 +17,7 @@ import {
 import { useAtom } from 'jotai';
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { getTransactionDetailPathByTransactionId, isRegexString } from '@pinpoint-fe/ui/src/utils';
 import { PiStack } from 'react-icons/pi';
 

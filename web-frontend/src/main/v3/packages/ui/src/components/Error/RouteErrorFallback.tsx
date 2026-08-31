@@ -1,4 +1,4 @@
-import { useRouteError } from 'react-router-dom';
+import { useRouteError } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui';
 import { ErrorDetailDialog } from './ErrorDetailDialog';

@@ -8,7 +8,7 @@ import {
   SystemMetricChartList,
   LayoutWithContentSidebar,
 } from '../components';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import { useConfiguration, useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { convertParamsToQueryString, getSystemMetricPath } from '@pinpoint-fe/ui/src/utils';
 import { useTranslation } from 'react-i18next';

@@ -1,6 +1,6 @@
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { parseServiceScopedPath } from '@pinpoint-fe/ui/src/utils';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 import { resolveMapDateRangeRedirect } from './mapDateRange';
 
 /**

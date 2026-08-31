@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { addMilliseconds } from 'date-fns';
 import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { getSearchParameters, getDateRange, getRealtimeDateRange } from './utils';

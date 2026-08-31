@@ -15,7 +15,7 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { parse } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 
 /**
  * map 페이지의 날짜 파라미터를 검증/정규화하는 공용 로더.

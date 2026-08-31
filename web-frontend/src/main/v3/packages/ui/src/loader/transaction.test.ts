@@ -1,7 +1,7 @@
 import { transactionRouteLoader } from './transaction';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
 
@@ -14,6 +14,8 @@ import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 const makeArgs = (url: string, params: Record<string, string> = {}) => ({
   params,
   request: { url } as Request,
+  url: new URL(url),
+  pattern: '',
   context: {},
 });
 

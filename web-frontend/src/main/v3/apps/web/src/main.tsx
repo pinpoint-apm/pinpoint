@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider } from 'react-router';
 import { Provider as JotaiProvider, getDefaultStore } from 'jotai';
 import { IconContext } from 'react-icons';
 // import { ReactToastContainer, queryClient } from '@pinpoint-fe/ui';

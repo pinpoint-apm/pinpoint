@@ -7,7 +7,7 @@ import {
   convertParamsToQueryString,
   getFormattedDateRange,
 } from '@pinpoint-fe/ui/src/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { ApplicationLinkButton } from '../../Button/ApplicationLinkButton';
 
 export const ErrorAnalysisSidebar = () => {

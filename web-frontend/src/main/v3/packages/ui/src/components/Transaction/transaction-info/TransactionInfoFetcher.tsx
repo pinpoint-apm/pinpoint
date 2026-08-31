@@ -4,7 +4,7 @@ import { useGetTransactionInfo } from '@pinpoint-fe/ui/src/hooks';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Button, HelpPopover, Tabs, TabsContent, TabsList, TabsTrigger } from '../..';
 import { CallTree } from '..';
 import {

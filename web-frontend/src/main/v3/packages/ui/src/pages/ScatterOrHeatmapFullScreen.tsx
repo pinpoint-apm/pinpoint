@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   convertParamsToQueryString,
   getHeatmapFullScreenPath,
@@ -10,7 +10,7 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { useConfiguration, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import {
   ApplicationCombinedList,
   DatetimePicker,

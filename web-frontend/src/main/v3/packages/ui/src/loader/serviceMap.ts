@@ -2,7 +2,7 @@ import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms';
 import { getRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { getServiceMapPath, parseServiceScopedPath } from '@pinpoint-fe/ui/src/utils';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 import { resolveMapDateRangeRedirect } from './mapDateRange';
 
 /**

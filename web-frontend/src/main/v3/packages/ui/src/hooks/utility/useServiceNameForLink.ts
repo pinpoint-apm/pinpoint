@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useAtomValue } from 'jotai';
 import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import { getServiceNameFromPath } from '@pinpoint-fe/ui/src/utils';

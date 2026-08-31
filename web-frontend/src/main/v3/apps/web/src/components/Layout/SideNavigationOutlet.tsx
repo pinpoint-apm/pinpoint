@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import { LayoutWithSideNavigation } from './LayoutWithSideNavigation';
 
 export const SideNavigationOutlet = () => {

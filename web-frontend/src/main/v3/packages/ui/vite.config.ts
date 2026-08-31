@@ -15,7 +15,7 @@ export default defineConfig({
       external: [
         'react',
         'react-dom',
-        'react-router-dom',
+        'react-router',
         'jotai',
         'i18next',
         'react-i18next',

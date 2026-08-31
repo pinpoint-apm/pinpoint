@@ -1,6 +1,6 @@
 import { serviceMapRouteLoader } from './serviceMap';
 
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
 
@@ -14,6 +14,8 @@ import { getConfiguration, getRequestService } from '@pinpoint-fe/ui/src/hooks';
 const makeArgs = (url: string) => ({
   params: {},
   request: { url } as Request,
+  url: new URL(url),
+  pattern: '',
   context: {},
 });
 

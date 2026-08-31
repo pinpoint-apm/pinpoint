@@ -4,7 +4,7 @@ import { Separator } from '../../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { t } from 'i18next';
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 export interface LayoutWithAlarmProps {
   children?: React.ReactNode;
 }

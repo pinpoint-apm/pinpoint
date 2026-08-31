@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { createBrowserRouter, redirect } from 'react-router-dom';
+import { createBrowserRouter, redirect } from 'react-router';
 import {
   serverMapRouteLoader,
   serviceMapRouteLoader,

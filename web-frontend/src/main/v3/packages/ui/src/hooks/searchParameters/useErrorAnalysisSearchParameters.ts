@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { getDateRange, getSearchParameters } from './utils';
 

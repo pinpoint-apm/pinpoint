@@ -6,7 +6,7 @@ import {
 } from '@pinpoint-fe/ui/src/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatInTimeZone } from 'date-fns-tz';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   FaFire,
   FaDatabase,
