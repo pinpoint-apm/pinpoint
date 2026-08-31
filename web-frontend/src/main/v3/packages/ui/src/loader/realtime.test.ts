@@ -1,17 +1,9 @@
-import type { LoaderFunctionArgs } from 'react-router';
+import { makeArgs } from './__fixtures__/loaderArgs';
 import { realtimeLoader } from './realtime';
 
 jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
-
-const makeArgs = (url: string, params: Record<string, string> = {}) => ({
-  params,
-  request: { url } as Request,
-  url: new URL(url),
-  pattern: '',
-  context: {},
-});
 
 describe('realtimeLoader', () => {
   beforeEach(() => {
@@ -51,11 +43,9 @@ describe('realtimeLoader', () => {
   });
 
   test('returns null when an exception is thrown', () => {
-    const result = realtimeLoader({
-      params: { application: 'TestApp@SPRING_BOOT' },
-      request: { url: 'not-a-valid-url' } as unknown as Request,
-      context: {},
-    } as unknown as LoaderFunctionArgs);
+    const result = realtimeLoader(
+      makeArgs('not-a-valid-url', { application: 'TestApp@SPRING_BOOT' }),
+    );
     expect(result).toBeNull();
   });
 });

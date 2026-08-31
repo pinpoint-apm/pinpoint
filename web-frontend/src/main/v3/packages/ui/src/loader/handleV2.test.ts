@@ -1,17 +1,10 @@
+import { makeArgs } from './__fixtures__/loaderArgs';
 import { handleV2RouteLoader } from './handleV2';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 
 jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
-
-const makeArgs = (url: string, params: Record<string, string> = {}) => ({
-  params,
-  request: { url } as Request,
-  url: new URL(url),
-  pattern: '',
-  context: {},
-});
 
 describe('handleV2RouteLoader', () => {
   test('redirects to serverMap with formatted v3 date params for valid v2 params', () => {

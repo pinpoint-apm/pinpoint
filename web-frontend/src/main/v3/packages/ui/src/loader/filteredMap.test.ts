@@ -1,3 +1,4 @@
+import { makeArgs } from './__fixtures__/loaderArgs';
 import { filteredMapRouteLoader } from './filteredMap';
 
 jest.mock('react-router', () => ({
@@ -9,14 +10,6 @@ jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
 }));
 
 import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
-
-const makeArgs = (url: string) => ({
-  params: {},
-  request: { url } as Request,
-  url: new URL(url),
-  pattern: '',
-  context: {},
-});
 
 const APP = 'ACL-PORTAL-DEV@SPRING_BOOT';
 const VALID = 'from=2023-11-10-14-30-00&to=2023-11-10-15-00-00';
