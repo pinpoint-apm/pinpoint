@@ -712,8 +712,11 @@ export const ServerMapCore = ({
                                   className={cn(isSelected && 'bg-accent font-semibold')}
                                   onClick={() => onClickSubNode?.(subNode)}
                                 >
+                                  {/* 아이콘은 바로 옆 이름이 말해 주는 것을 되풀이할 뿐이라
+                                      스크린 리더에는 읽히지 않게 둔다. */}
                                   <img
                                     src={getServerImagePath(subNode)}
+                                    alt=""
                                     width={28}
                                     className="shrink-0"
                                   />
