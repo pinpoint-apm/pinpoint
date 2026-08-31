@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +70,7 @@ class ServiceRegistryControllerTest {
 
     @Test
     void getServiceNames_returnsList() {
-        when(serviceRegistryService.getServiceNames()).thenReturn(Arrays.asList("svc-a", "svc-b"));
+        when(serviceRegistryService.getServiceNames()).thenReturn(List.of("svc-a", "svc-b"));
 
         List<String> result = controller.getServiceNames();
 

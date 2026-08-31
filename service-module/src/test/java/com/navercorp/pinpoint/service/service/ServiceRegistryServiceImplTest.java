@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,7 +54,13 @@ class ServiceRegistryServiceImplTest {
     @Test
     void insertService_nullName() {
         assertThatThrownBy(() -> serviceRegistryService.insertService(null))
-                .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void insertService_emptyName() {
+        assertThatThrownBy(() -> serviceRegistryService.insertService(""))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -66,7 +71,7 @@ class ServiceRegistryServiceImplTest {
         ServiceEntity existing = new ServiceEntity();
         existing.setUid(99999);
         existing.setName("my-service");
-        when(serviceRegistryDao.selectService("my-service")).thenReturn(existing);
+        when(serviceRegistryDao.selectServiceByName("my-service")).thenReturn(existing);
 
         assertThatThrownBy(() -> serviceRegistryService.insertService("my-service"))
                 .isInstanceOf(DataIntegrityViolationException.class)
@@ -78,7 +83,7 @@ class ServiceRegistryServiceImplTest {
         ServiceUid serviceUid = ServiceUid.of(12345);
         when(serviceUidGenerator.generate()).thenReturn(serviceUid);
         when(serviceRegistryDao.insertService(12345, "my-service")).thenThrow(new DuplicateKeyException("duplicate"));
-        when(serviceRegistryDao.selectService("my-service")).thenReturn(null);
+        when(serviceRegistryDao.selectServiceByName("my-service")).thenReturn(null);
 
         assertThatThrownBy(() -> serviceRegistryService.insertService("my-service"))
                 .isInstanceOf(DuplicateKeyException.class);
@@ -86,7 +91,7 @@ class ServiceRegistryServiceImplTest {
 
     @Test
     void getServiceNames_returnsList() {
-        List<String> names = Arrays.asList("svc-a", "svc-b");
+        List<String> names = List.of("svc-a", "svc-b");
         when(serviceRegistryDao.selectServiceNames()).thenReturn(names);
 
         List<String> result = serviceRegistryService.getServiceNames();
@@ -109,7 +114,7 @@ class ServiceRegistryServiceImplTest {
         ServiceEntity expected = new ServiceEntity();
         expected.setUid(100);
         expected.setName("test-svc");
-        when(serviceRegistryDao.selectService("test-svc")).thenReturn(expected);
+        when(serviceRegistryDao.selectServiceByName("test-svc")).thenReturn(expected);
 
         Service result = serviceRegistryService.getService("test-svc");
 
@@ -120,7 +125,7 @@ class ServiceRegistryServiceImplTest {
 
     @Test
     void getService_notFound() {
-        when(serviceRegistryDao.selectService("no-svc")).thenReturn(null);
+        when(serviceRegistryDao.selectServiceByName("no-svc")).thenReturn(null);
 
         Service result = serviceRegistryService.getService("no-svc");
 
@@ -138,7 +143,7 @@ class ServiceRegistryServiceImplTest {
         ServiceEntity existing = new ServiceEntity();
         existing.setUid(300);
         existing.setName("to-delete");
-        when(serviceRegistryDao.selectService("to-delete")).thenReturn(existing);
+        when(serviceRegistryDao.selectServiceByName("to-delete")).thenReturn(existing);
 
         serviceRegistryService.deleteService("to-delete");
 
@@ -147,7 +152,7 @@ class ServiceRegistryServiceImplTest {
 
     @Test
     void deleteService_notFound_silent() {
-        when(serviceRegistryDao.selectService("missing")).thenReturn(null);
+        when(serviceRegistryDao.selectServiceByName("missing")).thenReturn(null);
 
         serviceRegistryService.deleteService("missing");
 

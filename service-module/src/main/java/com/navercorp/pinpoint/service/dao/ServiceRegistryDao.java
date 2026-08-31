@@ -12,9 +12,9 @@ public interface ServiceRegistryDao {
 
     List<ServiceEntity> selectServiceList(int limit);
 
-    ServiceEntity selectService(String name);
+    ServiceEntity selectServiceByName(String name);
 
-    ServiceEntity selectService(int uid);
+    ServiceEntity selectServiceByUid(int uid);
 
     void deleteService(int uid);
 }

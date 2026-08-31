@@ -1,11 +1,18 @@
 package com.navercorp.pinpoint.service.dao.dto;
 
+import java.util.Objects;
+
 public class ServiceEntity {
 
     private int uid;
     private String name;
 
     public ServiceEntity() {
+    }
+
+    public ServiceEntity(int uid, String name) {
+        this.uid = uid;
+        this.name = Objects.requireNonNull(name, "name");
     }
 
     public int getUid() {

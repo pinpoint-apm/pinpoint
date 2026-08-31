@@ -49,12 +49,12 @@ class CachingServiceLookupServiceTest {
         String serviceName = "serviceName";
         ServiceLookupService service = newService(Duration.ofMinutes(1));
 
-        Mockito.when(serviceRegistryDao.selectService(serviceName)).thenReturn(serviceEntity(100001, serviceName));
+        Mockito.when(serviceRegistryDao.selectServiceByName(serviceName)).thenReturn(serviceEntity(100001, serviceName));
 
         assertThat(service.getServiceUid(serviceName).join()).isEqualTo(ServiceUid.of(100001));
         assertThat(service.getServiceUid(serviceName).join()).isEqualTo(ServiceUid.of(100001));
 
-        Mockito.verify(serviceRegistryDao, times(1)).selectService(serviceName);
+        Mockito.verify(serviceRegistryDao, times(1)).selectServiceByName(serviceName);
     }
 
     @Test
@@ -73,7 +73,7 @@ class CachingServiceLookupServiceTest {
         CountDownLatch loaderStarted = new CountDownLatch(1);
         CountDownLatch completeLoader = new CountDownLatch(1);
 
-        Mockito.when(serviceRegistryDao.selectService(serviceName)).thenAnswer(invocation -> {
+        Mockito.when(serviceRegistryDao.selectServiceByName(serviceName)).thenAnswer(invocation -> {
             loaderStarted.countDown();
             assertThat(completeLoader.await(1, TimeUnit.SECONDS)).isTrue();
             return serviceEntity(100002, serviceName);
@@ -88,7 +88,7 @@ class CachingServiceLookupServiceTest {
         assertThat(future1.join()).isEqualTo(ServiceUid.of(100002));
         assertThat(future2.join()).isEqualTo(ServiceUid.of(100002));
         assertThat(future3.join()).isEqualTo(ServiceUid.of(100002));
-        Mockito.verify(serviceRegistryDao, times(1)).selectService(serviceName);
+        Mockito.verify(serviceRegistryDao, times(1)).selectServiceByName(serviceName);
     }
 
     @Test
@@ -96,12 +96,12 @@ class CachingServiceLookupServiceTest {
         String unRegisteredServiceName = "unRegisteredServiceName";
         ServiceLookupService service = newService(Duration.ofMinutes(1));
 
-        Mockito.when(serviceRegistryDao.selectService(unRegisteredServiceName)).thenReturn(null);
+        Mockito.when(serviceRegistryDao.selectServiceByName(unRegisteredServiceName)).thenReturn(null);
 
         assertThat(service.getServiceUid(unRegisteredServiceName).join()).isNull();
         assertThat(service.getServiceUid(unRegisteredServiceName).join()).isNull();
 
-        Mockito.verify(serviceRegistryDao, times(1)).selectService(unRegisteredServiceName);
+        Mockito.verify(serviceRegistryDao, times(1)).selectServiceByName(unRegisteredServiceName);
     }
 
     @Test
@@ -110,8 +110,8 @@ class CachingServiceLookupServiceTest {
         String unRegisteredServiceName = "unRegisteredServiceName";
         ServiceLookupService service = newService(Duration.ZERO);
 
-        Mockito.when(serviceRegistryDao.selectService(serviceName)).thenReturn(serviceEntity(100004, serviceName));
-        Mockito.when(serviceRegistryDao.selectService(unRegisteredServiceName)).thenReturn(null);
+        Mockito.when(serviceRegistryDao.selectServiceByName(serviceName)).thenReturn(serviceEntity(100004, serviceName));
+        Mockito.when(serviceRegistryDao.selectServiceByName(unRegisteredServiceName)).thenReturn(null);
 
         assertThat(service.getServiceUid(serviceName).join()).isEqualTo(ServiceUid.of(100004));
         assertThat(service.getServiceUid(serviceName).join()).isEqualTo(ServiceUid.of(100004));
@@ -119,10 +119,10 @@ class CachingServiceLookupServiceTest {
 
         await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
             assertThat(service.getServiceUid(unRegisteredServiceName).join()).isNull();
-            Mockito.verify(serviceRegistryDao, atLeast(2)).selectService(unRegisteredServiceName);
+            Mockito.verify(serviceRegistryDao, atLeast(2)).selectServiceByName(unRegisteredServiceName);
         });
 
-        Mockito.verify(serviceRegistryDao, times(1)).selectService(serviceName);
+        Mockito.verify(serviceRegistryDao, times(1)).selectServiceByName(serviceName);
     }
 
     private ServiceLookupService newService(Duration missingExpireAfterWrite) {
