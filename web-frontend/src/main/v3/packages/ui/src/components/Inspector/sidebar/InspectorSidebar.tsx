@@ -7,7 +7,7 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { ApplicationLinkButton } from '../../Button/ApplicationLinkButton';
 import { Separator } from '../../ui';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 export const InspectorSidebar = () => {
   const navigate = useNavigate();

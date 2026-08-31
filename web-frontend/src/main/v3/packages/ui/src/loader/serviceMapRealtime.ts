@@ -2,7 +2,7 @@ import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms';
 import { getRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { getServiceMapRealtimePath, parseServiceScopedPath } from '@pinpoint-fe/ui/src/utils';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 
 /**
  * servicemap 실시간 보기의 라우트 로더.

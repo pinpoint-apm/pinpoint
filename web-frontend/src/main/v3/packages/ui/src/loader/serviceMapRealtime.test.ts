@@ -1,6 +1,7 @@
+import type { LoaderFunctionArgs } from 'react-router';
 import { serviceMapRealtimeLoader } from './serviceMapRealtime';
 
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
 
@@ -13,6 +14,8 @@ import { getRequestService } from '@pinpoint-fe/ui/src/hooks';
 const makeArgs = (url: string) => ({
   params: {},
   request: { url } as Request,
+  url: new URL(url),
+  pattern: '',
   context: {},
 });
 
@@ -114,7 +117,7 @@ describe('serviceMapRealtimeLoader', () => {
         params: {},
         request: { url: 'not-a-valid-url' } as unknown as Request,
         context: {},
-      }),
+      } as unknown as LoaderFunctionArgs),
     ).toBeNull();
 
     jest.restoreAllMocks();

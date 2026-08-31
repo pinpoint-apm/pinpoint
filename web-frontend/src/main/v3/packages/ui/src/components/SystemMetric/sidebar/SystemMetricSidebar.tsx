@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   getSystemMetricPath,

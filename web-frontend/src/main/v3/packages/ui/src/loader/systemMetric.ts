@@ -8,7 +8,7 @@ import { isValidDateRange } from '@pinpoint-fe/ui/src/utils';
 import { getParsedDateRange, getTimezone } from '@pinpoint-fe/ui/src/utils';
 import { parse } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 
 export const systemMetricRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
   const hostGroup = params.hostGroup || null;

@@ -8,7 +8,7 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { parse } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 
 export const scatterOrHeatmapFullScreenLoader = async ({ params, request }: LoaderFunctionArgs) => {
   const application = getApplicationTypeAndName(params.application);

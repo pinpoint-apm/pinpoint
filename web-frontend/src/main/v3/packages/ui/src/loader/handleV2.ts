@@ -1,7 +1,7 @@
 import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
 import { convertTimeStringToTime, convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { parse, format, subMilliseconds } from 'date-fns';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 
 export const handleV2RouteLoader = ({ params, request }: LoaderFunctionArgs) => {
   const basePath = `${APP_PATH.SERVER_MAP}/${params.application}`;

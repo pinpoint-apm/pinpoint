@@ -1,7 +1,7 @@
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowForwardIos } from 'react-icons/md';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { UserGroup, GroupMember } from '../../components/Config';
 
 export const UserGroupPage = () => {

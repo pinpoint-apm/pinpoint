@@ -1,7 +1,7 @@
 import React from 'react';
 import { TbCategory } from 'react-icons/tb';
 import { LuPlus, LuEllipsis } from 'react-icons/lu';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   DEFAULT_SERVICE,

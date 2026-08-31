@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useSetAtom } from 'jotai';
 import { TransactionListTable, TransactionListTableProps } from './TransactionListTable';
 import {

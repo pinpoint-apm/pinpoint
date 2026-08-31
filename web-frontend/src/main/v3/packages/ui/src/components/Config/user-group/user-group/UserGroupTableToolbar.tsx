@@ -4,7 +4,7 @@ import { RxMagnifyingGlass } from 'react-icons/rx';
 import { UserGroupAddPopup } from './UserGroupAddPopup';
 import { Button, Input } from '../../../ui';
 import { MdOutlineAdd } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 

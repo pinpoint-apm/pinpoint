@@ -5,8 +5,8 @@ import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { useServiceNameForLink } from './useServiceNameForLink';
 
 const mockLocation = { pathname: '/serviceMap/test-app@SPRING_BOOT' };
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: () => mockLocation,
 }));
 

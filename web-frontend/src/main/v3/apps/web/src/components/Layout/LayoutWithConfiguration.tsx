@@ -5,7 +5,7 @@ import {
   SERVICE_CONFIG_MENU,
   isServiceConfigPath,
 } from '@pinpoint-fe/ui';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useAtomValue } from 'jotai';
 import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 

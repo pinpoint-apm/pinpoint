@@ -4,8 +4,8 @@ import { DEFAULT_SERVICE, selectedServiceAtom, servicesAtom } from '@pinpoint-fe
 import { useSyncSelectedServiceWithPath } from './useSyncSelectedServiceWithPath';
 
 const mockLocation = { pathname: '/serviceMap/aaa' };
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: () => mockLocation,
 }));
 

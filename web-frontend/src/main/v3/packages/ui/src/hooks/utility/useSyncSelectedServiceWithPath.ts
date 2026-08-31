@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useAtom, useAtomValue } from 'jotai';
 import { selectedServiceAtom, servicesAtom } from '@pinpoint-fe/ui/src/atoms';
 import { getServiceNameFromPath } from '@pinpoint-fe/ui/src/utils';

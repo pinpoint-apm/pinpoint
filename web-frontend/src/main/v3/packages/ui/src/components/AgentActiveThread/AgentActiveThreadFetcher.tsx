@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useAtom, useAtomValue } from 'jotai';
 import {
   activeThreadTargetAtom,

@@ -10,7 +10,7 @@ import {
   UrlStatChart,
   UrlSummary,
 } from '../components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/ui/src/utils';
 import { useConfiguration, useUrlStatSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';

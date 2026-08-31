@@ -13,7 +13,7 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { parse } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 
 export const transactionRouteLoader = async ({ request }: LoaderFunctionArgs) => {
   const requestUrl = new URL(request.url);

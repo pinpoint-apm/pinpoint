@@ -1,6 +1,6 @@
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunctionArgs, redirect } from 'react-router';
 
 export const threadDumpRouteLoader = ({ params, request }: LoaderFunctionArgs) => {
   try {

@@ -7,7 +7,7 @@ import {
   getTransactionListPath,
   getTransactionTableUniqueKey,
 } from '@pinpoint-fe/ui/src/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useSetAtom } from 'jotai';
 import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
 

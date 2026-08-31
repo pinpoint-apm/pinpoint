@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook, render, act, fireEvent, screen } from '@testing-library/react';
-import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router';
 import { useServerMapSearchParameters } from './useServerMapSearchParameters';
 
 const renderAt = (path: string) =>

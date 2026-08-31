@@ -5,7 +5,7 @@ import {
 import { cn } from '../../../lib';
 import { Checkbox } from '../../ui';
 import { Label } from '../../ui/label';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import {
   getErrorAnalysisPath,
   convertParamsToQueryString,

@@ -1,12 +1,15 @@
+import type { LoaderFunctionArgs } from 'react-router';
 import { realtimeLoader } from './realtime';
 
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
 
 const makeArgs = (url: string, params: Record<string, string> = {}) => ({
   params,
   request: { url } as Request,
+  url: new URL(url),
+  pattern: '',
   context: {},
 });
 
@@ -52,7 +55,7 @@ describe('realtimeLoader', () => {
       params: { application: 'TestApp@SPRING_BOOT' },
       request: { url: 'not-a-valid-url' } as unknown as Request,
       context: {},
-    });
+    } as unknown as LoaderFunctionArgs);
     expect(result).toBeNull();
   });
 });

@@ -1,9 +1,10 @@
+import type { LoaderFunctionArgs } from 'react-router';
 import {
   scatterOrHeatmapFullScreenLoader,
   scatterOrHeatmapFullScreenRealtimeLoader,
 } from './scatterOrHeatmapFullScreen';
 
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
 
@@ -16,6 +17,8 @@ import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 const makeArgs = (url: string, params: Record<string, string> = {}) => ({
   params,
   request: { url } as Request,
+  url: new URL(url),
+  pattern: '',
   context: {},
 });
 
@@ -96,7 +99,7 @@ describe('scatterOrHeatmapFullScreenRealtimeLoader', () => {
       params: { application: APP },
       request: { url: 'not-a-valid-url' } as unknown as Request,
       context: {},
-    });
+    } as unknown as LoaderFunctionArgs);
     expect(result).toBeNull();
   });
 });
