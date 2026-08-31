@@ -23,13 +23,17 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Comparator;
 import java.util.List;
 
 public class CallSteps {
-    Span root;
-    List<SpanChunk> spanChunkList = new ArrayList<>();
-    List<AsyncSpanChunk> asyncSpanChunkList = new ArrayList<>();
+
+    private static final Comparator<SpanEvent> SPANEVENT_SEQUENCE_COMPARATOR = Comparator.comparingInt(SpanEvent::getSequence);
+    private static final Comparator<AsyncSpanChunk> ASYNC_SPANCHUNK_COMPARATOR = Comparator.comparingInt(o -> o.getLocalAsyncId().getSequence());
+
+    private Span root;
+    private final List<SpanChunk> spanChunkList = new ArrayList<>();
+    private final List<AsyncSpanChunk> asyncSpanChunkList = new ArrayList<>();
 
     public CallSteps(OrderedSpanRecorder recorder) {
         for (SpanType item : recorder) {
@@ -53,10 +57,9 @@ public class CallSteps {
         for (SpanChunk spanChunk : spanChunkList) {
             list.addAll(spanChunk.getSpanEventList());
         }
-        list.sort((o1, o2) -> {
-            return o1.getSequence() - o2.getSequence();
-        });
-        LinkedList<SpanEvent> callSteps = new LinkedList<>();
+        list.sort(SPANEVENT_SEQUENCE_COMPARATOR);
+
+        List<SpanEvent> callSteps = new ArrayList<>();
         for (SpanEvent spanEvent : list) {
             populate(callSteps, spanEvent, 0);
         }
@@ -64,13 +67,13 @@ public class CallSteps {
         return callSteps;
     }
 
-    void populate(LinkedList<SpanEvent> callSteps, SpanChunk spanChunk, int parentDepth) {
+    void populate(List<SpanEvent> callSteps, SpanChunk spanChunk, int parentDepth) {
         for (SpanEvent spanEvent : spanChunk.getSpanEventList()) {
             populate(callSteps, spanEvent, parentDepth);
         }
     }
 
-    private void populate(LinkedList<SpanEvent> callSteps, SpanEvent spanEvent, int parentDepth) {
+    private void populate(List<SpanEvent> callSteps, SpanEvent spanEvent, int parentDepth) {
         int depth = uncompressDepth(callSteps, spanEvent);
         if (parentDepth != 0) {
             depth += parentDepth;
@@ -86,18 +89,15 @@ public class CallSteps {
         }
     }
 
-    int uncompressDepth(LinkedList<SpanEvent> steps, SpanEvent spanEvent) {
+    int uncompressDepth(List<SpanEvent> steps, SpanEvent spanEvent) {
         if (spanEvent.getDepth() == -1) {
-            LinkedList<SpanEvent> copy = new LinkedList<>(steps);
-            while (true) {
-                SpanEvent prevSpanEvent = copy.pollLast();
-                if (prevSpanEvent == null) {
-                    return 0;
-                }
+            for (int i = steps.size() - 1; i >= 0; i--) {
+                SpanEvent prevSpanEvent = steps.get(i);
                 if (prevSpanEvent.getDepth() != -1) {
                     return prevSpanEvent.getDepth();
                 }
             }
+            return 0;
         }
         return spanEvent.getDepth();
     }
@@ -110,9 +110,7 @@ public class CallSteps {
                 list.add(asyncSpanChunk);
             }
         }
-        list.sort((o1, o2) -> {
-            return o1.getLocalAsyncId().getSequence() - o2.getLocalAsyncId().getSequence();
-        });
+        list.sort(ASYNC_SPANCHUNK_COMPARATOR);
 
         return list;
     }
