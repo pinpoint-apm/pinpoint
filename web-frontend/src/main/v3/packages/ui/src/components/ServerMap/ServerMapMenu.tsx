@@ -64,12 +64,13 @@ export const ServerMapMenuContent = ({
   return (
     <div className={cn('w-52', className)}>
       <div className="flex items-center h-8 gap-1 px-3 text-sm font-semibold">
-        <span className="flex-1 whitespace-nowrap">{title}</span>
+        {/* 제목은 service/application 이름이라 길 수 있다. 닫기 버튼을 밀어내지 않게 자른다. */}
+        <span className="flex-1 min-w-0 truncate">{title}</span>
         {onClose && (
           <button
             type="button"
             aria-label="Close"
-            className="p-0.5 text-muted-foreground hover:text-foreground"
+            className="shrink-0 p-0.5 text-muted-foreground hover:text-foreground"
             onClick={onClose}
           >
             <IoMdClose />

@@ -135,3 +135,77 @@ export const findServiceGroupLink = <T extends GetServerMap.LinkData>(
   links?.find(
     (link) => link.key === key && Array.isArray(link.subLinks) && link.subLinks.length > 0,
   );
+
+/**
+ * map 검색 목록의 한 항목.
+ *
+ * service group(접힌 service) 노드는 그래프에 단일 노드로 그려지고 `applicationName`이
+ * serviceName이라, 목록에 노드 배열을 그대로 넘기면 그 service에 묶인 application(b-1, b-2)은
+ * 이름으로 찾을 수 없다. 그래서 group은 자기 자신과 소속 application을 모두 항목으로 편다.
+ */
+export interface ServerMapSearchItem {
+  node: GetServerMap.NodeData;
+  /**
+   * 이 항목이 service group 노드 자체일 때 true.
+   *
+   * group은 application 묶음이라 serviceType이 없다. `flattenServiceMapResponse`가 자식 첫
+   * 노드의 타입을 합성해 채워 두지만(merge 판정에 쓰인다) 사용자에게 보일 값은 아니다 —
+   * 이름 뒤에 붙이면 B가 TOMCAT application인 것처럼 읽힌다.
+   */
+  isServiceGroup?: boolean;
+  /**
+   * 이 항목이 service group에 묶인 자식 application일 때 그 group 노드. 아니면 undefined다.
+   *
+   * 자식 application은 그래프에 노드가 없으므로(그려진 것은 group 하나뿐이다) 목록에서 골랐을 때
+   * 센터링·선택의 대상은 group 노드이고, 조회 대상만 자식 application이 된다.
+   */
+  serviceGroup?: GetServerMap.NodeData;
+  /** 목록에 함께 보일 소속 service 이름. 표시할 것이 없으면 undefined다. */
+  serviceName?: string;
+}
+
+/**
+ * 목록에 함께 보일 소속 service 이름을 정한다. 표시하지 않을 노드는 undefined.
+ *
+ * 노드 key가 `serviceName^applicationName^serviceType`인 노드만 자기 service를 보여준다.
+ * servermap 응답의 key는 `applicationName^serviceType`뿐이라, 그 화면에서는 serviceName이
+ * 채워져 있어도 화면의 service 하나를 모든 행에 되풀이해 찍는 셈이 되므로 표시하지 않는다.
+ *
+ * serviceName은 escape되지 않아(applicationName만 escape된다) `^`가 들어오면 토큰이 더 늘 수 있다.
+ * 그래서 토큰 개수로 세지 않고 접두사로 확인한다.
+ */
+const resolveSearchServiceName = (node: GetServerMap.NodeData): string | undefined =>
+  node.serviceName && node.key?.startsWith(`${node.serviceName}^`) ? node.serviceName : undefined;
+
+/**
+ * 노드 배열을 검색 목록 항목으로 편다. service group은 group 자체 + 소속 application 순으로 담는다.
+ *
+ * group 자체를 남기는 이유: service 이름으로 찾아 들어오는 기존 경로(B를 검색해 B 그룹으로 이동)를
+ * 그대로 두기 위해서다. 판별은 `findServiceGroupNode`와 같이 `subNodes`로 한다 —
+ * servermap/filteredMap 응답에는 없는 필드라 그 화면들에서는 노드가 1:1로 담긴다.
+ *
+ * 소속 service 표시 여부는 그와 별개로 노드 key에서 판단한다(`resolveSearchServiceName`).
+ * servermap은 key가 2단이라 표시되지 않고, filteredMap은 `enableServiceMap`이 켜져 3단으로
+ * 내려올 때 표시된다 — 그 화면의 map도 여러 service의 노드를 함께 그리므로 같은 규칙이 맞다.
+ */
+export const buildServerMapSearchList = (
+  nodes: GetServerMap.NodeData[] | undefined,
+): ServerMapSearchItem[] =>
+  (nodes ?? []).flatMap((node): ServerMapSearchItem[] => {
+    const subNodes = node.subNodes;
+
+    if (!Array.isArray(subNodes) || subNodes.length === 0) {
+      return [{ node, serviceName: resolveSearchServiceName(node) }];
+    }
+
+    // group 노드 자체는 이름이 곧 service라 소속 service를 따로 붙이지 않는다.
+    return [
+      { node, isServiceGroup: true },
+      ...subNodes.map((subNode) => ({
+        node: subNode,
+        serviceGroup: node,
+        // 자식의 service는 group 엔트리가 알려준 값이 정본이다(자식 key에서 다시 읽지 않는다).
+        serviceName: node.serviceName,
+      })),
+    ];
+  });

@@ -153,6 +153,16 @@ const makeAppLink = (source: any, target: any, timestamps: number[]) => {
       applicationName: source.applicationName,
       serviceTypeCode: source.serviceTypeCode,
       serviceTypeName: source.serviceType,
+      // outRpcList는 WAS→WAS 링크에만 실린다(백엔드 LinkView#writerFilterHint의
+      // `link.isWasToWasLink()`). 프론트도 양쪽 nodeCategory가 SERVER일 때만 이 값으로
+      // filteredMap hint를 만들므로(useServerMapOnClickMenuItem), 같은 조건으로 내려준다.
+      ...(source.nodeCategory === 'SERVER' && target.nodeCategory === 'SERVER'
+        ? {
+            outRpcList: [
+              { rpc: target.applicationName, rpcServiceTypeCode: target.serviceTypeCode },
+            ],
+          }
+        : {}),
     },
     totalCount: sumOf(histogram),
     errorCount: histogram.Error,
