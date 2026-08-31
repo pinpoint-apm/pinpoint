@@ -58,6 +58,7 @@ import com.navercorp.pinpoint.web.trace.span.SpanAligner;
 import com.navercorp.pinpoint.web.trace.span.SpanCallTree;
 import com.navercorp.pinpoint.web.trace.span.TraceState;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -67,7 +68,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -473,7 +473,7 @@ public class SpanServiceImpl implements SpanService {
 
                 final int size = sqlUidMetaDataList.size();
                 if (size == 0) {
-                    String errorMessage = "SQL-UID not found sqlUid:" + Arrays.toString(sqlUid);
+                    String errorMessage = "SQL-UID not found sqlUid:" + Hex.encodeHexString(sqlUid);
                     AnnotationBo api = AnnotationBo.of(AnnotationKey.SQL.getCode(), errorMessage);
                     annotationBoList.add(api);
                 } else if (size == 1) {
@@ -499,7 +499,7 @@ public class SpanServiceImpl implements SpanService {
                     }
                 } else {
                     // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
-                    String collisionSqlUidCodeMessage = "Collision Sql sqlUid:" + Arrays.toString(sqlUid) + "\n" +
+                    String collisionSqlUidCodeMessage = "Collision Sql sqlUid:" + Hex.encodeHexString(sqlUid) + "\n" +
                             sqlUidMetaDataList.stream()
                                     .map(SqlUidMetaDataBo::getSql)
                                     .collect(Collectors.joining("or\n"));

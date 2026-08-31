@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDa
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import org.apache.commons.codec.binary.Hex;
 import org.jspecify.annotations.NonNull;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class SqlUidMetaDataBo implements UidMetaDataRowKey {
@@ -90,7 +90,7 @@ public class SqlUidMetaDataBo implements UidMetaDataRowKey {
                 "agentId='" + agentId + '\'' +
                 ", startTime=" + startTime +
                 ", applicationName='" + applicationName + '\'' +
-                ", sqlUid=" + Arrays.toString(sqlUid) +
+                ", sqlUid=" + Hex.encodeHexString(sqlUid) +
                 ", sql='" + sql + '\'' +
                 '}';
     }
