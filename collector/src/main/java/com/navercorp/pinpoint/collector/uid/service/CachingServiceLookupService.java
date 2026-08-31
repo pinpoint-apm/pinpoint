@@ -64,7 +64,7 @@ public class CachingServiceLookupService implements ServiceLookupService, Applic
 
     private CompletableFuture<ServiceUid> loadServiceUidAsync(String serviceName) {
         return CompletableFuture.supplyAsync(() -> {
-            ServiceEntity service = serviceRegistryDao.selectService(serviceName);
+            ServiceEntity service = serviceRegistryDao.selectServiceByName(serviceName);
             if (service == null) {
                 return null;
             }

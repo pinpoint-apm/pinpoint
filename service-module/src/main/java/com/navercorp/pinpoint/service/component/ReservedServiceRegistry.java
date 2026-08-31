@@ -1,31 +1,23 @@
 package com.navercorp.pinpoint.service.component;
 
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.Service;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ReservedServiceRegistry {
 
-    private final Set<String> reservedNames;
+    // ServiceUid.NULL is an in-memory sentinel, not a service name, but the name stays reserved to avoid confusion
+    private static final String NULL_SERVICE_NAME = "NULL";
 
-    public ReservedServiceRegistry() {
-        this.reservedNames = buildReservedNames();
-    }
+    private static final Set<String> RESERVED_NAMES = buildReservedNames();
 
     private static Set<String> buildReservedNames() {
         Set<String> names = new HashSet<>();
-        try {
-            for (Field field : ServiceUid.class.getDeclaredFields()) {
-                if (Modifier.isStatic(field.getModifiers()) && field.getType() == ServiceUid.class) {
-                    names.add(field.getName().toUpperCase());
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to initialize reserved service names", e);
+        for (Service service : Service.wellKnownServices()) {
+            names.add(service.getServiceName());
         }
+        names.add(NULL_SERVICE_NAME);
         return Set.copyOf(names);
     }
 
@@ -33,10 +25,14 @@ public class ReservedServiceRegistry {
         if (serviceName == null) {
             return false;
         }
-        return reservedNames.contains(serviceName.toUpperCase());
+        String upperCase = serviceName.toUpperCase();
+        if (Service.wellKnownService(upperCase) != null) {
+            return true;
+        }
+        return NULL_SERVICE_NAME.equals(upperCase);
     }
 
     public Set<String> getReservedNames() {
-        return reservedNames;
+        return RESERVED_NAMES;
     }
 }

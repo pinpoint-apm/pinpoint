@@ -2,6 +2,8 @@ package com.navercorp.pinpoint.common.server.uid;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 public class Service {
@@ -10,19 +12,24 @@ public class Service {
     public static final Service ERROR = new Service(ServiceUid.ERROR_SERVICE_UID_NAME, ServiceUid.ERROR);
     public static final Service UNKNOWN = new Service(ServiceUid.UNKNOWN_SERVICE_UID_NAME, ServiceUid.UNKNOWN);
 
+    private static final Service[] WELL_KNOWN_SERVICES = { DEFAULT, ERROR, UNKNOWN };
+
+    /**
+     * Well-known services resolvable without a registry lookup.
+     */
+    public static Collection<Service> wellKnownServices() {
+        return Arrays.asList(WELL_KNOWN_SERVICES);
+    }
+
     /**
      * Resolves a reserved serviceUid to its well-known Service without touching the registry.
      * Returns null for uids that require a registry lookup.
      */
     public static Service wellKnownService(int serviceUid) {
-        if (serviceUid == ServiceUid.DEFAULT.getUid()) {
-            return DEFAULT;
-        }
-        if (serviceUid == ServiceUid.ERROR.getUid()) {
-            return ERROR;
-        }
-        if (serviceUid == ServiceUid.UNKNOWN.getUid()) {
-            return UNKNOWN;
+        for (Service service : WELL_KNOWN_SERVICES) {
+            if (service.getServiceUid() == serviceUid) {
+                return service;
+            }
         }
         return null;
     }
@@ -32,14 +39,10 @@ public class Service {
      * Returns null for names that require a registry lookup.
      */
     public static Service wellKnownService(String serviceName) {
-        if (DEFAULT.getServiceName().equals(serviceName)) {
-            return DEFAULT;
-        }
-        if (ERROR.getServiceName().equals(serviceName)) {
-            return ERROR;
-        }
-        if (UNKNOWN.getServiceName().equals(serviceName)) {
-            return UNKNOWN;
+        for (Service service : WELL_KNOWN_SERVICES) {
+            if (service.getServiceName().equals(serviceName)) {
+                return service;
+            }
         }
         return null;
     }

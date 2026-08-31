@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.service.dao.mysql;
 
+import com.navercorp.pinpoint.common.server.uid.Service;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.service.dao.ServiceRegistryDao;
 import com.navercorp.pinpoint.service.dao.dto.ServiceParam;
 import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
@@ -20,6 +23,14 @@ public class MysqlServiceRegistryDao implements ServiceRegistryDao {
 
     @Override
     public int insertService(int uid, String name) {
+        if (ServiceUid.isReservedUid(uid)) {
+            throw new IllegalArgumentException("uid is reserved");
+        }
+        StringPrecondition.requireHasLength(name, "name");
+        if (Service.wellKnownService(name) != null) {
+            throw new IllegalArgumentException("name is well known");
+        }
+
         ServiceParam param = new ServiceParam();
         param.setUid(uid);
         param.setName(name);
@@ -38,12 +49,12 @@ public class MysqlServiceRegistryDao implements ServiceRegistryDao {
     }
 
     @Override
-    public ServiceEntity selectService(String name) {
+    public ServiceEntity selectServiceByName(String name) {
         return sqlSessionTemplate.selectOne(NAMESPACE + "selectServiceByName", name);
     }
 
     @Override
-    public ServiceEntity selectService(int uid) {
+    public ServiceEntity selectServiceByUid(int uid) {
         return sqlSessionTemplate.selectOne(NAMESPACE + "selectServiceByUid", uid);
     }
 
