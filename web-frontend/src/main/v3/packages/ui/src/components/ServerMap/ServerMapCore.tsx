@@ -10,10 +10,12 @@ import {
 import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import {
   addCommas,
+  buildServerMapSearchList,
   findServiceGroupLink,
   findServiceGroupNode,
   getServerImagePath,
   getTimeSeriesApdexInfo,
+  ServerMapSearchItem,
 } from '@pinpoint-fe/ui/src/utils';
 import {
   ServerMapMenu,
@@ -271,6 +273,16 @@ export const ServerMapCore = ({
     setServerMapData({ nodes, edges });
   }, [data, unCheckedServiceTypes]);
 
+  // 검색 목록. service group 노드는 그 자체와 소속 application을 모두 담아, service에 묶인
+  // application도 이름으로 찾을 수 있게 한다.
+  const searchList = React.useMemo(
+    () =>
+      buildServerMapSearchList(
+        data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined,
+      ),
+    [data],
+  );
+
   useUpdateEffect(() => {
     onMergeStateChange?.();
   }, [unCheckedServiceTypes]);
@@ -405,14 +417,38 @@ export const ServerMapCore = ({
     setPopperContentType(undefined);
   };
 
-  const handleClickSearchListItem = (item: GetServerMap.NodeData | FilteredMap.NodeData) => {
-    const { key } = item;
+  /**
+   * 그래프에 그려진 service group 노드 위에 자식 application 목록 팝업을 띄운다.
+   * group 노드는 merge 대상이 아니므로(shouldNotMerge) 항상 자기 key로 그려져 있다.
+   */
+  const openServiceGroupList = (group: GetServerMap.NodeData) => {
+    serviceGroupTargetRef.current = group;
+
+    const target = cyRef.current?.getElementById(group.key);
+    const position = target && !target.empty() ? target.renderedPosition() : undefined;
+
+    if (position) {
+      setPopperPosition({ x: position.x, y: position.y });
+    }
+    setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST);
+  };
+
+  /**
+   * 검색 목록에서 항목을 고르면 그 노드로 이동한다.
+   *
+   * service group(접힌 service)에 묶인 자식 application은 그래프에 노드가 없다 — 그려진 것은
+   * group 하나뿐이다. 그래서 센터링·선택은 group 노드에 하고, 자식 목록 팝업을 열어 무엇을
+   * 골랐는지 보여준 뒤 조회 대상만 그 application으로 넘긴다(group 노드 좌클릭 → 목록에서
+   * 자식 선택과 같은 상태다).
+   */
+  const handleClickSearchListItem = ({ node, serviceGroup }: ServerMapSearchItem) => {
+    const key = serviceGroup?.key ?? node.key;
     let clickedNode = cyRef.current?.getElementById(key);
 
     if (clickedNode?.empty()) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      clickedNode = cyRef.current?.nodes().filter((node: any) => {
-        const { nodes } = node.data();
+      clickedNode = cyRef.current?.nodes().filter((n: any) => {
+        const { nodes } = n.data();
 
         return Boolean(nodes) && nodes.some(({ id }: Node) => id === key);
       });
@@ -421,6 +457,23 @@ export const ServerMapCore = ({
     cyRef.current!.center(clickedNode);
     clickedNode?.select();
     clickedNode?.emit('tap');
+
+    // group 노드 자체를 골랐을 때도 좌클릭과 같이 자식 목록을 펼친다. group은 그 자체로 조회
+    // 대상이 될 수 없어(ServiceMapFetcher가 선택으로 만들지 않는다) 목록을 열지 않으면 노드만
+    // 가운데로 오고 아무 일도 일어나지 않은 화면이 된다.
+    const group =
+      serviceGroup ??
+      findServiceGroupNode(
+        data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined,
+        node.key,
+      );
+
+    if (group) {
+      openServiceGroupList(group);
+    }
+    if (serviceGroup) {
+      onClickSubNode?.(node);
+    }
   };
 
   const reset = () => {
@@ -487,7 +540,7 @@ export const ServerMapCore = ({
           <div className="absolute flex flex-col gap-2 top-3 right-4 z-[3] bg-white">
             <ServerMapSearchList
               inputPlaceHolder={inputPlaceHolder}
-              list={data?.applicationMapData?.nodeDataArray}
+              list={searchList}
               onClickItem={handleClickSearchListItem}
             />
             {onApplyChangedOption && (
@@ -625,10 +678,13 @@ export const ServerMapCore = ({
                       ? subNodes.filter((n) => n.applicationName?.toLowerCase().includes(search))
                       : subNodes;
                     return (
+                      // w-max는 가장 긴 application 이름만큼 팝업을 넓힌다. 상한을 두지 않으면
+                      // 이름이 긴 노드에서 팝업이 map 컨테이너를 넘고, 그 상태로 검색 입력에
+                      // 포커스가 가면 브라우저가 map을 왼쪽으로 스크롤한다(위 클램프 주석 참고).
                       <ServerMapMenuContent
                         title={serviceGroupTargetRef.current?.applicationName ?? 'Service Group'}
                         onClose={() => setPopperContentType(undefined)}
-                        className="w-max min-w-72"
+                        className="w-max min-w-72 max-w-[22.5rem]"
                       >
                         <div className="px-3 pb-2">
                           <div className="relative">
@@ -656,8 +712,14 @@ export const ServerMapCore = ({
                                   className={cn(isSelected && 'bg-accent font-semibold')}
                                   onClick={() => onClickSubNode?.(subNode)}
                                 >
-                                  <img src={getServerImagePath(subNode)} width={28} />
-                                  <div className="whitespace-nowrap">{subNode.applicationName}</div>
+                                  <img
+                                    src={getServerImagePath(subNode)}
+                                    width={28}
+                                    className="shrink-0"
+                                  />
+                                  <div className="truncate" title={subNode.applicationName}>
+                                    {subNode.applicationName}
+                                  </div>
                                 </ServerMapMenuItem>
                               );
                             })
@@ -693,7 +755,7 @@ export const ServerMapCore = ({
                       <ServerMapMenuContent
                         title={linkTitle}
                         onClose={() => setPopperContentType(undefined)}
-                        className="w-max min-w-80"
+                        className="w-max min-w-80 max-w-[22.5rem]"
                       >
                         <div className="px-3 pb-2">
                           <div className="relative">
@@ -723,10 +785,13 @@ export const ServerMapCore = ({
                                   className={cn(isSelected && 'bg-accent font-semibold')}
                                   onClick={() => onClickSubLink?.(subLink)}
                                 >
-                                  <div className="flex items-center flex-1 gap-1 whitespace-nowrap">
-                                    <span>{fromName}</span>
-                                    <span className="text-muted-foreground">→</span>
-                                    <span>{toName}</span>
+                                  <div
+                                    className="flex items-center flex-1 min-w-0 gap-1"
+                                    title={`${fromName} → ${toName}`}
+                                  >
+                                    <span className="truncate">{fromName}</span>
+                                    <span className="shrink-0 text-muted-foreground">→</span>
+                                    <span className="truncate">{toName}</span>
                                   </div>
                                   <div className="ml-2 text-muted-foreground shrink-0">
                                     {addCommas(subLink.totalCount ?? 0)}

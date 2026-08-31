@@ -1,4 +1,5 @@
 import {
+  buildServerMapSearchList,
   findServiceGroupLink,
   findServiceGroupNode,
   flattenServiceMapResponse,
@@ -228,5 +229,71 @@ describe('findServiceGroupNode / findServiceGroupLink', () => {
     expect(findServiceGroupLink([appLink], 'svcA^a^TOMCAT~svcA^b^TOMCAT')).toBeUndefined();
     expect(findServiceGroupNode(undefined, 'svcA')).toBeUndefined();
     expect(findServiceGroupLink(undefined, 'svcA~svcB')).toBeUndefined();
+  });
+});
+
+describe('buildServerMapSearchList', () => {
+  // servicemap 응답의 application 노드. key가 3단이라 자기 service를 알아볼 수 있다.
+  const appNode = {
+    key: 'svcA^a-1^TOMCAT',
+    applicationName: 'a-1',
+    serviceName: 'svcA',
+  } as GetServerMap.NodeData;
+
+  const makeGroup = (subNodes: GetServerMap.NodeData[]) =>
+    ({
+      key: 'svcB',
+      applicationName: 'svcB',
+      serviceName: 'svcB',
+      subNodes,
+    }) as unknown as GetServerMap.NodeData;
+
+  test('returns an empty list when there are no nodes', () => {
+    expect(buildServerMapSearchList(undefined)).toEqual([]);
+    expect(buildServerMapSearchList([])).toEqual([]);
+  });
+
+  // servicemap의 application 노드는 group에 묶여 있지 않아도 소속 service를 보여준다.
+  test('labels an application node with its own service', () => {
+    expect(buildServerMapSearchList([appNode])).toEqual([{ node: appNode, serviceName: 'svcA' }]);
+  });
+
+  // servermap 응답의 key는 2단이다. serviceName이 채워져 있어도 화면의 service 하나를
+  // 모든 행에 되풀이해 찍는 셈이라 표시하지 않는다.
+  test('does not label a node whose key carries no service', () => {
+    const serverMapNode = {
+      key: 'a-1^TOMCAT',
+      applicationName: 'a-1',
+      serviceName: 'DEFAULT',
+    } as GetServerMap.NodeData;
+
+    expect(buildServerMapSearchList([serverMapNode])).toEqual([
+      { node: serverMapNode, serviceName: undefined },
+    ]);
+  });
+
+  // 이슈 #10540 — service에 묶인 application(b-1, b-2)도 검색 목록에 있어야 한다.
+  test('expands a service group into the group itself and its applications', () => {
+    const b1 = { key: 'svcB^b-1^TOMCAT', applicationName: 'b-1' } as GetServerMap.NodeData;
+    const b2 = { key: 'svcB^b-2^TOMCAT', applicationName: 'b-2' } as GetServerMap.NodeData;
+    const group = makeGroup([b1, b2]);
+
+    expect(buildServerMapSearchList([appNode, group])).toEqual([
+      { node: appNode, serviceName: 'svcA' },
+      // group 항목은 이름이 곧 service다. serviceType(합성된 자식 타입)도, 소속 service도
+      // 표시하지 않는다.
+      { node: group, isServiceGroup: true },
+      { node: b1, serviceGroup: group, serviceName: 'svcB' },
+      { node: b2, serviceGroup: group, serviceName: 'svcB' },
+    ]);
+  });
+
+  // 자식이 없으면 group으로 볼 수 없다(findServiceGroupNode와 같은 판별).
+  test('treats a node with an empty subNodes array as a plain node', () => {
+    const emptyGroup = makeGroup([]);
+
+    expect(buildServerMapSearchList([emptyGroup])).toEqual([
+      { node: emptyGroup, serviceName: undefined },
+    ]);
   });
 });
