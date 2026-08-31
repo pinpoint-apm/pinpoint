@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
-import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
@@ -38,33 +37,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * The {@code Provider<AsyncContextFactory>} breaks a Guice construction cycle, but every
- * {@code Provider.get()} enters a new Guice {@code InternalContext}. The factory must therefore
- * resolve the singleton lazily and exactly once, never eagerly in the constructor.
- */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class DefaultRecorderFactoryTest {
 
-    @Mock
-    private Provider<AsyncContextFactory> asyncContextFactoryProvider;
     @Mock
     private AsyncContextFactory asyncContextFactory;
     @Mock
@@ -90,68 +70,23 @@ class DefaultRecorderFactoryTest {
 
     @BeforeEach
     void setUp() {
-        when(asyncContextFactoryProvider.get()).thenReturn(asyncContextFactory);
         when(exceptionRecorderFactory.newRecorder(any(TraceRoot.class))).thenReturn(mock(ExceptionRecorder.class));
         when(errorRecorderFactory.newRecorder(any(LocalTraceRoot.class))).thenReturn(mock(ErrorRecorder.class));
 
-        this.factory = new DefaultRecorderFactory(asyncContextFactoryProvider, stringMetaDataService, sqlMetaDataService,
+        this.factory = new DefaultRecorderFactory(asyncContextFactory, stringMetaDataService, sqlMetaDataService,
                 errorHandler, exceptionRecorderFactory, errorRecorderFactory, sqlCountService);
     }
 
-    @Test
-    void constructor_doesNotResolveProvider() {
-        // resolving eagerly would re-introduce the construction cycle the Provider exists to break
-        verify(asyncContextFactoryProvider, never()).get();
-    }
 
     @Test
-    void asyncContextFactory_isResolvedOnceAcrossAllRecorderKinds() {
+    void newRecorder_allRecorderKinds() {
         Assertions.assertNotNull(factory.newWrappedSpanEventRecorder(traceRoot));
         Assertions.assertNotNull(factory.newWrappedSpanEventRecorder(traceRoot, asyncState));
         Assertions.assertNotNull(factory.newChildTraceSpanEventRecorder(traceRoot));
         Assertions.assertNotNull(factory.newDisableSpanEventRecorder(localTraceRoot));
         Assertions.assertNotNull(factory.newDisableSpanEventRecorder(localTraceRoot, asyncState));
         Assertions.assertNotNull(factory.newDisableChildTraceSpanEventRecorder(localTraceRoot, asyncState));
-        // a second round must not touch the provider again
         Assertions.assertNotNull(factory.newChildTraceSpanEventRecorder(traceRoot));
-
-        verify(asyncContextFactoryProvider, times(1)).get();
     }
 
-    @Test
-    void concurrentFirstCalls_resolveTheSameSingleton() throws Exception {
-        final int threads = 8;
-        final AtomicInteger providerCalls = new AtomicInteger();
-        final AsyncContextFactory singleton = mock(AsyncContextFactory.class);
-        when(asyncContextFactoryProvider.get()).thenAnswer(invocation -> {
-            providerCalls.incrementAndGet();
-            return singleton;
-        });
-
-        final CountDownLatch start = new CountDownLatch(1);
-        final ExecutorService executor = Executors.newFixedThreadPool(threads);
-        try {
-            List<Future<Object>> futures = new ArrayList<>();
-            for (int i = 0; i < threads; i++) {
-                futures.add(executor.submit((Callable<Object>) () -> {
-                    start.await();
-                    return factory.newChildTraceSpanEventRecorder(traceRoot);
-                }));
-            }
-            start.countDown();
-            for (Future<Object> future : futures) {
-                Assertions.assertNotNull(future.get());
-            }
-        } finally {
-            executor.shutdownNow();
-        }
-
-        // the benign race may call the provider more than once, but every call yields the same singleton
-        final int callsAfterRace = providerCalls.get();
-        Assertions.assertTrue(callsAfterRace >= 1 && callsAfterRace <= threads);
-        // once warmed up the cache is authoritative: no further provider calls
-        factory.newChildTraceSpanEventRecorder(traceRoot);
-        factory.newWrappedSpanEventRecorder(traceRoot);
-        Assertions.assertEquals(callsAfterRace, providerCalls.get());
-    }
 }

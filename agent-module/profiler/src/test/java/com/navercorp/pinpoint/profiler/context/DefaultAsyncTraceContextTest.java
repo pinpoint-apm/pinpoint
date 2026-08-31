@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
+import com.google.common.base.Suppliers;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -50,7 +52,7 @@ public class DefaultAsyncTraceContextTest {
                 });
         when(baseTraceFactoryProvider.get()).thenReturn(baseTraceFactory);
 
-        return new DefaultAsyncTraceContext(baseTraceFactoryProvider);
+        return new DefaultAsyncTraceContext(Suppliers.memoize(baseTraceFactoryProvider::get));
     }
 
 //    @MockitoSettings(strictness = Strictness.LENIENT)
@@ -71,14 +73,14 @@ public class DefaultAsyncTraceContextTest {
     @Test
     public void baseTraceFactoryProvider_isResolvedLazilyAndOnce() {
         BaseTraceFactory baseTraceFactory = mock(DefaultBaseTraceFactory.class);
-        BaseTraceFactoryProvider baseTraceFactoryProvider = mock(BaseTraceFactoryProvider.class);
+        Provider<BaseTraceFactory> baseTraceFactoryProvider = mock(BaseTraceFactoryProvider.class);
         when(baseTraceFactoryProvider.get()).thenReturn(baseTraceFactory);
         when(baseTraceFactory.continueAsyncContextTraceObject(any(TraceRoot.class), any(LocalAsyncId.class), any(Boolean.class)))
                 .thenReturn(mock(ChildTrace.class));
         when(baseTraceFactory.continueDisableAsyncContextTraceObject(any(LocalTraceRoot.class)))
                 .thenReturn(mock(DisableChildTrace.class));
 
-        AsyncTraceContext asyncTraceContext = new DefaultAsyncTraceContext(baseTraceFactoryProvider);
+        AsyncTraceContext asyncTraceContext = new DefaultAsyncTraceContext(Suppliers.memoize(baseTraceFactoryProvider::get));
         // the Provider breaks a Guice construction cycle: it must not be resolved in the constructor
         verify(baseTraceFactoryProvider, never()).get();
 

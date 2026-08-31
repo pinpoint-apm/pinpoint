@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.context;
 
+import com.google.common.base.Suppliers;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -53,7 +54,7 @@ public abstract class AsyncContextTest {
                 });
         when(baseTraceFactoryProvider.get()).thenReturn(baseTraceFactory);
 
-        return new DefaultAsyncTraceContext(baseTraceFactoryProvider);
+        return new DefaultAsyncTraceContext(Suppliers.memoize(baseTraceFactoryProvider::get));
     }
 
     @BeforeEach

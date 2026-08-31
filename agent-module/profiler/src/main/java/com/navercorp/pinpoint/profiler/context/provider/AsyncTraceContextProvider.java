@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
+import com.google.common.base.Suppliers;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.context.AsyncTraceContext;
@@ -23,6 +24,7 @@ import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncTraceContext;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -39,6 +41,9 @@ public class AsyncTraceContextProvider implements Provider<AsyncTraceContext> {
 
     @Override
     public AsyncTraceContext get() {
-        return new DefaultAsyncTraceContext(baseTraceFactoryProvider);
+        // Every Guice Provider.get() enters a new InternalContext; the binding is a singleton,
+        // so resolve it once and hand the async trace path a plain Supplier.
+        Supplier<BaseTraceFactory> baseTraceFactory = Suppliers.memoize(baseTraceFactoryProvider::get);
+        return new DefaultAsyncTraceContext(baseTraceFactory);
     }
 }

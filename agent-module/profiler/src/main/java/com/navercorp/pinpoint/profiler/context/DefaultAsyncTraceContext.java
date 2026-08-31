@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 
 /**
@@ -29,33 +30,23 @@ import java.util.Objects;
  */
 public class DefaultAsyncTraceContext implements AsyncTraceContext {
 
-    private final Provider<BaseTraceFactory> baseTraceFactoryProvider;
-    // Lazily resolved singleton; see DefaultRecorderFactory for why the Provider is kept and why the
-    // plain (non-volatile) field is enough.
-    private BaseTraceFactory baseTraceFactory;
+    // Supplied lazily: BaseTraceFactory -> RecorderFactory -> AsyncContextFactory -> AsyncTraceContext -> BaseTraceFactory
+    // is a construction cycle, so the factory cannot be injected directly. The supplier is expected to be memoized.
+    private final Supplier<BaseTraceFactory> baseTraceFactorySupplier;
 
-    public DefaultAsyncTraceContext(Provider<BaseTraceFactory> baseTraceFactoryProvider) {
-        this.baseTraceFactoryProvider = Objects.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
-    }
-
-    private BaseTraceFactory baseTraceFactory() {
-        BaseTraceFactory factory = this.baseTraceFactory;
-        if (factory == null) {
-            factory = baseTraceFactoryProvider.get();
-            this.baseTraceFactory = factory;
-        }
-        return factory;
+    public DefaultAsyncTraceContext(Supplier<BaseTraceFactory> baseTraceFactorySupplier) {
+        this.baseTraceFactorySupplier = Objects.requireNonNull(baseTraceFactorySupplier, "baseTraceFactorySupplier");
     }
 
     @Override
     public Trace continueAsyncContextTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId, boolean asyncTraceBlock) {
-        final BaseTraceFactory baseTraceFactory = baseTraceFactory();
+        final BaseTraceFactory baseTraceFactory = baseTraceFactorySupplier.get();
         return baseTraceFactory.continueAsyncContextTraceObject(traceRoot, localAsyncId, asyncTraceBlock);
     }
 
     @Override
     public Trace continueDisableAsyncContextTraceObject(LocalTraceRoot traceRoot) {
-        final BaseTraceFactory baseTraceFactory = baseTraceFactory();
+        final BaseTraceFactory baseTraceFactory = baseTraceFactorySupplier.get();
         return baseTraceFactory.continueDisableAsyncContextTraceObject(traceRoot);
     }
 
