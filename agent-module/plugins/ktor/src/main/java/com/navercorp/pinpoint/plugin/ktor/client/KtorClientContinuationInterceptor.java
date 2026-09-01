@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.plugin.ktor.client;
 
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
@@ -24,6 +26,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 public class KtorClientContinuationInterceptor implements AroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+    private final TraceContext traceContext;
+
+    public KtorClientContinuationInterceptor(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -49,7 +56,12 @@ public class KtorClientContinuationInterceptor implements AroundInterceptor {
 
         try {
             try {
-                holder.finishAsync(throwable);
+                // Record the completion span on the trace that is live at resume time instead of
+                // binding a new async trace onto the thread-shared coroutine binder. The resume
+                // trace already carries the right parent chain and is owned by its creator, so
+                // this interceptor only pushes a span event onto it and never closes it.
+                Trace trace = traceContext.currentRawTraceObject();
+                holder.recordCompletion(trace, throwable);
             } catch (Throwable finishThrowable) {
                 logger.warn(
                         "Failed to finish Ktor client trace in continuation interceptor. {}",

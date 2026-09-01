@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.plugin.ktor.KtorConstants;
 import com.navercorp.pinpoint.plugin.ktor.KtorPluginConfig;
@@ -36,6 +35,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 class KtorClientTraceHolderTest {
@@ -52,8 +52,7 @@ class KtorClientTraceHolderTest {
     @SuppressWarnings("unchecked")
     private final ClientRequestRecorder<Object> requestRecorder = mock(ClientRequestRecorder.class);
     private final SpanEventRecorder recorder = mock(SpanEventRecorder.class);
-    private final Trace asyncTrace = mock(Trace.class);
-    private final TraceScope asyncScope = mock(TraceScope.class);
+    private final Trace resumeTrace = mock(Trace.class);
 
     private KtorClientTraceHolder newHolder() {
         return new KtorClientTraceHolder(asyncContext, request, methodDescriptor, config, requestRecorder);
@@ -111,42 +110,59 @@ class KtorClientTraceHolderTest {
     }
 
     @Test
-    void finishAsyncRecordsAndClosesOwnedTrace() {
-        startAsyncTrace();
+    void recordCompletionRecordsOnGivenTraceWithoutClosingIt() {
+        startResumeTrace();
         KtorClientTraceHolder holder = newHolder();
         Throwable throwable = new IllegalStateException("boom");
 
-        holder.finishAsync(throwable);
+        holder.recordCompletion(resumeTrace, throwable);
 
+        verify(resumeTrace, times(1)).traceBlockBegin();
         verify(recorder, times(1)).recordServiceType(KtorConstants.KTOR_CLIENT_INTERNAL);
         verify(requestRecorder, times(1)).record(recorder, request, throwable);
         verify(recorder, times(1)).recordApi(methodDescriptor);
-        verify(asyncScope, times(1)).tryEnter();
-        verify(asyncScope, times(1)).leave();
-        verify(asyncTrace, times(1)).traceBlockEnd();
-        verify(asyncTrace, times(1)).close();
+        verify(resumeTrace, times(1)).traceBlockEnd();
+        verify(resumeTrace, never()).close();
+        verify(asyncContext, times(1)).finish();
+        verifyNoMoreInteractions(asyncContext);
+    }
+
+    @Test
+    void recordCompletionWithoutLiveTraceFallsBackToOwnedAsyncTrace() {
+        when(asyncContext.continueAsyncTraceObject(true)).thenReturn(resumeTrace);
+        when(resumeTrace.traceBlockBegin()).thenReturn(recorder);
+        KtorClientTraceHolder holder = newHolder();
+
+        holder.recordCompletion(null, null);
+
+        verify(asyncContext, times(1)).continueAsyncTraceObject(true);
+        verify(recorder, times(1)).recordServiceType(KtorConstants.KTOR_CLIENT_INTERNAL);
+        verify(resumeTrace, times(1)).traceBlockEnd();
+        verify(resumeTrace, times(1)).close();
         verify(asyncContext, times(1)).close();
         verify(asyncContext, times(1)).finish();
     }
 
     @Test
-    void secondFinishAsyncIsNoOp() {
-        startAsyncTrace();
+    void fallbackFailureIsSwallowedAndStillClosesOwnedTrace() {
+        when(asyncContext.continueAsyncTraceObject(true)).thenReturn(resumeTrace);
+        when(resumeTrace.traceBlockBegin()).thenThrow(new IllegalStateException("begin boom"));
         KtorClientTraceHolder holder = newHolder();
 
-        holder.finishAsync(null);
-        holder.finishAsync(null);
+        holder.recordCompletion(null, null);
 
-        verify(asyncTrace, times(1)).traceBlockEnd();
+        verify(resumeTrace, never()).traceBlockEnd();
+        verify(resumeTrace, times(1)).close();
+        verify(asyncContext, times(1)).close();
         verify(asyncContext, times(1)).finish();
     }
 
     @Test
-    void finishAsyncWithoutAsyncTraceOnlyFinishesState() {
+    void fallbackWhenContinueReturnsNullOnlyFinishesState() {
         when(asyncContext.continueAsyncTraceObject(true)).thenReturn(null);
         KtorClientTraceHolder holder = newHolder();
 
-        holder.finishAsync(null);
+        holder.recordCompletion(null, null);
 
         verifyNoInteractions(requestRecorder);
         verify(asyncContext, times(1)).finish();
@@ -154,57 +170,73 @@ class KtorClientTraceHolderTest {
     }
 
     @Test
-    void nestedAsyncScopeIsLeftButNotClosed() {
-        startAsyncTrace();
-        // another plugin owns the shared coroutine binder, so the scope cannot be left
-        when(asyncScope.canLeave()).thenReturn(false);
+    void fallbackCloseFailureStillClosesBinderAndFinishesState() {
+        when(asyncContext.continueAsyncTraceObject(true)).thenReturn(resumeTrace);
+        when(resumeTrace.traceBlockBegin()).thenReturn(recorder);
+        doThrow(new IllegalStateException("close boom")).when(resumeTrace).close();
         KtorClientTraceHolder holder = newHolder();
 
-        holder.finishAsync(null);
+        holder.recordCompletion(null, null);
 
-        verify(asyncScope, never()).leave();
-        verify(asyncTrace, times(1)).traceBlockEnd();
-        verify(asyncTrace, never()).close();
-        verify(asyncContext, never()).close();
+        verify(asyncContext, times(1)).close();
         verify(asyncContext, times(1)).finish();
     }
 
     @Test
-    void activeAsyncScopeBlocksClose() {
-        startAsyncTrace();
-        // the scope was left by us but the owner has not finished yet
-        when(asyncScope.isActive()).thenReturn(true);
+    void secondRecordCompletionIsNoOp() {
+        startResumeTrace();
         KtorClientTraceHolder holder = newHolder();
 
-        holder.finishAsync(null);
+        holder.recordCompletion(resumeTrace, null);
+        holder.recordCompletion(resumeTrace, null);
 
-        verify(asyncTrace, times(1)).traceBlockEnd();
-        verify(asyncTrace, never()).close();
-        verify(asyncContext, never()).close();
+        verify(resumeTrace, times(1)).traceBlockBegin();
         verify(asyncContext, times(1)).finish();
     }
 
     @Test
-    void continuationFailureIsSwallowed() {
-        when(asyncContext.continueAsyncTraceObject(true)).thenThrow(new IllegalStateException("continuation boom"));
+    void recordFailureIsSwallowedAndStillFinishesState() {
+        startResumeTrace();
+        doThrow(new IllegalStateException("record boom")).when(requestRecorder).record(recorder, request, null);
         KtorClientTraceHolder holder = newHolder();
 
-        holder.finishAsync(null);
+        holder.recordCompletion(resumeTrace, null);
 
+        verify(resumeTrace, times(1)).traceBlockEnd();
         verify(asyncContext, times(1)).finish();
-        verify(asyncContext, never()).close();
     }
 
     @Test
-    void closeFailureDoesNotSkipFinish() {
-        startAsyncTrace();
-        doThrow(new IllegalStateException("close boom")).when(asyncTrace).close();
+    void blockBeginFailureStillFinishesState() {
+        when(resumeTrace.traceBlockBegin()).thenThrow(new IllegalStateException("begin boom"));
         KtorClientTraceHolder holder = newHolder();
 
-        holder.finishAsync(null);
+        holder.recordCompletion(resumeTrace, null);
 
-        verify(asyncTrace, times(1)).traceBlockEnd();
+        verify(resumeTrace, never()).traceBlockEnd();
         verify(asyncContext, times(1)).finish();
+    }
+
+    @Test
+    void blockEndFailureStillFinishesState() {
+        startResumeTrace();
+        doThrow(new IllegalStateException("end boom")).when(resumeTrace).traceBlockEnd();
+        KtorClientTraceHolder holder = newHolder();
+
+        holder.recordCompletion(resumeTrace, null);
+
+        verify(asyncContext, times(1)).finish();
+    }
+
+    @Test
+    void recordCompletionOnLiveTraceNeverTouchesAsyncBinder() {
+        startResumeTrace();
+        KtorClientTraceHolder holder = newHolder();
+
+        holder.recordCompletion(resumeTrace, null);
+
+        verify(asyncContext, never()).continueAsyncTraceObject(true);
+        verify(asyncContext, never()).close();
     }
 
     @Test
@@ -212,18 +244,18 @@ class KtorClientTraceHolderTest {
         KtorClientTraceHolder holder = newHolder();
 
         holder.cancelAsync();
-        holder.finishAsync(null);
+        holder.recordCompletion(resumeTrace, null);
 
         verify(asyncContext, times(1)).finish();
-        verify(asyncContext, never()).continueAsyncTraceObject(true);
+        verifyNoInteractions(resumeTrace);
     }
 
     @Test
-    void cancelAsyncAfterFinishIsNoOp() {
-        startAsyncTrace();
+    void cancelAsyncAfterRecordCompletionIsNoOp() {
+        startResumeTrace();
         KtorClientTraceHolder holder = newHolder();
 
-        holder.finishAsync(null);
+        holder.recordCompletion(resumeTrace, null);
         holder.cancelAsync();
 
         verify(asyncContext, times(1)).finish();
@@ -239,54 +271,7 @@ class KtorClientTraceHolderTest {
         verify(asyncContext, times(1)).finish();
     }
 
-    @Test
-    void leaveScopeFailureIsSwallowed() {
-        startAsyncTrace();
-        when(asyncScope.canLeave()).thenThrow(new IllegalStateException("leave boom"));
-        KtorClientTraceHolder holder = newHolder();
-
-        holder.finishAsync(null);
-
-        verify(asyncTrace, times(1)).traceBlockEnd();
-        verify(asyncTrace, never()).close();
-        verify(asyncContext, times(1)).finish();
-    }
-
-    @Test
-    void blockEndFailureStillClosesOwnedTrace() {
-        startAsyncTrace();
-        doThrow(new IllegalStateException("end boom")).when(asyncTrace).traceBlockEnd();
-        KtorClientTraceHolder holder = newHolder();
-
-        holder.finishAsync(null);
-
-        verify(asyncTrace, times(1)).close();
-        verify(asyncContext, times(1)).close();
-        verify(asyncContext, times(1)).finish();
-    }
-
-    @Test
-    void blockBeginFailureLeavesScopeWithoutEnd() {
-        when(asyncContext.continueAsyncTraceObject(true)).thenReturn(asyncTrace);
-        when(asyncTrace.traceBlockBegin()).thenThrow(new IllegalStateException("begin boom"));
-        when(asyncTrace.getScope(AsyncContext.ASYNC_TRACE_SCOPE)).thenReturn(asyncScope);
-        when(asyncTrace.isAsync()).thenReturn(true);
-        when(asyncScope.canLeave()).thenReturn(true);
-        KtorClientTraceHolder holder = newHolder();
-
-        holder.finishAsync(null);
-
-        verify(asyncTrace, never()).traceBlockEnd();
-        verify(asyncTrace, times(1)).close();
-        verify(asyncContext, times(1)).close();
-        verify(asyncContext, times(1)).finish();
-    }
-
-    private void startAsyncTrace() {
-        when(asyncContext.continueAsyncTraceObject(true)).thenReturn(asyncTrace);
-        when(asyncTrace.traceBlockBegin()).thenReturn(recorder);
-        when(asyncTrace.getScope(AsyncContext.ASYNC_TRACE_SCOPE)).thenReturn(asyncScope);
-        when(asyncTrace.isAsync()).thenReturn(true);
-        when(asyncScope.canLeave()).thenReturn(true);
+    private void startResumeTrace() {
+        when(resumeTrace.traceBlockBegin()).thenReturn(recorder);
     }
 }
