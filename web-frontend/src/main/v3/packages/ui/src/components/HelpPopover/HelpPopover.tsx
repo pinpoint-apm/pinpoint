@@ -58,7 +58,10 @@ const components = {
   FaAngry: <FaAngry key="FaAngry" />,
   FaClock: <FaClock key="FaClock" />,
   FaCalendarAlt: <FaCalendarAlt key="FaCalendarAlt" />,
-  Lt: '<' as unknown as React.ReactElement,
+  // '<'는 Trans가 태그 시작으로 읽으므로 엘리먼트로 감싸 문자 그대로 내보낸다.
+  // react-i18next v17부터 components 맵의 모든 항목에 cloneElement가 걸려서,
+  // 문자열을 그대로 넣어 두면 type이 undefined인 엘리먼트가 만들어진다.
+  Lt: <React.Fragment key="Lt">{'<'}</React.Fragment>,
   FaRegHandPointer: <FaRegHandPointer key="FaRegHandPointer" />,
   HeatmapVisualMapIcon: <HeatmapVisualMapIcon key="HeatmapVisualMapIcon" />,
 };
