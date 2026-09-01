@@ -1,7 +1,30 @@
 # Service / ServiceMap 규칙
 
-`experimental.enableServiceMap` 설정이 켜져 있을 때만 존재하는 개념이다. 꺼져 있으면 백엔드가
+`experimental.enableServiceMap`이 켜져 있을 때만 존재하는 개념이다. 꺼져 있으면 백엔드가
 모든 요청을 기본 service(`DEFAULT`)로 해석하므로, 화면도 service 개념이 없는 것처럼 동작해야 한다.
+
+## 켜짐 여부를 읽는 곳은 하나다
+
+configuration API의 `experimental.enableServiceMap.value`가 **기본값**이고, 사용자가 Experimental
+설정에서 값을 정하면 그 값(localStorage `serviceMap`)이 이긴다. 규칙은
+`pickEnableServiceMap` 하나뿐이고, 두 갈래로만 읽는다:
+
+| 읽는 곳 | 경로 |
+|---|---|
+| 화면(훅·컴포넌트) | `useEnableServiceMap()` |
+| 렌더 밖(fetch 인터셉터) | `getEnableServiceMap(configuration)` |
+
+- **`configuration?.['experimental.enableServiceMap.value']`를 직접 읽지 않는다.** 직접 읽으면
+  localStorage로 끈 사용자에게도 그 화면만 켜진 것처럼 동작하거나(반대로) 화면에는 service 개념이
+  없는데 헤더는 실려 나간다. 타입 검사로 잡히지 않는 어긋남이다.
+- **저장된 값이 없는 상태(`null`)를 boolean으로 눌러 담지 않는다.** 다른 experimental처럼
+  `useLocalStorage(key, !!config값)`으로 두면 configuration이 도착하기 전에 마운트되는 순간
+  `false`가 localStorage에 박혀, 사용자가 고른 적 없는 값이 서버 기본값을 영구히 덮어쓴다.
+  그래서 `useExperimentals`도 이 키만 초기값을 `null`로 두고 seed 하지 않는다.
+- 체크박스에 보이는 값도 같은 함수를 지난다(`useExperimentals`). 화면·헤더·체크박스가 갈리면
+  사용자는 켜 놓은 줄 알고 꺼진 화면을 본다.
+- 설정을 바꾸면 새로고침 없이 반영된다. `useLocalStorage`가 `local-storage` 이벤트로 같은 key를
+  읽는 인스턴스들을 깨우고, 인터셉터는 매 요청마다 localStorage를 다시 읽는다.
 
 ## 로드맵 (중요 — 설계 판단의 전제)
 
@@ -43,7 +66,8 @@ servermap이 사라진 뒤에도 **DEFAULT service 사용자는 여전히 applic
   `loader/realtime.ts`, `pages/ServerMap/Realtime.tsx`를 지우고 기본값을 servicemap 쪽으로 옮긴다.
 - filteredMap → 경로에 serviceName이 항상 실리므로 `FilteredMapPage`의 돌아갈 map 분기
   (`Servermap` ↔ `Servicemap`)와 로더의 serviceName 없는 형태 처리를 지운다.
-- `enableServiceMap` 설정 분기 → 설정이 없어지면 `useIsDefaultService`가 "DEFAULT인가?"만 보면 됨
+- `enableServiceMap` 설정 분기 → 설정이 없어지면 `useIsDefaultService`가 "DEFAULT인가?"만 보면 되고,
+  `useEnableServiceMap`/`pickEnableServiceMap`과 Experimental 항목도 함께 지운다
 
 ## servicemap의 두 모드
 
@@ -247,6 +271,9 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 
 | 관심사 | 위치 |
 |---|---|
+| 켜짐 여부 판단 (화면) | `hooks/utility/useEnableServiceMap.ts` |
+| 켜짐 여부 판단 (렌더 밖) | `utils/experimental.ts` (`pickEnableServiceMap`, `getEnableServiceMap`) |
+| Experimental 설정 항목 | `hooks/utility/useExperimentals.ts`, `pages/config/Experimentals.tsx` |
 | DEFAULT 여부 판단 | `hooks/utility/useIsDefaultService.ts` |
 | 경로에 실린 serviceName 읽기 | `utils/helper/application.ts` (`getServiceNameFromPath`) |
 | 경로 분해 (로더용) | `utils/helper/application.ts` (`parseServiceScopedPath`) |

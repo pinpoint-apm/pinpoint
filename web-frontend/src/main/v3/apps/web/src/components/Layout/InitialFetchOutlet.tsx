@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 import {
   resolveRequestService,
   useClearApplicationOnServiceChange,
+  useEnableServiceMap,
   useExperimentals,
   useGetConfiguration,
   useServicesFetch,
@@ -30,7 +31,8 @@ export const InitialFetchOutlet = () => {
   const searchParameters = Object.fromEntries(new URLSearchParams(search));
   const setSearchParameters = useSetAtom(searchParametersAtom);
 
-  const enableServiceMap = !!configuration?.['experimental.enableServiceMap.value'];
+  // configuration 기본값 위에 사용자가 Experimental 설정에서 고른 값(localStorage)이 얹힌다.
+  const enableServiceMap = useEnableServiceMap();
   // 쿼리 캐시는 "요청이 해석되는 service"(serviceScopedQueryKeyHashFn)로 분리되지만,
   // 그 해시는 store를 명령형으로 읽으므로 쿼리 훅이 다시 렌더링되지 않으면 갱신되지 않는다.
   // service를 바꿨는데 해시가 그대로면 새 헤더로 받은 응답이 이전 service 키에 쌓인다.

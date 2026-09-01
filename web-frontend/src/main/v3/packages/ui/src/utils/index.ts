@@ -1,6 +1,7 @@
 export * from './array';
 export * from './date';
 export * from './dom';
+export * from './experimental';
 export * from './format';
 export * from './functions';
 export * from './helper';

@@ -3,6 +3,7 @@ export * from './useCaptureKeydown';
 export * from './useClearApplicationOnServiceChange';
 export * from './useConfiguration';
 export * from './useDateFormat';
+export * from './useEnableServiceMap';
 export * from './useExperimentals';
 export * from './useHeightToBottom';
 export * from './useIsDefaultService';

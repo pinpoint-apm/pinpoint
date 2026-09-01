@@ -5,7 +5,11 @@ import {
   DEFAULT_SERVICE,
   searchParametersAtom,
 } from '@pinpoint-fe/ui/src/atoms';
-import { useIsDefaultService, useServiceNameForLink } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useEnableServiceMap,
+  useIsDefaultService,
+  useServiceNameForLink,
+} from '@pinpoint-fe/ui/src/hooks';
 import {
   PiBugBeetle,
   PiChartBar,
@@ -31,6 +35,7 @@ export const useMenuItems = () => {
   // 그대로 이어받는다. (serviceName이 실린 경로면 그 값, 아니면 전역 선택값)
   const serviceName = useServiceNameForLink() ?? DEFAULT_SERVICE;
   const isDefaultService = useIsDefaultService();
+  const enableServiceMap = useEnableServiceMap();
 
   const menuItems: MenuItem[] = [
     {
@@ -47,7 +52,7 @@ export const useMenuItems = () => {
       // 실어 보내면 페이지가 곧 경로에서 지우면서 한 번 더 이동한다.
       href: getServiceMapPath(serviceName, isDefaultService ? application : null, searchParameters),
       // service 기능(experimental.enableServiceMap)이 켜져 있을 때만 노출한다.
-      hide: !configuration?.['experimental.enableServiceMap.value'],
+      hide: !enableServiceMap,
     },
     {
       icon: <PiChartLine />,

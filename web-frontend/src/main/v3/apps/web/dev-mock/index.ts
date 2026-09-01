@@ -118,6 +118,7 @@ const FALLBACK_CONFIGURATION = {
   'experimental.sampleScatter.value': false,
   'experimental.sampleScatter.description': 'mock',
   'experimental.enableServiceMap.value': true,
+  'experimental.enableServiceMap.description': 'mock',
   'periodMax.exceptionTrace': 28,
   'periodInterval.exceptionTrace': ['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'],
   'periodMax.inspector': 28,
@@ -156,6 +157,8 @@ const forMockApplication =
 
 const handlers: Record<string, MockHandler> = {
   // 설정이 꺼져 있으면 화면에 service 개념 자체가 없으므로 여기서 강제로 켠다.
+  // 이것은 어디까지나 **기본값**이다. Experimental 설정에서 끄면 localStorage 값이 이기므로
+  // (`pickEnableServiceMap`) mock을 켜 둬도 화면은 꺼진 상태로 뜬다.
   '/api/configuration': async () => {
     const upstream = await fetchUpstream<Record<string, unknown>>('/api/configuration');
     return {
