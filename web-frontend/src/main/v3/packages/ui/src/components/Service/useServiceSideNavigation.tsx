@@ -10,14 +10,13 @@ import {
   servicesAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
-import { useConfiguration } from '@pinpoint-fe/ui/src/hooks';
+import { useEnableServiceMap } from '@pinpoint-fe/ui/src/hooks';
 import { buildServiceSidebarItems } from '../Layout/serviceMenu';
 import { SERVICE_CONFIG_MENU } from './serviceConfigMenu';
 import type { SideNavigationMenuItem } from '../Layout/LayoutWithSideNavigation';
 
 export const useServiceSideNavigation = (serviceGroupItems: SideNavigationMenuItem[] = []) => {
-  const configuration = useConfiguration();
-  const enableServiceMap = !!configuration?.['experimental.enableServiceMap.value'];
+  const enableServiceMap = useEnableServiceMap();
   const services = useAtomValue(servicesAtom);
   const selectedService = useAtomValue(selectedServiceAtom);
   const setSelectedService = useSetAtom(selectedServiceAtom);

@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { serverMapCurrentTargetDataAtom } from '@pinpoint-fe/ui/src/atoms';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import { useConfiguration } from '../utility/useConfiguration';
+import { useEnableServiceMap } from '../utility/useEnableServiceMap';
 
 /**
  * map에서 고른 노드/링크가 소속된 service. 고른 것이 없으면 undefined다.
@@ -23,10 +23,10 @@ import { useConfiguration } from '../utility/useConfiguration';
  * 헤더가 새어 나가지 않도록 여기 한 곳에서 막는다.
  */
 export const useServerMapTargetServiceName = () => {
-  const configuration = useConfiguration();
+  const enableServiceMap = useEnableServiceMap();
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom);
 
-  if (!configuration?.['experimental.enableServiceMap.value'] || !currentTargetData) {
+  if (!enableServiceMap || !currentTargetData) {
     return undefined;
   }
 

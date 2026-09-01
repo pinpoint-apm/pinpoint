@@ -1,7 +1,7 @@
 import { getDefaultStore } from 'jotai';
 import { configurationAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import { BASE_PATH } from '@pinpoint-fe/ui/src/constants';
-import { getServiceNameFromPath } from '@pinpoint-fe/ui/src/utils';
+import { getEnableServiceMap, getServiceNameFromPath } from '@pinpoint-fe/ui/src/utils';
 
 /**
  * 백엔드(service-module)의 `ServiceConstants.KEY`와 동일한 헤더 이름.
@@ -60,13 +60,15 @@ const isApiRequest = (input: RequestInfo | URL): boolean => {
 let installed = false;
 
 /**
- * 전역 `fetch`를 한 번 래핑하여, configuration의
- * `experimental.enableServiceMap.value`가 true일 때 백엔드로 가는 모든
+ * 전역 `fetch`를 한 번 래핑하여, `enableServiceMap`이 true일 때 백엔드로 가는 모든
  * `/api` 요청 헤더에 그 요청이 해석되는 service(`resolveRequestService`)를 주입한다.
  * 화면별 예외는 없다. 설정이 꺼져 있으면 헤더를 아예 붙이지 않아 백엔드가 기본 service로 해석한다.
  *
- * configuration은 부트스트랩 이후 비동기로 로드/갱신되므로, 값을 캡처하지 않고
- * 매 요청 시 `configurationAtom`에서 최신값을 읽는다.
+ * 켜짐 여부는 `getEnableServiceMap`이 정한다. 사용자가 Experimental 설정에서 고른 값
+ * (localStorage)이 configuration 기본값을 덮으므로, 설정을 바꾸면 다음 요청부터 바로 반영된다.
+ *
+ * configuration과 localStorage는 모두 부트스트랩 이후 바뀔 수 있으므로, 값을 캡처하지 않고
+ * 매 요청 시 최신값을 읽는다.
  *
  * configuration과 service 모두 Jotai 기본 store(`getDefaultStore`)에서 읽으므로
  * 컴포넌트의 `useAtomValue`/`useSetAtom`과 동일한 상태를 참조한다.
@@ -82,8 +84,7 @@ export const installServiceNameFetchInterceptor = () => {
 
   window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
     try {
-      const configuration = store.get(configurationAtom);
-      const enableServiceMap = !!configuration?.['experimental.enableServiceMap.value'];
+      const enableServiceMap = getEnableServiceMap(store.get(configurationAtom));
 
       if (enableServiceMap && isApiRequest(input)) {
         // 캐시 키와 어긋나지 않도록 헤더도 `resolveRequestService`와 같은 규칙에서 파생한다.

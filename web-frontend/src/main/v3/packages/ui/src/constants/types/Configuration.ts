@@ -26,6 +26,7 @@ export interface Configuration {
   'experimental.enableServerSideScanForScatter.value': boolean;
   'experimental.sampleScatter.value': boolean;
   'experimental.enableServiceMap.value': boolean;
+  'experimental.enableServiceMap.description': string;
   'periodMax.exceptionTrace': number;
   'periodInterval.exceptionTrace': string[];
   'periodMax.inspector': number;
