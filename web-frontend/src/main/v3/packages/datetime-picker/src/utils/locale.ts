@@ -31,10 +31,10 @@ export const getLocale = (localeKey: LocaleKey): Locale => {
 
           const localed = formatDistanceLocale[token as keyof typeof formatDistanceLocale];
           const grammared = count === 1 ? localed.replace(/s$/, '') : localed;
-          const result = grammared.replace('{{count}}', count);
+          const result = grammared.replace('{{count}}', String(count));
 
           if (options.addSuffix) {
-            if (options.comparison > 0) {
+            if ((options.comparison ?? 0) > 0) {
               return 'In ' + result;
             } else {
               return 'Past ' + result;
@@ -71,10 +71,10 @@ export const getLocale = (localeKey: LocaleKey): Locale => {
 
           const localed = formatDistanceLocale[token as keyof typeof formatDistanceLocale];
           const grammared = count === 1 ? localed.replace(/s$/, '') : localed;
-          const result = grammared.replace('{{count}}', count);
+          const result = grammared.replace('{{count}}', String(count));
 
           if (options.addSuffix) {
-            if (options.comparison > 0) {
+            if ((options.comparison ?? 0) > 0) {
               return result + ' 후';
             } else {
               return result + ' 전';

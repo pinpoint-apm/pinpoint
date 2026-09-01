@@ -165,6 +165,16 @@ describe('Test date utils', () => {
       expect(result.getTime()).toBeGreaterThanOrEqual(before.getTime());
       expect(result.getTime()).toBeLessThanOrEqual(after.getTime());
     });
+
+    // URL 검색 파라미터가 비어 있을 때 실제로 undefined 가 들어온다. date-fns v3 부터
+    // parse 가 인자를 문자열로 바꿔 주지 않아, 넘기는 쪽에서 막지 않으면 throw 한다.
+    test.each([[undefined], ['']])('Return current date for %p', (dateString) => {
+      const before = new Date();
+      const result = getParsedDate(dateString);
+      const after = new Date();
+      expect(result.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(result.getTime()).toBeLessThanOrEqual(after.getTime());
+    });
   });
 
   describe('Test "getParsedDates"', () => {

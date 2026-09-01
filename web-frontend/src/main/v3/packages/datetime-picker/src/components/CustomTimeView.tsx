@@ -11,7 +11,7 @@ import {
 } from '../utils/date';
 import { Transition } from '@headlessui/react';
 import AppContext from './context/appContext';
-import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
 export interface CustomTimeViewProps {
   show: boolean;
@@ -106,7 +106,7 @@ export const getDefaultCustomTimes = (
   seamToken: string,
   timeZone: string,
 ): CustomTimeViewProps['customTimes'] => {
-  const now = utcToZonedTime(new Date(), timeZone);
+  const now = toZonedTime(new Date(), timeZone);
   const startDayOfMonth = getZonedStartOfMonth(now, timeZone);
   const nextDayOfStartOfMonth = getZonedEndOfDay(
     addDays(getZonedStartOfMonth(now, timeZone), 1),

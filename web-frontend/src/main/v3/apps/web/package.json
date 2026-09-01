@@ -20,7 +20,7 @@
   "dependencies": {
     "@pinpoint-fe/ui": "*",
     "@tanstack/react-query": "^5.17.19",
-    "date-fns": "^2.29.3",
+    "date-fns": "^4.4.0",
     "i18next": "^26.4.1",
     "jotai": "^2.1.1",
     "re-resizable": "^6.9.9",
