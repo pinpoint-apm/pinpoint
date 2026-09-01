@@ -1,4 +1,4 @@
-import { cn } from '@pinpoint-fe/ui';
+import { cn } from '../../lib/utils';
 
 const HeatmapVisualMapIcon = ({ type }: { type?: 'success' | 'fail' }) => {
   return (
