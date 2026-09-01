@@ -42,7 +42,8 @@ _Last updated: 2026-07-13_
 | [httpclient4](httpclient4) | `org.apache.httpcomponents:httpclient` | `[4.0, 4.5]` | 1.5.0 |
 | [httpclient5](httpclient5) | `org.apache.httpcomponents.client5:httpclient5` | `[5.0, 5.2]` | 2.5.0 |
 | [okhttp](okhttp) | `com.squareup.okhttp:okhttp` | `[2.0, 2.7]` | 1.5.0 |
-| [okhttp](okhttp) | `com.squareup.okhttp3:okhttp` | `[3.0, 3.14]` | 1.5.0 |
+| [okhttp](okhttp) | `com.squareup.okhttp3:okhttp` | `[3.0, 4.12]` | 1.5.0 |
+| [okhttp](okhttp) | `com.squareup.okhttp3:okhttp-jvm` | `[5.0, 5.5]` | 1.5.0 |
 | [ning-asynchttpclient](ning-asynchttpclient) | `com.ning:async-http-client` | `[1.7, 1.9]` | 1.5.0 |
 | [ning-asynchttpclient](ning-asynchttpclient) | `org.asynchttpclient:async-http-client` | `[2.0, 2.12]` | 1.5.0 |
 | [google-httpclient](google-httpclient) | `com.google.http-client:google-http-client` | `[1.40, 1.42]` | 1.5.0 |
