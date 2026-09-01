@@ -1,7 +1,7 @@
 import { Configuration, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
 import { pickEnableServiceMap } from '@pinpoint-fe/ui/src/utils';
 import { useLocalStorage } from './useLocalStorage';
-import { useUpdateEffect } from 'usehooks-ts';
+import { useUpdateEffect } from './useUpdateEffect';
 
 export const useExperimentals = (initialValue?: Configuration) => {
   const [enableServerMapRealTime, setEnableServerMapRealTime] = useLocalStorage(

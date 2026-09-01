@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUpdateEffect } from 'usehooks-ts';
+import { useUpdateEffect } from '../utility/useUpdateEffect';
 import { END_POINTS, FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString, toBasicISOStringMs } from '@pinpoint-fe/ui/src/utils';
 import { useFilteredMapParameters } from '../searchParameters';

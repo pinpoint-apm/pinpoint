@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUpdateEffect } from 'usehooks-ts';
+import { useUpdateEffect } from '@pinpoint-fe/ui/src/hooks';
 import { cn } from '../../lib';
 
 export interface ProgressBarProps {
