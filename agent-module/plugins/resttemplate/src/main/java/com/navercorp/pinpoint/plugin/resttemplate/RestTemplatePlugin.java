@@ -101,9 +101,16 @@ public class RestTemplatePlugin implements ProfilerPlugin, TransformTemplateAwar
                 constructor1.addScopedInterceptor(BasicMethodInterceptor.class, va(RestTemplateConstants.SERVICE_TYPE), RestTemplateConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
 
+            // ~ spring 6.x
             InstrumentMethod constructor2 = target.getConstructor("java.util.List");
             if (constructor2 != null) {
                 constructor2.addScopedInterceptor(BasicMethodInterceptor.class, va(RestTemplateConstants.SERVICE_TYPE), RestTemplateConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+
+            // spring 7.0 +
+            InstrumentMethod constructor3 = target.getConstructor("java.lang.Iterable");
+            if (constructor3 != null) {
+                constructor3.addScopedInterceptor(BasicMethodInterceptor.class, va(RestTemplateConstants.SERVICE_TYPE), RestTemplateConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
 
             return target.toBytecode();
