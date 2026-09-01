@@ -2,13 +2,12 @@ import React from 'react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { FaCheck, FaPause } from 'react-icons/fa';
 import { FaArrowRotateRight } from 'react-icons/fa6';
-import { useUpdateEffect } from 'usehooks-ts';
 import { ProgressBar, ProgressBarProps } from './ProgressBar';
 import { CgSpinner } from 'react-icons/cg';
 import { cn } from '../../lib';
 import { colors } from '@pinpoint-fe/ui/src/constants';
 import { LuRotateCcw } from 'react-icons/lu';
-import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import { useTimezone, useUpdateEffect } from '@pinpoint-fe/ui/src/hooks';
 
 export interface ProgressBarWithControlsProps extends ProgressBarProps {
   children?: (props: {

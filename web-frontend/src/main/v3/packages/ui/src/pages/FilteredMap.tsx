@@ -10,7 +10,11 @@ import {
   findNodeOfApplication,
   findLinkOfApplications,
 } from '@pinpoint-fe/ui/src/utils';
-import { useConfiguration, useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useConfiguration,
+  useFilteredMapParameters,
+  useUpdateEffect,
+} from '@pinpoint-fe/ui/src/hooks';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
@@ -25,7 +29,6 @@ import {
   LayoutWithHorizontalResizable,
 } from '@pinpoint-fe/ui';
 import { differenceInMinutes } from 'date-fns';
-import { useUpdateEffect } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 import {
   DatetimePicker,

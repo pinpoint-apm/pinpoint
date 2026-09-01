@@ -8,11 +8,10 @@ import {
   ColumnFiltersState,
   getFilteredRowModel,
 } from '@tanstack/react-table';
-import { useUpdateEffect } from 'usehooks-ts';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { cn } from '../../lib';
-import { useHeightToBottom } from '@pinpoint-fe/ui/src/hooks';
+import { useHeightToBottom, useUpdateEffect } from '@pinpoint-fe/ui/src/hooks';
 
 export type RowFilterInfo = {
   columns?: string[];

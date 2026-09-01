@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaSignInAlt, FaSignOutAlt, FaMapSigns } from 'react-icons/fa';
-import { useUpdateEffect } from 'usehooks-ts';
+import { useUpdateEffect } from '@pinpoint-fe/ui/src/hooks';
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';

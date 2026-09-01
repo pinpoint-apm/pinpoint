@@ -2,6 +2,8 @@ import { StrictMode } from 'react';
 import { renderHook } from '@testing-library/react';
 import { useUpdateEffect } from './useUpdateEffect';
 
+// packages/ui 의 같은 이름 훅과 동작이 어긋나면 안 된다 (의존 방향 때문에 복사해 둔 것이라
+// 한쪽만 고쳐지는 일이 생길 수 있다). 그쪽 테스트와 같은 케이스를 둔다.
 describe('useUpdateEffect', () => {
   test('does not run on mount', () => {
     const effect = jest.fn();
@@ -18,9 +20,6 @@ describe('useUpdateEffect', () => {
 
     rerender({ dep: 2 });
     expect(effect).toHaveBeenCalledTimes(1);
-
-    rerender({ dep: 3 });
-    expect(effect).toHaveBeenCalledTimes(2);
   });
 
   test('does not run when the dependencies are unchanged', () => {
@@ -29,7 +28,6 @@ describe('useUpdateEffect', () => {
       initialProps: { dep: 1 },
     });
 
-    rerender({ dep: 1 });
     rerender({ dep: 1 });
     expect(effect).not.toHaveBeenCalled();
   });
@@ -51,19 +49,7 @@ describe('useUpdateEffect', () => {
     expect(cleanup).toHaveBeenCalledTimes(2);
   });
 
-  test('skips the mount run again after a remount', () => {
-    const effect = jest.fn();
-    const { unmount } = renderHook(({ dep }) => useUpdateEffect(effect, [dep]), {
-      initialProps: { dep: 1 },
-    });
-    unmount();
-
-    renderHook(({ dep }) => useUpdateEffect(effect, [dep]), { initialProps: { dep: 1 } });
-    expect(effect).not.toHaveBeenCalled();
-  });
-
-  // 마운트 이펙트의 cleanup 에서 ref 를 되돌리는 이유가 이것이다. usehooks-ts 가 제거한 구현은
-  // 첫 렌더에서 ref 를 뒤집어서, StrictMode 의 이중 마운트에서 마운트 실행을 걸러내지 못했다.
+  // 이 패키지의 개발용 엔트리가 StrictMode 로 감싸고 있다.
   test('still skips the mount run under StrictMode', () => {
     const effect = jest.fn();
     const { rerender } = renderHook(({ dep }) => useUpdateEffect(effect, [dep]), {

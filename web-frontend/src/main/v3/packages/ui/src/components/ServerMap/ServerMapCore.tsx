@@ -24,7 +24,8 @@ import {
   ServerMapMenuContent,
   ServerMapMenuItem,
 } from './ServerMapMenu';
-import { useOnClickOutside, useUpdateEffect } from 'usehooks-ts';
+import { useOnClickOutside } from 'usehooks-ts';
+import { useUpdateEffect } from '@pinpoint-fe/ui/src/hooks';
 import { FaExternalLinkAlt, FaSearch } from 'react-icons/fa';
 import { FaLocationCrosshairs, FaRotate } from 'react-icons/fa6';
 import { FaGear } from 'react-icons/fa6';
