@@ -41,7 +41,7 @@ import java.security.ProtectionDomain;
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
- * okhttp 3.x
+ * okhttp 3.x, 4.x, 5.x
  *
  * @author jaehong.kim
  */
@@ -73,7 +73,10 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addRealCall() {
+        // ~ 4.3
         transformTemplate.transform("okhttp3.RealCall", RealCallTransform.class);
+        // 4.4 +
+        transformTemplate.transform("okhttp3.internal.connection.RealCall", RealCallTransform.class);
     }
 
     public static class RealCallTransform implements TransformCallback {
@@ -104,7 +107,16 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
                 method.addInterceptor(BasicMethodInterceptor.class, va(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL));
             }
 
-            final InstrumentMethod enqueueMethod = target.getDeclaredMethod("enqueue", "okhttp3.RealCall$AsyncCall");
+            // ~ 3.x
+            InstrumentMethod enqueueMethod = target.getDeclaredMethod("enqueue", "okhttp3.RealCall$AsyncCall");
+            if (enqueueMethod == null) {
+                // [4.0, 4.3] - kotlin `internal fun enqueue` is compiled as enqueue$okhttp
+                enqueueMethod = target.getDeclaredMethod("enqueue$okhttp", "okhttp3.RealCall$AsyncCall");
+            }
+            if (enqueueMethod == null) {
+                // 4.4 + moved RealCall to okhttp3.internal.connection
+                enqueueMethod = target.getDeclaredMethod("enqueue$okhttp", "okhttp3.internal.connection.RealCall$AsyncCall");
+            }
             if (enqueueMethod != null) {
                 enqueueMethod.addInterceptor(DispatcherEnqueueMethodInterceptor.class);
             }
@@ -114,7 +126,10 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addAsyncCall() {
+        // ~ 4.3
         transformTemplate.transform("okhttp3.RealCall$AsyncCall", AsyncCallTransform.class);
+        // 4.4 +
+        transformTemplate.transform("okhttp3.internal.connection.RealCall$AsyncCall", AsyncCallTransform.class);
     }
 
     public static class AsyncCallTransform implements TransformCallback {
@@ -123,7 +138,12 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            final InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
+            // ~ 3.x
+            InstrumentMethod executeMethod = target.getDeclaredMethod("execute");
+            if (executeMethod == null) {
+                // 4.0 + removed the NamedRunnable.execute() template method
+                executeMethod = target.getDeclaredMethod("run");
+            }
             if (executeMethod != null) {
                 target.addField(AsyncContextAccessor.class);
                 executeMethod.addInterceptor(AsyncCallExecuteMethodInterceptor.class);

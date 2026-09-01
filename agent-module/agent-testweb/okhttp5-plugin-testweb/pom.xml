@@ -10,7 +10,7 @@
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-okhttp-plugin-testweb</artifactId>
+    <artifactId>pinpoint-okhttp5-plugin-testweb</artifactId>
 
     <packaging>jar</packaging>
 
@@ -29,10 +29,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
+        <!-- okhttp 5.x is published as Kotlin Multiplatform: the root okhttp artifact is an
+             empty placeholder jar for Maven consumers, the JVM classes are in okhttp-jvm. -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
+            <artifactId>okhttp-jvm</artifactId>
+            <version>5.5.0</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

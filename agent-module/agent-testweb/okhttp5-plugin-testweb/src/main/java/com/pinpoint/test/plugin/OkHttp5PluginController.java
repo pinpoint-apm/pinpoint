@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,12 +41,12 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-public class OkHttpPluginController {
+public class OkHttp5PluginController {
 
     private final RequestMappingHandlerMapping handlerMapping;
 
     @Autowired
-    public OkHttpPluginController(RequestMappingHandlerMapping handlerMapping) {
+    public OkHttp5PluginController(RequestMappingHandlerMapping handlerMapping) {
         this.handlerMapping = handlerMapping;
     }
 
@@ -60,7 +60,7 @@ public class OkHttpPluginController {
             }
         }
         list.sort(Comparator.comparing(HrefTag::getPath));
-        return new ApiLinkPage("okhttp-plugin-testweb")
+        return new ApiLinkPage("okhttp5-plugin-testweb")
                 .addHrefTag(list)
                 .build();
     }
