@@ -31,8 +31,8 @@ export const errorAnalysisRouteLoader = async ({ params, request }: LoaderFuncti
     const queryParam = Object.fromEntries(new URL(request.url).searchParams);
     const conditions = Object.keys(queryParam);
 
-    const from = queryParam?.from as string;
-    const to = queryParam?.to as string;
+    const from = queryParam?.from ?? '';
+    const to = queryParam?.to ?? '';
 
     const currentDate = new Date();
     const parsedDateRange = {

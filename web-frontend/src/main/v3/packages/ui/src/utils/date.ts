@@ -1,7 +1,7 @@
 import { parse, isValid, differenceInDays } from 'date-fns';
 import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
 import { format, getCurrentFormat, getTimezone } from './format';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { fromZonedTime } from 'date-fns-tz';
 
 export const getParsedDateRange = (
   dates: {
@@ -45,11 +45,13 @@ export const getFormattedDateRange = (
   };
 };
 
-export const getParsedDate = (date: string) => {
+// URL 검색 파라미터에서 오는 값이라 실제로는 비어 있을 수 있다. date-fns v3 부터는
+// 인자를 문자열로 바꿔 주지 않으므로, undefined 를 그대로 넘기면 parse 가 throw 한다.
+export const getParsedDate = (date?: string) => {
   const currentDate = new Date();
   const timezone = getTimezone();
-  const parsedDate = parse(date, SEARCH_PARAMETER_DATE_FORMAT, new Date());
-  const result = zonedTimeToUtc(parsedDate, timezone);
+  const parsedDate = parse(date ?? '', SEARCH_PARAMETER_DATE_FORMAT, new Date());
+  const result = fromZonedTime(parsedDate, timezone);
 
   if (isValid(result)) {
     return result;

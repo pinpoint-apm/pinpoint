@@ -13,7 +13,7 @@ import { DateRange } from '../types';
 import classNames from 'classnames';
 import AppContext from './context/appContext';
 import { getZonedEndOfDay, getZonedStartOfDay } from '../utils/date';
-import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 
 export interface DatePickerProps extends Pick<
   RichDatetimePickerProps,
@@ -27,7 +27,7 @@ export interface DatePickerProps extends Pick<
 
 const getZonedCalendarDate = (date: Date | null | undefined, timeZone: string) => {
   if (date) {
-    return utcToZonedTime(date, timeZone);
+    return toZonedTime(date, timeZone);
   }
   return null;
 };
@@ -46,7 +46,7 @@ export const DatePicker = ({
   const {
     appContext: { timeZone },
   } = React.useContext(AppContext);
-  const now = utcToZonedTime(Date.now(), timeZone);
+  const now = toZonedTime(Date.now(), timeZone);
   const min = minDate || subMonths(now, 1);
   const max = maxDate || addDays(now, 1);
   const datePickerRef = React.useCallback((ref: ReactDatePicker) => {
@@ -73,7 +73,7 @@ export const DatePicker = ({
       dayClassName={(date) => {
         let dayClass = 'rich-datetime-picker__day';
         if (startDate && endDate) {
-          dayClass = isWithinInterval(zonedTimeToUtc(date, timeZone), {
+          dayClass = isWithinInterval(fromZonedTime(date, timeZone), {
             start: startDate,
             end: endDate,
           })

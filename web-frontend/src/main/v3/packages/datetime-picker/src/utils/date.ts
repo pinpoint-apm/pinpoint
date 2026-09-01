@@ -1,5 +1,6 @@
 import { DateRange, TimePatternKeys, TimeUnitFormat } from '../types';
 import {
+  Locale,
   endOfDay,
   endOfMonth,
   endOfYear,
@@ -18,7 +19,7 @@ import {
 } from 'date-fns';
 import { removeSpaces } from './string';
 import { SEAM_TOKEN, dateFormats, timePatterns } from '../constants/patterns';
-import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 
 // const TimeUnitToMillisecondsMap: { [key in TimeUnit]: number } = {
 //   s: 1000,
@@ -252,10 +253,10 @@ export const isDayFormat = (dateString: string) => {
 };
 
 export const calcZonedDate = (date: Date, tz: string, fn: (date: Date) => Date) => {
-  const inputZoned = utcToZonedTime(date, tz);
+  const inputZoned = toZonedTime(date, tz);
   // const fnZoned = options ? fn(inputZoned, options) : fn(inputZoned);
   const fnZoned = fn(inputZoned);
-  return zonedTimeToUtc(fnZoned, tz);
+  return fromZonedTime(fnZoned, tz);
 };
 
 export const getZonedStartOfDay = (date: Date, timeZone: string) => {
@@ -289,7 +290,7 @@ export const parseWithTimeZone = (
   timeZone: string,
   options: Parameters<typeof parse>['3'],
 ) => {
-  const zonedDate = utcToZonedTime(referenceDate, timeZone);
+  const zonedDate = toZonedTime(referenceDate, timeZone);
   const parsedDate = parse(dateString, format, zonedDate, options);
-  return zonedTimeToUtc(parsedDate, timeZone);
+  return fromZonedTime(parsedDate, timeZone);
 };
