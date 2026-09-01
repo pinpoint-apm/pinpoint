@@ -34,7 +34,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 @PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(17)
-@Dependency({"org.springframework:spring-context:[6.0.0.RELEASE,)", "cglib:cglib-nodep:3.1"})
+@Dependency({"org.springframework:spring-context:[6.0.0,6.max]", "cglib:cglib-nodep:3.1"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 public class AbstractAutowireCapableBeanFactoryModifier_6_x_IT {

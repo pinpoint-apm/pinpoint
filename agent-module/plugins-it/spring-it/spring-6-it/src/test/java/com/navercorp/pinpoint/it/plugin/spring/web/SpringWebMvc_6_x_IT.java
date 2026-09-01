@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 @PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(17)
-@Dependency({"org.springframework:spring-webmvc:[6.0.0.RELEASE,)", "org.springframework:spring-test", "jakarta.servlet:jakarta.servlet-api:6.0.0"})
+@Dependency({"org.springframework:spring-webmvc:[6.0.0,6.max]", "org.springframework:spring-test", "jakarta.servlet:jakarta.servlet-api:6.0.0"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 @Disabled
 public class SpringWebMvc_6_x_IT {
