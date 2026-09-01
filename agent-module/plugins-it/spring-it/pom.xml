@@ -35,7 +35,7 @@
     </properties>
 
     <modules>
-        <module>spring-3-it</module>
+        <module>spring-5-it</module>
         <module>spring-6-it</module>
         <module>spring-7-it</module>
     </modules>

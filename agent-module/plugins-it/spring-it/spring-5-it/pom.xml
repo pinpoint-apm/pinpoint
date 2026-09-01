@@ -24,7 +24,7 @@
         <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-spring-3-plugin-it</artifactId>
+    <artifactId>pinpoint-spring-5-plugin-it</artifactId>
 
     <packaging>jar</packaging>
 
