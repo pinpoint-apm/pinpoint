@@ -6,8 +6,10 @@
 ## 켜짐 여부를 읽는 곳은 하나다
 
 configuration API의 `experimental.enableServiceMap.value`가 **기본값**이고, 사용자가 Experimental
-설정에서 값을 정하면 그 값(localStorage `serviceMap`)이 이긴다. 규칙은
-`pickEnableServiceMap` 하나뿐이고, 두 갈래로만 읽는다:
+설정에서 값을 정하면 그 값이 이긴다. 저장되는 localStorage key는 `pp.serviceMap`
+(= `EXPERIMENTAL_CONFIG_KEYS.ENABLE_SERVICE_MAP`)이다 — 다른 experimental key와 달리 접두사가
+붙으므로 devtools에서 찾을 때 주의한다. 규칙은 `pickEnableServiceMap` 하나뿐이고,
+두 갈래로만 읽는다:
 
 | 읽는 곳 | 경로 |
 |---|---|
