@@ -48,25 +48,32 @@ export const CustomTimeView = ({
     <Transition
       as="div"
       show={show}
+      // 열린 뒤의 위치는 `right-full`/`left-full`/`top-full` 로 정한다. 전환 클래스에 맡기면 안
+      // 된다 — @headlessui/react 1 은 `enterTo` 를 전환이 끝난 뒤에도 남겨 뒀지만 2 는 지운다.
+      // 그래서 예전 코드(`left-0` + `enterTo` 의 `-translate-x-full`)는 2 로 올린 뒤 패널이
+      // 제자리로 돌아와 부모 뒤(`-z-10`)에 가려졌다.
       className={classNames('rich-datetime-picker__more', {
-        'left-0 rounded-l border-r border-r-rgba2': direction === 'left',
-        'right-0 rounded-r border-l border-l-rgba2': direction === 'right',
-        'left-0 w-full rounded-bl rounded-br border-t border-t-rgba2': direction === 'bottom',
+        'border-r-rgba2 top-0 right-full rounded-l border-r': direction === 'left',
+        'border-l-rgba2 top-0 left-full rounded-r border-l': direction === 'right',
+        'border-t-rgba2 top-full left-0 w-full rounded-br rounded-bl border-t':
+          direction === 'bottom',
       })}
       enter="transition-all transform duration-200"
-      enterFrom="opacity-0 translate-x-0"
-      enterTo={classNames('opacity-100', {
-        '-translate-x-[100%]': direction === 'left',
-        'translate-x-[100%]': direction === 'right',
-        'translate-y-[100%]': direction === 'bottom',
+      // 부모와 겹친 자리에서 시작해 제자리로 미끄러져 나온다. 끝 상태는 변형이 없는 기본값이라
+      // 전환 클래스가 사라져도 위치가 유지된다.
+      enterFrom={classNames('opacity-0', {
+        'translate-x-full': direction === 'left',
+        '-translate-x-full': direction === 'right',
+        '-translate-y-full': direction === 'bottom',
       })}
+      enterTo="opacity-100 translate-x-0 translate-y-0"
       leave="transition-all transform duration-200"
-      leaveFrom={classNames('opacity-100', {
-        '-translate-x-[100%]': direction === 'left',
-        'translate-x-[100%]': direction === 'right',
-        '-translate-y-[100%]': direction === 'bottom',
+      leaveFrom="opacity-100 translate-x-0 translate-y-0"
+      leaveTo={classNames('opacity-0', {
+        'translate-x-full': direction === 'left',
+        '-translate-x-full': direction === 'right',
+        '-translate-y-full': direction === 'bottom',
       })}
-      leaveTo="translate-x-0 opacity-0"
     >
       {children ? (
         children
