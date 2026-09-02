@@ -27,12 +27,12 @@ import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import static org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory.createThrowableCollector;
 
-public class PluginForkedTestClassTestDescriptor extends ClassTestDescriptor {
+public class PluginForkedTestClassTestDescriptor extends DelegatingClassTestDescriptor {
 
     private PluginTestReport testReport;
 
     public PluginForkedTestClassTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration) {
-        super(uniqueId, testClass, configuration);
+        super(new ClassTestDescriptor(uniqueId, testClass, configuration));
     }
 
     @Override

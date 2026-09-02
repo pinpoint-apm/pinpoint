@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestDepe
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestMethodTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestUnitTestDescriptor;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
-import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.junit5.descriptor.TestClassAwareUtils;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.platform.engine.TestDescriptor;
@@ -24,12 +24,14 @@ public class PluginForkedTestDescriptorBuilder implements TestDescriptorBuilder 
     }
 
     public TestDescriptor build(TestDescriptor testDescriptor, JupiterConfiguration configuration) {
-        final DefaultPluginForkedTestSuite testSuite = new DefaultPluginForkedTestSuite(((ClassTestDescriptor) testDescriptor).getTestClass());
+        Class<?> testClass = TestClassAwareUtils.getTestClass(testDescriptor);
+
+        final DefaultPluginForkedTestSuite testSuite = new DefaultPluginForkedTestSuite(testClass);
         final List<PluginForkedTestInstance> testInstanceList = testSuite.getPluginTestInstanceList();
         final TestDescriptorFactory factory = new TestDescriptorFactory(configuration);
 
         // Unit
-        final PluginForkedTestUnitTestDescriptor pluginTestUnitTestDescriptor = new PluginForkedTestUnitTestDescriptor(testDescriptor.getUniqueId(), ((ClassTestDescriptor) testDescriptor).getTestClass(), configuration, testInstanceList);
+        final PluginForkedTestUnitTestDescriptor pluginTestUnitTestDescriptor = new PluginForkedTestUnitTestDescriptor(testDescriptor.getUniqueId(), testClass, configuration, testInstanceList);
         for (PluginForkedTestInstance pluginTestInstance : testInstanceList) {
             final String testId = pluginTestInstance.getTestId();
             // Dependency

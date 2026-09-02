@@ -24,14 +24,12 @@ import org.junit.platform.engine.UniqueId;
 
 import java.util.Objects;
 
-public class PluginTestClassTestDescriptor extends ClassTestDescriptor {
+public class PluginTestClassTestDescriptor extends DelegatingClassTestDescriptor {
 
-    private final Class<?> testClass;
     private final PluginTestInstance pluginTestInstance;
 
     public PluginTestClassTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, PluginTestInstance pluginTestInstance) {
-        super(uniqueId, testClass, configuration);
-        this.testClass = testClass;
+        super(new ClassTestDescriptor(uniqueId, testClass, configuration));
         this.pluginTestInstance = Objects.requireNonNull(pluginTestInstance, "pluginTestInstance");
     }
 
@@ -39,20 +37,20 @@ public class PluginTestClassTestDescriptor extends ClassTestDescriptor {
     @Override
     public JupiterEngineExecutionContext before(JupiterEngineExecutionContext context) {
         return this.pluginTestInstance.call(() -> {
-            return super.before(context);
+            return delegate.before(context);
         }, false);
     }
 
     @Override
     public void after(JupiterEngineExecutionContext context) {
         this.pluginTestInstance.run(() -> {
-            super.after(context);
+            delegate.after(context);
         }, false);
     }
 
     @Override
     public void cleanUp(JupiterEngineExecutionContext context) throws Exception {
-        super.cleanUp(context);
+        delegate.cleanUp(context);
         this.pluginTestInstance.clear();
     }
 }

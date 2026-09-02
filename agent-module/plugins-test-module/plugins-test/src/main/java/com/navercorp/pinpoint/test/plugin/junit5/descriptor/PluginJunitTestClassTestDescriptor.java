@@ -24,12 +24,12 @@ import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.UniqueId;
 
 
-public class PluginJunitTestClassTestDescriptor extends ClassTestDescriptor {
+public class PluginJunitTestClassTestDescriptor extends DelegatingClassTestDescriptor {
 
     private final ThreadContextExecutor executor;
 
     public PluginJunitTestClassTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, TestContext testContext) {
-        super(uniqueId, testClass, configuration);
+        super(new ClassTestDescriptor(uniqueId, testClass, configuration));
         this.executor = new ThreadContextExecutor(testContext.getClassLoader());
     }
 
@@ -37,14 +37,14 @@ public class PluginJunitTestClassTestDescriptor extends ClassTestDescriptor {
     @Override
     public JupiterEngineExecutionContext before(JupiterEngineExecutionContext context) {
         return this.executor.call(() -> {
-            return super.before(context);
+            return delegate.before(context);
         });
     }
 
     @Override
     public void after(JupiterEngineExecutionContext context) {
         this.executor.run(() -> {
-            super.after(context);
+            delegate.after(context);
         });
     }
 }
