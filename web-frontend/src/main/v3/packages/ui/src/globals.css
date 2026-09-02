@@ -240,4 +240,11 @@
     width: var(--radix-popover-trigger-width);
     max-height: var(--radix-popover-content-available-height);
   }
+
+  /* react-toastify 11 에서 ToastOptions 의 bodyClassName 이 없어졌다. 여러 줄 에러 토스트의
+     본문을 위로 정렬하기 위한 클래스로, 토스트의 className 에 얹어 쓴다.
+     Tailwind arbitrary variant 로는 클래스 이름의 밑줄이 공백으로 바뀌어 선택자가 깨진다. */
+  .pp-toast-body-top .Toastify__toast-body {
+    align-items: flex-start;
+  }
 }

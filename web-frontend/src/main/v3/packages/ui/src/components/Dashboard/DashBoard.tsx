@@ -1,6 +1,6 @@
-import { Responsive, WidthProvider } from 'react-grid-layout';
+import { Responsive, useContainerWidth } from 'react-grid-layout';
+import type { ResponsiveProps } from 'react-grid-layout';
 import { screens } from '@pinpoint-fe/ui/src/constants';
-import ReactGridLayout from 'react-grid-layout';
 import {
   DRAGGABLE_CANCEL_CLASS,
   DRAGGABLE_HANDLE_CLASS,
@@ -8,13 +8,14 @@ import {
   WIDGET_WIDTH,
 } from './Widget';
 
-export interface DashBoardProps extends ReactGridLayout.ResponsiveProps {}
-
-const ResponsiveGridLayout = WidthProvider(Responsive);
+// `width` 는 컨테이너를 재는 쪽에서 넣어주므로 바깥에서 받지 않는다. react-grid-layout 1 에서는
+// `WidthProvider` HOC 가 그 일을 했는데, 2 에서 없어지고 `useContainerWidth` 훅으로 바뀌었다.
+export interface DashBoardProps extends Omit<ResponsiveProps, 'width'> {}
 
 export const DASH_BOARD_WIDTH = 24;
 
 export const DashBoard = ({ children, ...props }: DashBoardProps) => {
+  const { width, containerRef } = useContainerWidth();
   const screenSizeMap = Object.keys(screens).reduce(
     (acc, key) => {
       return {
@@ -26,17 +27,24 @@ export const DashBoard = ({ children, ...props }: DashBoardProps) => {
   );
 
   return (
-    <ResponsiveGridLayout
-      isResizable
-      breakpoints={{ sm: screenSizeMap['sm'], xxs: 0 }}
-      cols={{ sm: DASH_BOARD_WIDTH, xxs: 1 }}
-      className="[&>.react-grid-item.react-grid-placeholder]:bg-primary"
-      draggableHandle={`.${DRAGGABLE_HANDLE_CLASS}`}
-      draggableCancel={`.${DRAGGABLE_CANCEL_CLASS}`}
-      {...props}
-    >
-      {children}
-    </ResponsiveGridLayout>
+    <div ref={containerRef}>
+      <Responsive
+        width={width}
+        breakpoints={{ sm: screenSizeMap['sm'], xxs: 0 }}
+        cols={{ sm: DASH_BOARD_WIDTH, xxs: 1 }}
+        className="[&>.react-grid-item.react-grid-placeholder]:bg-primary"
+        // react-grid-layout 2 는 drag/resize 설정을 개별 prop 이 아니라 설정 객체로 받는다.
+        // (`isResizable` → `resizeConfig.enabled`, `draggableHandle` → `dragConfig.handle`)
+        resizeConfig={{ enabled: true }}
+        dragConfig={{
+          handle: `.${DRAGGABLE_HANDLE_CLASS}`,
+          cancel: `.${DRAGGABLE_CANCEL_CLASS}`,
+        }}
+        {...props}
+      >
+        {children}
+      </Responsive>
+    </div>
   );
 };
 

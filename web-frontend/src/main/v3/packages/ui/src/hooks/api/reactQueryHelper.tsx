@@ -99,8 +99,9 @@ export const showGlobalErrorToast = (error: unknown, options?: { toastId?: strin
   const store = getDefaultStore();
   toast.error(<ErrorToast error={error as Error} />, {
     toastId: options?.toastId,
-    className: 'pointer-events-auto',
-    bodyClassName: '!items-start',
+    // v11 에서 bodyClassName 옵션이 없어졌다. 본문 정렬 규칙은 globals.css 의
+    // `.pp-toast-body-top` 로 옮겼다.
+    className: 'pointer-events-auto pp-toast-body-top',
     autoClose: false,
     onOpen: () => store.set(toastCountAtom, (prev) => prev + 1),
     onClose: () => store.set(toastCountAtom, (prev) => (prev === 0 ? prev : prev - 1)),
