@@ -72,7 +72,8 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
         JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(this.getUniqueId(), configuration);
         ExtensionContext jupiterExtensionContext = ExtensionContextFactory.jupiterEngineContext(
                 context.getExecutionListener(), engineDescriptor,
-                context.getConfiguration(), extensionRegistry);
+                context.getConfiguration(), extensionRegistry,
+                context.getLauncherStoreFacade());
 
         // @formatter:off
         return context.extend()

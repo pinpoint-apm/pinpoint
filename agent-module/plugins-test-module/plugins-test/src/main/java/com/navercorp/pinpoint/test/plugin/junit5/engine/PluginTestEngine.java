@@ -22,10 +22,11 @@ import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.TestDescriptor
 import org.junit.jupiter.engine.config.CachingJupiterConfiguration;
 import org.junit.jupiter.engine.config.DefaultJupiterConfiguration;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
-import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
+import org.junit.jupiter.engine.descriptor.TestClassAware;
 import org.junit.jupiter.engine.descriptor.JupiterEngineDescriptor;
 import org.junit.jupiter.engine.discovery.DiscoverySelectorResolver;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
+import org.junit.jupiter.engine.execution.LauncherStoreFacade;
 import org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory;
 import org.junit.platform.commons.logging.Logger;
 import org.junit.platform.commons.logging.LoggerFactory;
@@ -79,9 +80,11 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
         List<TestDescriptor> pluginTestDescriptorList = new ArrayList<>();
 
         try {
+            // only the raw descriptors just produced by the jupiter resolver reach this loop;
+            // the plugin wrappers replacing them are added after it
             for (TestDescriptor testDescriptor : engineDescriptor.getChildren()) {
-                if (testDescriptor instanceof ClassTestDescriptor) {
-                    final Class<?> testClass = ((ClassTestDescriptor) testDescriptor).getTestClass();
+                if (testDescriptor instanceof TestClassAware) {
+                    final Class<?> testClass = ((TestClassAware) testDescriptor).getTestClass();
                     TestDescriptor pluginTestDescriptor = getDescriptor(testDescriptor, testClass, configuration);
                     if (pluginTestDescriptor != null) {
                         pluginTestDescriptorList.add(pluginTestDescriptor);
@@ -116,7 +119,7 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
     @Override
     public JupiterEngineExecutionContext createExecutionContext(ExecutionRequest request) {
         return new JupiterEngineExecutionContext(request.getEngineExecutionListener(),
-                getJupiterConfiguration(request));
+                getJupiterConfiguration(request), new LauncherStoreFacade(request.getStore()));
     }
 
     private JupiterConfiguration getJupiterConfiguration(ExecutionRequest request) {

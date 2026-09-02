@@ -18,6 +18,7 @@ package org.junit.jupiter.engine.descriptor;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
+import org.junit.jupiter.engine.execution.LauncherStoreFacade;
 import org.junit.jupiter.engine.extension.ExtensionRegistry;
 import org.junit.platform.engine.EngineExecutionListener;
 
@@ -26,8 +27,9 @@ public final class ExtensionContextFactory {
     public static ExtensionContext jupiterEngineContext(EngineExecutionListener engineExecutionListener,
                                                         JupiterEngineDescriptor testDescriptor,
                                                         JupiterConfiguration configuration,
-                                                        ExtensionRegistry extensionRegistry) {
-        return new JupiterEngineExtensionContext(engineExecutionListener, testDescriptor, configuration, extensionRegistry);
+                                                        ExtensionRegistry extensionRegistry,
+                                                        LauncherStoreFacade launcherStoreFacade) {
+        return new JupiterEngineExtensionContext(engineExecutionListener, testDescriptor, configuration, extensionRegistry, launcherStoreFacade);
     }
 
 }

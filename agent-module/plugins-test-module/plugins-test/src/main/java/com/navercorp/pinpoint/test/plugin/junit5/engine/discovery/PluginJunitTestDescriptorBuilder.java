@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestClassTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestMethodTestDescriptor;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
-import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.junit5.descriptor.TestClassAwareUtils;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
@@ -38,19 +38,21 @@ public class PluginJunitTestDescriptorBuilder implements TestDescriptorBuilder {
     }
 
     public TestDescriptor build(TestDescriptor testDescriptor, JupiterConfiguration configuration) {
-        final TestContext testContext = new TestContext(new TestClassWrapper(((ClassTestDescriptor) testDescriptor).getTestClass()));
-        final Class<?> testClass = testContext.createTestClass();
+        final Class<?> testClass = TestClassAwareUtils.getTestClass(testDescriptor);
+
+        final TestContext testContext = new TestContext(new TestClassWrapper(testClass));
+        final Class<?> newTestClass = testContext.createTestClass();
 
         // Class
-        final PluginJunitTestClassTestDescriptor pluginTestClassTestDescriptor = new PluginJunitTestClassTestDescriptor(testDescriptor.getUniqueId(), testClass, configuration, testContext);
+        final PluginJunitTestClassTestDescriptor pluginTestClassTestDescriptor = new PluginJunitTestClassTestDescriptor(testDescriptor.getUniqueId(), newTestClass, configuration, testContext);
         //switchTestDescriptor(testDescriptor, pluginTestClassTestDescriptor);
         for (TestDescriptor descriptor : testDescriptor.getChildren()) {
             if (descriptor instanceof TestMethodTestDescriptor) {
                 final Method method = ((TestMethodTestDescriptor) descriptor).getTestMethod();
-                final Method testMethod = ReflectionUtils.findMethod(testClass, method.getName(), method.getParameterTypes()).orElseThrow(() -> new IllegalStateException("not found method"));
+                final Method testMethod = ReflectionUtils.findMethod(newTestClass, method.getName(), method.getParameterTypes()).orElseThrow(() -> new IllegalStateException("not found method"));
 
                 final PluginJunitTestMethodTestDescriptor pluginTestMethodTestDescriptor = new PluginJunitTestMethodTestDescriptor(
-                        descriptor.getUniqueId(), testClass, testMethod, pluginTestClassTestDescriptor::getEnclosingTestClasses, configuration, testContext
+                        descriptor.getUniqueId(), newTestClass, testMethod, pluginTestClassTestDescriptor::getEnclosingTestClasses, configuration, testContext
                 );
                 pluginTestClassTestDescriptor.addChild(pluginTestMethodTestDescriptor);
             }
