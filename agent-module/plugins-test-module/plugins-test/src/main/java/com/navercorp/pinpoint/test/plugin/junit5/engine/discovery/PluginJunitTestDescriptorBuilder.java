@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestClassTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestMethodTestDescriptor;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
-import com.navercorp.pinpoint.test.plugin.junit5.descriptor.TestClassAwareUtils;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
@@ -37,9 +36,7 @@ public class PluginJunitTestDescriptorBuilder implements TestDescriptorBuilder {
         return AnnotationUtils.isAnnotated(candidate, JunitAgentConfigPath.class);
     }
 
-    public TestDescriptor build(TestDescriptor testDescriptor, JupiterConfiguration configuration) {
-        final Class<?> testClass = TestClassAwareUtils.getTestClass(testDescriptor);
-
+    public TestDescriptor build(TestDescriptor testDescriptor, Class<?> testClass, JupiterConfiguration configuration) {
         final TestContext testContext = new TestContext(new TestClassWrapper(testClass));
         final Class<?> newTestClass = testContext.createTestClass();
 

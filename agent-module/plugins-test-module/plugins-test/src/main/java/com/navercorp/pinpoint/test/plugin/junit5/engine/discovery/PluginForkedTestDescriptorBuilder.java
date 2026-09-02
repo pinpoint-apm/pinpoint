@@ -8,7 +8,6 @@ import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestDepe
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestMethodTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestUnitTestDescriptor;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
-import com.navercorp.pinpoint.test.plugin.junit5.descriptor.TestClassAwareUtils;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.platform.engine.TestDescriptor;
@@ -23,9 +22,7 @@ public class PluginForkedTestDescriptorBuilder implements TestDescriptorBuilder 
         return AnnotationUtils.isAnnotated(candidate, PluginForkedTest.class);
     }
 
-    public TestDescriptor build(TestDescriptor testDescriptor, JupiterConfiguration configuration) {
-        Class<?> testClass = TestClassAwareUtils.getTestClass(testDescriptor);
-
+    public TestDescriptor build(TestDescriptor testDescriptor, Class<?> testClass, JupiterConfiguration configuration) {
         final DefaultPluginForkedTestSuite testSuite = new DefaultPluginForkedTestSuite(testClass);
         final List<PluginForkedTestInstance> testInstanceList = testSuite.getPluginTestInstanceList();
         final TestDescriptorFactory factory = new TestDescriptorFactory(configuration);
