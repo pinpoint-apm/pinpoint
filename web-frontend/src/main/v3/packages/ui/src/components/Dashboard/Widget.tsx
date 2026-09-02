@@ -46,7 +46,7 @@ export const Widget = ({ title, children, onClickEdit, onClickDelete }: WidgetPr
             <DropdownMenuItem onClick={() => onClickEdit?.()}>{t('COMMON.EDIT')}</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-destructive hover:!text-destructive"
+              className="text-destructive hover:text-destructive!"
               onClick={() => onClickDelete?.()}
             >
               {t('COMMON.DELETE')}

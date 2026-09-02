@@ -77,7 +77,7 @@ export const WebhookCheckedList = ({
               </ScrollArea>
             ) : (
               <div
-                className={cn('p-4 border rounded min-h-[3.75rem] text-sm', {
+                className={cn('p-4 border rounded min-h-15 text-sm', {
                   'border-input opacity-50': disabled,
                 })}
               >

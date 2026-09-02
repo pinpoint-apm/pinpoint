@@ -1,6 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* 테마·content·플러그인 설정은 계속 JS 설정 파일에 둔다. v4 는 CSS 우선 설정을 권하지만
+   apps/web 이 preset 으로 이 설정과 datetime-picker 설정을 합쳐 쓰고 있어, 그 합성을 유지한다. */
+@config '../tailwind.config.js';
+
+/* v4 의 기본 테두리 색이 currentcolor 로 바뀌었다. v3 와 같은 화면을 유지하기 위한 보정.
+   지우려면 이 기본값에 의존하는 모든 요소에 테두리 색 유틸리티를 명시해야 한다. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 @layer base {
   /* :root {
@@ -225,7 +239,7 @@
   }
 
   .__scatter_chart__legend_count {
-    @apply ml-3 !text-xl font-bold;
+    @apply ml-3 text-xl! font-bold;
   }
 
   .__scatter_chart__legend_mark {

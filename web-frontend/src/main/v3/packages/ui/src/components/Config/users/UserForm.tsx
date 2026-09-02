@@ -219,7 +219,7 @@ export const UserForm = ({
                 <FormControl>
                   <PhoneInput
                     className={cn(
-                      'text-sm bg-transparent border rounded-md shadow-sm border-input focus-visible:ring-0',
+                      'text-sm bg-transparent border rounded-md shadow-xs border-input focus-visible:ring-0',
                       { 'border-status-fail': fieldState.invalid },
                     )}
                     defaultCountry="kr"
@@ -227,7 +227,7 @@ export const UserForm = ({
                       className: 'border-0',
                       buttonClassName: 'border-0',
                     }}
-                    inputClassName="flex-1 !py-1 !border-0"
+                    inputClassName="flex-1 py-1! border-0!"
                     forceDialCode={true}
                     {...field}
                     onChange={(phone, meta) => {

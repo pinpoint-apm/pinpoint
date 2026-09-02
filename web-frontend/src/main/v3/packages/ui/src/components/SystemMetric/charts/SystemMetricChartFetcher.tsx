@@ -164,7 +164,7 @@ export const SystemMetricChartFetcher = ({
       <CardHeader className="px-4 py-3 text-sm">
         <CardTitle>{title}</CardTitle>
         {tagGroup && (
-          <CardDescription className="flex items-center gap-2.5 !mt-3">
+          <CardDescription className="flex items-center gap-2.5 mt-3!">
             <Label className="text-xs">Group</Label>
             <Select value={tags} onValueChange={(value) => setSelectedTag(value)}>
               <SelectTrigger className="w-[calc(100%-3.125rem)] text-xs">

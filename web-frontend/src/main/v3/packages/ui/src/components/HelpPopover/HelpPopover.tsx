@@ -147,7 +147,7 @@ export const HelpPopover = ({
         <PiQuestionFill className="fill-gray-400" fontSize={'large'} />
       </PopoverTrigger>
       <PopoverPrimitive.Portal>
-        <PopoverContent className="z-[9999] w-auto overflow-auto max-h-[80vh]">
+        <PopoverContent className="z-9999 w-auto overflow-auto max-h-[80vh]">
           {helpContent?.TITLE && (
             <h2 className="mb-1 text-base font-semibold text-primary">
               <Trans i18nKey={`${helpKey}.TITLE`} />

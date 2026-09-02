@@ -53,7 +53,7 @@ export const DuplicationCheck = ({
     <>
       <div
         className={cn(
-          'flex items-center pl-3 pr-2 border rounded shadow-sm w-72 h-9',
+          'flex items-center pl-3 pr-2 border rounded shadow-xs w-72 h-9',
           { 'border-red-500': isCheckError },
           { 'border-emerald-400': isCheckSuccess },
           className,

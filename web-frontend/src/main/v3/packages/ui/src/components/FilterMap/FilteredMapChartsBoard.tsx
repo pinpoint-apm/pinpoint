@@ -228,7 +228,7 @@ export const FilteredMapChartsBoard = ({
             )}
           </>
         ) : (
-          <div className="flex justify-center font-semibold pt-25 text-status-fail">
+          <div className="flex justify-center font-semibold text-status-fail">
             <a href={authorizationGuideUrl} target="_blank">
               You don't have authorization.
               {authorizationGuideUrl && <PiArrowSquareOut />}

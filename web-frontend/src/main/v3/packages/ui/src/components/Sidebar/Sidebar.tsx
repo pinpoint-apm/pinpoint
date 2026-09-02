@@ -31,7 +31,7 @@ const Sidebar = ({ children, header }: SideNavigationProps) => {
 
   return (
     <ProSidebar
-      className="[&_.scale-button-wrapper]:hover:inline-block"
+      className="hover:[&_.scale-button-wrapper]:inline-block"
       width={`${SIDEBAR_WIDTH}px`}
       collapsed={collapsed}
       collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}
@@ -47,12 +47,9 @@ const Sidebar = ({ children, header }: SideNavigationProps) => {
       }}
     >
       <div
-        className={cn(
-          'relative h-16 min-h-[4rem] flex items-center pl-6 hover:bg-[--blue-700] mb-2',
-          {
-            'justify-center pl-0 text-center': collapsed,
-          },
-        )}
+        className={cn('relative h-16 min-h-16 flex items-center pl-6 hover:bg-(--blue-700) mb-2', {
+          'justify-center pl-0 text-center': collapsed,
+        })}
       >
         {typeof header === 'function' ? header(collapsed) : header}
         <div className="absolute hidden scale-button-wrapper top-1 right-1">

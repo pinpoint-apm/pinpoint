@@ -48,7 +48,7 @@ export const UsersTableToolbar = ({
           <MdOutlineAdd className="mr-0.5" /> {t('CONFIGURATION.USERS.LABEL.USER_ADD_BUTTON')}
         </Button>
       )}
-      <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-sm h-9">
+      <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-xs h-9">
         <Input
           value={inputValue}
           className="h-full px-0 py-3 border-none focus-visible:ring-0"

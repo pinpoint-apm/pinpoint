@@ -72,7 +72,7 @@ export const ProgressBarWithControls = ({
         }}
         {...props}
       />
-      <div className="relative w-8 min-w-[2rem] flex items-center justify-center">
+      <div className="relative w-8 min-w-8 flex items-center justify-center">
         {typeof children === 'function' ? (
           children({ isComplete, isPause, completeRenderer, resumeRenderer })
         ) : (

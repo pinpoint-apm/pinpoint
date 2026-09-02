@@ -50,7 +50,7 @@ export const useServiceSideNavigation = (serviceGroupItems: SideNavigationMenuIt
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md bg-[var(--blue-700)] text-white hover:bg-[var(--blue-600)]"
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md bg-(--blue-700) text-white hover:bg-(--blue-600)"
                 onClick={(e) => {
                   e.stopPropagation();
                   close();
@@ -65,7 +65,7 @@ export const useServiceSideNavigation = (serviceGroupItems: SideNavigationMenuIt
                 type="button"
                 aria-label="Service Setting"
                 title="Service Setting"
-                className="inline-flex items-center justify-center w-6 h-6 rounded-md text-white hover:bg-[var(--blue-700)]"
+                className="inline-flex items-center justify-center w-6 h-6 rounded-md text-white hover:bg-(--blue-700)"
                 onClick={(e) => {
                   e.stopPropagation();
                   close();

@@ -28,7 +28,9 @@ export const LayoutWithConfiguration = ({ children, configMenu }: LayoutWithConf
         <p className="text-muted-foreground">{configMenu?.desc}</p>
       </div>
       <Separator className="my-6" />
-      <div className="flex flex-row space-x-12 h-[calc(100%-6rem)]">
+      {/* `gap` 을 쓴다. Tailwind 4 의 `space-x-*` 는 `:where(& > :not(:last-child))` 로 바뀌어
+          명시도가 0 이라, 자식(`aside` 의 `-mx-4`)의 margin 유틸리티에 밀려 간격이 사라진다. */}
+      <div className="flex flex-row gap-12 h-[calc(100%-6rem)]">
         {configMenu?.menus.length ? (
           <aside className="-mx-4 lg:w-1/5">
             {configMenu.menus.map((item, i) => {
@@ -36,7 +38,7 @@ export const LayoutWithConfiguration = ({ children, configMenu }: LayoutWithConf
                 <nav key={i} className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
                   <a
                     className={cn(
-                      'cursor-pointer inline-flex items-center whitespace-nowrap rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-9 px-4 py-2 hover:bg-muted justify-start',
+                      'cursor-pointer inline-flex items-center whitespace-nowrap rounded-md text-sm transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-9 px-4 py-2 hover:bg-muted justify-start',
                       {
                         'bg-muted font-semibold': Array.isArray(item.path)
                           ? item.path.some((p) => pathname === p)

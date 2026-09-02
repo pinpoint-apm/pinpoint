@@ -94,7 +94,7 @@ export const HostGroupList = ({
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className="min-80 p-0 text-sm !z-[2001]"
+        className="min-80 p-0 text-sm z-2001!"
         onKeyDown={handleKeyDown}
         onMouseMove={() => {
           setIsMouseMove(true);

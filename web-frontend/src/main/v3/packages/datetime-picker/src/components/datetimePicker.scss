@@ -1,5 +1,6 @@
-@tailwind components;
-@tailwind utilities;
+/* 이 파일은 유틸리티를 내보내지 않고 `@apply` 로만 쓴다. Tailwind 4 에서는 그런 파일이
+   테마를 직접 참조해야 한다. */
+@reference '../theme.css';
 
 @layer components {
   .rich-datetime-picker {
@@ -259,7 +260,7 @@
     @apply pointer-events-none opacity-50;
   }
   .rich-datetime-picker__input {
-    @apply w-full rounded bg-transparent pl-12.5 text-sm focus:outline-none;
+    @apply w-full rounded bg-transparent pl-12.5 text-sm focus:outline-hidden;
   }
   .rich-datetime-picker__panel {
     @apply absolute top-[calc(100%+2px)] z-10 w-full rounded bg-white shadow-box1;
@@ -289,15 +290,15 @@
     @apply text-sm font-normal;
   }
   .rich-datetime-picker__tag {
-    @apply flex h-5 w-9 cursor-pointer items-center justify-center rounded-sm bg-rgba1 text-xs text-rgba5;
+    @apply flex h-5 w-9 cursor-pointer items-center justify-center rounded-xs bg-rgba1 text-xs text-rgba5;
   }
   .rich-datetime-picker__tag--colorized {
-    @apply flex h-5 items-center justify-center rounded-sm px-1.5 pt-1 text-xs text-primary;
+    @apply flex h-5 items-center justify-center rounded-xs px-1.5 pt-1 text-xs text-primary;
   }
   .rich-datetime-picker__more {
-    @apply absolute top-0 -z-10 h-full w-70 cursor-default overflow-auto bg-white shadow-box1;
+    @apply absolute -z-10 h-full w-70 cursor-default overflow-auto bg-white shadow-box1;
   }
   .rich-datetime-picker__more-label {
-    @apply flex cursor-pointer items-center justify-center rounded-sm bg-rgbaPrimary px-1.5 py-1 text-xs text-primary hover:bg-primary hover:text-white;
+    @apply flex cursor-pointer items-center justify-center rounded-xs bg-rgbaPrimary px-1.5 py-1 text-xs text-primary hover:bg-primary hover:text-white;
   }
 }

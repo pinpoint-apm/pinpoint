@@ -28,7 +28,7 @@ export const AgentIdNameTooltip = ({
        * TooltipContent의 기본값은 z-50이라 그 반투명 오버레이 뒤로 깔려 뿌옇게 비친다.
        * 오버레이보다 한 단계 위로 올린다.
        */
-      className="z-[1001]"
+      className="z-1001"
     >
       <div>
         <span className="text-gray-500">Agent ID:</span> {agentId}

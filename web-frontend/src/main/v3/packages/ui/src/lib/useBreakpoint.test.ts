@@ -8,6 +8,10 @@ jest.mock('react-responsive', () => ({
   useMediaQuery: jest.fn(),
 }));
 
+// 실제 픽셀 값을 고정한다. Tailwind 의 값 표기에서 숫자만 떼어내는 식으로 기대값을 쓰면 표기가
+// 바뀔 때(4 에서 `640px` → `40rem`) 테스트와 구현이 같이 틀려서 아무것도 잡지 못한다.
+const BREAKPOINT_PIXELS = { sm: 640, md: 768, lg: 1024, xl: 1280 } as const;
+
 describe('Test useBreakpoint hook', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -18,7 +22,7 @@ describe('Test useBreakpoint hook', () => {
 
     const { result } = renderHook(() => useBreakpoint('sm'));
 
-    expect(result.current.sm).toBe(Number(String(screens.sm).replace(/[^0-9]/g, '')));
+    expect(result.current.sm).toBe(BREAKPOINT_PIXELS.sm);
     expect(result.current.isBelowSm).toBe(true);
     expect(result.current.isAboveSm).toBe(false);
   });
@@ -28,7 +32,7 @@ describe('Test useBreakpoint hook', () => {
 
     const { result } = renderHook(() => useBreakpoint('md'));
 
-    expect(result.current.md).toBe(Number(String(screens.md).replace(/[^0-9]/g, '')));
+    expect(result.current.md).toBe(BREAKPOINT_PIXELS.md);
     expect(result.current.isBelowMd).toBe(false);
     expect(result.current.isAboveMd).toBe(true);
   });
@@ -38,7 +42,7 @@ describe('Test useBreakpoint hook', () => {
 
     const { result } = renderHook(() => useBreakpoint('lg'));
 
-    expect(result.current.lg).toBe(Number(String(screens.lg).replace(/[^0-9]/g, '')));
+    expect(result.current.lg).toBe(BREAKPOINT_PIXELS.lg);
     expect(result.current.isBelowLg).toBe(true);
     expect(result.current.isAboveLg).toBe(false);
   });
@@ -48,19 +52,19 @@ describe('Test useBreakpoint hook', () => {
 
     renderHook(() => useBreakpoint('xl'));
 
+    // 미디어 쿼리에는 Tailwind 의 원문 값을 그대로 싣는다(rem 이든 px 이든 CSS 가 해석한다).
     expect(useMediaQuery).toHaveBeenCalledWith({
       query: `(max-width: ${screens.xl})`,
     });
   });
 
-  test('Handle breakpoint value extraction from string with units', () => {
+  test('Return the breakpoint in pixels even though Tailwind defines it in rem', () => {
     (useMediaQuery as jest.Mock).mockReturnValue(true);
 
     const { result } = renderHook(() => useBreakpoint('sm'));
 
-    // Extract numeric value from breakpoint (e.g., "640px" -> 640)
-    const numericValue = Number(String(screens.sm).replace(/[^0-9]/g, ''));
-    expect(result.current.sm).toBe(numericValue);
+    expect(String(screens.sm)).toBe('40rem');
+    expect(result.current.sm).toBe(640);
     expect(typeof result.current.sm).toBe('number');
   });
 });

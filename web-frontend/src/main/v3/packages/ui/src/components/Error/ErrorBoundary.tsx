@@ -35,7 +35,7 @@ export const ErrorBoundary = ({
         const err = error as (ErrorLike & Error) | undefined;
         return (
           <div className="flex flex-col gap-5 justify-center items-center p-3 w-full h-full">
-            <div className="w-full text-center max-w-[28rem]">
+            <div className="w-full text-center max-w-112">
               {errorMessage ? (
                 typeof errorMessage === 'function' ? (
                   errorMessage(err?.detail ?? err?.message ?? err?.title)

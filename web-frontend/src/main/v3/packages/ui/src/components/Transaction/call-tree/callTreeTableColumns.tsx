@@ -162,7 +162,7 @@ export const callTreeTableColumns = ({
     },
     size: 10,
     meta: {
-      cellClassName: '!p-0 grow-0',
+      cellClassName: 'p-0! grow-0',
       headerClassName: 'px-0.5 grow-0 ',
     },
   },
@@ -603,10 +603,7 @@ const MethodCell = (props: {
   } else if (!rowData.isMethod) {
     if (text === 'SQL' || text === 'MONGO-JSON') {
       return (
-        <Button
-          className="text-xs h-[1rem] gap-0.5 p-1"
-          onClick={() => onClickDetailView?.(rowData)}
-        >
+        <Button className="text-xs h-4 gap-0.5 p-1" onClick={() => onClickDetailView?.(rowData)}>
           <FaDatabase /> {text}
         </Button>
       );
@@ -620,7 +617,7 @@ const MethodCell = (props: {
         });
         return (
           <>
-            <Button asChild className="text-xs h-[1rem] gap-0.5 p-1">
+            <Button asChild className="text-xs h-4 gap-0.5 p-1">
               <Link to={linkPath} onClick={() => setCallTreeFocusId('')}>
                 <FaLink /> {text}
               </Link>
@@ -815,7 +812,7 @@ const OtelLinkTransactionListButton = ({
 
   return (
     <Button
-      className="flex-none text-xs h-[1rem] gap-0.5 p-1 ml-1"
+      className="flex-none text-xs h-4 gap-0.5 p-1 ml-1"
       title={t('TRANSACTION_LIST.OPEN_IN_TRANSACTION_LIST')}
       aria-label={t('TRANSACTION_LIST.OPEN_IN_TRANSACTION_LIST')}
       onClick={handleClick}

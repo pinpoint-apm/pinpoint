@@ -134,7 +134,7 @@ export const DatetimePicker = React.memo(
       <>
         <div className={cn('flex h-8 gap-1 items-center', className)}>
           {isRealtime ? (
-            <div className="flex items-center h-full border rounded w-[26rem] border-input">
+            <div className="flex items-center h-full border rounded w-104 border-input">
               <Marquee speed={80} className="text-sm italic opacity-40">
                 REAL TIME MONITORING
               </Marquee>
@@ -143,7 +143,7 @@ export const DatetimePicker = React.memo(
             <RichDatetimePicker
               dateFormat={dateFormat}
               disable={isRealtime}
-              className="w-[26rem]"
+              className="w-104"
               seamToken="~"
               localeKey={language}
               startDate={parsedDate.from}

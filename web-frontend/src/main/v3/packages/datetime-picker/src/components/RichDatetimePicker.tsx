@@ -186,7 +186,7 @@ export const RichDatetimePicker = ({
           )}
           onClick={() => setOpen(true)}
         >
-          <div className="rich-datetime-picker__tag absolute left-1.5 top-1.5">
+          <div className="rich-datetime-picker__tag absolute top-1.5 left-1.5">
             {from && to ? getFormattedTimeUnit(to?.getTime() - from?.getTime(), formatTag) : '-'}
           </div>
           {open ? (

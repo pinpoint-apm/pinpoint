@@ -17,7 +17,7 @@ export const InstallationPage = ({ installationItemList }: InstallationPageProps
       <div
         data-orientation="horizontal"
         role="none"
-        className="shrink-0 bg-border h-[1px] w-full"
+        className="shrink-0 bg-border h-px w-full"
       ></div>
       {installationItemList.map(({ label, renderer }, i) => (
         <div className="space-y-2" key={i}>

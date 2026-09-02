@@ -118,7 +118,7 @@ export const AgentActiveThreadView = ({
           setClickedActiveThread={setClickedActiveThread}
         />
       ) : (
-        <div className="flex flex-col flex-grow gap-2">
+        <div className="flex flex-col grow gap-2">
           <AgentActiveChart
             loading={loading}
             data={activeThreadCountsData?.slice(0, Math.ceil(activeThreadCountsData.length / 2))}

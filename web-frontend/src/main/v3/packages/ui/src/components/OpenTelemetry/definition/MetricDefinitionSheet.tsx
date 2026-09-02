@@ -32,7 +32,7 @@ export const MetricDefinitionSheet = ({
   return (
     <Sheet {...props}>
       <SheetContent
-        className="flex flex-col w-full gap-0 p-0 px-0 sm:max-w-full md:w-2/5 md:min-w-160 z-[5000]"
+        className="flex flex-col w-full gap-0 p-0 px-0 sm:max-w-full md:w-2/5 md:min-w-160 z-5000"
         overlayClassName="bg-transparent backdrop-blur-none"
         hideClose
       >

@@ -29,7 +29,7 @@ export const CollapsibleFilter = ({
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
-      className={cn('border border-input rounded-md shadow-sm', className)}
+      className={cn('border border-input rounded-md shadow-xs', className)}
       disabled={disabled}
     >
       <CollapsibleTrigger

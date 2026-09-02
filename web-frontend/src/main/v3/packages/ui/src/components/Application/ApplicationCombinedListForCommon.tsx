@@ -299,7 +299,7 @@ export const ApplicationCombinedListForCommon = ({
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className={cn('w-80 p-0 text-sm !z-[2001]', contentClassName)}
+        className={cn('w-80 p-0 text-sm z-2001!', contentClassName)}
         onKeyDown={handleKeyDown}
         onMouseMove={() => {
           setIsMouseMove(true);
@@ -385,7 +385,7 @@ export const ApplicationCombinedListForCommon = ({
                         <ApplicationItem {...application} />
                         <div
                           className={cn('ml-auto h-6 w-6 cursor-pointer flex-none', {
-                            '[&>svg]:hover:fill-emerald-400 [&>svg]:hover:stroke-emerald-400':
+                            'hover:[&>svg]:fill-emerald-400 hover:[&>svg]:stroke-emerald-400':
                               !isFavorite,
                           })}
                           onClick={(e) => handleClickFavorite(e, application)}

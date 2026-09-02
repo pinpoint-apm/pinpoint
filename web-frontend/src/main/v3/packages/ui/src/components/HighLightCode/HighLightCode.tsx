@@ -60,7 +60,7 @@ export const HighLightCode = ({
     return (
       <div className={cn('hljs', className)}>
         <code
-          className="block whitespace-pre-wrap break-words"
+          className="block whitespace-pre-wrap wrap-break-word"
           dangerouslySetInnerHTML={{ __html: highLightedCode }}
         ></code>
       </div>

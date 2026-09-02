@@ -31,7 +31,7 @@ export const UserGroupPage = () => {
       <div
         data-orientation="horizontal"
         role="none"
-        className="shrink-0 bg-border h-[1px] w-full"
+        className="shrink-0 bg-border h-px w-full"
       ></div>
       {userGroupName ? <GroupMember /> : <UserGroup />}
     </div>

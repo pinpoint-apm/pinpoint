@@ -407,7 +407,7 @@ export const MetricDefinitionFormFetcher = ({
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                   Metric group
                 </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
+                <div className="sm:mt-0! sm:col-span-8">
                   <Select
                     onValueChange={(value) => {
                       metricDefinitionForm.setValue('fieldNameList', []);
@@ -426,7 +426,7 @@ export const MetricDefinitionFormFetcher = ({
                         <SelectValue placeholder="Select metric group" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="z-[5001]">
+                    <SelectContent className="z-5001">
                       {defPropertyData?.metricGroupList?.map((metricGroup, i) => {
                         return (
                           <SelectItem key={i} value={metricGroup.metricGroupName}>
@@ -450,7 +450,7 @@ export const MetricDefinitionFormFetcher = ({
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                   Metric name
                 </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
+                <div className="sm:mt-0! sm:col-span-8">
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
@@ -469,7 +469,7 @@ export const MetricDefinitionFormFetcher = ({
                         <SelectValue placeholder="Select metric name" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="z-[5001]">
+                    <SelectContent className="z-5001">
                       {selectedMetricGroupItem?.metricList?.map((metric, i) => {
                         return (
                           <SelectItem value={metric.metricName} key={i}>
@@ -491,7 +491,7 @@ export const MetricDefinitionFormFetcher = ({
               control={metricDefinitionForm.control}
               render={({ field, fieldState }) => (
                 <FormItem className="content-center pr-4 font-normal sm:col-span-4 text-muted-foreground">
-                  <div className="sm:!mt-0 sm:col-span-8">
+                  <div className="sm:mt-0! sm:col-span-8">
                     <div className="flex gap-1">
                       <Select
                         value={field.value}
@@ -509,7 +509,7 @@ export const MetricDefinitionFormFetcher = ({
                         >
                           <SelectValue placeholder="Select property" />
                         </SelectTrigger>
-                        <SelectContent className="z-[5001] max-w-[calc(100vw-2rem)] max-sm:max-w-[var(--radix-select-trigger-width)]">
+                        <SelectContent className="z-5001 max-w-[calc(100vw-2rem)] max-sm:max-w-(--radix-select-trigger-width)">
                           <SelectItem value="tag">Tag</SelectItem>
                           <SelectItem value="field">Field</SelectItem>
                         </SelectContent>
@@ -526,8 +526,8 @@ export const MetricDefinitionFormFetcher = ({
               name={primaryForFieldAndTagRelation === 'tag' ? 'tagGroupList' : 'fieldNameList'}
               control={metricDefinitionForm.control}
               render={({ field, fieldState }) => (
-                <FormItem className="sm:!mt-0 sm:col-span-8">
-                  <div className="sm:!mt-0 sm:col-span-8">
+                <FormItem className="sm:mt-0! sm:col-span-8">
+                  <div className="sm:mt-0! sm:col-span-8">
                     <Select
                       value={field.value?.[0] || ''}
                       onValueChange={(value) => {
@@ -546,7 +546,7 @@ export const MetricDefinitionFormFetcher = ({
                           <SelectValue placeholder={`Select ${primaryForFieldAndTagRelation}`} />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="z-[5001] max-w-[calc(100vw-2rem)] max-sm:max-w-[var(--radix-select-trigger-width)]">
+                      <SelectContent className="z-5001 max-w-[calc(100vw-2rem)] max-sm:max-w-(--radix-select-trigger-width)">
                         {propertyList?.map((propertyItem, i) => {
                           return (
                             <SelectItem
@@ -556,7 +556,7 @@ export const MetricDefinitionFormFetcher = ({
                             >
                               {propertyItem.name}
                               {propertyItem.isOutdated && (
-                                <span className="ml-1 text-red-500 break-words">
+                                <span className="ml-1 text-red-500 wrap-break-word">
                                   (No longer collected)
                                 </span>
                               )}
@@ -580,7 +580,7 @@ export const MetricDefinitionFormFetcher = ({
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                   {primaryForFieldAndTagRelation === 'tag' ? 'Field name' : 'Tags'}
                 </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8 border rounded min-h-8 max-h-96 overflow-y-auto p-2">
+                <div className="sm:mt-0! sm:col-span-8 border rounded min-h-8 max-h-96 overflow-y-auto p-2">
                   {!!propertyLegendList?.length && (
                     <>
                       <FormItem className="flex flex-row items-center space-x-3 space-y-0">
@@ -674,7 +674,7 @@ export const MetricDefinitionFormFetcher = ({
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                   Aggregation function
                 </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
+                <div className="sm:mt-0! sm:col-span-8">
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger
@@ -685,7 +685,7 @@ export const MetricDefinitionFormFetcher = ({
                         <SelectValue placeholder="Select aggregation function" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="z-[5001]">
+                    <SelectContent className="z-5001">
                       {defPropertyData?.aggregationFunctionList.map((func) => {
                         return (
                           <SelectItem key={func} value={func}>
@@ -709,10 +709,10 @@ export const MetricDefinitionFormFetcher = ({
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                   Interval
                 </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
+                <div className="sm:mt-0! sm:col-span-8">
                   <div
                     className={cn(
-                      'flex items-center justify-center w-full gap-2 px-3 py-1 text-sm transition-colors bg-transparent border rounded-md shadow-sm h-9 border-input focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-w-90',
+                      'flex items-center justify-center w-full gap-2 px-3 py-1 text-sm transition-colors bg-transparent border rounded-md shadow-xs h-9 border-input focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring max-w-90',
                       {
                         'border-status-fail': fieldState.invalid,
                       },
@@ -722,8 +722,8 @@ export const MetricDefinitionFormFetcher = ({
                       <Input
                         type="number"
                         min={1}
-                        className={`text-right flex h-full w-full rounded-md bg-transparent py-2 pr-0 text-sm placeholder:text-muted-foreground shadow-none outline-none border-none
-                            focus-visible:ring-0 focus-visible:outline-none focus-visible:border-none focus-visible:shadow-none`}
+                        className={`text-right flex h-full w-full rounded-md bg-transparent py-2 pr-0 text-sm placeholder:text-muted-foreground shadow-none outline-hidden border-none
+                            focus-visible:ring-0 focus-visible:outline-hidden focus-visible:border-none focus-visible:shadow-none`}
                         {...field}
                         placeholder={'Input interval (ex. 30)'}
                       />
@@ -748,7 +748,7 @@ export const MetricDefinitionFormFetcher = ({
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                   Chart type
                 </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
+                <div className="sm:mt-0! sm:col-span-8">
                   <RadioGroup className="flex gap-2" onValueChange={field.onChange}>
                     {defPropertyData?.chartTypeList?.map((chartId) => {
                       const { id, label, icon } = chartItem[chartId as keyof typeof chartItem];
@@ -787,7 +787,7 @@ export const MetricDefinitionFormFetcher = ({
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                   Metric title
                 </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
+                <div className="sm:mt-0! sm:col-span-8">
                   <FormControl>
                     <Input
                       className={cn('focus-visible:ring-0 max-w-90', {
@@ -811,7 +811,7 @@ export const MetricDefinitionFormFetcher = ({
                 <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                   Stack
                 </FormLabel>
-                <div className="sm:!mt-0 sm:col-span-8">
+                <div className="sm:mt-0! sm:col-span-8">
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
@@ -829,11 +829,11 @@ export const MetricDefinitionFormFetcher = ({
                 <>
                   <FormItem className="sm:grid sm:grid-cols-12">
                     <div className="content-center font-normal sm:col-span-4 text-muted-foreground"></div>
-                    <div className="sm:!mt-0 sm:col-span-8 sm:grid sm:grid-cols-12">
+                    <div className="sm:mt-0! sm:col-span-8 sm:grid sm:grid-cols-12">
                       <FormLabel className="content-center font-normal sm:col-span-4 text-muted-foreground">
                         Show total
                       </FormLabel>
-                      <div className="sm:!mt-0 sm:col-span-8">
+                      <div className="sm:mt-0! sm:col-span-8">
                         <FormControl>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>

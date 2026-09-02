@@ -67,9 +67,9 @@ export interface LayoutWithSideNavigationProps {
   bottomMenuItems?: SideNavigationMenuItem[];
 }
 
-const SIDEBAR_MENU_BUTTON_CLASS_NAME = `!h-10 !rounded p-1.5 !pl-1.5 !pr-2 text-sm
-  hover:bg-[var(--blue-700)] hover:text-[var(--white-default)]
-  focus:bg-[var(--blue-700)] focus:text-[var(--white-default)]`;
+const SIDEBAR_MENU_BUTTON_CLASS_NAME = `h-10! !rounded p-1.5 pl-1.5! pr-2! text-sm
+  hover:bg-(--blue-700) hover:text-(--white-default)
+  focus:bg-(--blue-700) focus:text-(--white-default)`;
 
 export const LayoutWithSideNavigation = ({
   children,
@@ -185,7 +185,7 @@ export const LayoutWithSideNavigation = ({
           trigger: (
             <SidebarMenuButton
               className={cn(SIDEBAR_MENU_BUTTON_CLASS_NAME, {
-                'font-semibold bg-[var(--blue-700)]': isActive(item),
+                'font-semibold bg-(--blue-700)': isActive(item),
               })}
             >
               {renderMenuItemContent(item)}
@@ -210,7 +210,7 @@ export const LayoutWithSideNavigation = ({
       <ErrorBoundary
         fallbackRender={({ error }) => (
           <div className="flex flex-col items-center justify-center w-[200px] h-full gap-5 p-3">
-            <div className="w-full text-center max-w-[28rem]">
+            <div className="w-full text-center max-w-112">
               <p className="mb-2 text-sm truncate">{(error as Error | undefined)?.message}</p>
             </div>
           </div>
@@ -229,7 +229,7 @@ export const LayoutWithSideNavigation = ({
                 <div className="mb-2">
                   <div
                     className={cn(
-                      'flex relative items-center pl-6 h-16 min-h-[4rem] hover:bg-[--blue-700]',
+                      'flex relative items-center pl-6 h-16 min-h-16 hover:bg-(--blue-700)',
                       { 'justify-center pl-0': collapsed },
                     )}
                   >
@@ -255,8 +255,8 @@ export const LayoutWithSideNavigation = ({
                     trigger: (
                       <SidebarMenuButton
                         className={cn(
-                          'mb-0.5 group/global_search group/search-item !h-10 !rounded !p-0 !pl-1.5 !pr-2 text-sm',
-                          'bg-transparent hover:bg-[--blue-700] transition-colors',
+                          'mb-0.5 group/global_search group/search-item h-10! rounded! p-0! pl-1.5! pr-2! text-sm',
+                          'bg-transparent hover:bg-(--blue-700) transition-colors',
                         )}
                         onClick={() => setGlobalSearchOpen(true)}
                       >
@@ -350,7 +350,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
               SIDEBAR_MENU_BUTTON_CLASS_NAME,
               {
                 'font-semibold': isActive(childItem) || childItem.selected,
-                'bg-[var(--blue-700)]': isActive(childItem),
+                'bg-(--blue-700)': isActive(childItem),
               },
               'cursor-pointer',
             )}
@@ -381,7 +381,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               className={cn(SIDEBAR_MENU_BUTTON_CLASS_NAME, {
-                'font-semibold bg-[var(--blue-700)]': isActive(item),
+                'font-semibold bg-(--blue-700)': isActive(item),
               })}
             >
               {renderMenuItemContent(item)}
@@ -397,9 +397,9 @@ const SidebarMenuButtonWithDropdownMenu = ({
         sideOffset={10}
         alignOffset={-50}
         className={cn(
-          'rounded-md border-none shadow-lg bg-[var(--blue-900)] text-[var(--white-default)]',
+          'rounded-md border-none shadow-lg bg-(--blue-900) text-(--white-default)',
           hasLeftSection ? 'min-w-[440px]' : 'w-full min-w-[220px]',
-          'z-[1110]', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
+          'z-1110', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
         )}
       >
         {hasLeftSection ? (
@@ -429,7 +429,7 @@ const WithTooltip = ({ trigger, content, hidden }: TooltipProps) => {
         <TooltipContent
           side="right"
           className={cn(
-            'z-[1110]', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
+            'z-1110', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
             { hidden: !!hidden },
           )}
         >

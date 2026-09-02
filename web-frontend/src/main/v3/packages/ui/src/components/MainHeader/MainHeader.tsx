@@ -11,7 +11,7 @@ export const MainHeader = ({ title, children, className }: MainHeaderProps) => {
     <div
       data-testid="MainHeader"
       className={cn(
-        'w-full h-16 px-7 border-b-2 flex items-center sticky top-0 bg-white z-[2000]',
+        'w-full h-16 px-7 border-b-2 flex items-center sticky top-0 bg-white z-2000',
         className,
       )}
     >
