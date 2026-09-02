@@ -128,7 +128,7 @@ export const Popper = ({
               <div
                 ref={mergeRefs([ref, popperRef])}
                 style={popperStyle}
-                className={cn('bg-white z-[999] rounded', className)}
+                className={cn('bg-white z-999 rounded', className)}
                 data-placement={placement}
               >
                 <>

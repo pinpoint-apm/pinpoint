@@ -46,15 +46,15 @@ export const LayoutWithHorizontalResizable = ({
       </ResizablePanel>
       <ResizableHandle
         id={resizableId}
-        className={cn('z-[1100]', {
-          '!pointer-events-none': disabled,
+        className={cn('z-1100', {
+          'pointer-events-none!': disabled,
         })}
         withHandle={withHandle}
         disabled={disabled}
       />
       <ResizablePanel
         id={resizableId}
-        className="z-[1099] min-w-[500px]"
+        className="z-1099 min-w-[500px]"
         minSize={sizes.minSize}
         maxSize={sizes.maxSize}
       >

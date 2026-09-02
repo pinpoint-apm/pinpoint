@@ -135,7 +135,7 @@ export const ErrorAnalysisPage = ({
           {errorInfo && (
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetContent
-                className="flex flex-col gap-0 w-3/5 sm:max-w-full z-[5000] px-0 py-4"
+                className="flex flex-col gap-0 w-3/5 sm:max-w-full z-5000 px-0 py-4"
                 overlayClassName="bg-transparent backdrop-blur-none"
                 hideClose={true}
               >

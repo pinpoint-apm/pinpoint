@@ -317,7 +317,7 @@ export const TimelineFetcher = ({
   return (
     <div className={cn('h-full flex relative')}>
       {isSteppedIn && flameGraphData.length === 0 && (
-        <div className="absolute inset-x-0 top-16 z-[1] text-sm text-center text-muted-foreground">
+        <div className="absolute inset-x-0 top-16 z-1 text-sm text-center text-muted-foreground">
           {t('TRANSACTION_LIST.STEP_IN_NO_SPANS')}
         </div>
       )}

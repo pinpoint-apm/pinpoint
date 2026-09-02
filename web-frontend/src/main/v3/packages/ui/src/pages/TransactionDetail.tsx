@@ -20,7 +20,7 @@ export const TransactionDetailPage = ({ transactionInfoProps }: TransactionDetai
   return (
     <div className="flex flex-col flex-1 h-full">
       <MainHeader
-        className="shadow"
+        className="shadow-sm"
         title={
           <div className="flex items-center gap-2">
             <PiStackDuotone /> Transaction Detail

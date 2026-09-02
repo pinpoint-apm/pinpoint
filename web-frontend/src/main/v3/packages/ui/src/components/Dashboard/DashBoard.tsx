@@ -1,6 +1,6 @@
 import { Responsive, useContainerWidth } from 'react-grid-layout';
 import type { ResponsiveProps } from 'react-grid-layout';
-import { screens } from '@pinpoint-fe/ui/src/constants';
+import { screenPixels } from '@pinpoint-fe/ui/src/constants';
 import {
   DRAGGABLE_CANCEL_CLASS,
   DRAGGABLE_HANDLE_CLASS,
@@ -16,21 +16,11 @@ export const DASH_BOARD_WIDTH = 24;
 
 export const DashBoard = ({ children, ...props }: DashBoardProps) => {
   const { width, containerRef } = useContainerWidth();
-  const screenSizeMap = Object.keys(screens).reduce(
-    (acc, key) => {
-      return {
-        ...acc,
-        [key]: Number(screens[key].replace('px', '')),
-      };
-    },
-    {} as { [key: string]: number },
-  );
-
   return (
     <div ref={containerRef}>
       <Responsive
         width={width}
-        breakpoints={{ sm: screenSizeMap['sm'], xxs: 0 }}
+        breakpoints={{ sm: screenPixels.sm, xxs: 0 }}
         cols={{ sm: DASH_BOARD_WIDTH, xxs: 1 }}
         className="[&>.react-grid-item.react-grid-placeholder]:bg-primary"
         // react-grid-layout 2 는 drag/resize 설정을 개별 prop 이 아니라 설정 객체로 받는다.

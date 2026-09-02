@@ -16,7 +16,7 @@ export const RouteErrorFallback = () => {
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full gap-5 p-3">
-      <div className="w-full text-center max-w-[28rem]">
+      <div className="w-full text-center max-w-112">
         <p className="mb-2 text-sm truncate">
           {!isChunkLoadError && error instanceof Error
             ? ((error as ErrorLike)?.detail ??

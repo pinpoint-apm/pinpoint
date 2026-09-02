@@ -1,7 +1,6 @@
-import colors from 'tailwindcss/colors';
+import { themeColors } from './tailwind.colors.js';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import tailwindScrollbarHide from 'tailwind-scrollbar-hide';
-import tailwindContainerQueries from '@tailwindcss/container-queries';
 //
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -30,51 +29,7 @@ export default {
         90: '22.5rem',
         160: '40rem',
       },
-      colors: {
-        border: 'hsl(var(--ui-border))',
-        input: 'hsl(var(--ui-input))',
-        ring: 'hsl(var(--ui-ring))',
-        background: 'hsl(var(--ui-background))',
-        foreground: 'hsl(var(--ui-foreground))',
-        primary: {
-          DEFAULT: 'hsl(var(--ui-primary))',
-          foreground: 'hsl(var(--ui-primary-foreground))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--ui-secondary))',
-          foreground: 'hsl(var(--ui-secondary-foreground))',
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--ui-destructive))',
-          foreground: 'hsl(var(--ui-destructive-foreground))',
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--ui-muted))',
-          foreground: 'hsl(var(--ui-muted-foreground))',
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--ui-accent))',
-          foreground: 'hsl(var(--ui-accent-foreground))',
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--ui-popover))',
-          foreground: 'hsl(var(--ui-popover-foreground))',
-        },
-        card: {
-          DEFAULT: 'hsl(var(--ui-card))',
-          foreground: 'hsl(var(--ui-card-foreground))',
-        },
-        // pinpoint
-        'status-success': colors.emerald[400],
-        'status-good': 'hsl(var(--ui-primary))',
-        'status-warn': colors.orange[500],
-        'status-fail': colors.red[500],
-        fast: colors.emerald[300],
-        normal: colors.blue[300],
-        delay: colors.orange[300],
-        slow: colors.orange[500],
-        error: colors.red[500],
-      },
+      colors: themeColors,
       borderWidth: {
         1: '1px',
       },
@@ -112,5 +67,6 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate, tailwindScrollbarHide, tailwindContainerQueries],
+  // @tailwindcss/container-queries 는 v4 에 내장되어 플러그인이 필요 없다.
+  plugins: [tailwindcssAnimate, tailwindScrollbarHide],
 };

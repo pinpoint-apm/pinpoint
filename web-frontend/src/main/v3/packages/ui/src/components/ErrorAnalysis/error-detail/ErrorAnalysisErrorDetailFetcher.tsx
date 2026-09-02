@@ -42,7 +42,7 @@ export const ErrorAnalysisErrorDetailFetcher = ({
                 <ClipboardCopyButton
                   copyValue={d.errorClassName}
                   containerClassName="relative"
-                  btnClassName="text-muted-foreground border-none shadow-none absolute -top-[4px] left-auto w-5 h-5"
+                  btnClassName="text-muted-foreground border-none shadow-none absolute top-[-4px] left-auto w-5 h-5"
                   hoverable
                 >
                   {d.errorClassName}

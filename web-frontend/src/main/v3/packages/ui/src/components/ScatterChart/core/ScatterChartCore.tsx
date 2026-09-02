@@ -344,7 +344,7 @@ export const ScatterChartCore = ({
           {/* overlay */}
           <div
             className={cn(
-              'w-full h-[calc(100%+24px)] absolute -top-6 z-[1000] pointer-events-[stroke] hidden justify-center items-center bg-background opacity-80',
+              'w-full h-[calc(100%+24px)] absolute -top-6 z-1000 pointer-events-[stroke] hidden justify-center items-center bg-background opacity-80',
               {
                 flex: isCapturingImage || isSettingAxis,
               },
@@ -352,7 +352,7 @@ export const ScatterChartCore = ({
           />
           <div
             className={cn(
-              'hidden justify-center items-center w-full h-full absolute top-0 z-[1000]',
+              'hidden justify-center items-center w-full h-full absolute top-0 z-1000',
               { flex: isCapturingImage || isSettingAxis },
             )}
           >

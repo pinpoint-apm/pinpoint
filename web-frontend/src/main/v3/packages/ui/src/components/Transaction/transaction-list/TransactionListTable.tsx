@@ -31,7 +31,7 @@ export const TransactionListTable = ({ data, ...props }: TransactionListTablePro
     <VirtualizedDataTable
       enableSorting
       enableColumnResizing
-      tableClassName="text-xs [&>thead>tr]:hover:bg-background [&>thead>tr]:bg-background [&_td]:p-1.5"
+      tableClassName="text-xs hover:[&>thead>tr]:bg-background [&>thead>tr]:bg-background [&_td]:p-1.5"
       rowClassName={(row) => {
         if (
           getTransactionTableUniqueKey(row.original) ===

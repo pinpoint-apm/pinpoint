@@ -538,7 +538,7 @@ export const ServerMapCore = ({
         </div>
       ) : (
         <>
-          <div className="absolute flex flex-col gap-2 top-3 right-4 z-[3] bg-white">
+          <div className="absolute flex flex-col gap-2 top-3 right-4 z-3 bg-white">
             <ServerMapSearchList
               inputPlaceHolder={inputPlaceHolder}
               list={searchList}
@@ -548,7 +548,7 @@ export const ServerMapCore = ({
               <ServerMapQueryOption queryOption={queryOption} onApply={onApplyChangedOption} />
             )}
           </div>
-          <div className="flex absolute flex-col z-[3] gap-2 right-4 bottom-6">
+          <div className="flex absolute flex-col z-3 gap-2 right-4 bottom-6">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

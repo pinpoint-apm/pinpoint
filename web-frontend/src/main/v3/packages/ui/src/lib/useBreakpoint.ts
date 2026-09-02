@@ -1,5 +1,5 @@
 import { useMediaQuery } from 'react-responsive';
-import { screens } from '@pinpoint-fe/ui/src/constants';
+import { screens, toPixels } from '@pinpoint-fe/ui/src/constants';
 
 export function useBreakpoint<K extends string>(breakpointKey: K) {
   const breakpointValue = screens[breakpointKey as keyof typeof screens];
@@ -12,7 +12,7 @@ export function useBreakpoint<K extends string>(breakpointKey: K) {
   type KeyBelow = `isBelow${Capitalize<K>}`;
 
   return {
-    [breakpointKey]: Number(String(breakpointValue).replace(/[^0-9]/g, '')),
+    [breakpointKey]: toPixels(String(breakpointValue)),
     [`isAbove${capitalizedKey}`]: !bool,
     [`isBelow${capitalizedKey}`]: bool,
   } as Record<K, number> & Record<KeyAbove | KeyBelow, boolean>;

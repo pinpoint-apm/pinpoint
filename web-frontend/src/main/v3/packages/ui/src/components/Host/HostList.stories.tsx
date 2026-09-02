@@ -19,7 +19,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    className: '!h-96 w-80',
+    className: 'h-96! w-80',
     onClickHost: (agent) => {
       console.log(agent);
     },

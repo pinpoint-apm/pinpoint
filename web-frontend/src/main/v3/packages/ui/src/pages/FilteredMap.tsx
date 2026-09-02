@@ -262,7 +262,7 @@ export const FilteredMapPage = ({
             <div className="relative flex flex-col w-full h-full gap-4">
               {application && (
                 <>
-                  <div className="absolute top-3 left-3 z-[1] bg-background rounded-lg shadow-lg border">
+                  <div className="absolute top-3 left-3 z-1 bg-background rounded-lg shadow-lg border">
                     <FilterWizard
                       appliedFilters={appliedFilters}
                       tempFilter={filter}
@@ -272,7 +272,7 @@ export const FilteredMapPage = ({
                     />
                   </div>
                   <ProgressBarWithControls
-                    className="relative z-[1] top-3 left-90 w-[calc(100%-23.5rem)] shadow border"
+                    className="relative z-1 top-3 left-90 w-[calc(100%-23.5rem)] shadow-sm border"
                     progress={(serverMapData as FilteredMap.Response)?.lastFetchedTimestamp}
                     range={[dateRange.to.getTime(), dateRange.from.getTime()]}
                     tickCount={

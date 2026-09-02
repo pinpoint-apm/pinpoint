@@ -11,7 +11,7 @@ export const UsersPage = () => {
       <div
         data-orientation="horizontal"
         role="none"
-        className="shrink-0 bg-border h-[1px] w-full"
+        className="shrink-0 bg-border h-px w-full"
       ></div>
       <ErrorBoundary>
         <React.Suspense fallback={<DataTableSkeleton hideRowBox={true} />}>

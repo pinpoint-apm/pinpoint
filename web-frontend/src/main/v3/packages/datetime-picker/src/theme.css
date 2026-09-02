@@ -1,0 +1,9 @@
+/**
+ * `@apply` 를 쓰는 이 패키지의 스타일시트가 참조할 테마.
+ *
+ * Tailwind 4 는 CSS 파일을 각각 독립적으로 컴파일하므로, `@apply` 를 쓰는 파일은 테마를 스스로
+ * 알려줘야 한다(3 까지는 PostCSS 가 설정을 전역으로 물고 있었다). 그 파일들은 이 파일을
+ * `@reference` 로 가리킨다 — `@reference` 는 테마만 읽고 CSS 는 내보내지 않는다.
+ */
+@import 'tailwindcss';
+@config '../tailwind.config.js';

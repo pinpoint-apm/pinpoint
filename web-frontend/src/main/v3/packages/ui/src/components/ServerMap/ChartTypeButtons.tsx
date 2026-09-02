@@ -38,7 +38,7 @@ export const ChartTypeButtons = () => {
             </Button>
           </TooltipTrigger>
           <TooltipPrimitive.Portal>
-            <TooltipContent className="z-[1500]">
+            <TooltipContent className="z-1500">
               <p>Heatmap chart</p>
             </TooltipContent>
           </TooltipPrimitive.Portal>
@@ -57,7 +57,7 @@ export const ChartTypeButtons = () => {
             </Button>
           </TooltipTrigger>
           <TooltipPrimitive.Portal>
-            <TooltipContent className="z-[1500]">
+            <TooltipContent className="z-1500">
               <p>Scatter chart</p>
             </TooltipContent>
           </TooltipPrimitive.Portal>

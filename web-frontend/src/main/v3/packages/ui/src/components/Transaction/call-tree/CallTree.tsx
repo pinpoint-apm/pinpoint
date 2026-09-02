@@ -359,7 +359,7 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
       </div>
       <Sheet open={openSheet} onOpenChange={setSheetOpen}>
         <SheetContent
-          className="flex flex-col gap-0 w-3/5 sm:max-w-full z-[5000] px-0 py-4"
+          className="flex flex-col gap-0 w-3/5 sm:max-w-full z-5000 px-0 py-4"
           overlayClassName="bg-transparent backdrop-blur-none"
           hideClose={true}
         >

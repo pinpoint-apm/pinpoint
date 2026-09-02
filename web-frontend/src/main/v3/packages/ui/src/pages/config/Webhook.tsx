@@ -71,7 +71,7 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
         <div className="flex gap-2">
           <ApplicationList
             triggerClassName={cn(
-              'flex items-center px-2 pb-2 pt-1 border rounded-md shadow-sm h-9 border-input',
+              'flex items-center px-2 pb-2 pt-1 border rounded-md shadow-xs h-9 border-input',
             )}
             contentClassName="PopoverContent"
             open={false}

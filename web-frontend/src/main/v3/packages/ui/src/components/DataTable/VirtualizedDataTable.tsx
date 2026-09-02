@@ -174,7 +174,7 @@ export function VirtualizedDataTable<TData, TValue>({
               : tableContainerRef.current?.clientWidth,
         }}
       >
-        <TableHeader className="sticky top-0 z-[1]">
+        <TableHeader className="sticky top-0 z-1">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}

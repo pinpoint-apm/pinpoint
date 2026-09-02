@@ -402,7 +402,7 @@ export const ServerMapChartsBoardFetcher = ({
                     serviceName={targetServiceName}
                   />
                   {isScatterDataOutdated && (
-                    <div className="absolute top-0 left-0 z-[1000] flex flex-col items-center justify-center w-full h-[calc(100%+48px)] bg-background/50 text-center">
+                    <div className="absolute top-0 left-0 z-1000 flex flex-col items-center justify-center w-full h-[calc(100%+48px)] bg-background/50 text-center">
                       {t('SERVER_MAP.SCATTER_CHART_STATIC_WARN')
                         .split('\n')
                         .map((txt, i) => (

@@ -134,7 +134,7 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
               {isFocus && <MapView shouldPoll={true} />}
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel id="chart" minSize={10} maxSize={90} className="!overflow-auto">
+            <ResizablePanel id="chart" minSize={10} maxSize={90} className="overflow-auto!">
               {isFocus && (
                 <ErrorBoundary>
                   <AgentActiveThreadFetcher serviceName={targetServiceName} />

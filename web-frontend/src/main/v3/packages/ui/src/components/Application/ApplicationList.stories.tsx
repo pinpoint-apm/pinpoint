@@ -21,6 +21,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     list: mockData,
-    className: '!h-96 w-80',
+    className: 'h-96! w-80',
   },
 };

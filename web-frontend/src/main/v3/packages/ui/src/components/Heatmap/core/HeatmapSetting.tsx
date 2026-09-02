@@ -84,7 +84,7 @@ export const HeatmapSetting = ({
   return (
     <div
       className={cn(
-        'rounded shadow bg-background p-4 w-60 flex gap-3 flex-col text-sm border',
+        'rounded shadow-sm bg-background p-4 w-60 flex gap-3 flex-col text-sm border',
         className,
       )}
       ref={containerRef}

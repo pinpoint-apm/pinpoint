@@ -148,7 +148,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="space-y-2 text-xs [&_a]:text-primary [&_a]:hover:underline"
+              className="space-y-2 text-xs [&_a]:text-primary hover:[&_a]:underline"
               dangerouslySetInnerHTML={{ __html: data.disableButtonMessage }}
             ></PopoverContent>
           </Popover>

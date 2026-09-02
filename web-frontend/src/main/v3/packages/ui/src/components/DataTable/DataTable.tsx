@@ -114,7 +114,7 @@ export function DataTable<TData, TValue>({
     >
       <Table
         className={cn(
-          '[&>thead>tr>th]:first:rounded-tl [&>thead>tr>th]:last:rounded-tr',
+          'first:[&>thead>tr>th]:rounded-tl last:[&>thead>tr>th]:rounded-tr',
           tableClassName,
         )}
       >

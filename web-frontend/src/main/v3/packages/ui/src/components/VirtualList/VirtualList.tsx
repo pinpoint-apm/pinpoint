@@ -92,7 +92,7 @@ export const VirtualList = <T,>({
           <ListComponent
             key={idx}
             className={cn(
-              'flex w-full gap-2 cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+              'flex w-full gap-2 cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors data-disabled:pointer-events-none data-disabled:opacity-50',
               {
                 'hover:bg-accent hover:text-accent-foreground': focusIndex === undefined,
                 'bg-accent text-accent-foreground': focusIndex === idx,

@@ -77,7 +77,7 @@ export const ServiceSettingTable = () => {
         return (
           <span className="flex items-center gap-2">
             <span>{service.name}</span>
-            {isCurrent && <LuCheck className="w-4 h-4 text-[var(--blue-700)]" strokeWidth={3} />}
+            {isCurrent && <LuCheck className="w-4 h-4 text-(--blue-700)" strokeWidth={3} />}
           </span>
         );
       },
@@ -102,7 +102,7 @@ export const ServiceSettingTable = () => {
         return (
           <Button
             variant="ghost"
-            className="px-2 text-[var(--blue-700)] hover:text-[var(--blue-600)]"
+            className="px-2 text-(--blue-700) hover:text-(--blue-600)"
             onClick={(e) => {
               e.stopPropagation();
               handleSwitchTo(service.name);
@@ -165,7 +165,7 @@ export const ServiceSettingTable = () => {
     <TooltipProvider delayDuration={200}>
       <div className="space-y-2">
         <div className="flex justify-between">
-          <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-sm h-9">
+          <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-xs h-9">
             <Input
               value={searchKeyword}
               className="h-full px-0 py-3 border-none focus-visible:ring-0"

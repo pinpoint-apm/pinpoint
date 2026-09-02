@@ -66,7 +66,8 @@ export const GlobalSearch = ({ services }: GlobalSearchProps) => {
       <CommandDialog
         open={open}
         onOpenChange={setOpen}
-        dialogClassName="max-w-[40rem] data-[state=open]:!slide-in-from-top-[0%] data-[state=closed]:!slide-out-to-top-[0%] top-[15%] translate-y-0"
+        // 세로 슬라이드를 끄던 override 는 dialog 에서 슬라이드를 없앤 뒤 필요 없어졌다.
+        dialogClassName="max-w-[40rem] top-[15%] translate-y-0"
       >
         <Command
           loop
@@ -106,7 +107,7 @@ export const GlobalSearch = ({ services }: GlobalSearchProps) => {
               }
             }}
           />
-          <CommandList className="max-h-[32rem]">
+          <CommandList className="max-h-128">
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Suggestions">
               <CommandItem

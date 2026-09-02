@@ -31,7 +31,7 @@ export const ServerMapMenu = ({ children, position, contentType }: ServerMapMenu
         <Popper
           positionUpdatable
           shouldAlwaysShow={true}
-          content={<div className="py-2 text-xs border rounded shadow min-w-40">{children}</div>}
+          content={<div className="py-2 text-xs border rounded shadow-sm min-w-40">{children}</div>}
           placement={'left'}
           modifiers={[
             {

@@ -60,13 +60,17 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className="flex p-2 text-gray-400 h-100 hover:text-gray-500"
+                // `h-auto` 로 Button 의 기본 높이(size=default 의 `h-9`)를 끈다. 내용(4칸 × h-10 + 구분선)이
+                // 높이를 정해야 한다. 예전에는 이 자리에 `h-100` 이 있었는데, Tailwind 3 에 없는 값이라
+                // 아무 높이도 만들지 않으면서 tailwind-merge 가 높이 유틸리티로 보고 `h-9` 만 지워
+                // 우연히 동작하고 있었다. Tailwind 4 는 그 값을 400px 로 계산한다.
+                className="flex p-2 text-gray-400 h-auto hover:text-gray-500"
                 asChild
               >
                 <div className="flex flex-col w-12 text-xs gap-0.5 ">
                   <div
                     className={cn('flex flex-col items-center justify-center h-10', {
-                      '!text-primary font-semibold': wasOnly,
+                      'text-primary! font-semibold': wasOnly,
                     })}
                   >
                     <div className="tracking-wider">APP</div>
@@ -75,7 +79,7 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
                   <Separator />
                   <div
                     className={cn('flex items-center justify-center h-10 text-lg', {
-                      '!text-primary': bidirectional,
+                      'text-primary!': bidirectional,
                     })}
                   >
                     <FaMapSigns />
@@ -83,10 +87,10 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
                   <Separator />
                   <div
                     className={cn('flex items-center justify-center h-10 gap-1', {
-                      '!text-foreground font-semibold': inbound > 1,
+                      'text-foreground! font-semibold': inbound > 1,
                     })}
                   >
-                    <span className={cn({ '!text-emerald-400': inbound > 1 })}>
+                    <span className={cn({ 'text-emerald-400!': inbound > 1 })}>
                       <FaSignInAlt />
                     </span>
                     {inbound}
@@ -94,10 +98,10 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
                   <Separator />
                   <div
                     className={cn('flex items-center justify-center h-10 gap-1', {
-                      '!text-foreground font-semibold': outbound > 1,
+                      'text-foreground! font-semibold': outbound > 1,
                     })}
                   >
-                    <span className={cn({ '!text-emerald-400': outbound > 1 })}>
+                    <span className={cn({ 'text-emerald-400!': outbound > 1 })}>
                       <FaSignOutAlt />
                     </span>
                     {outbound}

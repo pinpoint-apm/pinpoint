@@ -242,7 +242,7 @@ export const ServerMapPage = ({
           <LayoutWithHorizontalResizable disabled={!serverMapCurrentTarget}>
             <div className="relative w-full h-full">
               {showFilter && (
-                <div className="absolute top-3 left-3 z-[1] bg-background rounded-lg shadow-lg border">
+                <div className="absolute top-3 left-3 z-1 bg-background rounded-lg shadow-lg border">
                   <button
                     className="absolute text-xl top-3 right-3 text-muted-foreground"
                     onClick={() => setShowFilter(false)}

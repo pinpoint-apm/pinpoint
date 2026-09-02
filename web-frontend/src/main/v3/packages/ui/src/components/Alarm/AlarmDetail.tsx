@@ -241,7 +241,7 @@ export const AlarmDetail = ({
                           <Input className="w-90" value={field.value} disabled />
                         )}
                       </FormControl>
-                      <SelectContent className="z-[51]">
+                      <SelectContent className="z-51">
                         {chekerList?.map((checker) => (
                           <SelectItem key={checker} value={checker}>
                             {checker}
