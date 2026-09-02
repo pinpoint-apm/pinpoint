@@ -4,17 +4,17 @@ import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 // 이 파일은 반대로 실제 date-fns-tz 를 태워서 **찍히는 문자열 자체**를 고정한다.
 // 라이브러리를 올릴 때 화면의 시각 표기가 조용히 바뀌는 것을 잡는 것이 목적이라,
 // 여기서는 date-fns / date-fns-tz 를 모킹하지 않는다.
-const settings: Record<string, unknown> = {};
+const mockSettings: Record<string, unknown> = {};
 jest.mock('./localStorage', () => ({
-  getLocalStorageValue: jest.fn((key: string) => settings[key]),
+  getLocalStorageValue: jest.fn((key: string) => mockSettings[key]),
 }));
 
 import { format } from './format';
 
 const setSettings = (timezone: string, language: string, dateFormat: number) => {
-  settings[APP_SETTING_KEYS.TIMEZONE] = timezone;
-  settings[APP_SETTING_KEYS.LANGUAGE] = language;
-  settings[APP_SETTING_KEYS.DATE_FORMAT] = dateFormat;
+  mockSettings[APP_SETTING_KEYS.TIMEZONE] = timezone;
+  mockSettings[APP_SETTING_KEYS.LANGUAGE] = language;
+  mockSettings[APP_SETTING_KEYS.DATE_FORMAT] = dateFormat;
 };
 
 // 2024-01-15T03:04:05.678Z
