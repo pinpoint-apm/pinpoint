@@ -1,0 +1,11 @@
+Error: user not found: 42
+    at C:\Temp\otelapp\server.js:8:34
+    at Array.map (<anonymous>)
+    at fetchUser (C:\Temp\otelapp\server.js:8:16)
+    at UserService.load (C:\Temp\otelapp\server.js:4:22)
+    at handler (C:\Temp\otelapp\server.js:11:30)
+    at Object.<anonymous> (C:\Temp\otelapp\server.js:13:1)
+    at Module._compile (node:internal/modules/cjs/loader:1871:14)
+    at Object..js (node:internal/modules/cjs/loader:2002:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)

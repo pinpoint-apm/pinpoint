@@ -42,7 +42,7 @@ class OtlpExceptionMapperTest {
     private static final long EXCEPTION_SPAN_ID_LONG = OtlpTraceMapperUtils.getSpanId(ByteString.copyFrom(EXCEPTION_SPAN_ID));
     private static final long ROOT_SPAN_ID_LONG = OtlpTraceMapperUtils.getSpanId(ByteString.copyFrom(ROOT_SPAN_ID));
 
-    private static final int MESSAGE_MAX_BYTES = 8192;
+    private static final int MESSAGE_MAX_BYTES = 2048; // production default, aligned with the agent's errormessage.max
     private static final int STACKTRACE_MAX_DEPTH = 256;
     private static final int FRAME_MAX_BYTES = 2048;
 
@@ -315,5 +315,52 @@ class OtlpExceptionMapperTest {
         ExceptionMetaDataBo bo = mapper.map(id(), span, ROOT_SPAN_ID_LONG, "/api/users/{id}").orElseThrow();
 
         assertThat(bo.getUriTemplate()).isEqualTo("/api/users/{id}");
+    }
+
+    // =======================================================================
+    // multi-language stacktrace parsing (parser selected by telemetry.sdk.language)
+    // =======================================================================
+
+    @Test
+    void map_pythonStackTrace_parsedViaSdkLanguage() {
+        String stackTrace = "Traceback (most recent call last):\n"
+                + "  File \"/app/main.py\", line 10, in handler\n"
+                + "    do_work()\n"
+                + "  File \"/app/work.py\", line 3, in do_work\n"
+                + "ValueError: boom\n";
+        Span span = spanBuilder(EXCEPTION_SPAN_ID)
+                .addEvents(exceptionEvent(exceptionType("ValueError"),
+                        kv("exception.stacktrace", strVal(stackTrace))))
+                .build();
+
+        ExceptionWrapperBo wrapper = mapper.map(id(), span, ROOT_SPAN_ID_LONG, "/api/orders", "python")
+                .orElseThrow().getExceptionWrapperBos().get(0);
+
+        assertThat(wrapper.getStackTraceElements()).hasSize(2);
+        // normalized to innermost-first: the throw site (work.py) comes before its caller
+        assertThat(wrapper.getStackTraceElements().get(0).getFileName()).isEqualTo("/app/work.py");
+        assertThat(wrapper.getStackTraceElements().get(0).getLineNumber()).isEqualTo(3);
+        assertThat(wrapper.getStackTraceElements().get(0).getMethodName()).isEqualTo("do_work");
+    }
+
+    @Test
+    void map_unrecognizedStackTraceFormat_keptAsRawLineFrames() {
+        // Ruby-style stack under no language attribute: no parser matches, but the frames must not
+        // be dropped — an empty list would collapse every unparsed exception into one shared
+        // "empty stack" hash group and blank the detail view.
+        String stackTrace = "/app/services/order.rb:12:in `place'\n"
+                + "/app/controllers/orders_controller.rb:5:in `create'\n";
+        Span span = spanBuilder(EXCEPTION_SPAN_ID)
+                .addEvents(exceptionEvent(exceptionType("RuntimeError"),
+                        kv("exception.stacktrace", strVal(stackTrace))))
+                .build();
+
+        ExceptionWrapperBo wrapper = mapper.map(id(), span, ROOT_SPAN_ID_LONG, "/api/orders")
+                .orElseThrow().getExceptionWrapperBos().get(0);
+
+        assertThat(wrapper.getStackTraceElements()).hasSize(2);
+        assertThat(wrapper.getStackTraceElements().get(0).getClassName())
+                .isEqualTo("/app/services/order.rb:12:in `place'");
+        assertThat(wrapper.getStackTraceElements().get(0).getMethodName()).isEqualTo("?");
     }
 }

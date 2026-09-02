@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/app/handler.py", line 6, in handle
+    do_work(order_id)
+  File "/app/services/work.py", line 2, in do_work
+    raise ValueError(f"invalid order state: {order_id}")
+ValueError: invalid order state: 42
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/handler.py", line 12, in <module>
+    handle(42)
+  File "/app/handler.py", line 8, in handle
+    raise RuntimeError("order processing failed") from e
+RuntimeError: order processing failed

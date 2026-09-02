@@ -112,7 +112,7 @@ class OtlpTraceMapperTest {
                 8192);
         OtlpTraceSpanChunkMapper spanChunkMapper = new OtlpTraceSpanChunkMapper(spanEventMapper);
         return new OtlpTraceMapper(spanMapper, spanEventMapper, spanChunkMapper,
-                new OtlpAgentInfoMapper(), new OtlpExceptionMapper(8192, 256, 2048, new SimpleMeterRegistry()),
+                new OtlpAgentInfoMapper(), new OtlpExceptionMapper(2048, 256, 2048, new SimpleMeterRegistry()),
                 exceptionInfoResolver, new OtlpAgentStartTimeResolver(new SimpleMeterRegistry()), false);
     }
 

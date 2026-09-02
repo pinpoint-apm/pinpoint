@@ -1,0 +1,11 @@
+Error: user not found: 42
+    at /app/server.js:8:34
+    at Array.map (<anonymous>)
+    at fetchUser (/app/server.js:8:16)
+    at UserService.load (/app/server.js:4:22)
+    at handler (/app/server.js:11:30)
+    at Object.<anonymous> (/app/server.js:13:1)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)

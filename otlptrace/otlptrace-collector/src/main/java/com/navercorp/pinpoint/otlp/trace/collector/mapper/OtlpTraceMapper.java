@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
+import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
@@ -98,6 +99,9 @@ public class OtlpTraceMapper {
             // Stateless, per-ResourceSpans: UNSET(-1) when process.creation.time is absent/unusable,
             // in which case the span mapper keeps the span-start-time approximation.
             final long agentStartTime = agentStartTimeResolver.resolve(resourceAttributeMap);
+            // Selects the exception stacktrace parser; null falls back to content sniffing.
+            final String sdkLanguage = AttributeUtils.getAttributeStringValue(
+                    resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_TELEMETRY_SDK_LANGUAGE, null);
 
             final List<ScopeSpans> scopeSpanList = resourceSpan.getScopeSpansList();
             final Map<ByteString, List<ScopedSpan>> spanMap = getSpanMap(scopeSpanList, mapperData.getRejectedSpan());
@@ -122,14 +126,14 @@ public class OtlpTraceMapper {
                         final SpanBo spanBo = spanMapper.map(idAndName, rootSpan, rootScopedSpan.scope(), agentStartTime);
 
                         // root span's own exception
-                        recordException(mapperData, idAndName, rootSpan, rootSpanId, rootUriTemplate);
+                        recordException(mapperData, idAndName, rootSpan, rootSpanId, rootUriTemplate, sdkLanguage);
 
                         // Exceptions on linked child spans are recorded as findLinkSpan traverses the
                         // original OTel spans (where the full stacktrace is still available). Orphan
                         // spans not linked to any root are intentionally skipped: without a root there
                         // is no transaction spanId to link the exception to.
                         final List<SpanEventBo> spanEventList = findLinkSpan(spanBo.getStartTimeNanos(), childSpanList, rootSpan.getSpanId(), 1,
-                                childSpan -> recordException(mapperData, idAndName, childSpan, rootSpanId, rootUriTemplate));
+                                childSpan -> recordException(mapperData, idAndName, childSpan, rootSpanId, rootUriTemplate, sdkLanguage));
                         spanBo.addSpanEventBoList(spanEventList);
                         mapperData.addSpanBo(spanBo);
                         final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, resourceAttributeMap);
@@ -192,9 +196,9 @@ public class OtlpTraceMapper {
      * (transaction) span id and URI. Failures are isolated here so a malformed exception payload
      * never aborts span/trace mapping.
      */
-    private void recordException(OtlpTraceMapperData mapperData, IdAndName idAndName, Span span, long rootSpanId, String uriTemplate) {
+    private void recordException(OtlpTraceMapperData mapperData, IdAndName idAndName, Span span, long rootSpanId, String uriTemplate, String sdkLanguage) {
         try {
-            exceptionMapper.map(idAndName, span, rootSpanId, uriTemplate)
+            exceptionMapper.map(idAndName, span, rootSpanId, uriTemplate, sdkLanguage)
                     .ifPresent(mapperData::addExceptionMetaDataBo);
         } catch (Exception e) {
             logMappingError("Failed to map exception", e);
