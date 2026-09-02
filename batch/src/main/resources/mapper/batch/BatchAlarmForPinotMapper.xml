@@ -23,7 +23,7 @@
                 <foreach collection="fieldList" item="fieldName" separator="," open="(" close=")">
                     #{fieldName}
                 </foreach>
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY agentId, fieldName
     </select>
 
@@ -37,7 +37,7 @@
         <foreach collection="fieldList" item="fieldName" separator="," open="(" close=")">
             #{fieldName}
         </foreach>
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
@@ -52,7 +52,7 @@
             applicationName = #{applicationName}
             AND metricName = #{metricName}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY agentId
     </select>
 
@@ -63,7 +63,7 @@
             applicationName = #{applicationName}
           AND metricName = #{metricName}
           AND fieldName = #{fieldName}
-          AND eventTime BETWEEN #{range.from} AND #{range.to}
+          AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY agentId
     </select>
 
@@ -73,7 +73,7 @@
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
     </select>
 
     <select id="selectTagInfoContainedSpecificTag" parameterType="BatchQueryParameter" resultMap="tagInfoMap">
@@ -82,7 +82,7 @@
         WHERE
             sortKey = #{sortKey}
             AND fieldName = #{fieldName}
-            AND eventTime BETWEEN #{range.from} AND #{range.to}
+            AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
