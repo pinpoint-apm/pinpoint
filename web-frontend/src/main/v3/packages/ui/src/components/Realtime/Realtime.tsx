@@ -130,11 +130,11 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
             direction="vertical"
             autoSaveId={APP_SETTING_KEYS.REALTIME_ACTIVE_REQUEST_RESIZABLE}
           >
-            <ResizablePanel minSize={10} maxSize={90}>
+            <ResizablePanel id="map" minSize={10} maxSize={90}>
               {isFocus && <MapView shouldPoll={true} />}
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel minSize={10} maxSize={90} className="!overflow-auto">
+            <ResizablePanel id="chart" minSize={10} maxSize={90} className="!overflow-auto">
               {isFocus && (
                 <ErrorBoundary>
                   <AgentActiveThreadFetcher serviceName={targetServiceName} />

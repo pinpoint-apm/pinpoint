@@ -21,17 +21,8 @@ export const LayoutWithContentSidebar = ({
 }: LayoutWithContentSidebarProps) => {
   const [sidebar, content, ...rest] = children;
 
-  const sizes = React.useMemo(() => {
-    try {
-      return (
-        JSON.parse(localStorage.getItem(`react-resizable-panels:${autoSaveId}`) ?? '')?.layout ||
-        defaultSizes
-      );
-    } catch (e) {
-      return defaultSizes;
-    }
-  }, []);
-
+  // 저장된 크기는 그룹의 `autoSaveId` 로 react-resizable-panels 가 직접 복원한다.
+  // (3 까지는 저장 형식을 여기서 직접 읽어 defaultSize 로 넣어 줬다.)
   return (
     <>
       <ResizablePanelGroup
@@ -39,11 +30,11 @@ export const LayoutWithContentSidebar = ({
         direction="horizontal"
         className="h-[calc(100%-4rem)]"
       >
-        <ResizablePanel defaultSize={sizes?.[0] || defaultSizes?.[0]} minSize={10} maxSize={30}>
+        <ResizablePanel id="sidebar" defaultSize={defaultSizes[0]} minSize={10} maxSize={30}>
           {sidebar}
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={sizes?.[1] || defaultSizes?.[1]} minSize={70} maxSize={90}>
+        <ResizablePanel id="content" defaultSize={defaultSizes[1]} minSize={70} maxSize={90}>
           <div className="w-full h-[-webkit-fill-available] p-5 pt-4 pb-10 overflow-auto bg-primary-foreground flex justify-center">
             <div className={cn('flex flex-col w-full h-full max-w-8xl', contentWrapperClassName)}>
               {content}

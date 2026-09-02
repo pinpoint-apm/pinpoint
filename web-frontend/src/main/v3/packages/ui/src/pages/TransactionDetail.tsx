@@ -44,11 +44,11 @@ export const TransactionDetailPage = ({ transactionInfoProps }: TransactionDetai
         direction="vertical"
         autoSaveId={APP_SETTING_KEYS.TRANSACTION_DETAIL_RESIZABLE}
       >
-        <ResizablePanel minSize={20} maxSize={40}>
+        <ResizablePanel id="charts" minSize={20} maxSize={40}>
           {application && <TransactionCharts />}
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel minSize={60} maxSize={80}>
+        <ResizablePanel id="detail" minSize={60} maxSize={80}>
           <TransactionInfo disableHeader {...transactionInfoProps} />
         </ResizablePanel>
       </ResizablePanelGroup>
