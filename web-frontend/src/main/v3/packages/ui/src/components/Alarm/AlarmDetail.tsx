@@ -125,20 +125,20 @@ export const AlarmDetail = ({
     () =>
       z.object({
         checkerName: z.string({
-          required_error: t('COMMON.REQUIRED_SELECT', {
+          error: t('COMMON.REQUIRED_SELECT', {
             requiredField: t('CONFIGURATION.COMMON.CHECKER'),
           }),
         }),
         userGroupId: z.string({
-          required_error: t('COMMON.REQUIRED_SELECT', {
+          error: t('COMMON.REQUIRED_SELECT', {
             requiredField: t('CONFIGURATION.COMMON.USER_GROUP'),
           }),
         }),
         threshold: z
           .number()
-          .min(0, { message: t('CONFIGURATION.ALARM.THRESHOLD_MIN', { min: 0 }) })
+          .min(0, { error: t('CONFIGURATION.ALARM.THRESHOLD_MIN', { min: 0 }) })
           .max(2147483647, {
-            message: t('CONFIGURATION.ALARM.THRESHOLD_MAX', { max: 2147483647 }),
+            error: t('CONFIGURATION.ALARM.THRESHOLD_MAX', { max: 2147483647 }),
           }),
         type: z.string(),
         webhook: z.string().array().optional(),

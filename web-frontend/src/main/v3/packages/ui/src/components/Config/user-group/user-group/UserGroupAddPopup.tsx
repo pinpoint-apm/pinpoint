@@ -25,12 +25,12 @@ const userGroupFormSchemaFactory = (t: TFunction) =>
   z.object({
     userGroupName: z
       .string({
-        required_error: t('CONFIGURATION.USER_GROUP.VALIDATION'),
+        error: t('CONFIGURATION.USER_GROUP.VALIDATION'),
       })
-      .min(4, { message: t('CONFIGURATION.USER_GROUP.VALIDATION') })
-      .max(30, { message: t('CONFIGURATION.USER_GROUP.VALIDATION') })
+      .min(4, { error: t('CONFIGURATION.USER_GROUP.VALIDATION') })
+      .max(30, { error: t('CONFIGURATION.USER_GROUP.VALIDATION') })
       // eslint-disable-next-line
-      .regex(/^[\w\-]{4,30}$/, { message: t('CONFIGURATION.USER_GROUP.VALIDATION') }),
+      .regex(/^[\w\-]{4,30}$/, { error: t('CONFIGURATION.USER_GROUP.VALIDATION') }),
   });
 
 export interface UserGroupAddPopupProps {
@@ -50,6 +50,11 @@ export const UserGroupAddPopup = ({
   const userGroupFormSchema = React.useMemo(() => userGroupFormSchemaFactory(t), [t]);
   const userGroupForm = useForm<z.infer<typeof userGroupFormSchema>>({
     resolver: zodResolver(userGroupFormSchema),
+    // 빈 문자열로 시작해야 입력창이 처음부터 controlled 다. 없으면 값이 undefined 인 상태로
+    // 렌더된 뒤 타이핑하는 순간 controlled 로 바뀌어 React 가 경고한다.
+    defaultValues: {
+      userGroupName: '',
+    },
   });
 
   const { isMutating, onSubmit } = usePostUserGroup({

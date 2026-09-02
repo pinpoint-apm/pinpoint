@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
-    "@hookform/resolvers": "^3.3.2",
+    "@hookform/resolvers": "^5.9.1",
     "@pinpoint-fe/datetime-picker": "*",
     "@pinpoint-fe/scatter-chart": "*",
     "@pinpoint-fe/server-map": "*",
@@ -90,7 +90,7 @@
     "react-toastify": "^10.0.0",
     "react-virtuoso": "^4.6.0",
     "usehooks-ts": "^3.1.1",
-    "zod": "^3.22.4"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.29.4",

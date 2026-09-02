@@ -32,42 +32,41 @@ const userFormSchemaFactory = (
   z.object({
     userId: z
       .string({
-        required_error: t('CONFIGURATION.USERS.VALIDATION.USER_ID'),
+        error: t('CONFIGURATION.USERS.VALIDATION.USER_ID'),
       })
-      .min(4, { message: t('CONFIGURATION.USERS.VALIDATION.USER_ID') })
-      .max(24, { message: t('CONFIGURATION.USERS.VALIDATION.USER_ID') })
+      .min(4, { error: t('CONFIGURATION.USERS.VALIDATION.USER_ID') })
+      .max(24, { error: t('CONFIGURATION.USERS.VALIDATION.USER_ID') })
       // eslint-disable-next-line
-      .regex(/^[a-z0-9\_\-]{4,24}$/, { message: t('CONFIGURATION.USERS.VALIDATION.USER_ID') }),
+      .regex(/^[a-z0-9\_\-]{4,24}$/, { error: t('CONFIGURATION.USERS.VALIDATION.USER_ID') }),
     userName: z
       .string({
-        required_error: t('CONFIGURATION.USERS.VALIDATION.USER_NAME'),
+        error: t('CONFIGURATION.USERS.VALIDATION.USER_NAME'),
       })
-      .min(1, { message: t('CONFIGURATION.USERS.VALIDATION.USER_NAME') })
-      .max(30, { message: t('CONFIGURATION.USERS.VALIDATION.USER_NAME') })
+      .min(1, { error: t('CONFIGURATION.USERS.VALIDATION.USER_NAME') })
+      .max(30, { error: t('CONFIGURATION.USERS.VALIDATION.USER_NAME') })
       // eslint-disable-next-line
       .regex(/^[\w\-\.ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{1,30}$/, {
-        message: t('CONFIGURATION.USERS.VALIDATION.USER_NAME'),
+        error: t('CONFIGURATION.USERS.VALIDATION.USER_NAME'),
       }),
     department: z
       .string()
-      .min(3, { message: t('CONFIGURATION.USERS.VALIDATION.USER_DEPARTMENT') })
-      .max(40, { message: t('CONFIGURATION.USERS.VALIDATION.USER_DEPARTMENT') })
+      .min(3, { error: t('CONFIGURATION.USERS.VALIDATION.USER_DEPARTMENT') })
+      .max(40, { error: t('CONFIGURATION.USERS.VALIDATION.USER_DEPARTMENT') })
       // eslint-disable-next-line
       .regex(/^[\w\.\-ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{3,40}$/, {
-        message: t('CONFIGURATION.USERS.VALIDATION.USER_DEPARTMENT'),
+        error: t('CONFIGURATION.USERS.VALIDATION.USER_DEPARTMENT'),
       })
       .optional()
       .or(z.literal('')),
     phoneNumber: z
       .string()
       .refine(validation.phoneNumber!, {
-        message: t('CONFIGURATION.USERS.VALIDATION.USER_PHONE_NUMBER'),
+        error: t('CONFIGURATION.USERS.VALIDATION.USER_PHONE_NUMBER'),
       })
       .optional()
       .or(z.literal('')),
     email: z
-      .string()
-      .email({ message: t('CONFIGURATION.USERS.VALIDATION.USER_EMAIL') })
+      .email({ error: t('CONFIGURATION.USERS.VALIDATION.USER_EMAIL') })
       .optional()
       .or(z.literal('')),
   });

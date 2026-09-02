@@ -24,12 +24,16 @@ type FormFieldContextValue<
 
 const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
+// `TTransformedValues` 는 입력값과 검증 결과의 타입이 다른 폼에 필요하다. 숫자 입력창처럼
+// 문자열을 받아 숫자로 검증하는 폼의 `control` 은 `Control<입력, unknown, 결과>` 가 되는데,
+// 이 제네릭이 없으면 그 control 을 받지 못한다. → `utils/zod.ts` 의 `numberFromInput`
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TTransformedValues = TFieldValues,
 >({
   ...props
-}: ControllerProps<TFieldValues, TName>) => {
+}: ControllerProps<TFieldValues, TName, TTransformedValues>) => {
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />
