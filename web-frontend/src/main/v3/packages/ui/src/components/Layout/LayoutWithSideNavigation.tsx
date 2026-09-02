@@ -67,9 +67,19 @@ export interface LayoutWithSideNavigationProps {
   bottomMenuItems?: SideNavigationMenuItem[];
 }
 
-const SIDEBAR_MENU_BUTTON_CLASS_NAME = `h-10! !rounded p-1.5 pl-1.5! pr-2! text-sm
-  hover:bg-(--blue-700) hover:text-(--white-default)
-  focus:bg-(--blue-700) focus:text-(--white-default)`;
+const SIDEBAR_MENU_BUTTON_BASE_CLASS_NAME = `h-10! !rounded p-1.5 pl-1.5! pr-2! text-sm
+  hover:bg-(--blue-700) hover:text-(--white-default)`;
+
+// 드롭다운 항목은 마우스/키보드 이동이 focus 로 표시되므로 하이라이트가 필요하다.
+const SIDEBAR_MENU_BUTTON_FOCUS_CLASS_NAME = `focus:bg-(--blue-700) focus:text-(--white-default)`;
+
+const SIDEBAR_MENU_BUTTON_CLASS_NAME = `${SIDEBAR_MENU_BUTTON_BASE_CLASS_NAME}
+  ${SIDEBAR_MENU_BUTTON_FOCUS_CLASS_NAME}`;
+
+// 하단 메뉴 버튼은 드롭다운을 닫으면 포커스가 트리거로 돌아온다. 그때 focus 배경과
+// SidebarMenuButton 기본 focus-visible 링이 남아 선택된 메뉴처럼 보이므로 둘 다 쓰지 않는다.
+const SIDEBAR_MENU_BUTTON_WITHOUT_FOCUS_CLASS_NAME = `${SIDEBAR_MENU_BUTTON_BASE_CLASS_NAME}
+  focus-visible:ring-0`;
 
 export const LayoutWithSideNavigation = ({
   children,
@@ -160,11 +170,18 @@ export const LayoutWithSideNavigation = ({
     }
   };
 
-  const renderSidebarMenuItem = (item: SideNavigationMenuItem) => {
+  const renderSidebarMenuItem = (
+    item: SideNavigationMenuItem,
+    options?: { withoutFocusStyle?: boolean },
+  ) => {
     // hide는 메뉴 자리(버튼 높이 + gap)까지 남지 않도록 아예 렌더하지 않는다.
     if (item.hide) {
       return null;
     }
+
+    const buttonClassName = options?.withoutFocusStyle
+      ? SIDEBAR_MENU_BUTTON_WITHOUT_FOCUS_CLASS_NAME
+      : SIDEBAR_MENU_BUTTON_CLASS_NAME;
 
     if (item.childItems) {
       return (
@@ -174,6 +191,7 @@ export const LayoutWithSideNavigation = ({
             isActive={isActive}
             renderMenuItemContent={renderMenuItemContent}
             collapsed={collapsed}
+            triggerClassName={buttonClassName}
           />
         </SidebarMenuItem>
       );
@@ -184,7 +202,7 @@ export const LayoutWithSideNavigation = ({
         {WithTooltip({
           trigger: (
             <SidebarMenuButton
-              className={cn(SIDEBAR_MENU_BUTTON_CLASS_NAME, {
+              className={cn(buttonClassName, {
                 'font-semibold bg-(--blue-700)': isActive(item),
               })}
             >
@@ -306,7 +324,7 @@ export const LayoutWithSideNavigation = ({
                   {bottomMenuItems?.map((item) => {
                     return (
                       <React.Fragment key={getMenuKey(item.path)}>
-                        {renderSidebarMenuItem(item)}
+                        {renderSidebarMenuItem(item, { withoutFocusStyle: true })}
                       </React.Fragment>
                     );
                   })}
@@ -329,11 +347,13 @@ const SidebarMenuButtonWithDropdownMenu = ({
   isActive,
   renderMenuItemContent,
   collapsed,
+  triggerClassName = SIDEBAR_MENU_BUTTON_CLASS_NAME,
 }: {
   item: SideNavigationMenuItem;
   isActive: (item: SideNavigationMenuItem) => boolean;
   renderMenuItemContent: (item: SideNavigationMenuItem, isChildItem?: boolean) => React.ReactNode;
   collapsed: boolean;
+  triggerClassName?: string;
 }) => {
   const [open, setOpen] = React.useState(false);
   const close = React.useCallback(() => setOpen(false), []);
@@ -380,7 +400,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
         trigger: (
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
-              className={cn(SIDEBAR_MENU_BUTTON_CLASS_NAME, {
+              className={cn(triggerClassName, {
                 'font-semibold bg-(--blue-700)': isActive(item),
               })}
             >
