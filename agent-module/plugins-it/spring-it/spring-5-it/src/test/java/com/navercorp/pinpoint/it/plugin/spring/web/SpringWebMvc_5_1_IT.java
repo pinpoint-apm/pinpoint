@@ -42,25 +42,24 @@ import java.lang.reflect.Method;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@Dependency({"org.springframework:spring-webmvc:[5.0.0.RELEASE,5.max]", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:4.0.1"})
+@Dependency({"org.springframework:spring-webmvc:[5.0.0.RELEASE,5.1.20.RELEASE]", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:4.0.1"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
-public class SpringWebMvc_5_x_IT {
+public class SpringWebMvc_5_1_IT {
     private static final String SPRING_MVC = "SPRING_MVC";
 
     @Test
     public void testRequest() throws Exception {
         MockServletConfig config = new MockServletConfig();
+        config.addInitParameter("contextConfigLocation", "classpath:spring-web-test.xml");
+
+        DispatcherServlet servlet = new DispatcherServlet();
+        servlet.init(config);
+
         MockHttpServletRequest req = new MockHttpServletRequest();
         MockHttpServletResponse res = new MockHttpServletResponse();
-
-        config.addInitParameter("contextConfigLocation", "classpath:spring-web-test.xml");
         req.setMethod("GET");
         req.setRequestURI("/");
         req.setRemoteAddr("1.2.3.4");
-        
-        DispatcherServlet servlet = new DispatcherServlet();
-        servlet.init(config);
-        
         servlet.service(req, res);
         
         Method method = FrameworkServlet.class.getDeclaredMethod("doGet", HttpServletRequest.class, HttpServletResponse.class);
