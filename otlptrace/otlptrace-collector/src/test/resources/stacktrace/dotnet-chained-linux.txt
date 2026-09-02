@@ -1,0 +1,7 @@
+System.InvalidOperationException: order placement failed
+ ---> System.ArgumentException: invalid order id: 42
+   at OrderService.Validate(Int32 id) in /app/Program.cs:line 5
+   at OrderService.Place(Int32 id) in /app/Program.cs:line 7
+   --- End of inner exception stack trace ---
+   at OrderService.Place(Int32 id) in /app/Program.cs:line 8
+   at Program.Main() in /app/Program.cs:line 13

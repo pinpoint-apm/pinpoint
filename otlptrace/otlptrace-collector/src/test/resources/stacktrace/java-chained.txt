@@ -1,0 +1,16 @@
+java.lang.RuntimeException: outer wrap
+	at ChainTest.main(ChainTest.java:9)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at jdk.compiler/com.sun.tools.javac.launcher.Main.execute(Main.java:419)
+	at jdk.compiler/com.sun.tools.javac.launcher.Main.run(Main.java:192)
+	at jdk.compiler/com.sun.tools.javac.launcher.Main.main(Main.java:132)
+Caused by: java.lang.IllegalStateException: wrapped in middle
+	at ChainTest.middle(ChainTest.java:5)
+	... 8 more
+Caused by: java.lang.IllegalArgumentException: root cause boom
+	at ChainTest.inner(ChainTest.java:3)
+	... 9 more
+

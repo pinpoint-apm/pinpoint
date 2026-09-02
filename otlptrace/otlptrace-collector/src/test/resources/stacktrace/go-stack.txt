@@ -1,0 +1,6 @@
+goroutine 1 [running]:
+runtime/debug.Stack()
+	C:/Program Files/Go/src/runtime/debug/stack.go:26 +0x5e
+main.main()
+	C:/Temp/otelapp/gosvc/main.go:17 +0x1db
+

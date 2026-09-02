@@ -24,6 +24,10 @@ import com.navercorp.pinpoint.common.server.util.Utf8;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.stacktrace.StackFrame;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.stacktrace.StackFrameSink;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.stacktrace.StackTraceParser;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.stacktrace.StackTraceParserRegistry;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -46,6 +50,11 @@ public class OtlpExceptionMapper {
     private static final String EMPTY = "";
 
     private static final String TRUNCATED_METRIC = "collector.otlptrace.exception.truncated";
+    // Which language parser handled each stacktrace — watch the raw-fallback share to decide
+    // which language parser to add next.
+    private static final String PARSED_METRIC = "collector.otlptrace.exception.parsed";
+
+    private static final StackTraceParserRegistry PARSER_REGISTRY = new StackTraceParserRegistry();
 
     // Byte-based caps for the client-supplied exception fields (unlike the native path, these arrive
     // as free-form strings from a third-party exporter). Mirrors the module's attribute/SQL/event/link
@@ -62,9 +71,14 @@ public class OtlpExceptionMapper {
     private final Counter messageTruncatedCounter;
     private final Counter stackTraceDepthTruncatedCounter;
     private final Counter frameValueTruncatedCounter;
+    private final MeterRegistry meterRegistry;
 
     public OtlpExceptionMapper(
-            @Value("${pinpoint.collector.otlptrace.exception.message-max-bytes:8192}") int messageMaxBytes,
+            // Default aligned with the native agent's errormessage cap (profiler.exceptiontrace
+            // .errormessage.max=2048) so both sources bound the Pinot errorMessage column alike.
+            // Unit stays bytes (the agent caps chars): stricter for multi-byte text, identical for
+            // the ASCII-dominant common case.
+            @Value("${pinpoint.collector.otlptrace.exception.message-max-bytes:2048}") int messageMaxBytes,
             @Value("${pinpoint.collector.otlptrace.exception.stacktrace.max-depth:256}") int stackTraceMaxDepth,
             @Value("${pinpoint.collector.otlptrace.exception.stacktrace.frame-max-bytes:2048}") int frameMaxBytes,
             MeterRegistry meterRegistry) {
@@ -83,6 +97,7 @@ public class OtlpExceptionMapper {
         this.messageTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "message");
         this.stackTraceDepthTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "stacktrace_depth");
         this.frameValueTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "frame_value");
+        this.meterRegistry = meterRegistry;
     }
 
     /**
@@ -100,6 +115,15 @@ public class OtlpExceptionMapper {
      * exceptionId discriminator instead.
      */
     public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span exceptionSpan, long rootSpanId, String uriTemplate) {
+        return map(idAndName, exceptionSpan, rootSpanId, uriTemplate, null);
+    }
+
+    /**
+     * @param sdkLanguage the {@code telemetry.sdk.language} resource attribute (java, nodejs,
+     *                    python, dotnet, go, ...) used to pick the stacktrace parser; {@code null}
+     *                    falls back to content sniffing
+     */
+    public Optional<ExceptionMetaDataBo> map(IdAndName idAndName, Span exceptionSpan, long rootSpanId, String uriTemplate, String sdkLanguage) {
         Span.Event exceptionEvent = ExceptionAttributeUtils.findExceptionEvent(exceptionSpan);
         if (exceptionEvent == null) {
             return Optional.empty();
@@ -123,7 +147,7 @@ public class OtlpExceptionMapper {
         // span id, use the exception-bearing span's id as the exceptionId so multiple exceptions
         // in one transaction stay distinct under (transactionId, rootSpanId, exceptionId).
         final long exceptionSpanId = OtlpTraceMapperUtils.getSpanId(exceptionSpan.getSpanId());
-        final List<StackTraceElementWrapperBo> stackTrace = parseStackTrace(stackTraceStr);
+        final List<StackTraceElementWrapperBo> stackTrace = parseStackTrace(stackTraceStr, sdkLanguage);
 
         ExceptionWrapperBo wrapper = new ExceptionWrapperBo(
                 exceptionType,
@@ -148,68 +172,41 @@ public class OtlpExceptionMapper {
         return Optional.of(bo);
     }
 
-    List<StackTraceElementWrapperBo> parseStackTrace(String stackTrace) {
-        List<StackTraceElementWrapperBo> result = new ArrayList<>();
+    /**
+     * Parses the flattened stacktrace with the language parser selected by
+     * {@code telemetry.sdk.language} (or content sniffing when absent). A parser that yields zero
+     * frames — a format it does not actually understand, e.g. a Ruby stack under an unmapped
+     * language value — falls back to raw-line frames so the detail view keeps the original text
+     * and the stack-trace grouping hash stays distinctive instead of collapsing every unparsed
+     * exception into one shared "empty stack" group.
+     */
+    List<StackTraceElementWrapperBo> parseStackTrace(String stackTrace, String sdkLanguage) {
         if (!StringUtils.hasLength(stackTrace)) {
-            return result;
+            return new ArrayList<>();
         }
 
-        for (String line : stackTrace.split("\n")) {
-            // Cap the number of frames: the flattened stacktrace is client-supplied, so its frame
-            // count is unbounded (up to the request-size limit) without this guard.
-            if (stackTraceMaxDepth > 0 && result.size() >= stackTraceMaxDepth) {
-                stackTraceDepthTruncatedCounter.increment();
-                break;
-            }
+        StackTraceParser parser = PARSER_REGISTRY.select(sdkLanguage, stackTrace);
+        StackFrameSink sink = new StackFrameSink(stackTraceMaxDepth);
+        parser.parse(stackTrace, sink);
 
-            final String trimmed = line.trim();
-            if (!trimmed.startsWith("at ")) {
-                continue;
-            }
+        if (sink.frames().isEmpty() && parser != PARSER_REGISTRY.rawFallback()) {
+            parser = PARSER_REGISTRY.rawFallback();
+            sink = new StackFrameSink(stackTraceMaxDepth);
+            parser.parse(stackTrace, sink);
+        }
 
-            final String element = trimmed.substring(3);
-            final int parenOpen = element.lastIndexOf('(');
-            final int parenClose = element.lastIndexOf(')');
-            if (parenOpen < 0 || parenClose <= parenOpen) {
-                continue;
-            }
+        if (sink.isTruncated()) {
+            stackTraceDepthTruncatedCounter.increment();
+        }
+        meterRegistry.counter(PARSED_METRIC, "parser", parser.name()).increment();
 
-            final String methodSignature = element.substring(0, parenOpen);
-            final String fileInfo = element.substring(parenOpen + 1, parenClose);
-
-            final int lastDot = methodSignature.lastIndexOf('.');
-            if (lastDot < 0) {
-                continue;
-            }
-
-            final String className = methodSignature.substring(0, lastDot);
-            final String methodName = methodSignature.substring(lastDot + 1);
-            if (!StringUtils.hasLength(className) || !StringUtils.hasLength(methodName)) {
-                continue;
-            }
-
-            final String fileName;
-            final int lineNumber;
-            final int colonIdx = fileInfo.lastIndexOf(':');
-            if (colonIdx >= 0) {
-                fileName = fileInfo.substring(0, colonIdx);
-                int parsed;
-                try {
-                    parsed = Integer.parseInt(fileInfo.substring(colonIdx + 1));
-                } catch (NumberFormatException e) {
-                    parsed = 0;
-                }
-                lineNumber = parsed;
-            } else {
-                fileName = fileInfo;
-                lineNumber = "Native Method".equals(fileInfo) ? -2 : -1;
-            }
-
+        final List<StackTraceElementWrapperBo> result = new ArrayList<>(sink.frames().size());
+        for (StackFrame frame : sink.frames()) {
             result.add(new StackTraceElementWrapperBo(
-                    cap(className, frameMaxBytes, frameValueTruncatedCounter),
-                    cap(fileName, frameMaxBytes, frameValueTruncatedCounter),
-                    lineNumber,
-                    cap(methodName, frameMaxBytes, frameValueTruncatedCounter)));
+                    cap(frame.className(), frameMaxBytes, frameValueTruncatedCounter),
+                    cap(frame.fileName(), frameMaxBytes, frameValueTruncatedCounter),
+                    frame.lineNumber(),
+                    cap(frame.methodName(), frameMaxBytes, frameValueTruncatedCounter)));
         }
         return result;
     }

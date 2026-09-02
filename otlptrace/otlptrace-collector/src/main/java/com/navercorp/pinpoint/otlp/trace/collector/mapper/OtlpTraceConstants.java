@@ -248,6 +248,7 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_PROCESS_CREATION_TIME = "process.creation.time";
     public static final String ATTRIBUTE_KEY_PROCESS_RUNTIME_DESCRIPTION = "process.runtime.description";
     public static final String ATTRIBUTE_KEY_TELEMETRY_SDK_VERSION = "telemetry.sdk.version";
+    public static final String ATTRIBUTE_KEY_TELEMETRY_SDK_LANGUAGE = "telemetry.sdk.language";
 
     // Raw-attribute filtering follows one rule: "filter only what was promoted, on the path
     // that promoted it, only when it actually was promoted". Most keys are therefore excluded
