@@ -11,3 +11,4 @@ export * from './object';
 export * from './regexp';
 export * from './size';
 export * from './string';
+export * from './zod';

@@ -15,6 +15,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { numberFromInput } from '@pinpoint-fe/ui/src/utils';
 
 export interface AgentActiveSettingProps {
   className?: string;
@@ -26,12 +27,16 @@ export interface AgentActiveSettingProps {
 export const DefaultValue = { yMax: 100, isSplit: true, inactivityThreshold: 5 };
 
 const FormSchema = z.object({
-  yMax: z.coerce.number().min(1),
+  yMax: numberFromInput(z.number().min(1)),
   isSplit: z.boolean(),
-  inactivityThreshold: z.coerce.number().min(0), // minutes
+  inactivityThreshold: numberFromInput(z.number().min(0)), // minutes
 });
 
-export type AgentActiveSettingType = z.infer<typeof FormSchema>;
+// 숫자 필드는 입력(입력창이 주는 문자열 또는 defaultValues 가 주는 숫자)과 검증 결과(숫자)의
+// 타입이 다르다. 그래서 useForm 에 <입력, 컨텍스트, 결과> 셋을 줘야 하고, handleSubmit 에 넘긴
+// 콜백은 결과 타입을 받는다.
+type FormInput = z.input<typeof FormSchema>;
+export type AgentActiveSettingType = z.output<typeof FormSchema>;
 
 export const AgentActiveSetting = ({
   className,
@@ -47,7 +52,7 @@ export const AgentActiveSetting = ({
 
   useOnClickOutside(containerRef as React.RefObject<HTMLElement>, handleClickClose);
 
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm<FormInput, unknown, AgentActiveSettingType>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       yMax: defaultValues?.yMax,
@@ -56,16 +61,15 @@ export const AgentActiveSetting = ({
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  function onSubmit(data: AgentActiveSettingType) {
     onApply?.(data);
     handleClickClose();
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const data = form.getValues();
-
     if (e.key === 'Enter') {
-      onApply?.(data);
+      // Apply 버튼과 같은 경로를 타야 검증과 숫자 변환을 거친 값이 나간다.
+      form.handleSubmit(onSubmit)();
     }
   };
 

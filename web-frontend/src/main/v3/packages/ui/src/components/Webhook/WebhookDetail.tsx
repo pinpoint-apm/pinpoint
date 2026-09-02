@@ -40,7 +40,7 @@ export const WebhookDetail = ({
         alias: z.string().max(256).optional(),
         url: z
           .string({
-            required_error: t('COMMON.REQUIRED', {
+            error: t('COMMON.REQUIRED', {
               requiredField: t('CONFIGURATION.WEBHOOK.URL'),
             }),
           })

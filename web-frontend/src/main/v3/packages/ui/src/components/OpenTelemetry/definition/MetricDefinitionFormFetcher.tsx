@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
 import { TFunction } from 'i18next';
 import * as z from 'zod';
+import { numberFromInput } from '@pinpoint-fe/ui/src/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { cn } from '../../../lib';
@@ -43,22 +44,22 @@ const metricDefinitionFormSchemaFactory = (t: TFunction) => {
   return z
     .object({
       metricGroupName: z.string({
-        required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric group' }),
+        error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric group' }),
       }),
       metricName: z
         .string({
-          required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric name' }),
+          error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric name' }),
         })
         .min(1, t('COMMON.REQUIRED_SELECT', { requiredField: 'Metric name' })),
       primaryForFieldAndTagRelation: z.enum(['tag', 'field']),
       tagGroupList: z.array(z.string()),
       fieldNameList: z.array(z.string()),
       aggregationFunction: z.string({
-        required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Aggregation function' }),
+        error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Aggregation function' }),
       }),
-      samplingInterval: z.coerce.number().nonnegative().min(1),
+      samplingInterval: numberFromInput(z.number().nonnegative().min(1)),
       chartType: z.string({
-        required_error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Chart type' }),
+        error: t('COMMON.REQUIRED_SELECT', { requiredField: 'Chart type' }),
       }),
       title: z.string().min(1, t('COMMON.REQUIRED', { requiredField: 'Metric title' })),
       stack: z.boolean().default(false).optional(),
@@ -83,7 +84,6 @@ const metricDefinitionFormSchemaFactory = (t: TFunction) => {
           path: ['fieldNameList'],
         });
       }
-      return true;
     });
 };
 
@@ -108,7 +108,12 @@ export const MetricDefinitionFormFetcher = ({
   const setUserMetricConfig = useSetAtom(userMetricConfigAtom);
   const { t } = useTranslation();
   const metricDefinitionFormSchema = metricDefinitionFormSchemaFactory(t);
-  const metricDefinitionForm = useForm<z.infer<typeof metricDefinitionFormSchema>>({
+  // samplingInterval 은 입력으로 문자열/숫자를 받고 결과는 숫자라서 두 타입이 갈린다.
+  const metricDefinitionForm = useForm<
+    z.input<typeof metricDefinitionFormSchema>,
+    unknown,
+    z.output<typeof metricDefinitionFormSchema>
+  >({
     resolver: zodResolver(metricDefinitionFormSchema),
     defaultValues: {
       metricGroupName: metric?.metricGroupName,
