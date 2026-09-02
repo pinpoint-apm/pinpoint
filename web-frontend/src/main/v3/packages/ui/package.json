@@ -85,7 +85,7 @@
     "react-intersection-observer": "^11.0.0",
     "react-popper": "^2.3.0",
     "react-pro-sidebar": "^1.1.0",
-    "react-resizable-panels": "^3.0.6",
+    "react-resizable-panels": "^4.12.3",
     "react-responsive": "^10.0.1",
     "react-toastify": "^11.1.0",
     "react-virtuoso": "^4.6.0",

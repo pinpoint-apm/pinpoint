@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-  getPanelElement,
-  getPanelGroupElement,
-  getResizeHandleElement,
-} from 'react-resizable-panels';
+  getResizableHandleElement,
+  getResizablePanelElement,
+  getResizablePanelGroupElement,
+} from '@pinpoint-fe/ui/src/components/ui/resizableElements';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '..';
 import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
@@ -41,7 +41,7 @@ export const LayoutWithHorizontalResizable = ({
 
   return (
     <ResizablePanelGroup direction="horizontal" id={resizableId} autoSaveId={resizableId}>
-      <ResizablePanel>
+      <ResizablePanel id={`${resizableId}-left`}>
         {typeof leftPanelContent === 'function' ? leftPanelContent(sizes) : leftPanelContent}
       </ResizablePanel>
       <ResizableHandle
@@ -83,9 +83,9 @@ export const useLayoutWithHorizontalResizable = () => {
   const resizableRef = React.useRef<ResizableRefsType | null>(null);
 
   React.useEffect(() => {
-    const groupElement = getPanelGroupElement(resizableId);
-    const rightPanelElement = getPanelElement(resizableId);
-    const resizeHandleElement = getResizeHandleElement(resizableId);
+    const groupElement = getResizablePanelGroupElement(resizableId);
+    const rightPanelElement = getResizablePanelElement(resizableId);
+    const resizeHandleElement = getResizableHandleElement(resizableId);
 
     resizableRef.current = {
       groupElement,

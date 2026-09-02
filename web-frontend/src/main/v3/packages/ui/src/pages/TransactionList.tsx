@@ -72,7 +72,7 @@ export const TransactionListPage = ({ transactionInfoProps }: TransactionListPag
         direction="vertical"
         autoSaveId={APP_SETTING_KEYS.TRANSACTION_LIST_RESIZABLE}
       >
-        <ResizablePanel minSize={10} maxSize={90}>
+        <ResizablePanel id="list" minSize={10} maxSize={90}>
           {traceInfo ? (
             <TransactionListByTrace />
           ) : withFilter ? (
@@ -82,7 +82,7 @@ export const TransactionListPage = ({ transactionInfoProps }: TransactionListPag
           )}
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel minSize={10} maxSize={90}>
+        <ResizablePanel id="info" minSize={10} maxSize={90}>
           <TransactionInfo {...transactionInfoProps} />
         </ResizablePanel>
       </ResizablePanelGroup>
