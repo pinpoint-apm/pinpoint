@@ -16,6 +16,24 @@
   }
 }
 
+/* v4 preflight 에서 button 의 cursor: pointer 가 빠졌다(브라우저 기본값인 default 를 따른다).
+   v3 와 같은 화면을 유지하기 위한 보정. 지우려면 클릭 가능한 모든 버튼에 cursor 유틸리티를
+   명시해야 한다.
+
+   v3 preflight 와 같은 선택자를 쓴다. `button:not(:disabled)` 로 묶으면 특이도가 유틸리티
+   클래스보다 높아져, 커서를 일부러 바꿔 둔 버튼(예: 복사 직후의 ClipboardCopyButton)까지
+   덮어쓴다. 비활성 버튼은 아래 :disabled 규칙이 되돌린다. */
+@layer base {
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+
+  :disabled {
+    cursor: default;
+  }
+}
+
 @layer base {
   /* :root {
     --primary-blue-50: #f0f8fe;
