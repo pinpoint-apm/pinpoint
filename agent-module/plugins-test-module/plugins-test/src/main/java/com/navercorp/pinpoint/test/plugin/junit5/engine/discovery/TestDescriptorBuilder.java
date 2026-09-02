@@ -6,5 +6,5 @@ import org.junit.platform.engine.TestDescriptor;
 import java.util.function.Predicate;
 
 public interface TestDescriptorBuilder extends Predicate<Class<?>>  {
-    TestDescriptor build(TestDescriptor testDescriptor, JupiterConfiguration configuration);
+    TestDescriptor build(TestDescriptor testDescriptor, Class<?> testClass, JupiterConfiguration configuration);
 }

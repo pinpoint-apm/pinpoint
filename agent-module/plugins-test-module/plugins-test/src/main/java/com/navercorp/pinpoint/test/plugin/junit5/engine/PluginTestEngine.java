@@ -112,7 +112,7 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
         if (builder == null) {
             return null;
         }
-        return builder.build(testDescriptor, configuration);
+        return builder.build(testDescriptor, testClass, configuration);
     }
 
 
