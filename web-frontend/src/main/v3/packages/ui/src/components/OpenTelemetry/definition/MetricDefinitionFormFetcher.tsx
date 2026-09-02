@@ -38,7 +38,7 @@ import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
 import { Switch } from '../../../components/ui/switch';
 import { HelpPopover } from '../../../components/HelpPopover';
-import ReactGridLayout from 'react-grid-layout';
+import type { ResponsiveLayouts } from 'react-grid-layout';
 
 const metricDefinitionFormSchemaFactory = (t: TFunction) => {
   return z
@@ -88,7 +88,7 @@ const metricDefinitionFormSchemaFactory = (t: TFunction) => {
 };
 
 export interface MetricDefinitionFormFetcherProps {
-  layouts?: ReactGridLayout.Layouts;
+  layouts?: ResponsiveLayouts;
   metric?: OtlpMetricDefUserDefined.Metric;
   onComplete?: () => void;
   onClickCancel?: () => void;

@@ -35,7 +35,7 @@ import { OpenTelemetryAlertDialog } from './OpenTelemetryAlertDialog';
 import { isEqual, sortBy } from 'lodash';
 import { cn } from '../../../lib/utils';
 import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
-import ReactGridLayout from 'react-grid-layout';
+import type { Layout, ResponsiveLayouts } from 'react-grid-layout';
 
 export interface OpenTelemetryDashboardFetcherProps {}
 
@@ -64,11 +64,11 @@ export const OpenTelemetryDashboardFetcher = () => {
     React.useState<OtlpMetricDefUserDefined.Metric>();
 
   const [state, setState] = React.useState<{
-    layouts: ReactGridLayout.Layouts;
+    layouts: ResponsiveLayouts;
   }>({
     layouts: { sm: [], xxs: [] },
   });
-  const prevLayouts = React.useRef<ReactGridLayout.Layouts | undefined>(undefined);
+  const prevLayouts = React.useRef<ResponsiveLayouts | undefined>(undefined);
   const [isChanged, setIsChanged] = React.useState(false);
 
   const updateMetricsWithToastMessage = (
@@ -92,10 +92,7 @@ export const OpenTelemetryDashboardFetcher = () => {
   };
 
   // grid-layout 변경 시 사용
-  const onLayoutChange = (
-    _currentLayout: ReactGridLayout.Layout[],
-    allLayouts: ReactGridLayout.Layouts,
-  ) => {
+  const onLayoutChange = (_currentLayout: Layout, allLayouts: ResponsiveLayouts) => {
     setState((prev) => ({
       ...prev,
       layouts: allLayouts,
@@ -225,7 +222,7 @@ export const OpenTelemetryDashboardFetcher = () => {
               </div>
             </div>
             <DashBoard layouts={state.layouts} onLayoutChange={onLayoutChange}>
-              {state.layouts.sm.length > 0 &&
+              {(state.layouts.sm?.length ?? 0) > 0 &&
                 metrics.map((metric) => {
                   return (
                     <div key={metric?.id}>

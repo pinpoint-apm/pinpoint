@@ -79,18 +79,19 @@ function useReactToastifyToast() {
           defaultToastContainerProps.className,
           options?.className,
         ),
-        onOpen: (data) => {
+        // v11 부터 onOpen/onClose 는 인자를 받지 않는다.
+        onOpen: () => {
           setToastCount((prev) => prev + 1);
-          options?.onOpen?.(data);
+          options?.onOpen?.();
         },
-        onClose: (data) => {
+        onClose: () => {
           setToastCount((prev) => {
             if (prev === 0) {
               return prev;
             }
             return prev - 1;
           });
-          options?.onClose?.(data);
+          options?.onClose?.();
         },
       });
     };
