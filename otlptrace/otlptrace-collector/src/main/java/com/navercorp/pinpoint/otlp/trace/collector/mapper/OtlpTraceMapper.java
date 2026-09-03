@@ -115,12 +115,13 @@ public class OtlpTraceMapper {
                 for (ScopedSpan rootScopedSpan : rootSpanList) {
                     try {
                         final Span rootSpan = rootScopedSpan.span();
-                        // Resolve URI and root span id per root: each exception in this root's
-                        // subtree is attributed to the correct entry-point URI and linked back to
-                        // the stored transaction (root SpanBo) via (transactionId, rootSpanId).
+                        // Resolve the exception uriTemplate and root span id per root: each exception in
+                        // this root's subtree is attributed to the entry point's low-cardinality template
+                        // (route → rpc.method → "", never the raw path, like the agent) and linked back to the
+                        // stored transaction (root SpanBo) via (transactionId, rootSpanId).
                         final Map<String, AttributeValue> rootAttributes =
                                 OtlpTraceMapperUtils.getAttributeValueMap(rootSpan.getAttributesList());
-                        final String rootUriTemplate = spanMapper.getServerSpanToRpc(rootSpan, rootAttributes, rootScopedSpan.scope());
+                        final String rootUriTemplate = spanMapper.getExceptionUriTemplate(rootSpan, rootAttributes, rootScopedSpan.scope());
                         final long rootSpanId = OtlpTraceMapperUtils.getSpanId(rootSpan.getSpanId());
 
                         final SpanBo spanBo = spanMapper.map(idAndName, rootSpan, rootScopedSpan.scope(), agentStartTime);

@@ -231,6 +231,41 @@ class OtlpTraceMapperTest {
     // =======================================================================
 
     @Test
+    void unroutedRootException_uriTemplateIsEmpty_notRawPath() {
+        // No http.route: exceptions of an unrouted request store an empty uriTemplate (agent parity),
+        // not the raw url.path — one group instead of one per requested path.
+        Span root = Span.newBuilder(serverRoot(ROOT_A, "GET", true))
+                .clearAttributes()
+                .addAttributes(kv("url.path", strVal("/nosuchpath/123")))
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root));
+
+        assertThat(data.getExceptionMetaDataBoList()).hasSize(1);
+        assertThat(data.getExceptionMetaDataBoList().get(0).getUriTemplate()).isEmpty();
+        // the transaction rpc still carries the raw path
+        assertThat(data.getSpanBoList().get(0).getRpc()).isEqualTo("/nosuchpath/123");
+    }
+
+    @Test
+    void childException_underUnroutedRoot_inheritsEmptyUriTemplate() {
+        // A downstream CLIENT exception under an unrouted root is attributed to the root's (empty)
+        // template, not to the root's raw path and not to the child's own span name.
+        Span root = Span.newBuilder(serverRoot(ROOT_A, "GET", false))
+                .clearAttributes()
+                .addAttributes(kv("url.path", strVal("/nosuchpath/123")))
+                .build();
+        Span child = clientChild(CHILD, ROOT_A, true);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root, child));
+
+        assertThat(data.getExceptionMetaDataBoList()).hasSize(1);
+        ExceptionMetaDataBo bo = data.getExceptionMetaDataBoList().get(0);
+        assertThat(bo.getUriTemplate()).isEmpty();
+        assertThat(bo.getSpanId()).isEqualTo(spanId(ROOT_A));
+    }
+
+    @Test
     void childException_inheritsRootSpanIdAndUri() {
         Span root = serverRoot(ROOT_A, "/api/orders", false);
         Span child = clientChild(CHILD, ROOT_A, true);
