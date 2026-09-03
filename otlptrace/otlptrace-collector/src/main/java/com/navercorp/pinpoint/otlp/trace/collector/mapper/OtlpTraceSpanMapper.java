@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.server.bo.TraceSourceType;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -549,21 +548,18 @@ public class OtlpTraceSpanMapper {
     }
 
     /**
-     * Returns the matched route template (http.route, e.g. "/users/{id}") for SERVER/INTERNAL
-     * spans, or null when the request was not routed. URI stat must aggregate by this
-     * low-cardinality template only: unlike {@link #getServerSpanToRpc}, it never falls back to the
-     * raw url.path, since path variables would explode the Pinot uriStat cardinality. This mirrors
-     * the Pinpoint agent feeding URI stat solely from SpanRecorder.recordUriTemplate.
+     * Returns the matched route template of a SERVER/INTERNAL entry-point span for URI stat, or null
+     * when the request was not routed. The template is the same one the rpc and the exception
+     * uriTemplate use ({@link #resolveRouteTemplate}: http.route, Next.js next.route, Spring Boot
+     * micrometer-tracing {@code uri}), so the three views agree on what "routed" means. URI stat
+     * must aggregate by this low-cardinality template only: unlike {@link #getServerSpanToRpc}, it
+     * never falls back to the raw url.path, since path variables would explode the Pinot uriStat
+     * cardinality. This mirrors the Pinpoint agent feeding URI stat solely from
+     * SpanRecorder.recordUriTemplate. Consumed keys are not tracked (throwaway set): the caller's
+     * annotation filtering is decided by {@link #map} alone.
      */
-    String getUriTemplate(Span span, Map<String, AttributeValue> attributes) {
-        final int kind = span.getKind().getNumber();
-        if (kind == Span.SpanKind.SPAN_KIND_SERVER_VALUE || kind == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
-            final String httpRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE, null);
-            if (StringUtils.hasLength(httpRoute)) {
-                return httpRoute;
-            }
-        }
-        return null;
+    String getUriTemplate(Span span, Map<String, AttributeValue> attributes, InstrumentationScope scope) {
+        return resolveRouteTemplate(span, attributes, new HashSet<>(), OtlpMicrometerAttributes.isMicrometerScope(scope));
     }
 
     public static String extractPath(String url) {

@@ -719,6 +719,21 @@ class OtlpTraceMapperTest {
     }
 
     @Test
+    void uriStat_rootWithNextRoute_collected() {
+        // A Next.js entry point routed via next.route (no http.route) contributes like an http.route one.
+        Span root = Span.newBuilder(serverRoot(ROOT_A, "GET", false))
+                .clearAttributes()
+                .addAttributes(kv("next.route", strVal("/api/products/[productId]/index")))
+                .addAttributes(kv("url.path", strVal("/api/products/0PUK6V6EV0")))
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(root));
+
+        assertThat(data.getUriStatSpanList()).hasSize(1);
+        assertThat(data.getUriStatSpanList().get(0).getUri()).isEqualTo("/api/products/[productId]/index");
+    }
+
+    @Test
     void uriStat_rootWithoutRoute_notCollected() {
         // Unrouted SERVER root: the trace itself is stored, but no uriStat record is derived —
         // there is no raw-path fallback (low-cardinality contract).
