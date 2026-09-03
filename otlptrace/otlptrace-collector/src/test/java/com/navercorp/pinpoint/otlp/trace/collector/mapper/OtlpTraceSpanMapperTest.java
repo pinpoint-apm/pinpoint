@@ -1359,7 +1359,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("http.route", strVal("/api/users/{id}")),
                 kv("url.path", strVal("/api/users/123")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span))).isEqualTo("/api/users/{id}");
+        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isEqualTo("/api/users/{id}");
     }
 
     @Test
@@ -1368,7 +1368,7 @@ class OtlpTraceSpanMapperTest {
         // would explode the Pinot uriStat cardinality, mirroring the native agent feeding URI stat
         // solely from recordUriTemplate.
         Span span = serverSpan(kv("url.path", strVal("/api/users/123")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span))).isNull();
+        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isNull();
     }
 
     @Test
@@ -1377,7 +1377,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(kv("http.route", strVal("/api/users/{id}"))).toBuilder()
                 .setKindValue(Span.SpanKind.SPAN_KIND_CLIENT_VALUE)
                 .build();
-        assertThat(newMapper().getUriTemplate(span, attrs(span))).isNull();
+        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isNull();
     }
 
     @Test
@@ -1387,7 +1387,7 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(kv("http.route", strVal("/api/users/[id]"))).toBuilder()
                 .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
                 .build();
-        assertThat(newMapper().getUriTemplate(span, attrs(span))).isEqualTo("/api/users/[id]");
+        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isEqualTo("/api/users/[id]");
     }
 
     @Test
@@ -1397,7 +1397,50 @@ class OtlpTraceSpanMapperTest {
         Span span = serverSpan(
                 kv("http.route", strVal("")),
                 kv("url.path", strVal("/api/users/123")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span))).isNull();
+        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isNull();
+    }
+
+    @Test
+    void uriTemplate_nextRoute_whenNoHttpRoute() {
+        // Next.js emits its route pattern as next.route — a template like http.route, not a raw path.
+        Span span = serverSpan(
+                kv("next.route", strVal("/api/products/[productId]/index")),
+                kv("url.path", strVal("/api/products/0PUK6V6EV0")));
+        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isEqualTo("/api/products/[productId]/index");
+    }
+
+    @Test
+    void uriTemplate_micrometerUri_forSpringBootScope() {
+        // Spring Boot micrometer-tracing carries the matched pattern in the `uri` tag.
+        Span span = serverSpan(
+                kv("uri", strVal("/user/{id}")),
+                kv("http.url", strVal("http://svc/user/42")));
+        assertThat(newMapper().getUriTemplate(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isEqualTo("/user/{id}");
+    }
+
+    @Test
+    void uriTemplate_micrometerPlaceholder_isNull() {
+        // No-route placeholders ("/**", "NOT_FOUND", ...) are not templates → no uriStat key.
+        Span span = serverSpan(
+                kv("uri", strVal("NOT_FOUND")),
+                kv("http.url", strVal("http://svc/no/such/path")));
+        assertThat(newMapper().getUriTemplate(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isNull();
+    }
+
+    @Test
+    void uriTemplate_micrometerUri_onlyForServerKind() {
+        // The micrometer `uri` tag is interpreted on SERVER spans only (same rule as the rpc).
+        Span span = serverSpan(kv("uri", strVal("/user/{id}"))).toBuilder()
+                .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
+                .build();
+        assertThat(newMapper().getUriTemplate(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isNull();
+    }
+
+    @Test
+    void uriTemplate_uriTag_ignoredOutsideMicrometerScope() {
+        // A `uri` attribute from another instrumentation is not a known template source.
+        Span span = serverSpan(kv("uri", strVal("/user/{id}")));
+        assertThat(newMapper().getUriTemplate(span, attrs(span), scope("my-custom-tracer", ""))).isNull();
     }
 
     // =======================================================================

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 /**
  * A single entry-point span's contribution to URI stat, captured during trace mapping while the
- * OTel http.route attribute is still available. Deliberately free of any uristat-module type so the
+ * OTel route template attributes (http.route, next.route, micrometer uri) are still available. Deliberately free of any uristat-module type so the
  * always-on {@link OtlpTraceMapper} does not depend on the optional uristat collector; aggregation
  * into UriStat records happens later in OtlpUriStatService, which only loads when the uristat module
  * is enabled.
