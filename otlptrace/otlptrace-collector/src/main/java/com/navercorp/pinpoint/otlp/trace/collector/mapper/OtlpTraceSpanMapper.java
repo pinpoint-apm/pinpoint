@@ -438,16 +438,11 @@ public class OtlpTraceSpanMapper {
     }
 
     /**
-     * Consumption-free variant for callers that only need the value (e.g. the exception-trace
-     * uriTemplate in {@link OtlpTraceMapper}) — consumed keys are collected into a throwaway set.
+     * Consumption-free variant for callers that only need the value — consumed keys are collected
+     * into a throwaway set.
      */
     String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes) {
         return getServerSpanToRpc(span, attributes, new HashSet<>(), false);
-    }
-
-    /** rpc as {@link #map} computes it for this span — used for the exception-trace uriTemplate of a root span. */
-    String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes, InstrumentationScope scope) {
-        return getServerSpanToRpc(span, attributes, new HashSet<>(), OtlpMicrometerAttributes.isMicrometerScope(scope));
     }
 
     String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys) {
@@ -456,33 +451,11 @@ public class OtlpTraceSpanMapper {
 
     String getServerSpanToRpc(Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys, boolean micrometer) {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
-            // http.route is the matched route template ("/users/{id}") — prefer it over the raw
-            // url.path ("/users/12345") so the rpc field stays low-cardinality, matching the agent's
-            // recordUriTemplate behavior. Falls through to url.path when the request is unrouted.
-            // A blank value is treated as absent: otelgin (Go) emits http.route="" for unmatched
-            // routes (404), which would otherwise be stored as an empty rpc. The blank key is not
-            // consumed, so it stays visible in the raw attribute list.
-            final String httpRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE, null);
-            if (hasText(httpRoute)) {
-                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE);
-                return httpRoute;
+            final String routeTemplate = resolveRouteTemplate(span, attributes, consumedKeys, micrometer);
+            if (routeTemplate != null) {
+                return routeTemplate;
             }
-            // next.route is Next.js's route template (http.route's vendor equivalent). Next.js does
-            // not emit http.route, so prefer next.route over the raw url.path/http.url/http.target
-            // to keep the rpc field low-cardinality (e.g. "/api/products/[productId]/index").
-            final String nextRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE, null);
-            if (hasText(nextRoute)) {
-                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE);
-                return nextRoute;
-            }
-            // Spring Boot micrometer-tracing: `uri` is the route template ("/user/{id}"). Prefer it over the raw
-            // path below; no-route placeholders ("/**", "NOT_FOUND", ...) return null and fall through to http.url.
-            if (micrometer && span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
-                final String uriTemplate = OtlpMicrometerAttributes.getUriTemplate(attributes, consumedKeys);
-                if (uriTemplate != null) {
-                    return uriTemplate;
-                }
-            }
+            // Unrouted request: fall through to the raw path keys (rpc stays request-specific).
             final String urlPath = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH);
@@ -508,6 +481,71 @@ public class OtlpTraceSpanMapper {
         // Known messaging consumer rpc is built via OtlpMessagingConsumerResolver#buildConsumerRpc.
         // Consumer for unsupported messaging.system / unknown kind: fall back to the OTel span name.
         return span.getName();
+    }
+
+    /**
+     * The matched route template of a SERVER/INTERNAL span — http.route, Next.js next.route, or the
+     * Spring Boot micrometer-tracing {@code uri} — or {@code null} when the request was not routed.
+     * Shared by the rpc resolution ({@link #getServerSpanToRpc}, which then falls back to the raw
+     * path) and the exception uriTemplate ({@link #getExceptionUriTemplate}, which must not).
+     */
+    String resolveRouteTemplate(Span span, Map<String, AttributeValue> attributes, Set<String> consumedKeys, boolean micrometer) {
+        if (span.getKind().getNumber() != Span.SpanKind.SPAN_KIND_SERVER_VALUE && span.getKind().getNumber() != Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
+            return null;
+        }
+        // http.route is the matched route template ("/users/{id}") — prefer it over the raw
+        // url.path ("/users/12345") so the rpc field stays low-cardinality, matching the agent's
+        // recordUriTemplate behavior. Callers decide what an unrouted request falls back to.
+        // A blank value is treated as absent: otelgin (Go) emits http.route="" for unmatched
+        // routes (404), which would otherwise be stored as an empty rpc. The blank key is not
+        // consumed, so it stays visible in the raw attribute list.
+        final String httpRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE, null);
+        if (hasText(httpRoute)) {
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_ROUTE);
+            return httpRoute;
+        }
+        // next.route is Next.js's route template (http.route's vendor equivalent). Next.js does
+        // not emit http.route, so prefer next.route over the raw url.path/http.url/http.target
+        // to keep the rpc field low-cardinality (e.g. "/api/products/[productId]/index").
+        final String nextRoute = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE, null);
+        if (hasText(nextRoute)) {
+            consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_NEXT_ROUTE);
+            return nextRoute;
+        }
+        // Spring Boot micrometer-tracing: `uri` is the route template ("/user/{id}"). Prefer it over the raw
+        // path below; no-route placeholders ("/**", "NOT_FOUND", ...) return null and fall through to http.url.
+        if (micrometer && span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
+            final String uriTemplate = OtlpMicrometerAttributes.getUriTemplate(attributes, consumedKeys);
+            if (uriTemplate != null) {
+                return uriTemplate;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Low-cardinality operation template that groups exceptions (Error Analysis "Path") for the root
+     * span of a transaction, mirroring the native agent's {@code Shared.uriTemplate}: the agent records
+     * it only when the server framework matched a route template and leaves it empty otherwise.
+     * Unlike {@link #getServerSpanToRpc}, there is no raw url.path / http.url / http.target fallback
+     * (an unrouted request must not fan the exception groups out per request: "/users/1", "/users/2",
+     * ...) and no span-name fallback. Order: route template (http.route, next.route, micrometer uri)
+     * → rpc.method (gRPC servers) → "". Never null: the agent path stores "" as well, and a null would
+     * be persisted as Pinot's STRING null sentinel and shown as the literal "null".
+     */
+    String getExceptionUriTemplate(Span span, Map<String, AttributeValue> attributes, InstrumentationScope scope) {
+        final int kind = span.getKind().getNumber();
+        if (kind == Span.SpanKind.SPAN_KIND_SERVER_VALUE || kind == Span.SpanKind.SPAN_KIND_INTERNAL_VALUE) {
+            final String routeTemplate = resolveRouteTemplate(span, attributes, new HashSet<>(), OtlpMicrometerAttributes.isMicrometerScope(scope));
+            if (routeTemplate != null) {
+                return routeTemplate;
+            }
+            final String rpcMethod = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD, null);
+            if (hasText(rpcMethod)) {
+                return rpcMethod;
+            }
+        }
+        return "";
     }
 
     /**

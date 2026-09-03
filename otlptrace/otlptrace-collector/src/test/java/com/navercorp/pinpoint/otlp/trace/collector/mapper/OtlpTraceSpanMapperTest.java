@@ -569,6 +569,155 @@ class OtlpTraceSpanMapperTest {
     // map() — SERVER-kind ServiceType dispatch via rpc.system
     // =======================================================================
 
+    // =======================================================================
+    // getExceptionUriTemplate — exception grouping template (route → rpc.method → "", agent parity)
+    // =======================================================================
+
+    private static Span kindSpan(int kind, String name, KeyValue... attrs) {
+        Span.Builder builder = Span.newBuilder()
+                .setName(name)
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(kind);
+        for (KeyValue attr : attrs) {
+            builder.addAttributes(attr);
+        }
+        return builder.build();
+    }
+
+    private static String exceptionUriTemplate(Span span) {
+        return exceptionUriTemplate(span, NO_SCOPE);
+    }
+
+    private static String exceptionUriTemplate(Span span, InstrumentationScope scope) {
+        return newMapper().getExceptionUriTemplate(span, OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList()), scope);
+    }
+
+    @Test
+    void exceptionUriTemplate_prefersHttpRoute() {
+        Span span = serverSpan(
+                kv("http.route", strVal("/api/users/{id}")),
+                kv("url.path", strVal("/api/users/123")),
+                kv("rpc.method", strVal("ignored")));
+        assertThat(exceptionUriTemplate(span)).isEqualTo("/api/users/{id}");
+    }
+
+    @Test
+    void exceptionUriTemplate_nextRoute_whenNoHttpRoute() {
+        Span span = serverSpan(
+                kv("next.route", strVal("/api/products/[productId]/index")),
+                kv("url.path", strVal("/api/products/0PUK6V6EV0")));
+        assertThat(exceptionUriTemplate(span)).isEqualTo("/api/products/[productId]/index");
+    }
+
+    @Test
+    void exceptionUriTemplate_micrometerUri_forSpringBootScope() {
+        Span span = serverSpan(
+                kv("uri", strVal("/user/{id}")),
+                kv("http.url", strVal("http://svc/user/42")));
+        assertThat(exceptionUriTemplate(span, scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isEqualTo("/user/{id}");
+        // the same attributes without the micrometer scope are not a template → empty
+        assertThat(exceptionUriTemplate(span, NO_SCOPE)).isEmpty();
+    }
+
+    @Test
+    void exceptionUriTemplate_rpcMethod_forGrpcServer() {
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_SERVER_VALUE, "oteldemo.CheckoutService/PlaceOrder",
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.service", strVal("oteldemo.CheckoutService")),
+                kv("rpc.method", strVal("PlaceOrder")));
+        assertThat(exceptionUriTemplate(span)).isEqualTo("PlaceOrder");
+    }
+
+    @Test
+    void exceptionUriTemplate_unrouted_urlPath_isEmpty_notRawPath() {
+        // otelgin 404: blank http.route + raw url.path → "", like the agent for an unmatched request.
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_SERVER_VALUE, "GET",
+                kv("http.route", strVal("")),
+                kv("url.path", strVal("/nosuchpath/123")));
+        assertThat(exceptionUriTemplate(span)).isEmpty();
+        // the rpc keeps the raw path (transaction view is unchanged)
+        assertThat(newMapper().getServerSpanToRpc(span, OtlpTraceMapperUtils.getAttributeValueMap(span.getAttributesList()))).isEqualTo("/nosuchpath/123");
+    }
+
+    @Test
+    void exceptionUriTemplate_unrouted_httpUrl_isEmpty() {
+        // Envoy ingress: only http.url → "" (the span name "ingress" is not a route template).
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_SERVER_VALUE, "ingress",
+                kv("http.url", strVal("http://frontend-proxy:8080/api/products/0PUK6V6EV0")));
+        assertThat(exceptionUriTemplate(span)).isEmpty();
+    }
+
+    @Test
+    void exceptionUriTemplate_unrouted_httpTarget_isEmpty() {
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_SERVER_VALUE, "POST",
+                kv("http.target", strVal("/api/cart?sessionId=abc")));
+        assertThat(exceptionUriTemplate(span)).isEmpty();
+    }
+
+    @Test
+    void exceptionUriTemplate_internalRoot_withoutTemplate_isEmpty() {
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE, "claude_code.query",
+                kv("gen_ai.system", strVal("anthropic")));
+        assertThat(exceptionUriTemplate(span)).isEmpty();
+    }
+
+    @Test
+    void exceptionUriTemplate_internalRoot_httpRouteStillWins() {
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE, "handler",
+                kv("http.route", strVal("/internal/{id}")));
+        assertThat(exceptionUriTemplate(span)).isEqualTo("/internal/{id}");
+    }
+
+    @Test
+    void exceptionUriTemplate_internalRoot_rpcMethod() {
+        // rpc.method applies to INTERNAL roots as well (same kinds as the route template).
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE, "oteldemo.AdService/GetAds",
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.method", strVal("GetAds")));
+        assertThat(exceptionUriTemplate(span)).isEqualTo("GetAds");
+    }
+
+    @Test
+    void exceptionUriTemplate_internalRoot_micrometerUri_notATemplate() {
+        // The micrometer `uri` tag is only a route template on SERVER spans (resolveRouteTemplate);
+        // on an INTERNAL root it is not interpreted, so the exception uriTemplate stays empty.
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE, "observed-job",
+                kv("uri", strVal("/user/{id}")));
+        assertThat(exceptionUriTemplate(span, scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isEmpty();
+    }
+
+    @Test
+    void exceptionUriTemplate_clientRoot_isEmpty_ignoresRpcMethod() {
+        // CLIENT roots (e.g. a background flagd stream) have no server-side template → "".
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_CLIENT_VALUE, "/flagd.evaluation.v1.Service/EventStream",
+                kv("rpc.method", strVal("EventStream")));
+        assertThat(exceptionUriTemplate(span)).isEmpty();
+    }
+
+    @Test
+    void exceptionUriTemplate_consumerRoot_isEmpty() {
+        // The agent records no uriTemplate for messaging consumers either.
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_CONSUMER_VALUE, "orders receive",
+                kv("messaging.system", strVal("kafka")),
+                kv("messaging.destination.name", strVal("orders")));
+        assertThat(exceptionUriTemplate(span)).isEmpty();
+    }
+
+    @Test
+    void exceptionUriTemplate_neverNull() {
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_SERVER_VALUE, "");
+        assertThat(exceptionUriTemplate(span)).isNotNull().isEmpty();
+    }
+
+    @Test
+    void exceptionUriTemplate_blankRpcMethod_treatedAsAbsent() {
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_SERVER_VALUE, "rpc",
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.method", strVal(" ")));
+        assertThat(exceptionUriTemplate(span)).isEmpty();
+    }
+
     private static Span serverSpan(KeyValue... attrs) {
         Span.Builder builder = Span.newBuilder()
                 .setName("HTTP GET /api")

@@ -147,7 +147,7 @@ class OtlpMicrometerKeyMappingTest {
     }
 
     @Test
-    void exceptionTraceUriTemplate_usesTheSameRpc() {
+    void exceptionTraceUriTemplate_usesTheRouteTemplate() {
         Span failing = micrometerServer("/user/{id}", "/user/123", "500")
                 .setStatus(io.opentelemetry.proto.trace.v1.Status.newBuilder().setCodeValue(io.opentelemetry.proto.trace.v1.Status.StatusCode.STATUS_CODE_ERROR_VALUE))
                 .addEvents(Span.Event.newBuilder().setName("exception").setTimeUnixNano(1_500_000_000L)
@@ -159,6 +159,23 @@ class OtlpMicrometerKeyMappingTest {
         assertThat(data.getSpanBoList().get(0).getRpc()).isEqualTo("/user/{id}");
         assertThat(data.getExceptionMetaDataBoList()).singleElement()
                 .satisfies(ex -> assertThat(ex.getUriTemplate()).isEqualTo("/user/{id}"));
+    }
+
+    @Test
+    void exceptionTraceUriTemplate_placeholderUri_isEmptyWhileRpcFallsBackToPath() {
+        // No-route placeholder: the rpc keeps the raw http.url path for the transaction view, but the
+        // exception uriTemplate must not — an unrouted request groups under "" like the agent.
+        Span failing = micrometerServer("NOT_FOUND", "/no/such/path?x=1", "404")
+                .setStatus(io.opentelemetry.proto.trace.v1.Status.newBuilder().setCodeValue(io.opentelemetry.proto.trace.v1.Status.StatusCode.STATUS_CODE_ERROR_VALUE))
+                .addEvents(Span.Event.newBuilder().setName("exception").setTimeUnixNano(1_500_000_000L)
+                        .addAttributes(kv("exception.type", strVal("org.springframework.web.servlet.NoHandlerFoundException")))
+                        .addAttributes(kv("exception.message", strVal("No endpoint GET /no/such/path"))))
+                .build();
+        OtlpTraceMapperData data = map(SPRING_BOOT, failing);
+
+        assertThat(data.getSpanBoList().get(0).getRpc()).isEqualTo("/no/such/path");
+        assertThat(data.getExceptionMetaDataBoList()).singleElement()
+                .satisfies(ex -> assertThat(ex.getUriTemplate()).isEmpty());
     }
 
     @Test
