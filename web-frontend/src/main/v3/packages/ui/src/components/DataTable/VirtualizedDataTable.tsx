@@ -284,7 +284,12 @@ export function VirtualizedDataTable<TData, TValue>({
                         key={cell.id}
                         style={{ width: cell.column.getSize() }}
                         className={cn(
-                          'grow',
+                          // Rows are flex containers, so a cell's default `min-width: auto`
+                          // lets long unbreakable content push the cell past its column width
+                          // and cover the next column. `min-w-0` + `overflow-hidden` keep the
+                          // cell inside its column, and `break-words` wraps such content
+                          // instead of hiding it behind the clip.
+                          'grow min-w-0 overflow-hidden break-words',
                           (cell.column.columnDef?.meta as MetaType)?.cellClassName,
                           {
                             truncate: enableColumnResizing,
