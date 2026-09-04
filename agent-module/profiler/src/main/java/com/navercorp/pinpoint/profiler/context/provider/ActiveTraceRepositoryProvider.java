@@ -19,6 +19,11 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.navercorp.pinpoint.profiler.cache.CaffeineBuilder;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTrace;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.DefaultActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.EmptyActiveTraceRepository;
@@ -26,12 +31,15 @@ import com.navercorp.pinpoint.profiler.context.module.config.TraceAgentActiveThr
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 
 import java.util.Objects;
+import java.util.concurrent.ConcurrentMap;
 
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ActiveTraceRepositoryProvider implements Provider<ActiveTraceRepository> {
+    // memory leak defense threshold
+    private static final int DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10;
 
     private final boolean isTraceAgentActiveThread;
     private final ResponseTimeCollector responseTimeCollector;
@@ -45,10 +53,21 @@ public class ActiveTraceRepositoryProvider implements Provider<ActiveTraceReposi
 
     public ActiveTraceRepository get() {
         if (isTraceAgentActiveThread) {
-            return new DefaultActiveTraceRepository(responseTimeCollector);
+            final ConcurrentMap<ActiveTraceHandle, ActiveTrace> activeTraceInfoMap = newActiveTraceMap(DEFAULT_MAX_ACTIVE_TRACE_SIZE);
+            return new DefaultActiveTraceRepository(responseTimeCollector, activeTraceInfoMap);
         }
-        ActiveTraceRepository emptyActiveTraceRepository = new EmptyActiveTraceRepository(responseTimeCollector);
-        return emptyActiveTraceRepository;
+        return new EmptyActiveTraceRepository(responseTimeCollector);
     }
 
+    /**
+     * Bounded, oom safe map: traces that are never closed are evicted once the bound is reached.
+     */
+    private ConcurrentMap<ActiveTraceHandle, ActiveTrace> newActiveTraceMap(int maxActiveTraceSize) {
+        final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
+        cacheBuilder.initialCapacity(maxActiveTraceSize);
+        cacheBuilder.maximumSize(maxActiveTraceSize);
+
+        final Cache<ActiveTraceHandle, ActiveTrace> localCache = cacheBuilder.build();
+        return localCache.asMap();
+    }
 }

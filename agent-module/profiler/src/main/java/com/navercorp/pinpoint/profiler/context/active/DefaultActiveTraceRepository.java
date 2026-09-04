@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.profiler.cache.CaffeineBuilder;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 import org.apache.logging.log4j.LogManager;
@@ -39,9 +36,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DefaultActiveTraceRepository implements ActiveTraceRepository {
 
-    // memory leak defense threshold
-    private static final int DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10;
-
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -53,24 +47,14 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     private final HistogramSchema histogramSchema = HistogramSchemas.NORMAL_SCHEMA;
     private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(histogramSchema);
 
-    public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector) {
-        this(responseTimeCollector, DEFAULT_MAX_ACTIVE_TRACE_SIZE);
-    }
-
-    public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector, int maxActiveTraceSize) {
+    /**
+     * @param activeTraceInfoMap bounded map that holds the traces in flight; the bound is the memory leak
+     *                           defense, so the provider decides the size and the eviction policy
+     */
+    public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector, ConcurrentMap<ActiveTraceHandle, ActiveTrace> activeTraceInfoMap) {
         this.responseTimeCollector = Objects.requireNonNull(responseTimeCollector, "responseTimeCollector");
-        this.activeTraceInfoMap = createCache(maxActiveTraceSize);
+        this.activeTraceInfoMap = Objects.requireNonNull(activeTraceInfoMap, "activeTraceInfoMap");
     }
-
-    private ConcurrentMap<ActiveTraceHandle, ActiveTrace> createCache(int maxActiveTraceSize) {
-        final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
-        cacheBuilder.initialCapacity(maxActiveTraceSize);
-        cacheBuilder.maximumSize(maxActiveTraceSize);
-
-        final Cache<ActiveTraceHandle, ActiveTrace> localCache = cacheBuilder.build();
-        return localCache.asMap();
-    }
-
 
     private void remove(ActiveTraceHandle key, long purgeTime) {
         if (isDebug) {
