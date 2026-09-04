@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
-import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -79,39 +78,77 @@ public class KtorClientTraceHolder {
         }
     }
 
-    public void finishAsync(Throwable throwable) {
+    public void recordCompletion(Trace trace, Throwable throwable) {
         if (!asyncClosed.compareAndSet(false, true)) {
             return;
         }
 
-        Trace asyncTrace = null;
-        boolean blockStarted = false;
+        Trace ownedAsyncTrace = null;
         try {
-            // Other plugins may bind their own async trace to the shared coroutine binder on
-            // this thread; in that case we are only a nested participant. Track ownership via
-            // ScopeUtils so we close the trace only when we own it. ScopeUtils is Pinpoint-internal
-            // (not a plugin API surface), so re-verify entryAsyncTraceScope/leaveAsyncTraceScope/
-            // isAsyncTraceEndScope signatures on every agent bump.
-            asyncTrace = asyncContext.continueAsyncTraceObject(true);
-            if (asyncTrace == null) {
-                logger.warn("Could not continue Ktor client async trace");
+            if (trace != null) {
+                // The trace that is live at resume time belongs to whoever resumed the
+                // coroutine (the coroutines plugin's continuation trace, or the original
+                // caller). Only a span event is pushed onto it; it is never closed here.
+                recordSpanEvent(trace, throwable);
                 return;
             }
 
-            ScopeUtils.entryAsyncTraceScope(asyncTrace);
-            SpanEventRecorder recorder = asyncTrace.traceBlockBegin();
+            // No trace is live on this thread (e.g. coroutines tracing is disabled and the
+            // suspended call resumes on the client engine thread). The binder is provably
+            // empty, so the async trace created below is exclusively owned by this holder:
+            // record on it and close it, so the async chunk is flushed and the binder is
+            // restored to its previous (empty) state.
+            ownedAsyncTrace = asyncContext.continueAsyncTraceObject(true);
+            if (ownedAsyncTrace == null) {
+                logger.warn("Could not continue Ktor client async trace");
+                return;
+            }
+            recordSpanEvent(ownedAsyncTrace, throwable);
+        } catch (Throwable throwableInTrace) {
+            logger.warn(
+                    "Failed to record Ktor client completion span. {}",
+                    throwableInTrace.getMessage(),
+                    throwableInTrace
+            );
+        } finally {
+            closeOwnedAsyncTrace(ownedAsyncTrace);
+            finishAsyncState();
+        }
+    }
+
+    private void recordSpanEvent(Trace trace, Throwable throwable) {
+        boolean blockStarted = false;
+        try {
+            SpanEventRecorder recorder = trace.traceBlockBegin();
             blockStarted = true;
             recorder.recordServiceType(KtorConstants.KTOR_CLIENT_INTERNAL);
             record(recorder, throwable);
-        } catch (Throwable throwableInAsyncTrace) {
-            logger.warn(
-                    "Failed to finish Ktor client async trace. {}",
-                    throwableInAsyncTrace.getMessage(),
-                    throwableInAsyncTrace
-            );
         } finally {
-            closeAsyncTrace(asyncTrace, blockStarted);
-            finishAsyncState();
+            if (blockStarted) {
+                try {
+                    trace.traceBlockEnd();
+                } catch (Throwable endThrowable) {
+                    logger.warn("Failed to end Ktor client completion block. {}", endThrowable.getMessage(), endThrowable);
+                }
+            }
+        }
+    }
+
+    private void closeOwnedAsyncTrace(Trace ownedAsyncTrace) {
+        if (ownedAsyncTrace == null) {
+            return;
+        }
+        try {
+            ownedAsyncTrace.close();
+        } catch (Throwable closeThrowable) {
+            logger.warn("Failed to close Ktor client async trace. {}", closeThrowable.getMessage(), closeThrowable);
+        }
+        // Restore the thread binder unconditionally: the binder slot is provably ours in
+        // this path, so it must be cleared even when the trace close itself failed.
+        try {
+            asyncContext.close();
+        } catch (Throwable binderThrowable) {
+            logger.warn("Failed to close Ktor client async context. {}", binderThrowable.getMessage(), binderThrowable);
         }
     }
 
@@ -123,41 +160,6 @@ public class KtorClientTraceHolder {
         // asyncContext.close() would clear the shared thread binder and break another plugin's
         // in-flight trace. Only finish() is safe in this path.
         finishAsyncState();
-    }
-
-    private void closeAsyncTrace(Trace asyncTrace, boolean blockStarted) {
-        if (asyncTrace == null) {
-            return;
-        }
-
-        boolean scopeLeft = false;
-        try {
-            scopeLeft = ScopeUtils.leaveAsyncTraceScope(asyncTrace);
-            if (!scopeLeft) {
-                logger.warn("Failed to leave Ktor client async trace scope. {}", asyncTrace);
-            }
-        } catch (Throwable scopeThrowable) {
-            logger.warn("Failed to leave Ktor client async trace scope. {}", scopeThrowable.getMessage(), scopeThrowable);
-        }
-
-        // traceBlockEnd() must always pair with traceBlockBegin() regardless of nesting,
-        // otherwise the owning scope's close() sees an unbalanced stack id.
-        if (blockStarted) {
-            try {
-                asyncTrace.traceBlockEnd();
-            } catch (Throwable endThrowable) {
-                logger.warn("Failed to end Ktor client async trace block. {}", endThrowable.getMessage(), endThrowable);
-            }
-        }
-
-        try {
-            if (scopeLeft && ScopeUtils.isAsyncTraceEndScope(asyncTrace)) {
-                asyncTrace.close();
-                asyncContext.close();
-            }
-        } catch (Throwable closeThrowable) {
-            logger.warn("Failed to close Ktor client async trace. {}", closeThrowable.getMessage(), closeThrowable);
-        }
     }
 
     private void finishAsyncState() {
