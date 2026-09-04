@@ -686,7 +686,7 @@ class OtlpTraceMapperTest {
     }
 
     // =======================================================================
-    // URI stat collection — entry-point spans carrying http.route only
+    // URI stat collection — entry-point spans keyed by route template, or /NULL when unrouted HTTP
     // =======================================================================
 
     private static OtlpUriStatSpan uriStatSpanOf(OtlpTraceMapperData data, String uri) {
@@ -734,16 +734,50 @@ class OtlpTraceMapperTest {
     }
 
     @Test
-    void uriStat_rootWithoutRoute_notCollected() {
-        // Unrouted SERVER root: the trace itself is stored, but no uriStat record is derived —
-        // there is no raw-path fallback (low-cardinality contract).
+    void uriStat_unroutedHttpRoot_collectedUnderNullUri() {
+        // Unrouted HTTP SERVER root (url.path but no template): the trace is stored and the request
+        // is counted under the "/NULL" bucket like the agent does — never under the raw path
+        // (low-cardinality contract). The error flag still feeds the failure histogram.
+        Span okRoot = Span.newBuilder(serverRoot(ROOT_A, "GET", false))
+                .clearAttributes()
+                .addAttributes(kv("http.request.method", strVal("GET")))
+                .addAttributes(kv("url.path", strVal("/nosuchpath/123")))
+                .build();
+        Span errorRoot = withError(Span.newBuilder(serverRoot(ROOT_B, "GET", false))
+                .clearAttributes()
+                .addAttributes(kv("http.url", strVal("http://frontend:8080/nosuchpath/456")))
+                .build());
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(okRoot, errorRoot));
+
+        assertThat(data.getSpanBoList()).hasSize(2);
+        assertThat(data.getUriStatSpanList())
+                .extracting(OtlpUriStatSpan::getUri)
+                .containsExactly(OtlpTraceConstants.URI_STAT_NULL_URI, OtlpTraceConstants.URI_STAT_NULL_URI);
+        assertThat(data.getUriStatSpanList())
+                .extracting(OtlpUriStatSpan::isError)
+                .containsExactly(false, true);
+        // The stored transaction keeps the raw path (drill-down), only the uriStat key is bucketed.
+        assertThat(data.getSpanBoList()).extracting(SpanBo::getRpc).contains("/nosuchpath/123");
+    }
+
+    @Test
+    void uriStat_nonHttpRootWithoutRoute_notCollected() {
+        // A SERVER root that is neither routed nor an HTTP request (no http.*/url.* key at all,
+        // e.g. gRPC or a bare custom span): the trace is stored, but nothing is counted — "/NULL"
+        // is an HTTP bucket, not a catch-all.
         Span bareRoot = serverRoot(ROOT_A, "/api/orders", false).toBuilder()
                 .clearAttributes()
                 .build();
+        Span grpcRoot = serverRoot(ROOT_B, "GetCart", false).toBuilder()
+                .clearAttributes()
+                .addAttributes(kv("rpc.system", strVal("grpc")))
+                .addAttributes(kv("rpc.method", strVal("GetCart")))
+                .build();
 
-        OtlpTraceMapperData data = newMapper().map(resourceSpans(bareRoot));
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(bareRoot, grpcRoot));
 
-        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getSpanBoList()).hasSize(2);
         assertThat(data.getUriStatSpanList()).isEmpty();
     }
 

@@ -1347,7 +1347,7 @@ class OtlpTraceSpanMapperTest {
     }
 
     // =======================================================================
-    // getUriTemplate — URI stat template (http.route only, low-cardinality)
+    // getUriStatKey — URI stat key: route template, or /NULL for an unrouted HTTP request
     // =======================================================================
 
     private static Map<String, AttributeValue> attrs(Span span) {
@@ -1355,92 +1355,154 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
-    void uriTemplate_httpRouteOnServerSpan() {
+    void uriStatKey_httpRouteOnServerSpan() {
         Span span = serverSpan(
                 kv("http.route", strVal("/api/users/{id}")),
                 kv("url.path", strVal("/api/users/123")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isEqualTo("/api/users/{id}");
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isEqualTo("/api/users/{id}");
     }
 
     @Test
-    void uriTemplate_nullForRawPathOnly() {
-        // Unrouted HTTP (only url.path, no http.route) → null, NOT the raw path: path variables
-        // would explode the Pinot uriStat cardinality, mirroring the native agent feeding URI stat
-        // solely from recordUriTemplate.
+    void uriStatKey_rawPathOnly_isNullUri() {
+        // Unrouted HTTP (only url.path, no http.route) → "/NULL", NOT the raw path: path variables
+        // would explode the Pinot uriStat cardinality. The agent does the same — a null uriTemplate
+        // is stored under URITemplate.NULL_URI — so 404s stay visible as one bucket.
         Span span = serverSpan(kv("url.path", strVal("/api/users/123")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isNull();
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isEqualTo("/NULL");
+        assertThat(OtlpTraceConstants.URI_STAT_NULL_URI).isEqualTo("/NULL");
     }
 
     @Test
-    void uriTemplate_nullForClientSpan() {
-        // URI stat is an entry-point (server-side) statistic; client spans never contribute.
-        Span span = serverSpan(kv("http.route", strVal("/api/users/{id}"))).toBuilder()
+    void uriStatKey_legacyHttpUrlOnly_isNullUri() {
+        // Legacy semconv (Envoy, older SDKs) emits only http.url on the SERVER span — still an
+        // HTTP entry point without a template.
+        Span span = serverSpan(kv("http.url", strVal("http://frontend:8080/api/products/0PUK6V6EV0")));
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isEqualTo("/NULL");
+    }
+
+    @Test
+    void uriStatKey_httpTargetOnly_isNullUri() {
+        Span span = serverSpan(kv("http.target", strVal("/api/products/0PUK6V6EV0?x=1")));
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isEqualTo("/NULL");
+    }
+
+    @Test
+    void uriStatKey_httpMethodOnly_isNullUri() {
+        // The request method alone (stable http.request.method or legacy http.method) identifies
+        // an HTTP entry point even when the path keys were dropped by an attribute filter.
+        Span stable = serverSpan(kv("http.request.method", strVal("GET")));
+        assertThat(newMapper().getUriStatKey(stable, attrs(stable), NO_SCOPE)).isEqualTo("/NULL");
+        Span legacy = serverSpan(kv("http.method", strVal("GET")));
+        assertThat(newMapper().getUriStatKey(legacy, attrs(legacy), NO_SCOPE)).isEqualTo("/NULL");
+    }
+
+    @Test
+    void uriStatKey_serverWithoutHttpAttributes_isNull() {
+        // A SERVER span that is not an HTTP request (nothing identifies it as one) is not counted:
+        // "/NULL" is an HTTP bucket, not a catch-all for every entry point.
+        Span span = serverSpan();
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isNull();
+    }
+
+    @Test
+    void uriStatKey_grpcServer_isNull() {
+        // gRPC entry points carry rpc.method, not an HTTP request — they belong to the rpc field
+        // and the exception uriTemplate, not to URI stat.
+        Span span = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.service", strVal("oteldemo.CartService")),
+                kv("rpc.method", strVal("GetCart")));
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isNull();
+    }
+
+    @Test
+    void uriStatKey_unroutedInternalSpan_isNull() {
+        // The "/NULL" bucket is for SERVER spans only. An INTERNAL span may carry a template (see
+        // uriStatKey_httpRouteOnInternalSpan) but an unrouted one is internal work, not a request
+        // entry point, and must not inflate the bucket.
+        Span span = serverSpan(kv("url.path", strVal("/api/users/123"))).toBuilder()
+                .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
+                .build();
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isNull();
+    }
+
+    @Test
+    void uriStatKey_clientSpan_isNull() {
+        // URI stat is an entry-point (server-side) statistic; client spans never contribute —
+        // neither with a template nor as an unrouted HTTP request.
+        Span routed = serverSpan(kv("http.route", strVal("/api/users/{id}"))).toBuilder()
                 .setKindValue(Span.SpanKind.SPAN_KIND_CLIENT_VALUE)
                 .build();
-        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isNull();
+        assertThat(newMapper().getUriStatKey(routed, attrs(routed), NO_SCOPE)).isNull();
+        Span unrouted = serverSpan(kv("url.path", strVal("/api/users/123"))).toBuilder()
+                .setKindValue(Span.SpanKind.SPAN_KIND_CLIENT_VALUE)
+                .build();
+        assertThat(newMapper().getUriStatKey(unrouted, attrs(unrouted), NO_SCOPE)).isNull();
     }
 
     @Test
-    void uriTemplate_httpRouteOnInternalSpan() {
+    void uriStatKey_httpRouteOnInternalSpan() {
         // Some instrumentations expose the routed entry as an INTERNAL span carrying http.route
         // (e.g. Next.js route resolution) — the kind gate accepts SERVER and INTERNAL alike.
         Span span = serverSpan(kv("http.route", strVal("/api/users/[id]"))).toBuilder()
                 .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
                 .build();
-        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isEqualTo("/api/users/[id]");
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isEqualTo("/api/users/[id]");
     }
 
     @Test
-    void uriTemplate_nullForBlankRoute() {
-        // Real-world SDKs emit http.route as an empty string when no route matched — a blank
-        // template must not become a uriStat key.
+    void uriStatKey_blankRoute_isNullUri() {
+        // Real-world SDKs (otelgin) emit http.route as an empty string when no route matched — a
+        // blank template must not become a uriStat key; the request is unrouted HTTP → "/NULL".
         Span span = serverSpan(
                 kv("http.route", strVal("")),
                 kv("url.path", strVal("/api/users/123")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isNull();
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isEqualTo("/NULL");
     }
 
     @Test
-    void uriTemplate_nextRoute_whenNoHttpRoute() {
+    void uriStatKey_nextRoute_whenNoHttpRoute() {
         // Next.js emits its route pattern as next.route — a template like http.route, not a raw path.
         Span span = serverSpan(
                 kv("next.route", strVal("/api/products/[productId]/index")),
                 kv("url.path", strVal("/api/products/0PUK6V6EV0")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span), NO_SCOPE)).isEqualTo("/api/products/[productId]/index");
+        assertThat(newMapper().getUriStatKey(span, attrs(span), NO_SCOPE)).isEqualTo("/api/products/[productId]/index");
     }
 
     @Test
-    void uriTemplate_micrometerUri_forSpringBootScope() {
+    void uriStatKey_micrometerUri_forSpringBootScope() {
         // Spring Boot micrometer-tracing carries the matched pattern in the `uri` tag.
         Span span = serverSpan(
                 kv("uri", strVal("/user/{id}")),
                 kv("http.url", strVal("http://svc/user/42")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isEqualTo("/user/{id}");
+        assertThat(newMapper().getUriStatKey(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isEqualTo("/user/{id}");
     }
 
     @Test
-    void uriTemplate_micrometerPlaceholder_isNull() {
-        // No-route placeholders ("/**", "NOT_FOUND", ...) are not templates → no uriStat key.
+    void uriStatKey_micrometerPlaceholder_isNullUri() {
+        // No-route placeholders ("/**", "NOT_FOUND", ...) are not templates; the http.url marks
+        // the span as an unrouted HTTP request → "/NULL" (the agent stores its NOT_FOUND the same way).
         Span span = serverSpan(
                 kv("uri", strVal("NOT_FOUND")),
                 kv("http.url", strVal("http://svc/no/such/path")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isNull();
+        assertThat(newMapper().getUriStatKey(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isEqualTo("/NULL");
     }
 
     @Test
-    void uriTemplate_micrometerUri_onlyForServerKind() {
+    void uriStatKey_micrometerUri_onlyForServerKind() {
         // The micrometer `uri` tag is interpreted on SERVER spans only (same rule as the rpc).
         Span span = serverSpan(kv("uri", strVal("/user/{id}"))).toBuilder()
                 .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
                 .build();
-        assertThat(newMapper().getUriTemplate(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isNull();
+        assertThat(newMapper().getUriStatKey(span, attrs(span), scope(OtlpMicrometerAttributes.SCOPE_SPRING_BOOT, "3.5.0"))).isNull();
     }
 
     @Test
-    void uriTemplate_uriTag_ignoredOutsideMicrometerScope() {
-        // A `uri` attribute from another instrumentation is not a known template source.
+    void uriStatKey_uriTag_ignoredOutsideMicrometerScope() {
+        // A `uri` attribute from another instrumentation is not a known template source, and on
+        // its own it does not identify an HTTP request either → not counted.
         Span span = serverSpan(kv("uri", strVal("/user/{id}")));
-        assertThat(newMapper().getUriTemplate(span, attrs(span), scope("my-custom-tracer", ""))).isNull();
+        assertThat(newMapper().getUriStatKey(span, attrs(span), scope("my-custom-tracer", ""))).isNull();
     }
 
     // =======================================================================

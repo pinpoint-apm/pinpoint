@@ -140,15 +140,16 @@ public class OtlpTraceMapper {
                         final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, resourceAttributeMap);
                         mapperData.addAgentInfoBo(agentInfoBo);
 
-                        // URI stat source: only entry-point spans carrying a route template (http.route,
+                        // URI stat source: entry-point spans keyed by their route template (http.route,
                         // next.route, micrometer uri — the same template the rpc and the exception
-                        // uriTemplate resolve). The raw url.path fallback is intentionally excluded to
-                        // keep uriStat low-cardinality.
-                        final String uriTemplate = spanMapper.getUriTemplate(rootSpan, rootAttributes, rootScopedSpan.scope());
-                        if (uriTemplate != null) {
+                        // uriTemplate resolve), or by "/NULL" for an unrouted HTTP SERVER span, like the
+                        // agent. The raw url.path is never a key, to keep uriStat low-cardinality;
+                        // non-HTTP entry points (null) are not counted.
+                        final String uriStatKey = spanMapper.getUriStatKey(rootSpan, rootAttributes, rootScopedSpan.scope());
+                        if (uriStatKey != null) {
                             mapperData.addUriStatSpan(new OtlpUriStatSpan(
                                     spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(),
-                                    uriTemplate, spanBo.getStartTimeMillis(), spanBo.getElapsed(), spanBo.getErrCode() != 0));
+                                    uriStatKey, spanBo.getStartTimeMillis(), spanBo.getElapsed(), spanBo.getErrCode() != 0));
                         }
                     } catch (Exception e) {
                         errorCount++;
