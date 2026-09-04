@@ -548,18 +548,50 @@ public class OtlpTraceSpanMapper {
     }
 
     /**
-     * Returns the matched route template of a SERVER/INTERNAL entry-point span for URI stat, or null
-     * when the request was not routed. The template is the same one the rpc and the exception
-     * uriTemplate use ({@link #resolveRouteTemplate}: http.route, Next.js next.route, Spring Boot
-     * micrometer-tracing {@code uri}), so the three views agree on what "routed" means. URI stat
-     * must aggregate by this low-cardinality template only: unlike {@link #getServerSpanToRpc}, it
-     * never falls back to the raw url.path, since path variables would explode the Pinot uriStat
-     * cardinality. This mirrors the Pinpoint agent feeding URI stat solely from
-     * SpanRecorder.recordUriTemplate. Consumed keys are not tracked (throwaway set): the caller's
-     * annotation filtering is decided by {@link #map} alone.
+     * Returns the URI stat key of an entry-point span, or null when the span must not contribute
+     * to URI stat.
+     * <ol>
+     * <li>The matched route template of a SERVER/INTERNAL span — the same one the rpc and the
+     *     exception uriTemplate use ({@link #resolveRouteTemplate}: http.route, Next.js next.route,
+     *     Spring Boot micrometer-tracing {@code uri}), so the three views agree on what "routed"
+     *     means.</li>
+     * <li>{@link OtlpTraceConstants#URI_STAT_NULL_URI} ("/NULL") for an unrouted HTTP SERVER span:
+     *     one carrying an HTTP request attribute (http.request.method / http.method, url.path,
+     *     http.url, http.target) but no template. This is the agent's behavior — a null uriTemplate
+     *     is stored under "/NULL" by AsyncQueueingUriStatStorage.cleanUri — and keeps 404s and
+     *     un-instrumented frameworks visible as a single bucket.</li>
+     * <li>null otherwise: non-HTTP entry points (gRPC rpc.method-only, messaging consumers),
+     *     CLIENT spans, and INTERNAL spans without a template. Unrouted INTERNAL spans are excluded
+     *     because internal work is not a request entry point, so counting it under "/NULL" would
+     *     inflate the bucket with non-HTTP activity.</li>
+     * </ol>
+     * URI stat never falls back to the raw url.path: unlike {@link #getServerSpanToRpc}, path
+     * variables would explode the Pinot uriStat cardinality. Consumed keys are not tracked
+     * (throwaway set): the caller's annotation filtering is decided by {@link #map} alone.
      */
-    String getUriTemplate(Span span, Map<String, AttributeValue> attributes, InstrumentationScope scope) {
-        return resolveRouteTemplate(span, attributes, new HashSet<>(), OtlpMicrometerAttributes.isMicrometerScope(scope));
+    @Nullable
+    String getUriStatKey(Span span, Map<String, AttributeValue> attributes, InstrumentationScope scope) {
+        final String routeTemplate = resolveRouteTemplate(span, attributes, new HashSet<>(), OtlpMicrometerAttributes.isMicrometerScope(scope));
+        if (routeTemplate != null) {
+            return routeTemplate;
+        }
+        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE && isHttpRequest(attributes)) {
+            return OtlpTraceConstants.URI_STAT_NULL_URI;
+        }
+        return null;
+    }
+
+    /**
+     * Whether the span carries any HTTP request attribute, across the stable (http.request.method,
+     * url.path) and legacy 1.x (http.method, http.url, http.target) semconv keys. Presence alone
+     * counts: an instrumentation that emits any of these keys is an HTTP one.
+     */
+    private static boolean isHttpRequest(Map<String, AttributeValue> attributes) {
+        return attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_REQUEST_METHOD)
+                || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_METHOD)
+                || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH)
+                || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_URL)
+                || attributes.containsKey(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_TARGET);
     }
 
     public static String extractPath(String url) {

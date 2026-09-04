@@ -162,6 +162,11 @@ public class OtlpTraceConstants {
     // the Pinpoint agent's SpanRecorder.recordUriTemplate. Emitted by framework instrumentations
     // (Spring WebMVC/WebFlux, JAX-RS, etc.); absent for unrouted requests, where url.path is the fallback.
     public static final String ATTRIBUTE_KEY_HTTP_ROUTE = "http.route";
+    // URI stat bucket for an HTTP entry point whose request matched no route template. Mirrors the
+    // Pinpoint agent's URITemplate.NULL_URI: AsyncQueueingUriStatStorage.cleanUri stores a null
+    // uriTemplate under "/NULL", so unrouted traffic (404s, missing framework instrumentation)
+    // stays visible in URI stat as one low-cardinality bucket instead of being dropped.
+    public static final String URI_STAT_NULL_URI = "/NULL";
     // Next.js built-in OTel instrumentation emits next.route as the low-cardinality route template
     // (e.g. "/api/products/[productId]/index") on its SERVER span (next.span_type=BaseServer.handleRequest).
     // It is http.route's vendor equivalent — Next.js does NOT emit http.route, so this is the only
