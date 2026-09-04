@@ -39,7 +39,7 @@ public class PluginForkedTestDependencyTestDescriptor extends PluginTestDescript
 
     @Override
     public Type getType() {
-        return Type.CONTAINER_AND_TEST;
+        return Type.CONTAINER;
     }
 
     @Override
