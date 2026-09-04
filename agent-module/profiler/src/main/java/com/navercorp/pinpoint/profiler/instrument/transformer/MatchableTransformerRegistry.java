@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * @author jaehong.kim
@@ -236,18 +236,22 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     }
 
     static class IndexValue {
+        private static final AtomicLongFieldUpdater<IndexValue> ACCUMULATOR_UPDATER
+                = AtomicLongFieldUpdater.newUpdater(IndexValue.class, "accumulatorTimeMillis");
+
         private final MatcherOperand operand;
         private final ClassFileTransformer transformer;
-        private final AtomicLong accumulatorTimeMillis = new AtomicLong(0);
+        // updated through ACCUMULATOR_UPDATER: one long per index entry instead of an AtomicLong object
+        private volatile long accumulatorTimeMillis;
 
         public IndexValue(final MatcherOperand operand, final ClassFileTransformer transformer) {
-            this.operand = operand;
-            this.transformer = transformer;
+            this.operand = Objects.requireNonNull(operand, "operand");
+            this.transformer = Objects.requireNonNull(transformer, "transformer");
         }
 
         public long accumulatorTime(final long startTimeMillis) {
             final long elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis;
-            accumulatorTimeMillis.addAndGet(elapsedTimeMillis);
+            ACCUMULATOR_UPDATER.addAndGet(this, elapsedTimeMillis);
             return elapsedTimeMillis;
         }
     }
