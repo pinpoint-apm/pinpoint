@@ -49,12 +49,18 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
     // so concurrent requests cannot exhaust the heap regardless of request count or connection count.
     private final Semaphore admissionBytes;
     private final int maxInFlightBytes;
+    private final OtlpTraceIngestMetrics ingestMetrics;
 
-    public GrpcOtlpTraceService(OtlpTraceExportService exportService, Executor workerExecutor, int maxInFlightBytes) {
+    public GrpcOtlpTraceService(OtlpTraceExportService exportService, Executor workerExecutor, int maxInFlightBytes,
+                                OtlpTraceIngestMetrics ingestMetrics) {
         this.exportService = Objects.requireNonNull(exportService, "exportService");
         this.workerExecutor = Objects.requireNonNull(workerExecutor, "workerExecutor");
+        this.ingestMetrics = Objects.requireNonNull(ingestMetrics, "ingestMetrics");
         this.maxInFlightBytes = maxInFlightBytes;
         this.admissionBytes = new Semaphore(maxInFlightBytes);
+        // reserved = budget - free permits; sampled per export step (see OtlpTraceIngestMetrics).
+        ingestMetrics.registerInFlightBytes(OtlpTraceIngestMetrics.Transport.GRPC,
+                () -> (long) maxInFlightBytes - admissionBytes.availablePermits(), maxInFlightBytes);
     }
 
     @Override
@@ -66,9 +72,12 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         final int requestBytes = request.getSerializedSize();
         if (!admissionBytes.tryAcquire(requestBytes)) {
             logger.warn("Failed to export. In-flight byte budget exhausted. requestBytes={}, budget={}", requestBytes, maxInFlightBytes);
+            ingestMetrics.requestRejected(OtlpTraceIngestMetrics.Transport.GRPC, OtlpTraceIngestMetrics.RequestRejectReason.INFLIGHT_BYTES);
             safeOnError(responseObserver, ADMISSION_REJECTED);
             return;
         }
+
+        ingestMetrics.requestBytes(OtlpTraceIngestMetrics.Transport.GRPC, requestBytes);
 
         final List<ResourceSpans> resourceSpanList = request.getResourceSpansList();
         // Offload the mapping/insert work onto the worker pool so the gRPC handler thread
@@ -99,12 +108,13 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         } catch (RejectedExecutionException e) {
             admissionBytes.release(requestBytes);
             logger.warn("Failed to export. Worker executor rejected.");
+            ingestMetrics.requestRejected(OtlpTraceIngestMetrics.Transport.GRPC, OtlpTraceIngestMetrics.RequestRejectReason.EXECUTOR_REJECTED);
             safeOnError(responseObserver, EXECUTOR_REJECTED);
         }
     }
 
     private void handleExport(List<ResourceSpans> resourceSpanList, StreamObserver<ExportTraceServiceResponse> responseObserver) {
-        final OtlpTraceExportResult result = exportService.export(resourceSpanList);
+        final OtlpTraceExportResult result = exportService.export(resourceSpanList, OtlpTraceIngestMetrics.Transport.GRPC);
 
         if (OtlpTraceResponseMapper.isServerError(result)) {
             // Server-side / transient failures (HBase insert, agentInfo): ask the client to retry

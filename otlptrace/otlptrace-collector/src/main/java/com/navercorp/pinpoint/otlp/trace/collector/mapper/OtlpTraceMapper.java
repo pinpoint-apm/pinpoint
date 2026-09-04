@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
+import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceRejectReason;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
@@ -88,7 +89,10 @@ public class OtlpTraceMapper {
     // link span, find parentSpanId
     public OtlpTraceMapperData map(List<ResourceSpans> resourceSpanList) {
         final OtlpTraceMapperData mapperData = new OtlpTraceMapperData();
-        int errorCount = 0;
+        // Two distinct reject reasons that used to share one "mapping error" bucket: a mapper
+        // exception (collector-side fault candidate) vs. spans left unlinkable (client batching).
+        int mappingErrorCount = 0;
+        int orphanCount = 0;
         for (ResourceSpans resourceSpan : resourceSpanList) {
             final Map<String, AttributeValue> resourceAttributeMap = OtlpTraceMapperUtils.getAttributeValueMap(resourceSpan.getResource().getAttributesList());
             final IdAndName idAndName = getId(mapperData, resourceSpan, resourceAttributeMap);
@@ -156,7 +160,7 @@ public class OtlpTraceMapper {
                                     uriStatKey, spanBo.getStartTimeMillis(), spanBo.getElapsed(), spanBo.getErrCode() != 0));
                         }
                     } catch (Exception e) {
-                        errorCount++;
+                        mappingErrorCount++;
                         logMappingError("Failed to map span", e);
                     }
                 }
@@ -169,7 +173,7 @@ public class OtlpTraceMapper {
                             mapperData.addSpanChunkBo(spanChunkBo);
                         }
                     } catch (Exception e) {
-                        errorCount++;
+                        mappingErrorCount++;
                         logMappingError("Failed to map spanChunk", e);
                     }
                 }
@@ -178,16 +182,21 @@ public class OtlpTraceMapper {
                     // Orphan/cyclic spans that couldn't be linked into any trace tree are dropped.
                     // Reflected to the client via the rejected-span count rather than an operator log
                     // (client-data shape issue, and dumping every span would risk log flooding).
-                    errorCount += childSpanList.size();
+                    orphanCount += childSpanList.size();
                     logger.debug("Dropped unknown spans count={}", childSpanList.size());
                 }
             }
         }
 
-        if (errorCount > 0) {
+        if (mappingErrorCount > 0) {
             OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
-            rejectedSpan.putMessage("mapping error (" + errorCount + ")");
-            rejectedSpan.addCount(errorCount);
+            rejectedSpan.putMessage(OtlpTraceRejectReason.MAPPING_ERROR.message() + " (" + mappingErrorCount + ")");
+            rejectedSpan.addCount(OtlpTraceRejectReason.MAPPING_ERROR, mappingErrorCount);
+        }
+        if (orphanCount > 0) {
+            OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
+            rejectedSpan.putMessage(OtlpTraceRejectReason.ORPHAN.message() + " (" + orphanCount + ")");
+            rejectedSpan.addCount(OtlpTraceRejectReason.ORPHAN, orphanCount);
         }
         return mapperData;
     }
@@ -233,9 +242,11 @@ public class OtlpTraceMapper {
 
     private void reject(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, String message) {
         OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
-        int spansCount = resourceSpan.getScopeSpansCount();
+        // Every span of the ResourceSpans is dropped with it. (This used to add getScopeSpansCount(),
+        // the number of scope blocks, which under-reported rejected_spans to the client.)
+        int spansCount = OtlpTraceMapperUtils.countSpans(resourceSpan);
         rejectedSpan.putMessage(message + " (" + spansCount + ")");
-        rejectedSpan.addCount(spansCount);
+        rejectedSpan.addCount(OtlpTraceRejectReason.INVALID_RESOURCE, spansCount);
     }
 
     Map<ByteString, List<ScopedSpan>> getSpanMap(List<ScopeSpans> scopeSpanList, OtlpTraceCollectorRejectedSpan rejectedSpan) {
@@ -270,14 +281,14 @@ public class OtlpTraceMapper {
             // stats. Reflected to the client via the rejected-span count (same policy as the
             // orphan-span drop); debug-level log only — a client-data shape issue, and dumping
             // every span would risk log flooding.
-            rejectedSpan.putMessage("unsampled span (" + unsampledCount + ")");
-            rejectedSpan.addCount(unsampledCount);
+            rejectedSpan.putMessage(OtlpTraceRejectReason.UNSAMPLED.message() + " (" + unsampledCount + ")");
+            rejectedSpan.addCount(OtlpTraceRejectReason.UNSAMPLED, unsampledCount);
             logger.debug("Dropped unsampled spans count={}", unsampledCount);
         }
         if (invalidIdCount > 0) {
             // Same client-data reject policy as above: count into rejected_spans, debug log only.
-            rejectedSpan.putMessage("invalid id (" + invalidIdCount + ")");
-            rejectedSpan.addCount(invalidIdCount);
+            rejectedSpan.putMessage(OtlpTraceRejectReason.INVALID_ID.message() + " (" + invalidIdCount + ")");
+            rejectedSpan.addCount(OtlpTraceRejectReason.INVALID_ID, invalidIdCount);
             logger.debug("Dropped spans with invalid trace/span id count={}", invalidIdCount);
         }
         return spanMap;

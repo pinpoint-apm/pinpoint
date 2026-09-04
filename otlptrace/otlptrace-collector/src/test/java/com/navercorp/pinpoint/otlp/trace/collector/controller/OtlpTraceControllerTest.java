@@ -22,8 +22,11 @@ import com.google.protobuf.util.JsonFormat;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
+import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceRejectReason;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportResult;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
@@ -44,7 +47,9 @@ import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -62,12 +67,16 @@ class OtlpTraceControllerTest {
             "{\"traceId\":\"" + TRACE_ID_HEX + "\",\"spanId\":\"" + SPAN_ID_HEX + "\",\"name\":\"op\"}]}]}]}";
 
     private OtlpTraceExportService exportService;
+    private SimpleMeterRegistry meterRegistry;
+    private OtlpTraceIngestMetrics ingestMetrics;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         exportService = mock(OtlpTraceExportService.class);
-        OtlpTraceController controller = new OtlpTraceController(exportService);
+        meterRegistry = new SimpleMeterRegistry();
+        ingestMetrics = new OtlpTraceIngestMetrics(meterRegistry);
+        OtlpTraceController controller = new OtlpTraceController(exportService, ingestMetrics);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -77,7 +86,7 @@ class OtlpTraceControllerTest {
 
     private static OtlpTraceExportResult partialSuccessResult() {
         OtlpTraceCollectorRejectedSpan rejected = new OtlpTraceCollectorRejectedSpan();
-        rejected.addCount(5);
+        rejected.addCount(OtlpTraceRejectReason.INVALID_ID, 5);
         rejected.putMessage("invalid span");
         return new OtlpTraceExportResult(rejected, 0, "");
     }
@@ -105,7 +114,7 @@ class OtlpTraceControllerTest {
 
     @Test
     void protobuf_success() throws Exception {
-        when(exportService.export(anyList())).thenReturn(successResult());
+        when(exportService.export(anyList(), any())).thenReturn(successResult());
 
         MockHttpServletResponse response = mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_PROTOBUF)
@@ -120,7 +129,7 @@ class OtlpTraceControllerTest {
 
     @Test
     void json_success() throws Exception {
-        when(exportService.export(anyList())).thenReturn(successResult());
+        when(exportService.export(anyList(), any())).thenReturn(successResult());
 
         mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -132,7 +141,7 @@ class OtlpTraceControllerTest {
         // The hex IDs must arrive at the export service as the same raw bytes the protobuf path yields.
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<ResourceSpans>> captor = ArgumentCaptor.forClass((Class) List.class);
-        verify(exportService).export(captor.capture());
+        verify(exportService).export(captor.capture(), eq(OtlpTraceIngestMetrics.Transport.HTTP));
         Span span = captor.getValue().get(0).getScopeSpans(0).getSpans(0);
         assertThat(span.getTraceId()).isEqualTo(ByteString.copyFrom(HexFormat.of().parseHex(TRACE_ID_HEX)));
         assertThat(span.getSpanId()).isEqualTo(ByteString.copyFrom(HexFormat.of().parseHex(SPAN_ID_HEX)));
@@ -140,7 +149,7 @@ class OtlpTraceControllerTest {
 
     @Test
     void json_partialSuccess_int64AsString() throws Exception {
-        when(exportService.export(anyList())).thenReturn(partialSuccessResult());
+        when(exportService.export(anyList(), any())).thenReturn(partialSuccessResult());
 
         String body = mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +167,7 @@ class OtlpTraceControllerTest {
 
     @Test
     void json_serverError_503WithStatusBody() throws Exception {
-        when(exportService.export(anyList())).thenReturn(serverErrorResult());
+        when(exportService.export(anyList(), any())).thenReturn(serverErrorResult());
 
         String body = mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -184,6 +193,24 @@ class OtlpTraceControllerTest {
         Status status = parseJson(body, Status.newBuilder()).build();
         assertThat(status.getCode()).isEqualTo(Code.INVALID_ARGUMENT_VALUE);
         assertThat(status.getMessage()).isEqualTo("not a hexadecimal digit: \"z\" = 122");
+    }
+
+    @Test
+    void parseFailure_countsRequestRejectedParseError_andNothingElse() throws Exception {
+        mockMvc.perform(post("/v1/traces")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"resourceSpans\":[{\"scopeSpans\":[{\"spans\":[{\"traceId\":\"zz\"}]}]}]}"))
+                .andExpect(status().isBadRequest());
+
+        assertThat(meterRegistry.get(OtlpTraceIngestMetrics.REQUEST_REJECTED)
+                .tag(OtlpTraceIngestMetrics.TAG_TRANSPORT, "http")
+                .tag(OtlpTraceIngestMetrics.TAG_REASON, "parse_error")
+                .counter().count()).isEqualTo(1.0);
+        // A refused request never reaches the span-level counters.
+        assertThat(meterRegistry.get(OtlpTraceIngestMetrics.SPAN_RECEIVED)
+                .tag(OtlpTraceIngestMetrics.TAG_TRANSPORT, "http")
+                .counter().count()).isZero();
+        verify(exportService, never()).export(anyList(), any());
     }
 
     @Test
@@ -220,7 +247,7 @@ class OtlpTraceControllerTest {
 
     @Test
     void protobuf_partialSuccess() throws Exception {
-        when(exportService.export(anyList())).thenReturn(partialSuccessResult());
+        when(exportService.export(anyList(), any())).thenReturn(partialSuccessResult());
 
         byte[] body = mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_PROTOBUF)
@@ -236,7 +263,7 @@ class OtlpTraceControllerTest {
 
     @Test
     void protobuf_serverError_503WithStatusBody() throws Exception {
-        when(exportService.export(anyList())).thenReturn(serverErrorResult());
+        when(exportService.export(anyList(), any())).thenReturn(serverErrorResult());
 
         byte[] body = mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_PROTOBUF)
@@ -253,7 +280,7 @@ class OtlpTraceControllerTest {
     @Test
     void json_acceptHeaderIgnored_responseMirrorsRequestContentType() throws Exception {
         // OTLP exporters do not negotiate: the response encoding follows the request body, not Accept.
-        when(exportService.export(anyList())).thenReturn(successResult());
+        when(exportService.export(anyList(), any())).thenReturn(successResult());
 
         mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -266,7 +293,7 @@ class OtlpTraceControllerTest {
 
     @Test
     void json_emptyObject_exportsNothing() throws Exception {
-        when(exportService.export(anyList())).thenReturn(successResult());
+        when(exportService.export(anyList(), any())).thenReturn(successResult());
 
         mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -274,7 +301,7 @@ class OtlpTraceControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("{}"));
 
-        verify(exportService).export(List.of());
+        verify(exportService).export(eq(List.of()), eq(OtlpTraceIngestMetrics.Transport.HTTP));
     }
 
     @Test
@@ -291,7 +318,7 @@ class OtlpTraceControllerTest {
                         .content(new byte[0]))
                 .andExpect(status().isBadRequest());
 
-        verify(exportService, never()).export(anyList());
+        verify(exportService, never()).export(anyList(), any());
     }
 
     @Test
@@ -303,7 +330,7 @@ class OtlpTraceControllerTest {
 
     @Test
     void json_contentTypeCharsetParameter_treatedAsJson() throws Exception {
-        when(exportService.export(anyList())).thenReturn(successResult());
+        when(exportService.export(anyList(), any())).thenReturn(successResult());
 
         mockMvc.perform(post("/v1/traces")
                         .header("Content-Type", "application/json; charset=utf-8")
@@ -323,10 +350,10 @@ class OtlpTraceControllerTest {
 
     @Test
     void json_gzip_decompressedByExistingFilter() throws Exception {
-        when(exportService.export(anyList())).thenReturn(successResult());
+        when(exportService.export(anyList(), any())).thenReturn(successResult());
 
-        MockMvc mvcWithFilter = MockMvcBuilders.standaloneSetup(new OtlpTraceController(exportService))
-                .addFilters(new OtlpTraceDecompressionFilter(16 * 1024 * 1024))
+        MockMvc mvcWithFilter = MockMvcBuilders.standaloneSetup(new OtlpTraceController(exportService, ingestMetrics))
+                .addFilters(new OtlpTraceDecompressionFilter(16 * 1024 * 1024, ingestMetrics))
                 .build();
 
         ByteArrayOutputStream compressed = new ByteArrayOutputStream();

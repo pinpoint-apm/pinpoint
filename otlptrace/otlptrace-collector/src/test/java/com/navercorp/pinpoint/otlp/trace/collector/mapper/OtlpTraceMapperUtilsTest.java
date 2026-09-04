@@ -1,6 +1,9 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.google.protobuf.ByteString;
+import io.opentelemetry.proto.trace.v1.Span;
+import io.opentelemetry.proto.trace.v1.ScopeSpans;
+import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
@@ -1065,4 +1068,39 @@ class OtlpTraceMapperUtilsTest {
         assertThat((String) map.get("bin")).hasSize(10);
     }
 
+    // =======================================================================
+    // countSpans
+    // =======================================================================
+
+    private static ScopeSpans scopeWithSpans(int count) {
+        ScopeSpans.Builder scope = ScopeSpans.newBuilder();
+        for (int i = 0; i < count; i++) {
+            scope.addSpans(Span.newBuilder().setName("span-" + i));
+        }
+        return scope.build();
+    }
+
+    @Test
+    void countSpans_sumsSpansAcrossScopeBlocksAndResources() {
+        ResourceSpans twoScopes = ResourceSpans.newBuilder()
+                .addScopeSpans(scopeWithSpans(2))
+                .addScopeSpans(scopeWithSpans(1))
+                .build();
+        ResourceSpans oneScope = ResourceSpans.newBuilder()
+                .addScopeSpans(scopeWithSpans(3))
+                .build();
+
+        // Not the number of scope blocks (2), but the spans they carry.
+        assertThat(OtlpTraceMapperUtils.countSpans(twoScopes)).isEqualTo(3);
+        assertThat(OtlpTraceMapperUtils.countSpans(List.of(twoScopes, oneScope))).isEqualTo(6);
+    }
+
+    @Test
+    void countSpans_emptyInputs_returnZero() {
+        ResourceSpans emptyScope = ResourceSpans.newBuilder().addScopeSpans(ScopeSpans.getDefaultInstance()).build();
+
+        assertThat(OtlpTraceMapperUtils.countSpans(List.of())).isZero();
+        assertThat(OtlpTraceMapperUtils.countSpans(ResourceSpans.getDefaultInstance())).isZero();
+        assertThat(OtlpTraceMapperUtils.countSpans(List.of(emptyScope))).isZero();
+    }
 }

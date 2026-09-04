@@ -191,8 +191,11 @@ let the rest fall through to the OTel semconv keys.
 
 When an identifier fails validation, the **span is rejected**: the OTLP export
 call fails (gRPC `INVALID_ARGUMENT` / partial-success response on HTTP), the
-rejected-span count is incremented, and the collector logs a message like one
-of the following — the offending value is appended after `=`:
+rejected-span count is incremented — every span of the offending `ResourceSpans`
+is counted, and the collector metric `collector.otlptrace.span.rejected` records
+them under `reason=invalid_resource` (see the collector README, *Ingest metrics*,
+for the other reason codes) — and the collector logs a message like one of the
+following — the offending value is appended after `=`:
 
 | Failure | Message |
 |---|---|

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.controller;
 
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics.RequestRejectReason;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletException;
@@ -28,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -61,14 +64,23 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
     private final Semaphore admissionBytes;
     // Request-count gate: guards the servlet thread pool against a flood of small requests.
     private final Semaphore concurrency;
+    private final OtlpTraceIngestMetrics ingestMetrics;
 
-    public OtlpTraceHttpAdmissionFilter(int maxRequestBytes, int maxInFlightBytes, int maxConcurrentRequests, int retryAfterSeconds) {
+    public OtlpTraceHttpAdmissionFilter(int maxRequestBytes, int maxInFlightBytes, int maxConcurrentRequests, int retryAfterSeconds,
+                                        OtlpTraceIngestMetrics ingestMetrics) {
+        this.ingestMetrics = Objects.requireNonNull(ingestMetrics, "ingestMetrics");
         this.maxRequestBytes = maxRequestBytes;
         this.maxInFlightBytes = maxInFlightBytes;
         this.maxConcurrentRequests = maxConcurrentRequests;
         this.retryAfterSeconds = retryAfterSeconds;
         this.admissionBytes = new Semaphore(maxInFlightBytes);
         this.concurrency = new Semaphore(maxConcurrentRequests);
+        // Gate occupancy gauges (sampled per export step); both budgets are HTTP-only, kept separate
+        // from the gRPC admission on purpose.
+        ingestMetrics.registerInFlightBytes(OtlpTraceIngestMetrics.Transport.HTTP,
+                () -> (long) maxInFlightBytes - admissionBytes.availablePermits(), maxInFlightBytes);
+        ingestMetrics.registerInFlightRequests(OtlpTraceIngestMetrics.Transport.HTTP,
+                () -> maxConcurrentRequests - concurrency.availablePermits(), maxConcurrentRequests);
     }
 
     @Override
@@ -78,7 +90,7 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
         // 1) Size cap: reject before the body is buffered/parsed.
         final long contentLength = request.getContentLengthLong();
         if (contentLength > maxRequestBytes) {
-            reject(response, HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, false,
+            reject(response, HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, false, RequestRejectReason.PAYLOAD_TOO_LARGE,
                     "payload too large: contentLength=" + contentLength + ", max=" + maxRequestBytes);
             return;
         }
@@ -88,36 +100,48 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
 
         // 2) Concurrency gate.
         if (!concurrency.tryAcquire()) {
-            reject(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, true,
+            reject(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, true, RequestRejectReason.CONCURRENCY,
                     "concurrency limit exceeded: max=" + maxConcurrentRequests);
             return;
         }
         // 3) In-flight byte gate.
         if (!admissionBytes.tryAcquire(reserveBytes)) {
             concurrency.release();
-            reject(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, true,
+            reject(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, true, RequestRejectReason.INFLIGHT_BYTES,
                     "in-flight byte budget exhausted: reserve=" + reserveBytes + ", budget=" + maxInFlightBytes);
             return;
         }
 
+        // Wire bytes of the admitted request: the declared length, or — for a chunked body — what was
+        // actually read through the limiting stream (recorded after the request completes).
+        LimitedRequestWrapper limited = null;
         try {
-            final HttpServletRequest effectiveRequest = contentLength >= 0
-                    ? request
-                    // Unknown length: cap the stream so a chunked body cannot exceed maxRequestBytes in heap.
-                    : new LimitedRequestWrapper(request, maxRequestBytes);
+            final HttpServletRequest effectiveRequest;
+            if (contentLength >= 0) {
+                effectiveRequest = request;
+                ingestMetrics.requestBytes(OtlpTraceIngestMetrics.Transport.HTTP, contentLength);
+            } else {
+                // Unknown length: cap the stream so a chunked body cannot exceed maxRequestBytes in heap.
+                limited = new LimitedRequestWrapper(request, maxRequestBytes);
+                effectiveRequest = limited;
+            }
             filterChain.doFilter(effectiveRequest, response);
         } finally {
+            if (limited != null) {
+                ingestMetrics.requestBytes(OtlpTraceIngestMetrics.Transport.HTTP, limited.bytesRead());
+            }
             admissionBytes.release(reserveBytes);
             concurrency.release();
         }
     }
 
-    private void reject(HttpServletResponse response, int status, boolean retryable, String reason) {
+    private void reject(HttpServletResponse response, int status, boolean retryable, RequestRejectReason reason, String detail) {
         if (retryable) {
             response.setHeader("Retry-After", Integer.toString(retryAfterSeconds));
         }
         response.setStatus(status);
-        logger.warn("OTLP/HTTP trace request rejected. status={}, reason={}", status, reason);
+        ingestMetrics.requestRejected(OtlpTraceIngestMetrics.Transport.HTTP, reason);
+        logger.warn("OTLP/HTTP trace request rejected. status={}, reason={}, {}", status, reason.tagValue(), detail);
     }
 
     /**
@@ -125,6 +149,7 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
      */
     private static final class LimitedRequestWrapper extends HttpServletRequestWrapper {
         private final long limit;
+        private LimitedServletInputStream stream;
 
         private LimitedRequestWrapper(HttpServletRequest request, long limit) {
             super(request);
@@ -133,7 +158,15 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
 
         @Override
         public ServletInputStream getInputStream() throws IOException {
-            return new LimitedServletInputStream(super.getInputStream(), limit);
+            if (stream == null) {
+                stream = new LimitedServletInputStream(super.getInputStream(), limit);
+            }
+            return stream;
+        }
+
+        /** Bytes read so far through the limiting stream (0 when the body was never opened). */
+        long bytesRead() {
+            return stream == null ? 0 : stream.count;
         }
     }
 
