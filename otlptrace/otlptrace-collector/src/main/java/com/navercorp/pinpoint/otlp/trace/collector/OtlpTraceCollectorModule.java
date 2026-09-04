@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpUriStatService;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
@@ -104,8 +105,9 @@ public class OtlpTraceCollectorModule {
     public ServerServiceDefinition serverServiceDefinition(OtlpTraceExportService exportService,
                                                            @Qualifier("grpcOtlpTraceWorkerExecutor") Executor workerExecutor,
                                                            @Value("${pinpoint.collector.otlptrace.admission.max-in-flight-bytes:268435456}") int maxInFlightBytes,
+                                                           OtlpTraceIngestMetrics ingestMetrics,
                                                            MeterRegistry meterRegistry) {
-        BindableService spanService = new GrpcOtlpTraceService(exportService, workerExecutor, maxInFlightBytes);
+        BindableService spanService = new GrpcOtlpTraceService(exportService, workerExecutor, maxInFlightBytes, ingestMetrics);
         // gRPC server metrics (request count / latency / status code) for the OTLP trace endpoint,
         // tagged service=otlptrace to match the agent/stat/span receivers' metrics.
         final ServerInterceptor metricInterceptor = new MetricCollectingServerInterceptor(meterRegistry,

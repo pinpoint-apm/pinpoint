@@ -23,6 +23,7 @@ import com.google.rpc.Code;
 import com.google.rpc.Status;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportResult;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceResponseMapper;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
@@ -46,9 +47,11 @@ public class OtlpTraceController {
     private static final JsonFormat.Printer JSON_PRINTER = JsonFormat.printer().omittingInsignificantWhitespace();
 
     private final OtlpTraceExportService exportService;
+    private final OtlpTraceIngestMetrics ingestMetrics;
 
-    public OtlpTraceController(OtlpTraceExportService exportService) {
+    public OtlpTraceController(OtlpTraceExportService exportService, OtlpTraceIngestMetrics ingestMetrics) {
         this.exportService = Objects.requireNonNull(exportService, "exportService");
+        this.ingestMetrics = Objects.requireNonNull(ingestMetrics, "ingestMetrics");
     }
 
     // OTLP/HTTP response semantics (M-1), shared with the gRPC path via OtlpTraceResponseMapper:
@@ -68,6 +71,7 @@ public class OtlpTraceController {
         try {
             request = parseRequest(body, json);
         } catch (InvalidProtocolBufferException | OtlpTraceParseException e) {
+            ingestMetrics.requestRejected(OtlpTraceIngestMetrics.Transport.HTTP, OtlpTraceIngestMetrics.RequestRejectReason.PARSE_ERROR);
             final Status status = Status.newBuilder()
                     .setCode(Code.INVALID_ARGUMENT_VALUE)
                     .setMessage(errorMessage(e))
@@ -78,7 +82,7 @@ public class OtlpTraceController {
         }
 
         final List<ResourceSpans> resourceSpanList = request.getResourceSpansList();
-        final OtlpTraceExportResult result = exportService.export(resourceSpanList);
+        final OtlpTraceExportResult result = exportService.export(resourceSpanList, OtlpTraceIngestMetrics.Transport.HTTP);
 
         if (OtlpTraceResponseMapper.isServerError(result)) {
             // Mirror the gRPC UNAVAILABLE path with a retryable 503 carrying a google.rpc.Status body,

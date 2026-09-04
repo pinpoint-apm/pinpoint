@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceRejectReason;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -183,6 +184,38 @@ class OtlpTraceMapperTest {
         assertThat(data.getSpanBoList()).hasSize(1);
         assertThat(data.getRejectedSpan().count()).isEqualTo(1);
         assertThat(data.getRejectedSpan().getMessage()).contains("invalid id");
+    }
+
+    @Test
+    void invalidId_span_isCountedUnderInvalidIdReason() {
+        Span invalidRoot = serverRoot(new byte[8], "/bad", false);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(invalidRoot));
+
+        assertThat(data.getRejectedSpan().count(OtlpTraceRejectReason.INVALID_ID)).isEqualTo(1);
+        assertThat(data.getRejectedSpan().countByReason()).containsOnlyKeys(OtlpTraceRejectReason.INVALID_ID);
+    }
+
+    @Test
+    void invalidResource_rejectsEverySpanOfTheResource_notTheScopeBlockCount() {
+        // No pinpoint.applicationName / agentId and fallback disabled -> the whole ResourceSpans is
+        // rejected. It carries 3 spans in 2 scope blocks: rejected_spans must be 3 (the old code
+        // added getScopeSpansCount() = 2).
+        ResourceSpans noIds = ResourceSpans.newBuilder()
+                .setResource(Resource.newBuilder().addAttributes(kv("service.name", strVal("svc"))))
+                .addScopeSpans(ScopeSpans.newBuilder()
+                        .addSpans(serverRoot(ROOT_A, "/a", false))
+                        .addSpans(serverRoot(ROOT_B, "/b", false)))
+                .addScopeSpans(ScopeSpans.newBuilder()
+                        .addSpans(serverRoot(CHILD, "/c", false)))
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(List.of(noIds));
+
+        assertThat(data.getSpanBoList()).isEmpty();
+        assertThat(data.getRejectedSpan().count()).isEqualTo(3);
+        assertThat(data.getRejectedSpan().count(OtlpTraceRejectReason.INVALID_RESOURCE)).isEqualTo(3);
+        assertThat(data.getRejectedSpan().getMessage()).endsWith("(3)");
     }
 
     @Test
@@ -612,6 +645,16 @@ class OtlpTraceMapperTest {
     }
 
     @Test
+    void unsampledSpan_isCountedUnderUnsampledReason() {
+        Span unsampledRoot = withFlags(serverRoot(ROOT_A, "/api/orders", false), UNSAMPLED_FLAGS);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(unsampledRoot));
+
+        assertThat(data.getRejectedSpan().count(OtlpTraceRejectReason.UNSAMPLED)).isEqualTo(1);
+        assertThat(data.getRejectedSpan().count(OtlpTraceRejectReason.INVALID_ID)).isZero();
+    }
+
+    @Test
     void unsampledChild_droppedButSampledRootKept() {
         // per-span drop: the sampled root survives; the explicitly unsampled child is rejected
         Span root = serverRoot(ROOT_A, "/api/orders", false);
@@ -893,5 +936,30 @@ class OtlpTraceMapperTest {
         assertThat(data.getUriStatSpanList())
                 .extracting(OtlpUriStatSpan::getUri)
                 .containsExactly("/root");
+    }
+
+    // =======================================================================
+    // reject reason: orphan (unlinkable spans)
+    // =======================================================================
+
+    @Test
+    void unlinkableSpans_areCountedUnderOrphanReason() {
+        // A parentless CLIENT span becomes a local root and is stored as a spanChunk, while a
+        // two-span parent cycle (X <-> Y) hangs off no root at all: findLinkSpanChunk leaves it in
+        // the child list and the mapper drops it under the orphan reason (not mapping_error).
+        byte[] cycleX = {5, 5, 5, 5, 5, 5, 5, 5};
+        byte[] cycleY = {6, 6, 6, 6, 6, 6, 6, 6};
+        Span localRoot = clientChild(ORPHAN, ABSENT_PARENT, false);
+        Span x = clientChild(cycleX, cycleY, false);
+        Span y = clientChild(cycleY, cycleX, false);
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(localRoot, x, y));
+
+        assertThat(data.getSpanBoList()).isEmpty();
+        assertThat(data.getSpanChunkBoList()).hasSize(1);
+        assertThat(data.getRejectedSpan().count()).isEqualTo(2);
+        assertThat(data.getRejectedSpan().count(OtlpTraceRejectReason.ORPHAN)).isEqualTo(2);
+        assertThat(data.getRejectedSpan().countByReason()).containsOnlyKeys(OtlpTraceRejectReason.ORPHAN);
+        assertThat(data.getRejectedSpan().getMessage()).contains(OtlpTraceRejectReason.ORPHAN.message() + " (2)");
     }
 }

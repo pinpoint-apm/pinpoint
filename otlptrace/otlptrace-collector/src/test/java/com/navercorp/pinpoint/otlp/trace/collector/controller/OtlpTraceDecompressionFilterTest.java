@@ -21,6 +21,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockFilterChain;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.StreamUtils;
@@ -35,6 +37,39 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OtlpTraceDecompressionFilterTest {
+
+    private final SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
+    private final OtlpTraceIngestMetrics ingestMetrics = new OtlpTraceIngestMetrics(meterRegistry);
+
+    private double unsupportedEncodingCount() {
+        return meterRegistry.get(OtlpTraceIngestMetrics.REQUEST_REJECTED)
+                .tag(OtlpTraceIngestMetrics.TAG_TRANSPORT, "http")
+                .tag(OtlpTraceIngestMetrics.TAG_REASON, "unsupported_encoding")
+                .counter().count();
+    }
+
+    @Test
+    void unsupportedEncoding_countsRequestRejected() throws ServletException, IOException {
+        MockHttpServletRequest request = request("br", new byte[]{1, 2, 3});
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+        assertThat(chain.getRequest()).as("chain must not run").isNull();
+        assertThat(unsupportedEncodingCount()).isEqualTo(1.0);
+    }
+
+    @Test
+    void gzipAndIdentity_doNotCountRequestRejected() throws ServletException, IOException {
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics)
+                .doFilter(request("gzip", gzip(new byte[]{1})), new MockHttpServletResponse(), new MockFilterChain());
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics)
+                .doFilter(request(null, new byte[]{1}), new MockHttpServletResponse(), new MockFilterChain());
+
+        assertThat(unsupportedEncodingCount()).isZero();
+    }
 
     private static final int MAX_DECOMPRESSED = 1024 * 1024; // 1MB
 
@@ -62,7 +97,7 @@ class OtlpTraceDecompressionFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
 
         assertThat(chain.getRequest()).as("chain invoked with wrapped request").isNotNull();
         byte[] decoded = StreamUtils.copyToByteArray(chain.getRequest().getInputStream());
@@ -81,7 +116,7 @@ class OtlpTraceDecompressionFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
 
         jakarta.servlet.ServletRequest wrapped = chain.getRequest();
         // Servlet wrapper contract: repeated getInputStream() must return the same instance, otherwise
@@ -98,7 +133,7 @@ class OtlpTraceDecompressionFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
 
         jakarta.servlet.http.HttpServletRequest wrapped =
                 (jakarta.servlet.http.HttpServletRequest) chain.getRequest();
@@ -124,7 +159,7 @@ class OtlpTraceDecompressionFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
 
         assertThat(chain.getRequest()).isNotNull();
         assertThat(StreamUtils.copyToByteArray(chain.getRequest().getInputStream())).isEqualTo(plain);
@@ -136,7 +171,7 @@ class OtlpTraceDecompressionFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
 
         assertThat(chain.getRequest()).as("same request instance passed through").isSameAs(request);
         assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -148,7 +183,7 @@ class OtlpTraceDecompressionFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
 
         assertThat(chain.getRequest()).isSameAs(request);
         assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -160,7 +195,7 @@ class OtlpTraceDecompressionFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
 
         assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
         assertThat(chain.getRequest()).as("chain must not be invoked").isNull();
@@ -175,7 +210,7 @@ class OtlpTraceDecompressionFilterTest {
         MockFilterChain chain = new MockFilterChain();
 
         final int tinyLimit = 1024;
-        new OtlpTraceDecompressionFilter(tinyLimit).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(tinyLimit, ingestMetrics).doFilter(request, response, chain);
 
         assertThat(chain.getRequest()).isNotNull();
         assertThatThrownBy(() -> StreamUtils.copyToByteArray(chain.getRequest().getInputStream()))
@@ -189,7 +224,7 @@ class OtlpTraceDecompressionFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
-        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED).doFilter(request, response, chain);
+        new OtlpTraceDecompressionFilter(MAX_DECOMPRESSED, ingestMetrics).doFilter(request, response, chain);
 
         assertThat(chain.getRequest()).isNotNull();
         // GZIPInputStream validates the header eagerly, so opening the body fails (surfaces as a 400).

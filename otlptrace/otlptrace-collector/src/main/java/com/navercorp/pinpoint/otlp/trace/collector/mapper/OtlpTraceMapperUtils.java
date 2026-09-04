@@ -32,6 +32,8 @@ import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
+import io.opentelemetry.proto.trace.v1.ResourceSpans;
+import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -44,6 +46,23 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 public class OtlpTraceMapperUtils {
+
+    /** Number of spans carried by the export request, regardless of what happens to them later. */
+    public static int countSpans(List<ResourceSpans> resourceSpanList) {
+        int count = 0;
+        for (ResourceSpans resourceSpans : resourceSpanList) {
+            count += countSpans(resourceSpans);
+        }
+        return count;
+    }
+
+    public static int countSpans(ResourceSpans resourceSpans) {
+        int count = 0;
+        for (ScopeSpans scopeSpans : resourceSpans.getScopeSpansList()) {
+            count += scopeSpans.getSpansCount();
+        }
+        return count;
+    }
     private static final String KEY_AGENT_ID = "pinpoint.agentId";
     private static final String KEY_AGENT_NAME = "pinpoint.agentName";
     private static final String KEY_APPLICATION_NAME = "pinpoint.applicationName";

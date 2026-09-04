@@ -65,14 +65,18 @@ OTLP exporter
 1. **Byte admission**: `tryAcquire` on the Semaphore for `request.getSerializedSize()`; on failure,
    return `UNAVAILABLE` immediately. The reason for using `UNAVAILABLE` instead of `RESOURCE_EXHAUSTED`
    (OTLP exporters retry it unconditionally) is documented in a comment.
+   Counted as `collector.otlptrace.request.rejected{transport=grpc, reason=inflight_bytes}`.
 2. **Worker offload**: submitted to the worker executor via `Context.current().wrap()` — non-blocking
    for the gRPC handler thread. On queue saturation (`RejectedExecutionException`), release the permit
-   and return `UNAVAILABLE`.
+   and return `UNAVAILABLE`. Counted as `request.rejected{transport=grpc, reason=executor_rejected}` —
+   the two UNAVAILABLE causes are indistinguishable on the wire but separate in the metric.
 3. **Cancellation check**: if the client has cancelled by execution time, skip mapping; the permit is
    released in a finally block.
 4. **Response semantics**:
    - Server-side error (insert failure) → `UNAVAILABLE` for the whole batch (drives retry, prevents loss)
-   - Client data fault (mapping reject) → OTLP-spec `ExportTracePartialSuccess` (rejectedSpans + errorMessage)
+   - Client data fault (mapping reject) → OTLP-spec `ExportTracePartialSuccess` (rejectedSpans + errorMessage);
+     the same spans are counted per reason in `collector.otlptrace.span.rejected{reason}` (see
+     [Ingest metrics](#ingest-metrics))
    - Unexpected exception in the worker → `INTERNAL` (prevents a poison-data retry storm)
 
 ---
@@ -83,11 +87,12 @@ OTLP exporter
   dispatched on the request Content-Type; the response body mirrors the request encoding (per the
   OTLP/HTTP spec, no Accept negotiation). Any other Content-Type → **415**.
   **`Content-Encoding: gzip` is supported** (decompressed by `OtlpTraceDecompressionFilter`,
-  Content-Type agnostic); any other encoding → **415**.
+  Content-Type agnostic); any other encoding → **415** (`request.rejected{reason=unsupported_encoding}`).
 - Body parsing: raw `byte[]` + explicit branch — protobuf via `ExportTraceServiceRequest.parseFrom`,
   OTLP/JSON via `OtlpJsonTraceParser` (a Jackson streaming rewrite of the spec's hex-encoded
   `traceId`/`spanId`/`parentSpanId` fields to base64, then the standard proto3 `JsonFormat` parse).
-  A body that fails to parse → **400 + `google.rpc.Status`** in the request encoding.
+  A body that fails to parse → **400 + `google.rpc.Status`** in the request encoding
+  (`request.rejected{reason=parse_error}`).
 - Executed synchronously on the Tomcat request thread (no worker offload)
 
 ### Admission Filter (`OtlpTraceHttpAdmissionFilter`)
@@ -95,10 +100,10 @@ OTLP exporter
 Registered only for `/v1/traces` with `Ordered.HIGHEST_PRECEDENCE`, so it runs **before** protobuf
 deserialization. A 3-stage gate:
 
-1. Content-Length > 4MB → **413**. If the length is unknown (chunked), pessimistically reserve 4MB and
-   block on overflow via `LimitedRequestWrapper`.
-2. Concurrent-request Semaphore(64) failure → **503 + Retry-After (1s)**
-3. in-flight byte Semaphore (256MB)
+1. Content-Length > 4MB → **413** (`request.rejected{reason=payload_too_large}`). If the length is
+   unknown (chunked), pessimistically reserve 4MB and block on overflow via `LimitedRequestWrapper`.
+2. Concurrent-request Semaphore(64) failure → **503 + Retry-After (1s)** (`reason=concurrency`)
+3. in-flight byte Semaphore (256MB) failure → **503 + Retry-After (1s)** (`reason=inflight_bytes`)
 
 Permits are released in a finally block after the entire request (parse + insert) completes.
 Config keys: `pinpoint.collector.otlptrace.http.*`
@@ -121,6 +126,7 @@ The gRPC path needs no counterpart (grpc-java decompresses `grpc-encoding: gzip`
 | agentId dedup cache | Shared Caffeine bean (`otlpAgentIdCache`, thread-safe, cross-transport) | Same |
 | Execution thread | Worker executor offload | Synchronous on the Tomcat request thread |
 | Backpressure | UNAVAILABLE | 503 + Retry-After |
+| Rejection metric | `request.rejected{transport=grpc, reason=inflight_bytes\|executor_rejected}` | `request.rejected{transport=http, reason=inflight_bytes\|concurrency\|payload_too_large\|unsupported_encoding\|parse_error}` |
 | partial success | Responds per spec | **Not emitted — always 200 (bug)** |
 | Server-side error | Drives retry via UNAVAILABLE | **Always 200 → silent loss (bug)** |
 
@@ -171,6 +177,58 @@ whether a failure **surfaces before the response**:
 | spanChunk put failure | **Fully ignored** — future discarded + success event always published |
 | scatter index failure | future discarded, no metric — loss that is invisible in scatter |
 | server-map stats | Up to 5s of increments lost on process death (acceptable by design) |
+
+### Ingest metrics
+
+The pre-existing meters count **requests** (`grpc.server.requests.received{service=otlptrace}`,
+`http.server.requests{uri=/v1/traces}`) or **worker tasks** (`grpcOtlpTraceWorkerExecutor.*`, one
+task per gRPC export call). An export call is a batch of arbitrary size, so none of them yields
+spans per second. `OtlpTraceIngestMetrics` adds span-level counters to the same `MeterRegistry`
+(they reach whatever exporter the registry is wired to — no extra configuration):
+
+| Metric | Tags | Meaning |
+|---|---|---|
+| `collector.otlptrace.span.received` | `transport=grpc\|http` | spans carried by accepted export requests, counted before mapping |
+| `collector.otlptrace.span.stored` | `transport`, `type=span\|spanChunk` | root spans / orphan sub-trees handed to storage |
+| `collector.otlptrace.span.rejected` | `transport`, `reason` (table below) | spans dropped during mapping; also reported to the client as `ExportTracePartialSuccess.rejected_spans` |
+| `collector.otlptrace.request.rejected` | `transport`, `reason` (table below) | whole requests refused before mapping; the span count is unknown, so these do not appear in `span.received` |
+| `collector.otlptrace.request.bytes` | `transport` | wire bytes of admitted requests (gRPC serialized size; HTTP declared length, or bytes actually read for chunked bodies). Distribution: count / total / mean / max per step |
+| `collector.otlptrace.admission.inflight.bytes`, `.admission.limit.bytes` | `transport` | bytes currently reserved by the in-flight admission semaphore vs. the budget (`admission.max-in-flight-bytes` / `http.admission.max-in-flight-bytes`); gauges, sampled per step |
+| `collector.otlptrace.admission.inflight.requests`, `.admission.limit.requests` | `transport=http` | requests currently past the concurrency gate vs. `http.max-concurrent-requests` |
+
+Every (transport, reason) series is registered at startup, so it exists at zero before the first
+event. `received − rejected` is the number of spans that made it into transactions/span chunks;
+`received / grpcOtlpTraceWorkerExecutor.submitted` is the average batch size, `request.bytes.total`
+(rate) is the ingress in bytes per second, `request.bytes.max` against the 4MB per-request cap shows
+how close clients run to a 413 / RESOURCE_EXHAUSTED, and `admission.inflight.bytes / admission.limit.bytes`
+is the steady-state utilisation of the in-flight budget — a sub-step spike that hits the budget
+appears only as `request.rejected{reason=inflight_bytes}`.
+
+**Span reject reasons** (`OtlpTraceRejectReason`, tag `reason`) — the tag value is the stable
+identifier; renaming one is a dashboard change:
+
+| `reason` | Where | Cause | Client action |
+|---|---|---|---|
+| `unsampled` | `OtlpTraceMapper.getSpanMap` | W3C trace-flags present with the sampled bit clear | export only sampled spans (SDK sampler / exporter filter) |
+| `invalid_id` | `OtlpTraceMapper.getSpanMap` | trace/span/parent id of wrong length or all-zero | fix the SDK / propagator |
+| `invalid_resource` | `OtlpTraceMapper.getId` | no usable application/agent identifier on the `ResourceSpans` (see the top-level README, *Validation errors*); every span of that resource is rejected | fix `service.name` / `pinpoint.*` resource attributes |
+| `orphan` | end of `OtlpTraceMapper.map` | a non-root span whose parent is not in the request (batch split, dropped parent) | usually benign; check exporter batching if persistent |
+| `mapping_error` | `OtlpTraceMapper.map` (root / span-chunk try-catch) | the mapper threw on a span | collector-side fault candidate — alert on this one |
+
+**Request reject reasons** (`OtlpTraceIngestMetrics.RequestRejectReason`):
+
+| `reason` | Transport | Response | Cause |
+|---|---|---|---|
+| `inflight_bytes` | grpc, http | UNAVAILABLE / 503 + Retry-After | in-flight byte budget exhausted (`admission.max-in-flight-bytes`, `http.admission.max-in-flight-bytes`) |
+| `executor_rejected` | grpc | UNAVAILABLE | worker executor queue full |
+| `concurrency` | http | 503 + Retry-After | `http.max-concurrent-requests` reached |
+| `payload_too_large` | http | 413 | Content-Length above `http.max-request-bytes` |
+| `unsupported_encoding` | http | 415 | `Content-Encoding` other than `gzip` / `identity` |
+| `parse_error` | http | 400 | protobuf/JSON body did not parse |
+
+The first three are capacity signals (retried by the exporter, no loss); the last three are client
+faults (not retried). The gRPC `processing.duration{statusCode=UNAVAILABLE}` count equals
+`inflight_bytes + executor_rejected` for that transport.
 
 ---
 

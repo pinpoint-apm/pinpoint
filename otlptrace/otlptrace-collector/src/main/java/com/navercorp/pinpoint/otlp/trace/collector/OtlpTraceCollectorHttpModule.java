@@ -23,6 +23,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
 
 @Configuration
 public class OtlpTraceCollectorHttpModule {
@@ -40,9 +41,10 @@ public class OtlpTraceCollectorHttpModule {
             @Value("${pinpoint.collector.otlptrace.http.max-request-bytes:4194304}") int maxRequestBytes,
             @Value("${pinpoint.collector.otlptrace.http.admission.max-in-flight-bytes:268435456}") int maxInFlightBytes,
             @Value("${pinpoint.collector.otlptrace.http.max-concurrent-requests:64}") int maxConcurrentRequests,
-            @Value("${pinpoint.collector.otlptrace.http.rejected.retry-after-seconds:1}") int retryAfterSeconds) {
+            @Value("${pinpoint.collector.otlptrace.http.rejected.retry-after-seconds:1}") int retryAfterSeconds,
+            OtlpTraceIngestMetrics ingestMetrics) {
         OtlpTraceHttpAdmissionFilter filter =
-                new OtlpTraceHttpAdmissionFilter(maxRequestBytes, maxInFlightBytes, maxConcurrentRequests, retryAfterSeconds);
+                new OtlpTraceHttpAdmissionFilter(maxRequestBytes, maxInFlightBytes, maxConcurrentRequests, retryAfterSeconds, ingestMetrics);
         FilterRegistrationBean<OtlpTraceHttpAdmissionFilter> registration = new FilterRegistrationBean<>(filter);
         registration.addUrlPatterns(OTLP_HTTP_TRACES_PATH);
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
@@ -57,8 +59,9 @@ public class OtlpTraceCollectorHttpModule {
      */
     @Bean
     public FilterRegistrationBean<OtlpTraceDecompressionFilter> otlpTraceDecompressionFilter(
-            @Value("${pinpoint.collector.otlptrace.http.max-decompressed-request-bytes:16777216}") int maxDecompressedBytes) {
-        OtlpTraceDecompressionFilter filter = new OtlpTraceDecompressionFilter(maxDecompressedBytes);
+            @Value("${pinpoint.collector.otlptrace.http.max-decompressed-request-bytes:16777216}") int maxDecompressedBytes,
+            OtlpTraceIngestMetrics ingestMetrics) {
+        OtlpTraceDecompressionFilter filter = new OtlpTraceDecompressionFilter(maxDecompressedBytes, ingestMetrics);
         FilterRegistrationBean<OtlpTraceDecompressionFilter> registration = new FilterRegistrationBean<>(filter);
         registration.addUrlPatterns(OTLP_HTTP_TRACES_PATH);
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);

@@ -26,8 +26,10 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
+import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceRejectReason;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
@@ -38,6 +40,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -77,6 +80,9 @@ public class OtlpTraceExportService {
     // Null unless both uristat flags are enabled (the bean is conditional).
     private final OtlpUriStatService uriStatService;
 
+    // Span-level ingest volume (received / stored / rejected-by-reason), per transport.
+    private final OtlpTraceIngestMetrics ingestMetrics;
+
     private final Counter spanInsertErrorCounter;
     private final Counter spanChunkInsertErrorCounter;
     private final Counter agentInfoInsertErrorCounter;
@@ -90,6 +96,7 @@ public class OtlpTraceExportService {
                                   Optional<ExceptionMetaDataService> exceptionMetaDataService,
                                   Optional<OtlpUriStatService> uriStatService,
                                   @Qualifier("otlpAgentIdCache") Cache<String, Boolean> agentIdCache,
+                                  OtlpTraceIngestMetrics ingestMetrics,
                                   MeterRegistry meterRegistry) {
         this.traceServiceList = Objects.requireNonNull(traceServiceList, "traceServiceList");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
@@ -98,6 +105,7 @@ public class OtlpTraceExportService {
         this.exceptionMetaDataService = exceptionMetaDataService.orElse(null);
         this.agentIdCache = Objects.requireNonNull(agentIdCache, "agentIdCache");
         this.uriStatService = uriStatService.orElse(null);
+        this.ingestMetrics = Objects.requireNonNull(ingestMetrics, "ingestMetrics");
         Objects.requireNonNull(meterRegistry, "meterRegistry");
         this.spanInsertErrorCounter = insertErrorCounter(meterRegistry, "span");
         this.spanChunkInsertErrorCounter = insertErrorCounter(meterRegistry, "spanChunk");
@@ -113,10 +121,23 @@ public class OtlpTraceExportService {
                 .register(meterRegistry);
     }
 
-    public OtlpTraceExportResult export(List<ResourceSpans> resourceSpanList) {
+    /**
+     * Maps and stores one export request. {@code transport} only tags the ingest metrics; the
+     * response semantics are transport-agnostic (see {@link OtlpTraceResponseMapper}).
+     */
+    public OtlpTraceExportResult export(List<ResourceSpans> resourceSpanList, OtlpTraceIngestMetrics.Transport transport) {
+        // Raw span count of the request, before mapping: the only place spans/sec can be measured
+        // (a request / worker task is a batch of arbitrary size).
+        ingestMetrics.spanReceived(transport, OtlpTraceMapperUtils.countSpans(resourceSpanList));
+
         final OtlpTraceMapperData otlpTraceMapperData = otlpTraceMapper.map(resourceSpanList);
         // Mapping rejects (invalid ids, unlinkable/orphan spans) are client-side data faults.
         final OtlpTraceCollectorRejectedSpan clientRejected = otlpTraceMapperData.getRejectedSpan();
+        for (Map.Entry<OtlpTraceRejectReason, Long> rejected : clientRejected.countByReason().entrySet()) {
+            ingestMetrics.spanRejected(transport, rejected.getKey(), rejected.getValue());
+        }
+        ingestMetrics.spanStored(transport, otlpTraceMapperData.getSpanBoList().size());
+        ingestMetrics.spanChunkStored(transport, otlpTraceMapperData.getSpanChunkBoList().size());
 
         int insertErrorCount = 0;
         for (SpanBo spanBo : otlpTraceMapperData.getSpanBoList()) {
