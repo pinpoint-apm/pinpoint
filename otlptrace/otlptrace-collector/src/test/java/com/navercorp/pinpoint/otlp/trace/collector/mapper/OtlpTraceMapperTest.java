@@ -42,6 +42,7 @@ import io.opentelemetry.proto.trace.v1.SpanFlags;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.kv;
@@ -759,6 +760,100 @@ class OtlpTraceMapperTest {
                 .containsExactly(false, true);
         // The stored transaction keeps the raw path (drill-down), only the uriStat key is bucketed.
         assertThat(data.getSpanBoList()).extracting(SpanBo::getRpc).contains("/nosuchpath/123");
+    }
+
+    @Test
+    void uriStat_serverRootWrappingRoutedServerRoot_countsInnerOnly() {
+        // Node instrumentation-http (outer, raw url only) wraps the Next.js handleRequest span (inner,
+        // http.route) for one request. Both stay roots for the trace store, but URI stat counts the
+        // request once, by the inner span's template — not a second time as "/NULL".
+        Span outer = Span.newBuilder(serverRoot(ROOT_A, "GET", false))
+                .clearAttributes()
+                .addAttributes(kv("http.method", strVal("POST")))
+                .addAttributes(kv("http.url", strVal("http://frontend-proxy:8080/api/cart")))
+                .build();
+        Span inner = Span.newBuilder(serverRoot(ROOT_B, "/api/cart", false))
+                .setParentSpanId(ByteString.copyFrom(ROOT_A))
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(outer, inner));
+
+        assertThat(data.getSpanBoList()).hasSize(2);
+        assertThat(data.getUriStatSpanList())
+                .extracting(OtlpUriStatSpan::getUri)
+                .containsExactly("/api/cart");
+    }
+
+    @Test
+    void uriStat_serverRootWrappingRoutedServerRoot_bothRouted_countsOnce() {
+        // Next.js 16.2+ propagates http.route to the parent span as well: without the wrapper rule
+        // the same request would be counted twice under the same template.
+        Span outer = serverRoot(ROOT_A, "/api/cart", false);
+        Span inner = Span.newBuilder(serverRoot(ROOT_B, "/api/cart", false))
+                .setParentSpanId(ByteString.copyFrom(ROOT_A))
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(outer, inner));
+
+        assertThat(data.getUriStatSpanList())
+                .extracting(OtlpUriStatSpan::getUri)
+                .containsExactly("/api/cart");
+    }
+
+    @Test
+    void uriStat_wrappedServerRootArrivingAlone_isCounted() {
+        // The wrapper rule only sees the spans of the current ResourceSpans. When the SDK exports the
+        // inner span in a later batch, the outer span is an ordinary unrouted SERVER root here and is
+        // counted under "/NULL" — an over-count in that batch, never a lost request.
+        Span outer = Span.newBuilder(serverRoot(ROOT_A, "GET", false))
+                .clearAttributes()
+                .addAttributes(kv("http.url", strVal("http://frontend-proxy:8080/api/cart")))
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(outer));
+
+        assertThat(data.getUriStatSpanList())
+                .extracting(OtlpUriStatSpan::getUri)
+                .containsExactly(OtlpTraceConstants.URI_STAT_NULL_URI);
+    }
+
+    @Test
+    void uriStat_serverRootWithNonServerChildRoot_stillCounted() {
+        // Only a SERVER child demotes the wrapper. A CONSUMER child root (message handled inside an
+        // HTTP request) leaves the SERVER root as the URI stat entry point.
+        Span outer = serverRoot(ROOT_A, "/api/orders", false);
+        Span consumerChild = Span.newBuilder(serverRoot(ROOT_B, "orders process", false))
+                .clearAttributes()
+                .setKindValue(Span.SpanKind.SPAN_KIND_CONSUMER_VALUE)
+                .setParentSpanId(ByteString.copyFrom(ROOT_A))
+                .build();
+
+        OtlpTraceMapperData data = newMapper().map(resourceSpans(outer, consumerChild));
+
+        assertThat(data.getUriStatSpanList())
+                .extracting(OtlpUriStatSpan::getUri)
+                .containsExactly("/api/orders");
+    }
+
+    @Test
+    void findServerWrapperRoots_returnsOnlyServerParentsOfServerRoots() {
+        Span a = serverRoot(ROOT_A, "/a", false);
+        Span b = Span.newBuilder(serverRoot(ROOT_B, "/b", false))
+                .setParentSpanId(ByteString.copyFrom(ROOT_A))
+                .build();
+        Span c = serverRoot(CHILD, "/c", false); // unrelated SERVER root
+        Span internal = Span.newBuilder(serverRoot(new byte[]{4, 4, 4, 4, 4, 4, 4, 4}, "x", false))
+                .setKindValue(Span.SpanKind.SPAN_KIND_INTERNAL_VALUE)
+                .setParentSpanId(ByteString.copyFrom(CHILD))
+                .build(); // INTERNAL child does not make c a wrapper
+        List<ScopedSpan> roots = new ArrayList<>();
+        for (Span s : List.of(a, b, c, internal)) {
+            roots.add(new ScopedSpan(s, InstrumentationScope.getDefaultInstance()));
+        }
+
+        assertThat(OtlpTraceMapper.findServerWrapperRoots(roots))
+                .containsExactly(ByteString.copyFrom(ROOT_A));
+        assertThat(OtlpTraceMapper.findServerWrapperRoots(List.of(roots.get(0)))).isEmpty();
     }
 
     @Test

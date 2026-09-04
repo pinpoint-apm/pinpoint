@@ -111,6 +111,7 @@ public class OtlpTraceMapper {
                 List<ScopedSpan> rootSpanList = new ArrayList<>();
                 List<ScopedSpan> childSpanList = new ArrayList<>();
                 initRootAndChild(entry.getValue(), rootSpanList, childSpanList);
+                final Set<ByteString> uriStatWrapperRoots = findServerWrapperRoots(rootSpanList);
 
                 for (ScopedSpan rootScopedSpan : rootSpanList) {
                     try {
@@ -144,9 +145,12 @@ public class OtlpTraceMapper {
                         // next.route, micrometer uri — the same template the rpc and the exception
                         // uriTemplate resolve), or by "/NULL" for an unrouted HTTP SERVER span, like the
                         // agent. The raw url.path is never a key, to keep uriStat low-cardinality;
-                        // non-HTTP entry points (null) are not counted.
+                        // non-HTTP entry points (null) are not counted. A SERVER root that wraps another
+                        // SERVER root of the same request is skipped (findServerWrapperRoots): the inner
+                        // span is the entry point that carries the route, and counting the wrapper too
+                        // would double the request.
                         final String uriStatKey = spanMapper.getUriStatKey(rootSpan, rootAttributes, rootScopedSpan.scope());
-                        if (uriStatKey != null) {
+                        if (uriStatKey != null && !uriStatWrapperRoots.contains(rootSpan.getSpanId())) {
                             mapperData.addUriStatSpan(new OtlpUriStatSpan(
                                     spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(),
                                     uriStatKey, spanBo.getStartTimeMillis(), spanBo.getElapsed(), spanBo.getErrCode() != 0));
@@ -317,6 +321,56 @@ public class OtlpTraceMapper {
         }
 
         alignWrapperRoots(rootSpanList);
+    }
+
+    /**
+     * Span ids of the SERVER roots that have another SERVER root of the same trace as a direct
+     * child. Some instrumentations emit two SERVER spans for one request: the Node
+     * {@code @opentelemetry/instrumentation-http} span (raw url only) wraps the Next.js
+     * {@code BaseServer.handleRequest} span (http.route / next.route), and connect-go wraps the
+     * generated service handler. Both are roots for the trace store, but for URI stat the request
+     * must be counted once, by the inner span that carries the route: the wrapper would otherwise
+     * add a "/NULL" (or, once the framework propagates http.route to its parent as Next.js 16.2+
+     * does, a second template hit) per request.
+     * <p>
+     * Only spans present in this {@code rootSpanList} (one ResourceSpans, one trace) are
+     * considered. When the SDK exports the two spans in different batches, the wrapper arrives
+     * alone and is counted like any unrouted SERVER span; the failure mode is an over-count,
+     * never a lost request.
+     */
+    static Set<ByteString> findServerWrapperRoots(List<ScopedSpan> rootSpanList) {
+        // Runs once per (resource, trace) group, so the common single-SERVER case must stay
+        // allocation-free: count first, build sets only when a wrapper is possible.
+        int serverRoots = 0;
+        for (ScopedSpan scopedSpan : rootSpanList) {
+            if (scopedSpan.span().getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
+                serverRoots++;
+            }
+        }
+        if (serverRoots < 2) {
+            return Set.of();
+        }
+        final Set<ByteString> serverRootIds = new HashSet<>(serverRoots * 2);
+        for (ScopedSpan scopedSpan : rootSpanList) {
+            if (scopedSpan.span().getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
+                serverRootIds.add(scopedSpan.span().getSpanId());
+            }
+        }
+        Set<ByteString> wrappers = null;
+        for (ScopedSpan scopedSpan : rootSpanList) {
+            final Span span = scopedSpan.span();
+            if (span.getKind().getNumber() != Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
+                continue;
+            }
+            final ByteString parentSpanId = span.getParentSpanId();
+            if (!parentSpanId.isEmpty() && serverRootIds.contains(parentSpanId)) {
+                if (wrappers == null) {
+                    wrappers = new HashSet<>(4);
+                }
+                wrappers.add(parentSpanId);
+            }
+        }
+        return wrappers == null ? Set.of() : wrappers;
     }
 
     // When a thin wrapper root (e.g. CONSUMER 'receive' or INTERNAL poll loop) has its
