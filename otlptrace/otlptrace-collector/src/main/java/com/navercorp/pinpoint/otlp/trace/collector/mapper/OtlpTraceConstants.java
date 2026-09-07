@@ -137,8 +137,10 @@ public class OtlpTraceConstants {
     // (may differ from the requested alias) and wins over request.model. Tokens: current semconv
     // names input_tokens/output_tokens, the pre-rename semconv used prompt_tokens/completion_tokens,
     // and Claude Code emits bare nonstandard keys (input_tokens/output_tokens/cache_read_tokens/
-    // cache_creation_tokens); the cache pair has no semconv equivalent. Only the key actually
-    // consumed is filtered from the raw attributes — non-promoted variants survive.
+    // cache_creation_tokens). The GenAI semconv (semantic-conventions-genai, Development) names
+    // the cache pair gen_ai.usage.cache_read.input_tokens / gen_ai.usage.cache_write.input_tokens.
+    // Only the key actually consumed is filtered from the raw attributes — non-promoted variants
+    // survive.
     public static final String ATTRIBUTE_KEY_GEN_AI_RESPONSE_MODEL = "gen_ai.response.model";
     public static final String ATTRIBUTE_KEY_GEN_AI_REQUEST_MODEL = "gen_ai.request.model";
     public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_INPUT_TOKENS = "gen_ai.usage.input_tokens";
@@ -150,6 +152,12 @@ public class OtlpTraceConstants {
     // Some SDKs report only the total; consumed only when neither the input nor the output half
     // resolved — next to them a total is a derived duplicate and survives raw.
     public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_TOTAL_TOKENS = "gen_ai.usage.total_tokens";
+    // Prompt-cache token counts. Semconv: cache_read / cache_write are subsets of input_tokens
+    // (input_tokens "SHOULD include all types of input tokens, including cached tokens"). The
+    // bare Claude Code pair follows the Anthropic API instead, where input_tokens EXCLUDES the
+    // cached tokens — OtlpGenAiRecorder normalizes the usage line to the semconv meaning.
+    public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_READ_INPUT_TOKENS = "gen_ai.usage.cache_read.input_tokens";
+    public static final String ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_WRITE_INPUT_TOKENS = "gen_ai.usage.cache_write.input_tokens";
     public static final String ATTRIBUTE_KEY_CACHE_READ_TOKENS = "cache_read_tokens";
     public static final String ATTRIBUTE_KEY_CACHE_CREATION_TOKENS = "cache_creation_tokens";
     // Time to first token in milliseconds — bare nonstandard key emitted by Claude Code. OTel
@@ -177,8 +185,9 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_HTTP_URL = "http.url";
     public static final String ATTRIBUTE_KEY_HTTP_TARGET = "http.target";
     // rpc.service is deprecated in the RC semconv (folded into the fully-qualified rpc.method,
-    // e.g. "com.example.ExampleService/exampleMethod") but is kept as an endPoint fallback for
-    // 1.x SDKs that still emit it.
+    // e.g. "com.example.ExampleService/exampleMethod"). OtlpRpcMethodResolver composes the 1.x
+    // pair into that RC shape so the rpc / exception uriTemplate keys are the same for both
+    // generations, and derives the endPoint service from either key.
     public static final String ATTRIBUTE_KEY_RPC_SERVICE = "rpc.service";
     public static final String ATTRIBUTE_KEY_RPC_METHOD = "rpc.method";
     // RPC system identifier. RC semconv (Release Candidate): rpc.system.name; deprecated 1.x:
@@ -192,15 +201,21 @@ public class OtlpTraceConstants {
     public static final String RPC_SYSTEM_GRPC = "grpc";
     public static final String RPC_SYSTEM_APACHE_DUBBO = "apache_dubbo";
     public static final String RPC_SYSTEM_DUBBO = "dubbo";
-    // gRPC result status. RC semconv: rpc.response.status_code (string status NAME, e.g. "OK" /
+    // gRPC result status. RC semconv: rpc.status_code (string status NAME, e.g. "OK" /
     // "DEADLINE_EXCEEDED"; shared by all rpc systems, so it is only interpreted as a gRPC status
-    // when rpc.system(.name) == grpc). Deprecated 1.x: rpc.grpc.status_code (int 0-16);
-    // nonstandard variant grpc.status_code (numeric string) emitted by e.g. the ASP.NET Core
-    // gRPC instrumentation. Promoted to the grpc.status annotation via OtlpGrpcStatusResolver.
+    // when rpc.system(.name) == grpc). Its short-lived predecessor rpc.response.status_code
+    // (semconv 1.39-1.4x) carries the same value shape and is kept for SDKs that shipped it.
+    // Deprecated 1.x: rpc.grpc.status_code (int 0-16); nonstandard variant grpc.status_code
+    // (numeric string) emitted by e.g. the ASP.NET Core gRPC instrumentation. Promoted to the
+    // grpc.status annotation via OtlpGrpcStatusResolver.
+    public static final String ATTRIBUTE_KEY_RPC_STATUS_CODE = "rpc.status_code";
     public static final String ATTRIBUTE_KEY_RPC_RESPONSE_STATUS_CODE = "rpc.response.status_code";
     public static final String ATTRIBUTE_KEY_RPC_GRPC_STATUS_CODE = "rpc.grpc.status_code";
     public static final String ATTRIBUTE_KEY_GRPC_STATUS_CODE = "grpc.status_code";
-    public static final String ATTRIBUTE_KEY_MESSAGING_CLIENT_ID = "messaging.client_id";
+    // Messaging client identifier. Current semconv: messaging.client.id; deprecated 1.x:
+    // messaging.client_id. Resolved in that order by MessagingAttributeUtils.resolveClientId.
+    public static final String ATTRIBUTE_KEY_MESSAGING_CLIENT_ID = "messaging.client.id";
+    public static final String ATTRIBUTE_KEY_MESSAGING_CLIENT_ID_LEGACY = "messaging.client_id";
     public static final String ATTRIBUTE_KEY_SERVER_PORT = "server.port";
     public static final String ATTRIBUTE_KEY_SERVER_ADDRESS = "server.address";
     public static final String ATTRIBUTE_KEY_UPSTREAM_ADDRESS = "upstream_address";
@@ -286,6 +301,7 @@ public class OtlpTraceConstants {
             ATTRIBUTE_KEY_MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY,
             ATTRIBUTE_KEY_MESSAGING_MESSAGE_ID,
             ATTRIBUTE_KEY_MESSAGING_CLIENT_ID,
+            ATTRIBUTE_KEY_MESSAGING_CLIENT_ID_LEGACY,
             // shared network endpoint keys — consumed by the root/SpanEvent endPoint chains AND
             // by MessagingAttributeUtils.resolveEndPoint, so they stay in the static set until
             // the messaging paths join the consumedKeys mechanism.
@@ -324,12 +340,21 @@ public class OtlpTraceConstants {
     public static final List<String> HTTP_METHOD_KEYS =
             List.of(ATTRIBUTE_KEY_HTTP_REQUEST_METHOD, ATTRIBUTE_KEY_HTTP_METHOD);
 
+    // Generic (all-rpc-system) status keys, RC before its predecessor. Handled separately from
+    // GRPC_STATUS_CODE_KEYS in OtlpGrpcStatusResolver because they need the rpc-system gate.
+    // Same consumedKeys handling: only the consumed variant is filtered.
+    public static final List<String> RPC_STATUS_CODE_KEYS =
+            List.of(ATTRIBUTE_KEY_RPC_STATUS_CODE, ATTRIBUTE_KEY_RPC_RESPONSE_STATUS_CODE);
+
     // gRPC status resolution order: standard RPC semconv before the nonstandard variant.
-    // (The RC rpc.response.status_code is handled separately in OtlpGrpcStatusResolver — it
-    // needs the rpc-system gate, unlike these gRPC-specific keys.)
     // Same consumedKeys handling: only the consumed variant is filtered.
     public static final List<String> GRPC_STATUS_CODE_KEYS =
             List.of(ATTRIBUTE_KEY_RPC_GRPC_STATUS_CODE, ATTRIBUTE_KEY_GRPC_STATUS_CODE);
+
+    // Messaging client id resolution order: current semconv (messaging.client.id) before the
+    // deprecated 1.x spelling (messaging.client_id). Both are in FILTERED_ATTRIBUTE_KEY_SET.
+    public static final List<String> MESSAGING_CLIENT_ID_KEYS =
+            List.of(ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, ATTRIBUTE_KEY_MESSAGING_CLIENT_ID_LEGACY);
 
     // RPC system resolution order: RC semconv (rpc.system.name) before deprecated (rpc.system).
     // Same consumedKeys handling: only the consumed variant is filtered.

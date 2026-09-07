@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper.message;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 
@@ -79,17 +80,31 @@ public final class MessagingAttributeUtils {
     }
 
     /**
-     * Messaging endpoint with {@code messaging.client_id} fallback when no broker address
-     * is available. Shared between producer (SpanEvent) and consumer (Span) paths so both
-     * sides resolve the same value from the same OTel attributes.
+     * Messaging endpoint with client-id fallback when no broker address is available. Shared
+     * between producer (SpanEvent) and consumer (Span) paths so both sides resolve the same
+     * value from the same OTel attributes.
      */
     public static String resolveEndPoint(Map<String, AttributeValue> attributes) {
         final String broker = getBrokerAddress(attributes);
         if (broker != null) {
             return broker;
         }
-        return AttributeUtils.getAttributeStringValue(attributes,
-                OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
+        return resolveClientId(attributes);
+    }
+
+    /**
+     * Messaging client identifier: current semconv {@code messaging.client.id} first, then the
+     * deprecated 1.x spelling {@code messaging.client_id}. A blank (empty / whitespace-only) value
+     * counts as absent so the fallback order still applies. Returns {@code null} when neither is set.
+     */
+    public static String resolveClientId(Map<String, AttributeValue> attributes) {
+        for (String key : OtlpTraceConstants.MESSAGING_CLIENT_ID_KEYS) {
+            final String clientId = AttributeUtils.getAttributeStringValue(attributes, key, null);
+            if (StringUtils.hasText(clientId)) {
+                return clientId;
+            }
+        }
+        return null;
     }
 
     /**

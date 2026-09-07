@@ -355,15 +355,17 @@ public class OtlpTraceSpanMapper {
             if (httpUrl != null) {
                 return extractHostAndPort(httpUrl);
             }
-            final String rpcService = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SERVICE, null);
+            // gRPC server without an address: 1.x rpc.service, or the service part of the RC
+            // fully-qualified rpc.method (rpc.service is deprecated there).
+            final String rpcService = OtlpRpcMethodResolver.resolveService(attributes, consumedKeys);
             if (rpcService != null) {
-                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_SERVICE);
                 return rpcService;
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            // Consumer for an unsupported messaging.system: fall back to client_id.
+            // Consumer for an unsupported messaging.system: fall back to the client id
+            // (messaging.client.id, or the deprecated messaging.client_id).
             // Known systems (kafka, rabbitmq) are handled in map() via the messaging dispatch.
-            return AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
+            return MessagingAttributeUtils.resolveClientId(attributes);
         }
         return null;
     }
@@ -471,9 +473,10 @@ public class OtlpTraceSpanMapper {
                 consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_TARGET);
                 return httpTarget;
             }
-            final String rpcMethod = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD, null);
+            // gRPC server: fully-qualified "<service>/<method>" (1.x rpc.service + rpc.method are
+            // composed into the RC shape so both generations share one rpc key).
+            final String rpcMethod = OtlpRpcMethodResolver.resolve(attributes, consumedKeys);
             if (rpcMethod != null) {
-                consumedKeys.add(OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD);
                 return rpcMethod;
             }
         }
@@ -529,8 +532,9 @@ public class OtlpTraceSpanMapper {
      * Unlike {@link #getServerSpanToRpc}, there is no raw url.path / http.url / http.target fallback
      * (an unrouted request must not fan the exception groups out per request: "/users/1", "/users/2",
      * ...) and no span-name fallback. Order: route template (http.route, next.route, micrometer uri)
-     * → rpc.method (gRPC servers) → "". Never null: the agent path stores "" as well, and a null would
-     * be persisted as Pinot's STRING null sentinel and shown as the literal "null".
+     * → fully-qualified rpc method (gRPC servers, {@link OtlpRpcMethodResolver}) → "". Never null:
+     * the agent path stores "" as well, and a null would be persisted as Pinot's STRING null
+     * sentinel and shown as the literal "null".
      */
     String getExceptionUriTemplate(Span span, Map<String, AttributeValue> attributes, InstrumentationScope scope) {
         final int kind = span.getKind().getNumber();
@@ -539,8 +543,8 @@ public class OtlpTraceSpanMapper {
             if (routeTemplate != null) {
                 return routeTemplate;
             }
-            final String rpcMethod = AttributeUtils.getAttributeStringValue(attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_METHOD, null);
-            if (hasText(rpcMethod)) {
+            final String rpcMethod = OtlpRpcMethodResolver.resolve(attributes, new HashSet<>());
+            if (rpcMethod != null) {
                 return rpcMethod;
             }
         }

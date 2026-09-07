@@ -49,8 +49,16 @@ import java.util.function.Consumer;
  * the current semconv key ({@code gen_ai.usage.input_tokens} / {@code ...output_tokens}), then
  * the pre-rename semconv key ({@code ...prompt_tokens} / {@code ...completion_tokens}), then the
  * bare nonstandard key emitted by Claude Code ({@code input_tokens} / {@code output_tokens}).
- * The cache pair ({@code cache_read_tokens} / {@code cache_creation_tokens}) exists only in the
- * bare form — there is no semconv equivalent.</p>
+ * The cache pair resolves the same way: the GenAI semconv key
+ * ({@code gen_ai.usage.cache_read.input_tokens} / {@code gen_ai.usage.cache_write.input_tokens}),
+ * then the bare Claude Code key ({@code cache_read_tokens} / {@code cache_creation_tokens}).</p>
+ *
+ * <p>The {@code in} part always follows the semconv meaning — input tokens <em>including</em> the
+ * cached ones ({@code cache_r} / {@code cache_w} are subsets of it). The bare Claude Code
+ * {@code input_tokens} follows the Anthropic API instead, where the cached tokens are reported
+ * separately and excluded from {@code input_tokens}; when the input resolved from that bare key,
+ * the resolved cache parts are added to it so the usage line reads the same regardless of the
+ * emitting SDK. The raw attributes keep the original values.</p>
  *
  * <p>Bare keys are short, generic names ({@code input_tokens}, {@code ttft_ms}) that a non-LLM
  * instrumentation could coincidentally use, so the bare ladder steps apply only when the span
@@ -88,10 +96,16 @@ public final class OtlpGenAiRecorder {
     private static final String[] TOTAL_SEMCONV_KEYS = {
             OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_TOTAL_TOKENS,
     };
+    private static final String[] CACHE_READ_SEMCONV_KEYS = {
+            OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_READ_INPUT_TOKENS,
+    };
     private static final String[] CACHE_READ_BARE_KEYS = {
             OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_READ_TOKENS,
     };
-    private static final String[] CACHE_CREATION_BARE_KEYS = {
+    private static final String[] CACHE_WRITE_SEMCONV_KEYS = {
+            OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_WRITE_INPUT_TOKENS,
+    };
+    private static final String[] CACHE_WRITE_BARE_KEYS = {
             OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_CREATION_TOKENS,
     };
     private static final String[] TTFT_BARE_KEYS = {
@@ -137,38 +151,73 @@ public final class OtlpGenAiRecorder {
     }
 
     private static String composeUsage(Map<String, AttributeValue> attributes, Set<String> consumedKeys, boolean genAiContext) {
-        final long input = resolveToken(attributes, consumedKeys, INPUT_SEMCONV_KEYS, INPUT_BARE_KEYS, genAiContext);
-        final long output = resolveToken(attributes, consumedKeys, OUTPUT_SEMCONV_KEYS, OUTPUT_BARE_KEYS, genAiContext);
-        final long cacheRead = genAiContext ? firstLong(attributes, consumedKeys, CACHE_READ_BARE_KEYS) : ABSENT;
-        final long cacheCreation = genAiContext ? firstLong(attributes, consumedKeys, CACHE_CREATION_BARE_KEYS) : ABSENT;
+        final Token input = resolveToken(attributes, consumedKeys, INPUT_SEMCONV_KEYS, INPUT_BARE_KEYS, genAiContext);
+        final Token output = resolveToken(attributes, consumedKeys, OUTPUT_SEMCONV_KEYS, OUTPUT_BARE_KEYS, genAiContext);
+        final Token cacheRead = resolveToken(attributes, consumedKeys, CACHE_READ_SEMCONV_KEYS, CACHE_READ_BARE_KEYS, genAiContext);
+        final Token cacheWrite = resolveToken(attributes, consumedKeys, CACHE_WRITE_SEMCONV_KEYS, CACHE_WRITE_BARE_KEYS, genAiContext);
         // Next to a resolved input/output a total is a derived duplicate (and may disagree — the
         // raw value is the evidence), so it is consumed only when neither half resolved.
-        final long total = (input == ABSENT && output == ABSENT)
+        final long total = (input.absent() && output.absent())
                 ? firstLong(attributes, consumedKeys, TOTAL_SEMCONV_KEYS)
                 : ABSENT;
-        if (input == ABSENT && output == ABSENT && total == ABSENT
-                && cacheRead == ABSENT && cacheCreation == ABSENT) {
+        if (input.absent() && output.absent() && total == ABSENT
+                && cacheRead.absent() && cacheWrite.absent()) {
             return null;
         }
         final StringJoiner joiner = new StringJoiner(" ");
-        appendPart(joiner, "in", input);
-        appendPart(joiner, "out", output);
+        appendPart(joiner, "in", normalizeInput(input, cacheRead, cacheWrite));
+        appendPart(joiner, "out", output.value());
         appendPart(joiner, "tot", total);
-        appendPart(joiner, "cache_r", cacheRead);
-        appendPart(joiner, "cache_w", cacheCreation);
+        appendPart(joiner, "cache_r", cacheRead.value());
+        appendPart(joiner, "cache_w", cacheWrite.value());
         return joiner.toString();
     }
 
-    private static long resolveToken(Map<String, AttributeValue> attributes, Set<String> consumedKeys,
-                                     String[] semconvKeys, String[] bareKeys, boolean genAiContext) {
+    /**
+     * Semconv meaning of {@code in}: input tokens including the cached ones. A bare Claude Code
+     * {@code input_tokens} excludes them (Anthropic API semantics), so the resolved cache parts
+     * are added back; a semconv-sourced input already includes them and is left as is.
+     */
+    private static long normalizeInput(Token input, Token cacheRead, Token cacheWrite) {
+        if (input.absent() || !input.bare()) {
+            return input.value();
+        }
+        long normalized = input.value();
+        if (!cacheRead.absent()) {
+            normalized += cacheRead.value();
+        }
+        if (!cacheWrite.absent()) {
+            normalized += cacheWrite.value();
+        }
+        return normalized;
+    }
+
+    /**
+     * A resolved token count and whether it came from a bare (nonstandard) key — the bare keys
+     * carry the Anthropic token semantics, the semconv keys the OTel ones.
+     */
+    private record Token(long value, boolean bare) {
+        private static final Token NONE = new Token(ABSENT, false);
+
+        boolean absent() {
+            return value == ABSENT;
+        }
+    }
+
+    private static Token resolveToken(Map<String, AttributeValue> attributes, Set<String> consumedKeys,
+                                      String[] semconvKeys, String[] bareKeys, boolean genAiContext) {
         final long semconv = firstLong(attributes, consumedKeys, semconvKeys);
         if (semconv != ABSENT) {
-            return semconv;
+            return new Token(semconv, false);
         }
         if (!genAiContext) {
-            return ABSENT;
+            return Token.NONE;
         }
-        return firstLong(attributes, consumedKeys, bareKeys);
+        final long bare = firstLong(attributes, consumedKeys, bareKeys);
+        if (bare == ABSENT) {
+            return Token.NONE;
+        }
+        return new Token(bare, true);
     }
 
     private static void appendPart(StringJoiner joiner, String label, long value) {

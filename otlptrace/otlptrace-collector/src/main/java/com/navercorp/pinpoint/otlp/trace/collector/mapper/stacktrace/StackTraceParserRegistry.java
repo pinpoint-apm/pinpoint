@@ -48,6 +48,7 @@ public final class StackTraceParserRegistry {
 
         this.byLanguage = Map.of(
                 "java", java,
+                "kotlin", java, // opentelemetry-kotlin on JVM/Android emits java.lang.Throwable stacks
                 "nodejs", node,
                 "webjs", node, // browser JS shares the V8 stack shape
                 "python", python,

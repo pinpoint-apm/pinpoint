@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -73,20 +74,23 @@ public final class OtlpGrpcStatusResolver {
 
     /**
      * Returns the promoted gRPC status or {@code null} when none is present. The RC
-     * {@code rpc.response.status_code} carries the status NAME directly (numeric strings are
-     * translated defensively); the legacy keys carry the numeric code, typed as int (standard
-     * semconv) or as a numeric string (nonstandard variant) — both forms are accepted per key.
+     * {@code rpc.status_code} (and its predecessor {@code rpc.response.status_code}) carries the
+     * status NAME directly (numeric strings are translated defensively); the legacy keys carry
+     * the numeric code, typed as int (standard semconv) or as a numeric string (nonstandard
+     * variant) — both forms are accepted per key.
      */
     @Nullable
     public static GrpcStatus resolve(Map<String, AttributeValue> attributes) {
-        // RC generic key first — gated on the rpc system actually being grpc (peek only; the
+        // RC generic keys first — gated on the rpc system actually being grpc (peek only; the
         // status key itself is what the caller consumes via sourceKey()).
         if (isGrpcSystem(attributes)) {
-            final String status = AttributeUtils.getAttributeStringValue(
-                    attributes, OtlpTraceConstants.ATTRIBUTE_KEY_RPC_RESPONSE_STATUS_CODE, null);
-            if (status != null && !status.isEmpty()) {
-                return new GrpcStatus(normalizeStatus(status),
-                        OtlpTraceConstants.ATTRIBUTE_KEY_RPC_RESPONSE_STATUS_CODE);
+            for (String key : OtlpTraceConstants.RPC_STATUS_CODE_KEYS) {
+                final String status = AttributeUtils.getAttributeStringValue(attributes, key, null);
+                // Blank (whitespace-only) values are treated as absent so they neither get promoted
+                // as a bogus status name nor block the fallback to the predecessor / legacy keys.
+                if (StringUtils.hasText(status)) {
+                    return new GrpcStatus(normalizeStatus(status.trim()), key);
+                }
             }
         }
         for (String key : OtlpTraceConstants.GRPC_STATUS_CODE_KEYS) {
@@ -115,7 +119,7 @@ public final class OtlpGrpcStatusResolver {
      */
     private static String normalizeStatus(String status) {
         try {
-            return toStatusName(Long.parseLong(status.trim()));
+            return toStatusName(Long.parseLong(status));
         } catch (NumberFormatException e) {
             return status;
         }

@@ -788,6 +788,33 @@ class OtlpTraceSpanEventMapperTest {
     }
 
     @Test
+    void map_producer_endPoint_blankCurrentClientIdKey_fallsBackToLegacy() {
+        // A present-but-blank messaging.client.id must not win over the deprecated twin.
+        Span span = span(Span.SpanKind.SPAN_KIND_PRODUCER,
+                kv("messaging.system", strVal("kafka")),
+                kv("messaging.destination.name", strVal("orders")),
+                kv("messaging.client.id", strVal(" ")),
+                kv("messaging.client_id", strVal("legacy-1")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getEndPoint()).isEqualTo("legacy-1");
+    }
+
+    @Test
+    void map_producer_endPoint_fallsBackToCurrentClientIdKey() {
+        // Current semconv spelling messaging.client.id; the deprecated twin is only a fallback.
+        Span span = span(Span.SpanKind.SPAN_KIND_PRODUCER,
+                kv("messaging.system", strVal("kafka")),
+                kv("messaging.destination.name", strVal("orders")),
+                kv("messaging.client.id", strVal("producer-42")),
+                kv("messaging.client_id", strVal("legacy-1")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(event.getEndPoint()).isEqualTo("producer-42");
+        assertThat(attributeKeys(event)).doesNotContain("messaging.client.id", "messaging.client_id");
+    }
+
+    @Test
     void map_producer_destinationId_fallsBackToEndPoint_whenDestinationNameAbsent() {
         Span span = span(Span.SpanKind.SPAN_KIND_PRODUCER,
                 kv("messaging.system", strVal("kafka")),
@@ -873,6 +900,57 @@ class OtlpTraceSpanEventMapperTest {
         SpanEventBo event = mapSingle(span);
         assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("UNAVAILABLE");
         assertThat(attributeKeys(event)).doesNotContain("rpc.response.status_code");
+    }
+
+    @Test
+    void map_client_grpcStatus_rcStatusCode_promoted() {
+        // Current RC key rpc.status_code (replaces rpc.response.status_code and
+        // rpc.grpc.status_code): status NAME, promoted only because the rpc system is grpc.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.status_code", strVal("DEADLINE_EXCEEDED")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("DEADLINE_EXCEEDED");
+        assertThat(attributeKeys(event)).doesNotContain("rpc.status_code");
+    }
+
+    @Test
+    void map_client_grpcStatus_rcStatusCode_numericString_translated() {
+        // A sender emitting the legacy numeric shape under the new key is translated to the name.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.status_code", strVal("14")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("UNAVAILABLE");
+    }
+
+    @Test
+    void map_client_grpcStatus_rcStatusCode_winsOverPredecessor_onlyConsumedKeyRemoved() {
+        // rpc.status_code takes precedence over rpc.response.status_code; the non-consumed
+        // predecessor stays in the raw attributes.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.status_code", strVal("OK")),
+                kv("rpc.response.status_code", strVal("UNAVAILABLE")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("OK");
+        assertThat(attributeKeys(event)).doesNotContain("rpc.status_code");
+        assertThat(attributeKeys(event)).contains("rpc.response.status_code");
+    }
+
+    @Test
+    void map_client_grpcStatus_rcStatusCode_nonGrpcSystem_notPromoted() {
+        // rpc.status_code is shared by all rpc systems; a jsonrpc error code must not become a
+        // gRPC status annotation.
+        Span span = span(Span.SpanKind.SPAN_KIND_CLIENT,
+                kv("rpc.system.name", strVal("jsonrpc")),
+                kv("rpc.status_code", strVal("-32602")));
+
+        SpanEventBo event = mapSingle(span);
+        assertThat(findAnnotation(event, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isNull();
     }
 
     @Test
@@ -1227,7 +1305,8 @@ class OtlpTraceSpanEventMapperTest {
         // unclassified kind keeps the INTERNAL_METHOD fallback — the promotion is annotation-only
         assertThat(event.getServiceType()).isEqualTo(ServiceType.INTERNAL_METHOD.getCode());
         assertThat(findAnnotation(event, GEN_AI_MODEL)).isEqualTo("claude-sonnet-4-5");
-        assertThat(findAnnotation(event, GEN_AI_USAGE)).isEqualTo("in:1200 out:340 cache_r:5000 cache_w:0");
+        // bare Anthropic-style input excludes the cache → "in" normalized to the semconv meaning
+        assertThat(findAnnotation(event, GEN_AI_USAGE)).isEqualTo("in:6200 out:340 cache_r:5000 cache_w:0");
         // consumed keys leave the raw attribute list; non-promoted gen_ai keys survive
         assertThat(attributeKeys(event))
                 .doesNotContain(

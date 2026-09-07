@@ -97,13 +97,95 @@ class OtlpGenAiRecorderTest {
                 OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_READ_TOKENS, AttributeValue.of(5000L),
                 OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_CREATION_TOKENS, AttributeValue.of(0L)));
 
-        // zero is a legitimate value and stays visible
-        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("in:1200 out:340 cache_r:5000 cache_w:0");
+        // The bare Anthropic-style input_tokens excludes the cached tokens; "in" is normalized to the
+        // semconv meaning (including them): 1200 + 5000 + 0. Zero is a legitimate value and stays
+        // visible.
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("in:6200 out:340 cache_r:5000 cache_w:0");
         assertThat(consumedKeys).containsExactlyInAnyOrder(
                 OtlpTraceConstants.ATTRIBUTE_KEY_INPUT_TOKENS,
                 OtlpTraceConstants.ATTRIBUTE_KEY_OUTPUT_TOKENS,
                 OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_READ_TOKENS,
                 OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_CREATION_TOKENS);
+    }
+
+    @Test
+    void usage_bareInputWithoutCache_notAdjusted() {
+        // nothing to add back when the bare shape carries no cache parts
+        record(Map.of(
+                GEN_AI_SYSTEM, AttributeValue.of("anthropic"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_INPUT_TOKENS, AttributeValue.of(1200L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_OUTPUT_TOKENS, AttributeValue.of(340L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("in:1200 out:340");
+    }
+
+    @Test
+    void usage_semconvCacheKeys_inputAlreadyIncludesCache() {
+        // GenAI semconv shape: input_tokens includes the cached tokens, cache_* are subsets → no adjustment
+        record(Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_INPUT_TOKENS, AttributeValue.of(6200L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_OUTPUT_TOKENS, AttributeValue.of(340L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_READ_INPUT_TOKENS, AttributeValue.of(5000L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_WRITE_INPUT_TOKENS, AttributeValue.of(0L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("in:6200 out:340 cache_r:5000 cache_w:0");
+        assertThat(consumedKeys).containsExactlyInAnyOrder(
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_INPUT_TOKENS,
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_OUTPUT_TOKENS,
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_READ_INPUT_TOKENS,
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_WRITE_INPUT_TOKENS);
+    }
+
+    @Test
+    void usage_semconvCacheKeys_resolveWithoutGenAiContextMarker() {
+        // the namespaced keys are their own proof of GenAI context
+        record(Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_READ_INPUT_TOKENS, AttributeValue.of(5000L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("cache_r:5000");
+    }
+
+    @Test
+    void usage_semconvCacheKeysWinOverBare_onlyWinnerConsumed() {
+        record(Map.of(
+                GEN_AI_SYSTEM, AttributeValue.of("anthropic"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_READ_INPUT_TOKENS, AttributeValue.of(5000L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_READ_TOKENS, AttributeValue.of(999L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("cache_r:5000");
+        assertThat(consumedKeys).containsExactly(OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_READ_INPUT_TOKENS);
+    }
+
+    @Test
+    void usage_bareInputWithSemconvCache_inputAdjusted() {
+        // mixed: the input came from the bare (exclusive) key, so the cache parts are added back
+        // whichever key they resolved from
+        record(Map.of(
+                GEN_AI_SYSTEM, AttributeValue.of("anthropic"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_INPUT_TOKENS, AttributeValue.of(1200L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_CACHE_READ_INPUT_TOKENS, AttributeValue.of(5000L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("in:6200 cache_r:5000");
+    }
+
+    @Test
+    void usage_semconvInputWithBareCache_inputNotAdjusted() {
+        // mixed the other way: a semconv input already includes the cache, whatever key the cache used
+        record(Map.of(
+                OtlpTraceConstants.ATTRIBUTE_KEY_GEN_AI_USAGE_INPUT_TOKENS, AttributeValue.of(6200L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_READ_TOKENS, AttributeValue.of(5000L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("in:6200 cache_r:5000");
+    }
+
+    @Test
+    void usage_bareCacheOnly_noInputToAdjust() {
+        record(Map.of(
+                GEN_AI_SYSTEM, AttributeValue.of("anthropic"),
+                OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_READ_TOKENS, AttributeValue.of(5000L),
+                OtlpTraceConstants.ATTRIBUTE_KEY_CACHE_CREATION_TOKENS, AttributeValue.of(120L)));
+
+        assertThat(annotationValue(AnnotationKey.GEN_AI_USAGE)).isEqualTo("cache_r:5000 cache_w:120");
     }
 
     @Test

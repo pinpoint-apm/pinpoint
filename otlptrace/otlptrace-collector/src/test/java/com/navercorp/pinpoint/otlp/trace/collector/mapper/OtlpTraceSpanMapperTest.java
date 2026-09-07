@@ -407,6 +407,66 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
+    void map_consumer_kafka_endPointFallsBackToCurrentClientIdKey() {
+        // Current semconv spelling messaging.client.id (messaging.client_id is deprecated).
+        Span span = consumerKafkaSpan(
+                kv("messaging.client.id", strVal("consumer-42"))
+        );
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("consumer-42");
+        // both spellings are in the static filtered set
+        assertThat(attributeKeys(bo)).doesNotContain("messaging.client.id", "messaging.client_id");
+    }
+
+    @Test
+    void map_consumer_kafka_blankCurrentClientIdKey_fallsBackToLegacy() {
+        // A present-but-blank messaging.client.id is treated as absent: the deprecated twin still
+        // supplies the endPoint instead of an empty string.
+        Span span = consumerKafkaSpan(
+                kv("messaging.client.id", strVal("   ")),
+                kv("messaging.client_id", strVal("legacy-1"))
+        );
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("legacy-1");
+    }
+
+    @Test
+    void map_consumer_kafka_blankClientIdKeysOnly_noEndPoint() {
+        Span span = consumerKafkaSpan(
+                kv("messaging.client.id", strVal("")),
+                kv("messaging.client_id", strVal(" "))
+        );
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isNull();
+    }
+
+    @Test
+    void map_consumer_kafka_currentClientIdKeyWinsOverLegacy() {
+        Span span = consumerKafkaSpan(
+                kv("messaging.client.id", strVal("consumer-42")),
+                kv("messaging.client_id", strVal("legacy-1"))
+        );
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("consumer-42");
+    }
+
+    @Test
+    void map_consumer_unsupportedSystem_endPointFallsBackToCurrentClientIdKey() {
+        // Unsupported messaging.system takes the generic consumer fallback in
+        // getRootSpanToEndPoint, which must accept the current client id key too.
+        Span span = Span.newBuilder()
+                .setName("jobs process")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_CONSUMER_VALUE)
+                .addAttributes(kv("messaging.system", strVal("nats")))
+                .addAttributes(kv("messaging.client.id", strVal("nats-client-7")))
+                .build();
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("nats-client-7");
+    }
+
+    @Test
     void map_consumer_kafka_acceptorHostUsesBroker() {
         Span span = consumerKafkaSpan(
                 kv("server.address", strVal("broker1.example.com")),
@@ -622,11 +682,21 @@ class OtlpTraceSpanMapperTest {
 
     @Test
     void exceptionUriTemplate_rpcMethod_forGrpcServer() {
+        // 1.x pair is composed into the RC fully-qualified form so both generations share one key.
         Span span = kindSpan(Span.SpanKind.SPAN_KIND_SERVER_VALUE, "oteldemo.CheckoutService/PlaceOrder",
                 kv("rpc.system", strVal("grpc")),
                 kv("rpc.service", strVal("oteldemo.CheckoutService")),
                 kv("rpc.method", strVal("PlaceOrder")));
-        assertThat(exceptionUriTemplate(span)).isEqualTo("PlaceOrder");
+        assertThat(exceptionUriTemplate(span)).isEqualTo("oteldemo.CheckoutService/PlaceOrder");
+    }
+
+    @Test
+    void exceptionUriTemplate_rcFullyQualifiedRpcMethod_passedThrough() {
+        // RC semconv: rpc.method already fully-qualified, rpc.service absent.
+        Span span = kindSpan(Span.SpanKind.SPAN_KIND_SERVER_VALUE, "oteldemo.CheckoutService/PlaceOrder",
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.method", strVal("oteldemo.CheckoutService/PlaceOrder")));
+        assertThat(exceptionUriTemplate(span)).isEqualTo("oteldemo.CheckoutService/PlaceOrder");
     }
 
     @Test
@@ -1066,14 +1136,75 @@ class OtlpTraceSpanMapperTest {
 
     @Test
     void map_server_rpcServiceAndMethod_consumed_filtered() {
-        // rpc.service → endPoint, rpc.method → rpc; both consumed → both filtered.
+        // 1.x pair: rpc.service → endPoint, rpc.service/rpc.method → rpc (RC form); both consumed → both filtered.
         Span span = serverSpan(
                 kv("rpc.service", strVal("oteldemo.CartService")),
                 kv("rpc.method", strVal("AddItem")));
         SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
-        assertThat(bo.getRpc()).isEqualTo("AddItem");
+        assertThat(bo.getRpc()).isEqualTo("oteldemo.CartService/AddItem");
         assertThat(bo.getEndPoint()).isEqualTo("oteldemo.CartService");
         assertThat(attributeKeys(bo)).doesNotContain("rpc.service", "rpc.method");
+    }
+
+    @Test
+    void map_server_rcFullyQualifiedRpcMethod_rpcAndEndPoint() {
+        // RC semconv: only rpc.method ("<service>/<method>"); the endPoint service is derived from it.
+        Span span = serverSpan(
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.method", strVal("oteldemo.CartService/AddItem")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo("oteldemo.CartService/AddItem");
+        assertThat(bo.getEndPoint()).isEqualTo("oteldemo.CartService");
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.method");
+    }
+
+    @Test
+    void map_server_staleRpcServiceNextToRcMethod_notPrefixedTwice_bothFiltered() {
+        // A dual-emitting migration SDK: the RC rpc.method is passed through; rpc.service still
+        // serves the endPoint fallback, so both keys end up consumed.
+        Span span = serverSpan(
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.service", strVal("oteldemo.CartService")),
+                kv("rpc.method", strVal("oteldemo.CartService/AddItem")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo("oteldemo.CartService/AddItem");
+        assertThat(bo.getEndPoint()).isEqualTo("oteldemo.CartService");
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.service", "rpc.method");
+    }
+
+    @Test
+    void map_server_blankRpcMethod_rpcFallsBackToSpanName() {
+        // A blank rpc.method is treated as absent (previously it became an empty rpc); the span
+        // name is the last fallback and the untouched attribute is retained.
+        Span span = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.method", strVal("  ")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo("HTTP GET /api");
+        assertThat(attributeKeys(bo)).contains("rpc.method");
+    }
+
+    @Test
+    void map_server_rpcMethodWithoutService_staysBare() {
+        // 1.x sender that omits rpc.service: nothing to qualify with, and no endPoint service.
+        Span span = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.method", strVal("AddItem")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getRpc()).isEqualTo("AddItem");
+        assertThat(bo.getEndPoint()).isNull();
+    }
+
+    @Test
+    void map_server_rpcMethod_serverAddressWinsOverDerivedService() {
+        // The address keys stay first in the endPoint chain; the rpc service is only a fallback.
+        Span span = serverSpan(
+                kv("server.address", strVal("cart.svc")),
+                kv("server.port", intVal(7070)),
+                kv("rpc.method", strVal("oteldemo.CartService/AddItem")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getEndPoint()).isEqualTo("cart.svc:7070");
+        assertThat(bo.getRpc()).isEqualTo("oteldemo.CartService/AddItem");
     }
 
     @Test
@@ -1215,6 +1346,80 @@ class OtlpTraceSpanMapperTest {
         SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isNull();
         assertThat(attributeKeys(bo)).contains("rpc.response.status_code");
+    }
+
+    @Test
+    void map_server_grpcStatus_rcStatusCode_promoted_filtered() {
+        // Current RC key rpc.status_code (successor of rpc.response.status_code) on the root span.
+        Span span = serverSpan(
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.status_code", strVal("UNAVAILABLE")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("UNAVAILABLE");
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.status_code");
+    }
+
+    @Test
+    void map_server_grpcStatus_rcStatusCode_winsOverPredecessorAndLegacy_onlyConsumedFiltered() {
+        // A triple-emitting migration SDK: rpc.status_code wins; the non-consumed twins stay raw.
+        Span span = serverSpan(
+                kv("rpc.system.name", strVal("grpc")),
+                kv("rpc.status_code", strVal("OK")),
+                kv("rpc.response.status_code", strVal("UNAVAILABLE")),
+                kv("rpc.grpc.status_code", intVal(14)));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("OK");
+        assertThat(attributeKeys(bo)).doesNotContain("rpc.status_code")
+                .contains("rpc.response.status_code", "rpc.grpc.status_code");
+    }
+
+    @Test
+    void map_server_rpcStatusCode_withoutRpcSystem_notPromoted() {
+        // The generic keys need the rpc-system gate; without it only the gRPC-specific legacy
+        // keys are considered, so nothing is promoted and the raw attribute is retained.
+        Span span = serverSpan(kv("rpc.status_code", strVal("UNAVAILABLE")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isNull();
+        assertThat(attributeKeys(bo)).contains("rpc.status_code");
+    }
+
+    @Test
+    void map_server_grpcStatus_blankRcStatusCode_treatedAsAbsent_fallsBackToLegacy() {
+        // A whitespace-only rpc.status_code is not a status name: it must neither be promoted
+        // nor block the fallback to the legacy numeric key. The blank attribute itself is not
+        // consumed, so it stays in the raw attribute list.
+        Span span = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.status_code", strVal("   ")),
+                kv("rpc.grpc.status_code", intVal(14)));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isEqualTo("UNAVAILABLE");
+        assertThat(attributeKeys(bo)).contains("rpc.status_code").doesNotContain("rpc.grpc.status_code");
+    }
+
+    @Test
+    void map_server_grpcStatus_blankRcStatusCodeOnly_notPromoted() {
+        Span span = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.status_code", strVal(" ")));
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(findAnnotation(bo, OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS)).isNull();
+        assertThat(attributeKeys(bo)).contains("rpc.status_code");
+    }
+
+    @Test
+    void map_server_grpcStatus_paddedRcStatusCode_trimmed() {
+        // Surrounding whitespace is stripped before promotion, for names and numeric strings alike.
+        Span named = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.status_code", strVal(" DEADLINE_EXCEEDED ")));
+        assertThat(findAnnotation(newMapper().map(id(), named, NO_SCOPE), OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS))
+                .isEqualTo("DEADLINE_EXCEEDED");
+        Span numeric = serverSpan(
+                kv("rpc.system", strVal("grpc")),
+                kv("rpc.status_code", strVal(" 4 ")));
+        assertThat(findAnnotation(newMapper().map(id(), numeric, NO_SCOPE), OtlpTraceConstants.ANNOTATION_KEY_GRPC_STATUS))
+                .isEqualTo("DEADLINE_EXCEEDED");
     }
 
     @Test
