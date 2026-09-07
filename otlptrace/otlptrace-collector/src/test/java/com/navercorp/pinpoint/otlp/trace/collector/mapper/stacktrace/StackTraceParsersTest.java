@@ -253,6 +253,14 @@ class StackTraceParsersTest {
     }
 
     @Test
+    void kotlinLanguage_mapsToJavaParser() {
+        // telemetry.sdk.language=kotlin (opentelemetry-kotlin on JVM/Android) emits JVM stacks.
+        // The attribute mapping must win even when the content alone would not sniff as java.
+        assertThat(registry.select("kotlin", JAVA_STACK).name()).isEqualTo("java");
+        assertThat(registry.select("Kotlin", RUBY_STACK).name()).isEqualTo("java");
+    }
+
+    @Test
     void sink_capsFramesAndMarksTruncated() {
         StackFrameSink sink = new StackFrameSink(2);
         registry.rawFallback().parse("a\nb\nc\nd", sink);

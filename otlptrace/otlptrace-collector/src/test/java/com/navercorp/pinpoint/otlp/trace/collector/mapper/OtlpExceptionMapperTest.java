@@ -344,6 +344,28 @@ class OtlpExceptionMapperTest {
     }
 
     @Test
+    void map_kotlinSdkLanguage_parsedWithJavaParser() {
+        // telemetry.sdk.language=kotlin (opentelemetry-kotlin on JVM/Android): the stack is a
+        // java.lang.Throwable print, so the Java parser is selected by the attribute.
+        String stackTrace = "java.lang.IllegalStateException: boom\n"
+                + "\tat com.example.OrderService.place(OrderService.kt:42)\n"
+                + "\tat com.example.OrderController.post(OrderController.kt:17)\n";
+        Span span = spanBuilder(EXCEPTION_SPAN_ID)
+                .addEvents(exceptionEvent(exceptionType("java.lang.IllegalStateException"),
+                        kv("exception.stacktrace", strVal(stackTrace))))
+                .build();
+
+        ExceptionWrapperBo wrapper = mapper.map(id(), span, ROOT_SPAN_ID_LONG, "/api/orders", "kotlin")
+                .orElseThrow().getExceptionWrapperBos().get(0);
+
+        assertThat(wrapper.getStackTraceElements()).hasSize(2);
+        assertThat(wrapper.getStackTraceElements().get(0).getClassName()).isEqualTo("com.example.OrderService");
+        assertThat(wrapper.getStackTraceElements().get(0).getMethodName()).isEqualTo("place");
+        assertThat(wrapper.getStackTraceElements().get(0).getFileName()).isEqualTo("OrderService.kt");
+        assertThat(wrapper.getStackTraceElements().get(0).getLineNumber()).isEqualTo(42);
+    }
+
+    @Test
     void map_unrecognizedStackTraceFormat_keptAsRawLineFrames() {
         // Ruby-style stack under no language attribute: no parser matches, but the frames must not
         // be dropped — an empty list would collapse every unparsed exception into one shared
