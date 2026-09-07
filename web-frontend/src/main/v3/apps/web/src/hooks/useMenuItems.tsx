@@ -43,6 +43,9 @@ export const useMenuItems = () => {
       name: 'Servermap',
       path: APP_PATH.SERVER_MAP,
       href: getServerMapPath(application, searchParameters),
+      // servicemap이 servermap 자리를 대체하는 로드맵이라, 켜져 있으면 servermap은 감춘다.
+      // 둘을 함께 노출하면 같은 자리에 이름만 다른 map 메뉴가 두 개 보인다.
+      hide: enableServiceMap,
     },
     {
       icon: <PiTreeStructure />,

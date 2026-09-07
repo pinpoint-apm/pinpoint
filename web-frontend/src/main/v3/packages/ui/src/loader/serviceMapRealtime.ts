@@ -3,6 +3,7 @@ import { DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms';
 import { getRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { getServiceMapRealtimePath, parseServiceScopedPath } from '@pinpoint-fe/ui/src/utils';
 import { LoaderFunctionArgs, redirect } from 'react-router';
+import { resolveHiddenMapPageRedirect } from './hiddenMapPage';
 
 /**
  * servicemap 실시간 보기의 라우트 로더.
@@ -21,8 +22,15 @@ import { LoaderFunctionArgs, redirect } from 'react-router';
  * 현재 service가 DEFAULT도 아닌 옛 링크는 둘 다 걸리는데, 나눠 두면 service를 붙인 경로로 갔다가
  * application을 떼려고 또 한 번 움직인다.
  */
-export const serviceMapRealtimeLoader = ({ request }: LoaderFunctionArgs) => {
+export const serviceMapRealtimeLoader = async ({ request }: LoaderFunctionArgs) => {
   try {
+    // servicemap이 꺼져 있으면 이 화면은 메뉴에 없다. servermap 실시간 보기로 옮긴다.
+    const hiddenPageRedirect = await resolveHiddenMapPageRedirect(request.url);
+
+    if (hiddenPageRedirect) {
+      return redirect(hiddenPageRedirect);
+    }
+
     const { pathname, search } = new URL(request.url);
     const { serviceName, application } = parseServiceScopedPath(
       APP_PATH.SERVICE_MAP_REALTIME,

@@ -16,6 +16,7 @@ import {
 import { parse } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router';
+import { resolveHiddenMapPageRedirect } from './hiddenMapPage';
 
 /**
  * map 페이지의 날짜 파라미터를 검증/정규화하는 공용 로더.
@@ -24,6 +25,13 @@ import { LoaderFunctionArgs, redirect } from 'react-router';
 export const createMapRouteLoader =
   (pagePath: string) =>
   async ({ params, request }: LoaderFunctionArgs) => {
+    // servicemap이 켜져 있으면 servermap은 메뉴에서 감춘 화면이다. 날짜를 맞추기 전에 옮긴다.
+    const hiddenPageRedirect = await resolveHiddenMapPageRedirect(request.url);
+
+    if (hiddenPageRedirect) {
+      return redirect(hiddenPageRedirect);
+    }
+
     const application = getApplicationTypeAndName(params.application!);
 
     let configuration: Configuration | undefined;

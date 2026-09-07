@@ -6,6 +6,7 @@ export * from './useDateFormat';
 export * from './useEnableServiceMap';
 export * from './useExperimentals';
 export * from './useHeightToBottom';
+export * from './useHiddenMapPageRedirect';
 export * from './useIsDefaultService';
 export * from './useLanguage';
 export * from './useLocalStorage';

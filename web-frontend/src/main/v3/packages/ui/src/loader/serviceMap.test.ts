@@ -5,8 +5,10 @@ jest.mock('react-router', () => ({
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
 
+// servicemap이 켜진 상태가 이 화면이 살아 있는 조건이다. 꺼져 있으면 메뉴에서 감춰지므로
+// 로더가 servermap으로 옮긴다(맨 아래 describe).
 jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
-  getConfiguration: jest.fn(() => Promise.resolve({})),
+  getConfiguration: jest.fn(() => Promise.resolve({ 'experimental.enableServiceMap.value': true })),
   getRequestService: jest.fn(() => 'DEFAULT'),
 }));
 
@@ -18,7 +20,9 @@ const VALID = 'from=2023-11-10-14-30-00&to=2023-11-10-15-00-00';
 
 describe('serviceMapRouteLoader', () => {
   beforeEach(() => {
-    (getConfiguration as jest.Mock).mockResolvedValue({});
+    (getConfiguration as jest.Mock).mockResolvedValue({
+      'experimental.enableServiceMap.value': true,
+    });
     (getRequestService as jest.Mock).mockReturnValue('DEFAULT');
   });
 
@@ -142,5 +146,30 @@ describe('serviceMapRouteLoader', () => {
     );
 
     expect(result).toEqual({ applicationName: 'TestApp', serviceType: 'SPRING_BOOT' });
+  });
+
+  // servicemap이 꺼지면 이 화면은 메뉴에서 감춰진다. URL로 직접 들어와도 그리지 않는다.
+  describe('when serviceMap is disabled', () => {
+    beforeEach(() => {
+      (getConfiguration as jest.Mock).mockResolvedValue({});
+    });
+
+    test('redirects to the servermap page, dropping the service segment', async () => {
+      const result = (await serviceMapRouteLoader(
+        makeArgs(`http://localhost${DEFAULT_BASE}?${VALID}`),
+      )) as unknown as { __isRedirect: boolean; url: string };
+
+      expect(result.__isRedirect).toBe(true);
+      expect(result.url).toBe(`/serverMap/${APP}?${VALID}`);
+    });
+
+    // servermap도 같은 기간을 보여줘야 한다. 떨어뜨리면 로더가 기본 기간으로 채운다.
+    test('keeps the period when the service has no base application', async () => {
+      const result = (await serviceMapRouteLoader(
+        makeArgs(`http://localhost/serviceMap/blogService?${VALID}`),
+      )) as unknown as { __isRedirect: boolean; url: string };
+
+      expect(result.url).toBe(`/serverMap?${VALID}`);
+    });
   });
 });

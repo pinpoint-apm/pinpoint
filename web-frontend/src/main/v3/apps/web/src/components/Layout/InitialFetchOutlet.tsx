@@ -1,11 +1,12 @@
 import React from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import {
   resolveRequestService,
   useClearApplicationOnServiceChange,
   useEnableServiceMap,
   useExperimentals,
   useGetConfiguration,
+  useHiddenMapPageRedirect,
   useServicesFetch,
   useSyncSelectedServiceWithPath,
 } from '@pinpoint-fe/ui/src/hooks';
@@ -48,6 +49,8 @@ export const InitialFetchOutlet = () => {
   // 그 변경에 따라 이전 service에서 고른 값들을 무효화한다. 순서가 이 방향이어야 한다.
   const { isUnknownServiceInPath } = useSyncSelectedServiceWithPath(enableServiceMap);
   useClearApplicationOnServiceChange(enableServiceMap);
+  // 지금 보고 있는 화면이 설정에 따라 감춰진 map 화면이 되었는지. 값이 있으면 아래에서 옮긴다.
+  const hiddenMapPageRedirect = useHiddenMapPageRedirect();
 
   React.useEffect(() => {
     if (application && searchParameters) {
@@ -76,6 +79,18 @@ export const InitialFetchOutlet = () => {
 
   if (!data || !configuration) {
     return null;
+  }
+
+  // 다른 탭에서 Experimental 설정을 바꿔, 보고 있던 화면이 메뉴에서 감춰진 map이 된 경우다.
+  // 로더는 이 화면에 들어올 때 한 번만 판단하므로 여기서 다시 본다. 메뉴와 요청 헤더는 이미
+  // 새 설정으로 갈아탔으니, 화면만 남겨두면 servicemap을 보면서 service 없이 조회하는(또는 그
+  // 반대의) 어긋난 탭이 된다.
+  //
+  // **effect가 아니라 렌더에서 옮긴다.** effect로 두면 한 박자 늦어, 어긋난 상태로 자식이 한 번
+  // 더 그려지며 그 사이 조회가 나간다. `replace`인 이유는 뒤로 가도 로더가 같은 판단으로 다시
+  // 옮기기 때문이다 — history에 돌아갈 수 없는 항목만 쌓인다.
+  if (hiddenMapPageRedirect) {
+    return <Navigate to={hiddenMapPageRedirect} replace />;
   }
 
   // 없는 service를 가리키는 경로다. 그 이름으로는 어떤 조회도 의미가 없으므로 화면을 그리지 않는다.
