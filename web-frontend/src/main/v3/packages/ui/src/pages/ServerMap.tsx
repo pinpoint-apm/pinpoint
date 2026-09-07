@@ -272,15 +272,23 @@ export const ServerMapPage = ({
                 </div>
               )}
               <MapView
-                queryOption={queryOption}
-                onApplyChangedOption={(option) => {
-                  navigate(
-                    `${getPagePath(application)}?${convertParamsToQueryString({
-                      ...getFormattedDateRange(dateRange),
-                      ...option,
-                    })}`,
-                  );
-                }}
+                queryOption={requiresApplication ? queryOption : undefined}
+                // 조회 조건(inbound/outbound/APP ONLY/양방향)은 기준 application에서 몇 단계까지
+                // 뻗어 나갈지를 정하는 값이다. 기준 application이 없는 map에서는 정할 대상이
+                // 없으므로 조회 조건 박스를 띄우지 않는다(`ServerMapCore`는 이 핸들러가 없으면
+                // 박스를 그리지 않는다). DEFAULT가 아닌 service의 servicemap이 여기에 해당한다.
+                onApplyChangedOption={
+                  requiresApplication
+                    ? (option) => {
+                        navigate(
+                          `${getPagePath(application)}?${convertParamsToQueryString({
+                            ...getFormattedDateRange(dateRange),
+                            ...option,
+                          })}`,
+                        );
+                      }
+                    : undefined
+                }
                 onClickMenuItem={handleClickMenuItem}
               />
             </div>
