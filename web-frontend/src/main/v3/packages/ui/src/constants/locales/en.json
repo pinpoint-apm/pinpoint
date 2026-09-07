@@ -360,6 +360,75 @@
         }
       ]
     },
+    "SERVICE_MAP": {
+      "TITLE": "Service Map",
+      "DESC": "Displays a topological view of the distributed service map.",
+      "CATEGORY": [
+        {
+          "TITLE": "Node",
+          "ITEMS": [
+            {
+              "DESC": "Each node is a logical unit of application."
+            },
+            {
+              "DESC": "The value inside of the node represents the Apdex score of that application."
+            },
+            {
+              "DESC": "The border of the node represents the Apdex grade of each time slot as a color. The most recent slot is at the 12 o'clock direction and the slots continue counterclockwise, and the lower the grade, the redder the color."
+            },
+            {
+              "DESC": "When the node is selected, the transaction information flowing into the application is displayed on the right side of the screen."
+            },
+            {
+              "DESC": "Applications that belong to another service are grouped into a single service node. The integer value inside of it represents the number of the applications grouped."
+            },
+            {
+              "DESC": "A service node itself is not a target. Clicking it displays the list of the applications it groups, and selecting one of them displays its transaction information on the right side of the screen."
+            }
+          ]
+        },
+        {
+          "TITLE": "Arrow",
+          "ITEMS": [
+            {
+              "DESC": "Each arrow represents a transaction flow."
+            },
+            {
+              "DESC": "The number shows the transaction count. Displayed in red for error counts that exceeds the threshold."
+            },
+            {
+              "DESC": "When the arrow is selected, the transaction information that passes through the selected section is displayed on the right side of the screen."
+            },
+            {
+              "DESC": "Clicking an arrow connected to a service node displays the list of the calls it groups, and selecting one of them displays its transaction information on the right side of the screen."
+            },
+            {
+              "DESC": "Right-clicking on an arrow displays the context menu for filtering. (Not displayed for an arrow connected to a service node.)"
+            },
+            {
+              "DESC": "The Filter in the Context menu shows only the transactions that pass through the selected section."
+            },
+            {
+              "DESC": "Filter wizard allows you to configure more detailed filters."
+            }
+          ]
+        },
+        {
+          "TITLE": "Service Map Configuration",
+          "ITEMS": [
+            {
+              "DESC": "Right-clicking on any blank area displays a service map configuration menu."
+            },
+            {
+              "DESC": "Merge: Groups all mergeable nodes and displays it as a single node."
+            },
+            {
+              "DESC": "Refresh: Initialize the viewport and the zoom level of the service map."
+            }
+          ]
+        }
+      ]
+    },
     "SCATTER": {
       "TITLE": "Response Time Scatter Chart",
       "DESC": "",

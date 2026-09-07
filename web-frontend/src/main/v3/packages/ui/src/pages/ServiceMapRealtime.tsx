@@ -10,6 +10,7 @@ export type ServiceMapRealtimePageProps = Omit<
   RealtimePageProps,
   | 'MapView'
   | 'title'
+  | 'helpKey'
   | 'getPagePath'
   | 'getRealtimePagePath'
   | 'requiresApplication'
@@ -53,6 +54,7 @@ export const ServiceMapRealtimePage = (props: ServiceMapRealtimePageProps) => {
       {...props}
       MapView={ServiceMap}
       title="Servicemap"
+      helpKey="HELP_VIEWER.SERVICE_MAP"
       getPagePath={getPagePath}
       getRealtimePagePath={getRealtimePagePath}
       requiresApplication={isDefaultService}

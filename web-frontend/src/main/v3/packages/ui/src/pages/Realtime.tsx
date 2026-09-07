@@ -24,6 +24,12 @@ export interface RealtimePageProps {
    */
   MapView?: typeof ServerMap;
   title?: 'Servermap' | 'Servicemap';
+  /**
+   * 헤더 물음표 버튼에 띄울 안내문의 i18n 키(기본값 servermap 안내문).
+   *
+   * servicemap 실시간 보기도 map은 servicemap이므로 servicemap 안내문을 띄운다.
+   */
+  helpKey?: string;
   /** 실시간 보기를 벗어날 때(기간 선택, application 선택) 쓸 경로 생성 함수 */
   getPagePath?: typeof getServerMapPath;
   /** 실시간 보기 안에서 이동할 때 쓸 경로 생성 함수 */
@@ -44,6 +50,7 @@ export const RealtimePage = ({
   ApplicationList = ApplicationCombinedList,
   MapView = ServerMap,
   title = 'Servermap',
+  helpKey = 'HELP_VIEWER.SERVER_MAP',
   getPagePath = getServerMapPath,
   getRealtimePagePath = getRealtimePath,
   requiresApplication = true,
@@ -98,7 +105,7 @@ export const RealtimePage = ({
             <PiTreeStructureDuotone />
             <div className="flex items-center gap-1">
               {title}
-              <HelpPopover helpKey="HELP_VIEWER.SERVER_MAP" />
+              <HelpPopover helpKey={helpKey} />
             </div>
           </div>
         }

@@ -84,6 +84,38 @@ describe('HelpPopover', () => {
     expect(content.textContent).not.toContain('<br');
   });
 
+  // servicemap 안내문은 servermap 안내문의 단어만 바꾼 것이 아니라 따로 쓴 문구다
+  // (servicemap에는 service 노드가 있고 화살표의 우클릭 동작도 다르다).
+  // 나중에 "중복이니 합치자"며 servermap 값을 다시 가리키게 두면 화면은 멀쩡한데 설명만
+  // servermap 기준이 되므로, 두 안내문이 갈라져 있다는 것을 못으로 박아 둔다.
+  it('has a service map help content of its own, not the server map one', async () => {
+    for (const lng of ['en', 'ko']) {
+      await setLanguage(lng);
+      const { content, unmount } = await openHelp('HELP_VIEWER.SERVICE_MAP');
+
+      expect(content.textContent).toContain(
+        i18n.t('HELP_VIEWER.SERVICE_MAP.TITLE') as unknown as string,
+      );
+      expect(i18n.t('HELP_VIEWER.SERVICE_MAP.TITLE')).not.toBe(
+        i18n.t('HELP_VIEWER.SERVER_MAP.TITLE'),
+      );
+      expect(i18n.t('HELP_VIEWER.SERVICE_MAP.DESC')).not.toBe(
+        i18n.t('HELP_VIEWER.SERVER_MAP.DESC'),
+      );
+      unmount();
+    }
+  });
+
+  // 한쪽 로케일에만 항목을 더하면 다른 언어 사용자는 그 설명을 영영 보지 못한다.
+  // 타입 검사로는 잡히지 않으므로 구조가 같은지 확인한다.
+  it('keeps the service map help structure identical in en and ko', () => {
+    const shape = (help: typeof en.HELP_VIEWER.SERVICE_MAP) =>
+      help.CATEGORY.map((category) => category.ITEMS.length);
+
+    expect(shape(ko.HELP_VIEWER.SERVICE_MAP)).toEqual(shape(en.HELP_VIEWER.SERVICE_MAP));
+    expect(ko.HELP_VIEWER.SERVICE_MAP.CATEGORY.length).toBeGreaterThan(0);
+  });
+
   it('renders every help key in both locales without leaving a raw tag in the text', async () => {
     const helpKeys = Object.keys(en.HELP_VIEWER).flatMap((key) =>
       key === 'INSPECTOR'

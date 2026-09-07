@@ -41,6 +41,13 @@ export interface ServermapPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
   MapView?: typeof ServerMap;
   title?: 'Servermap' | 'Servicemap';
+  /**
+   * 헤더 물음표 버튼에 띄울 안내문의 i18n 키(기본값 servermap 안내문).
+   *
+   * servicemap은 노드 종류(application/service group)와 화살표의 동작이 servermap과 달라
+   * 안내문을 따로 둔다. 문구만 갈아 끼우면 되므로 화면을 복제하지 않는다.
+   */
+  helpKey?: string;
   /** 페이지 내부 이동(애플리케이션 선택, 기간 변경 등)에 사용할 경로 생성 함수 */
   getPagePath?: typeof getServerMapPath;
   /** 실시간 보기로 이동할 때 사용할 경로 생성 함수 */
@@ -64,6 +71,7 @@ export const ServerMapPage = ({
   ApplicationList = ApplicationCombinedList,
   MapView = ServerMap,
   title = 'Servermap',
+  helpKey = 'HELP_VIEWER.SERVER_MAP',
   getPagePath = getServerMapPath,
   getRealtimePagePath = getRealtimePath,
   requiresApplication = true,
@@ -202,7 +210,7 @@ export const ServerMapPage = ({
             <PiTreeStructureDuotone />
             <div className="flex items-center gap-1">
               {title}
-              <HelpPopover helpKey="HELP_VIEWER.SERVER_MAP" />
+              <HelpPopover helpKey={helpKey} />
             </div>
           </div>
         }
