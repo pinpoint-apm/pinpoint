@@ -11,6 +11,15 @@ export namespace GetServiceMap {
     serviceTypeCode?: number;
     from: number | string;
     to: number | string;
+    /**
+     * map 탐색 조건(화면의 조회 조건 박스). 기준 application에서 몇 단계까지 뻗어 나갈지를
+     * 정하는 값이라 기준 application이 있는 DEFAULT service에서만 싣는다. 그 외 service는
+     * 조회 조건 박스 자체가 없고, 백엔드가 고정값으로 map을 그린다.
+     */
+    calleeRange?: number;
+    callerRange?: number;
+    wasOnly?: boolean;
+    bidirectional?: boolean;
     useStatisticsAgentState?: boolean;
   }
 

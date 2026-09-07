@@ -37,7 +37,7 @@ export const ServiceMapFetcher = ({ shouldPoll, ...props }: ServiceMapFetcherPro
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const serverMapCurrentTarget = useAtomValue(serverMapCurrentTargetAtom);
-  const { application, dateRange } = useServerMapSearchParameters();
+  const { application, dateRange, queryOption } = useServerMapSearchParameters();
   const isDefaultService = useIsDefaultService();
   const experimentalOption = useExperimentals();
   const useStatisticsAgentState =
@@ -56,6 +56,14 @@ export const ServiceMapFetcher = ({ shouldPoll, ...props }: ServiceMapFetcherPro
       serviceTypeName: isDefaultService ? application?.serviceType : undefined,
       from: toBasicISOString(dateRange.from),
       to: toBasicISOString(dateRange.to),
+      // 조회 조건(inbound/outbound/APP ONLY/양방향)은 기준 application에서 몇 단계까지 뻗어
+      // 나갈지를 정하는 값이다. 기준 application이 없는 DEFAULT 외 service에서는 정할 대상이
+      // 없어 화면에도 조회 조건 박스를 띄우지 않으므로(→ `ServerMapPage`), 요청에도 싣지 않는다.
+      // 싣지 않으면 백엔드가 지금까지와 같은 고정값으로 map을 그린다.
+      calleeRange: isDefaultService ? queryOption.inbound : undefined,
+      callerRange: isDefaultService ? queryOption.outbound : undefined,
+      wasOnly: isDefaultService ? queryOption.wasOnly : undefined,
+      bidirectional: isDefaultService ? queryOption.bidirectional : undefined,
       useStatisticsAgentState,
     },
     { requiresApplication: isDefaultService, shouldPoll: !!shouldPoll },
