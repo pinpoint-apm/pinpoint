@@ -225,3 +225,102 @@ export const getTimeSeriesApdexInfo = (
     .slice(0, APDEX_SLOT_MAX)
     .map((score) => (score === APDEX_UNCOLLECTED ? 1 : score));
 };
+
+/**
+ * map에서 고른 대상이 **merged**인지 — 그래프가 여러 노드/링크를 하나로 묶어 그린 것.
+ *
+ * 묶인 것의 id는 합성값(`{source}_MergeSingleNodesByServerMap^MONGO`)이라 map 데이터에서 찾을 수
+ * 없다. 그래서 "묶음 목록(`nodes`/`edges`)은 있는데 그 id로 찾은 데이터는 없다"로 판별한다.
+ *
+ * 목록에서 자식 하나를 고르면 `nodes`는 목록을 계속 보여주려고 그대로 남고 id만 실제 노드 key로
+ * 바뀐다. 그러면 데이터가 잡히므로 더 이상 merged가 아니다.
+ */
+export const isMergedMapTarget = (
+  currentTarget: { nodes?: unknown[]; edges?: unknown[] } | undefined,
+  currentTargetData: unknown,
+): boolean => !!(currentTarget?.nodes || currentTarget?.edges) && !currentTargetData;
+
+/**
+ * 이 노드를 호출하는 application(들어오는 링크의 출발지). 하나로 정해지지 않으면 undefined다.
+ *
+ * 통계 API는 `applicationName`/`serviceTypeName`을 **상대편(기준) application**으로 쓰고
+ * `nodeKey`로 볼 노드를 정한다(`ServerMapHistogramController#getStatisticsFromServerMap`).
+ * DB·캐시처럼 자기 agent가 없는 리프 노드는 호출자 링크에서 수치가 나오므로, 기준을 노드 자신으로
+ * 두면 백엔드가 그 노드를 map 중심으로 놓는 다른 분기로 빠진다.
+ *
+ * 들어오는 링크가 여럿이면 어느 쪽을 기준으로 삼을지 정할 수 없으므로 undefined를 돌려주고,
+ * 호출부가 기존 기준(노드 자신)을 그대로 쓰게 한다.
+ */
+export const findCallerApplication = (
+  links: (GetServerMap.LinkData | FilteredMap.LinkData)[] | undefined,
+  nodeKey: string | undefined,
+): ApplicationType | undefined => {
+  if (!nodeKey) {
+    return undefined;
+  }
+
+  const inboundLinks = (links ?? []).filter((link) => link.to === nodeKey);
+  if (inboundLinks.length !== 1) {
+    return undefined;
+  }
+
+  const { applicationName, serviceType } = inboundLinks[0].sourceInfo ?? {};
+  return applicationName && serviceType ? { applicationName, serviceType } : undefined;
+};
+
+/**
+ * 우측 패널의 조회가 기준으로 삼을 application. 경로에 application이 없는 화면
+ * (service 전체를 모아 그린 servicemap)에서 이 값이 기준이 된다.
+ *
+ * - merged 대상이면 **없다.** 여러 application을 묶은 것이라 기준이 성립하지 않는다.
+ *   `applicationName` 자리에 있는 것은 그래프가 붙인 라벨("total: 2")이므로 그대로 쓰면 그 이름으로
+ *   조회가 나간다. servermap은 경로의 application이 기준이 되어 가려져 있었고, 경로에 application이
+ *   없는 servicemap에서 드러났다. (이슈 #10587)
+ * - **merged 묶음 목록에서 고른 노드는 그 노드의 호출자가 기준이다.** servermap에서는 경로의
+ *   application(map 중심)이 그 자리를 맡는데, 경로에 application이 없는 servicemap에서 노드 자신을
+ *   기준으로 두면 요청이 다른 분기로 빠져 수치가 달라진다(→ `findCallerApplication`).
+ * - 그 외 노드면 그 노드. 클릭 즉시 채워지는 `currentTarget`에서 읽는다(조회된 데이터를 기다리지
+ *   않는다). 노드 자신을 기준으로 삼는 것은 그 application을 직접 열어 본 것과 같은 결과가 된다.
+ * - 링크면 출발지 노드. 링크 통계의 기준도 출발지이므로 같은 기준이다.
+ */
+export const getSelectedTargetApplication = (
+  currentTarget:
+    | {
+        type?: 'node' | 'edge';
+        applicationName?: string;
+        serviceType?: string;
+        nodes?: unknown[];
+        edges?: unknown[];
+      }
+    | undefined,
+  // map API마다 노드/링크 타입이 갈리므로(servermap · servicemap · filteredMap)
+  // 여기서는 읽는 필드만 좁혀서 본다.
+  currentTargetData: unknown,
+  /** merged 묶음에서 고른 노드의 호출자를 찾는 데 쓴다. 없으면 그 보정을 하지 않는다. */
+  links?: (GetServerMap.LinkData | FilteredMap.LinkData)[],
+): ApplicationType | undefined => {
+  if (isMergedMapTarget(currentTarget, currentTargetData)) {
+    return undefined;
+  }
+
+  if (currentTarget?.type === 'node') {
+    const isFromMergedGroup = !!(currentTarget.nodes || currentTarget.edges);
+    if (isFromMergedGroup) {
+      const caller = findCallerApplication(
+        links,
+        (currentTargetData as GetServerMap.NodeData | undefined)?.key,
+      );
+      if (caller) {
+        return caller;
+      }
+    }
+
+    const { applicationName, serviceType } = currentTarget;
+    return applicationName && serviceType ? { applicationName, serviceType } : undefined;
+  }
+
+  const sourceInfo = (currentTargetData as GetServerMap.LinkData | undefined)?.sourceInfo;
+  return sourceInfo?.applicationName && sourceInfo?.serviceType
+    ? { applicationName: sourceInfo.applicationName, serviceType: sourceInfo.serviceType }
+    : undefined;
+};

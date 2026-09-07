@@ -7,6 +7,7 @@ import {
 } from '@pinpoint-fe/ui/src/constants';
 import { Node, Edge } from '@pinpoint-fe/server-map';
 import { isNodeOfApplication } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
+import { getCurrentRouterPath } from '@pinpoint-fe/ui/src/utils/helper/route';
 
 export type CurrentTarget = {
   id?: string;
@@ -30,8 +31,46 @@ export const serverMapDataAtom = atom<GetServerMap.Response | FilteredMap.Respon
   undefined,
 );
 
-// 서버맵에서 선택된 타겟
-export const serverMapCurrentTargetAtom = atom<CurrentTarget | undefined>(undefined);
+/**
+ * 선택된 타겟과 **그것을 고른 경로**. 경로를 함께 담는 이유는 아래 `serverMapCurrentTargetAtom`
+ * 주석 참고.
+ */
+type StampedCurrentTarget = {
+  /** 선택이 이루어진 시점의 라우터 경로(basename 제외). */
+  path: string;
+  target: CurrentTarget | undefined;
+};
+
+const serverMapCurrentTargetStampedAtom = atom<StampedCurrentTarget | undefined>(undefined);
+
+/**
+ * 서버맵에서 선택된 타겟.
+ *
+ * **선택은 그것을 고른 경로에 묶인다.** 경로가 바뀌면(application 변경, 뒤로/앞으로 가기) 이전
+ * 경로의 선택은 그 즉시 남의 것이 되므로, 쓸 때 지금 경로를 함께 도장 찍어 둔다. 읽는 쪽은
+ * `useServerMapCurrentTarget`/`useServerMapCurrentTargetData`로 지금 경로의 선택만 본다.
+ *
+ * 페이지들이 경로 변경 effect에서 이 값을 비우지만 그것은 한 박자 늦다. 그 사이 우측 패널이
+ * **(새 application, 이전 경로에서 고른 노드)** 라는 있지도 않은 짝으로 한 번 렌더되고, 조회
+ * 훅들이 그 짝으로 파라미터를 갱신해 화면을 떠난 대상 조회가 한 번 더 나갔다. (이슈 #10587)
+ *
+ * 도장은 여기 한 곳에서 찍는다. 값을 넣는 곳이 여러 군데(map fetcher들, 페이지, 병합 노드 목록)
+ * 라서 호출부마다 경로를 넘기게 하면 한 곳만 빠뜨려도 조용히 어긋난다.
+ */
+export const serverMapCurrentTargetAtom = atom(
+  (get) => get(serverMapCurrentTargetStampedAtom)?.target,
+  (_get, set, target: CurrentTarget | undefined) => {
+    set(serverMapCurrentTargetStampedAtom, {
+      path: getCurrentRouterPath(),
+      target,
+    });
+  },
+);
+
+/** 선택이 이루어진 경로. `useServerMapCurrentTarget`이 지금 경로와 비교하는 데 쓴다. */
+export const serverMapCurrentTargetPathAtom = atom(
+  (get) => get(serverMapCurrentTargetStampedAtom)?.path,
+);
 
 export const serverMapCurrentTargetDataAtom = atom((get) => {
   const currentTarget = get(serverMapCurrentTargetAtom);

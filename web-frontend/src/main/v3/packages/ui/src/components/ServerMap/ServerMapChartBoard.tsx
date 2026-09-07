@@ -18,7 +18,7 @@ import {
   ScatterChartStatic,
   ChartsBoardHeader,
 } from '@pinpoint-fe/ui/src/components';
-import { ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import {
   useExperimentals,
   useServerMapSearchParameters,
@@ -32,16 +32,23 @@ import {
   scatterDataAtom,
   serverMapChartTypeAtom,
   serverMapCurrentTargetAtom,
-  serverMapCurrentTargetDataAtom,
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/src/atoms';
-import { useAtom, useAtomValue } from 'jotai';
-import { getApplicationKey, getServerImagePath } from '@pinpoint-fe/ui/src/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
+import {
+  getApplicationKey,
+  getSelectedTargetApplication,
+  getServerImagePath,
+} from '@pinpoint-fe/ui/src/utils';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 import { RxChevronRight } from 'react-icons/rx';
 import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
 import { useGetHistogramStatistics } from '@pinpoint-fe/ui/src/hooks/api/useGetHistogramStatistics';
 import { useServerMapTargetServiceName } from '@pinpoint-fe/ui/src/hooks/serverMap/useServerMapTargetServiceName';
+import {
+  useServerMapCurrentTarget,
+  useServerMapCurrentTargetData,
+} from '@pinpoint-fe/ui/src/hooks/serverMap/useServerMapCurrentTarget';
 
 export interface ServerMapChartsBoardProps extends ServerMapChartsBoardFetcherProps {}
 
@@ -91,26 +98,26 @@ export const ServerMapChartsBoardFetcher = ({
   // /api/servermap/serverMap 로 가져온 data
   const serverMapData = useAtomValue(serverMapDataAtom);
   // serverMap에서 클릭 된 target (node 또는 link)
-  const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
+  // 이전 경로에서 고른 것은 읽지 않는다(→ `useServerMapCurrentTarget`). 아톰을 그대로 읽으면
+  // 경로가 바뀐 직후 한 렌더 동안 "새 application + 이전 경로의 노드"로 조회가 나간다. (#10587)
+  const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
+  const serverMapCurrentTarget = useServerMapCurrentTarget();
   // 클릭 된 serverMap target의 data (serverMapCurrentTarget, serverMapData를 이용해 나온 값) serverMap이 클릭되었을 때 주는 node/link의 데이터가 충분치 않아서 사용하는 값
-  const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom);
+  const currentTargetData = useServerMapCurrentTargetData();
   // VIEW SERVERS로 열었을 때 왼쪽에 클릭된 서버
   const currentServer = useAtomValue(currentServerAtom);
 
-  // service 전체를 모아 그린 servicemap에는 경로에 application이 없다. 통계 API는 기준
-  // application이 필수이므로, 이때는 선택된 노드(링크는 출발지 노드)를 기준으로 삼는다.
-  // 노드 자신을 기준으로 조회하는 것은 그 application을 직접 열어 본 것과 같은 결과가 된다.
-  const selectedTargetApplication = React.useMemo<ApplicationType | undefined>(() => {
-    if (serverMapCurrentTarget?.type === 'node') {
-      const { applicationName, serviceType } = serverMapCurrentTarget;
-      return applicationName && serviceType ? { applicationName, serviceType } : undefined;
-    }
-
-    const sourceInfo = (currentTargetData as GetServerMap.LinkData)?.sourceInfo;
-    return sourceInfo?.applicationName && sourceInfo?.serviceType
-      ? { applicationName: sourceInfo.applicationName, serviceType: sourceInfo.serviceType }
-      : undefined;
-  }, [serverMapCurrentTarget, currentTargetData]);
+  // 조회의 기준이 될 application. merged 대상(그래프가 여러 개를 하나로 묶어 그린 것)은 기준이
+  // 없다는 판단까지 규칙이 하나다 → `utils/helper/serverMap`의 `getSelectedTargetApplication`
+  const selectedTargetApplication = React.useMemo(
+    () =>
+      getSelectedTargetApplication(
+        serverMapCurrentTarget,
+        currentTargetData,
+        serverMapData?.applicationMapData?.linkDataArray as GetServerMap.LinkData[] | undefined,
+      ),
+    [serverMapCurrentTarget, currentTargetData, serverMapData],
+  );
 
   // servicemap은 다른 service의 application도 함께 그린다. 그런 노드를 고르면 이 패널의 조회는
   // 화면의 service가 아니라 그 노드의 service로 나가야 한다. 아래 차트/목록에 prop으로 내려준다.

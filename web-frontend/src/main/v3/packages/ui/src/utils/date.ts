@@ -155,7 +155,16 @@ export const toBasicISOStringMs = (date: Date): string => {
   );
 };
 
-export const isValidTimezone = (tz: string): boolean => {
+export const isValidTimezone = (tz?: string): boolean => {
+  // `timeZone: undefined`는 "지정하지 않음"이라 예외가 나지 않는다. 그래서 값이 없는 것까지
+  // 유효하다고 판정하면 `getTimezone`이 system timezone으로 폴백하지 못하고 undefined를 그대로
+  // 돌려주고, date-fns-tz가 그것을 UTC로 해석한다. 저장된 timezone이 아직 없는 첫 방문에서
+  // 화면이 UTC로 조회를 한 번 하고, timezone이 저장된 뒤 같은 조회가 실제 timezone으로 한 번 더
+  // 나갔다(같은 URL인데 from/to가 offset만큼 어긋난다). (이슈 #10587)
+  if (!tz) {
+    return false;
+  }
+
   try {
     Intl.DateTimeFormat(undefined, { timeZone: tz });
     return true;

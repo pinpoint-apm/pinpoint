@@ -125,8 +125,21 @@ service 전체를 대상으로 필터를 걸 수 있게 할지 정해지면 경�
 
 - 진실의 원천은 URL이다. 전역 선택값(`selectedServiceAtom`)은 탭 간 공유 저장소라, 링크를 새 탭에
   열어 둔 뒤 원래 탭에서 service를 바꾸면 화면과 어긋난다.
+- **`pServiceName`을 정하는 순서는 하나다** (`serviceNameFetchInterceptor`):
+  1. 요청에 이미 실려 있으면 → 건드리지 않고 그대로 보낸다(호출자가 직접 실은 값이 항상 이긴다).
+  2. 경로에 serviceName이 실려 있으면 → 그 값.
+  3. 둘 다 아니면 → 전역으로 선택한 service.
+  2·3은 `resolveRequestService` 하나가 정한다.
 - 요청 헤더(`resolveRequestService`)와 캐시 키(`serviceScopedQueryKeyHashFn`)가 **같은 규칙**에서
   파생돼야 한다. 다르면 헤더는 A service로 나가는데 캐시는 B service 키에 쌓인다.
+- **렌더 밖에서 경로를 읽을 때 `window.location`을 보지 않는다** — `getCurrentRouterPath()`를 쓴다.
+  뒤로/앞으로 가기(popstate)에서는 브라우저가 주소를 먼저 바꾸고 react-router의 location 상태는
+  그 다음 렌더에 반영된다. 그 사이 한 렌더 동안 조회 파라미터는 이전 경로의 것인데 service만
+  새 경로의 것이 되어, 캐시에 없는 키가 만들어지고 곧바로 요청이 나갔다(service를 넘나드는
+  뒤로가기에서 map 조회가 한 번 더 나가던 원인). `getCurrentRouterPath()`는 라우터가 렌더한 경로를
+  돌려주므로 파라미터와 service가 항상 같은 렌더에서 함께 바뀐다.
+  → `useSyncRenderedRouterPath` (조회 화면들보다 위에서 한 번 호출: `InitialFetchOutlet`).
+  호출을 빠뜨리면 `window.location` 폴백으로 동작한다(고쳐지지 않을 뿐 깨지지는 않는다).
 - 싣는 화면 목록: `SERVICE_NAME_SEGMENT_PAGES` (`utils/helper/application.ts`).
   **앞으로는 serviceName을 싣는 것이 기본**이고, 아직 안 옮긴 화면은 줄어드는 예외다.
   그 경로에서는 serviceName을 읽을 수 없어 전역 선택값으로 폴백한다.
@@ -156,10 +169,25 @@ A로 나가면 백엔드가 A service에서 `b-1`을 찾으므로 데이터가 �
 **prop을 받지 않으면 화면의 service로 조회한다**(`serviceName ?? useServiceNameForLink()`).
 그래서 filteredMap·inspector처럼 이 값을 넘기지 않는 화면은 동작이 그대로다.
 
-- 값의 출처는 백엔드가 노드마다 내려주는 `serviceName`(= `application.getService()`)이다.
-  링크는 자기 service가 없어 출발지 노드의 service를 쓴다(링크 통계의 기준 application과 같다).
+- **기본값은 언제나 화면의 service(`useServiceNameForLink`)다.** 노드를 골랐다고 바뀌지 않는다.
+  요구사항이 그렇다 — "pServiceName 헤더는 global로 설정한 serviceName"(이슈 #10587).
+  아직 고른 대상이 없을 때도 undefined가 아니라 이 값을 준다. map이 도착해 기준 노드가
+  잡히기까지 한 박자가 걸리는데, 그동안 undefined를 주면 헤더는 인터셉터가 어차피 같은 값으로
+  채우는데 **queryKey만 갈려** 같은 요청이 두 번 나간다.
+- **노드의 `serviceName`으로 갈아타는 판단은 `enableServiceMap` 하나로 한다.** 그 설정이 곧
+  "어느 map이 보이는가"이므로(꺼짐 → servermap만, 켜짐 → servicemap만) 경로를 따로 보지 않는다.
+  켜져 있으면 이 훅까지 온 노드는 언제나 servicemap이 그린 것이다.
+  > 두 map이 함께 보이던 시절에는 경로가 servicemap인지 따로 봐야 했다. 백엔드는 **servermap
+  > 응답에도** 노드마다 `serviceName`을 실어 보내는데(`NodeView`가 `application.getService()`를
+  > 무조건 쓴다) 그 값은 *application이 저장된 service*(대개 `DEFAULT`)이지 조회할 service가
+  > 아니다. 그대로 쓰면 기준 노드가 잡히기 전 첫 조회는 global service로, 잡힌 뒤 두 번째 조회는
+  > `DEFAULT`로 나가 **헤더도 캐시 키도 갈려** 같은 화면을 두 번 조회하고 두 번째 결과는 엉뚱한
+  > service의 것이 됐다. (이슈 #10587 — DEFAULT가 아닌 service를 고른 채 servermap에 들어가면
+  > `/getApdexScore`, `/heatmap/applicationData`, `/histogram/statistics`가 두 번씩 호출되던 원인)
+  > 이제 그 상태 자체가 만들어지지 않는다.
 - `enableServiceMap`이 꺼져 있으면 `useServerMapTargetServiceName`이 undefined를 반환한다.
   설정이 꺼진 저장소로 헤더가 새어 나가지 않도록 **그 한 곳에서** 막는다.
+  (폴백으로 쓰는 `useServiceNameForLink`도 같은 규칙이라 둘이 어긋나지 않는다.)
 - **prop을 내려주는 곳을 빠뜨리면 그 차트만 조용히 화면의 service로 조회한다.** 화면은 멀쩡히
   그려지고 숫자만 비어서, 타입 검사로도 잡히지 않는다. 우측 패널에 조회하는 컴포넌트를 새로
   추가하면 `serviceName`도 함께 내려야 한다.
@@ -253,6 +281,37 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
   돌려준다. 기준으로 삼을 한쪽만 보고 통과시키면 Application→Service가 새어나간다(출발지가
   WAS라 출발지를 기준으로 잡고 열린다). 어느 쪽이 기준인지(`sourceIsWas`)와 무관하게 양쪽을 본다.
 
+## map의 선택은 경로에 묶인다
+
+`serverMapCurrentTargetAtom`(map에서 고른 노드/링크)은 **그것을 고른 경로와 함께** 저장된다.
+경로가 바뀌면 이전 경로의 선택은 그 즉시 남의 것이다.
+
+페이지들이 경로 변경 effect에서 이 값을 비우지만 **effect는 한 박자 늦다.** 그 사이 우측 패널이
+**(새 application, 이전 경로에서 고른 노드)** 라는 있지도 않은 짝으로 한 번 렌더되고, 조회 훅들이
+그 짝으로 파라미터를 갱신해 화면을 떠난 대상 조회가 한 번 더 나갔다 — application 선택 박스로
+바꿀 때도, 브라우저 뒤로/앞으로 갈 때도 똑같이 생겼다. (이슈 #10587)
+
+- **조회 파라미터를 만드는 곳은 아톰을 직접 읽지 않는다.** `useServerMapCurrentTarget` /
+  `useServerMapCurrentTargetData`로 읽으면 경로가 바뀐 그 렌더부터 undefined다.
+  → 지금 쓰는 곳: `ServerMapChartsBoardFetcher`, `ServerListFetcher`, `Realtime`,
+    `AgentActiveThreadFetcher`, `useServerMapTargetServiceName`
+- **경로 도장은 아톰의 write 함수 한 곳에서 찍는다.** 값을 넣는 곳이 여러 군데(map fetcher들,
+  페이지들, 병합 노드 목록)라 호출부마다 경로를 넘기게 하면 한 곳만 빠뜨려도 조용히 어긋난다.
+- **도장과 비교는 같은 출처(`getCurrentRouterPath`)를 쓴다.** 비교하는 쪽만 `useLocation()`의
+  값을 쓰면 basename이 붙고 안 붙는 차이로 늘 어긋난다. `useLocation()`은 경로가 바뀔 때 다시
+  렌더시키는 구독 용도다.
+- **선택을 정하는 쪽(`ServerMapPage`의 `serverMapData` effect)도 이 훅으로 읽는다.** 새 map이
+  왔을 때 "이전 선택을 유지할지 기준 노드로 갈아끼울지"를 판단하는데, 아톰을 그대로 읽으면
+  `nodes`를 들고 있는 선택(merged 노드)은 이 map에 있는지 확인하지 않고 유지되며 **지금 경로로
+  도장을 다시 찍는다.** 그러면 이 map에 없는 노드가 선택된 상태가 되어, 조회 대상이 없는데도
+  우측 패널이 그려지고 `applicationName` 없는 요청이 나간다 —
+  servermap에서 노드를 고른 뒤 비DEFAULT servicemap으로 이동할 때 실제로 겪었다
+  (`/heatmap/applicationData` → 400 "Required parameter 'applicationName' is not present.").
+- query string만 바뀌는 이동(기간·조회 옵션 변경)은 경로가 그대로라 선택이 유지된다.
+- **조회 훅에도 대상 없음 가드를 둔다.** 위 규칙만으로 막으면 새 컴포넌트가 하나 늘 때 다시
+  샌다. `applicationName`이 필수인 API는 훅의 `enabled`에서 막는다
+  (`useGetHeatmapAppData` — `queryString`은 물음표 때문에 항상 truthy라 그것으로는 못 막는다).
+
 ## 함정 (실제로 겪은 것들)
 
 - **아톰은 화면 remount로 지워지지 않는다.** `InitialFetchOutlet`의 `key={requestService}`는
@@ -268,6 +327,7 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 - **`useSuspenseQuery`는 `enabled`를 지원하지 않는다.** `useGetApdexScore`처럼 `shouldPoll`에 따라
   suspense를 쓰는 훅은 `enabled`로 막을 수 없다. `skipToken`을 쓰면 영원히 suspend 되므로,
   컴포넌트에서 조회 대상이 없을 때 fetcher를 마운트하지 않는 쪽으로 막는다.
+- **이전 선택을 effect로 버리면 한 박자 늦다.** → 아래 "map의 선택은 경로에 묶인다".
 
 ## 관련 파일
 
@@ -281,6 +341,9 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 | 경로 분해 (로더용) | `utils/helper/application.ts` (`parseServiceScopedPath`) |
 | 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getServiceMapRealtimePath`, `getFilteredMapPath`, `getTransactionListPath`) |
 | 조회 대상의 service | `hooks/serverMap/useServerMapTargetServiceName.ts` |
+| 지금 경로에서 고른 선택 | `hooks/serverMap/useServerMapCurrentTarget.ts` |
+| 선택에 경로 도장 찍기 | `atoms/serverMap.ts` (`serverMapCurrentTargetAtom`) |
+| 렌더 밖에서 읽는 지금 경로 | `utils/helper/route.ts` (`getCurrentRouterPath`), `hooks/utility/useSyncRenderedRouterPath.ts` |
 | 요청 헤더 주입 | `hooks/api/serviceNameFetchInterceptor.ts` |
 | service 단위 캐시 키 | `hooks/api/reactQueryHelper.tsx` (`serviceScopedQueryKeyHashFn`) |
 | service 변경 시 초기화 | `hooks/utility/useClearApplicationOnServiceChange.ts` |

@@ -1,8 +1,11 @@
 import {
+  findCallerApplication,
   findLinkOfApplications,
   findNodeOfApplication,
   getBaseNodeId,
+  getSelectedTargetApplication,
   getTimeSeriesApdexInfo,
+  isMergedMapTarget,
   parseNodeApplication,
 } from './serverMap';
 import {
@@ -430,6 +433,144 @@ describe('Test serverMap helper utils', () => {
       expect(
         findLinkOfApplications(makeLinks(['blogService~shopService']), from, to),
       ).toBeUndefined();
+    });
+  });
+
+  // 그래프가 여러 노드를 하나로 묶어 그린 merged 노드는 기준 application이 없다.
+  // 그 자리에 있는 이름은 그래프가 붙인 라벨("total: 2")이라, 그대로 조회에 쓰면 그 이름으로
+  // 요청이 나간다. servermap은 경로의 application이 기준이 되어 가려져 있었고, 경로에
+  // application이 없는 servicemap에서 드러났다. (이슈 #10587)
+  describe('Test "isMergedMapTarget" / "getSelectedTargetApplication"', () => {
+    const mergedNodeTarget = {
+      // merge가 붙이는 합성 id. map 데이터에 없으므로 currentTargetData가 잡히지 않는다.
+      id: 'a-1^TOMCAT_MergeSingleNodesByServerMap^MONGO',
+      type: 'node' as const,
+      applicationName: 'total: 2',
+      serviceType: 'MONGO',
+      nodes: [{ id: 'a-mongo-1^MONGO' }, { id: 'a-mongo-2^MONGO' }],
+    };
+
+    const pickedFromMergedList = {
+      // 목록에서 자식을 고르면 목록을 계속 보여주려고 nodes는 남고 id만 실제 key로 바뀐다.
+      ...mergedNodeTarget,
+      id: 'a-mongo-1^MONGO',
+      applicationName: 'a-mongo-1',
+      serviceType: 'MONGO',
+    };
+
+    const mongoNodeData = {
+      key: 'a-mongo-1^MONGO',
+      applicationName: 'a-mongo-1',
+      serviceType: 'MONGO',
+    } as GetServerMap.NodeData;
+
+    test('merged 노드는 merged로 판별하고 기준 application을 주지 않는다', () => {
+      expect(isMergedMapTarget(mergedNodeTarget, undefined)).toBe(true);
+      expect(getSelectedTargetApplication(mergedNodeTarget, undefined)).toBeUndefined();
+    });
+
+    test('목록에서 자식을 고르면 그 노드가 기준이 된다', () => {
+      expect(isMergedMapTarget(pickedFromMergedList, mongoNodeData)).toBe(false);
+      expect(getSelectedTargetApplication(pickedFromMergedList, mongoNodeData)).toEqual({
+        applicationName: 'a-mongo-1',
+        serviceType: 'MONGO',
+      });
+    });
+
+    test('평범한 노드는 그 노드가 기준이다', () => {
+      expect(
+        getSelectedTargetApplication(
+          { type: 'node', applicationName: 'a-1', serviceType: 'TOMCAT' },
+          mongoNodeData,
+        ),
+      ).toEqual({ applicationName: 'a-1', serviceType: 'TOMCAT' });
+    });
+
+    test('링크는 출발지 노드가 기준이다', () => {
+      const linkData = {
+        sourceInfo: { applicationName: 'a-1', serviceType: 'TOMCAT' },
+        targetInfo: { applicationName: 'a-2', serviceType: 'TOMCAT' },
+      } as GetServerMap.LinkData;
+
+      expect(getSelectedTargetApplication({ type: 'edge' }, linkData)).toEqual({
+        applicationName: 'a-1',
+        serviceType: 'TOMCAT',
+      });
+    });
+
+    test('merged 링크도 기준 application을 주지 않는다', () => {
+      const mergedEdgeTarget = { type: 'edge' as const, edges: [{ target: 'a-mongo-1^MONGO' }] };
+
+      expect(isMergedMapTarget(mergedEdgeTarget, undefined)).toBe(true);
+      expect(getSelectedTargetApplication(mergedEdgeTarget, undefined)).toBeUndefined();
+    });
+
+    test('고른 것이 없으면 기준도 없다', () => {
+      expect(isMergedMapTarget(undefined, undefined)).toBe(false);
+      expect(getSelectedTargetApplication(undefined, undefined)).toBeUndefined();
+    });
+
+    // 통계 API는 applicationName/serviceTypeName을 "상대편(기준) application"으로 쓴다.
+    // DB처럼 자기 agent가 없는 리프 노드는 호출자 링크에서 수치가 나오므로, 기준이 노드 자신이면
+    // 백엔드가 그 노드를 map 중심으로 놓는 다른 분기로 빠진다. servermap은 경로의 application이
+    // 그 자리를 맡지만 경로에 application이 없는 servicemap에는 그것이 없다. (이슈 #10587)
+    describe('merged 묶음에서 고른 노드의 기준 application', () => {
+      const inboundLink = {
+        to: 'A^a-mongo-1^MONGO',
+        sourceInfo: { applicationName: 'a-1', serviceType: 'TOMCAT' },
+      } as GetServerMap.LinkData;
+
+      const pickedNodeData = { key: 'A^a-mongo-1^MONGO' } as GetServerMap.NodeData;
+
+      const pickedTarget = {
+        type: 'node' as const,
+        applicationName: 'a-mongo-1',
+        serviceType: 'MONGO',
+        nodes: [{ id: 'A^a-mongo-1^MONGO' }, { id: 'A^a-mongo-2^MONGO' }],
+      };
+
+      test('들어오는 링크가 하나면 그 출발지가 기준이다', () => {
+        expect(getSelectedTargetApplication(pickedTarget, pickedNodeData, [inboundLink])).toEqual({
+          applicationName: 'a-1',
+          serviceType: 'TOMCAT',
+        });
+      });
+
+      // 어느 쪽을 기준으로 삼을지 정할 수 없으면 기존 기준(노드 자신)을 그대로 쓴다.
+      test('들어오는 링크가 여럿이면 노드 자신이 기준이다', () => {
+        const anotherInbound = {
+          to: 'A^a-mongo-1^MONGO',
+          sourceInfo: { applicationName: 'a-2', serviceType: 'TOMCAT' },
+        } as GetServerMap.LinkData;
+
+        expect(
+          getSelectedTargetApplication(pickedTarget, pickedNodeData, [inboundLink, anotherInbound]),
+        ).toEqual({ applicationName: 'a-mongo-1', serviceType: 'MONGO' });
+      });
+
+      test('링크 정보가 없으면 노드 자신이 기준이다', () => {
+        expect(getSelectedTargetApplication(pickedTarget, pickedNodeData)).toEqual({
+          applicationName: 'a-mongo-1',
+          serviceType: 'MONGO',
+        });
+      });
+
+      // merged 묶음에서 고른 것이 아니면 호출자를 찾지 않는다(그 노드를 직접 열어 본 것과 같아야 한다).
+      test('merged 묶음이 아니면 호출자를 기준으로 삼지 않는다', () => {
+        expect(
+          getSelectedTargetApplication(
+            { type: 'node', applicationName: 'a-mongo-1', serviceType: 'MONGO' },
+            pickedNodeData,
+            [inboundLink],
+          ),
+        ).toEqual({ applicationName: 'a-mongo-1', serviceType: 'MONGO' });
+      });
+
+      test('findCallerApplication은 노드 key가 없으면 undefined다', () => {
+        expect(findCallerApplication([inboundLink], undefined)).toBeUndefined();
+        expect(findCallerApplication(undefined, 'A^a-mongo-1^MONGO')).toBeUndefined();
+        expect(findCallerApplication([inboundLink], 'A^a-mongo-9^MONGO')).toBeUndefined();
+      });
     });
   });
 });

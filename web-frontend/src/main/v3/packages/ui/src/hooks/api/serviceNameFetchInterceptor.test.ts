@@ -102,6 +102,58 @@ describe('serviceNameFetchInterceptor', () => {
     expect(headerOfLastCall()).toBe('other-service');
   });
 
+  // pServiceName을 정하는 순서: 1) 이미 실린 값 → 2) 경로의 serviceName → 3) 전역 선택값
+  describe('pServiceName 우선순위', () => {
+    beforeEach(() => {
+      store.set(configurationAtom, configWithServiceMap(true));
+      store.set(selectedServiceAtom, 'global-service');
+      window.history.replaceState({}, '', '/transactionList/path-service/app-name@TOMCAT');
+    });
+
+    test('1) 이미 실린 값이 경로·전역 선택값을 모두 이긴다', async () => {
+      await window.fetch('/api/transactionmetadata', {
+        headers: { [SERVICE_NAME_HEADER]: 'caller-service' },
+      });
+
+      expect(headerOfLastCall()).toBe('caller-service');
+    });
+
+    // "건드리지 않고 그대로 보낸다" — 헤더를 다시 만들어 넘기지도 않는다.
+    test('1) 이미 실려 있으면 요청을 그대로 넘긴다', async () => {
+      const init = { headers: { [SERVICE_NAME_HEADER]: 'caller-service' } };
+
+      await window.fetch('/api/transactionmetadata', init);
+
+      const [, sentInit] = lastCall() as unknown as [RequestInfo | URL, RequestInit | undefined];
+      expect(sentInit).toBe(init);
+    });
+
+    test('2) 실린 값이 없으면 경로의 serviceName이 전역 선택값을 이긴다', async () => {
+      await window.fetch('/api/transactionmetadata');
+
+      expect(headerOfLastCall()).toBe('path-service');
+    });
+
+    test('3) 경로에도 없으면 전역 선택값으로 나간다', async () => {
+      window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
+
+      await window.fetch('/api/transactionmetadata');
+
+      expect(headerOfLastCall()).toBe('global-service');
+    });
+
+    // 설정이 꺼져 있으면 인터셉터는 아무 것도 하지 않는다. 실린 헤더를 지우지도 않는다.
+    test('설정이 꺼져 있어도 이미 실린 값은 그대로 나간다', async () => {
+      store.set(configurationAtom, configWithServiceMap(false));
+
+      await window.fetch('/api/transactionmetadata', {
+        headers: { [SERVICE_NAME_HEADER]: 'caller-service' },
+      });
+
+      expect(headerOfLastCall()).toBe('caller-service');
+    });
+  });
+
   test.each([
     ['/serverMap/app-name@TOMCAT?from=1&to=2'],
     ['/serverMap/realtime/app-name@TOMCAT'],

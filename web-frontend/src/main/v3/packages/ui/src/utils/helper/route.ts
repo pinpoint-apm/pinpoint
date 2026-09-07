@@ -1,11 +1,46 @@
 import {
   ApplicationType,
   APP_PATH,
+  BASE_PATH,
   GetServerMap,
   IMAGE_PATH,
   FilteredMapType as FilteredMap,
 } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '../string';
+
+/**
+ * `window.location.pathname`에는 라우터 basename(BASE_PATH)이 포함되므로, 라우터가 보는 경로
+ * (`useLocation().pathname`)와 비교하려면 접두사를 떼어내야 한다. BASE_PATH가 비어 있으면
+ * 그대로 반환한다.
+ *
+ * 렌더 밖에서 지금 경로를 알아야 하는 곳들이 같은 규칙을 써야 한다
+ * (`serviceNameFetchInterceptor`의 요청 헤더, `serverMapCurrentTargetAtom`의 선택 경로 도장).
+ */
+export const toRouterPath = (pathname: string) =>
+  BASE_PATH && pathname.startsWith(BASE_PATH) ? pathname.slice(BASE_PATH.length) : pathname;
+
+/**
+ * 라우터가 **렌더한** 경로. `useSyncRenderedRouterPath`가 렌더 중에 갱신한다.
+ *
+ * `window.location`을 직접 보면 안 된다. 뒤로/앞으로 가기(popstate)에서는 브라우저가 주소를 먼저
+ * 바꾸고 react-router의 location 상태는 그 다음 렌더에 반영되므로, 그 사이 한 렌더 동안
+ * **"이전 경로의 파라미터 + 새 경로의 service"** 라는 짝이 만들어진다. 조회 파라미터는 라우터에서,
+ * service는 window.location에서 오기 때문이다. 그 짝은 캐시에 없는 키라 React Query가 곧바로
+ * 요청을 날린다 — service를 넘나드는 뒤로가기에서 map 조회가 한 번 더 나가던 원인이다.
+ * (이슈 #10587)
+ *
+ * 아직 한 번도 렌더되지 않았으면(부트스트랩, 라우트 로더) `window.location`으로 폴백한다.
+ * 그 시점에는 라우터도 같은 주소를 보고 있으므로 어긋날 여지가 없다.
+ */
+let renderedRouterPath: string | undefined;
+
+/** `useSyncRenderedRouterPath` 전용. 다른 곳에서 호출하지 않는다. */
+export const setRenderedRouterPath = (pathname: string) => {
+  renderedRouterPath = pathname;
+};
+
+export const getCurrentRouterPath = () =>
+  renderedRouterPath ?? toRouterPath(window.location.pathname);
 
 export const getServerImagePath = (application?: ApplicationType | GetServerMap.NodeData) => {
   return `${IMAGE_PATH}/servers/${application?.serviceType || 'UNKNOWN'}.png`;

@@ -3,11 +3,19 @@ import { getDefaultStore } from 'jotai';
 import {
   configurationAtom,
   CurrentTarget,
+  selectedServiceAtom,
   serverMapCurrentTargetAtom,
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { Configuration, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { useServerMapTargetServiceName } from './useServerMapTargetServiceName';
+
+// 화면의 service는 경로에서 읽으므로(`useServiceNameForLink`) 위치를 갈아 끼울 수 있게 한다.
+const mockLocation = { pathname: '/serviceMap/aService' };
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useLocation: () => mockLocation,
+}));
 
 const store = getDefaultStore();
 
@@ -49,14 +57,49 @@ const render = () => renderHook(() => useServerMapTargetServiceName()).result.cu
 
 describe('useServerMapTargetServiceName', () => {
   beforeEach(() => {
+    mockLocation.pathname = '/serviceMap/aService';
+    act(() => {
+      store.set(selectedServiceAtom, 'aService');
+    });
     setEnableServiceMap(true);
   });
 
-  test('is undefined while nothing is picked, so the screen service keeps being used', () => {
+  // 값이 도중에 undefined에서 화면의 service로 바뀌면 같은 요청이 서로 다른 캐시 키로 두 번
+  // 쌓여 조회가 한 번 더 나간다(이슈 #10587). 처음부터 화면의 service를 준다.
+  test('is the screen service while nothing is picked yet', () => {
     setMap([node('aService', 'a-1')]);
     setTarget(undefined);
 
-    expect(render()).toBeUndefined();
+    expect(render()).toBe('aService');
+  });
+
+  // 경로에 serviceName이 없는 화면(servermap)에서는 전역 선택값이 화면의 service다.
+  test('falls back to the globally selected service when the path carries none', () => {
+    mockLocation.pathname = '/serverMap/a-1@SPRING_BOOT';
+    setMap([node('aService', 'a-1')]);
+    setTarget(undefined);
+
+    expect(render()).toBe('aService');
+  });
+
+  // 설정이 곧 "어느 map이 보이는가"다 — 켜져 있으면 servicemap만 보이고 servermap URL은 렌더
+  // 전에 옮겨지므로(`getHiddenMapPageRedirect`), 여기까지 온 노드는 servicemap이 그린 것이다.
+  // 그래서 경로를 따로 보지 않고 설정 하나로 갈린다. (이슈 #10587)
+  test('takes the picked node service without looking at the path', () => {
+    mockLocation.pathname = '/serviceMap';
+    setMap([node('bService', 'b-1')]);
+    setTarget({ id: 'bService^b-1^SPRING_BOOT', type: 'node' });
+
+    expect(render()).toBe('bService');
+  });
+
+  // servicemap 실시간도 group을 펼쳐 다른 service의 노드를 고를 수 있다.
+  test('takes the picked node service on servicemap realtime', () => {
+    mockLocation.pathname = '/serviceMap/realtime/aService';
+    setMap([node('aService', 'a-1'), node('bService', 'b-1')]);
+    setTarget({ id: 'bService^b-1^SPRING_BOOT', type: 'node' });
+
+    expect(render()).toBe('bService');
   });
 
   test('is the service of the picked node', () => {

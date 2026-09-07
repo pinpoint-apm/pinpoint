@@ -3,12 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
 import { useLocation } from 'react-router';
-import { useAtom, useAtomValue } from 'jotai';
-import {
-  activeThreadTargetAtom,
-  serverMapCurrentTargetAtom,
-  serverMapCurrentTargetDataAtom,
-} from '@pinpoint-fe/ui/src/atoms';
+import { useAtom } from 'jotai';
+import { activeThreadTargetAtom } from '@pinpoint-fe/ui/src/atoms';
 import { AgentActiveThreadSkeleton } from './AgentActiveThreadSkeleton';
 import { useActiveThreadSocket } from './useActiveThreadSocket';
 import {
@@ -23,7 +19,11 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { BsGearFill } from 'react-icons/bs';
 import { AgentActiveSetting, AgentActiveSettingType, DefaultValue } from './AgentActiveSetting';
 import { HelpPopover } from '@pinpoint-fe/ui/src/components/HelpPopover';
-import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useServerMapCurrentTarget,
+  useServerMapCurrentTargetData,
+  useTimezone,
+} from '@pinpoint-fe/ui/src/hooks';
 
 export interface ActiveRequestProps {}
 
@@ -42,7 +42,9 @@ export interface AgentActiveThreadFetcherProps {
 export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetcherProps) => {
   const { t } = useTranslation();
   const [timezone] = useTimezone();
-  const currentServerMapTarget = useAtomValue(serverMapCurrentTargetAtom);
+  // 이전 경로에서 고른 것은 읽지 않는다. 아톰을 그대로 읽으면 application을 바꾼 직후 한 렌더
+  // 동안 이전 경로의 노드로 activeThreadCount 요청이 나간다. (이슈 #10587)
+  const currentServerMapTarget = useServerMapCurrentTarget();
   const { pathname } = useLocation();
   const [storedTarget, setStoredTarget] = useAtom(activeThreadTargetAtom);
   // 다른 화면에서 고정해 둔 대상은 이 화면의 것이 아니다. 경로가 같을 때만 이어 쓴다.
@@ -51,7 +53,7 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
   const applicationName = currentServerMapTarget?.applicationName || '';
   const serviceType = currentServerMapTarget?.serviceType;
   const [isApplicationLocked, setApplicationLock] = React.useState(true);
-  const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
+  const currentTargetData = useServerMapCurrentTargetData() as GetServerMap.NodeData;
   const [showSetting, setShowSetting] = React.useState(false);
   const [setting, setSetting] = React.useState<AgentActiveSettingType>(DefaultValue);
   /**

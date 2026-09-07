@@ -1,11 +1,9 @@
 import React from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
-  serverMapCurrentTargetDataAtom,
   currentServerAtom,
   currentServerAgentIdAtom,
   serverMapDataAtom,
-  serverMapCurrentTargetAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { GetServerMap, BASE_PATH, GetHistogramStatistics } from '@pinpoint-fe/ui/src/constants';
 import { getParsedDate, getInspectorPath, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
@@ -14,6 +12,10 @@ import {
   useSearchParameters,
   useServerMapLinkedData,
 } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useServerMapCurrentTarget,
+  useServerMapCurrentTargetData,
+} from '@pinpoint-fe/ui/src/hooks/serverMap/useServerMapCurrentTarget';
 import { ServerList as SL, ServerListProps, Button, ServerListSkeleton } from '@pinpoint-fe/ui';
 import { upperCase } from 'lodash';
 
@@ -28,9 +30,9 @@ export interface ServerListFetcherProps extends ServerListProps {
 
 export const ServerListFetcher = ({ nodeStatistics, serviceName }: ServerListFetcherProps) => {
   const { searchParameters } = useSearchParameters();
-  // 값은 쓰지 않지만 atom 구독은 유지해야 하므로 호출은 남긴다.
-  useAtomValue(serverMapCurrentTargetAtom);
-  const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
+  // 값은 쓰지 않지만 선택 자체의 구독은 유지해야 하므로 호출은 남긴다.
+  useServerMapCurrentTarget();
+  const currentTargetData = useServerMapCurrentTargetData() as GetServerMap.NodeData;
   const setCurrentServer = useSetAtom(currentServerAtom);
   const currentServerAgent = useAtomValue(currentServerAgentIdAtom);
   const serverMapData = useAtomValue(serverMapDataAtom);

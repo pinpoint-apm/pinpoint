@@ -261,5 +261,14 @@ describe('Test date utils', () => {
       expect(result).toBe(false);
       consoleSpy.mockRestore();
     });
+
+    // `Intl.DateTimeFormat(undefined, { timeZone: undefined })`는 예외가 나지 않는다.
+    // 값이 없는 것까지 유효하다고 하면 `getTimezone`이 system timezone으로 폴백하지 못하고,
+    // 저장된 timezone이 아직 없는 첫 방문에서 화면이 UTC로 한 번 조회한 뒤 실제 timezone으로
+    // 한 번 더 조회한다. (이슈 #10587)
+    test('Return false when no timezone is stored yet', () => {
+      expect(isValidTimezone(undefined)).toBe(false);
+      expect(isValidTimezone('')).toBe(false);
+    });
   });
 });

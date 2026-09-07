@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,6 +11,7 @@ import {
   getRealtimePath,
 } from '@pinpoint-fe/ui/src/utils';
 import { useConfiguration, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useServerMapCurrentTarget } from '@pinpoint-fe/ui/src/hooks/serverMap';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
@@ -76,7 +77,12 @@ export const ServerMapPage = ({
   const navigate = useNavigate();
   const { dateRange, application, search, searchParameters, queryOption, pathname } =
     useServerMapSearchParameters();
-  const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
+  const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
+  // 이전 경로에서 고른 선택은 이 map에서 살려 두지 않는다. 아톰을 그대로 읽으면 (merged 노드처럼
+  // `nodes`를 들고 있는 선택은) 아래 effect가 그것을 그대로 유지하며 지금 경로로 도장을 다시
+  // 찍어, 이 map에 없는 노드가 선택된 상태가 된다. 그러면 조회 대상이 없는데도 우측 패널이
+  // 그려져 `applicationName` 없는 요청이 나간다(`/heatmap/applicationData` 400). (이슈 #10587)
+  const serverMapCurrentTarget = useServerMapCurrentTarget();
   const serverMapData = useAtomValue(serverMapDataAtom);
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();

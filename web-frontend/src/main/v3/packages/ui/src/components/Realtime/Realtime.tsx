@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   ChartsBoard,
@@ -22,13 +22,14 @@ import {
 } from '..';
 import {
   useServerMapSearchParameters,
+  useServerMapCurrentTarget,
+  useServerMapCurrentTargetData,
   useServerMapTargetServiceName,
   useTabFocus,
 } from '@pinpoint-fe/ui/src/hooks';
 import {
   CurrentTarget,
   serverMapCurrentTargetAtom,
-  serverMapCurrentTargetDataAtom,
   serverMapDataAtom,
   serverMapChartTypeAtom,
 } from '@pinpoint-fe/ui/src/atoms';
@@ -56,8 +57,11 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
   const isFocus = useTabFocus();
   const containerRef = React.useRef<HTMLDivElement>(null);
   const { application } = useServerMapSearchParameters();
-  const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
-  const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
+  // 이전 경로에서 고른 것은 읽지 않는다. 아톰을 그대로 읽으면 application을 바꾼 직후 한 렌더
+  // 동안 "새 application + 이전 경로의 노드"로 조회가 나간다. (이슈 #10587)
+  const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
+  const serverMapCurrentTarget = useServerMapCurrentTarget();
+  const currentTargetData = useServerMapCurrentTargetData() as GetServerMap.NodeData;
   const serverMapData = useAtomValue(serverMapDataAtom);
   const { t } = useTranslation();
   // 기준 application이 필요 없는 map은 고를 대상이 없으므로 곧바로 그린다.

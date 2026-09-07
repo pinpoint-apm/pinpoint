@@ -11,6 +11,7 @@ export * from './useLanguage';
 export * from './useLocalStorage';
 export * from './useServerMapLinkedData';
 export * from './useServiceNameForLink';
+export * from './useSyncRenderedRouterPath';
 export * from './useServicesFetch';
 export * from './useStoragedSetting';
 export * from './useSyncSelectedServiceWithPath';

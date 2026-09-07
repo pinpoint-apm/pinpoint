@@ -14,10 +14,14 @@ export const useGetHeatmapAppData = (
   serviceName?: string,
 ) => {
   const queryString = `?${convertParamsToQueryString(parameters)}`;
+  // 조회 대상이 정해지기 전에는 요청을 보내지 않는다. 이 API는 applicationName이 필수라
+  // 없이 부르면 400("Required parameter 'applicationName' is not present.")이다.
+  // queryString은 물음표 때문에 항상 truthy라 그것만으로는 막지 못한다. (이슈 #10587)
+  const hasTarget = !!parameters.applicationName && !!parameters.serviceTypeName;
   const { data, isLoading, refetch, error } = useQuery<GetHeatmapAppData.Response>({
     queryKey: [END_POINTS.HEATMAP_APP_DATA, parameters, serviceName],
     queryFn: queryFn(`${END_POINTS.HEATMAP_APP_DATA}${queryString}`, { serviceName }),
-    enabled: !!queryString,
+    enabled: hasTarget,
     // HeatmapFetcher renders a full inline error overlay for this failure — suppress the
     // redundant global error toast so the user sees a single error signal.
     meta: { ignoreGlobalError: true },
