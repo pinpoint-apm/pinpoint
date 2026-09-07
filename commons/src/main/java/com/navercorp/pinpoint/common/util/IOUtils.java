@@ -56,13 +56,23 @@ public final class IOUtils {
             bufferSize = calculateBufferSize(inputStream, bufferSize);
             final byte[] buffer = new byte[bufferSize];
 
-            final byte[] readBuffer = bufferRead(inputStream, buffer);
-            if (readBuffer != null) {
-                return readBuffer;
+            final int readBytes = readFully(inputStream, buffer);
+            if (readBytes < buffer.length) {
+                // EOF before the buffer was full: available() overestimated the size.
+                return Arrays.copyOf(buffer, readBytes);
+            }
+
+            // The buffer is full. Probe a single byte to tell "exactly full" from "more to come"
+            // without going through a ByteArrayOutputStream: available() is exact for jar and file streams,
+            // so this is the common path.
+            final int next = inputStream.read();
+            if (next == EOF) {
+                return buffer;
             }
 
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(buffer.length * 2);
             outputStream.write(buffer, 0, buffer.length);
+            outputStream.write(next);
 
             copy(inputStream, outputStream, buffer);
 
@@ -74,32 +84,29 @@ public final class IOUtils {
         }
     }
 
-    private static byte[] bufferRead(InputStream inputStream, byte[] buffer) throws IOException {
-        int bufferWriteIdx = 0;
-        int bufferReadBytes;
+    /**
+     * Fills the buffer until it is full or the stream reaches EOF.
+     *
+     * @return the number of bytes read, less than the buffer length only when EOF was reached first.
+     */
+    private static int readFully(final InputStream inputStream, final byte[] buffer) throws IOException {
         final int bufferLength = buffer.length;
-        while (bufferLength >= bufferWriteIdx) {
-            // OS buffer optimization
-            bufferReadBytes = inputStream.read(buffer, bufferWriteIdx, bufferLength - bufferWriteIdx);
-            if (bufferReadBytes == EOF) {
-                if (bufferLength == bufferWriteIdx) {
-                    return buffer;
-                } else {
-                    return Arrays.copyOf(buffer, bufferWriteIdx);
-                }
-            }
-            if (bufferReadBytes == 0) {
-                // buffer is full
+        int offset = 0;
+        while (offset < bufferLength) {
+            // OS buffer optimization: a single read may return fewer bytes than requested
+            final int readBytes = inputStream.read(buffer, offset, bufferLength - offset);
+            if (readBytes == EOF) {
                 break;
             }
-            bufferWriteIdx += bufferReadBytes;
+            offset += readBytes;
         }
-        return null;
+        return offset;
     }
 
     private static int calculateBufferSize(final InputStream inputStream, int defaultBufferSize) throws IOException {
         final int expectedLength = inputStream.available();
-        if (expectedLength < 256) {
+        // available() is 0 or 1 when the stream cannot estimate its size; the smallest class file javac emits is 83 bytes.
+        if (expectedLength < 64) {
             return defaultBufferSize;
         }
         return Math.min(expectedLength, MAX_BUFFER_SIZE);

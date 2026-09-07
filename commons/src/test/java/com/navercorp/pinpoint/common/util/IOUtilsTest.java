@@ -77,6 +77,36 @@ public class IOUtilsTest {
         assertClosed(6000, 1);
     }
 
+    @Test
+    public void toByteArray_exact_fit_reads_without_copy() throws IOException {
+        // jar and file streams report the exact size through available(): one bulk read and one EOF probe
+        final int size = 3000;
+        ByteArrayInputStream inputStream = Mockito.spy(new ByteArrayInputStream(nextBytes(size)));
+        Mockito.doReturn(size).when(inputStream).available();
+
+        byte[] bytes = IOUtils.toByteArray(inputStream, true);
+
+        Assertions.assertEquals(size, bytes.length);
+        Mockito.verify(inputStream, Mockito.times(1)).read(Mockito.any(byte[].class), Mockito.anyInt(), Mockito.anyInt());
+        Mockito.verify(inputStream, Mockito.times(1)).read();
+    }
+
+    @Test
+    public void toByteArray_available_overestimated() throws IOException {
+        assertToByteArray(1000, 4096);
+        assertToByteArray(4096, 4097);
+        assertToByteArray(300, Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void toByteArray_probe_byte_is_kept() throws IOException {
+        // the buffer is exactly full and one more byte follows
+        assertToByteArray(3001, 3000);
+        assertToByteArray(3001, 3000, 1024);
+        // the buffer is exactly full and many more bytes follow
+        assertToByteArray(9000, 3000);
+    }
+
     private void assertClosed(final int sourceBytesSize, final int available) throws IOException {
         ByteArrayInputStream inputStream = Mockito.spy(new ByteArrayInputStream(nextBytes(sourceBytesSize)));
         Mockito.doReturn(available).when(inputStream).available();
