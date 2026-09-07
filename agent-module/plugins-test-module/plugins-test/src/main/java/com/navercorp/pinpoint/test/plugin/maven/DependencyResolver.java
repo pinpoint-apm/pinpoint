@@ -25,10 +25,8 @@ import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
-import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyFilter;
-import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.LocalRepositoryManager;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -39,9 +37,10 @@ import org.eclipse.aether.resolution.DependencyResult;
 import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
-import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
-import org.eclipse.aether.transport.file.FileTransporterFactory;
+import org.eclipse.aether.supplier.RepositorySystemSupplier;
+import org.eclipse.aether.transport.http.ChecksumExtractor;
+import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
@@ -56,6 +55,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.function.Predicate;
 
 import static com.navercorp.pinpoint.test.plugin.util.CollectionUtils.union;
@@ -73,25 +73,36 @@ public class DependencyResolver {
     private final RepositorySystemSession session;
 
     static RepositorySystem newRepositorySystem(boolean supportRemote) {
-        DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
-        locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
-        locator.addService(TransporterFactory.class, FileTransporterFactory.class);
-        if (supportRemote) {
-            locator.addService(TransporterFactory.class, org.eclipse.aether.transport.http.HttpTransporterFactory.class);
+        // DefaultServiceLocator is deprecated since maven-resolver 1.9 and removed in 2.0.
+        // RepositorySystemSupplier wires file + http transports by default, so the remote support is opt-out.
+        return new PinpointRepositorySystemSupplier(supportRemote).get();
+    }
+
+    static class PinpointRepositorySystemSupplier extends RepositorySystemSupplier {
+        private final boolean supportRemote;
+
+        PinpointRepositorySystemSupplier(boolean supportRemote) {
+            this.supportRemote = supportRemote;
         }
 
-        locator.setErrorHandler(new DefaultServiceLocator.ErrorHandler() {
-            @Override
-            public void serviceCreationFailed(Class<?> type, Class<?> impl, Throwable exception) {
-                logger.error(exception, "serviceCreationFailed type:{}, impl:{} {}", type, impl);
+        @Override
+        protected Map<String, TransporterFactory> getTransporterFactories(Map<String, ChecksumExtractor> extractors) {
+            final Map<String, TransporterFactory> factories = super.getTransporterFactories(extractors);
+            if (!supportRemote) {
+                factories.remove(HttpTransporterFactory.NAME);
             }
-        });
-
-        return locator.getService(RepositorySystem.class);
+            return factories;
+        }
     }
 
     static DefaultRepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
+        // maven-resolver-provider 3.9 no longer copies the JVM system properties into the session as 3.8 did.
+        // Without java.version the model builder fails the <jdk> profile activation of every POM it reads,
+        // the descriptor is then ignored as invalid and no transitive dependency is resolved.
+        final Properties systemProperties = copySystemProperties();
+        session.setSystemProperties(systemProperties);
+        session.setConfigProperties(systemProperties);
         session.setCache(newRepositoryCache());
 
         MavenRepository mavenRepository = new MavenRepository();
@@ -105,6 +116,16 @@ public class DependencyResolver {
         session.setLocalRepositoryManager(localRepositoryManager);
 
         return session;
+    }
+
+    private static Properties copySystemProperties() {
+        final Properties copy = new Properties();
+        final Properties systemProperties = System.getProperties();
+        // guard against ConcurrentModificationException
+        synchronized (systemProperties) {
+            copy.putAll(systemProperties);
+        }
+        return copy;
     }
 
     private static RepositoryCache newRepositoryCache() {

@@ -18,11 +18,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
 import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.spi.connector.transport.TransporterFactory;
+import org.eclipse.aether.transport.file.FileTransporterFactory;
+import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +35,31 @@ import java.util.Map;
  */
 public class DependencyResolverTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
+
+    @Test
+    public void transporterFactories_supportRemote() {
+        Map<String, TransporterFactory> remote = new DependencyResolver.PinpointRepositorySystemSupplier(true)
+                .getTransporterFactories(Collections.emptyMap());
+        Assertions.assertThat(remote).containsKeys(FileTransporterFactory.NAME, HttpTransporterFactory.NAME);
+
+        Map<String, TransporterFactory> local = new DependencyResolver.PinpointRepositorySystemSupplier(false)
+                .getTransporterFactories(Collections.emptyMap());
+        Assertions.assertThat(local).containsKey(FileTransporterFactory.NAME);
+        Assertions.assertThat(local).doesNotContainKey(HttpTransporterFactory.NAME);
+    }
+
+    @Test
+    public void resolveArtifactsAndDependencies_includes_transitive_dependencies() throws DependencyResolutionException {
+        DependencyResolverFactory factory = new DependencyResolverFactory();
+        DependencyResolver resolver = factory.get();
+
+        // maven-resolver-util depends on maven-resolver-api; the resolver-provider POMs carry <jdk> profiles,
+        // so this also fails when the session lacks the JVM system properties.
+        List<Path> files = resolver.resolveArtifactsAndDependencies("org.apache.maven.resolver:maven-resolver-util:1.9.27");
+
+        Assertions.assertThat(files).hasSize(2);
+        Assertions.assertThat(files).anySatisfy(path -> Assertions.assertThat(path.getFileName().toString()).isEqualTo("maven-resolver-api-1.9.27.jar"));
+    }
 
     @Test
     public void test() {

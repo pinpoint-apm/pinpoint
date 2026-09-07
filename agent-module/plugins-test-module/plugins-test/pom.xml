@@ -13,8 +13,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <maven-resolver>1.6.3</maven-resolver>
-        <maven-core>3.8.8</maven-core>
+        <maven-resolver>1.9.27</maven-resolver>
+        <maven-core>3.9.16</maven-core>
         <tinylog.version>2.7.0</tinylog.version>
         <pinpoint.agent.dir>${project.basedir}/../../agent/target/pinpoint-agent-${project.version}</pinpoint.agent.dir>
         <pinpoint.agent.bootjar>${pinpoint.agent.dir}/pinpoint-bootstrap-${project.version}.jar</pinpoint.agent.bootjar>
@@ -46,6 +46,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-supplier</artifactId>
+            <version>${maven-resolver}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-api</artifactId>
             <version>${maven-resolver}</version>
         </dependency>
@@ -71,11 +76,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-transport-classpath</artifactId>
-            <version>${maven-resolver}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-transport-file</artifactId>
             <version>${maven-resolver}</version>
         </dependency>
@@ -89,11 +89,6 @@
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-transport-wagon</artifactId>
-            <version>${maven-resolver}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
