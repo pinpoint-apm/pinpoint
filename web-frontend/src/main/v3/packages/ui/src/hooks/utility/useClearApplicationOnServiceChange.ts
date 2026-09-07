@@ -29,6 +29,12 @@ import { getServiceMapPath, getServiceNameFromPath } from '@pinpoint-fe/ui/src/u
  *    query string(?from=...&to=...)은 굳이 유지하지 않는다. 라우트 로더가 기본 시간 범위를
  *    채워주고, DEFAULT service는 어차피 application을 고르는 순간 다시 채워진다.
  *
+ *    **history에 쌓는다(replace가 아니다).** service를 고르는 것은 사용자가 화면을 옮기는
+ *    행위라 뒤로가기로 이전 service의 화면에 돌아갈 수 있어야 한다. replace로 두면 A → B로
+ *    옮긴 뒤 뒤로가기가 A를 건너뛰고 service를 고르기 전 화면으로 나간다.
+ *    (이 훅이 처음 생겼을 때는 "현재 URL에서 application 세그먼트만 떼는" 정규화였고, 그때는
+ *     replace가 맞았다. 다른 service의 map으로 옮기는 지금은 그렇지 않다.)
+ *
  * 단, 경로가 이미 새 service를 가리키고 있으면(주소창을 직접 고쳐 들어온 경우 —
  * `useSyncSelectedServiceWithPath`가 그 값을 전역 선택값에 반영한다) 2)까지만 하고 멈춘다.
  * 사용자가 보려고 지정한 화면이므로 servicemap으로 끌고 가면 안 되고, application도 경로에서
@@ -63,7 +69,7 @@ export const useClearApplicationOnServiceChange = (enabled: boolean) => {
     // 저장된 application 무효화 → 네비게이션 링크가 base 경로로 바뀐다.
     setSearchParameters((prev) => ({ ...prev, application: {} as ApplicationType }));
 
-    navigate(getServiceMapPath(selectedService), { replace: true });
+    navigate(getServiceMapPath(selectedService));
   }, [
     selectedService,
     enabled,

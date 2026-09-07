@@ -92,6 +92,12 @@ service다** — 모든 조회에 `pServiceName` 헤더가 실리고 캐시도 s
   map만 그리고, 우측 패널은 조회를 시작하지 않은 채 노드를 고르라는 안내 문구를 띄운다
   (`SERVER_MAP.SELECT_NODE_FOR_CHART`, `SERVER_MAP.REAL_TIME.SELECT_NODE`).
   로딩 스켈레톤을 그대로 두면 영원히 로딩 중인 화면처럼 보이기 때문이다.
+- **service를 바꾸면 history에 쌓인다(replace가 아니다).** 사용자가 화면을 옮기는 행위라
+  뒤로가기로 이전 service의 화면에 돌아갈 수 있어야 한다. replace로 두면 A → B로 옮긴 뒤
+  뒤로가기가 A를 건너뛰고 service를 고르기 전 화면으로 나간다.
+  → `useClearApplicationOnServiceChange`
+  (경로가 이미 그 service를 가리키면 이동 자체를 하지 않으므로 항목이 중복으로 쌓이지 않는다.
+   로더가 붙이는 from/to 리다이렉트도 항목을 하나 더 만들지 않는다 — service 전환 1회 = 항목 1개.)
 
 ## filteredMap 연결
 

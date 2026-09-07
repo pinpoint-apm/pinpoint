@@ -108,7 +108,23 @@ describe('useClearApplicationOnServiceChange', () => {
     act(() => {
       store.set(selectedServiceAtom, 'svc-a');
     });
-    expect(mockNavigate).toHaveBeenCalledWith(`${APP_PATH.SERVICE_MAP}/svc-a`, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith(`${APP_PATH.SERVICE_MAP}/svc-a`);
+  });
+
+  // service를 고르는 것은 사용자가 화면을 옮기는 행위다. replace로 두면 A → B로 옮긴 뒤
+  // 뒤로가기가 A를 건너뛰고 service를 고르기 전 화면으로 나간다.
+  test('pushes the new service onto history so back returns to the previous service', () => {
+    renderClearHook(true);
+    act(() => {
+      store.set(selectedServiceAtom, 'svc-a');
+    });
+    act(() => {
+      store.set(selectedServiceAtom, 'svc-b');
+    });
+
+    expect(mockNavigate).toHaveBeenNthCalledWith(1, `${APP_PATH.SERVICE_MAP}/svc-a`);
+    expect(mockNavigate).toHaveBeenNthCalledWith(2, `${APP_PATH.SERVICE_MAP}/svc-b`);
+    expect(mockNavigate).not.toHaveBeenCalledWith(expect.anything(), { replace: true });
   });
 
   test('encodes a service name that would otherwise break the path', () => {
@@ -116,9 +132,7 @@ describe('useClearApplicationOnServiceChange', () => {
     act(() => {
       store.set(selectedServiceAtom, 'team/a@b');
     });
-    expect(mockNavigate).toHaveBeenCalledWith(`${APP_PATH.SERVICE_MAP}/team%2Fa%40b`, {
-      replace: true,
-    });
+    expect(mockNavigate).toHaveBeenCalledWith(`${APP_PATH.SERVICE_MAP}/team%2Fa%40b`);
   });
 
   test('does not navigate on initial mount', () => {
