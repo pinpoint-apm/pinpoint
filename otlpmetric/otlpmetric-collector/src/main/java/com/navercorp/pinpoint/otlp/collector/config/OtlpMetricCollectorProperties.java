@@ -40,6 +40,9 @@ public class OtlpMetricCollectorProperties {
     @Value("${kafka.otlpmetric.topic.long.padding.length}")
     private int longTopicPaddingLength;
 
+    @Value("${collector.otlpmetric.rawtags.length.warn-threshold:-1}")
+    private int rawTagsLengthWarnThreshold;
+
     public String getMetadataTopicName() {
         return metadataTopicName;
     }
@@ -66,5 +69,9 @@ public class OtlpMetricCollectorProperties {
 
     public int getLongTopicPaddingLength() {
         return longTopicPaddingLength;
+    }
+
+    public int getRawTagsLengthWarnThreshold() {
+        return rawTagsLengthWarnThreshold;
     }
 }

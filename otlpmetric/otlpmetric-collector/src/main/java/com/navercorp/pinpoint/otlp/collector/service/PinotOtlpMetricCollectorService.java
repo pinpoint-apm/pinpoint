@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.collector.service;
 
+import com.navercorp.pinpoint.otlp.collector.config.OtlpMetricCollectorProperties;
 import com.navercorp.pinpoint.otlp.collector.dao.OtlpMetricDao;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricDataPoint;
@@ -45,8 +46,11 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
     @NonNull
     private final OtlpMetricDao otlpMetricDao;
 
-    public PinotOtlpMetricCollectorService(OtlpMetricDao otlpMetricDao) {
+    private final int rawTagsLengthWarnThreshold;
+
+    public PinotOtlpMetricCollectorService(OtlpMetricDao otlpMetricDao, OtlpMetricCollectorProperties properties) {
         this.otlpMetricDao = Objects.requireNonNull(otlpMetricDao, "otlpMetricDao");
+        this.rawTagsLengthWarnThreshold = Objects.requireNonNull(properties, "properties").getRawTagsLengthWarnThreshold();
     }
     @Override
     public void save(OtlpMetricData otlpMetricData) {
@@ -79,6 +83,12 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
                                                             .collect(Collectors.toList());
 
             String rawTags = String.join(",", tagList);
+            if (rawTagsLengthWarnThreshold >= 0 && rawTags.length() > rawTagsLengthWarnThreshold) {
+                logger.warn("otlpMetric rawTags length {} exceeds threshold {} (Pinot will truncate, merging attribute sets on upsert). " +
+                                "applicationName={}, agentId={}, metricGroupName={}, metricName={}, fieldName={}, tagCount={}, rawTags=[{}]",
+                        rawTags.length(), rawTagsLengthWarnThreshold, applicationName, agentId, metricGroupName, metricName,
+                        dataPoint.getFieldName(), tagList.size(), rawTags);
+            }
             PinotOtlpMetricMetadata metadata = new PinotOtlpMetricMetadata(DEFAULT_SERVICE_NAME, applicationName, agentId,
                     metricGroupName, metricName, dataPoint.getFieldName(), unit, dataPoint.getDescription(), metricType,
                     dataType.getNumber(), dataPoint.getAggreFunc(), aggreTemporality, rawTags, dataPoint.getStartTime(), saveTime, version);
