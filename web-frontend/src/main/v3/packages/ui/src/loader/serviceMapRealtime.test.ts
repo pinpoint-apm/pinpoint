@@ -86,14 +86,14 @@ describe('serviceMapRealtimeLoader', () => {
   test('stays on the page when DEFAULT carries no application yet', async () => {
     expect(
       await serviceMapRealtimeLoader(makeArgs('http://localhost/serviceMap/realtime/DEFAULT')),
-    ).toBe(null);
+    ).toBeNull();
   });
 
   // DEFAULT가 아닌 service는 소속 application을 모두 모아 그리므로 기준 application이 없다.
   test('renders a non-DEFAULT service without an application', async () => {
     expect(
       await serviceMapRealtimeLoader(makeArgs('http://localhost/serviceMap/realtime/blogService')),
-    ).toBe(null);
+    ).toBeNull();
   });
 
   // 다른 화면 링크를 타고 실려 들어온 application. 그대로 두면 클릭한 노드가 아니라
