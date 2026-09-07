@@ -52,22 +52,20 @@ public final class IOUtils {
             throw new IllegalArgumentException("negative bufferSize");
         }
 
-        bufferSize = calculateBufferSize(inputStream, bufferSize);
-        final byte[] buffer = new byte[bufferSize];
-
-        final byte[] readBuffer = bufferRead(inputStream, buffer);
-        if (readBuffer != null) {
-            return readBuffer;
-        }
-
-        ByteArrayOutputStream outputStream;
         try {
-            outputStream = new ByteArrayOutputStream(buffer.length * 2);
+            bufferSize = calculateBufferSize(inputStream, bufferSize);
+            final byte[] buffer = new byte[bufferSize];
+
+            final byte[] readBuffer = bufferRead(inputStream, buffer);
+            if (readBuffer != null) {
+                return readBuffer;
+            }
+
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(buffer.length * 2);
             outputStream.write(buffer, 0, buffer.length);
 
             copy(inputStream, outputStream, buffer);
 
-            outputStream.flush();
             return outputStream.toByteArray();
         } finally {
             if (close) {

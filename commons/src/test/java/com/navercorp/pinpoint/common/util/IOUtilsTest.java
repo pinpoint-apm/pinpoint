@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.common.util;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -64,6 +65,25 @@ public class IOUtilsTest {
         assertToByteArray(IOUtils.DEFAULT_BUFFER_SIZE * 2, 4096, 1024);
         assertToByteArray(IOUtils.DEFAULT_BUFFER_SIZE * 5, 4096, 1024);
         assertToByteArray(IOUtils.DEFAULT_BUFFER_SIZE * 10, 4096, 1024);
+    }
+
+    @Test
+    public void toByteArray_close_on_every_path() throws IOException {
+        // fast path: the stream ends before the buffer is full
+        assertClosed(100, 4096);
+        // exact fit: the buffer is full and the stream is at EOF
+        assertClosed(3000, 3000);
+        // slow path: available() underestimates the size
+        assertClosed(6000, 1);
+    }
+
+    private void assertClosed(final int sourceBytesSize, final int available) throws IOException {
+        ByteArrayInputStream inputStream = Mockito.spy(new ByteArrayInputStream(nextBytes(sourceBytesSize)));
+        Mockito.doReturn(available).when(inputStream).available();
+
+        IOUtils.toByteArray(inputStream, true);
+
+        Mockito.verify(inputStream).close();
     }
 
     private void assertToByteArray(final int sourceBytesSize) throws IOException {
