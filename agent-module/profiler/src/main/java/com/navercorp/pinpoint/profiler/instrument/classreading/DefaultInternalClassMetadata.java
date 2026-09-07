@@ -35,8 +35,8 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
         this.classInternalName = classInternalName;
         this.superClassInternalName = superClassInternalName;
 
-        this.interfaceInternalNames = defaultInterfaceName(interfaceInternalNames);
-        this.annotationInternalNames = defaultAnnotationName(annotationInternalNames);
+        this.interfaceInternalNames = defaultList(interfaceInternalNames);
+        this.annotationInternalNames = defaultList(annotationInternalNames);
 
         this.isInterface = isInterface;
         this.isAnnotation = isAnnotation;
@@ -44,17 +44,16 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
         this.isInnerClass = isInnerClass;
     }
 
-    private List<String> defaultInterfaceName(List<String> interfaceInternalNames) {
-        if (interfaceInternalNames == null) {
+    // internal, short-lived and read-only: no defensive copy, only the empty list is shared.
+    private static <T> List<T> defaultList(final List<T> list) {
+        if (isEmpty(list)) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(interfaceInternalNames);
+        return list;
     }
-    private List<String> defaultAnnotationName(List<String> annotationInternalNames) {
-        if (annotationInternalNames == null) {
-            return Collections.emptyList();
-        }
-        return Collections.unmodifiableList(annotationInternalNames);
+
+    private static <T> boolean isEmpty(List<T> list) {
+        return list == null || list.isEmpty();
     }
 
     @Override
@@ -97,16 +96,14 @@ public class DefaultInternalClassMetadata implements InternalClassMetadata {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("classInternalName='").append(classInternalName).append('\'');
-        sb.append(", superClassInternalName='").append(superClassInternalName).append('\'');
-        sb.append(", interfaceInternalNames=").append(interfaceInternalNames);
-        sb.append(", annotationInternalNames=").append(annotationInternalNames);
-        sb.append(", isInterface=").append(isInterface);
-        sb.append(", isAnnotation=").append(isAnnotation);
-        sb.append(", isSynthetic=").append(isSynthetic);
-        sb.append(", isInnerClass=").append(isInnerClass);
-        sb.append('}');
-        return sb.toString();
+        return "{" + "classInternalName='" + classInternalName + '\'' +
+                ", superClassInternalName='" + superClassInternalName + '\'' +
+                ", interfaceInternalNames=" + interfaceInternalNames +
+                ", annotationInternalNames=" + annotationInternalNames +
+                ", isInterface=" + isInterface +
+                ", isAnnotation=" + isAnnotation +
+                ", isSynthetic=" + isSynthetic +
+                ", isInnerClass=" + isInnerClass +
+                '}';
     }
 }

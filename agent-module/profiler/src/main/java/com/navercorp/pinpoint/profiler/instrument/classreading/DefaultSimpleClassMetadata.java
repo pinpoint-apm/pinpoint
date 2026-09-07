@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.instrument.classreading;
 
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,7 +45,8 @@ public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
         this.className = JavaAssistUtils.jvmNameToJavaName(classInternalName);
 
         this.superClassName = defaultSuperClassName(superClassInternalName);
-        this.interfaceNames = defaultInterfaceName(interfaceInternalNames);
+        // jvmNameToJavaName returns the shared empty list for null or empty input.
+        this.interfaceNames = JavaAssistUtils.jvmNameToJavaName(interfaceInternalNames);
 
         this.classBinary = classBinary;
     }
@@ -56,13 +56,6 @@ public class DefaultSimpleClassMetadata implements SimpleClassMetadata {
             return null;
         }
         return JavaAssistUtils.jvmNameToJavaName(superClassInternalName);
-    }
-
-    private List<String> defaultInterfaceName(List<String> interfaceInternalNames) {
-        if (interfaceInternalNames == null) {
-            return Collections.emptyList();
-        }
-        return Collections.unmodifiableList(JavaAssistUtils.jvmNameToJavaName(interfaceInternalNames));
     }
 
     @Override
