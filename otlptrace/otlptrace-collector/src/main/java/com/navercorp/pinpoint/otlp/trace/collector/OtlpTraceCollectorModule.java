@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.uid.ServiceLookupConfiguration;
 import com.navercorp.pinpoint.collector.uid.StaticServiceLookupConfiguration;
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
+import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
+import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
@@ -55,6 +57,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 import java.util.concurrent.Executor;
 
@@ -90,6 +93,16 @@ public class OtlpTraceCollectorModule {
     @Bean
     public ObjectNameVersion serverNameVersion(@Value(ObjectNameVersion.VALUE_KEY) String version) {
         return ObjectNameVersion.getVersion(version);
+    }
+
+    // ServiceLookupConfiguration.collectorServiceLookupExecutor injects this bean by name. It is
+    // defined in CollectorConfiguration, which only the BASIC app (PinpointCollectorModule)
+    // registers, so this app has to provide its own or fail to boot once
+    // pinpoint.collector.service.lookup.enabled=true. Same customizer instance type as the BASIC
+    // bean; pool sizing still comes from collectorServiceLookupExecutorProperties.
+    @Bean
+    public ExecutorCustomizer<ThreadPoolExecutorFactoryBean> collectorExecutorCustomizer() {
+        return new ThreadPoolExecutorCustomizer();
     }
 
     // Shared, thread-safe, bounded dedup of already-persisted agentIds. Injected into the single
