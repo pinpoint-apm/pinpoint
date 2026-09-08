@@ -23,17 +23,15 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
-import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 /**
  * We have referred OrderedThreadPoolExecutor ParentRunner of JUnit.
@@ -42,11 +40,12 @@ import java.util.concurrent.TimeUnit;
  * @author Taejin Koo
  */
 public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite {
-    private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
-    private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
     private static final DependencyVersionFilter DEPENDENCY_VERSION_FILTER = new DependencyVersionFilter();
 
     private final TaggedLogger logger = TestLogger.getLogger();
+
+    // shared by every suite of the engine: it owns the maven repository system and its session caches.
+    private final DependencyResolverFactory resolverFactory;
 
     private final ClassLoding classLoding;
 
@@ -60,19 +59,13 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
 
     private final boolean sharedProcess;
 
-    private static Map<String, Object> createResolverOption() {
-        Map<String, Object> resolverOption = new HashMap<>();
-        resolverOption.put(ConfigurationProperties.CONNECT_TIMEOUT, TimeUnit.SECONDS.toMillis(5));
-        resolverOption.put(ConfigurationProperties.REQUEST_TIMEOUT, TimeUnit.MINUTES.toMillis(5));
-        return resolverOption;
+    public DefaultPluginForkedTestSuite(Class<?> testClass, DependencyResolverFactory resolverFactory) {
+        this(testClass, true, resolverFactory);
     }
 
-    public DefaultPluginForkedTestSuite(Class<?> testClass) {
-        this(testClass, true);
-    }
-
-    public DefaultPluginForkedTestSuite(Class<?> testClass, boolean sharedProcess) {
+    public DefaultPluginForkedTestSuite(Class<?> testClass, boolean sharedProcess, DependencyResolverFactory resolverFactory) {
         super(testClass);
+        this.resolverFactory = Objects.requireNonNull(resolverFactory, "resolverFactory");
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
         this.classLoding = getClassLoding(onClassLoader);
@@ -174,7 +167,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     }
 
     private DependencyResolver getDependencyResolver(String[] repositories) {
-        return RESOLVER_FACTORY.get(repositories);
+        return this.resolverFactory.get(repositories);
     }
 
     private PluginForkedTestInstance newSharedProcessPluginTestCase(PluginForkedTestContext context, String testId, List<Path> libs, SharedProcessManager sharedProcessManager) {
