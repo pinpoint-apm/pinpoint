@@ -217,17 +217,52 @@ React Query가 곧바로 요청을 날린다 — 그 service에 없는 applicati
 같은 commit에 배치되므로 짝이 어긋나지 않는다). queryKey와 헤더에는 prop이 아니라 그 state
 (`requestServiceName`)를 쓴다. deferred를 쓰는 스캐터는 serviceName도 같이 deferred로 넘긴다.
 
-→ `useGetApdexScore`, `useGetHistogramStatistics`, `useGetScatterData`,
-`useGetScatterRealtimeData`, `HeatmapFetcher`, `HeatmapRealtimeFetcher`
+→ `useGetScatterData`, `useGetScatterRealtimeData`, `HeatmapFetcher`, `HeatmapRealtimeFetcher`
 
-파라미터를 그 자리에서 계산하는 훅(`useGetAgentOverview`)은 이 처리가 필요 없다.
+**파라미터를 그 자리에서 계산하는 훅은 이 처리가 필요 없다** — 애초에 어긋날 렌더가 없으므로
+serviceName도 prop을 그대로 쓴다(`useGetAgentOverview`, `useGetApdexScore`,
+`useGetHistogramStatistics`, `HeatmapFetcher`).
 링크 생성에 쓰는 값은 요청이 아니므로 최신 prop을 그대로 쓴다(`HeatmapChartCore`).
 
-### 통계 API는 기준 application도 함께 갈아야 한다
+### state를 없앨 수 있는지는 그 state가 무엇을 담고 있는지로 갈린다
 
-경로의 application은 화면 service 소속이라, 대상의 service로 나가는 요청의 기준이 될 수 없다
-(백엔드가 그 이름을 대상의 service에서 찾는다). 대상이 다른 service면 노드 자신을 기준으로 삼는다.
-→ `useGetHistogramStatistics`의 `ignorePathApplication`
+**props의 사본이면 없앨 수 있다.** effect에 조건이 없고 deps가 입력 전부를 덮고 있으면 그 state는
+"한 박자 늦추기"만 한다. queryKey는 구조를 직렬화해 비교하므로(`serviceScopedQueryKeyHashFn`)
+매 렌더 새 객체를 만들어도 내용이 같으면 재조회되지 않는다 — 객체 identity를 고정하려고 state를
+쓸 이유는 없다. 다만 state는 "대상이 사라져도 이전 파라미터를 유지"하는 역할도 겸하므로,
+호출자가 대상 없이 훅을 마운트한 채로 두지 않는지 함께 봐야 한다
+(`ApdexScore`는 대상이 없으면 fetcher를 마운트하지 않고, `useGetHeatmapAppData`·
+`useGetHistogramStatistics`는 `enabled`로 막는다).
+
+**props로 알 수 없는 값이 들어 있으면 없앨 수 없다.** 그 값은 렌더 중에 계산할 방법이 없다.
+
+| 대상 | state에 담긴, props가 아닌 값 |
+|---|---|
+| `HeatmapRealtimeFetcher` | `lastToTimestamp` ref — 응답마다 바뀌므로 렌더에서 읽으면 5초 tick을 벗어나 요청이 연달아 나간다. effect가 tick마다 한 번씩 표본을 뜬다 |
+| `useGetScatterData` / `useGetScatterRealtimeData` | ① 응답의 `resultFrom`으로 다음 `to`를 정하는 역방향 페이징 ② 캔버스 픽셀 크기로 정해지는 `xGroupUnit`/`yGroupUnit` — `setQueryParams`를 반환해 호출부(`ScatterChartFetcher`, `ScatterChartRealtimeFetcher`)가 넣는다. `getQueryString`이 필수로 요구하므로 차트가 크기를 알려줄 때까지 조회가 시작되지 않는다 |
+
+이 경우 serviceName만 prop으로 되돌릴 수도 없다(짝이 어긋난다). state를 남겨야 한다면
+**파라미터와 serviceName을 한 state에 담아** 그 규칙을 자료 구조로 지킨다
+(`HeatmapRealtimeFetcher`의 `request`). 단 `setQueryParams`를 바깥으로 반환하는 훅은
+setter 모양이 공개 API라서 합치는 비용이 더 크다 — 스캐터 두 훅은 그대로 둔다.
+
+### 조회의 기준 application은 고른 대상이다 (경로가 아니다)
+
+경로의 application은 map을 그린 service 소속이다. 그런데 요청은 **고른 노드의 service**로 나가므로
+(위 절) 경로의 application을 기준으로 삼으면 백엔드가 그 이름을 남의 service에서 찾아 빈 데이터를
+준다. 그래서 고른 대상이 있으면 **언제나 그것이 기준**이고, 없을 때(첫 로딩, 기준을 정할 수 없는
+merged 묶음)만 경로의 application으로 돌아간다.
+
+```ts
+const baseApplication = selectedTargetApplication ?? application;
+```
+
+- **어느 application을 기준으로 삼을지는 훅이 아니라 호출부가 정한다.** `useGetHistogramStatistics`는
+  `applicationName`/`serviceType`을 받기만 한다 — 그 판단은 화면의 사정이라 훅이 알 수 없다.
+  → `ServerMapChartBoard`의 `baseApplication`
+- 링크(엣지)를 고르면 출발지 노드가 기준이다. merged 묶음은 기준이 없다
+  → `getSelectedTargetApplication`
+- `nodeKey`/`linkKey`는 고른 대상 자신에서 나오므로 기준 application과 짝이 맞는다.
 
 액티브 스레드(실시간)는 WebSocket이라 헤더가 없다. 지금도 service를 싣지 않는다.
 
@@ -325,11 +360,11 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
   (`serverMapCurrentTargetAtom`, `currentServerAtom`)을 명시적으로 비워야 한다. 안 비우면
   ChartsBoard가 없는 노드를 기준으로 조회를 시작하고, 새 경로에는 기준 application도 없어서
   `applicationName` 없는 요청이 나가 400을 받는다. → `useClearApplicationOnServiceChange`
-- **경로에 남은 application 세그먼트가 통계 조회의 기준이 된다.** 비DEFAULT 모드에서 다른 화면
-  링크를 타고 application이 실려 들어오면, 클릭한 노드와 다른 application의 수치를 보여준다.
-- **통계 API는 기준 application이 필수다.** service 전체 map에는 URL에 application이 없으므로,
-  선택된 노드(링크는 출발지 노드)를 기준으로 삼는다. → `useGetHistogramStatistics`의
-  `fallbackApplication`
+- **경로의 application을 통계 조회의 기준으로 쓰면 안 된다.** 고른 노드가 다른 service 소속일 때
+  (또는 비DEFAULT 모드에서 다른 화면 링크를 타고 application이 실려 들어올 때) 클릭한 노드와 다른
+  application의 수치를 보여준다. → 위 "조회의 기준 application은 고른 대상이다"
+- **통계 API는 기준 application이 필수다.** service 전체 map에는 URL에 application이 아예 없으므로,
+  고른 대상이 없으면 조회가 성립하지 않는다.
 - **`useSuspenseQuery`는 `enabled`를 지원하지 않는다.** `useGetApdexScore`처럼 `shouldPoll`에 따라
   suspense를 쓰는 훅은 `enabled`로 막을 수 없다. `skipToken`을 쓰면 영원히 suspend 되므로,
   컴포넌트에서 조회 대상이 없을 때 fetcher를 마운트하지 않는 쪽으로 막는다.

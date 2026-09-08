@@ -1,8 +1,6 @@
-import React from 'react';
 import { GetApdexScore, END_POINTS, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import { keepPreviousData, useQuery, useSuspenseQuery } from '@tanstack/react-query';
-import { useServerMapSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<GetApdexScore.Parameters>) => {
@@ -20,7 +18,11 @@ const getQueryString = (queryParams: Partial<GetApdexScore.Parameters>) => {
 
 export type UseGetApdexScoreProps = {
   nodeData?: GetServerMap.NodeData;
-  disableFetch?: boolean;
+  /**
+   * 조회할 기간. 훅이 URL을 직접 읽지 않고 호출자에게 받는다 — 조회 훅을 라우터 상태와
+   * 분리해 두기 위한 것이다(`.claude/rules/api-hooks.md`). 읽는 자리는 `ApdexScoreFetcher`다.
+   */
+  dateRange: { from: Date; to: Date };
   shouldPoll?: boolean;
   agentId?: string;
   /**
@@ -35,47 +37,23 @@ export type UseGetApdexScoreProps = {
 
 export const useGetApdexScore = ({
   nodeData,
+  dateRange,
   shouldPoll,
   agentId,
   serviceName,
 }: UseGetApdexScoreProps) => {
-  const { dateRange } = useServerMapSearchParameters();
-  const from = toBasicISOString(dateRange.from);
-  const to = toBasicISOString(dateRange.to);
-  const [queryParams, setQueryParams] = React.useState<Partial<GetApdexScore.Parameters>>({
-    from,
-    to,
+  const queryString = getQueryString({
+    from: toBasicISOString(dateRange.from),
+    to: toBasicISOString(dateRange.to),
     applicationName: nodeData?.applicationName,
     serviceTypeName: nodeData?.serviceType,
-    agentId: agentId,
+    agentId,
   });
-  // 조회 파라미터가 effect로 한 박자 늦게 따라오므로 serviceName도 같은 effect에서 함께 갱신한다.
-  // 그러지 않으면 대상이 바뀌는 렌더에서 (이전 application, 새 service) 짝의 queryKey가 한 번
-  // 만들어져, 그 service에 없는 application을 조회하는 요청이 나간다.
-  const [requestServiceName, setRequestServiceName] = React.useState(serviceName);
-
-  React.useEffect(() => {
-    if (nodeData) {
-      setQueryParams((prev) => ({
-        ...prev,
-        applicationName: nodeData?.applicationName,
-        serviceTypeName: nodeData?.serviceType,
-        from: from,
-        to: to,
-        agentId,
-      }));
-      setRequestServiceName(serviceName);
-    }
-  }, [nodeData, from, to, agentId, serviceName]);
-
-  const queryString = getQueryString(queryParams);
 
   const query = shouldPoll ? useQuery : useSuspenseQuery;
   const { data, isLoading } = query({
-    queryKey: [END_POINTS.APDEX_SCORE, queryString, requestServiceName],
-    queryFn: queryFn(`${END_POINTS.APDEX_SCORE}${queryString}`, {
-      serviceName: requestServiceName,
-    }),
+    queryKey: [END_POINTS.APDEX_SCORE, queryString, serviceName],
+    queryFn: queryFn(`${END_POINTS.APDEX_SCORE}${queryString}`, { serviceName }),
     gcTime: shouldPoll ? 0 : 30000,
     staleTime: shouldPoll ? 0 : 30000,
     placeholderData: shouldPoll ? keepPreviousData : undefined,

@@ -19,11 +19,7 @@ import {
   ChartsBoardHeader,
 } from '@pinpoint-fe/ui/src/components';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import {
-  useExperimentals,
-  useServerMapSearchParameters,
-  useServiceNameForLink,
-} from '@pinpoint-fe/ui/src/hooks';
+import { useExperimentals, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
 import {
@@ -86,7 +82,7 @@ export const ServerMapChartsBoardFetcher = ({
 }: ServerMapChartsBoardFetcherProps) => {
   const { t } = useTranslation();
   const experimentalOption = useExperimentals();
-  const { application, dateRange, pathname } = useServerMapSearchParameters();
+  const { application, dateRange, queryOption, pathname } = useServerMapSearchParameters();
 
   const chartType = useAtomValue(serverMapChartTypeAtom);
   const scatterData = useAtomValue(scatterDataAtom);
@@ -119,29 +115,23 @@ export const ServerMapChartsBoardFetcher = ({
     [serverMapCurrentTarget, currentTargetData, serverMapData],
   );
 
-  // servicemap은 다른 service의 application도 함께 그린다. 그런 노드를 고르면 이 패널의 조회는
-  // 화면의 service가 아니라 그 노드의 service로 나가야 한다. 아래 차트/목록에 prop으로 내려준다.
-  //
-  // 대상이 다른 service면 경로의 application(화면 service 소속)은 통계 조회의 기준이 될 수 없다.
-  // 요청이 노드의 service로 나가므로 백엔드가 그 이름을 노드의 service에서 찾게 되기 때문이다.
-  // 그때는 노드 자신을 기준으로 삼는다 — 그 application을 직접 열어 본 것과 같은 결과가 된다.
   const targetServiceName = useServerMapTargetServiceName();
-  const screenServiceName = useServiceNameForLink();
-  const isCrossServiceTarget =
-    !!targetServiceName && !!screenServiceName && targetServiceName !== screenServiceName;
-
-  const baseApplication = isCrossServiceTarget
-    ? selectedTargetApplication
-    : (application ?? selectedTargetApplication);
+  // 조회 기준은 **고른 대상**이다. map을 그린 service(경로)와 고른 노드의 service가 다를 수 있는데
+  // (A service의 servicemap에 B service의 b-1이 함께 그려진다) 요청은 고른 노드의 service로 나가므로
+  // 경로의 application을 기준으로 삼으면 백엔드가 그 이름을 남의 service에서 찾는다. (이슈 #10497)
+  // 고른 것이 없을 때(첫 로딩, merged 묶음)만 경로의 application으로 돌아간다.
+  const baseApplication = selectedTargetApplication ?? application;
 
   const { data, isLoading } = useGetHistogramStatistics({
     useStatisticsAgentState,
+    applicationName: baseApplication?.applicationName,
+    serviceType: baseApplication?.serviceType,
+    dateRange,
+    queryOption,
     nodeKey:
       (currentTargetData as GetServerMap.NodeData)?.nodeKey ||
       (baseApplication ? getApplicationKey(baseApplication) : undefined), // 원래 optional인데 첫 페이지 로딩 시 currentTargetData가 없을 때, currentTargetData가 application으로 잡힐 때 두번 중복 call 방지를 위해 required 처럼 사용
     linkKey: (currentTargetData as GetServerMap.LinkData)?.linkKey,
-    fallbackApplication: selectedTargetApplication,
-    ignorePathApplication: isCrossServiceTarget,
     serviceName: targetServiceName,
   });
 
@@ -239,7 +229,7 @@ export const ServerMapChartsBoardFetcher = ({
   // 조회 대상 없는 차트가 남으므로, 차트 대신 무엇을 해야 하는지 알려준다.
   if (!serverMapCurrentTarget && !application) {
     return (
-      <div className="flex justify-center items-center w-full h-full text-muted-foreground">
+      <div className="flex items-center justify-center w-full h-full text-muted-foreground">
         {t('SERVER_MAP.SELECT_NODE_FOR_CHART')}
       </div>
     );
