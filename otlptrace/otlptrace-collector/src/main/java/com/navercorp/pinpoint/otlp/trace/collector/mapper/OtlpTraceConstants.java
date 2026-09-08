@@ -79,6 +79,12 @@ public class OtlpTraceConstants {
     public static final String MESSAGING_SYSTEM_ROCKETMQ = "rocketmq";
     public static final String MESSAGING_SYSTEM_ACTIVEMQ = "activemq";
 
+    // Placeholder for an address/host field that could not be resolved from the attributes.
+    // Same literal as the agent messaging plugins (KafkaConstants.UNKNOWN, RabbitMQClientConstants.UNKNOWN,
+    // RocketMQConstants.UNKNOWN, ActiveMQClientConstants.UNKNOWN_ADDRESS): the server map merges
+    // queue nodes by name, so agent- and OTel-instrumented consumers of the same broker must agree.
+    public static final String UNKNOWN_ADDRESS = "Unknown";
+
     // Operation kind on a messaging span. Generic semconv ≥ stable: messaging.operation.type;
     // legacy 1.x: messaging.operation. Consumer-relevant values: "receive" (poll bookkeeping
     // span) vs "process" (per-record processing span — the actual unit of consumer work).

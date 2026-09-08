@@ -93,6 +93,28 @@ public final class MessagingAttributeUtils {
     }
 
     /**
+     * Consumer acceptorHost, i.e. the name of the virtual queue node the collector draws in front
+     * of a consumer: {@link #resolveEndPoint broker / client id} ▸ {@code messaging.destination.name}
+     * ▸ {@link OtlpTraceConstants#UNKNOWN_ADDRESS}. Never null: the collector
+     * ({@code ApplicationMapBuilder.getQueueAcceptVertex}) requires a name for a queue-typed root
+     * span, and the agent messaging plugins always record one ({@code KafkaConstants.UNKNOWN} when
+     * the broker is unknown). The destination falls between: when only the topic is known it names
+     * the queue node the same way the OTLP producer side does ({@link #resolveProducerDestinationId}),
+     * so producer and consumer meet on one node.
+     */
+    public static String resolveConsumerAcceptorHost(Map<String, AttributeValue> attributes) {
+        final String endPoint = resolveEndPoint(attributes);
+        if (endPoint != null) {
+            return endPoint;
+        }
+        final String destinationName = getDestinationName(attributes);
+        if (destinationName != null) {
+            return destinationName;
+        }
+        return OtlpTraceConstants.UNKNOWN_ADDRESS;
+    }
+
+    /**
      * Producer destinationId derived from OTel attributes: {@code messaging.destination.name}
      * (topic / exchange / queue, system-agnostic per OTel semconv) falling back to the resolved
      * endPoint when the destination attribute is absent.
