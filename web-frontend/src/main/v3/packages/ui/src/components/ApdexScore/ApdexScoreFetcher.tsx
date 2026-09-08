@@ -1,8 +1,15 @@
 import { Separator } from '../ui/separator';
-import { useGetApdexScore, UseGetApdexScoreProps } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useGetApdexScore,
+  UseGetApdexScoreProps,
+  useServerMapSearchParameters,
+} from '@pinpoint-fe/ui/src/hooks';
 import { HelpPopover } from '..';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
-export interface ApdexScoreFetcherProps extends UseGetApdexScoreProps {}
+
+// 기간은 호출부에서 받지 않고 여기서 URL을 읽는다. 조회 훅은 URL과 분리해 두어야 하므로
+// (`.claude/rules/api-hooks.md`) 읽는 자리를 컴포넌트로 내렸다.
+export interface ApdexScoreFetcherProps extends Omit<UseGetApdexScoreProps, 'dateRange'> {}
 
 enum RANK {
   EXCELLENT,
@@ -35,7 +42,8 @@ export const getRank = (score: number) => {
 };
 
 export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
-  const { data } = useGetApdexScore(props);
+  const { dateRange } = useServerMapSearchParameters();
+  const { data } = useGetApdexScore({ ...props, dateRange });
 
   const score = data?.apdexScore || 0;
 
