@@ -18,7 +18,11 @@ package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.MatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.PackageInternalNameMatcherOperand;
+import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.profiler.plugin.Foo;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
@@ -32,11 +36,14 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -99,26 +106,91 @@ public class MatchableTransformerRegistryTest {
     }
 
     @Test
-    public void accumulatorTime() throws Exception {
-        IndexValue value = new IndexValue(null, null);
-        long startTime = System.currentTimeMillis();
-        Thread.sleep(10);
-        value.accumulatorTime(startTime);
+    public void find_scans_packages_in_array_order_and_stops_at_first_match() {
+        IndexValue rejected = new IndexValue(new PackageInternalNameMatcherOperand("com.navercorp.a"), new MockMatchableClassFileTransformer(null));
+        IndexValue accepted = new IndexValue(new PackageInternalNameMatcherOperand("com.navercorp.a"), new MockMatchableClassFileTransformer(null));
+        IndexValue notReached = new IndexValue(new PackageInternalNameMatcherOperand("com.navercorp.a.b"), new MockMatchableClassFileTransformer(null));
+        BasedMatcherIndex.PackageEntry[] entries = {
+                new BasedMatcherIndex.PackageEntry("com/navercorp/a", new IndexValue[]{rejected, accepted}),
+                new BasedMatcherIndex.PackageEntry("com/navercorp/a/b", new IndexValue[]{notReached}),
+        };
+        RecordingTransformerMatcher transformerMatcher = new RecordingTransformerMatcher(accepted.getOperand());
+        TransformerIndex index = new BasedMatcherIndex(Collections.<String, IndexValue>emptyMap(), entries, new IndexValueMatcher(transformerMatcher));
+
+        ClassMetadataWrapper metadata = new ClassMetadataWrapper(null, null);
+        assertSame(accepted.getTransformer(), index.find(null, "com/navercorp/a/b/Foo", metadata));
+        // both values of the first entry were evaluated, the second entry was never reached.
+        assertEquals(Arrays.asList(rejected.getOperand(), accepted.getOperand()), transformerMatcher.evaluated);
+
+        transformerMatcher.evaluated.clear();
+        assertNull(index.find(null, "org/other/Bar", metadata));
+        assertTrue(transformerMatcher.evaluated.isEmpty());
     }
 
-    static class IndexValue {
-        final MatcherOperand operand;
-        final ClassFileTransformer transformer;
-        final AtomicLong accumulatorTimeMillis = new AtomicLong(0);
+    @Test
+    public void find_skips_the_matcher_for_a_single_class_operand() {
+        IndexValue single = new IndexValue(new ClassInternalNameMatcherOperand("com.navercorp.Single"), new MockMatchableClassFileTransformer(null));
+        MatcherOperand compound = new ClassInternalNameMatcherOperand("com.navercorp.Compound").and(new InterfaceInternalNameMatcherOperand("java.lang.Runnable", false));
+        IndexValue composite = new IndexValue(compound, new MockMatchableClassFileTransformer(null));
+        Map<String, IndexValue> map = new HashMap<>();
+        map.put("com/navercorp/Single", single);
+        map.put("com/navercorp/Compound", composite);
+        RecordingTransformerMatcher transformerMatcher = new RecordingTransformerMatcher(null);
+        TransformerIndex index = new BasedMatcherIndex(map, new BasedMatcherIndex.PackageEntry[0], new IndexValueMatcher(transformerMatcher));
 
-        public IndexValue(final MatcherOperand operand, final ClassFileTransformer transformer) {
-            this.operand = operand;
-            this.transformer = transformer;
+        ClassMetadataWrapper metadata = new ClassMetadataWrapper(null, null);
+        assertSame(single.getTransformer(), index.find(null, "com/navercorp/Single", metadata));
+        assertTrue(transformerMatcher.evaluated.isEmpty());
+
+        assertNull(index.find(null, "com/navercorp/Compound", metadata));
+        assertEquals(Arrays.asList(compound), transformerMatcher.evaluated);
+
+        assertNull(index.find(null, "com/navercorp/Unknown", metadata));
+    }
+
+    @Test
+    public void find_asks_the_class_name_index_before_the_packages() {
+        IndexValue byClass = new IndexValue(new ClassInternalNameMatcherOperand("com.navercorp.a.Foo"), new MockMatchableClassFileTransformer(null));
+        IndexValue byPackage = new IndexValue(new PackageInternalNameMatcherOperand("com.navercorp.a"), new MockMatchableClassFileTransformer(null));
+        Map<String, IndexValue> map = new HashMap<>();
+        map.put("com/navercorp/a/Foo", byClass);
+        BasedMatcherIndex.PackageEntry[] entries = {new BasedMatcherIndex.PackageEntry("com/navercorp/a", new IndexValue[]{byPackage})};
+        RecordingTransformerMatcher transformerMatcher = new RecordingTransformerMatcher(byPackage.getOperand());
+        TransformerIndex index = new BasedMatcherIndex(map, entries, new IndexValueMatcher(transformerMatcher));
+
+        ClassMetadataWrapper metadata = new ClassMetadataWrapper(null, null);
+        assertSame(byClass.getTransformer(), index.find(null, "com/navercorp/a/Foo", metadata));
+        assertTrue(transformerMatcher.evaluated.isEmpty());
+
+        assertSame(byPackage.getTransformer(), index.find(null, "com/navercorp/a/Bar", metadata));
+        assertEquals(Arrays.asList(byPackage.getOperand()), transformerMatcher.evaluated);
+    }
+
+    @Test
+    public void accumulatorTime() throws Exception {
+        IndexValue value = new IndexValue(new PackageInternalNameMatcherOperand("com.navercorp"), new MockMatchableClassFileTransformer(null));
+        long startTime = System.currentTimeMillis();
+        Thread.sleep(10);
+        long elapsed = value.accumulatorTime(startTime);
+        assertTrue(elapsed >= 10);
+        assertEquals(elapsed, value.getAccumulatorTimeMillis());
+    }
+
+    /**
+     * accepts only the given operand and records every operand it was asked about, in order.
+     */
+    private static class RecordingTransformerMatcher implements TransformerMatcher {
+        private final MatcherOperand accept;
+        final List<MatcherOperand> evaluated = new ArrayList<>();
+
+        RecordingTransformerMatcher(MatcherOperand accept) {
+            this.accept = accept;
         }
 
-        public long accumulatorTime(final long startTimeMillis) {
-            final long elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis;
-            return accumulatorTimeMillis.addAndGet(elapsedTimeMillis);
+        @Override
+        public boolean match(ClassLoader classLoader, MatcherOperand operand, InternalClassMetadata classMetadata) {
+            evaluated.add(operand);
+            return operand == accept;
         }
     }
 
@@ -140,7 +212,7 @@ public class MatchableTransformerRegistryTest {
         }
 
         public String toString() {
-            return matcher.toString();
+            return String.valueOf(matcher);
         }
     }
 }
