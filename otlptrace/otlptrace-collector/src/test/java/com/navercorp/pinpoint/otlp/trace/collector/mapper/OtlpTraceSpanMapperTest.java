@@ -403,7 +403,9 @@ class OtlpTraceSpanMapperTest {
         );
         SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getEndPoint()).isEqualTo("rdkafka#consumer-1");
-        assertThat(bo.getRemoteAddr()).isNull();
+        // no broker address: remoteAddr falls back like the agent kafka plugin (never null)
+        assertThat(bo.getRemoteAddr()).isEqualTo(OtlpTraceConstants.UNKNOWN_ADDRESS);
+        assertThat(bo.getAcceptorHost()).isEqualTo("rdkafka#consumer-1");
     }
 
     @Test
@@ -474,6 +476,42 @@ class OtlpTraceSpanMapperTest {
         );
         SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
         assertThat(bo.getAcceptorHost()).isEqualTo("broker1.example.com:9092");
+    }
+
+    @Test
+    void map_consumer_kafka_noBrokerNoClientId_acceptorHostFallsBackToDestination() {
+        // consumerKafkaSpan() carries messaging.destination.name=orders and no address attributes
+        SpanBo bo = newMapper().map(id(), consumerKafkaSpan(), NO_SCOPE);
+        assertThat(bo.getAcceptorHost()).isEqualTo("orders");
+        assertThat(bo.getEndPoint()).isEqualTo(OtlpTraceConstants.UNKNOWN_ADDRESS);
+        assertThat(bo.getRemoteAddr()).isEqualTo(OtlpTraceConstants.UNKNOWN_ADDRESS);
+    }
+
+    @Test
+    void map_consumer_kafka_noAddressNoDestination_allFieldsUnknown() {
+        Span span = Span.newBuilder()
+                .setName("process")
+                .setTraceId(ByteString.copyFrom(TRACE_ID))
+                .setSpanId(ByteString.copyFrom(SPAN_ID))
+                .setKindValue(Span.SpanKind.SPAN_KIND_CONSUMER_VALUE)
+                .addAttributes(kv("messaging.system", strVal("kafka")))
+                .build();
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getAcceptorHost()).isEqualTo(OtlpTraceConstants.UNKNOWN_ADDRESS);
+        assertThat(bo.getEndPoint()).isEqualTo(OtlpTraceConstants.UNKNOWN_ADDRESS);
+        assertThat(bo.getRemoteAddr()).isEqualTo(OtlpTraceConstants.UNKNOWN_ADDRESS);
+    }
+
+    @Test
+    void map_consumer_kafka_brokerWinsOverDestinationForAcceptorHost() {
+        Span span = consumerKafkaSpan(
+                kv("server.address", strVal("broker1.example.com")),
+                kv("server.port", intVal(9092)),
+                kv("messaging.client_id", strVal("rdkafka#consumer-1"))
+        );
+        SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+        assertThat(bo.getAcceptorHost()).isEqualTo("broker1.example.com:9092");
+        assertThat(bo.getRemoteAddr()).isEqualTo("broker1.example.com:9092");
     }
 
     @Test

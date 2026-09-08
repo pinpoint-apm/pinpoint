@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper.message;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 
 import java.util.Map;
@@ -54,18 +55,20 @@ public class MessageConsumerRecorder {
      * Records request-side fields and annotations for a CONSUMER span whose {@code messaging.system}
      * maps to a Pinpoint ServiceType. Mirrors the agent's
      * {@code ConsumerRecordEntryPointInterceptor.recordRootSpan}: acceptorHost is set even when the
-     * span is a trace root, because every consumer has an upstream broker.
+     * span is a trace root, because every consumer has an upstream broker — and it is never null,
+     * see {@link MessagingAttributeUtils#resolveConsumerAcceptorHost}.
      */
     public void recordMessagingConsumer(SpanBo spanBo, Map<String, AttributeValue> attributes) {
+        // None of the three address fields may stay null. The collector names the virtual queue
+        // node after acceptorHost (root span) and binds the queue link with remoteAddr (child
+        // span, HbaseHostApplicationMapDao requires it); a null failed the whole export batch.
+        // Fallbacks mirror the agent kafka plugin (broker or "Unknown" for both address fields).
         final String broker = MessagingAttributeUtils.getBrokerAddress(attributes);
+        final String endPoint = MessagingAttributeUtils.resolveEndPoint(attributes);
         spanBo.setRpc(handler.buildConsumerRpc(attributes));
-        spanBo.setEndPoint(MessagingAttributeUtils.resolveEndPoint(attributes));
-        spanBo.setRemoteAddr(broker);
-
-        final String acceptor = spanBo.getRemoteAddr() != null ? spanBo.getRemoteAddr() : spanBo.getEndPoint();
-        if (acceptor != null) {
-            spanBo.setAcceptorHost(acceptor);
-        }
+        spanBo.setEndPoint(endPoint != null ? endPoint : OtlpTraceConstants.UNKNOWN_ADDRESS);
+        spanBo.setRemoteAddr(broker != null ? broker : OtlpTraceConstants.UNKNOWN_ADDRESS);
+        spanBo.setAcceptorHost(MessagingAttributeUtils.resolveConsumerAcceptorHost(attributes));
 
         spanBo.setServiceType(messagingTypeResolver.resolveClientServiceType(handler.system()));
         spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), handler.entryPointName()));
