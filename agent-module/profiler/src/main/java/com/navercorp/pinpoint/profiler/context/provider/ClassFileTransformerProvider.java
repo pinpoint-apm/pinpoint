@@ -141,7 +141,9 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
 
     private TransformerRegistry newDefaultTransformerRegistry(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
         if (this.instrumentMatcherCacheConfig.isInstrumentMatcherEnable()) {
-            return new MatchableTransformerRegistry(this.instrumentMatcherCacheConfig, matchableClassFileTransformerList);
+            MatchableTransformerRegistry.Builder builder = MatchableTransformerRegistry.newBuilder(this.instrumentMatcherCacheConfig);
+            builder.addAll(matchableClassFileTransformerList);
+            return builder.build();
         }
         return new DefaultTransformerRegistry(matchableClassFileTransformerList);
     }

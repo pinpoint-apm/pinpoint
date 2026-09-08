@@ -56,7 +56,9 @@ public class MatchableTransformerRegistryTest {
         matchableClassFileTransformerList.add(mock1);
         matchableClassFileTransformerList.add(mock2);
 
-        MatchableTransformerRegistry registry = new MatchableTransformerRegistry(new DefaultInstrumentMatcherCacheConfig(), matchableClassFileTransformerList);
+        MatchableTransformerRegistry registry = MatchableTransformerRegistry.newBuilder(new DefaultInstrumentMatcherCacheConfig())
+                .addAll(matchableClassFileTransformerList)
+                .build();
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Class<?> clazz = Foo.class;
@@ -82,7 +84,9 @@ public class MatchableTransformerRegistryTest {
         matchableClassFileTransformerList.add(other);
         matchableClassFileTransformerList.add(broad);
 
-        MatchableTransformerRegistry registry = new MatchableTransformerRegistry(new DefaultInstrumentMatcherCacheConfig(), matchableClassFileTransformerList);
+        MatchableTransformerRegistry registry = MatchableTransformerRegistry.newBuilder(new DefaultInstrumentMatcherCacheConfig())
+                .addAll(matchableClassFileTransformerList)
+                .build();
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         byte[] fooBytes = BytecodeUtils.getClassFile(classLoader, Foo.class.getName());
