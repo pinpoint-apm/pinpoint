@@ -15,11 +15,13 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
+import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Evaluates the whole matcher condition of an index value and accumulates the time spent on it.
@@ -34,7 +36,7 @@ class IndexValueMatcher {
         this.transformerMatcher = Objects.requireNonNull(transformerMatcher, "transformerMatcher");
     }
 
-    ClassFileTransformer match(final ClassLoader classLoader, final IndexValue indexValue, final ClassMetadataWrapper classMetadata) {
+    ClassFileTransformer match(final ClassLoader classLoader, final IndexValue indexValue, final Supplier<InternalClassMetadata> classMetadata) {
         final long startTime = System.currentTimeMillis();
         if (this.transformerMatcher.match(classLoader, indexValue.getOperand(), classMetadata.get())) {
             final long elapsedTime = indexValue.accumulatorTime(startTime);

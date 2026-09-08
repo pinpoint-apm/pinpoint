@@ -27,6 +27,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author jaehong.kim
@@ -62,8 +63,8 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         }
 
         // find class or package name based.
-        final ClassMetadataWrapper classMetadataWrapper = new ClassMetadataWrapper(classFileBuffer, classMetadata);
-        return this.index.find(classLoader, classInternalName, classMetadataWrapper);
+        final Supplier<InternalClassMetadata> classMetadataSupplier = ClassMetadataSuppliers.of(classFileBuffer, classMetadata);
+        return this.index.find(classLoader, classInternalName, classMetadataSupplier);
     }
 
     public static class Builder {
