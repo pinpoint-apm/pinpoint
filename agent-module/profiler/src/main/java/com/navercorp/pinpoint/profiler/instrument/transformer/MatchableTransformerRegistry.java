@@ -51,38 +51,24 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     private final DefaultTransformerRegistry defaultTransformerRegistry;
 
     // class matcher operand.
-    private final Map<String, IndexValue> classNameBasedIndex = new HashMap<>(64);
+    private final Map<String, IndexValue> classNameBasedIndex;
     // package matcher operand, scanned linearly on every class load.
     private final PackageIndex[] packageIndexes;
 
-    private final TransformerMatcherExecutionPlanner executionPlanner = new TransformerMatcherExecutionPlanner();
     private final TransformerMatcher transformerMatcher;
 
-    public MatchableTransformerRegistry(InstrumentMatcherCacheConfig instrumentMatcherCacheConfig, List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
-        Objects.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
-        Objects.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
+    public static Builder newBuilder(final InstrumentMatcherCacheConfig instrumentMatcherCacheConfig) {
+        return new Builder(instrumentMatcherCacheConfig);
+    }
 
-        final List<MatchableClassFileTransformer> defaultTransfomerList = filterDefaultMatcher(matchableClassFileTransformerList);
-        this.defaultTransformerRegistry = new DefaultTransformerRegistry(defaultTransfomerList);
-
-        // groups the index values by package internal name; the lookup order is decided when the index is frozen.
-        final Map<String, Set<IndexValue>> packageNameBasedIndex = new HashMap<>();
-
-        final List<MatchableClassFileTransformer> baseTransformer = filterBaseMatcher(matchableClassFileTransformerList);
-        for (MatchableClassFileTransformer transformer : baseTransformer) {
-            try {
-                addTransformer(transformer.getMatcher(), transformer, packageNameBasedIndex);
-            } catch (Exception ex) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Failed to add transformer {}", transformer, ex);
-                }
-            }
-        }
-        // read-only from here on: a flat array sorted by package internal name so that the lookup order is deterministic.
-        this.packageIndexes = toPackageIndexes(packageNameBasedIndex);
-
-        this.transformerMatcher = new DefaultTransformerMatcher(instrumentMatcherCacheConfig);
-
+    MatchableTransformerRegistry(final DefaultTransformerRegistry defaultTransformerRegistry,
+                                 final Map<String, IndexValue> classNameBasedIndex,
+                                 final PackageIndex[] packageIndexes,
+                                 final TransformerMatcher transformerMatcher) {
+        this.defaultTransformerRegistry = Objects.requireNonNull(defaultTransformerRegistry, "defaultTransformerRegistry");
+        this.classNameBasedIndex = Objects.requireNonNull(classNameBasedIndex, "classNameBasedIndex");
+        this.packageIndexes = Objects.requireNonNull(packageIndexes, "packageIndexes");
+        this.transformerMatcher = Objects.requireNonNull(transformerMatcher, "transformerMatcher");
     }
 
     @Override
@@ -166,86 +152,121 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
         return null;
     }
 
-    private void addTransformer(final Matcher matcher, final ClassFileTransformer transformer, final Map<String, Set<IndexValue>> packageNameBasedIndex) {
-        if (!MatcherType.isBasedMatcher(matcher)) {
-            throw new IllegalArgumentException("unsupported baseMatcher");
-        }
-        // class or package based.
-        MatcherOperand matcherOperand = ((BasedMatcher) matcher).getMatcherOperand();
-        addIndex(matcherOperand, transformer, packageNameBasedIndex);
-    }
+    public static class Builder {
+        private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private List<MatchableClassFileTransformer> filterBaseMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
-        // class name
-        final List<MatchableClassFileTransformer> filter = new ArrayList<>();
-        for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
-            if (MatcherType.isBasedMatcher(transformer.getMatcher())) {
-                filter.add(transformer);
+        private final InstrumentMatcherCacheConfig instrumentMatcherCacheConfig;
+        // class name matcher, looked up by exact class name.
+        private final List<MatchableClassFileTransformer> defaultTransformerList = new ArrayList<>();
+        // class or package based matcher.
+        private final IndexBuilder indexBuilder = new IndexBuilder();
+
+        Builder(final InstrumentMatcherCacheConfig instrumentMatcherCacheConfig) {
+            this.instrumentMatcherCacheConfig = Objects.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
+        }
+
+        public Builder addAll(final List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
+            Objects.requireNonNull(matchableClassFileTransformerList, "matchableClassFileTransformerList");
+            for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
+                add(transformer);
             }
-        }
-        return filter;
-    }
-
-    private List<MatchableClassFileTransformer> filterDefaultMatcher(List<MatchableClassFileTransformer> matchableClassFileTransformerList) {
-        // class name
-        final List<MatchableClassFileTransformer> filter = new ArrayList<>();
-        for (MatchableClassFileTransformer transformer : matchableClassFileTransformerList) {
-            if (!MatcherType.isBasedMatcher(transformer.getMatcher())) {
-                filter.add(transformer);
-            }
-        }
-        return filter;
-    }
-
-    private void addIndex(final MatcherOperand condition, final ClassFileTransformer transformer, final Map<String, Set<IndexValue>> packageNameBasedIndex) {
-        // find class or package matcher operand.
-        final List<MatcherOperand> indexedMatcherOperands = executionPlanner.findIndex(condition);
-        if (indexedMatcherOperands.isEmpty()) {
-            throw new IllegalArgumentException("invalid matcher - not found index operand. condition=" + condition);
+            return this;
         }
 
-        boolean indexed;
-        final IndexValue indexValue = new IndexValue(condition, transformer);
-        for (MatcherOperand operand : indexedMatcherOperands) {
-            if (operand instanceof ClassInternalNameMatcherOperand) {
-                ClassInternalNameMatcherOperand classInternalNameMatcherOperand = (ClassInternalNameMatcherOperand) operand;
-                final IndexValue prev = classNameBasedIndex.put(classInternalNameMatcherOperand.getClassInternalName(), indexValue);
-                if (prev != null) {
-                    throw new IllegalStateException("Transformer already exist. class=" + classInternalNameMatcherOperand.getClassInternalName() + ", new=" + indexValue + ", prev=" + prev);
+        public Builder add(final MatchableClassFileTransformer transformer) {
+            Objects.requireNonNull(transformer, "transformer");
+            final Matcher matcher = transformer.getMatcher();
+            if (MatcherType.isBasedMatcher(matcher)) {
+                try {
+                    indexBuilder.add(matcher, transformer);
+                } catch (Exception ex) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Failed to add transformer {}", transformer, ex);
+                    }
                 }
-                indexed = true;
-            } else if (operand instanceof PackageInternalNameMatcherOperand) {
-                PackageInternalNameMatcherOperand packageInternalNameMatcherOperand = (PackageInternalNameMatcherOperand) operand;
-                addIndexData(packageInternalNameMatcherOperand.getPackageInternalName(), indexValue, packageNameBasedIndex);
-                indexed = true;
             } else {
-                throw new IllegalArgumentException("invalid matcher or execution planner - unknown operand. condition=" + condition + ", unknown operand=" + operand);
+                defaultTransformerList.add(transformer);
             }
+            return this;
+        }
 
-            if (!indexed) {
-                throw new IllegalArgumentException("invalid matcher or execution planner - no such indexed operand. operand=" + condition);
-            }
+        public MatchableTransformerRegistry build() {
+            final DefaultTransformerRegistry defaultTransformerRegistry = new DefaultTransformerRegistry(defaultTransformerList);
+            final TransformerMatcher transformerMatcher = new DefaultTransformerMatcher(instrumentMatcherCacheConfig);
+            // read-only from here on.
+            return new MatchableTransformerRegistry(defaultTransformerRegistry,
+                    indexBuilder.buildClassNameBasedIndex(),
+                    indexBuilder.buildPackageIndexes(),
+                    transformerMatcher);
         }
     }
 
-    private void addIndexData(final String key, final IndexValue indexValue, final Map<String, Set<IndexValue>> index) {
-        Set<IndexValue> indexValueSet = index.get(key);
-        if (indexValueSet == null) {
-            indexValueSet = new LinkedHashSet<>();
-            index.put(key, indexValueSet);
-        }
-        indexValueSet.add(indexValue);
-    }
+    static class IndexBuilder {
+        private final TransformerMatcherExecutionPlanner executionPlanner = new TransformerMatcherExecutionPlanner();
+        // class matcher operand.
+        private final Map<String, IndexValue> classNameBasedIndex = new HashMap<>(64);
+        // groups the index values by package internal name; the lookup order is decided when the index is frozen.
+        private final Map<String, Set<IndexValue>> packageNameBasedIndex = new HashMap<>();
 
-    private static PackageIndex[] toPackageIndexes(final Map<String, Set<IndexValue>> packageNameBasedIndex) {
-        final PackageIndex[] packageIndexes = new PackageIndex[packageNameBasedIndex.size()];
-        int i = 0;
-        for (Map.Entry<String, Set<IndexValue>> entry : packageNameBasedIndex.entrySet()) {
-            final IndexValue[] values = entry.getValue().toArray(new IndexValue[0]);
-            packageIndexes[i++] = new PackageIndex(entry.getKey(), values);
+        void add(final Matcher matcher, final ClassFileTransformer transformer) {
+            if (!MatcherType.isBasedMatcher(matcher)) {
+                throw new IllegalArgumentException("unsupported baseMatcher");
+            }
+            // class or package based.
+            final MatcherOperand matcherOperand = ((BasedMatcher) matcher).getMatcherOperand();
+            addIndex(matcherOperand, transformer);
         }
-        Arrays.sort(packageIndexes, PackageIndex.PACKAGE_NAME_ORDER);
-        return packageIndexes;
+
+        private void addIndex(final MatcherOperand condition, final ClassFileTransformer transformer) {
+            // find class or package matcher operand.
+            final List<MatcherOperand> indexedMatcherOperands = executionPlanner.findIndex(condition);
+            if (indexedMatcherOperands.isEmpty()) {
+                throw new IllegalArgumentException("invalid matcher - not found index operand. condition=" + condition);
+            }
+
+            final IndexValue indexValue = new IndexValue(condition, transformer);
+            for (MatcherOperand operand : indexedMatcherOperands) {
+                if (operand instanceof ClassInternalNameMatcherOperand) {
+                    final ClassInternalNameMatcherOperand classInternalNameMatcherOperand = (ClassInternalNameMatcherOperand) operand;
+                    final IndexValue prev = classNameBasedIndex.put(classInternalNameMatcherOperand.getClassInternalName(), indexValue);
+                    if (prev != null) {
+                        throw new IllegalStateException("Transformer already exist. class=" + classInternalNameMatcherOperand.getClassInternalName() + ", new=" + indexValue + ", prev=" + prev);
+                    }
+                } else if (operand instanceof PackageInternalNameMatcherOperand) {
+                    final PackageInternalNameMatcherOperand packageInternalNameMatcherOperand = (PackageInternalNameMatcherOperand) operand;
+                    addPackageIndex(packageInternalNameMatcherOperand.getPackageInternalName(), indexValue);
+                } else {
+                    throw new IllegalArgumentException("invalid matcher or execution planner - unknown operand. condition=" + condition + ", unknown operand=" + operand);
+                }
+            }
+        }
+
+        private void addPackageIndex(final String packageInternalName, final IndexValue indexValue) {
+            Set<IndexValue> indexValueSet = packageNameBasedIndex.get(packageInternalName);
+            if (indexValueSet == null) {
+                indexValueSet = new LinkedHashSet<>();
+                packageNameBasedIndex.put(packageInternalName, indexValueSet);
+            }
+            indexValueSet.add(indexValue);
+        }
+
+        Map<String, IndexValue> buildClassNameBasedIndex() {
+            return classNameBasedIndex;
+        }
+
+        /**
+         * @return a flat array sorted by package internal name so that the lookup order is deterministic.
+         */
+        PackageIndex[] buildPackageIndexes() {
+            final PackageIndex[] packageIndexes = new PackageIndex[packageNameBasedIndex.size()];
+            int i = 0;
+            for (Map.Entry<String, Set<IndexValue>> entry : packageNameBasedIndex.entrySet()) {
+                final IndexValue[] values = entry.getValue().toArray(new IndexValue[0]);
+                packageIndexes[i++] = new PackageIndex(entry.getKey(), values);
+            }
+            Arrays.sort(packageIndexes, PackageIndex.PACKAGE_NAME_ORDER);
+            return packageIndexes;
+        }
     }
 
     static class PackageIndex {
