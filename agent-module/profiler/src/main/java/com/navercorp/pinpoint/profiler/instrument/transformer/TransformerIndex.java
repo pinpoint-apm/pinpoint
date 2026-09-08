@@ -15,7 +15,10 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
+import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
+
 import java.lang.instrument.ClassFileTransformer;
+import java.util.function.Supplier;
 
 /**
  * Read-only lookup over the transformers registered by a class or package based matcher.
@@ -24,5 +27,5 @@ interface TransformerIndex {
     /**
      * @return the first transformer whose matcher accepts the class, or {@code null} if there is none
      */
-    ClassFileTransformer find(ClassLoader classLoader, String classInternalName, ClassMetadataWrapper classMetadata);
+    ClassFileTransformer find(ClassLoader classLoader, String classInternalName, Supplier<InternalClassMetadata> classMetadata);
 }

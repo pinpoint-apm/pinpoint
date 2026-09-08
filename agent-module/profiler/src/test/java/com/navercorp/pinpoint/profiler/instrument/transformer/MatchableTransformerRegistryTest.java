@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -117,7 +118,7 @@ public class MatchableTransformerRegistryTest {
         RecordingTransformerMatcher transformerMatcher = new RecordingTransformerMatcher(accepted.getOperand());
         TransformerIndex index = new BasedMatcherIndex(Collections.<String, IndexValue>emptyMap(), entries, new IndexValueMatcher(transformerMatcher));
 
-        ClassMetadataWrapper metadata = new ClassMetadataWrapper(null, null);
+        Supplier<InternalClassMetadata> metadata = () -> null;
         assertSame(accepted.getTransformer(), index.find(null, "com/navercorp/a/b/Foo", metadata));
         // both values of the first entry were evaluated, the second entry was never reached.
         assertEquals(Arrays.asList(rejected.getOperand(), accepted.getOperand()), transformerMatcher.evaluated);
@@ -138,7 +139,7 @@ public class MatchableTransformerRegistryTest {
         RecordingTransformerMatcher transformerMatcher = new RecordingTransformerMatcher(null);
         TransformerIndex index = new BasedMatcherIndex(map, new BasedMatcherIndex.PackageEntry[0], new IndexValueMatcher(transformerMatcher));
 
-        ClassMetadataWrapper metadata = new ClassMetadataWrapper(null, null);
+        Supplier<InternalClassMetadata> metadata = () -> null;
         assertSame(single.getTransformer(), index.find(null, "com/navercorp/Single", metadata));
         assertTrue(transformerMatcher.evaluated.isEmpty());
 
@@ -158,7 +159,7 @@ public class MatchableTransformerRegistryTest {
         RecordingTransformerMatcher transformerMatcher = new RecordingTransformerMatcher(byPackage.getOperand());
         TransformerIndex index = new BasedMatcherIndex(map, entries, new IndexValueMatcher(transformerMatcher));
 
-        ClassMetadataWrapper metadata = new ClassMetadataWrapper(null, null);
+        Supplier<InternalClassMetadata> metadata = () -> null;
         assertSame(byClass.getTransformer(), index.find(null, "com/navercorp/a/Foo", metadata));
         assertTrue(transformerMatcher.evaluated.isEmpty());
 

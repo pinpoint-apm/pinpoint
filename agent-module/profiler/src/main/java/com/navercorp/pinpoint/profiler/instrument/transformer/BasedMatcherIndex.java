@@ -16,12 +16,14 @@
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.ClassInternalNameMatcherOperand;
+import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * The class name index is asked first by exact class internal name, then the package entries are scanned
@@ -39,7 +41,7 @@ class BasedMatcherIndex implements TransformerIndex {
     }
 
     @Override
-    public ClassFileTransformer find(final ClassLoader classLoader, final String classInternalName, final ClassMetadataWrapper classMetadata) {
+    public ClassFileTransformer find(final ClassLoader classLoader, final String classInternalName, final Supplier<InternalClassMetadata> classMetadata) {
         final ClassFileTransformer classBased = findClassBased(classLoader, classInternalName, classMetadata);
         if (classBased != null) {
             return classBased;
@@ -47,7 +49,7 @@ class BasedMatcherIndex implements TransformerIndex {
         return findPackageBased(classLoader, classInternalName, classMetadata);
     }
 
-    private ClassFileTransformer findClassBased(final ClassLoader classLoader, final String classInternalName, final ClassMetadataWrapper classMetadata) {
+    private ClassFileTransformer findClassBased(final ClassLoader classLoader, final String classInternalName, final Supplier<InternalClassMetadata> classMetadata) {
         final IndexValue indexValue = this.classNameIndex.get(classInternalName);
         if (indexValue == null) {
             return null;
@@ -59,7 +61,7 @@ class BasedMatcherIndex implements TransformerIndex {
         return this.matcher.match(classLoader, indexValue, classMetadata);
     }
 
-    private ClassFileTransformer findPackageBased(final ClassLoader classLoader, final String classInternalName, final ClassMetadataWrapper classMetadata) {
+    private ClassFileTransformer findPackageBased(final ClassLoader classLoader, final String classInternalName, final Supplier<InternalClassMetadata> classMetadata) {
         for (PackageEntry entry : this.packageEntries) {
             if (classInternalName.startsWith(entry.packageInternalName)) {
                 for (IndexValue value : entry.values) {
