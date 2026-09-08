@@ -34,10 +34,11 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author jaehong.kim
@@ -71,30 +72,26 @@ public class MatchableTransformerRegistryTest {
     }
 
     @Test
-    public void packageNameBasedIndex() {
-        // sorted
-        Map<String, String> packageNameBasedIndex = new TreeMap<>();
+    public void findTransformer_first_package_in_lexicographic_order_wins() {
+        MockMatchableClassFileTransformer broad = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler"));
+        MockMatchableClassFileTransformer narrow = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler.plugin"));
+        MockMatchableClassFileTransformer other = new MockMatchableClassFileTransformer(Matchers.newPackageBasedMatcher("com.navercorp.pinpoint.profiler.sender"));
 
-        packageNameBasedIndex.put("a", "a");
-        packageNameBasedIndex.put("aa", "a");
-        packageNameBasedIndex.put("bbbb", "a");
-        packageNameBasedIndex.put("bb", "a");
-        packageNameBasedIndex.put("bbb", "a");
-        packageNameBasedIndex.put("c", "a");
-        packageNameBasedIndex.put("ccccc", "a");
-        packageNameBasedIndex.put("cccc", "a");
-        packageNameBasedIndex.put("dddddddddddd", "a");
+        List<MatchableClassFileTransformer> matchableClassFileTransformerList = new ArrayList<>();
+        matchableClassFileTransformerList.add(narrow);
+        matchableClassFileTransformerList.add(other);
+        matchableClassFileTransformerList.add(broad);
 
-        String[] keys = packageNameBasedIndex.keySet().toArray(new String[9]);
-        assertEquals("a", keys[0]);
-        assertEquals("aa", keys[1]);
-        assertEquals("bb", keys[2]);
-        assertEquals("bbb", keys[3]);
-        assertEquals("bbbb", keys[4]);
-        assertEquals("c", keys[5]);
-        assertEquals("cccc", keys[6]);
-        assertEquals("ccccc", keys[7]);
-        assertEquals("dddddddddddd", keys[8]);
+        MatchableTransformerRegistry registry = new MatchableTransformerRegistry(new DefaultInstrumentMatcherCacheConfig(), matchableClassFileTransformerList);
+
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        byte[] fooBytes = BytecodeUtils.getClassFile(classLoader, Foo.class.getName());
+        assertSame(broad, registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/plugin/Foo", fooBytes));
+
+        byte[] barBytes = BytecodeUtils.getClassFile(classLoader, Bar.class.getName());
+        assertSame(broad, registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/sender/Bar", barBytes));
+
+        assertNull(registry.findTransformer(classLoader, "com/navercorp/pinpoint/bootstrap/Baz", fooBytes));
     }
 
     @Test
