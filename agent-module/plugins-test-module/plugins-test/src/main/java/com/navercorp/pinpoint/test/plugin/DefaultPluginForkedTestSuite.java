@@ -45,6 +45,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
     private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
     private static final DependencyVersionFilter DEPENDENCY_VERSION_FILTER = new DependencyVersionFilter();
+
     private final TaggedLogger logger = TestLogger.getLogger();
 
     private final ClassLoding classLoding;
@@ -58,8 +59,6 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     private final String[] librarySubDirs;
 
     private final boolean sharedProcess;
-
-    private final Object childrenLock = new Object();
 
     private static Map<String, Object> createResolverOption() {
         Map<String, Object> resolverOption = new HashMap<>();

@@ -17,10 +17,14 @@ package com.navercorp.pinpoint.test.plugin.maven;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
+import org.eclipse.aether.ConfigurationProperties;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
+import org.eclipse.aether.util.ConfigUtils;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.junit.jupiter.api.Test;
@@ -59,6 +63,19 @@ public class DependencyResolverTest {
 
         Assertions.assertThat(files).hasSize(2);
         Assertions.assertThat(files).anySatisfy(path -> Assertions.assertThat(path.getFileName().toString()).isEqualTo("maven-resolver-api-1.9.27.jar"));
+    }
+
+    @Test
+    public void newRepositorySystemSession_applies_session_config_without_system_properties() {
+        final String key = ConfigurationProperties.CONNECT_TIMEOUT;
+        Assertions.assertThat(System.getProperty(key)).as("precondition: not leaked as a system property").isNull();
+
+        RepositorySystem system = DependencyResolver.newRepositorySystem(false);
+        DefaultRepositorySystemSession session = DependencyResolver.newRepositorySystemSession(system, Collections.singletonMap(key, 1234L));
+
+        Assertions.assertThat(ConfigUtils.getInteger(session, -1, key)).isEqualTo(1234);
+        Assertions.assertThat(session.getSystemProperties()).containsKey("java.version");
+        Assertions.assertThat(System.getProperty(key)).isNull();
     }
 
     @Test
