@@ -269,6 +269,78 @@ export const findCallerApplication = (
 };
 
 /**
+ * 이 노드가 호출하는 application(나가는 링크의 도착지). 하나로 정해지지 않으면 undefined다.
+ * `findCallerApplication`의 반대 방향이다.
+ *
+ * **USER 노드의 기준 application을 찾는 데 쓴다.** USER 노드의 내부 application 이름은
+ * `{앱이름}_{호출되는쪽 타입이름}`으로 합성된 값이라(`UserNodeUtils#newUserNodeName`) 그 자체로는
+ * 조회 기준이 될 수 없다. 그리고 **문자열을 쪼개 되돌릴 수도 없다** — 앱 이름과 타입 이름 둘 다
+ * `_`를 가질 수 있어서(`IdValidateUtils.ID_PATTERN_VALUE` = `[a-zA-Z0-9._\-]+`,
+ * 타입 쪽은 `SPRING_BOOT`·`MYSQL_EXECUTE_QUERY` 등) 경계를 알 수 없다:
+ * `my_app_TOMCAT`은 `my_app`+`TOMCAT`일 수도 `my`+`app_TOMCAT`일 수도 있다.
+ *
+ * 나가는 링크의 `targetInfo`가 그 값을 **파싱 없이** 갖고 있다:
+ * `{ from: 'ApiGateway_SPRING_BOOT^USER', targetInfo: { applicationName: 'ApiGateway',
+ * serviceType: 'SPRING_BOOT' } }`. 이 값이 곧 백엔드가 기대하는 루트다 — USER 노드는 그 WAS의
+ * 호출자이므로 백엔드가 `isToNode`로 방향을 알아내 `toApplications`에 넣는다.
+ *
+ * @param nodeKey 노드의 `key` 필드(링크의 `from`/`to`와 같은 형식). `nodeKey` 필드가 아니다.
+ */
+export const findCalleeApplication = (
+  links: (GetServerMap.LinkData | FilteredMap.LinkData)[] | undefined,
+  nodeKey: string | undefined,
+): ApplicationType | undefined => {
+  if (!nodeKey) {
+    return undefined;
+  }
+
+  const outboundLinks = (links ?? []).filter((link) => link.from === nodeKey);
+  if (outboundLinks.length !== 1) {
+    return undefined;
+  }
+
+  const { applicationName, serviceType } = outboundLinks[0].targetInfo ?? {};
+  return applicationName && serviceType ? { applicationName, serviceType } : undefined;
+};
+
+/**
+ * `nodeKey`(`applicationName^serviceTypeName`)에서 **조회용** application을 만든다.
+ *
+ * 노드의 `applicationName`·`serviceType` 필드는 화면 표시용이라 조회 기준으로 쓸 수 없다.
+ * 타입 검사에 걸리지 않고 조용히 빈 데이터나 400이 되므로 반드시 `nodeKey`에서 뽑는다:
+ *
+ * | 노드 | 표시용 필드 | `nodeKey` |
+ * |---|---|---|
+ * | USER | `USER` / `USER` — 이름이 리터럴로 치환된다(`Node#getApplicationTextName`, 2014년부터) | `myapp_TOMCAT^USER` |
+ * | MySQL | `{dbId}` / `MYSQL` — `serviceType`은 `getDesc()`다 | `{dbId}^MYSQL_EXECUTE_QUERY` |
+ * | MSSQL | `{dbId}` / `MSSQLSERVER` — 그 이름의 타입이 없어 400이 된다 | `{dbId}^MSSQL_EXECUTE_QUERY` |
+ *
+ * 백엔드는 `serviceTypeName`을 `getName()`으로 해석하므로(`ApplicationValidator#newApplication`
+ * → `findServiceTypeByName`) desc를 보내면 다른 타입에 붙거나 `UNDEFINED`가 된다.
+ * map 노드로 뜨는 타입 중 desc≠name인 것: `MYSQL`/`ORACLE`/`POSTGRESQL`/`MONGO`/`CUBRID`/
+ * `INFORMIX`/`CLICK_HOUSE`/`UNKNOWN_DB`의 `*_EXECUTE_QUERY`, `MSSQLSERVER`, `JDK_HTTPCONNECTOR`.
+ * WAS 타입은 둘이 같아서 문제가 드러나지 않는다 — WAS 노드만 눌러 보면 정상으로 보인다.
+ *
+ * 구분자는 **첫 `^`** 하나다. 백엔드도 같은 규칙으로 쪼갠다
+ * (`ServerMapHistogramController#newApplication`의 `split(nodeKey, 2)`).
+ * `key`와 달리 `nodeKey`는 servicemap에서도 항상 2단이다(`NodeView`가 service를 붙이지 않는다).
+ */
+export const parseNodeKeyApplication = (nodeKey?: string): ApplicationType | undefined => {
+  if (!nodeKey) {
+    return undefined;
+  }
+
+  const delimiterIndex = nodeKey.indexOf('^');
+  if (delimiterIndex <= 0) {
+    return undefined;
+  }
+
+  const applicationName = nodeKey.slice(0, delimiterIndex);
+  const serviceType = nodeKey.slice(delimiterIndex + 1);
+  return applicationName && serviceType ? { applicationName, serviceType } : undefined;
+};
+
+/**
  * 우측 패널의 조회가 기준으로 삼을 application. 경로에 application이 없는 화면
  * (service 전체를 모아 그린 servicemap)에서 이 값이 기준이 된다.
  *
@@ -279,8 +351,12 @@ export const findCallerApplication = (
  * - **merged 묶음 목록에서 고른 노드는 그 노드의 호출자가 기준이다.** servermap에서는 경로의
  *   application(map 중심)이 그 자리를 맡는데, 경로에 application이 없는 servicemap에서 노드 자신을
  *   기준으로 두면 요청이 다른 분기로 빠져 수치가 달라진다(→ `findCallerApplication`).
- * - 그 외 노드면 그 노드. 클릭 즉시 채워지는 `currentTarget`에서 읽는다(조회된 데이터를 기다리지
- *   않는다). 노드 자신을 기준으로 삼는 것은 그 application을 직접 열어 본 것과 같은 결과가 된다.
+ * - **USER 노드는 그 USER가 호출하는 WAS가 기준이다**(→ `findCalleeApplication`). 이름이
+ *   `{앱이름}_{타입이름}`으로 합성된 값이라 자기 자신을 기준으로 삼을 수 없다.
+ * - 그 외 노드면 그 노드. 노드 자신을 기준으로 삼는 것은 그 application을 직접 열어 본 것과 같은
+ *   결과가 된다. **식별자는 `nodeKey`에서 뽑는다**(→ `parseNodeKeyApplication`) — 표시용
+ *   `applicationName`/`serviceType`을 그대로 쓰면 DB·캐시 노드가 조용히 빈 데이터나 400이 된다.
+ *   nodeKey를 아직 모르는 순간에는 클릭 즉시 채워지는 `currentTarget`으로 폴백한다.
  * - 링크면 출발지 노드. 링크 통계의 기준도 출발지이므로 같은 기준이다.
  */
 export const getSelectedTargetApplication = (
@@ -304,21 +380,42 @@ export const getSelectedTargetApplication = (
   }
 
   if (currentTarget?.type === 'node') {
+    const nodeData = currentTargetData as GetServerMap.NodeData | undefined;
+
     const isFromMergedGroup = !!(currentTarget.nodes || currentTarget.edges);
     if (isFromMergedGroup) {
-      const caller = findCallerApplication(
-        links,
-        (currentTargetData as GetServerMap.NodeData | undefined)?.key,
-      );
+      const caller = findCallerApplication(links, nodeData?.key);
       if (caller) {
         return caller;
       }
+    }
+
+    // USER 노드는 이름이 합성값이라 자기 자신이 기준이 될 수 없다. 이 USER가 호출하는 WAS가
+    // 기준이다 → `findCalleeApplication`. (`serviceType`은 USER 타입에서 name==desc=='USER'라
+    // 표시용 필드로도 안전하게 판별된다. 같은 판별을 `serverMapCurrentTargetDataAtom`도 쓴다.)
+    if ((currentTarget.serviceType ?? nodeData?.serviceType) === 'USER') {
+      const callee = findCalleeApplication(links, nodeData?.key);
+      if (callee) {
+        return callee;
+      }
+    }
+
+    // 노드 자신이 기준일 때도 **표시용 필드가 아니라 `nodeKey`에서** 뽑는다
+    // (→ `parseNodeKeyApplication`). map 데이터가 아직 안 붙어 nodeKey를 모르는 순간에는
+    // 표시용 필드로 폴백한다 — 예전과 같은 동작이고, 붙는 즉시 정확한 값으로 바뀐다.
+    const fromNodeKey = parseNodeKeyApplication(nodeData?.nodeKey);
+    if (fromNodeKey) {
+      return fromNodeKey;
     }
 
     const { applicationName, serviceType } = currentTarget;
     return applicationName && serviceType ? { applicationName, serviceType } : undefined;
   }
 
+  // 링크는 표시용 `sourceInfo`를 그대로 쓴다. `/histogram/statistics/links`는 `applicationName`을
+  // 읽지 않고 `linkKey`만 쪼개 양쪽 application을 만들기 때문에(`getLinkTimeHistogramData`)
+  // 이 값이 조회에 영향을 주지 않는다. 링크의 출발지는 호출하는 쪽이라 WAS 아니면 USER인데,
+  // WAS는 name==desc라 어긋날 값도 없다.
   const sourceInfo = (currentTargetData as GetServerMap.LinkData | undefined)?.sourceInfo;
   return sourceInfo?.applicationName && sourceInfo?.serviceType
     ? { applicationName: sourceInfo.applicationName, serviceType: sourceInfo.serviceType }
