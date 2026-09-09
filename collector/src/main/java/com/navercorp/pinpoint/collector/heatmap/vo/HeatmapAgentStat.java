@@ -24,15 +24,15 @@ import java.util.Objects;
 public class HeatmapAgentStat {
     private static final int ELAPSED_TIME_INTERVAL = 200;
 
-    public static final String RESULT_TYPE_SUCCESS = "SUCCESS";
-    public static final String RESULT_TYPE_FAILURE = "FAILURE";
+    public static final String RESULT_SUCCESS = "suc";
+    public static final String RESULT_FAILURE = "fal";
 
     private final String serviceName;
     private final String applicationName;
     private final String agentId;
     private final long eventTime;
     private final int elapsedTime;
-    private final String resultType;
+    private final String result;
 
     public HeatmapAgentStat(String serviceName, String applicationName, String agentId, long eventTime, int elapsedTime, int errCode) {
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
@@ -40,7 +40,7 @@ public class HeatmapAgentStat {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.eventTime = eventTime;
         this.elapsedTime = roundUpElapsedTime(elapsedTime);
-        this.resultType = errCode == 0 ? RESULT_TYPE_SUCCESS : RESULT_TYPE_FAILURE;
+        this.result = errCode == 0 ? RESULT_SUCCESS : RESULT_FAILURE;
     }
 
     static int roundUpElapsedTime(int elapsedTime) {
@@ -67,8 +67,8 @@ public class HeatmapAgentStat {
         return elapsedTime;
     }
 
-    public String getResultType() {
-        return resultType;
+    public String getResult() {
+        return result;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class HeatmapAgentStat {
                 ", agentId='" + agentId + '\'' +
                 ", eventTime=" + eventTime +
                 ", elapsedTime=" + elapsedTime +
-                ", resultType='" + resultType + '\'' +
+                ", result='" + result + '\'' +
                 '}';
     }
 }
