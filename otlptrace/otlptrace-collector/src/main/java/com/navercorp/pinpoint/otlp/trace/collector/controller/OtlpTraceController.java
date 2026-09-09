@@ -21,10 +21,12 @@ import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpRequestRejectReason;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportResult;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceResponseMapper;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTransport;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
@@ -71,7 +73,7 @@ public class OtlpTraceController {
         try {
             request = parseRequest(body, json);
         } catch (InvalidProtocolBufferException | OtlpTraceParseException e) {
-            ingestMetrics.requestRejected(OtlpTraceIngestMetrics.Transport.HTTP, OtlpTraceIngestMetrics.RequestRejectReason.PARSE_ERROR);
+            ingestMetrics.requestRejected(OtlpTransport.HTTP, OtlpRequestRejectReason.PARSE_ERROR);
             final Status status = Status.newBuilder()
                     .setCode(Code.INVALID_ARGUMENT_VALUE)
                     .setMessage(errorMessage(e))
@@ -82,7 +84,7 @@ public class OtlpTraceController {
         }
 
         final List<ResourceSpans> resourceSpanList = request.getResourceSpansList();
-        final OtlpTraceExportResult result = exportService.export(resourceSpanList, OtlpTraceIngestMetrics.Transport.HTTP);
+        final OtlpTraceExportResult result = exportService.export(resourceSpanList, OtlpTransport.HTTP);
 
         if (OtlpTraceResponseMapper.isServerError(result)) {
             // Mirror the gRPC UNAVAILABLE path with a retryable 503 carrying a google.rpc.Status body,

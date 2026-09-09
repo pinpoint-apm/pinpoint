@@ -180,7 +180,7 @@ public class OtlpExceptionMapper {
      * and the stack-trace grouping hash stays distinctive instead of collapsing every unparsed
      * exception into one shared "empty stack" group.
      */
-    List<StackTraceElementWrapperBo> parseStackTrace(String stackTrace, String sdkLanguage) {
+    public List<StackTraceElementWrapperBo> parseStackTrace(String stackTrace, String sdkLanguage) {
         if (!StringUtils.hasLength(stackTrace)) {
             return new ArrayList<>();
         }

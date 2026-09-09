@@ -94,7 +94,7 @@ class OtlpTraceExportServiceTest {
         OtlpTraceExportService service = newService(mapperData, null);
 
         // 3 + 4 raw spans over two ResourceSpans, sent over HTTP
-        service.export(List.of(resourceSpansWithSpans(3), resourceSpansWithSpans(4)), OtlpTraceIngestMetrics.Transport.HTTP);
+        service.export(List.of(resourceSpansWithSpans(3), resourceSpansWithSpans(4)), OtlpTransport.HTTP);
 
         assertThat(count(OtlpTraceIngestMetrics.SPAN_RECEIVED, "transport", "http")).isEqualTo(7.0);
         assertThat(count(OtlpTraceIngestMetrics.SPAN_STORED, "transport", "http", "type", "span")).isEqualTo(2.0);
@@ -111,7 +111,7 @@ class OtlpTraceExportServiceTest {
         mapperData.getRejectedSpan().addCount(OtlpTraceRejectReason.MAPPING_ERROR, 1);
         OtlpTraceExportService service = newService(mapperData, null);
 
-        OtlpTraceExportResult result = service.export(List.of(resourceSpansWithSpans(8)), OtlpTraceIngestMetrics.Transport.GRPC);
+        OtlpTraceExportResult result = service.export(List.of(resourceSpansWithSpans(8)), OtlpTransport.GRPC);
 
         assertThat(count(OtlpTraceIngestMetrics.SPAN_REJECTED, "transport", "grpc", "reason", "invalid_id")).isEqualTo(2.0);
         assertThat(count(OtlpTraceIngestMetrics.SPAN_REJECTED, "transport", "grpc", "reason", "orphan")).isEqualTo(5.0);
@@ -132,7 +132,7 @@ class OtlpTraceExportServiceTest {
         OtlpTraceExportService service = newService(dataWithUriStatSpan(),
                 new OtlpUriStatService(captureDao, () -> "tenant1"));
 
-        OtlpTraceExportResult result = service.export(List.of(), OtlpTraceIngestMetrics.Transport.GRPC);
+        OtlpTraceExportResult result = service.export(List.of(), OtlpTransport.GRPC);
 
         assertThat(result.serverErrorCount()).isZero();
         assertThat(inserted).hasSize(1);
@@ -148,7 +148,7 @@ class OtlpTraceExportServiceTest {
         OtlpTraceExportService service = newService(dataWithUriStatSpan(),
                 new OtlpUriStatService(throwingDao, () -> "tenant1"));
 
-        OtlpTraceExportResult result = service.export(List.of(), OtlpTraceIngestMetrics.Transport.GRPC);
+        OtlpTraceExportResult result = service.export(List.of(), OtlpTransport.GRPC);
 
         // spans are already stored at this point: the export succeeds and the failure is
         // NOT counted toward serverErrorCount — only the uriStat error counter moves.
@@ -161,7 +161,7 @@ class OtlpTraceExportServiceTest {
     void uriStatDisabled_absentBean_exportsWithoutTouchingUriStat() {
         OtlpTraceExportService service = newService(dataWithUriStatSpan(), null);
 
-        OtlpTraceExportResult result = service.export(List.of(), OtlpTraceIngestMetrics.Transport.GRPC);
+        OtlpTraceExportResult result = service.export(List.of(), OtlpTransport.GRPC);
 
         assertThat(result.serverErrorCount()).isZero();
         assertThat(uriStatErrorCount(meterRegistry)).isZero();

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceRejectReason;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportResult;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTransport;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
@@ -141,7 +142,7 @@ class OtlpTraceControllerTest {
         // The hex IDs must arrive at the export service as the same raw bytes the protobuf path yields.
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<ResourceSpans>> captor = ArgumentCaptor.forClass((Class) List.class);
-        verify(exportService).export(captor.capture(), eq(OtlpTraceIngestMetrics.Transport.HTTP));
+        verify(exportService).export(captor.capture(), eq(OtlpTransport.HTTP));
         Span span = captor.getValue().get(0).getScopeSpans(0).getSpans(0);
         assertThat(span.getTraceId()).isEqualTo(ByteString.copyFrom(HexFormat.of().parseHex(TRACE_ID_HEX)));
         assertThat(span.getSpanId()).isEqualTo(ByteString.copyFrom(HexFormat.of().parseHex(SPAN_ID_HEX)));
@@ -301,7 +302,7 @@ class OtlpTraceControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("{}"));
 
-        verify(exportService).export(eq(List.of()), eq(OtlpTraceIngestMetrics.Transport.HTTP));
+        verify(exportService).export(eq(List.of()), eq(OtlpTransport.HTTP));
     }
 
     @Test

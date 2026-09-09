@@ -125,7 +125,7 @@ public class OtlpTraceExportService {
      * Maps and stores one export request. {@code transport} only tags the ingest metrics; the
      * response semantics are transport-agnostic (see {@link OtlpTraceResponseMapper}).
      */
-    public OtlpTraceExportResult export(List<ResourceSpans> resourceSpanList, OtlpTraceIngestMetrics.Transport transport) {
+    public OtlpTraceExportResult export(List<ResourceSpans> resourceSpanList, OtlpTransport transport) {
         // Raw span count of the request, before mapping: the only place spans/sec can be measured
         // (a request / worker task is a batch of arbitrary size).
         ingestMetrics.spanReceived(transport, OtlpTraceMapperUtils.countSpans(resourceSpanList));

@@ -47,7 +47,7 @@ import java.util.function.LongSupplier;
  *       by {@link OtlpTraceRejectReason}. These are also reported to the client as
  *       {@code ExportTracePartialSuccess}.</li>
  *   <li>{@code collector.otlptrace.request.rejected{transport,reason}} — whole requests refused before
- *       mapping (admission / parse), where the span count is unknown, by {@link RequestRejectReason}.</li>
+ *       mapping (admission / parse), where the span count is unknown, by {@link OtlpRequestRejectReason}.</li>
  *   <li>{@code collector.otlptrace.request.bytes{transport}} — wire bytes of admitted requests
  *       (distribution: count / total / mean / max per step), so bytes per second, average batch size
  *       and headroom against the per-request cap are visible.</li>
@@ -64,7 +64,7 @@ import java.util.function.LongSupplier;
  * exporter that registry is wired to (NPOT in the NAVER deployment) without extra configuration.
  */
 @Component
-public class OtlpTraceIngestMetrics {
+public class OtlpTraceIngestMetrics implements OtlpIngestAdmissionMetrics {
 
     public static final String SPAN_RECEIVED = "collector.otlptrace.span.received";
     public static final String SPAN_STORED = "collector.otlptrace.span.stored";
@@ -83,69 +83,24 @@ public class OtlpTraceIngestMetrics {
     public static final String TYPE_SPAN = "span";
     public static final String TYPE_SPAN_CHUNK = "spanChunk";
 
-    public enum Transport {
-        GRPC("grpc"),
-        HTTP("http");
+    private static final Set<OtlpRequestRejectReason> GRPC_REQUEST_REASONS =
+            EnumSet.of(OtlpRequestRejectReason.INFLIGHT_BYTES, OtlpRequestRejectReason.EXECUTOR_REJECTED);
+    private static final Set<OtlpRequestRejectReason> HTTP_REQUEST_REASONS =
+            EnumSet.of(OtlpRequestRejectReason.INFLIGHT_BYTES, OtlpRequestRejectReason.CONCURRENCY,
+                    OtlpRequestRejectReason.PAYLOAD_TOO_LARGE, OtlpRequestRejectReason.UNSUPPORTED_ENCODING,
+                    OtlpRequestRejectReason.PARSE_ERROR);
 
-        private final String tagValue;
-
-        Transport(String tagValue) {
-            this.tagValue = tagValue;
-        }
-
-        public String tagValue() {
-            return tagValue;
-        }
-    }
-
-    /**
-     * Why a whole export request was refused before its spans were parsed or mapped. The response
-     * the client sees is listed per reason; every one of them is retryable except the client faults
-     * ({@code payload_too_large}, {@code unsupported_encoding}, {@code parse_error}).
-     */
-    public enum RequestRejectReason {
-        /** gRPC / HTTP: the in-flight byte budget is exhausted (gRPC UNAVAILABLE, HTTP 503 + Retry-After). */
-        INFLIGHT_BYTES("inflight_bytes"),
-        /** gRPC: the worker executor queue is full (UNAVAILABLE). */
-        EXECUTOR_REJECTED("executor_rejected"),
-        /** HTTP: the concurrent-request cap is reached (503 + Retry-After). */
-        CONCURRENCY("concurrency"),
-        /** HTTP: Content-Length above the per-request cap (413). */
-        PAYLOAD_TOO_LARGE("payload_too_large"),
-        /** HTTP: Content-Encoding other than gzip/identity (415). */
-        UNSUPPORTED_ENCODING("unsupported_encoding"),
-        /** HTTP: the protobuf/JSON body did not parse (400). */
-        PARSE_ERROR("parse_error");
-
-        private final String tagValue;
-
-        RequestRejectReason(String tagValue) {
-            this.tagValue = tagValue;
-        }
-
-        public String tagValue() {
-            return tagValue;
-        }
-    }
-
-    private static final Set<RequestRejectReason> GRPC_REQUEST_REASONS =
-            EnumSet.of(RequestRejectReason.INFLIGHT_BYTES, RequestRejectReason.EXECUTOR_REJECTED);
-    private static final Set<RequestRejectReason> HTTP_REQUEST_REASONS =
-            EnumSet.of(RequestRejectReason.INFLIGHT_BYTES, RequestRejectReason.CONCURRENCY,
-                    RequestRejectReason.PAYLOAD_TOO_LARGE, RequestRejectReason.UNSUPPORTED_ENCODING,
-                    RequestRejectReason.PARSE_ERROR);
-
-    private final Map<Transport, Counter> received = new EnumMap<>(Transport.class);
-    private final Map<Transport, Counter> storedSpan = new EnumMap<>(Transport.class);
-    private final Map<Transport, Counter> storedSpanChunk = new EnumMap<>(Transport.class);
-    private final Map<Transport, Map<OtlpTraceRejectReason, Counter>> spanRejected = new EnumMap<>(Transport.class);
-    private final Map<Transport, Map<RequestRejectReason, Counter>> requestRejected = new EnumMap<>(Transport.class);
-    private final Map<Transport, DistributionSummary> requestBytes = new EnumMap<>(Transport.class);
+    private final Map<OtlpTransport, Counter> received = new EnumMap<>(OtlpTransport.class);
+    private final Map<OtlpTransport, Counter> storedSpan = new EnumMap<>(OtlpTransport.class);
+    private final Map<OtlpTransport, Counter> storedSpanChunk = new EnumMap<>(OtlpTransport.class);
+    private final Map<OtlpTransport, Map<OtlpTraceRejectReason, Counter>> spanRejected = new EnumMap<>(OtlpTransport.class);
+    private final Map<OtlpTransport, Map<OtlpRequestRejectReason, Counter>> requestRejected = new EnumMap<>(OtlpTransport.class);
+    private final Map<OtlpTransport, DistributionSummary> requestBytes = new EnumMap<>(OtlpTransport.class);
     private final MeterRegistry meterRegistry;
 
     public OtlpTraceIngestMetrics(MeterRegistry meterRegistry) {
         this.meterRegistry = Objects.requireNonNull(meterRegistry, "meterRegistry");
-        for (Transport transport : Transport.values()) {
+        for (OtlpTransport transport : OtlpTransport.values()) {
             requestBytes.put(transport, DistributionSummary.builder(REQUEST_BYTES)
                     .description("Wire bytes of admitted OTLP export requests (gRPC serialized size / HTTP body)")
                     .baseUnit("bytes")
@@ -168,9 +123,9 @@ public class OtlpTraceIngestMetrics {
             }
             spanRejected.put(transport, byReason);
 
-            final Map<RequestRejectReason, Counter> requestByReason = new EnumMap<>(RequestRejectReason.class);
-            final Set<RequestRejectReason> reasons = transport == Transport.GRPC ? GRPC_REQUEST_REASONS : HTTP_REQUEST_REASONS;
-            for (RequestRejectReason reason : reasons) {
+            final Map<OtlpRequestRejectReason, Counter> requestByReason = new EnumMap<>(OtlpRequestRejectReason.class);
+            final Set<OtlpRequestRejectReason> reasons = transport == OtlpTransport.GRPC ? GRPC_REQUEST_REASONS : HTTP_REQUEST_REASONS;
+            for (OtlpRequestRejectReason reason : reasons) {
                 requestByReason.put(reason, Counter.builder(REQUEST_REJECTED)
                         .description("OTLP export requests refused before mapping (admission or parse failure)")
                         .tag(TAG_TRANSPORT, transport.tagValue())
@@ -181,7 +136,7 @@ public class OtlpTraceIngestMetrics {
         }
     }
 
-    private static Counter storedCounter(MeterRegistry meterRegistry, Transport transport, String type) {
+    private static Counter storedCounter(MeterRegistry meterRegistry, OtlpTransport transport, String type) {
         return Counter.builder(SPAN_STORED)
                 .description("OTLP root spans / span chunks handed to storage after mapping")
                 .tag(TAG_TRANSPORT, transport.tagValue())
@@ -190,7 +145,8 @@ public class OtlpTraceIngestMetrics {
     }
 
     /** Wire size of one admitted request (recorded after the admission gates, before mapping). */
-    public void requestBytes(Transport transport, long bytes) {
+    @Override
+    public void requestBytes(OtlpTransport transport, long bytes) {
         if (bytes > 0) {
             requestBytes.get(transport).record(bytes);
         }
@@ -201,7 +157,8 @@ public class OtlpTraceIngestMetrics {
      * budget. Registered by the owner of the semaphore (gRPC service / HTTP filter) at construction;
      * the supplier is held strongly so the gauge never goes NaN through garbage collection.
      */
-    public void registerInFlightBytes(Transport transport, LongSupplier reservedBytes, long limitBytes) {
+    @Override
+    public void registerInFlightBytes(OtlpTransport transport, LongSupplier reservedBytes, long limitBytes) {
         Gauge.builder(ADMISSION_INFLIGHT_BYTES, reservedBytes::getAsLong)
                 .description("Bytes currently reserved by the in-flight admission semaphore")
                 .baseUnit("bytes")
@@ -217,7 +174,8 @@ public class OtlpTraceIngestMetrics {
     }
 
     /** HTTP-only concurrent-request gate: requests currently admitted and the cap. */
-    public void registerInFlightRequests(Transport transport, IntSupplier inFlightRequests, int limitRequests) {
+    @Override
+    public void registerInFlightRequests(OtlpTransport transport, IntSupplier inFlightRequests, int limitRequests) {
         Gauge.builder(ADMISSION_INFLIGHT_REQUESTS, inFlightRequests::getAsInt)
                 .description("Requests currently past the concurrency gate")
                 .tag(TAG_TRANSPORT, transport.tagValue())
@@ -230,25 +188,25 @@ public class OtlpTraceIngestMetrics {
                 .register(meterRegistry);
     }
 
-    public void spanReceived(Transport transport, int count) {
+    public void spanReceived(OtlpTransport transport, int count) {
         if (count > 0) {
             received.get(transport).increment(count);
         }
     }
 
-    public void spanStored(Transport transport, int count) {
+    public void spanStored(OtlpTransport transport, int count) {
         if (count > 0) {
             storedSpan.get(transport).increment(count);
         }
     }
 
-    public void spanChunkStored(Transport transport, int count) {
+    public void spanChunkStored(OtlpTransport transport, int count) {
         if (count > 0) {
             storedSpanChunk.get(transport).increment(count);
         }
     }
 
-    public void spanRejected(Transport transport, OtlpTraceRejectReason reason, long count) {
+    public void spanRejected(OtlpTransport transport, OtlpTraceRejectReason reason, long count) {
         if (count > 0) {
             spanRejected.get(transport).get(reason).increment(count);
         }
@@ -258,7 +216,8 @@ public class OtlpTraceIngestMetrics {
      * Counts one refused request. The (transport, reason) pair must be one that transport can emit;
      * an unknown pair is a programming error and fails fast.
      */
-    public void requestRejected(Transport transport, RequestRejectReason reason) {
+    @Override
+    public void requestRejected(OtlpTransport transport, OtlpRequestRejectReason reason) {
         final Counter counter = requestRejected.get(transport).get(reason);
         if (counter == null) {
             throw new IllegalArgumentException("reason " + reason + " is not emitted by transport " + transport);
