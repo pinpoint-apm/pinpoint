@@ -158,6 +158,7 @@ gRPC server executor (4 threads / queue 256)
 | scatter index | `HbaseTraceIndexDao` (v2) | `TRACE_INDEX` / `TRACE_INDEX_META` | async — **future discarded** |
 | server-map stats | `BulkWriter.increment` | link/response-stats tables | in-memory aggregation + 5s flush |
 | store event | `SpanStorePublisher` | (Spring event) | published from the async callback |
+| exception traces (Error Analysis) | `PinotExceptionMetaDataService` → `ExceptionTraceDao` | Kafka topic → Pinot `exceptionTrace` | one record per mapped `exception` span event; only when `pinpoint.modules.collector.exceptiontrace.enabled=true` (the module's `ExceptionTraceCollectorConfig` import), otherwise the `Optional<ExceptionMetaDataService>` is empty and the records are dropped |
 
 spanChunk uses only `TraceV2`/CF `S` (no scatter index). AgentInfo (`AGENTINFO`/CF `Info`,
 rowkey=`agentId+startTime`) and ApplicationIndex v2 (`APPLICATION`, `AGENT_ID`) are synchronous put +

@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ThreadPoolExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
+import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorConfig;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
@@ -75,6 +76,14 @@ import java.util.concurrent.Executor;
         // import the OTLP trace app runs as its own Spring context with no uristat beans, so
         // OtlpUriStatService cannot be created even when both uristat flags are true.
         UriStatCollectorConfig.class,
+
+        // Error Analysis storage beans (PinotExceptionMetaDataService / ExceptionTraceDao / Kafka
+        // template) that OtlpTraceExportService writes the mapped ExceptionMetaDataBo to. Same
+        // situation as the uristat import above: self-guarded by
+        // @ConditionalOnProperty(exceptiontrace.enabled), and without it this standalone context has
+        // no ExceptionMetaDataService at all — the Optional injection stays empty and OTel exceptions
+        // are silently not stored. The BASIC app gets the same config from PinpointCollectorStarter.
+        ExceptionTraceCollectorConfig.class,
 
         OtlpTraceCollectorPropertySources.class,
         OtlpTraceCollectorHbaseModule.class,
