@@ -1,7 +1,6 @@
 import React from 'react';
 import { getServiceMapPath, getServiceMapRealtimePath } from '@pinpoint-fe/ui/src/utils';
-import { useIsDefaultService, useServiceNameForLink } from '@pinpoint-fe/ui/src/hooks';
-import { DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms';
+import { useIsDefaultService, useRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import { ServiceMap } from '../components/ServiceMap';
 import { ServerMapPage, ServermapPageProps } from './ServerMap';
@@ -20,7 +19,7 @@ export type ServiceMapPageProps = Omit<
 export const ServiceMapPage = (props: ServiceMapPageProps) => {
   // 경로에 serviceName이 실려 있으면 그것이, 없으면 전역 선택값이 이 화면의 service다.
   // (`/serviceMap`으로 들어와도 라우트 로더가 곧 serviceName을 붙여 리다이렉트한다.)
-  const serviceName = useServiceNameForLink() ?? DEFAULT_SERVICE;
+  const serviceName = useRequestService();
   // DEFAULT service는 고른 application 하나를 기준으로 그리므로 먼저 골라야 하고,
   // 그 외 service는 소속된 모든 application을 모아 그리므로 고를 대상이 없다.
   const isDefaultService = useIsDefaultService();

@@ -1,14 +1,10 @@
 import { useAtomValue } from 'jotai';
 import { APP_PATH, MenuItemType as MenuItem } from '@pinpoint-fe/ui/src/constants';
-import {
-  configurationAtom,
-  DEFAULT_SERVICE,
-  searchParametersAtom,
-} from '@pinpoint-fe/ui/src/atoms';
+import { configurationAtom, searchParametersAtom } from '@pinpoint-fe/ui/src/atoms';
 import {
   useEnableServiceMap,
   useIsDefaultService,
-  useServiceNameForLink,
+  useRequestService,
 } from '@pinpoint-fe/ui/src/hooks';
 import {
   PiBugBeetle,
@@ -33,7 +29,7 @@ export const useMenuItems = () => {
   const { application, searchParameters } = useAtomValue(searchParametersAtom);
   // servicemap 링크는 어떤 service를 볼지 경로에 담아야 한다. 지금 보고 있는 화면의 service를
   // 그대로 이어받는다. (serviceName이 실린 경로면 그 값, 아니면 전역 선택값)
-  const serviceName = useServiceNameForLink() ?? DEFAULT_SERVICE;
+  const serviceName = useRequestService();
   const isDefaultService = useIsDefaultService();
   const enableServiceMap = useEnableServiceMap();
 

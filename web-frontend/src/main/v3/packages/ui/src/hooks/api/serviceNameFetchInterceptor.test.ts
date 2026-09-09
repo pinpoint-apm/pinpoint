@@ -4,7 +4,6 @@ import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import {
   getRequestService,
   installServiceNameFetchInterceptor,
-  resolveRequestService,
   SERVICE_NAME_HEADER,
 } from './serviceNameFetchInterceptor';
 
@@ -190,40 +189,55 @@ describe('serviceNameFetchInterceptor', () => {
     expect(headerOfLastCall()).toBe('my-service');
   });
 
-  describe('resolveRequestService', () => {
+  describe('getRequestService', () => {
+    beforeEach(() => {
+      store.set(configurationAtom, configWithServiceMap(true));
+    });
+
     test('resolves to the selected service on a service path', () => {
+      store.set(selectedServiceAtom, 'my-service');
       window.history.replaceState({}, '', '/serviceMap/app-name@TOMCAT');
 
-      expect(resolveRequestService('my-service')).toBe('my-service');
+      expect(getRequestService()).toBe('my-service');
     });
 
     test('prefers the service name carried by the path', () => {
       // 헤더와 캐시 키가 같은 값에서 파생되도록, URL에 실린 serviceName을 전역 선택값보다 앞세운다.
+      store.set(selectedServiceAtom, 'my-service');
       window.history.replaceState({}, '', '/transactionList/url-service/app-name@TOMCAT');
 
-      expect(resolveRequestService('my-service')).toBe('url-service');
+      expect(getRequestService()).toBe('url-service');
     });
 
     test('ignores the leading segment on paths that do not carry a service name', () => {
+      store.set(selectedServiceAtom, 'my-service');
       window.history.replaceState({}, '', '/inspector/svc@app-name@TOMCAT');
 
-      expect(resolveRequestService('my-service')).toBe('my-service');
+      expect(getRequestService()).toBe('my-service');
     });
 
     test('resolves to the selected service on the servermap page too', () => {
       // ServerMap도 예외가 아니다. 헤더가 선택된 service로 나가므로 캐시 키도 같아야 한다.
+      store.set(selectedServiceAtom, 'my-service');
       window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
 
-      expect(resolveRequestService('my-service')).toBe('my-service');
+      expect(getRequestService()).toBe('my-service');
     });
 
-    test('getRequestService reads the currently selected service from the store', () => {
-      store.set(selectedServiceAtom, 'my-service');
-      window.history.replaceState({}, '', '/serviceMap/app-name@TOMCAT');
-      expect(getRequestService()).toBe('my-service');
-
+    test('falls back to DEFAULT when nothing carries a service', () => {
+      store.set(selectedServiceAtom, '');
       window.history.replaceState({}, '', '/serverMap/app-name@TOMCAT');
-      expect(getRequestService()).toBe('my-service');
+
+      expect(getRequestService()).toBe('DEFAULT');
+    });
+
+    // 설정이 꺼져 있으면 service 개념 자체가 없다. 헤더도, 캐시 키의 service 차원도 없어야 한다.
+    test('is undefined when enableServiceMap is off', () => {
+      store.set(configurationAtom, configWithServiceMap(false));
+      store.set(selectedServiceAtom, 'my-service');
+      window.history.replaceState({}, '', '/serviceMap/blogService/app-name@TOMCAT');
+
+      expect(getRequestService()).toBeUndefined();
     });
   });
 });

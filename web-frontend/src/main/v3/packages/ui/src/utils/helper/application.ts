@@ -41,7 +41,7 @@ const decodeServiceName = (serviceName: string) => {
  * servicemap), application 세그먼트를 건드리지 않아 그 안의 '@'와 뒤섞이지도 않는다.
  *
  * 아직 serviceName을 싣지 않는 화면도 남아 있다. 그 경로에서는 serviceName을 읽을 수 없어
- * 전역 선택값으로 폴백한다(`resolveRequestService`). 화면이 옮겨질 때마다
+ * 전역 선택값으로 폴백한다(`getRequestService`). 화면이 옮겨질 때마다
  * `SERVICE_NAME_SEGMENT_PAGES`에 추가하면 되고, 폴백에 의존하는 화면은 그만큼 줄어든다.
  */
 

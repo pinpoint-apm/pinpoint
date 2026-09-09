@@ -1,7 +1,6 @@
 import React from 'react';
 import { getServiceMapPath, getServiceMapRealtimePath } from '@pinpoint-fe/ui/src/utils';
-import { useIsDefaultService, useServiceNameForLink } from '@pinpoint-fe/ui/src/hooks';
-import { DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms';
+import { useIsDefaultService, useRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import { ServiceMap } from '../components/ServiceMap';
 import { RealtimePage, RealtimePageProps } from './Realtime';
@@ -32,7 +31,7 @@ export type ServiceMapRealtimePageProps = Omit<
  */
 export const ServiceMapRealtimePage = (props: ServiceMapRealtimePageProps) => {
   // 경로에 serviceName이 실려 있으면 그것이, 없으면 전역 선택값이 이 화면의 service다.
-  const serviceName = useServiceNameForLink() ?? DEFAULT_SERVICE;
+  const serviceName = useRequestService();
   const isDefaultService = useIsDefaultService();
 
   // 실시간 보기를 벗어날 때(기간 선택, application 선택)도 같은 service의 servicemap으로 가야

@@ -22,8 +22,11 @@ export interface HiddenMapPageRedirectParams {
   /** '?'를 포함한 query string. 없으면 빈 문자열. */
   search: string;
   enableServiceMap: boolean;
-  /** servermap → servicemap으로 옮길 때 경로에 실을 service. 반대 방향에서는 쓰지 않는다. */
-  serviceName: string;
+  /**
+   * servermap → servicemap으로 옮길 때 경로에 실을 service. 반대 방향에서는 쓰지 않는다.
+   * 설정을 읽지 못해 정해지지 않았으면(`getRequestService`가 undefined) 경로 빌더가 DEFAULT를 싣는다.
+   */
+  serviceName?: string;
 }
 
 /**
@@ -67,8 +70,9 @@ export const getHiddenMapPageRedirect = ({
 
     // DEFAULT가 아닌 service는 소속 application을 모두 모아 그려 기준 application이 없다.
     // 그대로 실어 보내면 목적지 로더가 곧 지우면서 한 번 더 움직인다.
+    // service가 정해지지 않았으면 DEFAULT로 다룬다(경로 빌더가 싣는 값과 같다).
     const application =
-      serviceName === DEFAULT_SERVICE ? getApplicationTypeAndName(pathname) : null;
+      !serviceName || serviceName === DEFAULT_SERVICE ? getApplicationTypeAndName(pathname) : null;
 
     // 실시간 보기는 기간을 화면이 직접 만들기 때문에 query string을 싣지 않는다.
     return isServerMapRealtime

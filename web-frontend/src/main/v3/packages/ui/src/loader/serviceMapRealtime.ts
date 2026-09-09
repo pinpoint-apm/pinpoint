@@ -37,7 +37,9 @@ export const serviceMapRealtimeLoader = async ({ request }: LoaderFunctionArgs) 
       pathname,
     );
 
-    const resolvedServiceName = serviceName || getRequestService();
+    // 설정을 읽지 못해 정해지지 않았으면(`getRequestService`가 undefined) DEFAULT로 다룬다.
+    // 아래 비교와 경로에 실을 값이 모두 필요하므로 여기서 한 번 정한다.
+    const resolvedServiceName = serviceName || getRequestService() || DEFAULT_SERVICE;
     const resolvedApplication = resolvedServiceName === DEFAULT_SERVICE ? application : null;
     const hasStaleApplication = !!application && !resolvedApplication;
 

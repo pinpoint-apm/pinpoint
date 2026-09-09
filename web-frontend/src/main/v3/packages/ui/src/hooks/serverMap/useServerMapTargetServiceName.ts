@@ -1,12 +1,11 @@
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import { useEnableServiceMap } from '../utility/useEnableServiceMap';
-import { useServiceNameForLink } from '../utility/useServiceNameForLink';
+import { useRequestService } from '../utility/useRequestService';
 import { useServerMapCurrentTargetData } from './useServerMapCurrentTarget';
 
 /**
  * 우측 패널의 조회가 나갈 service.
  *
- * 기본값은 이 화면의 service(`useServiceNameForLink` = 경로의 serviceName ?? 전역 선택값)다.
+ * 기본값은 이 화면의 service(`useRequestService` = 경로의 serviceName ?? 전역 선택값)다.
  * map에서 고른 노드/링크가 다른 service에 속하면 그 service로 갈아탄다 — servicemap은 다른
  * service를 묶은 group 노드까지 함께 그리고, group을 펼쳐 그 안의 application을 고를 수 있다.
  * 그렇게 고른 대상은 이 화면의 service에 없는 application이라 화면의 service로 조회하면 빈
@@ -26,7 +25,9 @@ import { useServerMapCurrentTargetData } from './useServerMapCurrentTarget';
  *
  * 설정이 꺼져 있으면 undefined다. service 개념 자체가 없고(백엔드가 모든 요청을 기본 service로
  * 해석한다) 이 값이 그대로 요청 헤더가 되므로, 설정이 꺼진 저장소에 헤더가 새어 나가지 않도록
- * 여기 한 곳에서 막는다. (`useServiceNameForLink`도 같은 규칙이다.)
+ * 여기 한 곳에서 막는다. 판단은 화면의 service를 다시 본다 — `useRequestService`는 설정이
+ * 꺼져 있을 때만 undefined이고 켜져 있으면 언제나 문자열이므로(마지막 폴백이 DEFAULT),
+ * 설정 플래그를 여기서 또 읽지 않는다.
  *
  * 이 값은 우측 패널의 컴포넌트들에 `serviceName` prop으로 내려간다. 받은 컴포넌트는 조회 훅과
  * 다른 화면으로 넘기는 링크에 그대로 쓰고, 받지 않은 화면(filteredMap, inspector 등)은 기존대로
@@ -36,11 +37,10 @@ import { useServerMapCurrentTargetData } from './useServerMapCurrentTarget';
  * application도 출발지 노드이므로(`ServerMapChartsBoardFetcher`) 같은 기준이다.
  */
 export const useServerMapTargetServiceName = () => {
-  const enableServiceMap = useEnableServiceMap();
   const currentTargetData = useServerMapCurrentTargetData();
-  const screenServiceName = useServiceNameForLink();
+  const screenServiceName = useRequestService();
 
-  if (!enableServiceMap) {
+  if (!screenServiceName) {
     return undefined;
   }
 

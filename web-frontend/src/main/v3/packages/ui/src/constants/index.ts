@@ -6,3 +6,4 @@ export * from './types';
 export * from './path';
 export * from './locales';
 export * from './theme';
+export * from './service';

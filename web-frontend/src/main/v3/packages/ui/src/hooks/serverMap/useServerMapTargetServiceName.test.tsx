@@ -10,7 +10,7 @@ import {
 import { Configuration, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { useServerMapTargetServiceName } from './useServerMapTargetServiceName';
 
-// 화면의 service는 경로에서 읽으므로(`useServiceNameForLink`) 위치를 갈아 끼울 수 있게 한다.
+// 화면의 service는 경로에서 읽으므로(`useRequestService`) 위치를 갈아 끼울 수 있게 한다.
 const mockLocation = { pathname: '/serviceMap/aService' };
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import {
-  resolveRequestService,
+  getRequestService,
   useClearApplicationOnServiceChange,
   useEnableServiceMap,
   useExperimentals,
@@ -40,12 +40,13 @@ export const InitialFetchOutlet = () => {
   // service를 바꿨는데 해시가 그대로면 새 헤더로 받은 응답이 이전 service 키에 쌓인다.
   // 이 값을 key로 두어 페이지 서브트리를 remount 해, 모든 쿼리가 새 service 키로 다시 붙게 한다.
   // (사이드 네비게이션은 상위 SideNavigationOutlet에 있어 remount 대상이 아니다.)
-  // 해시와 동일한 값을 얻으려면 경로 판단도 해시와 같은 함수(window.location 기준)를 써야 한다.
   // 렌더 밖에서 경로를 읽는 곳들(요청 헤더·캐시 키·선택의 경로 도장)이 라우터가 렌더한 경로를
   // 보도록 여기서 맞춘다. 조회를 하는 화면들보다 위이므로 같은 렌더 패스에서 반영된다.
   useSyncRenderedRouterPath();
-  const selectedService = useAtomValue(selectedServiceAtom);
-  const requestService = resolveRequestService(selectedService);
+  // key는 해시와 **같은 값**이어야 하므로 해시가 쓰는 함수를 그대로 쓴다. 아톰은 service가
+  // 바뀔 때 이 컴포넌트를 다시 렌더시키기 위해 읽는다(그 함수는 store를 명령형으로 읽는다).
+  useAtomValue(selectedServiceAtom);
+  const requestService = getRequestService();
 
   useExperimentals(data);
   useServicesFetch();

@@ -11,6 +11,7 @@ jest.mock('@pinpoint-fe/ui/src/atoms', () => {
   return {
     toastCountAtom: atom(0),
     selectedServiceAtom: atom('DEFAULT'),
+    configurationAtom: atom(undefined),
     DEFAULT_SERVICE: 'DEFAULT',
   };
 });
@@ -18,8 +19,8 @@ jest.mock('@pinpoint-fe/ui/src/atoms', () => {
 import { toast } from 'react-toastify';
 import { getDefaultStore } from 'jotai';
 import { QueryClient } from '@tanstack/react-query';
-import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
-import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import { configurationAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
+import { Configuration, END_POINTS } from '@pinpoint-fe/ui/src/constants';
 import { SERVICE_NAME_HEADER } from './serviceNameFetchInterceptor';
 import {
   handleGlobalQueryError,
@@ -99,7 +100,11 @@ describe('queryFn', () => {
 describe('serviceScopedQueryKeyHashFn', () => {
   const store = getDefaultStore();
 
+  const configWithServiceMap = (enable: boolean) =>
+    ({ 'experimental.enableServiceMap.value': enable }) as unknown as Configuration;
+
   beforeEach(() => {
+    store.set(configurationAtom, configWithServiceMap(true));
     store.set(selectedServiceAtom, 'DEFAULT');
     window.history.replaceState({}, '', '/serviceMap');
   });
@@ -137,6 +142,19 @@ describe('serviceScopedQueryKeyHashFn', () => {
       expect(serviceScopedQueryKeyHashFn([endPoint])).toBe(hashOnServiceA);
     },
   );
+
+  // 설정이 꺼져 있으면 헤더도 실리지 않아 모든 요청이 기본 service의 조회다. 나눌 기준이
+  // 없으므로 해시에 덧붙이지 않는다 — 덧붙이면 같은 데이터를 전역 선택값마다 다시 받는다.
+  test('does not scope by service when enableServiceMap is off', () => {
+    store.set(configurationAtom, configWithServiceMap(false));
+
+    store.set(selectedServiceAtom, 'service-a');
+    const hashOfA = serviceScopedQueryKeyHashFn(['/api/agents/search-application']);
+
+    store.set(selectedServiceAtom, 'service-b');
+
+    expect(serviceScopedQueryKeyHashFn(['/api/agents/search-application'])).toBe(hashOfA);
+  });
 
   test('keeps each service cache separate for one queryKey', () => {
     const client = new QueryClient({

@@ -759,7 +759,7 @@ const OtelLinkTransactionListButton = ({
   const toast = useReactToastifyToast();
   const [timezone] = useTimezone();
   // 이 화면(transactionList)의 URL이 곧 service의 출처다. serviceName이 없으면 링크에도 싣지
-  // 않고, 열린 화면이 전역 선택값으로 조회한다(`resolveRequestService`).
+  // 않고, 열린 화면이 전역 선택값으로 조회한다(`getRequestService`).
   const { serviceName } = useTransactionSearchParameters();
 
   const handleClick = async (e: React.MouseEvent) => {

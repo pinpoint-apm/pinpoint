@@ -1,8 +1,7 @@
 import { useLocation } from 'react-router';
-import { DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms';
 import { getHiddenMapPageRedirect } from '@pinpoint-fe/ui/src/loader/hiddenMapPageRedirect';
 import { useEnableServiceMap } from './useEnableServiceMap';
-import { useServiceNameForLink } from './useServiceNameForLink';
+import { useRequestService } from './useRequestService';
 
 /**
  * 이미 열려 있는 화면이 **지금** 감춰진 map 화면인지 보고, 그렇다면 옮길 목적지를 반환한다.
@@ -26,7 +25,7 @@ export const useHiddenMapPageRedirect = () => {
   // servermap 경로에는 serviceName이 실리지 않아 전역 선택값으로 폴백된다(로더의
   // `getRequestService`와 같은 규칙). 설정이 꺼져 있으면 undefined인데, 그 방향
   // (servicemap → servermap)에서는 serviceName을 쓰지 않으므로 값이 무엇이든 결과가 같다.
-  const serviceName = useServiceNameForLink() ?? DEFAULT_SERVICE;
+  const serviceName = useRequestService();
   // react-router의 `location`은 basename을 뗀 raw pathname을 준다(`params`와 달리 디코딩되지
   // 않는다). `<Navigate>`가 basename을 다시 붙이므로 목적지도 같은 기준으로 만들어진다.
   const { pathname, search } = useLocation();

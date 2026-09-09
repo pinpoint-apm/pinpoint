@@ -9,6 +9,7 @@ export * from './localStorage';
 export * from './number';
 export * from './object';
 export * from './regexp';
+export * from './serviceName';
 export * from './size';
 export * from './string';
 export * from './zod';

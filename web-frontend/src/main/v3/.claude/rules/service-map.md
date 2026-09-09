@@ -28,6 +28,40 @@ configuration API의 `experimental.enableServiceMap.value`가 **기본값**이�
 - 설정을 바꾸면 새로고침 없이 반영된다. `useLocalStorage`가 `local-storage` 이벤트로 같은 key를
   읽는 인스턴스들을 깨우고, 인터셉터는 매 요청마다 localStorage를 다시 읽는다.
 
+## 어느 service로 조회하는지를 정하는 규칙은 하나다
+
+**`pickServiceName`** (`utils/serviceName.ts`) 하나뿐이다. 순서도 하나뿐이다:
+
+1. `enableServiceMap`이 꺼져 있으면 → **undefined** (service 개념 자체가 없다)
+2. 경로에 serviceName이 실려 있으면 → 그 값 (URL이 진실의 원천)
+3. 없으면 → 전역 선택값(`selectedServiceAtom`)
+4. 그것도 없으면 → `DEFAULT`
+
+켜짐 여부와 같은 두 갈래의 어댑터로만 읽는다. **그 밖에서 규칙을 다시 쓰지 않는다.**
+
+| 읽는 곳 | 경로 |
+|---|---|
+| 화면(훅·컴포넌트) | `useRequestService()` |
+| 렌더 밖(fetch 인터셉터, 캐시 키, 라우트 로더) | `getRequestService()` |
+
+- **켜져 있으면 언제나 문자열이다.** 마지막 폴백이 `DEFAULT`이므로 호출부가 `?? DEFAULT_SERVICE`를
+  다시 붙이지 않는다. 붙이던 곳들은 그것이 곧 규칙의 4단계였고, 네 군데에 흩어져 있었다.
+- **undefined는 "설정이 꺼져 있다"와 같은 뜻이다.** 그래서 설정 플래그를 따로 읽을 필요가 없는
+  곳들은 이 값이 비었는지만 본다(`useServerMapTargetServiceName`).
+- 요청 헤더와 캐시 키(`serviceScopedQueryKeyHashFn`)가 같은 함수를 지나야 한다. 다르면 헤더는
+  A service로 나가는데 캐시는 B service 키에 쌓인다. 설정이 꺼져 있으면 헤더도, 캐시 키의
+  service 차원도 없다.
+- 경로 빌더(`getServiceMapPath`·`getServiceMapRealtimePath`)는 serviceName이 비면 `DEFAULT`를
+  싣는다. 세그먼트를 비우면 application 세그먼트가 serviceName 자리로 밀려 라우트 매칭이 깨진다.
+- **예외는 하나뿐이고 그것은 다른 질문이다.** "경로에 serviceName이 실려 있는가"를 묻는 곳은
+  `getServiceNameFromPath`를 직접 읽고 전역 선택값으로 **폴백하지 않는다** —
+  `useFilteredMapParameters`, `useTransactionSearchParameters`, `ScatterOrHeatmapFullScreen`,
+  그리고 transaction 계열 로더. 그 값은 "어느 map에서 왔는가"(돌아갈 링크의 형태)를 정하고,
+  폴백하면 servermap에서 온 화면도 servicemap에서 온 것처럼 보인다.
+  경로와 전역 선택값을 **비교**하는 곳(`useSyncSelectedServiceWithPath`,
+  `useClearApplicationOnServiceChange`)도 같은 이유로 원본 값을 읽는다.
+  조회 자체의 service는 언제나 위 규칙이 정한다.
+
 ## 로드맵 (중요 — 설계 판단의 전제)
 
 **servermap 메뉴는 없어지고 servicemap이 그 자리를 대체한다.** 코드나 git 이력만 봐서는 알 수 없는
@@ -107,7 +141,7 @@ servicemap에서 필터를 걸면 `/filteredMap/{serviceName}/{application}@{ser
 
 - **경로에 serviceName이 실려 있는지가 "어느 map에서 왔는가"다.** 그것으로 헤더의 돌아갈 링크를
   정한다(`Servicemap / Filtered` ↔ `Servermap / Filtered`). 그래서 `useFilteredMapParameters`의
-  `serviceName`은 전역 선택값으로 **폴백하지 않는다**(`useServiceNameForLink`와 다른 점).
+  `serviceName`은 전역 선택값으로 **폴백하지 않는다**(`useRequestService`와 다른 점).
   폴백하면 servermap에서 온 화면도 servicemap에서 온 것처럼 보인다.
 - 같은 이유로 **로더는 빠진 serviceName 세그먼트를 채워 넣지 않는다.** servicemap 로더와 반대다.
 - 경로에 실을 serviceName은 `ServerMapPage`의 `serviceName` prop에서 온다(servicemap 계열에서만
@@ -133,11 +167,11 @@ service 전체를 대상으로 필터를 걸 수 있게 할지 정해지면 경�
   열어 둔 뒤 원래 탭에서 service를 바꾸면 화면과 어긋난다.
 - **`pServiceName`을 정하는 순서는 하나다** (`serviceNameFetchInterceptor`):
   1. 요청에 이미 실려 있으면 → 건드리지 않고 그대로 보낸다(호출자가 직접 실은 값이 항상 이긴다).
-  2. 경로에 serviceName이 실려 있으면 → 그 값.
-  3. 둘 다 아니면 → 전역으로 선택한 service.
-  2·3은 `resolveRequestService` 하나가 정한다.
-- 요청 헤더(`resolveRequestService`)와 캐시 키(`serviceScopedQueryKeyHashFn`)가 **같은 규칙**에서
-  파생돼야 한다. 다르면 헤더는 A service로 나가는데 캐시는 B service 키에 쌓인다.
+     설정이 꺼져 있어도 이 규칙은 그대로다 — 실린 헤더를 지우지는 않는다.
+  2. 그 외에는 `getRequestService()`가 정한다 (위 "어느 service로 조회하는지를 정하는 규칙은
+     하나다"). 설정이 꺼져 있으면 undefined이므로 헤더를 싣지 않는다.
+- 요청 헤더와 캐시 키(`serviceScopedQueryKeyHashFn`)가 **같은 함수**에서 파생돼야 한다.
+  다르면 헤더는 A service로 나가는데 캐시는 B service 키에 쌓인다.
 - **렌더 밖에서 경로를 읽을 때 `window.location`을 보지 않는다** — `getCurrentRouterPath()`를 쓴다.
   뒤로/앞으로 가기(popstate)에서는 브라우저가 주소를 먼저 바꾸고 react-router의 location 상태는
   그 다음 렌더에 반영된다. 그 사이 한 렌더 동안 조회 파라미터는 이전 경로의 것인데 service만
@@ -180,10 +214,10 @@ A로 나가면 백엔드가 A service에서 `b-1`을 찾으므로 데이터가 �
 
 `useServerMapTargetServiceName`이 고른 대상의 service를 읽고, 우측 패널의 컴포넌트들에
 `serviceName` prop으로 내려준다. 받은 컴포넌트는 조회 훅과 링크 생성에 그 값을 쓴다.
-**prop을 받지 않으면 화면의 service로 조회한다**(`serviceName ?? useServiceNameForLink()`).
+**prop을 받지 않으면 화면의 service로 조회한다**(`serviceName ?? useRequestService()`).
 그래서 filteredMap·inspector처럼 이 값을 넘기지 않는 화면은 동작이 그대로다.
 
-- **기본값은 언제나 화면의 service(`useServiceNameForLink`)다.** 노드를 골랐다고 바뀌지 않는다.
+- **기본값은 언제나 화면의 service(`useRequestService`)다.** 노드를 골랐다고 바뀌지 않는다.
   요구사항이 그렇다 — "pServiceName 헤더는 global로 설정한 serviceName"(이슈 #10587).
   아직 고른 대상이 없을 때도 undefined가 아니라 이 값을 준다. map이 도착해 기준 노드가
   잡히기까지 한 박자가 걸리는데, 그동안 undefined를 주면 헤더는 인터셉터가 어차피 같은 값으로
@@ -200,8 +234,9 @@ A로 나가면 백엔드가 A service에서 `b-1`을 찾으므로 데이터가 �
   > `/getApdexScore`, `/heatmap/applicationData`, `/histogram/statistics`가 두 번씩 호출되던 원인)
   > 이제 그 상태 자체가 만들어지지 않는다.
 - `enableServiceMap`이 꺼져 있으면 `useServerMapTargetServiceName`이 undefined를 반환한다.
-  설정이 꺼진 저장소로 헤더가 새어 나가지 않도록 **그 한 곳에서** 막는다.
-  (폴백으로 쓰는 `useServiceNameForLink`도 같은 규칙이라 둘이 어긋나지 않는다.)
+  설정이 꺼진 저장소로 헤더가 새어 나가지 않도록 **그 한 곳에서** 막는다. 판단은 화면의
+  service가 비었는지로 한다 — `useRequestService`는 설정이 꺼져 있을 때만 undefined이므로
+  (켜져 있으면 마지막 폴백이 `DEFAULT`) 설정 플래그를 여기서 또 읽지 않는다.
 - **prop을 내려주는 곳을 빠뜨리면 그 차트만 조용히 화면의 service로 조회한다.** 화면은 멀쩡히
   그려지고 숫자만 비어서, 타입 검사로도 잡히지 않는다. 우측 패널에 조회하는 컴포넌트를 새로
   추가하면 `serviceName`도 함께 내려야 한다.
@@ -472,6 +507,9 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 |---|---|
 | 켜짐 여부 판단 (화면) | `hooks/utility/useEnableServiceMap.ts` |
 | 켜짐 여부 판단 (렌더 밖) | `utils/experimental.ts` (`pickEnableServiceMap`, `getEnableServiceMap`) |
+| 조회할 service 판단 (규칙) | `utils/serviceName.ts` (`pickServiceName`) |
+| 조회할 service 판단 (화면) | `hooks/utility/useRequestService.ts` |
+| 조회할 service 판단 (렌더 밖) | `hooks/api/serviceNameFetchInterceptor.ts` (`getRequestService`) |
 | Experimental 설정 항목 | `hooks/utility/useExperimentals.ts`, `pages/config/Experimentals.tsx` |
 | DEFAULT 여부 판단 | `hooks/utility/useIsDefaultService.ts` |
 | 경로에 실린 serviceName 읽기 | `utils/helper/application.ts` (`getServiceNameFromPath`) |

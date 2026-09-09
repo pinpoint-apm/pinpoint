@@ -1,14 +1,16 @@
 import { atom } from 'jotai';
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/constants';
 import { getLocalStorageValue, setLocalStorageValue } from '@pinpoint-fe/ui/src/utils/localStorage';
 
-export const DEFAULT_SERVICE = 'DEFAULT';
-
-export const RESERVED_SERVICE_NAMES = ['DEFAULT', 'TEST', 'ERROR', 'UNKNOWN', 'NULL'];
-
-export const isReservedServiceName = (name: string) =>
-  RESERVED_SERVICE_NAMES.includes(name.toUpperCase());
+// service 이름 상수는 `constants`로 옮겼다. 렌더 밖에서 도는 순수 규칙(`pickServiceName`,
+// 경로 빌더)도 이 값을 필요로 하는데, `utils`가 `atoms`를 임포트하면 순환이 생긴다.
+// 기존 임포트 경로를 유지하기 위해 여기서 그대로 다시 내보낸다.
+export {
+  DEFAULT_SERVICE,
+  RESERVED_SERVICE_NAMES,
+  isReservedServiceName,
+} from '@pinpoint-fe/ui/src/constants';
 
 // sessionStorage에 저장해 브라우저 탭마다 selectedService를 독립적으로 유지한다.
 // localStorage는 origin 단위로 공유되고 storage 이벤트로 탭 간 실시간 동기화까지 되어,
