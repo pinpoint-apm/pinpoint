@@ -153,13 +153,20 @@ const SERVICE_AGNOSTIC_ENDPOINTS: string[] = [
  * 재요청 없이 이전 service의 데이터가 그대로 표시됐다.
  * 헤더와 동일한 규칙(`getRequestService`)으로 파생한 service를 해시에만 덧붙여 이를 막는다.
  *
+ * `enableServiceMap`이 꺼져 있으면 그 함수가 undefined를 주고, 헤더도 실리지 않아 모든 요청이
+ * 기본 service의 조회다. 그때는 나눌 기준이 없으므로 덧붙이지 않는다 — 덧붙이면 헤더가 같은
+ * 요청들이 전역 선택값에 따라 다른 키에 쌓여 같은 데이터를 다시 받는다.
+ *
  * queryKey 배열 자체는 그대로 두므로 `invalidateQueries`/`removeQueries`의 부분 매칭
  * (queryKey 구조 비교)은 영향받지 않는다.
  */
-export const serviceScopedQueryKeyHashFn = (queryKey: QueryKey) =>
-  SERVICE_AGNOSTIC_ENDPOINTS.includes(String(queryKey[0]))
-    ? hashKey(queryKey)
-    : hashKey([...queryKey, getRequestService()]);
+export const serviceScopedQueryKeyHashFn = (queryKey: QueryKey) => {
+  const requestService = SERVICE_AGNOSTIC_ENDPOINTS.includes(String(queryKey[0]))
+    ? undefined
+    : getRequestService();
+
+  return requestService ? hashKey([...queryKey, requestService]) : hashKey(queryKey);
+};
 
 export const queryClient = new QueryClient({
   queryCache,

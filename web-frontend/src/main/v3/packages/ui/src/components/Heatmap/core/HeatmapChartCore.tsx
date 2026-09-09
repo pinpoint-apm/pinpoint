@@ -17,7 +17,7 @@ import {
   getTransactionListPath,
   getTransactionListQueryString,
   useServerMapSearchParameters,
-  useServiceNameForLink,
+  useRequestService,
   useStoragedSetting,
 } from '@pinpoint-fe/ui';
 import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
@@ -57,7 +57,7 @@ const HeatmapChartCore = ({
 
   const { dateRange, searchParameters } = useServerMapSearchParameters();
   // 넘어온 값이 없으면 화면의 service로 조회한다(map 밖에서 쓰이는 경우).
-  const screenServiceName = useServiceNameForLink();
+  const screenServiceName = useRequestService();
   const requestServiceName = serviceName ?? screenServiceName;
   const [showSetting, setShowSetting] = React.useState(false);
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);

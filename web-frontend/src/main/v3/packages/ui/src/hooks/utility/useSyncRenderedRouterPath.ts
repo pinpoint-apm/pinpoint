@@ -4,7 +4,7 @@ import { setRenderedRouterPath } from '@pinpoint-fe/ui/src/utils';
 /**
  * 렌더 밖에서 읽는 "지금 경로"(`getCurrentRouterPath`)를 라우터가 렌더한 경로로 맞춘다.
  *
- * 요청 헤더(`resolveRequestService`)와 캐시 키(`serviceScopedQueryKeyHashFn`), map에서 고른
+ * 요청 헤더(`getRequestService`)와 캐시 키(`serviceScopedQueryKeyHashFn`), map에서 고른
  * 선택의 경로 도장(`serverMapCurrentTargetAtom`)은 렌더 밖에서 경로를 읽어야 한다. 그것을
  * `window.location`에서 읽으면 뒤로/앞으로 가기에서 **라우터보다 앞서간다** — 브라우저가 주소를
  * 먼저 바꾸고 라우터의 location 상태는 그 다음 렌더에 반영되기 때문이다. 그 사이 한 렌더 동안

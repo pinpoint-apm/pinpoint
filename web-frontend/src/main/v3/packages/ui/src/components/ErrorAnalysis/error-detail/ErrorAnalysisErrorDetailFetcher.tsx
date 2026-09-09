@@ -1,6 +1,6 @@
 import {
   useGetErrorAnalysisTransactionInfoData,
-  useServiceNameForLink,
+  useRequestService,
   useTimezone,
 } from '@pinpoint-fe/ui/src/hooks';
 import { ErrorAnalysisTransactionInfo } from '@pinpoint-fe/ui/src/constants';
@@ -18,7 +18,7 @@ export const ErrorAnalysisErrorDetailFetcher = ({
 }: ErrorAnalysisErrorDetailFetcherProps) => {
   const [timezone] = useTimezone();
   // TODO #14196: drop the screen-service fallback once list responses carry serviceName
-  const screenServiceName = useServiceNameForLink();
+  const screenServiceName = useRequestService();
   const requestServiceName = errorInfo.serviceName ?? screenServiceName;
   const { data } = useGetErrorAnalysisTransactionInfoData({
     ...errorInfo,

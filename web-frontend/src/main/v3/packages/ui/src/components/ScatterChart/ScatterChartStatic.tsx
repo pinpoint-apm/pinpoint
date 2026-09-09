@@ -20,7 +20,7 @@ import {
 } from './core/ScatterChartCore';
 import {
   useServerMapSearchParameters,
-  useServiceNameForLink,
+  useRequestService,
   useTimezone,
 } from '@pinpoint-fe/ui/src/hooks';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
@@ -50,7 +50,7 @@ export const ScatterChartStatic = ({
 }: ScatterChartStaticProps) => {
   const { searchParameters } = useServerMapSearchParameters();
   // 넘어온 값이 없으면 화면의 service로 조회한다(map 밖에서 쓰이는 경우).
-  const screenServiceName = useServiceNameForLink();
+  const screenServiceName = useRequestService();
   const requestServiceName = serviceName ?? screenServiceName;
   const [timezone] = useTimezone();
   const scatterRef = React.useRef<ScatterChartHandle>(null);

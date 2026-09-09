@@ -2,7 +2,8 @@ import React from 'react';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getDefaultStore } from 'jotai';
-import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import { Configuration, END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms/configuration';
 import { selectedServiceAtom, DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms/selectedService';
 
 // useGetApplicationList imports queryFn from reactQueryHelper, which transitively pulls in the
@@ -36,9 +37,15 @@ const okResponse = (body: unknown) => ({
   json: async () => body,
 });
 
+// service 개념은 enableServiceMap이 켜져 있을 때만 존재한다. 꺼져 있으면 요청에 헤더가
+// 실리지 않아 백엔드가 언제나 같은 목록을 주므로, 목록도 service로 갈리지 않는다.
+const configWithServiceMap = (enable: boolean) =>
+  ({ 'experimental.enableServiceMap.value': enable }) as unknown as Configuration;
+
 describe('useGetApplicationList', () => {
   beforeEach(() => {
     global.fetch = jest.fn();
+    getDefaultStore().set(configurationAtom, configWithServiceMap(true));
     getDefaultStore().set(selectedServiceAtom, DEFAULT_SERVICE);
     window.history.replaceState({}, '', '/');
   });
@@ -125,6 +132,19 @@ describe('useGetApplicationList', () => {
 
     await waitFor(() => expect((global.fetch as jest.Mock).mock.calls.length).toBe(2));
     await waitFor(() => expect(result.current.data).toEqual([{ applicationName: 'B' }]));
+  });
+
+  test('is not scoped by service when enableServiceMap is off', async () => {
+    getDefaultStore().set(configurationAtom, configWithServiceMap(false));
+    getDefaultStore().set(selectedServiceAtom, 'service-b');
+    (global.fetch as jest.Mock).mockResolvedValue(okResponse([{ applicationName: 'A' }]));
+
+    const { result } = renderHook(() => useGetApplicationList(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(testClient.getQueryData([END_POINTS.APPLICATION_LIST, undefined])).toEqual([
+      { applicationName: 'A' },
+    ]);
   });
 
   test('caches under the selected service, servermap included', async () => {

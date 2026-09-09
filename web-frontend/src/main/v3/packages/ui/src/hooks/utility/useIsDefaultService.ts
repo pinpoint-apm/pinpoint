@@ -1,5 +1,5 @@
 import { DEFAULT_SERVICE } from '@pinpoint-fe/ui/src/atoms';
-import { useServiceNameForLink } from './useServiceNameForLink';
+import { useRequestService } from './useRequestService';
 
 /**
  * 현재 화면이 조회하는 service가 DEFAULT인지 여부.
@@ -14,10 +14,10 @@ import { useServiceNameForLink } from './useServiceNameForLink';
  * 백엔드 `MapController.getSourceApplications`도 같은 규칙으로 source application을 정한다.
  *
  * enableServiceMap이 꺼져 있으면 백엔드가 모든 요청을 기본 service로 해석하므로 true다.
- * (`useServiceNameForLink`가 이때 undefined를 반환한다.)
+ * (`useRequestService`가 이때 undefined를 반환한다 — 켜져 있으면 언제나 문자열이다.)
  */
 export const useIsDefaultService = () => {
-  const serviceName = useServiceNameForLink();
+  const serviceName = useRequestService();
 
   return (serviceName ?? DEFAULT_SERVICE) === DEFAULT_SERVICE;
 };

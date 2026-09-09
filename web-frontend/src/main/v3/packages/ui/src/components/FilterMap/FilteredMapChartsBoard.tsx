@@ -34,7 +34,7 @@ import {
   getTransactionListPath,
   getTransactionListQueryString,
 } from '@pinpoint-fe/ui/src/utils';
-import { useFilteredMapParameters, useServiceNameForLink } from '@pinpoint-fe/ui/src/hooks';
+import { useFilteredMapParameters, useRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
 import { MdArrowForwardIos, MdArrowBackIosNew } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
@@ -61,7 +61,7 @@ export const FilteredMapChartsBoard = ({
 }: FilteredMapChartsBoardProps) => {
   const { t } = useTranslation();
   const { dateRange, application, searchParameters } = useFilteredMapParameters();
-  const serviceNameForLink = useServiceNameForLink();
+  const serviceNameForLink = useRequestService();
 
   const [openServerView, setOpenServerView] = React.useState(false);
 

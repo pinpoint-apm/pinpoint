@@ -2,6 +2,7 @@ import {
   ApplicationType,
   APP_PATH,
   BASE_PATH,
+  DEFAULT_SERVICE,
   GetServerMap,
   IMAGE_PATH,
   FilteredMapType as FilteredMap,
@@ -111,11 +112,16 @@ export const getServerMapPath = getApplicationPath(APP_PATH.SERVER_MAP);
  * '@'가 들어올 수 있어 인코딩한다. 인코딩하지 않으면 '/'가 세그먼트를 쪼개 라우트 매칭이 깨지고,
  * '@'는 application 세그먼트의 구분자와 구별되지 않는다.
  * (applicationName/serviceType은 백엔드가 `[a-zA-Z0-9._\-]+`로 검증하므로 그대로 둔다.)
+ *
+ * serviceName이 없으면(`enableServiceMap`이 꺼진 상태에서 만들어진 경로 — 설정을 읽지 못한
+ * 라우트 로더가 그렇다) DEFAULT를 싣는다. 세그먼트를 비우면 application 세그먼트가 serviceName
+ * 자리로 밀려 라우트 매칭이 깨지고, 백엔드도 헤더 없는 요청을 DEFAULT로 해석하므로 조회 결과가
+ * 같다. 호출부마다 `?? DEFAULT_SERVICE`를 붙이지 않도록 이 한 곳에서 정한다.
  */
 const getServiceScopedMapPath =
   (pagePath: string) =>
   (
-    serviceName: string,
+    serviceName: string | undefined,
     application?: ApplicationType | null,
     queryParams?: {
       [k: string]: string;
@@ -130,7 +136,9 @@ const getServiceScopedMapPath =
         ? `?${convertParamsToQueryString({ from: queryParams.from, to: queryParams.to })}`
         : '';
 
-    return `${pagePath}/${encodeURIComponent(serviceName)}${applicationSegment}${queryString}`;
+    return `${pagePath}/${encodeURIComponent(
+      serviceName || DEFAULT_SERVICE,
+    )}${applicationSegment}${queryString}`;
   };
 
 /**

@@ -4,7 +4,7 @@ import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
 import { selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import React from 'react';
 import { queryFn } from './reactQueryHelper';
-import { resolveRequestService } from './serviceNameFetchInterceptor';
+import { getRequestService } from './serviceNameFetchInterceptor';
 
 /**
  * ETag 재검증은 브라우저 HTTP 캐시에 맡긴다. 백엔드(`MainController#getApplicationGroup`)가
@@ -18,13 +18,16 @@ import { resolveRequestService } from './serviceNameFetchInterceptor';
  * 보내므로 직접 관리할 이유가 없다.
  */
 export const useGetApplicationList = (shouldFetch = true) => {
-  // selectedService가 바뀌면 queryKey가 달라져 새 service의 목록을 다시 불러온다.
-  // service마다 application 목록이 다르므로 캐시를 service별로 분리한다.
-  const selectedService = useAtomValue(selectedServiceAtom);
   // 이 쿼리는 사이드 네비게이션(remount 대상 밖)에서도 쓰이므로, queryKeyHashFn에만 의존하면
   // service가 바뀌어도 리렌더가 없어 재조회가 일어나지 않는다. 요청에 쓰이는 service를
-  // queryKey에 명시해 직접 다룬다.
-  const service = resolveRequestService(selectedService);
+  // queryKey에 명시해 직접 다룬다. service마다 application 목록이 다르기 때문이다.
+  //
+  // 아톰은 service가 바뀔 때 다시 렌더시키기 위해 읽고, 값은 헤더·캐시 키와 같은 함수로 얻는다
+  // (설정이 꺼져 있으면 undefined이고, 그때는 목록도 service로 갈리지 않는다).
+  // API 훅은 라우터 상태와 분리해 두어야 하므로(`.claude/rules/api-hooks.md`) 화면용 갈래인
+  // `useRequestService`(useLocation)를 쓰지 않는다.
+  useAtomValue(selectedServiceAtom);
+  const service = getRequestService();
   const clearCacheRef = React.useRef(false);
 
   const query = useQuery({

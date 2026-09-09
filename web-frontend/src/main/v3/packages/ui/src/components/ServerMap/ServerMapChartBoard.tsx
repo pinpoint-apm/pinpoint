@@ -22,7 +22,7 @@ import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import {
   useExperimentals,
   useServerMapSearchParameters,
-  useServiceNameForLink,
+  useRequestService,
 } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
@@ -122,7 +122,7 @@ export const ServerMapChartsBoardFetcher = ({
   // servicemap은 다른 service의 application도 함께 그린다. 그런 노드를 고르면 이 패널의 조회는
   // 화면의 service가 아니라 그 노드의 service로 나가야 한다. 아래 차트/목록에 prop으로 내려준다.
   const targetServiceName = useServerMapTargetServiceName();
-  const screenServiceName = useServiceNameForLink();
+  const screenServiceName = useRequestService();
   const isCrossServiceTarget =
     !!targetServiceName && !!screenServiceName && targetServiceName !== screenServiceName;
 

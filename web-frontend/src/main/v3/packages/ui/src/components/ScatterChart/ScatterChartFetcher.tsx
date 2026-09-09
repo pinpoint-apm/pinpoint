@@ -10,7 +10,7 @@ import {
 import {
   useGetScatterData,
   useServerMapSearchParameters,
-  useServiceNameForLink,
+  useRequestService,
 } from '@pinpoint-fe/ui/src/hooks';
 import { scatterDataAtom } from '@pinpoint-fe/ui/src/atoms';
 import { useAtom } from 'jotai';
@@ -37,7 +37,7 @@ export const ScatterChartFetcher = ({
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const { dateRange, searchParameters } = useServerMapSearchParameters();
   // 넘어온 값이 없으면 화면의 service로 조회한다(map 밖에서 쓰이는 경우).
-  const screenServiceName = useServiceNameForLink();
+  const screenServiceName = useRequestService();
   const requestServiceName = serviceName ?? screenServiceName;
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();

@@ -36,7 +36,7 @@ const tabList = [
 export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcherProps) => {
   const navigate = useNavigate();
   // URL에 실려 있던 service 이름. 새 탭/같은 탭으로 여는 transactionDetail에 다시 실어야
-  // pServiceName 헤더가 유지된다(`resolveRequestService`).
+  // pServiceName 헤더가 유지된다(`getRequestService`).
   const { application, transactionInfo, serviceName } = useTransactionSearchParameters();
   const { data, tableData, mapData } = useGetTransactionInfo();
   const setTransactionInfo = useSetAtom(transactionInfoDatasAtom);
