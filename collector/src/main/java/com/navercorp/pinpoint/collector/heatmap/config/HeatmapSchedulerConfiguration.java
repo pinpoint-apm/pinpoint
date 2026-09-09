@@ -27,6 +27,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+import java.util.function.BiConsumer;
+
 @Configuration
 public class HeatmapSchedulerConfiguration {
 
@@ -54,8 +56,19 @@ public class HeatmapSchedulerConfiguration {
                                                              HeatmapDao heatmapDao,
                                                              @Qualifier("heatmapStatScheduler") TaskScheduler scheduler,
                                                              HeatmapProperties heatmapProperties) {
-        return new HeatmapFlusher<>("app", heatmapStatCounter,
-                heatmapDao::insert,
+        return new HeatmapFlusher<>("heatmap", heatmapStatCounter,
+                fanOut(heatmapDao, heatmapProperties.isAppEnabled(), heatmapProperties.isAgentEnabled()),
                 scheduler, heatmapProperties.getAggregationInterval());
+    }
+
+    static BiConsumer<HeatmapStatKey, Long> fanOut(HeatmapDao heatmapDao, boolean appEnabled, boolean agentEnabled) {
+        return (key, count) -> {
+            if (appEnabled) {
+                heatmapDao.insert(key, count);
+            }
+            if (agentEnabled) {
+                heatmapDao.insertAgentStat(key, count);
+            }
+        };
     }
 }

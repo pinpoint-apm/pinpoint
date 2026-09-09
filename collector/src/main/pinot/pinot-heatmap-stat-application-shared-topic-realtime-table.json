@@ -1,50 +1,30 @@
 {
-  "tableName": "heatmapStat",
+  "tableName": "heatmapStatApp",
   "tableType": "REALTIME",
   "segmentsConfig": {
     "timeColumnName": "roundedEventTime",
-    "schemaName": "heatmapStat",
-    "replication": "3",
+    "timeType": "MILLISECONDS",
+    "schemaName": "heatmapStatApp",
+    "replicasPerPartition": "3",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "7"
+    "retentionTimeValue": "14"
   },
   "tenants": {},
   "tableIndexConfig": {
-    "sortedColumn": ["sortKey"],
+    "sortedColumn": [
+      "sortKey"
+    ],
+    "bloomFilterColumns": [
+      "serviceName",
+      "applicationName",
+      "sortKey"
+    ],
+    "noDictionaryColumns": [
+      "countValue"
+    ],
     "loadMode": "MMAP",
-    "segmentPartitionConfig": {
-      "columnPartitionMap": {
-        "agentId": {
-          "functionName": "Murmur",
-          "numPartitions": 1
-        }
-      }
-    }
+    "nullHandlingEnabled": true
   },
-  "fieldConfigList": [
-    {
-      "name": "serviceName",
-      "indexes": {
-        "inverted": {}
-      }
-    },
-    {
-      "name": "applicationName",
-      "indexes": {
-        "inverted": {}
-      }
-    },
-    {
-      "name": "agentId",
-      "indexes": {
-        "inverted": {}
-      }
-    },
-    {
-      "name": "countValue",
-      "encodingType": "RAW"
-    }
-  ],
   "ingestionConfig": {
     "streamIngestionConfig": {
       "streamConfigMaps": [
@@ -56,7 +36,7 @@
           "stream.kafka.broker.list": "localhost:19092",
           "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
           "realtime.segment.flush.threshold.rows": "0",
-          "realtime.segment.flush.threshold.time": "24h",
+          "realtime.segment.flush.threshold.time": "1h",
           "realtime.segment.flush.threshold.segment.size": "64M"
         }
       ]
@@ -68,20 +48,35 @@
       },
       {
         "columnName": "sortKey",
-        "transformFunction": "concat(concat(concat(concat(serviceName, '#'), applicationName), '#'), agentId)"
+        "transformFunction": "concat(concat(serviceName, applicationName, '#'), result, '#')"
+      },
+      {
+        "columnName": "countOrOne",
+        "transformFunction": "coalesce(count, 1)"
       }
     ],
     "aggregationConfigs": [
       {
         "columnName": "countValue",
-        "aggregationFunction": "COUNT(*)"
+        "aggregationFunction": "SUM(countOrOne)"
       }
     ]
   },
+  "task": {
+    "taskTypeConfigsMap": {
+      "MergeRollupTask": {
+        "1h.mergeType": "rollup",
+        "1h.bucketTimePeriod": "1h",
+        "1h.bufferTimePeriod": "2h",
+        "1h.maxNumRecordsPerSegment": "100000000",
+        "countValue.aggregationType": "SUM",
+        "schedule": "0 */30 * * * ?"
+      }
+    }
+  },
   "routing": {
     "segmentPrunerTypes": [
-      "time",
-      "partition"
+      "time"
     ]
   },
   "metadata": {
