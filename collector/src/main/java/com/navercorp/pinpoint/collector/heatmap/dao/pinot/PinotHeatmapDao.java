@@ -93,4 +93,11 @@ public class PinotHeatmapDao implements HeatmapDao {
     public void insertAgentStat(HeatmapAgentStat heatmapAgentStat) {
         kafkaHeatmapRecordTemplate.send(agentTopic, heatmapAgentStat.getAgentId(), heatmapAgentStat);
     }
+
+    @Override
+    public void insertAgentStat(HeatmapStatKey key, long count) {
+        HeatmapAgentStat record = HeatmapAgentStat.of(key, count);
+        kafkaHeatmapRecordTemplate.send(agentTopic, record.getAgentId(), record)
+                .whenComplete(logOnFailure(agentTopic, record));
+    }
 }

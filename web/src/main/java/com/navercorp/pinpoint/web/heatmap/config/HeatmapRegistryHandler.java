@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.web.heatmap.config;
 
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapAgentSearchKey;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapCell;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapResultCell;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
@@ -31,6 +33,8 @@ public class HeatmapRegistryHandler  implements MyBatisRegistryHandler {
     public void registerTypeAlias(TypeAliasRegistry typeAliasRegistry) {
         typeAliasRegistry.registerAlias(HeatmapSearchKey.class);
         typeAliasRegistry.registerAlias(HeatmapCell.class);
+        typeAliasRegistry.registerAlias(HeatmapAgentSearchKey.class);
+        typeAliasRegistry.registerAlias(HeatmapResultCell.class);
     }
 
     @Override

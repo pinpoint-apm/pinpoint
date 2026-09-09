@@ -11,6 +11,15 @@
         </constructor>
     </resultMap>
 
+    <resultMap id="HeatmapResultCellMap" type="HeatmapResultCell">
+        <constructor>
+            <arg column="aggregatedTime" javaType="_long"/>
+            <arg column="bucketElapsedTime" javaType="_double"/>
+            <arg column="count" javaType="_double"/>
+            <arg column="result" javaType="String"/>
+        </constructor>
+    </resultMap>
+
     <select id="selectHeatmapApp" parameterType="HeatmapSearchKey" resultMap="HeatmapCellMap">
         SELECT
             DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH','#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime,
@@ -25,6 +34,29 @@
             sortKey = #{sortKey}
             AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY aggregatedTime, bucketElapsedTime
+        ORDER BY aggregatedTime ASC
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectHeatmapFromAgentTable" parameterType="HeatmapAgentSearchKey" resultMap="HeatmapResultCellMap">
+        SELECT
+            result,
+            DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH','#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime,
+            CASE
+                WHEN elapsedTime > #{largestMultiple} THEN #{maxYAsix}
+                WHEN elapsedTime <![CDATA[ <= ]]> #{minYAsix} THEN #{minYAsix}
+                ELSE (ROUND(elapsedTime - #{minYAsix} + #{elapsedTimeInterval} - 1, #{elapsedTimeInterval}) + #{minYAsix})
+            END AS bucketElapsedTime,
+            SUM(countValue) AS count
+        FROM ${tableName}
+        WHERE
+            serviceName = #{serviceName}
+            AND applicationName = #{applicationName}
+            <if test="agentId != null">
+            AND agentId = #{agentId}
+            </if>
+            AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY result, aggregatedTime, bucketElapsedTime
         ORDER BY aggregatedTime ASC
         LIMIT ${limit}
     </select>

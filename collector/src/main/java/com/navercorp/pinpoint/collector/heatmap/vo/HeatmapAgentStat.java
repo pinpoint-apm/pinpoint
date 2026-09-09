@@ -24,23 +24,33 @@ import java.util.Objects;
 public class HeatmapAgentStat {
     private static final int ELAPSED_TIME_INTERVAL = 200;
 
-    public static final String RESULT_TYPE_SUCCESS = "SUCCESS";
-    public static final String RESULT_TYPE_FAILURE = "FAILURE";
+    public static final String RESULT_SUCCESS = "suc";
+    public static final String RESULT_FAILURE = "fal";
 
     private final String serviceName;
     private final String applicationName;
     private final String agentId;
     private final long eventTime;
     private final int elapsedTime;
-    private final String resultType;
+    private final String result;
+    private final Long count;
 
     public HeatmapAgentStat(String serviceName, String applicationName, String agentId, long eventTime, int elapsedTime, int errCode) {
+        this(serviceName, applicationName, agentId, eventTime, roundUpElapsedTime(elapsedTime), errCode == 0, null);
+    }
+
+    private HeatmapAgentStat(String serviceName, String applicationName, String agentId, long eventTime, int roundedElapsedTime, boolean success, Long count) {
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.eventTime = eventTime;
-        this.elapsedTime = roundUpElapsedTime(elapsedTime);
-        this.resultType = errCode == 0 ? RESULT_TYPE_SUCCESS : RESULT_TYPE_FAILURE;
+        this.elapsedTime = roundedElapsedTime;
+        this.result = success ? RESULT_SUCCESS : RESULT_FAILURE;
+        this.count = count;
+    }
+
+    public static HeatmapAgentStat of(HeatmapStatKey key, long count) {
+        return new HeatmapAgentStat(key.serviceName(), key.applicationName(), key.agentId(), key.eventTime(), key.elapsedTime(), key.success(), count);
     }
 
     static int roundUpElapsedTime(int elapsedTime) {
@@ -67,8 +77,12 @@ public class HeatmapAgentStat {
         return elapsedTime;
     }
 
-    public String getResultType() {
-        return resultType;
+    public String getResult() {
+        return result;
+    }
+
+    public Long getCount() {
+        return count;
     }
 
     @Override
@@ -79,7 +93,8 @@ public class HeatmapAgentStat {
                 ", agentId='" + agentId + '\'' +
                 ", eventTime=" + eventTime +
                 ", elapsedTime=" + elapsedTime +
-                ", resultType='" + resultType + '\'' +
+                ", result='" + result + '\'' +
+                ", count=" + count +
                 '}';
     }
 }
