@@ -236,6 +236,19 @@ Off by default for two reasons: it requires the URI stat storage module, and OTL
 **sampled** — so counts/apdex reflect the sampled population rather than the native agent's
 pre-sampling totals. Keep that distinction in mind when reading charts that mix both sources.
 
+## Error Analysis
+
+The collector maps every OTel `exception` span event to an Error Analysis record
+(`ExceptionMetaDataBo`, see `OtlpExceptionMapper`) and writes it through the same Kafka/Pinot
+exception-trace store the native agent uses. The store is a separate collector module, so it has to
+be enabled explicitly; without it the OTLPTRACE app has no `ExceptionMetaDataService` and the mapped
+exceptions are silently dropped (traces and URI stat are unaffected).
+
+| Property | Default | Notes |
+|---|---|---|
+| `pinpoint.modules.collector.exceptiontrace.enabled` | `false` | **Prerequisite.** Provides the exception-trace storage beans (`ExceptionTraceCollectorConfig`: Pinot + Kafka). The BASIC collector reads the same flag for agent exceptions. The `local` profile turns it on. |
+| `pinpoint.modules.web.exceptiontrace.enabled` | `false` | Web side: shows the Error Analysis menu that reads the store. |
+
 ## otlptrace-otel-extension
 
 A small **sender-side** OTel SDK extension that adds a `pp=...` entry to the
