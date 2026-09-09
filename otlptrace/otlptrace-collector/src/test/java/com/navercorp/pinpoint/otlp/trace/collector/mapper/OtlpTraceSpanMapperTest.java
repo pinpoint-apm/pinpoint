@@ -433,13 +433,18 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
-    void map_consumer_kafka_blankClientIdKeysOnly_noEndPoint() {
+    void map_consumer_kafka_blankClientIdKeysOnly_fallsBackToUnknown() {
+        // Blank client id keys count as absent: the consumer address fields must not carry the
+        // blank value. Without a broker the endPoint falls back to "Unknown" (the fields are never
+        // null, see MessageConsumerRecorder) and the acceptorHost to the destination name.
         Span span = consumerKafkaSpan(
                 kv("messaging.client.id", strVal("")),
                 kv("messaging.client_id", strVal(" "))
         );
         SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
-        assertThat(bo.getEndPoint()).isNull();
+        assertThat(bo.getEndPoint()).isEqualTo(OtlpTraceConstants.UNKNOWN_ADDRESS);
+        assertThat(bo.getRemoteAddr()).isEqualTo(OtlpTraceConstants.UNKNOWN_ADDRESS);
+        assertThat(bo.getAcceptorHost()).isEqualTo("orders");
     }
 
     @Test
