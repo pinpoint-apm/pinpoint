@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.it.plugin.spring.async;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
-import org.junit.jupiter.api.Disabled;
+import com.navercorp.pinpoint.test.plugin.PluginTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -40,12 +38,10 @@ import java.util.concurrent.TimeUnit;
  *
  * Disabled by default to match the other spring-it tests; flip to enabled when wiring CI.
  */
-@PluginForkedTest
+@PluginTest
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(17)
 @Dependency({"org.springframework:spring-context:[7.0.0,)", "org.springframework:spring-test"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
-@Disabled
 public class SpringAsync_7_x_IT {
 
     @Test

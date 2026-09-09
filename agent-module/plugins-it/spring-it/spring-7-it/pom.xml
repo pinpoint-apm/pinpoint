@@ -81,6 +81,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
+                    <argLine>
+                        --add-exports java.base/jdk.internal.loader=ALL-UNNAMED
+                        --add-exports java.base/jdk.internal.module=ALL-UNNAMED
+                        --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
+                        --add-exports java.base/jdk.internal.access=ALL-UNNAMED
+                    </argLine>
                     <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
