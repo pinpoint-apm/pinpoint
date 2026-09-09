@@ -25,4 +25,7 @@ import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 public interface HeatmapChartService {
 
     HeatMapData getHeatmapAppData(String serviceName, String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis);
+
+    // agentId null : application level aggregated from the agent table
+    HeatMapData getHeatmapDataFromAgentTable(String serviceName, String applicationName, String agentId, TimeWindow timeWindow, int minYAxis, int maxYAxis);
 }

@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.collector.heatmap.service;
 import com.navercorp.pinpoint.collector.heatmap.config.HeatmapProperties;
 import com.navercorp.pinpoint.collector.heatmap.counter.HeatmapCounter;
 import com.navercorp.pinpoint.collector.heatmap.dao.HeatmapDao;
+import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapAgentStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStatKey;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -74,6 +75,44 @@ class HeatmapServiceTest {
         service.insertSpan(newSpan("agent1", 10_002, 150, 0));
 
         verify(heatmapDao, times(2)).insert(any(HeatmapStat.class));
+    }
+
+    @Test
+    void agentLevelSharesTheCounter() {
+        when(heatmapProperties.isAppEnabled()).thenReturn(false);
+        when(heatmapProperties.isAgentEnabled()).thenReturn(true);
+        HeatmapCounter<HeatmapStatKey> counter = new HeatmapCounter<>();
+        HeatmapService service = new HeatmapService(heatmapDao, Optional.of(counter), heatmapProperties);
+
+        service.insertSpan(newSpan("agent1", 10_001, 150, 0));
+        service.insertSpan(newSpan("agent1", 10_002, 150, 0));
+
+        verify(heatmapDao, never()).insertAgentStat(any(HeatmapAgentStat.class));
+        assertEquals(2L, counter.snapshotAndClear().get(new HeatmapStatKey("svc", "app", "agent1", 10_000, 200, true)));
+    }
+
+    @Test
+    void withoutCounterSendsAgentStatPerSpan() {
+        when(heatmapProperties.isAppEnabled()).thenReturn(false);
+        when(heatmapProperties.isAgentEnabled()).thenReturn(true);
+        HeatmapService service = new HeatmapService(heatmapDao, Optional.empty(), heatmapProperties);
+
+        service.insertSpan(newSpan("agent1", 10_001, 150, 0));
+
+        verify(heatmapDao, never()).insert(any(HeatmapStat.class));
+        verify(heatmapDao, times(1)).insertAgentStat(any(HeatmapAgentStat.class));
+    }
+
+    @Test
+    void bothDisabledCountsNothing() {
+        when(heatmapProperties.isAppEnabled()).thenReturn(false);
+        when(heatmapProperties.isAgentEnabled()).thenReturn(false);
+        HeatmapCounter<HeatmapStatKey> counter = new HeatmapCounter<>();
+        HeatmapService service = new HeatmapService(heatmapDao, Optional.of(counter), heatmapProperties);
+
+        service.insertSpan(newSpan("agent1", 10_001, 150, 0));
+
+        assertTrue(counter.snapshotAndClear().isEmpty());
     }
 
     @Test

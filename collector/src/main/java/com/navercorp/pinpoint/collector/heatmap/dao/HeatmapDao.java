@@ -29,4 +29,6 @@ public interface HeatmapDao {
     void insert(HeatmapStatKey key, long count);
 
     void insertAgentStat(HeatmapAgentStat heatmapAgentStat);
+
+    void insertAgentStat(HeatmapStatKey key, long count);
 }

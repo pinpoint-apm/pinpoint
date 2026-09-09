@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.heatmap.vo;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HeatmapAgentStatTest {
 
@@ -33,9 +34,20 @@ class HeatmapAgentStatTest {
     }
 
     @Test
-    public void resultTypeTest() {
-        assertEquals("SUCCESS", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 0).getResultType());
-        assertEquals("FAILURE", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 1).getResultType());
-        assertEquals("FAILURE", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, -1).getResultType());
+    public void ofKeyKeepsRoundedValuesAndCount() {
+        HeatmapAgentStat stat = HeatmapAgentStat.of(new HeatmapStatKey("svc", "app", "agent", 10_000, 400, false), 7);
+        assertEquals("agent", stat.getAgentId());
+        assertEquals(10_000, stat.getEventTime());
+        assertEquals(400, stat.getElapsedTime());
+        assertEquals("fal", stat.getResult());
+        assertEquals(7L, stat.getCount());
+        assertNull(new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 0).getCount());
+    }
+
+    @Test
+    public void resultTest() {
+        assertEquals("suc", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 0).getResult());
+        assertEquals("fal", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 1).getResult());
+        assertEquals("fal", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, -1).getResult());
     }
 }

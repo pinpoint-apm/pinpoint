@@ -19,7 +19,7 @@
       "dataType": "STRING"
     },
     {
-      "name": "resultType",
+      "name": "result",
       "dataType": "STRING"
     },
     {

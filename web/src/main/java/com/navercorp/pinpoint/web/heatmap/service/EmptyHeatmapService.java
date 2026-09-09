@@ -28,4 +28,9 @@ public class EmptyHeatmapService implements HeatmapChartService {
     public HeatMapData getHeatmapAppData(String serviceName, String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public HeatMapData getHeatmapDataFromAgentTable(String serviceName, String applicationName, String agentId, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
+        throw new UnsupportedOperationException();
+    }
 }

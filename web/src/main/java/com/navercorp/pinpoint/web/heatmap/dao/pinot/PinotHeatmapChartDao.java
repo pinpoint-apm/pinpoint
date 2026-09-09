@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.web.heatmap.dao.pinot;
 
-import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.web.heatmap.dao.HeatmapChartDao;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapAgentSearchKey;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapCell;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapResultCell;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -35,7 +34,6 @@ import java.util.Objects;
 @Repository
 public class PinotHeatmapChartDao implements HeatmapChartDao {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
     private static final String NAMESPACE = PinotHeatmapChartDao.class.getName() + ".";
 
     private final SqlSessionTemplate syncTemplate;
@@ -50,5 +48,10 @@ public class PinotHeatmapChartDao implements HeatmapChartDao {
     @Override
     public List<HeatmapCell> getHeatmapAppData(HeatmapSearchKey heatmapSearchKey) {
         return syncTemplate.selectList(NAMESPACE + "selectHeatmapApp", heatmapSearchKey);
+    }
+
+    @Override
+    public List<HeatmapResultCell> getHeatmapDataFromAgentTable(HeatmapAgentSearchKey searchKey) {
+        return syncTemplate.selectList(NAMESPACE + "selectHeatmapFromAgentTable", searchKey);
     }
 }

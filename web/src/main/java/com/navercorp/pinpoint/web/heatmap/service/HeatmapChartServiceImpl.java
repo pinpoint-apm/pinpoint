@@ -17,14 +17,18 @@
 package com.navercorp.pinpoint.web.heatmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.web.heatmap.dao.HeatmapChartDao;
 import com.navercorp.pinpoint.web.heatmap.util.TimeSeriesBuilder;
 import com.navercorp.pinpoint.web.heatmap.vo.ElapsedTimeBucketInfo;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapAgentSearchKey;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapCell;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapResultCell;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,14 +45,20 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
 
     private static final String POSTFIX_SORT_KEY_SUCCESS = "#suc";
     private static final String POSTFIX_SORT_KEY_FAIL = "#fal";
+    // result column values, same as the sortKey suffix
+    private static final String RESULT_SUCCESS = "suc";
+    private static final String RESULT_FAIL = "fal";
 
     private static final int YAXIS_CELL_MAXCOUNT = 50;
     private static final int MIN_INTERVAL_FOR_ELAPSED_TIME = 200;
 
     private final HeatmapChartDao heatmapChartDao;
+    private final String agentTableName;
 
-    public HeatmapChartServiceImpl(HeatmapChartDao heatmapChartDao) {
+    public HeatmapChartServiceImpl(HeatmapChartDao heatmapChartDao,
+                                   @Value("${pinpoint.web.heatmap.agent.table.name:heatmapStat}") String agentTableName) {
         this.heatmapChartDao = Objects.requireNonNull(heatmapChartDao,"heatmapChartDao");
+        this.agentTableName = StringPrecondition.requireHasLength(agentTableName, "agentTableName");
     }
 
     @Override
@@ -74,6 +84,28 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
         List<HeatmapCell> failHeatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
 
         return createHeatmapData(timeWindow, successHeatmapAppData, failHeatmapAppData, elapsedTimeBucketInfo);
+    }
+
+    @Override
+    public HeatMapData getHeatmapDataFromAgentTable(String serviceName, String applicationName, String agentId, TimeWindow timeWindow, int minElapsedTime, int maxElapsedTime) {
+        ElapsedTimeBucketInfo bucketInfo = createElapsedTimeBucketInfo(minElapsedTime, maxElapsedTime);
+        HeatmapAgentSearchKey searchKey = new HeatmapAgentSearchKey(agentTableName, serviceName, applicationName, agentId,
+                timeWindow, bucketInfo);
+        List<HeatmapResultCell> resultCells = heatmapChartDao.getHeatmapDataFromAgentTable(searchKey);
+
+        List<HeatmapCell> successData = filterByResult(resultCells, RESULT_SUCCESS);
+        List<HeatmapCell> failData = filterByResult(resultCells, RESULT_FAIL);
+        return createHeatmapData(timeWindow, successData, failData, bucketInfo);
+    }
+
+    private List<HeatmapCell> filterByResult(List<HeatmapResultCell> resultCells, String result) {
+        List<HeatmapCell> cells = new ArrayList<>(resultCells.size());
+        for (HeatmapResultCell resultCell : resultCells) {
+            if (result.equals(resultCell.result())) {
+                cells.add(resultCell.toHeatmapCell());
+            }
+        }
+        return cells;
     }
 
     private HeatMapData createHeatmapData(TimeWindow timeWindow, List<HeatmapCell> successHeatmapAppData, List<HeatmapCell> failHeatmapAppData, ElapsedTimeBucketInfo elapsedTimeBucketInfo) {

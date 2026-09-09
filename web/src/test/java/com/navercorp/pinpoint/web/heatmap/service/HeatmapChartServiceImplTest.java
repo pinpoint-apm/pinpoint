@@ -16,20 +16,33 @@
 
 package com.navercorp.pinpoint.web.heatmap.service;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.heatmap.dao.HeatmapChartDao;
 import com.navercorp.pinpoint.web.heatmap.vo.ElapsedTimeBucketInfo;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapAgentSearchKey;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapResultCell;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author minwoo-jung
@@ -44,9 +57,69 @@ class HeatmapChartServiceImplTest {
 
     private HeatmapChartServiceImpl heatmapChartService;
 
+    private static final String TABLE_NAME = "heatmapStat";
+    private static final String SERVICE_NAME = "DEFAULT";
+    private static final String APPLICATION_NAME = "testApp";
+    private static final String AGENT_ID = "testAgent";
+
     @BeforeEach
     public void setUp() {
-        heatmapChartService = new HeatmapChartServiceImpl(heatmapChartDao);
+        heatmapChartService = new HeatmapChartServiceImpl(heatmapChartDao, TABLE_NAME);
+    }
+
+    private TimeWindow newTimeWindow() {
+        long from = 1788447600000L;
+        long to = from + 600_000L;
+        return new TimeWindow(Range.between(from, to), new TimeWindowSlotCentricSampler(10000L, 60));
+    }
+
+    @Test
+    public void getHeatmapDataFromAgentTable_agentLevel() {
+        TimeWindow timeWindow = newTimeWindow();
+        long slot = timeWindow.refineTimestamp(1788447600000L);
+
+        ArgumentCaptor<HeatmapAgentSearchKey> captor = ArgumentCaptor.forClass(HeatmapAgentSearchKey.class);
+        when(heatmapChartDao.getHeatmapDataFromAgentTable(captor.capture()))
+                .thenReturn(List.of(
+                        new HeatmapResultCell(slot, 200, 3, "suc"),
+                        new HeatmapResultCell(slot, 200, 1, "fal"),
+                        new HeatmapResultCell(slot, 400, 2, "suc")));
+
+        HeatMapData heatMapData = heatmapChartService.getHeatmapDataFromAgentTable(SERVICE_NAME, APPLICATION_NAME, AGENT_ID, timeWindow, 0, 10000);
+
+        verify(heatmapChartDao, times(1)).getHeatmapDataFromAgentTable(any());
+        verify(heatmapChartDao, never()).getHeatmapAppData(any());
+
+        HeatmapAgentSearchKey key = captor.getValue();
+        assertEquals(TABLE_NAME, key.getTableName());
+        assertEquals(SERVICE_NAME, key.getServiceName());
+        assertEquals(APPLICATION_NAME, key.getApplicationName());
+        assertEquals(AGENT_ID, key.getAgentId());
+        assertEquals(timeWindow.getWindowRangeCount() * 50L * 2, key.getLimit());
+
+        assertEquals(5, heatMapData.getHeatmapSummary().totalSuccessCount());
+        assertEquals(1, heatMapData.getHeatmapSummary().totalFailCount());
+    }
+
+    @Test
+    public void getHeatmapDataFromAgentTable_applicationLevel() {
+        TimeWindow timeWindow = newTimeWindow();
+        long slot = timeWindow.refineTimestamp(1788447600000L);
+
+        ArgumentCaptor<HeatmapAgentSearchKey> captor = ArgumentCaptor.forClass(HeatmapAgentSearchKey.class);
+        when(heatmapChartDao.getHeatmapDataFromAgentTable(captor.capture()))
+                .thenReturn(List.of(
+                        new HeatmapResultCell(slot, 200, 4, "suc"),
+                        new HeatmapResultCell(slot, 600, 2, "fal")));
+
+        HeatMapData heatMapData = heatmapChartService.getHeatmapDataFromAgentTable(SERVICE_NAME, APPLICATION_NAME, null, timeWindow, 0, 10000);
+
+        HeatmapAgentSearchKey key = captor.getValue();
+        assertNull(key.getAgentId());
+        assertEquals(APPLICATION_NAME, key.getApplicationName());
+
+        assertEquals(4, heatMapData.getHeatmapSummary().totalSuccessCount());
+        assertEquals(2, heatMapData.getHeatmapSummary().totalFailCount());
     }
 
     @Test
@@ -79,7 +152,7 @@ class HeatmapChartServiceImplTest {
         logger.info("yAxis : " + yAxis);
         logger.info("(yAxis - timeInterval)  : " + (yAxis - timeInterval));
     }
-    
+
     @Test
     public void createElapsedTimeBucketInfoTest() {
         ElapsedTimeBucketInfo elapsedTimeBucketInfo = heatmapChartService.createElapsedTimeBucketInfo(0, 10000);
@@ -143,26 +216,26 @@ class HeatmapChartServiceImplTest {
     @Test
     public void mapToNextIntervalBucketTest() {
         assertEquals(20000, mapToNextIntervalBucket(2000000, 20000, 0, 200));
-        assertEquals(50, mapToNextIntervalBucket(10, 20000,50, 200));
-        assertEquals(50, mapToNextIntervalBucket(50, 20000,50, 200));
+        assertEquals(50, mapToNextIntervalBucket(10, 20000, 50, 200));
+        assertEquals(50, mapToNextIntervalBucket(50, 20000, 50, 200));
 
 
-        assertEquals(10000, mapToNextIntervalBucket(9999, 20000,0, 200));
-        assertEquals(10000, mapToNextIntervalBucket(10000, 20000,0, 200));
-        assertEquals(10000, mapToNextIntervalBucket(10000, 20000,200, 200));
-        assertEquals(20000, mapToNextIntervalBucket(20000, 20000,0, 400));
-        assertEquals(20200, mapToNextIntervalBucket(20000, 20000,200, 400));
-        assertEquals(20200, mapToNextIntervalBucket(20200, 30000,200, 400));
-        assertEquals(20200, mapToNextIntervalBucket(20199, 30000,200, 400));
+        assertEquals(10000, mapToNextIntervalBucket(9999, 20000, 0, 200));
+        assertEquals(10000, mapToNextIntervalBucket(10000, 20000, 0, 200));
+        assertEquals(10000, mapToNextIntervalBucket(10000, 20000, 200, 200));
+        assertEquals(20000, mapToNextIntervalBucket(20000, 20000, 0, 400));
+        assertEquals(20200, mapToNextIntervalBucket(20000, 20000, 200, 400));
+        assertEquals(20200, mapToNextIntervalBucket(20200, 30000, 200, 400));
+        assertEquals(20200, mapToNextIntervalBucket(20199, 30000, 200, 400));
 
-        assertEquals(30240, mapToNextIntervalBucket(30000, 60000,0, 315));
-        assertEquals(630, mapToNextIntervalBucket(316, 60000,0, 315));
-        assertEquals(30025, mapToNextIntervalBucket(30000, 60000,100, 315));
-        assertEquals(415, mapToNextIntervalBucket(101, 60000,100, 315));
-        assertEquals(30025, mapToNextIntervalBucket(30025, 60000,100, 315));
-        assertEquals(30025, mapToNextIntervalBucket(30024, 60000,100, 315));
+        assertEquals(30240, mapToNextIntervalBucket(30000, 60000, 0, 315));
+        assertEquals(630, mapToNextIntervalBucket(316, 60000, 0, 315));
+        assertEquals(30025, mapToNextIntervalBucket(30000, 60000, 100, 315));
+        assertEquals(415, mapToNextIntervalBucket(101, 60000, 100, 315));
+        assertEquals(30025, mapToNextIntervalBucket(30025, 60000, 100, 315));
+        assertEquals(30025, mapToNextIntervalBucket(30024, 60000, 100, 315));
 
-        assertEquals(400, mapToNextIntervalBucket(400, 1000,200, 200));
+        assertEquals(400, mapToNextIntervalBucket(400, 1000, 200, 200));
     }
 
     protected int mapToNextIntervalBucket(int value, int max, int startValue, int interval) {

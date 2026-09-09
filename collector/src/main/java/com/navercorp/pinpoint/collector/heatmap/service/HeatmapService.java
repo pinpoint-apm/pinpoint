@@ -73,14 +73,18 @@ public class HeatmapService implements TraceService {
             tLogger.warn("elapsedTime is negative. agentId={}, elapsed={}", spanBo.getAgentId(), spanBo.getElapsed());
             return;
         }
+        if (!appEnabled && !agentEnabled) {
+            return;
+        }
+        // one counter feeds both topics, the flusher fans out per enabled level
+        if (statCounter != null) {
+            HeatmapStatKey key = HeatmapStatKey.of(spanBo, timeSlot);
+            statCounter.increment(key);
+            return;
+        }
         if (appEnabled) {
-            if (statCounter != null) {
-                HeatmapStatKey key = HeatmapStatKey.of(spanBo, timeSlot);
-                statCounter.increment(key);
-            } else {
-                HeatmapStat heatmapStat = new HeatmapStat(spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getErrCode());
-                heatmapDao.insert(heatmapStat);
-            }
+            HeatmapStat heatmapStat = new HeatmapStat(spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getErrCode());
+            heatmapDao.insert(heatmapStat);
         }
         if (agentEnabled) {
             HeatmapAgentStat heatmapAgentStat = new HeatmapAgentStat(spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getErrCode());
