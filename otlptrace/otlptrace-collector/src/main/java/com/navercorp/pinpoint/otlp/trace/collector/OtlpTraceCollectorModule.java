@@ -60,6 +60,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 @Configuration
@@ -138,9 +139,15 @@ public class OtlpTraceCollectorModule {
         return ServerInterceptors.intercept(spanService, metricInterceptor);
     }
 
+    /**
+     * Every {@link ServerServiceDefinition} bean in this context, so another OTLP signal's gRPC
+     * service (e.g. {@code LogsService}) registers on the same 9998 / 9448 servers just by declaring
+     * its definition bean — OTLP exporters send all signals to one endpoint and gRPC routes by
+     * service name.
+     */
     @Bean
-    public ServerServiceDefinitions serviceList(@Qualifier("serverServiceDefinition") ServerServiceDefinition serviceDefinition) {
-        return ServerServiceDefinitions.of(serviceDefinition);
+    public ServerServiceDefinitions serviceList(List<ServerServiceDefinition> serviceDefinitions) {
+        return ServerServiceDefinitions.of(serviceDefinitions.toArray(new ServerServiceDefinition[0]));
     }
 
     // A @Bean method, not a component-scanned @Service: bean-method conditions are evaluated after

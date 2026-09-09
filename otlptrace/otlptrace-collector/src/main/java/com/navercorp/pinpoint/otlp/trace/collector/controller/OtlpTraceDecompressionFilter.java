@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.controller;
 
-import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpIngestAdmissionMetrics;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpRequestRejectReason;
+import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTransport;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletException;
@@ -71,9 +73,9 @@ public class OtlpTraceDecompressionFilter extends OncePerRequestFilter {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final int maxDecompressedBytes;
-    private final OtlpTraceIngestMetrics ingestMetrics;
+    private final OtlpIngestAdmissionMetrics ingestMetrics;
 
-    public OtlpTraceDecompressionFilter(int maxDecompressedBytes, OtlpTraceIngestMetrics ingestMetrics) {
+    public OtlpTraceDecompressionFilter(int maxDecompressedBytes, OtlpIngestAdmissionMetrics ingestMetrics) {
         this.maxDecompressedBytes = maxDecompressedBytes;
         this.ingestMetrics = Objects.requireNonNull(ingestMetrics, "ingestMetrics");
     }
@@ -91,7 +93,7 @@ public class OtlpTraceDecompressionFilter extends OncePerRequestFilter {
             // Only gzip is defined for OTLP/HTTP; reject anything else (incl. multi-encoding) explicitly
             // rather than letting an undecoded body fail later as an opaque 400.
             logger.warn("OTLP/HTTP trace request rejected. Unsupported Content-Encoding={}", encoding);
-            ingestMetrics.requestRejected(OtlpTraceIngestMetrics.Transport.HTTP, OtlpTraceIngestMetrics.RequestRejectReason.UNSUPPORTED_ENCODING);
+            ingestMetrics.requestRejected(OtlpTransport.HTTP, OtlpRequestRejectReason.UNSUPPORTED_ENCODING);
             response.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
             return;
         }

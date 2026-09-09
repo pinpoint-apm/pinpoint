@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.otlp.trace.collector.service;
 
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
-import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics.Transport;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.DistributionSummary;
@@ -94,7 +93,7 @@ class GrpcOtlpTraceServiceTest {
         // An executor that never runs the task keeps the request "in flight" (permit held).
         List<Runnable> parked = new ArrayList<>();
         Executor parking = parked::add;
-        when(exportService.export(anyList(), eq(Transport.GRPC)))
+        when(exportService.export(anyList(), eq(OtlpTransport.GRPC)))
                 .thenReturn(new OtlpTraceExportResult(new OtlpTraceCollectorRejectedSpan(), 0, ""));
         ExportTraceServiceRequest req = request(5);
         GrpcOtlpTraceService service = new GrpcOtlpTraceService(exportService, parking, 1 << 20, metrics);
@@ -141,7 +140,7 @@ class GrpcOtlpTraceServiceTest {
         assertThat(observer.completed).isFalse();
         assertThat(requestRejected("inflight_bytes")).isEqualTo(1.0);
         assertThat(requestRejected("executor_rejected")).isZero();
-        verify(exportService, never()).export(anyList(), eq(Transport.GRPC));
+        verify(exportService, never()).export(anyList(), eq(OtlpTransport.GRPC));
     }
 
     @Test
@@ -160,12 +159,12 @@ class GrpcOtlpTraceServiceTest {
         assertThat(Status.fromThrowable(second.error).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
         assertThat(requestRejected("executor_rejected")).isEqualTo(2.0);
         assertThat(requestRejected("inflight_bytes")).isZero();
-        verify(exportService, never()).export(anyList(), eq(Transport.GRPC));
+        verify(exportService, never()).export(anyList(), eq(OtlpTransport.GRPC));
     }
 
     @Test
     void accepted_exportsWithGrpcTransport_andCountsNoRequestRejection() {
-        when(exportService.export(anyList(), eq(Transport.GRPC)))
+        when(exportService.export(anyList(), eq(OtlpTransport.GRPC)))
                 .thenReturn(new OtlpTraceExportResult(new OtlpTraceCollectorRejectedSpan(), 0, ""));
         GrpcOtlpTraceService service = new GrpcOtlpTraceService(exportService, DIRECT, 1 << 20, metrics);
         RecordingObserver observer = new RecordingObserver();
@@ -175,7 +174,7 @@ class GrpcOtlpTraceServiceTest {
         assertThat(observer.error).isNull();
         assertThat(observer.completed).isTrue();
         assertThat(observer.responses).hasSize(1);
-        verify(exportService).export(anyList(), eq(Transport.GRPC));
+        verify(exportService).export(anyList(), eq(OtlpTransport.GRPC));
         assertThat(requestRejected("inflight_bytes")).isZero();
         assertThat(requestRejected("executor_rejected")).isZero();
     }
@@ -188,7 +187,7 @@ class GrpcOtlpTraceServiceTest {
     @Test
     void serverErrorResult_unavailable_isNotARequestRejection_andReleasesPermit() {
         // Storage-side failures are reported by the insert error counters, not request.rejected.
-        when(exportService.export(anyList(), eq(Transport.GRPC)))
+        when(exportService.export(anyList(), eq(OtlpTransport.GRPC)))
                 .thenReturn(new OtlpTraceExportResult(new OtlpTraceCollectorRejectedSpan(), 3, "insert error (3)"));
         GrpcOtlpTraceService service = new GrpcOtlpTraceService(exportService, DIRECT, 1 << 20, metrics);
         RecordingObserver observer = new RecordingObserver();
@@ -204,7 +203,7 @@ class GrpcOtlpTraceServiceTest {
     @Test
     void exportThrows_internal_isNotARequestRejection_andReleasesPermit() {
         ExportTraceServiceRequest req = request(3);
-        when(exportService.export(anyList(), eq(Transport.GRPC)))
+        when(exportService.export(anyList(), eq(OtlpTransport.GRPC)))
                 .thenThrow(new IllegalStateException("mapper fault"))
                 .thenReturn(new OtlpTraceExportResult(new OtlpTraceCollectorRejectedSpan(), 0, ""));
         // Budget of exactly one request: a permit leaked by the failing call would turn the second

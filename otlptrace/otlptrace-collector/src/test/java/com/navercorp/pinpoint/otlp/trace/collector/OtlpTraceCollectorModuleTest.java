@@ -16,14 +16,36 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector;
 
+import com.navercorp.pinpoint.collector.grpc.config.ServerServiceDefinitions;
 import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorConfig;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
+import io.grpc.BindableService;
+import io.grpc.ServerServiceDefinition;
+import io.opentelemetry.proto.collector.logs.v1.LogsServiceGrpc;
+import io.opentelemetry.proto.collector.trace.v1.TraceServiceGrpc;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OtlpTraceCollectorModuleTest {
+
+    @Test
+    void serviceList_registersEveryServiceDefinitionBean_inOrder() {
+        // A second OTLP signal (LogsService) joins the same gRPC servers by declaring its own
+        // ServerServiceDefinition bean; the list must not be pinned to the trace service.
+        ServerServiceDefinition trace = ((BindableService) new TraceServiceGrpc.TraceServiceImplBase() {
+        }).bindService();
+        ServerServiceDefinition logs = ((BindableService) new LogsServiceGrpc.LogsServiceImplBase() {
+        }).bindService();
+
+        ServerServiceDefinitions definitions = new OtlpTraceCollectorModule().serviceList(List.of(trace, logs));
+
+        assertThat(definitions.getDefinitions()).containsExactly(trace, logs);
+    }
+
 
     /**
      * The OTLPTRACE app is its own Spring context, so every storage module its export path writes
