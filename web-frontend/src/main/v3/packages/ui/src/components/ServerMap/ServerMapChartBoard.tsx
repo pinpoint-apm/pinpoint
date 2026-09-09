@@ -19,7 +19,11 @@ import {
   ChartsBoardHeader,
 } from '@pinpoint-fe/ui/src/components';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import { useExperimentals, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useExperimentals,
+  useServerMapSearchParameters,
+  useServiceNameForLink,
+} from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
 import {
@@ -115,12 +119,26 @@ export const ServerMapChartsBoardFetcher = ({
     [serverMapCurrentTarget, currentTargetData, serverMapData],
   );
 
+  // servicemap은 다른 service의 application도 함께 그린다. 그런 노드를 고르면 이 패널의 조회는
+  // 화면의 service가 아니라 그 노드의 service로 나가야 한다. 아래 차트/목록에 prop으로 내려준다.
   const targetServiceName = useServerMapTargetServiceName();
-  // 조회 기준은 **고른 대상**이다. map을 그린 service(경로)와 고른 노드의 service가 다를 수 있는데
-  // (A service의 servicemap에 B service의 b-1이 함께 그려진다) 요청은 고른 노드의 service로 나가므로
-  // 경로의 application을 기준으로 삼으면 백엔드가 그 이름을 남의 service에서 찾는다. (이슈 #10497)
-  // 고른 것이 없을 때(첫 로딩, merged 묶음)만 경로의 application으로 돌아간다.
-  const baseApplication = selectedTargetApplication ?? application;
+  const screenServiceName = useServiceNameForLink();
+  const isCrossServiceTarget =
+    !!targetServiceName && !!screenServiceName && targetServiceName !== screenServiceName;
+
+  // 통계 API의 기준 application은 **map을 그린 루트**다(고른 노드가 아니다). 고른 노드는 nodeKey로
+  // 따로 싣는다. 백엔드가 둘을 비교해, 다르면 루트를 고른 노드의 상대(from/to)로 넣어
+  // "루트에서 본 그 노드"의 히스토그램을 만든다 → `ServerMapHistogramController#getStatisticsFromServerMap`.
+  // 그래서 여기서 고른 노드를 기준으로 바꿔 보내면 안 된다. currentTarget의 applicationName·serviceType은
+  // 화면 표시용 필드라서(USER 노드는 리터럴 "USER", DB 노드의 serviceType은 `MYSQL` 같은 desc)
+  // 백엔드가 이름으로 해석하는 nodeKey 형식(`MYSQL_EXECUTE_QUERY`)과 어긋나, 조회가 조용히 비거나 400이 된다.
+  //
+  // 예외는 다른 service의 노드를 고른 경우다. 이 요청은 그 노드의 service로 나가는데(`serviceName`)
+  // 경로의 application은 화면 service 소속이라 그 service에 존재하지 않아 루트가 성립하지 않는다.
+  // 그때만 노드 자신을 기준으로 삼는다 — 그 application을 직접 열어 본 것과 같은 결과가 된다. (이슈 #10497)
+  const baseApplication = isCrossServiceTarget
+    ? selectedTargetApplication
+    : (application ?? selectedTargetApplication);
 
   const { data, isLoading } = useGetHistogramStatistics({
     useStatisticsAgentState,

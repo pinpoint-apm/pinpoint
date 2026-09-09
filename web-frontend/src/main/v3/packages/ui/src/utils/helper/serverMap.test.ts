@@ -1,4 +1,5 @@
 import {
+  findCalleeApplication,
   findCallerApplication,
   findLinkOfApplications,
   findNodeOfApplication,
@@ -7,6 +8,7 @@ import {
   getTimeSeriesApdexInfo,
   isMergedMapTarget,
   parseNodeApplication,
+  parseNodeKeyApplication,
 } from './serverMap';
 import {
   ApplicationType,
@@ -570,6 +572,130 @@ describe('Test serverMap helper utils', () => {
         expect(findCallerApplication([inboundLink], undefined)).toBeUndefined();
         expect(findCallerApplication(undefined, 'A^a-mongo-1^MONGO')).toBeUndefined();
         expect(findCallerApplication([inboundLink], 'A^a-mongo-9^MONGO')).toBeUndefined();
+      });
+    });
+
+    // 표시용 필드를 그대로 기준으로 쓰면 백엔드가 해석하는 값과 어긋난다. USER 노드는 이름이
+    // 리터럴 "USER"로 치환되고, DB 노드의 serviceType은 getDesc() 형식이라 백엔드가 이름으로
+    // 찾을 때 다른 타입에 붙거나(MYSQL 2100 ≠ MYSQL_EXECUTE_QUERY 2101) 아예 없어서 400이 된다.
+    describe('기준 application의 식별자는 nodeKey에서 뽑는다', () => {
+      test('DB 노드는 desc가 아니라 nodeKey의 serviceType 이름을 쓴다', () => {
+        expect(
+          getSelectedTargetApplication(
+            { type: 'node', applicationName: 'a-mysql-1', serviceType: 'MYSQL' },
+            {
+              key: 'a-mysql-1^MYSQL',
+              nodeKey: 'a-mysql-1^MYSQL_EXECUTE_QUERY',
+            } as GetServerMap.NodeData,
+          ),
+        ).toEqual({ applicationName: 'a-mysql-1', serviceType: 'MYSQL_EXECUTE_QUERY' });
+      });
+
+      test('nodeKey를 아직 모르면 표시용 필드로 폴백한다', () => {
+        expect(
+          getSelectedTargetApplication(
+            { type: 'node', applicationName: 'a-1', serviceType: 'TOMCAT' },
+            { key: 'a-1^TOMCAT' } as GetServerMap.NodeData,
+          ),
+        ).toEqual({ applicationName: 'a-1', serviceType: 'TOMCAT' });
+      });
+
+      test('parseNodeKeyApplication은 첫 ^ 하나로만 쪼갠다', () => {
+        expect(parseNodeKeyApplication('a-1^TOMCAT')).toEqual({
+          applicationName: 'a-1',
+          serviceType: 'TOMCAT',
+        });
+        // applicationName은 escape되므로 실제로는 ^가 없지만, 백엔드와 같은 규칙(limit 2)을 지킨다.
+        expect(parseNodeKeyApplication('a-1^TOMCAT^EXTRA')).toEqual({
+          applicationName: 'a-1',
+          serviceType: 'TOMCAT^EXTRA',
+        });
+      });
+
+      test('parseNodeKeyApplication은 쪼갤 수 없으면 undefined다', () => {
+        expect(parseNodeKeyApplication(undefined)).toBeUndefined();
+        expect(parseNodeKeyApplication('')).toBeUndefined();
+        expect(parseNodeKeyApplication('a-1')).toBeUndefined();
+        expect(parseNodeKeyApplication('^TOMCAT')).toBeUndefined();
+        expect(parseNodeKeyApplication('a-1^')).toBeUndefined();
+      });
+    });
+
+    // USER 노드의 application 이름은 `{앱이름}_{타입이름}`으로 합성된 값이고, 양쪽 다 `_`를
+    // 가질 수 있어 문자열로는 되돌릴 수 없다. 나가는 링크의 targetInfo에서 그대로 읽는다.
+    describe('USER 노드의 기준 application', () => {
+      const userNodeTarget = {
+        type: 'node' as const,
+        applicationName: 'USER',
+        serviceType: 'USER',
+      };
+      const userNodeData = {
+        key: 'ApiGateway_SPRING_BOOT^USER',
+        nodeKey: 'ApiGateway_SPRING_BOOT^USER',
+        serviceType: 'USER',
+      } as GetServerMap.NodeData;
+      const outboundLink = {
+        from: 'ApiGateway_SPRING_BOOT^USER',
+        to: 'ApiGateway^SPRING_BOOT',
+        targetInfo: { applicationName: 'ApiGateway', serviceType: 'SPRING_BOOT' },
+      } as GetServerMap.LinkData;
+
+      test('나가는 링크의 도착지(호출되는 WAS)가 기준이다', () => {
+        expect(getSelectedTargetApplication(userNodeTarget, userNodeData, [outboundLink])).toEqual({
+          applicationName: 'ApiGateway',
+          serviceType: 'SPRING_BOOT',
+        });
+      });
+
+      test('앱 이름에 _가 있어도 문자열을 쪼개지 않으므로 정확하다', () => {
+        expect(
+          getSelectedTargetApplication(
+            userNodeTarget,
+            { ...userNodeData, key: 'my_app_TOMCAT^USER' } as GetServerMap.NodeData,
+            [
+              {
+                from: 'my_app_TOMCAT^USER',
+                to: 'my_app^TOMCAT',
+                targetInfo: { applicationName: 'my_app', serviceType: 'TOMCAT' },
+              } as GetServerMap.LinkData,
+            ],
+          ),
+        ).toEqual({ applicationName: 'my_app', serviceType: 'TOMCAT' });
+      });
+
+      test('나가는 링크가 여럿이면 정할 수 없으므로 그 보정을 하지 않는다', () => {
+        const anotherOutbound = {
+          from: 'ApiGateway_SPRING_BOOT^USER',
+          to: 'Other^TOMCAT',
+          targetInfo: { applicationName: 'Other', serviceType: 'TOMCAT' },
+        } as GetServerMap.LinkData;
+
+        expect(
+          getSelectedTargetApplication(userNodeTarget, userNodeData, [
+            outboundLink,
+            anotherOutbound,
+          ]),
+        ).toEqual({ applicationName: 'ApiGateway_SPRING_BOOT', serviceType: 'USER' });
+      });
+
+      test('findCalleeApplication은 노드 key나 링크가 없으면 undefined다', () => {
+        expect(findCalleeApplication([outboundLink], undefined)).toBeUndefined();
+        expect(findCalleeApplication(undefined, 'ApiGateway_SPRING_BOOT^USER')).toBeUndefined();
+        expect(findCalleeApplication([outboundLink], 'Nope^USER')).toBeUndefined();
+      });
+
+      // 들어오는 링크를 보는 findCallerApplication과 방향이 섞이지 않아야 한다.
+      test('USER 노드는 들어오는 링크를 기준으로 삼지 않는다', () => {
+        const inboundToWas = {
+          from: 'ApiGateway_SPRING_BOOT^USER',
+          to: 'ApiGateway^SPRING_BOOT',
+          sourceInfo: { applicationName: 'USER', serviceType: 'USER' },
+          targetInfo: { applicationName: 'ApiGateway', serviceType: 'SPRING_BOOT' },
+        } as GetServerMap.LinkData;
+
+        expect(
+          findCallerApplication([inboundToWas], 'ApiGateway_SPRING_BOOT^USER'),
+        ).toBeUndefined();
       });
     });
   });

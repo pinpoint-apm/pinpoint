@@ -217,7 +217,7 @@ React Query가 곧바로 요청을 날린다 — 그 service에 없는 applicati
 같은 commit에 배치되므로 짝이 어긋나지 않는다). queryKey와 헤더에는 prop이 아니라 그 state
 (`requestServiceName`)를 쓴다. deferred를 쓰는 스캐터는 serviceName도 같이 deferred로 넘긴다.
 
-→ `useGetScatterData`, `useGetScatterRealtimeData`, `HeatmapFetcher`, `HeatmapRealtimeFetcher`
+→ `useGetScatterData`, `useGetScatterRealtimeData`, `HeatmapRealtimeFetcher`
 
 **파라미터를 그 자리에서 계산하는 훅은 이 처리가 필요 없다** — 애초에 어긋날 렌더가 없으므로
 serviceName도 prop을 그대로 쓴다(`useGetAgentOverview`, `useGetApdexScore`,
@@ -246,23 +246,105 @@ serviceName도 prop을 그대로 쓴다(`useGetAgentOverview`, `useGetApdexScore
 (`HeatmapRealtimeFetcher`의 `request`). 단 `setQueryParams`를 바깥으로 반환하는 훅은
 setter 모양이 공개 API라서 합치는 비용이 더 크다 — 스캐터 두 훅은 그대로 둔다.
 
-### 조회의 기준 application은 고른 대상이다 (경로가 아니다)
+### 통계 API의 기준 application은 map의 루트다 (고른 노드가 아니다)
 
-경로의 application은 map을 그린 service 소속이다. 그런데 요청은 **고른 노드의 service**로 나가므로
-(위 절) 경로의 application을 기준으로 삼으면 백엔드가 그 이름을 남의 service에서 찾아 빈 데이터를
-준다. 그래서 고른 대상이 있으면 **언제나 그것이 기준**이고, 없을 때(첫 로딩, 기준을 정할 수 없는
-merged 묶음)만 경로의 application으로 돌아간다.
+**고른 노드로 갈아서 보내면 안 된다.** 코드만 봐서는 `applicationName`이 "조회할 대상"처럼 보이는데,
+백엔드에서 그 자리는 **map을 그린 루트**다. 고른 노드는 `nodeKey`로 따로 싣는다.
+
+`ServerMapHistogramController#getStatisticsFromServerMap`이 둘을 비교한다:
+
+| `applicationName` vs `nodeKey` | 백엔드 동작 |
+|---|---|
+| 같다 (루트를 클릭) | 루트를 기준으로 map을 떠서 **모든** 호출자/피호출자와의 히스토그램 |
+| 다르다 (다른 노드를 클릭) | 히스토그램 대상은 `nodeKey`의 노드, **루트를 그 노드의 상대(from/to)로 넣는다** — "루트에서 본 그 노드"의 수치 |
+
+루트를 상대편으로 넣는다는 것 자체가 둘이 서로 다른 것이라는 전제다. 고른 노드로 맞춰 버리면
+언제나 "같다"가 되어 `nodeKey` 파라미터와 불일치 분기가 죽은 코드가 된다.
+
+**게다가 `currentTarget`의 `applicationName`·`serviceType`은 조회용 식별자가 아니다** — 화면 표시용
+필드다. 그대로 기준으로 실으면 타입 검사에 걸리지 않고 조용히 빈 데이터나 400이 된다:
+
+| 노드 | `applicationName` / `serviceType` (표시용) | `nodeKey` (조회용) | 결과 |
+|---|---|---|---|
+| USER | `USER` / `USER` — 이름이 리터럴로 치환된다 | `ApiGateway_SPRING_BOOT^USER` — 이쪽도 합성값이라 루트가 못 된다 | 존재하지 않는 app이 루트가 되어 **빈 히스토그램** |
+| MySQL | `{dbId}` / `MYSQL` (desc) | `{dbId}^MYSQL_EXECUTE_QUERY` (name) | 백엔드는 name으로 해석 → 2100≠2101 → **빈 히스토그램** |
+| MSSQL | `{dbId}` / `MSSQLSERVER` (desc) | `{dbId}^MSSQL_EXECUTE_QUERY` | 그 이름의 타입이 없어 **400** + 에러 토스트 |
+
+`USER`는 `Node#getApplicationTextName()`이 리터럴로 치환하고, DB류는 `*_EXECUTE_QUERY`(name)와
+desc가 갈린다(`MYSQL`/`ORACLE`/`POSTGRESQL`/`MONGO`/`CUBRID`/`INFORMIX`/`CLICK_HOUSE`/`UNKNOWN_DB`,
+그리고 이름 자체가 없는 `MSSQLSERVER`·`JDK_HTTPCONNECTOR`). **WAS 노드는 둘이 일치해서 아무 문제가
+없어 보인다** — 그래서 WAS만 눌러 보면 빌드·테스트·CI가 전부 통과한 채로 이 버그가 지나간다.
 
 ```ts
-const baseApplication = selectedTargetApplication ?? application;
+const baseApplication = isCrossServiceTarget
+  ? selectedTargetApplication
+  : (application ?? selectedTargetApplication);
 ```
 
+노드가 기준으로 쓰이는 경로가 두 개 있다. 둘 다 경로에 쓸 수 있는 루트가 없는 경우다:
+
+| 경로 | 언제 |
+|---|---|
+| `isCrossServiceTarget` | 다른 service의 노드를 고름. 요청이 그 노드의 service로 나가는데 경로의 application은 화면 service 소속이라 그 service에 없어 루트가 성립하지 않는다 (이슈 #10497) |
+| `application ?? selectedTargetApplication` | 경로에 application이 아예 없음 = **비DEFAULT servicemap** |
+
+이 두 경로에서 노드의 식별자를 **표시용 필드로 쓰면 안 된다.** 노드 종류에 따라 두 갈래로 뽑는다:
+
+| 노드 | 기준 application | 왜 |
+|---|---|---|
+| USER | **나가는 링크의 `targetInfo`** → `findCalleeApplication` | 이 USER가 호출하는 WAS. USER 노드 자신은 기준이 될 수 없다(아래) |
+| 그 외 | **`nodeKey`를 쪼갠 값** → `parseNodeKeyApplication` | 그 application을 직접 열어 본 것과 같은 결과 |
+
+`nodeKey`로 뽑으면 `applicationName == nodeKey`가 되어 백엔드는 "같다" 분기를 탄다. 즉 그 노드를
+루트로 map을 떠서 **모든** 상대와의 수치를 낸다 — "직접 열어 본 것과 같은 결과"라는 기존 의도와 일치한다.
+
+**USER 노드만 예외인 이유: 이름이 합성값이다.** 내부 application 이름이
+`{앱이름}_{호출되는쪽 타입이름}`이다(`UserNodeUtils#newUserNodeName`) — `ApiGateway@SPRING_BOOT`를
+호출하는 USER 노드는 `ApiGateway_SPRING_BOOT^USER`다. 그런 이름의 application은 실제로 없으므로
+루트가 될 수 없고, **문자열을 쪼개 되돌릴 수도 없다**:
+
+- 앱 이름에 `_`가 들어갈 수 있다 — `IdValidateUtils.ID_PATTERN_VALUE` = `[a-zA-Z0-9._\-]+`
+- 타입 이름에도 `_`가 들어간다 — `SPRING_BOOT`, `MYSQL_EXECUTE_QUERY`, `KAFKA_CLIENT` …
+- 그래서 `my_app_TOMCAT`은 `my_app`+`TOMCAT`일 수도, `my`+`app_TOMCAT`일 수도 있다. 첫 `_`든
+  마지막 `_`든 일반적으로 틀린다. (`serviceKey`의 applicationName 토큰도 같은 합성값이라 같은 문제다.)
+
+응답의 `targetInfo`에 그 값이 파싱 없이 들어 있으므로 그것을 쓴다. 백엔드는 USER가 그 WAS의
+호출자임을 `isToNode`로 알아내 `toApplications`에 넣는다 — 즉 servermap이 경로의 application을
+루트로 보내던 것과 같은 요청이 된다.
+
+servermap은 경로에 항상 application이 있어 이 두 경로를 타지 않으므로 영향이 없다 — 그래서 이
+버그는 servicemap에서만 드러난다.
 - **어느 application을 기준으로 삼을지는 훅이 아니라 호출부가 정한다.** `useGetHistogramStatistics`는
   `applicationName`/`serviceType`을 받기만 한다 — 그 판단은 화면의 사정이라 훅이 알 수 없다.
   → `ServerMapChartBoard`의 `baseApplication`
 - 링크(엣지)를 고르면 출발지 노드가 기준이다. merged 묶음은 기준이 없다
   → `getSelectedTargetApplication`
-- `nodeKey`/`linkKey`는 고른 대상 자신에서 나오므로 기준 application과 짝이 맞는다.
+- `/histogram/statistics/links`(linkKey)는 `applicationName`을 **아예 쓰지 않는다.** `linkKey`를
+  `~`로 쪼개 양쪽 application을 만드는 것이 전부다(`getLinkTimeHistogramData`는 `appForm`을 읽지
+  않는다). 그래서 **링크 선택은 이 절의 문제와 무관하다** — 기준 application을 무엇으로 보내도
+  결과가 같고, 타입 해석조차 하지 않으므로 400도 나지 않는다. `linkKey`의 두 쪽은 각각 `nodeKey`와
+  같은 `getName()` 형식이고 실제 application 이름이라(`LinkName#getLinkKey` → `NodeName.toNodeKey`)
+  이미 정확하다. 링크의 출발지는 호출하는 쪽이라 WAS 아니면 USER인데 WAS는 name==desc라
+  어긋날 값도 없다. **그래서 링크 쪽은 표시용 `sourceInfo`를 그대로 둔다.**
+
+#### 이 필드의 의미는 한 번 바뀌었다 (그래서 헷갈린다)
+
+같은 `/statistics` 경로에 `params`로 갈리는 변형이 여럿이고, **변형마다 `applicationName`의 의미가
+다르다.** FE가 쓰는 변형이 2025-08-11에 바뀌었으므로 그 전 코드를 근거로 삼으면 안 된다.
+
+| 시기 | FE가 쓰던 것 | `applicationName` | 노드를 알려주는 방법 |
+|---|---|---|---|
+| ~2025-08-11 | 호출 안 함 — 노드 히스토그램은 **servermap 응답**(`nodeData.histogram`)에 실려 왔다 | — | — |
+| 〃 (agent 상세만) | `getResponseTimeHistogramDataV2` = **from/to 명시 변형** | **고른 노드** | `serviceTypeCode`(숫자) + `fromApplicationNames`/`toApplicationNames`를 FE가 계산해 명시 |
+| 2025-08-11~ (`e5037bf950`) | `/histogram/statistics` = **nodeKey 변형** | **map의 루트** | `nodeKey` |
+
+- **옛 변형에서 노드를 `applicationName`으로 보낸 건 맞았다.** from/to를 호출자가 명시하니 백엔드가
+  루트를 필요로 하지 않았고, 타입을 **코드(숫자)** 로 보내 desc/name 어긋남도 없었다.
+  그 직관을 nodeKey 변형에 그대로 옮기면 안 된다 — 거기서 그 자리는 루트다.
+- from/to 명시 변형은 백엔드에 아직 살아 있고(`getNodeHistogramData`), `GetHistogramStatistics.Parameters`의
+  `fromApplicationNames`/`fromServiceTypeCodes`/`toApplicationNames`/`toServiceTypeCodes`와 계산 헬퍼
+  `useServerMapLinkedData`도 남아 있다(`ServerListFetcher`가 쓴다). "노드 자신의 전체 수치"가
+  필요해지면 라벨을 루트 자리에 밀어넣는 것보다 이 변형으로 가는 편이 정합적이다.
 
 액티브 스레드(실시간)는 WebSocket이라 헤더가 없다. 지금도 service를 싣지 않는다.
 
@@ -283,6 +365,10 @@ link key는 노드 이름 둘을 `~`로 이은 것이라 같은 규칙을 따른
 - **id에서 application을 읽을 때는 `parseNodeApplication`을 쓴다.** 뒤 두 토큰이 application이다.
   URL 세그먼트용인 `getApplicationTypeAndName`으로 읽으면 3단에서 applicationName에
   `serviceName^applicationName`이 들어온다(정규식이 greedy).
+- **`key`에서 읽은 것을 조회 파라미터로 보내지 않는다.** `key`의 serviceType은 `getDesc()`라
+  백엔드가 이름으로 찾을 때 어긋난다. 조회에 쓸 값은 `nodeKey`에서 뽑는다
+  → `parseNodeKeyApplication` (위 "통계 API의 기준 application은 map의 루트다").
+  `parseNodeApplication`은 화면 표시·비교·URL 세그먼트용이다.
 - **노드/링크를 application으로 찾을 때는 `findNodeOfApplication`·`findLinkOfApplications`를 쓴다.**
   `key`의 뒤 두 토큰으로 비교하므로 2단/3단 어느 쪽이든 찾는다.
 - serviceName은 escape되지 않으므로(applicationName만 `ApplicationNameEscaper`로 escape된다)
@@ -360,11 +446,13 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
   (`serverMapCurrentTargetAtom`, `currentServerAtom`)을 명시적으로 비워야 한다. 안 비우면
   ChartsBoard가 없는 노드를 기준으로 조회를 시작하고, 새 경로에는 기준 application도 없어서
   `applicationName` 없는 요청이 나가 400을 받는다. → `useClearApplicationOnServiceChange`
-- **경로의 application을 통계 조회의 기준으로 쓰면 안 된다.** 고른 노드가 다른 service 소속일 때
-  (또는 비DEFAULT 모드에서 다른 화면 링크를 타고 application이 실려 들어올 때) 클릭한 노드와 다른
-  application의 수치를 보여준다. → 위 "조회의 기준 application은 고른 대상이다"
-- **통계 API는 기준 application이 필수다.** service 전체 map에는 URL에 application이 아예 없으므로,
-  고른 대상이 없으면 조회가 성립하지 않는다.
+- **통계 조회의 기준을 고른 노드로 갈아 끼우면 안 된다.** 그 자리는 map의 루트이고, 고른 노드는
+  `nodeKey`로 이미 실려 나간다. 갈아 끼우면 USER 노드와 DB 노드가 조용히 비거나 400이 된다.
+  → 위 "통계 API의 기준 application은 map의 루트다"
+- **경로에 남은 application 세그먼트가 통계 조회의 기준이 된다.** 비DEFAULT 모드에서 다른 화면
+  링크를 타고 application이 실려 들어오면, 클릭한 노드와 다른 application의 수치를 보여준다.
+- **통계 API는 기준 application이 필수다.** service 전체 map에는 URL에 application이 없으므로,
+  선택된 노드(링크는 출발지 노드)를 기준으로 삼는다. → `getSelectedTargetApplication`
 - **`useSuspenseQuery`는 `enabled`를 지원하지 않는다.** `useGetApdexScore`처럼 `shouldPoll`에 따라
   suspense를 쓰는 훅은 `enabled`로 막을 수 없다. `skipToken`을 쓰면 영원히 suspend 되므로,
   컴포넌트에서 조회 대상이 없을 때 fetcher를 마운트하지 않는 쪽으로 막는다.
