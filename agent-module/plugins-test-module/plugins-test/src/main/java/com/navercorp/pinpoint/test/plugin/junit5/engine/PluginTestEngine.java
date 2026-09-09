@@ -77,7 +77,7 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
 
     @Override
     public TestDescriptor discover(EngineDiscoveryRequest discoveryRequest, UniqueId uniqueId) {
-        DefaultJupiterConfiguration jupiterConfiguration = new DefaultJupiterConfiguration(discoveryRequest.getConfigurationParameters(), discoveryRequest.getOutputDirectoryProvider());
+        DefaultJupiterConfiguration jupiterConfiguration = new DefaultJupiterConfiguration(discoveryRequest.getConfigurationParameters(), discoveryRequest.getOutputDirectoryCreator());
         JupiterConfiguration configuration = new CachingJupiterConfiguration(jupiterConfiguration);
         JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(uniqueId, configuration);
         new DiscoverySelectorResolver().resolveSelectors(discoveryRequest, engineDescriptor);
