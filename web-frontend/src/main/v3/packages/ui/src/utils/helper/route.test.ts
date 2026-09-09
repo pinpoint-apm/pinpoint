@@ -9,6 +9,10 @@ import {
   getTransactionListPath,
   getTransactionDetailPath,
   getServiceMapPath,
+  getScatterFullScreenPath,
+  getScatterFullScreenRealtimePath,
+  getHeatmapFullScreenPath,
+  getHeatmapFullScreenRealtimePath,
 } from './route';
 
 describe('Test route helper utils', () => {
@@ -476,6 +480,56 @@ describe('Test route helper utils', () => {
       );
       expect(getTransactionListPath(application, undefined, 'a b')).toEqual(
         '/transactionList/a%20b/appName@TOMCAT',
+      );
+    });
+  });
+
+  describe('Test the fullScreenMode path builders', () => {
+    const application = { applicationName: 'appName', serviceType: 'TOMCAT' };
+
+    test('Omit the service segment when service name is not given', () => {
+      expect(getScatterFullScreenPath(application)).toEqual(
+        '/scatterFullScreenMode/appName@TOMCAT',
+      );
+      expect(getScatterFullScreenRealtimePath(application)).toEqual(
+        '/scatterFullScreenMode/realtime/appName@TOMCAT',
+      );
+      expect(getHeatmapFullScreenPath(application)).toEqual(
+        '/heatmapFullScreenMode/appName@TOMCAT',
+      );
+      expect(getHeatmapFullScreenRealtimePath(application)).toEqual(
+        '/heatmapFullScreenMode/realtime/appName@TOMCAT',
+      );
+    });
+
+    test('Carry the service name as its own segment, like servicemap', () => {
+      expect(getScatterFullScreenPath(application, undefined, 'svc')).toEqual(
+        '/scatterFullScreenMode/svc/appName@TOMCAT',
+      );
+      expect(getScatterFullScreenRealtimePath(application, undefined, 'svc')).toEqual(
+        '/scatterFullScreenMode/realtime/svc/appName@TOMCAT',
+      );
+      expect(getHeatmapFullScreenPath(application, undefined, 'svc')).toEqual(
+        '/heatmapFullScreenMode/svc/appName@TOMCAT',
+      );
+      expect(getHeatmapFullScreenRealtimePath(application, undefined, 'svc')).toEqual(
+        '/heatmapFullScreenMode/realtime/svc/appName@TOMCAT',
+      );
+    });
+
+    test('Encode the service name so it cannot break the path segment', () => {
+      expect(getHeatmapFullScreenPath(application, undefined, 'a/b')).toEqual(
+        '/heatmapFullScreenMode/a%2Fb/appName@TOMCAT',
+      );
+      expect(getHeatmapFullScreenPath(application, undefined, 'a@b')).toEqual(
+        '/heatmapFullScreenMode/a%40b/appName@TOMCAT',
+      );
+    });
+
+    test('Return the page path only when application is not given', () => {
+      expect(getScatterFullScreenPath(null, undefined, 'svc')).toEqual('/scatterFullScreenMode');
+      expect(getHeatmapFullScreenRealtimePath(null, undefined, 'svc')).toEqual(
+        '/heatmapFullScreenMode/realtime',
       );
     });
   });

@@ -57,7 +57,22 @@ const SERVICE_NAME_SEGMENT_PAGES: string[] = [
   APP_PATH.FILTERED_MAP,
   APP_PATH.TRANSACTION_LIST,
   APP_PATH.TRANSACTION_DETAIL,
+  APP_PATH.SCATTER_FULL_SCREEN_REALTIME,
+  APP_PATH.SCATTER_FULL_SCREEN,
+  APP_PATH.HEATMAP_FULL_SCREEN_REALTIME,
+  APP_PATH.HEATMAP_FULL_SCREEN,
 ];
+
+/**
+ * pathname이 속한, serviceName 세그먼트를 싣는 페이지의 경로 접두사.
+ *
+ * 라우트 로더가 리다이렉트 목적지를 만들 때 쓴다. 로더는 여러 라우트가 공유하므로
+ * (`scatterOrHeatmapFullScreenLoader`는 scatter/heatmap 두 경로에 걸려 있다) 접두사를
+ * 경로에서 되찾아야 하는데, 그 판정이 serviceName을 읽는 규칙과 갈리면
+ * "serviceName은 읽었는데 리다이렉트 목적지에는 빠지는" 어긋남이 생긴다.
+ */
+export const getServiceNameSegmentPage = (pathname = '') =>
+  SERVICE_NAME_SEGMENT_PAGES.find((pagePath) => isUnderPage(pathname, pagePath));
 
 /**
  * 경로에 실려 있는 serviceName. 아직 serviceName을 싣지 않는 화면에서는 undefined이므로,
@@ -72,7 +87,7 @@ const SERVICE_NAME_SEGMENT_PAGES: string[] = [
  * 디코딩된 값을 넘기면 serviceName 안의 '%2F'가 '/'로 풀려 세그먼트 경계가 어긋난다.
  */
 export const getServiceNameFromPath = (pathname = '') => {
-  const page = SERVICE_NAME_SEGMENT_PAGES.find((pagePath) => isUnderPage(pathname, pagePath));
+  const page = getServiceNameSegmentPage(pathname);
 
   if (!page) {
     return undefined;

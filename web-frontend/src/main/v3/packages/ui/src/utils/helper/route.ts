@@ -160,18 +160,6 @@ export const getRealtimePath = getApplicationPath(APP_PATH.SERVER_MAP_REALTIME);
  * (라우트 로더가 실려 들어온 query string을 지운다).
  */
 export const getServiceMapRealtimePath = getServiceScopedMapPath(APP_PATH.SERVICE_MAP_REALTIME);
-/** /scatterFullScreenMode */
-export const getScatterFullScreenPath = getApplicationPath(APP_PATH.SCATTER_FULL_SCREEN);
-/** /scatterFullScreenMode/realtime */
-export const getScatterFullScreenRealtimePath = getApplicationPath(
-  APP_PATH.SCATTER_FULL_SCREEN_REALTIME,
-);
-/** /heatmapFullScreenMode */
-export const getHeatmapFullScreenPath = getApplicationPath(APP_PATH.HEATMAP_FULL_SCREEN);
-/** /heatmapFullScreenMode/realtime */
-export const getHeatmapFullScreenRealtimePath = getApplicationPath(
-  APP_PATH.HEATMAP_FULL_SCREEN_REALTIME,
-);
 /**
  * 필터 대상에서 filteredMap의 기준 application을 고른다. 고를 수 없으면 null이다.
  *
@@ -275,9 +263,10 @@ export const getSystemMetricPath = getHostGroupPath(APP_PATH.SYSTEM_METRIC);
  * serviceName이 주어지면 `/{page}/{serviceName}/{applicationName}@{serviceType}`를 만드는 경로
  * 빌더. servicemap과 같은 세그먼트 표기다.
  *
- * transaction 화면들은 새 탭으로 열리므로(map의 drag&drop → transactionList, transactionList의
- * 외부 링크 → transactionDetail), 어떤 service를 보던 중이었는지 URL에 남겨야 그 화면의 모든
- * API에 pServiceName 헤더를 실을 수 있다. 전역 선택값은 탭 간 공유 저장소라 믿을 수 없다.
+ * 이 경로들은 모두 새 탭으로 열린다(map의 drag&drop → transactionList, transactionList의 외부
+ * 링크 → transactionDetail, 스캐터/히트맵의 확대 버튼 → fullScreenMode). 어떤 service를 보던
+ * 중이었는지 URL에 남겨야 그 화면의 모든 API에 pServiceName 헤더를 실을 수 있다. 전역 선택값은
+ * 탭 간 공유 저장소라 믿을 수 없다.
  *
  * enableServiceMap이 꺼져 있으면 service 개념이 없어 serviceName이 undefined로 들어온다.
  * 그때는 세그먼트를 붙이지 않아 예전과 같은 경로가 된다.
@@ -309,10 +298,26 @@ const getServiceScopedApplicationPath =
     return `${pagePath}${serviceSegment}/${application.applicationName}@${application.serviceType}${queryString}`;
   };
 
-/** /transactionList */
+/** /transactionList/{serviceName}?/{applicationName}@{serviceType} */
 export const getTransactionListPath = getServiceScopedApplicationPath(APP_PATH.TRANSACTION_LIST);
-/** /transactionDetail */
+/** /transactionDetail/{serviceName}?/{applicationName}@{serviceType} */
 export const getTransactionDetailPath = getServiceScopedApplicationPath(
   APP_PATH.TRANSACTION_DETAIL,
+);
+/** /scatterFullScreenMode/{serviceName}?/{applicationName}@{serviceType} */
+export const getScatterFullScreenPath = getServiceScopedApplicationPath(
+  APP_PATH.SCATTER_FULL_SCREEN,
+);
+/** /scatterFullScreenMode/realtime/{serviceName}?/{applicationName}@{serviceType} */
+export const getScatterFullScreenRealtimePath = getServiceScopedApplicationPath(
+  APP_PATH.SCATTER_FULL_SCREEN_REALTIME,
+);
+/** /heatmapFullScreenMode/{serviceName}?/{applicationName}@{serviceType} */
+export const getHeatmapFullScreenPath = getServiceScopedApplicationPath(
+  APP_PATH.HEATMAP_FULL_SCREEN,
+);
+/** /heatmapFullScreenMode/realtime/{serviceName}?/{applicationName}@{serviceType} */
+export const getHeatmapFullScreenRealtimePath = getServiceScopedApplicationPath(
+  APP_PATH.HEATMAP_FULL_SCREEN_REALTIME,
 );
 export const getThreadDumpPath = getApplicationPath(APP_PATH.THREAD_DUMP);
