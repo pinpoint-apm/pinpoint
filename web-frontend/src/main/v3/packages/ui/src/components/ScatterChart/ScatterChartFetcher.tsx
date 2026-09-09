@@ -103,7 +103,11 @@ export const ScatterChartFetcher = ({
         expand: {
           onClick: () => {
             window.open(
-              `${BASE_PATH}${getScatterFullScreenPath(node)}?${convertParamsToQueryString({
+              `${BASE_PATH}${getScatterFullScreenPath(
+                node,
+                undefined,
+                requestServiceName,
+              )}?${convertParamsToQueryString({
                 from: searchParameters.from,
                 to: searchParameters.to,
               })}`,

@@ -158,7 +158,11 @@ export const ScatterChartRealtimeFetcher = ({
         expand: {
           onClick: () => {
             window.open(
-              `${BASE_PATH}${getScatterFullScreenRealtimePath(node)}${
+              `${BASE_PATH}${getScatterFullScreenRealtimePath(
+                node,
+                undefined,
+                requestServiceName,
+              )}${
                 agentId === SCATTER_DATA_TOTAL_KEY
                   ? ''
                   : '?' + convertParamsToQueryString({ agentId })

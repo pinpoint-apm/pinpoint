@@ -67,7 +67,11 @@ const HeatmapChartCore = ({
   const handleExpand = () => {
     if (isRealtime) {
       window.open(
-        `${BASE_PATH}${getHeatmapFullScreenRealtimePath(nodeData)}?${convertParamsToQueryString({
+        `${BASE_PATH}${getHeatmapFullScreenRealtimePath(
+          nodeData,
+          undefined,
+          requestServiceName,
+        )}?${convertParamsToQueryString({
           agentId,
         })}`,
         '_blank',
@@ -75,7 +79,11 @@ const HeatmapChartCore = ({
       return;
     }
     window.open(
-      `${BASE_PATH}${getHeatmapFullScreenPath(nodeData)}?${convertParamsToQueryString({
+      `${BASE_PATH}${getHeatmapFullScreenPath(
+        nodeData,
+        undefined,
+        requestServiceName,
+      )}?${convertParamsToQueryString({
         from: searchParameters.from,
         to: searchParameters.to,
       })}`,

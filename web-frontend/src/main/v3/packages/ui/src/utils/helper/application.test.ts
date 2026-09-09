@@ -2,6 +2,7 @@ import {
   getApplicationTypeAndName,
   getApplicationKey,
   getServiceNameFromPath,
+  getServiceNameSegmentPage,
   hasServiceNameInPath,
   parseServiceScopedPath,
 } from './application';
@@ -125,6 +126,28 @@ describe('Test application helper utils', () => {
       expect(getServiceNameFromPath('/serviceMap/realtime/appName@TOMCAT')).toBeUndefined();
     });
 
+    // 스캐터/히트맵의 확대 버튼은 새 탭을 여는데, 그 화면도 같은 service로 조회해야 한다.
+    // `/{page}/realtime`은 `/{page}`의 하위 경로이므로 'realtime'을 service 이름으로 읽으면 안 된다.
+    test('Read the service name on a fullScreenMode path', () => {
+      expect(getServiceNameFromPath('/scatterFullScreenMode/blogService/appName@TOMCAT')).toBe(
+        'blogService',
+      );
+      expect(getServiceNameFromPath('/heatmapFullScreenMode/blogService/appName@TOMCAT')).toBe(
+        'blogService',
+      );
+      expect(
+        getServiceNameFromPath('/scatterFullScreenMode/realtime/blogService/appName@TOMCAT'),
+      ).toBe('blogService');
+      expect(
+        getServiceNameFromPath('/heatmapFullScreenMode/realtime/team%2Fa%40b/appName@TOMCAT'),
+      ).toBe('team/a@b');
+      // 세그먼트가 생기기 전 형태의 링크·북마크.
+      expect(getServiceNameFromPath('/scatterFullScreenMode/appName@TOMCAT')).toBeUndefined();
+      expect(
+        getServiceNameFromPath('/heatmapFullScreenMode/realtime/appName@TOMCAT'),
+      ).toBeUndefined();
+    });
+
     test('Return undefined on a path that does not carry a service name', () => {
       expect(getServiceNameFromPath('/serverMap/svc@appName@TOMCAT')).toBeUndefined();
     });
@@ -202,6 +225,28 @@ describe('Test application helper utils', () => {
 
       expect(result.serviceName).toBeUndefined();
       expect(result.application).toBeNull();
+    });
+  });
+
+  describe('Test "getServiceNameSegmentPage"', () => {
+    // 로더가 리다이렉트 목적지를 만들 때 쓴다. 더 긴 경로가 먼저 매칭되어야
+    // 실시간 화면의 리다이렉트가 비실시간 화면으로 새지 않는다.
+    test('Return the longest matching page prefix', () => {
+      expect(getServiceNameSegmentPage('/serviceMap/realtime/svc/appName@TOMCAT')).toBe(
+        '/serviceMap/realtime',
+      );
+      expect(getServiceNameSegmentPage('/serviceMap/svc/appName@TOMCAT')).toBe('/serviceMap');
+      expect(getServiceNameSegmentPage('/heatmapFullScreenMode/realtime/svc/appName@TOMCAT')).toBe(
+        '/heatmapFullScreenMode/realtime',
+      );
+      expect(getServiceNameSegmentPage('/scatterFullScreenMode/appName@TOMCAT')).toBe(
+        '/scatterFullScreenMode',
+      );
+    });
+
+    test('Return undefined on a page that does not carry a service name segment', () => {
+      expect(getServiceNameSegmentPage('/serverMap/appName@TOMCAT')).toBeUndefined();
+      expect(getServiceNameSegmentPage('/inspector/appName@TOMCAT')).toBeUndefined();
     });
   });
 

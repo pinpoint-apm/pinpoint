@@ -146,9 +146,17 @@ service 전체를 대상으로 필터를 걸 수 있게 할지 정해지면 경�
   돌려주므로 파라미터와 service가 항상 같은 렌더에서 함께 바뀐다.
   → `useSyncRenderedRouterPath` (조회 화면들보다 위에서 한 번 호출: `InitialFetchOutlet`).
   호출을 빠뜨리면 `window.location` 폴백으로 동작한다(고쳐지지 않을 뿐 깨지지는 않는다).
+- **새 탭으로 열리는 화면은 특히 경로에 실어야 한다.** transaction 화면들(map의 drag&drop →
+  transactionList)과 스캐터/히트맵의 확대 화면(fullScreenMode)이 그렇다. 새 탭을 열어 둔 뒤
+  원래 탭에서 service를 바꾸면 전역 선택값이 따라 바뀌므로, 그것에 기대면 보고 있는 화면과
+  조회가 어긋난다. fullScreenMode의 돌아갈 링크도 경로의 serviceName으로 정한다
+  (`Servicemap / Scatter` ↔ `Servermap / Scatter`) — filteredMap과 같은 규칙이다.
 - 싣는 화면 목록: `SERVICE_NAME_SEGMENT_PAGES` (`utils/helper/application.ts`).
   **앞으로는 serviceName을 싣는 것이 기본**이고, 아직 안 옮긴 화면은 줄어드는 예외다.
   그 경로에서는 serviceName을 읽을 수 없어 전역 선택값으로 폴백한다.
+  로더가 리다이렉트 목적지를 만들 때 쓰는 페이지 접두사도 같은 목록에서 뽑는다
+  (`getServiceNameSegmentPage`) — 판정이 갈리면 serviceName은 읽었는데 리다이렉트 목적지에서만
+  빠진다.
 - serviceName은 백엔드가 형식을 검증하지 않으므로(`ServiceNameRequest`에 제약이 없다) `/`나 `@`가
   들어올 수 있다. 반드시 `encodeURIComponent`로 싣는다.
 - **읽을 때는 인코딩된 raw pathname을 넘긴다.** react-router의 `params`는 디코딩된 값이라
@@ -468,7 +476,7 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 | DEFAULT 여부 판단 | `hooks/utility/useIsDefaultService.ts` |
 | 경로에 실린 serviceName 읽기 | `utils/helper/application.ts` (`getServiceNameFromPath`) |
 | 경로 분해 (로더용) | `utils/helper/application.ts` (`parseServiceScopedPath`) |
-| 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getServiceMapRealtimePath`, `getFilteredMapPath`, `getTransactionListPath`) |
+| 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getServiceMapRealtimePath`, `getFilteredMapPath`, `getTransactionListPath`, `getScatterFullScreenPath`, `getHeatmapFullScreenPath`) |
 | 조회 대상의 service | `hooks/serverMap/useServerMapTargetServiceName.ts` |
 | 지금 경로에서 고른 선택 | `hooks/serverMap/useServerMapCurrentTarget.ts` |
 | 선택에 경로 도장 찍기 | `atoms/serverMap.ts` (`serverMapCurrentTargetAtom`) |

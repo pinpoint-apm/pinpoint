@@ -107,7 +107,11 @@ export const ScatterChartStatic = ({
         expand: {
           onClick: () => {
             window.open(
-              `${BASE_PATH}${getScatterFullScreenPath(application)}?${convertParamsToQueryString({
+              `${BASE_PATH}${getScatterFullScreenPath(
+                application,
+                undefined,
+                requestServiceName,
+              )}?${convertParamsToQueryString({
                 from: formatInTimeZone(range[0], timezone, SEARCH_PARAMETER_DATE_FORMAT),
                 to: formatInTimeZone(range[1], timezone, SEARCH_PARAMETER_DATE_FORMAT),
                 agentId: selectedAgentId === SCATTER_DATA_TOTAL_KEY ? undefined : selectedAgentId,

@@ -126,22 +126,25 @@ const router = createBrowserRouter(
                   loader: filteredMapRouteLoader,
                 },
                 {
-                  path: `${APP_PATH.SCATTER_FULL_SCREEN}/:application?`,
+                  // serviceName을 별도 세그먼트로 싣는다(servicemap·transaction과 같은 표기).
+                  // 세그먼트가 생기기 전 형태(`/scatterFullScreenMode/{application}`)의 링크도
+                  // 그대로 받으므로 두 세그먼트 모두 optional이다.
+                  path: `${APP_PATH.SCATTER_FULL_SCREEN}/:serviceName?/:application?`,
                   element: <ScatterOrHeatmapFullScreen />,
                   loader: scatterOrHeatmapFullScreenLoader,
                 },
                 {
-                  path: `${APP_PATH.SCATTER_FULL_SCREEN_REALTIME}/:application?`,
+                  path: `${APP_PATH.SCATTER_FULL_SCREEN_REALTIME}/:serviceName?/:application?`,
                   element: <ScatterOrHeatmapFullScreen />,
                   loader: scatterOrHeatmapFullScreenRealtimeLoader,
                 },
                 {
-                  path: `${APP_PATH.HEATMAP_FULL_SCREEN}/:application?`,
+                  path: `${APP_PATH.HEATMAP_FULL_SCREEN}/:serviceName?/:application?`,
                   element: <ScatterOrHeatmapFullScreen />,
                   loader: scatterOrHeatmapFullScreenLoader,
                 },
                 {
-                  path: `${APP_PATH.HEATMAP_FULL_SCREEN_REALTIME}/:application?`,
+                  path: `${APP_PATH.HEATMAP_FULL_SCREEN_REALTIME}/:serviceName?/:application?`,
                   element: <ScatterOrHeatmapFullScreen />,
                   loader: scatterOrHeatmapFullScreenRealtimeLoader,
                 },
