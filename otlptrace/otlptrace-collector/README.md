@@ -179,6 +179,19 @@ whether a failure **surfaces before the response**:
 | scatter index failure | future discarded, no metric — loss that is invisible in scatter |
 | server-map stats | Up to 5s of increments lost on process death (acceptable by design) |
 
+### Exception field bounds (shared with the OTLP logs receiver)
+
+Client-supplied exception fields are bounded in `OtlpExceptionMapper` before parsing / storage
+(`pinpoint.collector.otlptrace.exception.*`): `message-max-bytes` 2048, `type-max-bytes` 1024,
+`uri-template-max-bytes` 1024 (route also sanitized: query string / fragment dropped, control characters
+removed, never null), `stacktrace.max-depth` 256 frames, `stacktrace.frame-max-bytes` 2048, and the
+parser input bounds `stacktrace.max-chars` 262144 / `stacktrace.line-max-chars` 4096. The last two exist
+because the Node/.NET frame regexes are quadratic on a single long line without a closing bracket
+(measured ~1.4s at 48KB, x4 per doubling): one 4MB line would pin a worker thread for hours. Each cap
+increments `collector.otlptrace.exception.truncated{field=message|type|uri_template|stacktrace_depth|
+stacktrace_bytes|stacktrace_line|frame_value}`. Values that fail the resource-id validators are echoed
+into logs / partial-success messages only through `LogSafe` (control characters escaped, 256-char cap).
+
 ### Ingest metrics
 
 The pre-existing meters count **requests** (`grpc.server.requests.received{service=otlptrace}`,

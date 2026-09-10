@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.inspector.collector.InspectorCollectorConfig;
 import com.navercorp.pinpoint.log.collector.LogCollectorModule;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
 import com.navercorp.pinpoint.otlp.collector.OtlpMetricCollectorConfig;
+import com.navercorp.pinpoint.otlp.log.collector.OtlpLogCollectorModule;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorApp;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
@@ -74,9 +75,16 @@ public class PinpointCollectorStarter {
         // OTLP Trace runs as its own collector type (decoupled from METRIC).
         // gRPC 9998 is used for OTLP/gRPC ingestion; the servlet port (9997) hosts the OTLP/HTTP
         // endpoint (POST /v1/traces) and keeps the JVM alive when this app runs standalone.
+        // The OTLP logs receiver (LogsService on the same gRPC servers, POST /v1/logs on 9997) is
+        // co-hosted here because OTLP exporters send every signal to one endpoint. It depends on the
+        // trace module, so it is registered from the starter (like the BASIC storage configs) rather
+        // than imported by OtlpTraceCollectorModule; gated by pinpoint.modules.collector.otlplog.enabled.
         if (types.hasType(CollectorType.OTLPTRACE)) {
             logger.info(String.format("Start %s collector", CollectorType.OTLPTRACE));
-            SpringApplicationBuilder otlpTraceAppBuilder = createAppBuilder(builder, 9997, OtlpTraceCollectorApp.class);
+            SpringApplicationBuilder otlpTraceAppBuilder = createAppBuilder(builder, 9997,
+                    OtlpTraceCollectorApp.class,
+                    OtlpLogCollectorModule.class
+            );
             otlpTraceAppBuilder.build().run(args);
         }
 
