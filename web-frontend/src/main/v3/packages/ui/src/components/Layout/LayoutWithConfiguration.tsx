@@ -10,6 +10,14 @@ export type ConfigMenu = {
     path: string | string[];
     href: string;
     name: string;
+    /**
+     * true면 목록에서 아예 제외한다. 렌더만 건너뛰면 `space-y-1` 이 만든 간격이 남아
+     * 빈 칸처럼 보이므로 `hide` 는 map 전에 걸러낸다(사이드 네비게이션과 같은 규칙).
+     *
+     * 목록에서 감추기만 하므로, 감춰진 메뉴의 경로로 직접 들어와도 그 경로가 어느 그룹의
+     * 것인지는 그대로 판정된다.
+     */
+    hide?: boolean;
   }[];
 };
 
@@ -21,6 +29,8 @@ export interface LayoutWithConfigurationProps {
 export const LayoutWithConfiguration = ({ children, configMenu }: LayoutWithConfigurationProps) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const visibleMenus = configMenu?.menus.filter((menu) => !menu.hide) ?? [];
+
   return (
     <div className="flex flex-col h-full p-10">
       <div>
@@ -31,9 +41,9 @@ export const LayoutWithConfiguration = ({ children, configMenu }: LayoutWithConf
       {/* `gap` 을 쓴다. Tailwind 4 의 `space-x-*` 는 `:where(& > :not(:last-child))` 로 바뀌어
           명시도가 0 이라, 자식(`aside` 의 `-mx-4`)의 margin 유틸리티에 밀려 간격이 사라진다. */}
       <div className="flex flex-row gap-12 h-[calc(100%-6rem)]">
-        {configMenu?.menus.length ? (
+        {visibleMenus.length ? (
           <aside className="-mx-4 lg:w-1/5">
-            {configMenu.menus.map((item, i) => {
+            {visibleMenus.map((item, i) => {
               return (
                 <nav key={i} className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
                   <a
