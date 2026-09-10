@@ -65,7 +65,7 @@
             sortKey = #{sortKey}
             AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
-            AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+            AND roundedEventTime >= #{range.from} AND roundedEventTime <![CDATA[<]]> #{range.to}
             <foreach collection="tagList" item="tag" separator=" ">
                 AND tags = #{tag}
             </foreach>
@@ -83,7 +83,7 @@
         sortKey = #{sortKey}
         AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
-        AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+        AND roundedEventTime >= #{range.from} AND roundedEventTime <![CDATA[<]]> #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
@@ -102,7 +102,7 @@
         sortKey = #{sortKey}
         AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
-        AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+        AND roundedEventTime >= #{range.from} AND roundedEventTime <![CDATA[<]]> #{range.to}
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
@@ -121,7 +121,7 @@
         sortKey = #{sortKey}
         AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
-        AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+        AND roundedEventTime >= #{range.from} AND roundedEventTime <![CDATA[<]]> #{range.to}
         <if test="tagList != null and tagList.size() > 0">
             AND primaryTag = #{tagList[0]}
         </if>
@@ -139,7 +139,7 @@
         sortKey = #{sortKey}
         AND serviceName = #{serviceName}
         AND fieldName = #{fieldName}
-        AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+        AND roundedEventTime >= #{range.from} AND roundedEventTime <![CDATA[<]]> #{range.to}
         <if test="tagList != null and tagList.size() > 0">
             AND primaryTag = #{tagList[0]}
         </if>
@@ -155,7 +155,7 @@
             sortKey = #{sortKey}
             AND serviceName = #{serviceName}
             AND fieldName = #{fieldName}
-            AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+            AND roundedEventTime >= #{range.from} AND roundedEventTime <![CDATA[<]]> #{range.to}
     </select>
 
 </mapper>

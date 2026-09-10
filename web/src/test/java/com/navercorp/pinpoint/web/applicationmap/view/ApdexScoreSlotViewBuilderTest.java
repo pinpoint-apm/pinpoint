@@ -35,7 +35,7 @@ public class ApdexScoreSlotViewBuilderTest {
 
         List<Double> apdexScores = new ApdexScoreSlotViewBuilder(range, application, histogramList).build();
 
-        Assertions.assertThat(apdexScores).hasSize(6); // 5 + 1 (inclusive end)
+        Assertions.assertThat(apdexScores).hasSize(5); // 5 (exclusive end)
     }
 
     @Test

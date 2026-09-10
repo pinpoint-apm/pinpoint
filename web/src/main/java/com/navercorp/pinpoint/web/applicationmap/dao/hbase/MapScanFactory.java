@@ -48,13 +48,13 @@ public class MapScanFactory {
     }
 
     public Scan createScan(String id, int serviceUid, Application application, Range range, byte[] family) {
-        range = rangeFactory.createStatisticsRange(range);
+        Range statisticsRange = rangeFactory.createStatisticsRange(range);
         if (logger.isDebugEnabled()) {
-            logger.debug("scan time:{} ", range.prettyToString());
+            logger.debug("scan time:{} ", statisticsRange.prettyToString());
         }
         // start key is replaced by end key because timestamp has been reversed
-        byte[] startKey = mapScanKeyFactory.scanKey(serviceUid, application, range.getTo());
-        byte[] endKey = mapScanKeyFactory.scanKey(serviceUid, application, range.getFrom());
+        byte[] startKey = mapScanKeyFactory.scanKey(serviceUid, application, statisticsRange.getTo());
+        byte[] endKey = mapScanKeyFactory.scanKey(serviceUid, application, statisticsRange.getFrom());
 
         final Scan scan = new Scan();
 

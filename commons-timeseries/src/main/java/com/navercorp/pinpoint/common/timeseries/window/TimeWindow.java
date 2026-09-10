@@ -60,7 +60,7 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
      * @throws ArithmeticException if the {@code count} overflows an int
      */
     private static int computeWindowRangeCount(long duration, long slotSize) {
-        long count = (duration / slotSize) + 1;
+        long count = (duration / slotSize);
         return Math.toIntExact(count);
     }
 
@@ -86,6 +86,10 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
     @Override
     public long refineTimestamp(long timestamp) {
         return (timestamp / windowSlotSize) * windowSlotSize;
+    }
+
+    private long refineTimestampWithCeil(long timestamp) {
+        return refineTimestamp(timestamp + windowSlotSize - 1);
     }
 
     public Range getWindowRange() {

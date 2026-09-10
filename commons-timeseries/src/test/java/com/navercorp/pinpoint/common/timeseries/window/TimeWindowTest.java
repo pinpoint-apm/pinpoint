@@ -41,8 +41,7 @@ class TimeWindowTest {
         logger.debug("{}", window.getWindowRange());
         List<Long> timeWindows = window.getTimeseriesWindows();
 
-        assertThat(timeWindows).hasSize(1)
-                .containsExactly(0L);
+        assertThat(timeWindows).hasSize(0);
     }
 
     @Test
@@ -50,8 +49,8 @@ class TimeWindowTest {
         TimeWindow window2 = new TimeWindow(Range.between(0L, TimeUnit.MINUTES.toMillis(1)));
         logger.debug("{}", window2.getWindowRange());
         List<Long> timeWindows2 = window2.getTimeseriesWindows();
-        assertThat(timeWindows2).hasSize(2)
-                .containsExactly(0L, 1000 * 60L);
+        assertThat(timeWindows2).hasSize(1)
+                .containsExactly(0L);
     }
 
 
@@ -60,17 +59,22 @@ class TimeWindowTest {
         Range range = Range.between(0L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
         List<Long> timestamps = window.getTimeseriesWindows();
-        assertEquals(2, timestamps.size());
-        assertEquals(2, window.getWindowRangeCount());
+        assertEquals(1, timestamps.size());
+        assertEquals(1, window.getWindowRangeCount());
     }
 
     @Test
     void testTimestampWindowsSize2() {
-        Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1));
+        long from = 1L;
+        long to = TimeUnit.MINUTES.toMillis(1);
+        Range range = Range.between(from, to);
         TimeWindow window = new TimeWindow(range);
         List<Long> timestamps = window.getTimeseriesWindows();
-        assertEquals(2, timestamps.size());
-        assertEquals(2, window.getWindowRangeCount());
+
+        int indexSize = window.getWindowIndex(to) - window.getWindowIndex(from);
+        assertEquals(1, indexSize);
+        assertEquals(1, timestamps.size());
+        assertEquals(1, window.getWindowRangeCount());
     }
 
     @Test
@@ -117,21 +121,29 @@ class TimeWindowTest {
 
     @Test
     void testGetWindowRangeLength() {
-        Range range = Range.between(1L, 2L);
+        long from = 1L;
+        long to = 2L;
+        Range range = Range.between(from, to);
         TimeWindow window = new TimeWindow(range);
         int windowRangeLength = window.getWindowRangeCount();
-        logger.debug("{}", windowRangeLength);
-        assertEquals(1, windowRangeLength);
+
+        int indexSize = window.getWindowIndex(to) - window.getWindowIndex(from);
+        logger.debug("indexSize={}, windowRangeLength={}", indexSize, windowRangeLength);
+        assertEquals(0, windowRangeLength);
 
     }
 
     @Test
     void testGetWindowRangeLength2() {
-        Range range = Range.between(1L, 1000 * 60L + 1);
+        long from = 1L;
+        long to = 1000 * 60L + 1;
+        Range range = Range.between(from, to);
         TimeWindow window = new TimeWindow(range);
         int windowRangeLength = window.getWindowRangeCount();
-        logger.debug("{}", windowRangeLength);
-        assertEquals(2, windowRangeLength);
+
+        int indexSize = window.getWindowIndex(to) - window.getWindowIndex(from);
+        logger.debug("indexSize={}, windowRangeLength={}", indexSize, windowRangeLength);
+        assertEquals(1, windowRangeLength);
     }
 
     @Test
