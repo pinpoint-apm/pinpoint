@@ -1,21 +1,25 @@
 import { Configuration, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
 import { getConfiguration, getRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { getLocalStorageValue, pickEnableServiceMap } from '@pinpoint-fe/ui/src/utils';
-import { getHiddenMapPageRedirect } from './hiddenMapPageRedirect';
+import { getHiddenPageRedirect, HiddenPageRule } from './hiddenPageRedirect';
 
 /**
- * 라우트 로더용 — 사이드 메뉴에서 감춘 map 화면으로 **들어오는** 길을 막는다.
- * 어디로 옮기는지는 `getHiddenMapPageRedirect`가 정하고, 여기서는 설정을 읽어 넘긴다.
+ * 라우트 로더용 — 사이드 메뉴에서 감춘 화면으로 **들어오는** 길을 막는다.
+ * 어디로 옮기는지는 `getHiddenPageRedirect`가 정하고, 여기서는 설정을 읽어 넘긴다.
  *
  * **화면이 아니라 라우트 로더에서 막는다.** 화면에서 effect로 옮기면 한 박자 늦어, 감춘 쪽 화면이
  * 한 번 마운트되며 그 화면의 조회가 다 나간 뒤에 옮겨진다. 로더는 렌더 전에 돌기 때문에 감춘
  * 화면은 마운트되지 않는다.
  *
  * 이미 열려 있는 화면에서 설정이 바뀌는 경우(다른 탭에서 껐다 켰다)는 로더가 다시 돌지 않으므로
- * 여기로 걸리지 않는다. 그쪽은 `useHiddenMapPageRedirect`가 맡는다.
+ * 여기로 걸리지 않는다. 그쪽은 `useHiddenPageRedirect`가 맡는다.
+ *
+ * `extraRules`는 이 저장소에 없는 화면의 규칙을 받는 자리다(`getHiddenPageRedirect` 참고).
+ * 화면 쪽 훅에도 **같은 목록**을 넘겨야 들어오는 길과 열린 탭의 판단이 갈리지 않는다.
  */
-export const resolveHiddenMapPageRedirect = async (
+export const resolveHiddenPageRedirect = async (
   requestUrl: string,
+  extraRules?: HiddenPageRule[],
 ): Promise<string | undefined> => {
   const { pathname, search } = new URL(requestUrl);
 
@@ -40,13 +44,16 @@ export const resolveHiddenMapPageRedirect = async (
     return undefined;
   }
 
-  return getHiddenMapPageRedirect({
-    pathname,
-    search,
-    // 화면(`useEnableServiceMap`)과 같은 규칙(`pickEnableServiceMap`)으로 읽는다. 여기만 다른
-    // 규칙을 쓰면 메뉴에는 servicemap이 보이는데 URL은 servermap으로 되돌려지는 식으로 어긋난다.
-    enableServiceMap: pickEnableServiceMap(storedEnableServiceMap, configuration),
-    // servermap 경로에는 serviceName이 실리지 않으므로 지금 보고 있는 service를 붙인다.
-    serviceName: getRequestService(),
-  });
+  return getHiddenPageRedirect(
+    {
+      pathname,
+      search,
+      // 화면(`useEnableServiceMap`)과 같은 규칙(`pickEnableServiceMap`)으로 읽는다. 여기만 다른
+      // 규칙을 쓰면 메뉴에는 보이는 쪽과 URL이 어긋난다.
+      enableServiceMap: pickEnableServiceMap(storedEnableServiceMap, configuration),
+      // servermap 경로에는 serviceName이 실리지 않으므로 지금 보고 있는 service를 붙인다.
+      serviceName: getRequestService(),
+    },
+    extraRules,
+  );
 };
