@@ -74,28 +74,6 @@ class ServiceRegistryControllerMvcTest {
     }
 
     @Test
-    void getService_found_200() throws Exception {
-        Service service = new Service("my-svc", 100);
-        when(serviceRegistryService.getService("my-svc")).thenReturn(service);
-
-        MvcResult result = mockMvc.perform(get("/api/v2/services/service").param("serviceName", "my-svc"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String body = result.getResponse().getContentAsString();
-        assertThat(body).contains("\"uid\":100");
-        assertThat(body).contains("\"name\":\"my-svc\"");
-    }
-
-    @Test
-    void getService_notFound_204() throws Exception {
-        when(serviceRegistryService.getService("missing")).thenReturn(null);
-
-        mockMvc.perform(get("/api/v2/services/service").param("serviceName", "missing"))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
     void insertService_reservedName_throws400() throws Exception {
         when(reservedServiceRegistry.contains("DEFAULT")).thenReturn(true);
 

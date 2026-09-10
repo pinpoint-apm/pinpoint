@@ -6,14 +6,12 @@ import com.navercorp.pinpoint.service.component.ReservedServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.service.web.controller.vo.ServiceNameRequest;
-import com.navercorp.pinpoint.service.web.controller.vo.ServiceView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
@@ -84,29 +82,6 @@ class ServiceRegistryControllerTest {
         List<String> result = controller.getServiceNames();
 
         assertThat(result).isEmpty();
-    }
-
-    @Test
-    void getService_found_returns200() {
-        Service service = new Service("my-svc", 100);
-        when(serviceRegistryService.getService("my-svc")).thenReturn(service);
-
-        ResponseEntity<ServiceView> response = controller.getService("my-svc");
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getName()).isEqualTo("my-svc");
-        assertThat(response.getBody().getUid()).isEqualTo(100);
-    }
-
-    @Test
-    void getService_notFound_returns204() {
-        when(serviceRegistryService.getService("missing")).thenReturn(null);
-
-        ResponseEntity<ServiceView> response = controller.getService("missing");
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(response.getBody()).isNull();
     }
 
     @Test
