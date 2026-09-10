@@ -129,5 +129,14 @@ describe('useHiddenPageRedirect', () => {
     test('leaves the page alone without the rule', () => {
       expect(renderRedirect('/config/auth', true)).toBeUndefined();
     });
+
+    // 끝의 '/'가 붙은 링크·북마크로 열어 둔 탭도 같이 옮긴다(로더와 같은 판정).
+    test('moves the hidden page with a trailing slash', () => {
+      expect(renderRedirect('/config/auth/', true, PAIR)).toBe('/config/service/userGroup');
+    });
+
+    test('leaves a deeper path alone', () => {
+      expect(renderRedirect('/config/auth/detail', true, PAIR)).toBeUndefined();
+    });
   });
 });

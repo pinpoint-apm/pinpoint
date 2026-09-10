@@ -13,6 +13,14 @@ import {
 const isUnderPage = (pathname: string, pagePath: string) =>
   pathname === pagePath || pathname.startsWith(`${pagePath}/`);
 
+/**
+ * 끝에 붙은 '/'를 뗀다. 라우터는 `/config/auth`와 `/config/auth/`를 같은 화면으로 매칭하므로,
+ * 경로를 그대로 비교하면 '/'가 붙은 링크·북마크로 감춘 화면에 그대로 들어올 수 있다.
+ * 루트('/')는 그 자체가 경로라 남긴다.
+ */
+const withoutTrailingSlash = (pathname: string) =>
+  pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+
 export interface HiddenPageRedirectParams {
   /**
    * 라우터 기준 pathname(basename 제외). **인코딩된 raw 값**이어야 한다.
@@ -40,16 +48,26 @@ export type HiddenPageRule = (params: HiddenPageRedirectParams) => string | unde
  *
  * 경로에 application·serviceName 같은 세그먼트가 실리는 화면은 이 헬퍼로 만들 수 없다.
  * map(`getHiddenMapPageRedirect`)처럼 자기 규칙 함수를 따로 두고 목록에 넣는다.
+ *
+ * 인자 이름은 map이 아니라 **설정의 어느 쪽에서 보이는가**로 부른다. 이 헬퍼로 만드는 쌍은
+ * map 화면이 아니므로(map은 자기 규칙 함수가 있다) servermap/servicemap이라 부르면 어긋난다.
+ *
+ * @param pageWhenDisabled 설정이 꺼져 있을 때 메뉴에 보이는 경로 (servermap 시절부터 있던 쪽)
+ * @param pageWhenEnabled 설정이 켜져 있을 때 메뉴에 보이는 경로 (service 쪽)
  */
 export const createHiddenPagePairRule = (
-  servermapPage: string,
-  servicemapPage: string,
+  pageWhenDisabled: string,
+  pageWhenEnabled: string,
 ): HiddenPageRule => {
   return ({ pathname, search, enableServiceMap }) => {
-    const hiddenPage = enableServiceMap ? servermapPage : servicemapPage;
-    const visiblePage = enableServiceMap ? servicemapPage : servermapPage;
+    const hiddenPage = enableServiceMap ? pageWhenDisabled : pageWhenEnabled;
+    const visiblePage = enableServiceMap ? pageWhenEnabled : pageWhenDisabled;
 
-    return pathname === hiddenPage ? `${visiblePage}${search}` : undefined;
+    // 하위 경로(`/config/auth/detail`)는 이 헬퍼가 맡는 화면이 아니므로 끝의 '/'만 떼고
+    // 정확히 비교한다. 옮길 목적지는 넘겨받은 경로를 그대로 쓴다.
+    return withoutTrailingSlash(pathname) === withoutTrailingSlash(hiddenPage)
+      ? `${visiblePage}${search}`
+      : undefined;
   };
 };
 

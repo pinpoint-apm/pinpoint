@@ -183,6 +183,20 @@ describe('resolveHiddenPageRedirect', () => {
       );
     });
 
+    // 라우터는 끝의 '/'가 붙어도 같은 화면을 매칭하므로 감춘 쪽으로 들어올 수 있다.
+    test('moves the hidden page with a trailing slash', async () => {
+      setConfigured(true);
+
+      await expect(resolveWithPair('/config/auth/')).resolves.toBe('/config/service/userGroup');
+    });
+
+    // 하위 경로는 이 헬퍼가 맡는 화면이 아니다.
+    test('leaves a deeper path alone', async () => {
+      setConfigured(true);
+
+      await expect(resolveWithPair('/config/auth/detail')).resolves.toBeUndefined();
+    });
+
     // 넘기지 않은 화면은 아무 일도 일어나지 않는다 — 규칙을 넘기는 쪽만 그 화면을 안다.
     test('does nothing for the same path without the rule', async () => {
       setConfigured(true);
