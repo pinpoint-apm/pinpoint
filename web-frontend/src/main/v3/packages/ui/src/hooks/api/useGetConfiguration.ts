@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import { getDefaultStore } from 'jotai';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
+import { Configuration, END_POINTS } from '@pinpoint-fe/ui/src/constants';
 import { queryClient, queryFn } from './reactQueryHelper';
 
 /**
@@ -34,9 +36,23 @@ export const useGetConfiguration = <T>() => {
  * 없는 경로다. 사용자에게 보이는 에러 토스트는 (변경 전과 동일하게) 화면에서 실제로
  * configuration을 필요로 하는 `useGetConfiguration` 쪽 실패에서만 발생한다.
  * (`meta`는 fetch 단위 옵션이라 훅의 재요청에는 이 설정이 묻지 않는다.)
+ *
+ * **읽어 온 값은 `configurationAtom`에도 넣는다.** 렌더 밖에서 설정을 읽는 곳들
+ * (`getEnableServiceMap` → `getRequestService` → 요청 헤더·캐시 키·라우트 로더)은 그 아톰을
+ * 보는데, 아톰을 채우는 것은 화면(`InitialFetchOutlet`)이고 **라우트 로더는 화면보다 먼저
+ * 돈다.** 그래서 로더가 이 함수로 설정을 제대로 읽어 놓고도 아톰은 비어 있는 구간이 생기고,
+ * 그 구간에서는 servicemap이 서버 설정으로 켜져 있어도 `getEnableServiceMap`이 "꺼짐"으로
+ * 읽는다. `getRequestService`가 undefined가 되어, 첫 진입이 골라 둔 service가 아니라 DEFAULT로
+ * 떨어졌다(`/` → `/serverMap` → `/serviceMap/DEFAULT`, 이어서 경로를 따라간 전역 선택값까지
+ * DEFAULT로 덮였다).
+ *
+ * 설정의 저장소를 하나로 유지해 그 구간을 없앤다. 화면이 나중에 같은 값을 다시 넣지만, jotai는
+ * 값이 같으면(`ensureQueryData`가 같은 캐시 객체를 돌려준다) 알림을 건너뛰므로 리렌더는 늘지
+ * 않는다. 여기서 채우면 **앞으로 추가될 로더도 따로 챙길 것이 없다** — 로더마다 configuration을
+ * 넘기게 하면 한 곳만 빠뜨려도 그 화면만 조용히 DEFAULT로 조회된다.
  */
-export const getConfiguration = <T>(): Promise<T> =>
-  queryClient.ensureQueryData<T>({
+export const getConfiguration = async <T extends Configuration>(): Promise<T> => {
+  const configuration = await queryClient.ensureQueryData<T>({
     queryKey: CONFIGURATION_QUERY_KEY,
     queryFn: queryFn(END_POINTS.CONFIGURATION),
     // 로더가 먼저 캐시를 만드는 경로에서도 gcTime을 함께 지정해야 한다. 로더만 이 값을 읽는
@@ -47,3 +63,8 @@ export const getConfiguration = <T>(): Promise<T> =>
     retry: false,
     meta: { ignoreGlobalError: true },
   });
+
+  getDefaultStore().set(configurationAtom, configuration);
+
+  return configuration;
+};

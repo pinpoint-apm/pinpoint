@@ -24,7 +24,8 @@ export interface HiddenMapPageRedirectParams {
   enableServiceMap: boolean;
   /**
    * servermap → servicemap으로 옮길 때 경로에 실을 service. 반대 방향에서는 쓰지 않는다.
-   * 설정을 읽지 못해 정해지지 않았으면(`getRequestService`가 undefined) 경로 빌더가 DEFAULT를 싣는다.
+   * 백엔드가 죽어 설정을 읽지 못하면 정해지지 않는데(`getRequestService`가 undefined),
+   * 그때는 경로 빌더가 DEFAULT를 싣는다.
    */
   serviceName?: string;
 }

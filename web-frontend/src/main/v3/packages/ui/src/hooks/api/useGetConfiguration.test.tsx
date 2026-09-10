@@ -1,7 +1,9 @@
 import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import { getDefaultStore } from 'jotai';
+import { configurationAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
+import { END_POINTS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
 
 // reactQueryHelper는 ErrorToast를 통해 ECharts(ESM) 스택을 전이적으로 import 한다.
 // 그 한 줄만 끊어 두면 실제 queryClient·queryFn·글로벌 에러 핸들러를 그대로 검증할 수 있다.
@@ -11,6 +13,7 @@ jest.mock('react-toastify', () => ({ toast: { error: jest.fn() } }));
 
 import { toast } from 'react-toastify';
 import { getConfiguration, useGetConfiguration } from './useGetConfiguration';
+import { getRequestService } from './serviceNameFetchInterceptor';
 import { queryClient } from './reactQueryHelper';
 
 // 훅의 실패를 즉시 관측하려면 재시도를 끈다. (로더 경로는 이미 retry: false)
@@ -138,5 +141,47 @@ describe('useGetConfiguration', () => {
 
     await waitFor(() => expect(result.current.error).toBeTruthy());
     expect(toast.error).toHaveBeenCalledTimes(1);
+  });
+
+  // 라우트 로더는 화면(`InitialFetchOutlet`)보다 먼저 돈다. 그래서 로더가 도는 동안에는
+  // `configurationAtom`이 아직 비어 있는데, 렌더 밖에서 설정을 읽는 곳들은 그 아톰을 본다.
+  // 로더가 읽어 온 값을 아톰에도 넣지 않으면, servicemap이 서버 설정으로 켜져 있어도 로더만
+  // "꺼짐"으로 판단해 첫 진입이 골라 둔 service가 아니라 DEFAULT로 떨어진다.
+  describe('the configuration a route loader reads is visible outside render', () => {
+    const store = getDefaultStore();
+
+    beforeEach(() => {
+      store.set(configurationAtom, undefined);
+      // 사용자가 Experimental 체크박스를 누른 적 없는 상태. 이때 켜짐 여부는 오직 서버 설정이
+      // 정하므로(`pickEnableServiceMap`), 아톰이 비면 꺼진 것으로 읽힌다.
+      window.localStorage.removeItem(EXPERIMENTAL_CONFIG_KEYS.ENABLE_SERVICE_MAP);
+      store.set(selectedServiceAtom, 'myService');
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ 'experimental.enableServiceMap.value': true }),
+      });
+    });
+
+    afterEach(() => {
+      store.set(configurationAtom, undefined);
+      store.set(selectedServiceAtom, 'DEFAULT');
+    });
+
+    test('getConfiguration fills configurationAtom for the readers outside render', async () => {
+      expect(store.get(configurationAtom)).toBeUndefined();
+
+      await getConfiguration();
+
+      expect(store.get(configurationAtom)).toEqual({
+        'experimental.enableServiceMap.value': true,
+      });
+    });
+
+    test('getRequestService keeps the selected service while a loader runs', async () => {
+      await getConfiguration();
+
+      // 아톰이 비어 있으면 undefined가 되어, 경로 빌더가 DEFAULT를 실어 보냈다.
+      expect(getRequestService()).toBe('myService');
+    });
   });
 });
