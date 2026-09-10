@@ -37,7 +37,9 @@ export const serviceMapRealtimeLoader = async ({ request }: LoaderFunctionArgs) 
       pathname,
     );
 
-    // 설정을 읽지 못해 정해지지 않았으면(`getRequestService`가 undefined) DEFAULT로 다룬다.
+    // 위 `resolveHiddenMapPageRedirect`가 이미 configuration을 읽어 두었으므로(`getConfiguration`이
+    // 그 값을 `configurationAtom`에도 넣는다) 보통은 여기서 service가 정해진다. 백엔드가 죽어
+    // 설정을 못 읽은 경우에만 undefined이고, 그때는 DEFAULT로 다룬다.
     // 아래 비교와 경로에 실을 값이 모두 필요하므로 여기서 한 번 정한다.
     const resolvedServiceName = serviceName || getRequestService() || DEFAULT_SERVICE;
     const resolvedApplication = resolvedServiceName === DEFAULT_SERVICE ? application : null;
