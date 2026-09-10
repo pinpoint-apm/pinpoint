@@ -1,5 +1,6 @@
 import { EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
-import { resolveHiddenMapPageRedirect } from './hiddenMapPage';
+import { resolveHiddenPageRedirect } from './hiddenPage';
+import { createHiddenPagePairRule } from './hiddenPageRedirect';
 
 jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
   getConfiguration: jest.fn(() => Promise.resolve({})),
@@ -11,7 +12,7 @@ import { getConfiguration, getRequestService } from '@pinpoint-fe/ui/src/hooks';
 const APP = 'TestApp@SPRING_BOOT';
 const PERIOD = 'from=2023-11-10-14-30-00&to=2023-11-10-15-00-00';
 
-const resolve = (path: string) => resolveHiddenMapPageRedirect(`http://localhost${path}`);
+const resolve = (path: string) => resolveHiddenPageRedirect(`http://localhost${path}`);
 
 /** configuration API가 내려주는 기본값. 사용자가 고른 값이 없으면 이 값이 이긴다. */
 const setConfigured = (enableServiceMap: boolean) => {
@@ -20,7 +21,7 @@ const setConfigured = (enableServiceMap: boolean) => {
   });
 };
 
-describe('resolveHiddenMapPageRedirect', () => {
+describe('resolveHiddenPageRedirect', () => {
   beforeEach(() => {
     window.localStorage.clear();
     (getRequestService as jest.Mock).mockReturnValue('DEFAULT');
@@ -151,6 +152,49 @@ describe('resolveHiddenMapPageRedirect', () => {
       window.localStorage.setItem(EXPERIMENTAL_CONFIG_KEYS.ENABLE_SERVICE_MAP, 'true');
 
       await expect(resolve(`/serverMap/${APP}`)).resolves.toBe(`/serviceMap/DEFAULT/${APP}`);
+    });
+  });
+  // 이 저장소에 없는 화면(사내 배포판에만 있는 화면 등)의 규칙을 넘겨받는 자리다.
+  // 넘긴 규칙도 map 규칙과 똑같이 "들어오는 길"에서 적용돼야 한다.
+  describe('extra rules from the consuming app', () => {
+    const PAIR = createHiddenPagePairRule('/config/auth', '/config/service/userGroup');
+    const resolveWithPair = (path: string) =>
+      resolveHiddenPageRedirect(`http://localhost${path}`, [PAIR]);
+
+    test('moves the servermap-era page when serviceMap is enabled', async () => {
+      setConfigured(true);
+
+      await expect(resolveWithPair('/config/auth')).resolves.toBe('/config/service/userGroup');
+      await expect(resolveWithPair('/config/service/userGroup')).resolves.toBeUndefined();
+    });
+
+    test('moves the service page back when serviceMap is disabled', async () => {
+      setConfigured(false);
+
+      await expect(resolveWithPair('/config/service/userGroup')).resolves.toBe('/config/auth');
+      await expect(resolveWithPair('/config/auth')).resolves.toBeUndefined();
+    });
+
+    test('keeps the query string', async () => {
+      setConfigured(true);
+
+      await expect(resolveWithPair('/config/auth?tab=list')).resolves.toBe(
+        '/config/service/userGroup?tab=list',
+      );
+    });
+
+    // 넘기지 않은 화면은 아무 일도 일어나지 않는다 — 규칙을 넘기는 쪽만 그 화면을 안다.
+    test('does nothing for the same path without the rule', async () => {
+      setConfigured(true);
+
+      await expect(resolve('/config/auth')).resolves.toBeUndefined();
+    });
+
+    // 규칙이 늘어도 map 판정은 그대로다.
+    test('still moves the map page', async () => {
+      setConfigured(true);
+
+      await expect(resolveWithPair('/serverMap')).resolves.toBe('/serviceMap/DEFAULT');
     });
   });
 });

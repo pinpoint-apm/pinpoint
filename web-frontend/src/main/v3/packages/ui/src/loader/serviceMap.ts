@@ -4,7 +4,7 @@ import { getRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { getServiceMapPath, parseServiceScopedPath } from '@pinpoint-fe/ui/src/utils';
 import { LoaderFunctionArgs, redirect } from 'react-router';
 import { resolveMapDateRangeRedirect } from './mapDateRange';
-import { resolveHiddenMapPageRedirect } from './hiddenMapPage';
+import { resolveHiddenPageRedirect } from './hiddenPage';
 
 /**
  * servicemap 페이지의 라우트 로더.
@@ -19,7 +19,7 @@ import { resolveHiddenMapPageRedirect } from './hiddenMapPage';
  */
 export const serviceMapRouteLoader = async ({ request }: LoaderFunctionArgs) => {
   // servicemap이 꺼져 있으면 이 화면은 메뉴에 없다. 표준 형태로 맞추기 전에 servermap으로 옮긴다.
-  const hiddenPageRedirect = await resolveHiddenMapPageRedirect(request.url);
+  const hiddenPageRedirect = await resolveHiddenPageRedirect(request.url);
 
   if (hiddenPageRedirect) {
     return redirect(hiddenPageRedirect);

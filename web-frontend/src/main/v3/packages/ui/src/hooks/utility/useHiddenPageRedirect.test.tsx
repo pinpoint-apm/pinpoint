@@ -2,7 +2,8 @@ import { renderHook, act } from '@testing-library/react';
 import { getDefaultStore } from 'jotai';
 import { configurationAtom, selectedServiceAtom } from '@pinpoint-fe/ui/src/atoms';
 import { Configuration, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
-import { useHiddenMapPageRedirect } from './useHiddenMapPageRedirect';
+import { createHiddenPagePairRule } from '@pinpoint-fe/ui/src/loader/hiddenPageRedirect';
+import { useHiddenPageRedirect } from './useHiddenPageRedirect';
 
 const mockLocation = { pathname: '/serverMap', search: '' };
 jest.mock('react-router', () => ({
@@ -18,17 +19,21 @@ const PERIOD = 'from=2023-11-10-14-30-00&to=2023-11-10-15-00-00';
 const configWithServiceMap = (enable: boolean) =>
   ({ 'experimental.enableServiceMap.value': enable }) as unknown as Configuration;
 
-const renderRedirect = (url: string, enableServiceMap: boolean) => {
+const renderRedirect = (
+  url: string,
+  enableServiceMap: boolean,
+  extraRules?: ReturnType<typeof createHiddenPagePairRule>[],
+) => {
   const [pathname, search] = url.split('?');
   mockLocation.pathname = pathname;
   mockLocation.search = search ? `?${search}` : '';
   act(() => {
     store.set(configurationAtom, configWithServiceMap(enableServiceMap));
   });
-  return renderHook(() => useHiddenMapPageRedirect()).result.current;
+  return renderHook(() => useHiddenPageRedirect(extraRules)).result.current;
 };
 
-describe('useHiddenMapPageRedirect', () => {
+describe('useHiddenPageRedirect', () => {
   beforeEach(() => {
     window.localStorage.clear();
     act(() => {
@@ -105,5 +110,24 @@ describe('useHiddenMapPageRedirect', () => {
     expect(renderRedirect('/config/experimental', true)).toBeUndefined();
     expect(renderRedirect('/config/experimental', false)).toBeUndefined();
     expect(renderRedirect(`/inspector/${APP}`, true)).toBeUndefined();
+  });
+  // 로더에 넘기는 것과 같은 목록을 받는다. 두 갈래의 판단이 갈리면 로더는 옮기는데 화면은
+  // 안 옮기거나(또는 그 반대로) 서로 되돌리는 왕복이 생긴다.
+  describe('extra rules from the consuming app', () => {
+    const PAIR = [createHiddenPagePairRule('/config/auth', '/config/service/userGroup')];
+
+    test('moves the servermap-era page when serviceMap is on', () => {
+      expect(renderRedirect('/config/auth', true, PAIR)).toBe('/config/service/userGroup');
+      expect(renderRedirect('/config/service/userGroup', true, PAIR)).toBeUndefined();
+    });
+
+    test('moves the service page back when serviceMap is off', () => {
+      expect(renderRedirect('/config/service/userGroup', false, PAIR)).toBe('/config/auth');
+      expect(renderRedirect('/config/auth', false, PAIR)).toBeUndefined();
+    });
+
+    test('leaves the page alone without the rule', () => {
+      expect(renderRedirect('/config/auth', true)).toBeUndefined();
+    });
   });
 });
