@@ -43,7 +43,7 @@ public class ServiceRegistryController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Cannot use reserved service name: " + serviceNameRequest.getServiceName());
         }
-        // TODO: (minwoo) 실제 db에 중복값이 있는지 체크도 필요함.
+
         serviceRegistryService.insertService(serviceNameRequest.getServiceName());
 
         return SimpleResponse.ok();
@@ -52,16 +52,6 @@ public class ServiceRegistryController {
     @GetMapping
     public List<String> getServiceNames() {
         return serviceRegistryService.getServiceNames();
-    }
-
-    // TODO: (minwoo) 이게 진짜 필요한지 추후 검토 필요함.
-    @GetMapping("/service")
-    public ResponseEntity<ServiceView> getService(@RequestParam("serviceName") @NotBlank String serviceName) {
-        Service service = serviceRegistryService.getService(serviceName);
-        if (service == null) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(ServiceView.of(service));
     }
 
     @PreAuthorize("hasPermission(#serviceName, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_SERVICEAUTHORIZATION_EDIT_AUTHOR_ONLY_MANAGER)")
