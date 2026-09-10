@@ -134,6 +134,7 @@
         <module>agent-statistics</module>
         <module>otlpmetric</module>
         <module>otlptrace</module>
+        <module>otlplog</module>
         <module>feature-flag</module>
         <module>service-module</module>
         <module>alarm</module>
@@ -614,6 +615,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-otlptrace-collector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-otlplog-collector</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

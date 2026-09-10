@@ -81,6 +81,11 @@ pinpoint:
         enabled: true
       otlptrace:
         enabled: true
+      # OTLP logs receiver co-hosted in the OTLPTRACE collector (exception LogRecords -> Error
+      # Analysis). Off by default; turn it on here or through external config together with the
+      # exceptiontrace storage module. This file outranks the profile property files.
+      otlplog:
+        enabled: false
       heatmap:
         enabled: true
       uristat:

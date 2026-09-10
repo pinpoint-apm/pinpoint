@@ -92,7 +92,7 @@ public class OtlpTraceDecompressionFilter extends OncePerRequestFilter {
         if (!GZIP.equalsIgnoreCase(encoding.trim())) {
             // Only gzip is defined for OTLP/HTTP; reject anything else (incl. multi-encoding) explicitly
             // rather than letting an undecoded body fail later as an opaque 400.
-            logger.warn("OTLP/HTTP trace request rejected. Unsupported Content-Encoding={}", encoding);
+            logger.warn("OTLP/HTTP request rejected. uri={}, Unsupported Content-Encoding={}", request.getRequestURI(), encoding);
             ingestMetrics.requestRejected(OtlpTransport.HTTP, OtlpRequestRejectReason.UNSUPPORTED_ENCODING);
             response.setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
             return;

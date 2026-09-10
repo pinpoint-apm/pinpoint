@@ -93,7 +93,7 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
         // 1) Size cap: reject before the body is buffered/parsed.
         final long contentLength = request.getContentLengthLong();
         if (contentLength > maxRequestBytes) {
-            reject(response, HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, false, OtlpRequestRejectReason.PAYLOAD_TOO_LARGE,
+            reject(request, response, HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, false, OtlpRequestRejectReason.PAYLOAD_TOO_LARGE,
                     "payload too large: contentLength=" + contentLength + ", max=" + maxRequestBytes);
             return;
         }
@@ -103,14 +103,14 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
 
         // 2) Concurrency gate.
         if (!concurrency.tryAcquire()) {
-            reject(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, true, OtlpRequestRejectReason.CONCURRENCY,
+            reject(request, response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, true, OtlpRequestRejectReason.CONCURRENCY,
                     "concurrency limit exceeded: max=" + maxConcurrentRequests);
             return;
         }
         // 3) In-flight byte gate.
         if (!admissionBytes.tryAcquire(reserveBytes)) {
             concurrency.release();
-            reject(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, true, OtlpRequestRejectReason.INFLIGHT_BYTES,
+            reject(request, response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, true, OtlpRequestRejectReason.INFLIGHT_BYTES,
                     "in-flight byte budget exhausted: reserve=" + reserveBytes + ", budget=" + maxInFlightBytes);
             return;
         }
@@ -138,13 +138,15 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
         }
     }
 
-    private void reject(HttpServletResponse response, int status, boolean retryable, OtlpRequestRejectReason reason, String detail) {
+    private void reject(HttpServletRequest request, HttpServletResponse response, int status, boolean retryable,
+                        OtlpRequestRejectReason reason, String detail) {
         if (retryable) {
             response.setHeader("Retry-After", Integer.toString(retryAfterSeconds));
         }
         response.setStatus(status);
         ingestMetrics.requestRejected(OtlpTransport.HTTP, reason);
-        logger.warn("OTLP/HTTP trace request rejected. status={}, reason={}, {}", status, reason.tagValue(), detail);
+        // The same filter class fronts more than one OTLP endpoint (/v1/traces, /v1/logs), so name the path.
+        logger.warn("OTLP/HTTP request rejected. uri={}, status={}, reason={}, {}", request.getRequestURI(), status, reason.tagValue(), detail);
     }
 
     /**

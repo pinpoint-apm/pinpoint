@@ -77,6 +77,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-otlptrace-collector</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-otlplog-collector</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionWrapperBo;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
-import com.navercorp.pinpoint.common.server.util.Utf8;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -32,6 +31,7 @@ import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +54,14 @@ public class OtlpExceptionMapper {
     // which language parser to add next.
     private static final String PARSED_METRIC = "collector.otlptrace.exception.parsed";
 
+    public static final int DEFAULT_MESSAGE_MAX_BYTES = 2048;
+    public static final int DEFAULT_TYPE_MAX_BYTES = 1024;
+    public static final int DEFAULT_URI_TEMPLATE_MAX_BYTES = 1024;
+    public static final int DEFAULT_STACKTRACE_MAX_DEPTH = 256;
+    public static final int DEFAULT_FRAME_MAX_BYTES = 2048;
+    public static final int DEFAULT_STACKTRACE_MAX_CHARS = 262144;
+    public static final int DEFAULT_STACKTRACE_LINE_MAX_CHARS = 4096;
+
     private static final StackTraceParserRegistry PARSER_REGISTRY = new StackTraceParserRegistry();
 
     // Byte-based caps for the client-supplied exception fields (unlike the native path, these arrive
@@ -63,39 +71,74 @@ public class OtlpExceptionMapper {
     // (tagged by field) — the OPENTELEMETRY_TRUNCATED span annotation does not apply here because the
     // exception is a separate entity written to its own store, not part of the span.
     private final int messageMaxBytes;
+    private final int typeMaxBytes;
+    private final int uriTemplateMaxBytes;
     // Max number of parsed stacktrace frames. OTel delivers one flattened stacktrace string, so the
     // unbounded axis is the frame count (not the native exception-chain depth). <= 0 means unlimited.
     private final int stackTraceMaxDepth;
     private final int frameMaxBytes;
+    // Input bounds applied before the regex-based parsers see the text (see parseStackTrace).
+    private final int stackTraceMaxChars;
+    private final int stackTraceLineMaxChars;
 
     private final Counter messageTruncatedCounter;
+    private final Counter typeTruncatedCounter;
+    private final Counter uriTemplateTruncatedCounter;
     private final Counter stackTraceDepthTruncatedCounter;
+    private final Counter stackTraceBytesTruncatedCounter;
+    private final Counter stackTraceLineTruncatedCounter;
     private final Counter frameValueTruncatedCounter;
     private final MeterRegistry meterRegistry;
 
+    /** Production defaults for every bound except the three the existing tests tune. */
+    public OtlpExceptionMapper(int messageMaxBytes, int stackTraceMaxDepth, int frameMaxBytes, MeterRegistry meterRegistry) {
+        this(messageMaxBytes, DEFAULT_TYPE_MAX_BYTES, DEFAULT_URI_TEMPLATE_MAX_BYTES, stackTraceMaxDepth, frameMaxBytes,
+                DEFAULT_STACKTRACE_MAX_CHARS, DEFAULT_STACKTRACE_LINE_MAX_CHARS, meterRegistry);
+    }
+
+    @Autowired
     public OtlpExceptionMapper(
             // Default aligned with the native agent's errormessage cap (profiler.exceptiontrace
             // .errormessage.max=2048) so both sources bound the Pinot errorMessage column alike.
             // Unit stays bytes (the agent caps chars): stricter for multi-byte text, identical for
             // the ASCII-dominant common case.
             @Value("${pinpoint.collector.otlptrace.exception.message-max-bytes:2048}") int messageMaxBytes,
+            @Value("${pinpoint.collector.otlptrace.exception.type-max-bytes:1024}") int typeMaxBytes,
+            @Value("${pinpoint.collector.otlptrace.exception.uri-template-max-bytes:1024}") int uriTemplateMaxBytes,
             @Value("${pinpoint.collector.otlptrace.exception.stacktrace.max-depth:256}") int stackTraceMaxDepth,
             @Value("${pinpoint.collector.otlptrace.exception.stacktrace.frame-max-bytes:2048}") int frameMaxBytes,
+            @Value("${pinpoint.collector.otlptrace.exception.stacktrace.max-chars:262144}") int stackTraceMaxChars,
+            @Value("${pinpoint.collector.otlptrace.exception.stacktrace.line-max-chars:4096}") int stackTraceLineMaxChars,
             MeterRegistry meterRegistry) {
         // Byte caps must be >= 1: a cap of 0 (or negative) would truncate every value to "" and, for
         // the non-empty-constrained className/methodName, make StackTraceElementWrapperBo throw.
-        // (stackTraceMaxDepth is intentionally unvalidated — <= 0 is the documented "unlimited".)
+        // (stackTraceMaxDepth / max-chars / line-max-chars are intentionally unvalidated — <= 0 is the
+        // documented "unlimited".)
         if (messageMaxBytes < 1) {
             throw new IllegalArgumentException("messageMaxBytes must be >= 1: " + messageMaxBytes);
+        }
+        if (typeMaxBytes < 1) {
+            throw new IllegalArgumentException("typeMaxBytes must be >= 1: " + typeMaxBytes);
+        }
+        if (uriTemplateMaxBytes < 1) {
+            throw new IllegalArgumentException("uriTemplateMaxBytes must be >= 1: " + uriTemplateMaxBytes);
         }
         if (frameMaxBytes < 1) {
             throw new IllegalArgumentException("frameMaxBytes must be >= 1: " + frameMaxBytes);
         }
         this.messageMaxBytes = messageMaxBytes;
+        this.typeMaxBytes = typeMaxBytes;
+        this.uriTemplateMaxBytes = uriTemplateMaxBytes;
         this.stackTraceMaxDepth = stackTraceMaxDepth;
         this.frameMaxBytes = frameMaxBytes;
+        this.stackTraceMaxChars = stackTraceMaxChars;
+        this.stackTraceLineMaxChars = stackTraceLineMaxChars;
         this.messageTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "message");
+        this.typeTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "type");
+        this.uriTemplateTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "uri_template");
         this.stackTraceDepthTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "stacktrace_depth");
+        this.stackTraceBytesTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "stacktrace_bytes");
+        this.stackTraceLineTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "stacktrace_line");
         this.frameValueTruncatedCounter = meterRegistry.counter(TRUNCATED_METRIC, "field", "frame_value");
         this.meterRegistry = meterRegistry;
     }
@@ -131,12 +174,13 @@ public class OtlpExceptionMapper {
 
         final Map<String, AttributeValue> eventAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionEvent.getAttributesList());
         final Map<String, AttributeValue> spanAttrs = OtlpTraceMapperUtils.getAttributeValueMap(exceptionSpan.getAttributesList());
-        final String exceptionType = ExceptionAttributeUtils.resolveExceptionType(eventAttrs, spanAttrs);
-        if (!StringUtils.hasLength(exceptionType)) {
+        final String resolvedType = ExceptionAttributeUtils.resolveExceptionType(eventAttrs, spanAttrs);
+        if (!StringUtils.hasLength(resolvedType)) {
             return Optional.empty();
         }
+        final String exceptionType = capType(resolvedType);
 
-        final String exceptionMessage = cap(AttributeUtils.getAttributeStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_MESSAGE, EMPTY), messageMaxBytes, messageTruncatedCounter);
+        final String exceptionMessage = capMessage(AttributeUtils.getAttributeStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_MESSAGE, EMPTY));
         final String stackTraceStr = AttributeUtils.getAttributeStringValue(eventAttrs, ATTRIBUTE_KEY_EXCEPTION_STACKTRACE, EMPTY);
 
         final long eventTime = exceptionEvent.getTimeUnixNano() > 0
@@ -166,10 +210,28 @@ public class OtlpExceptionMapper {
                 idAndName.serviceName(),
                 idAndName.applicationName(),
                 idAndName.agentId(),
-                uriTemplate
+                sanitizeUriTemplate(uriTemplate)
         );
         bo.setExceptionWrapperBos(List.of(wrapper));
         return Optional.of(bo);
+    }
+
+    /** Caps {@code exception.type} (the Error Analysis grouping key; deterministic, so equal types stay equal). */
+    public String capType(String exceptionType) {
+        return ExceptionFieldLimits.cap(exceptionType, typeMaxBytes, typeTruncatedCounter);
+    }
+
+    /** Caps {@code exception.message}. */
+    public String capMessage(String message) {
+        return ExceptionFieldLimits.cap(message, messageMaxBytes, messageTruncatedCounter);
+    }
+
+    /**
+     * Drops any query string / fragment, strips control characters and caps the route template; never
+     * null ("" = no route, the store's convention — a null would surface as Pinot's literal "null").
+     */
+    public String sanitizeUriTemplate(String uriTemplate) {
+        return ExceptionFieldLimits.sanitizeUriTemplate(uriTemplate, uriTemplateMaxBytes, uriTemplateTruncatedCounter);
     }
 
     /**
@@ -179,20 +241,30 @@ public class OtlpExceptionMapper {
      * language value — falls back to raw-line frames so the detail view keeps the original text
      * and the stack-trace grouping hash stays distinctive instead of collapsing every unparsed
      * exception into one shared "empty stack" group.
+     *
+     * <p>The text is bounded first ({@link ExceptionFieldLimits#boundStackTrace}: whole-text and
+     * per-line caps). The language parsers are regex based and quadratic in the length of a single
+     * line in their worst case, so an exporter sending one multi-megabyte line would otherwise pin a
+     * worker thread for hours; with the line cap the cost is linear in the text size.
      */
     public List<StackTraceElementWrapperBo> parseStackTrace(String stackTrace, String sdkLanguage) {
         if (!StringUtils.hasLength(stackTrace)) {
             return new ArrayList<>();
         }
+        final String bounded = ExceptionFieldLimits.boundStackTrace(stackTrace, stackTraceMaxChars, stackTraceLineMaxChars,
+                stackTraceBytesTruncatedCounter, stackTraceLineTruncatedCounter);
+        if (!StringUtils.hasLength(bounded)) {
+            return new ArrayList<>();
+        }
 
-        StackTraceParser parser = PARSER_REGISTRY.select(sdkLanguage, stackTrace);
+        StackTraceParser parser = PARSER_REGISTRY.select(sdkLanguage, bounded);
         StackFrameSink sink = new StackFrameSink(stackTraceMaxDepth);
-        parser.parse(stackTrace, sink);
+        parser.parse(bounded, sink);
 
         if (sink.frames().isEmpty() && parser != PARSER_REGISTRY.rawFallback()) {
             parser = PARSER_REGISTRY.rawFallback();
             sink = new StackFrameSink(stackTraceMaxDepth);
-            parser.parse(stackTrace, sink);
+            parser.parse(bounded, sink);
         }
 
         if (sink.isTruncated()) {
@@ -203,34 +275,11 @@ public class OtlpExceptionMapper {
         final List<StackTraceElementWrapperBo> result = new ArrayList<>(sink.frames().size());
         for (StackFrame frame : sink.frames()) {
             result.add(new StackTraceElementWrapperBo(
-                    cap(frame.className(), frameMaxBytes, frameValueTruncatedCounter),
-                    cap(frame.fileName(), frameMaxBytes, frameValueTruncatedCounter),
+                    ExceptionFieldLimits.cap(frame.className(), frameMaxBytes, frameValueTruncatedCounter),
+                    ExceptionFieldLimits.cap(frame.fileName(), frameMaxBytes, frameValueTruncatedCounter),
                     frame.lineNumber(),
-                    cap(frame.methodName(), frameMaxBytes, frameValueTruncatedCounter)));
+                    ExceptionFieldLimits.cap(frame.methodName(), frameMaxBytes, frameValueTruncatedCounter)));
         }
         return result;
-    }
-
-    /**
-     * Truncates {@code value} to at most {@code maxBytes} UTF-8 bytes (never splitting a multi-byte
-     * character) and increments {@code counter} when truncation actually occurred. Returns the
-     * original reference when already within the limit.
-     *
-     * <p>If truncation would yield an empty string for a non-empty input (i.e. {@code maxBytes} is
-     * smaller than the first code point's UTF-8 length), the original is kept instead: an empty
-     * value would violate {@link StackTraceElementWrapperBo}'s non-empty className/methodName
-     * contract. With the {@code >= 1} byte caps validated in the constructor this only applies to a
-     * leading multi-byte character.
-     */
-    private static String cap(String value, int maxBytes, Counter counter) {
-        final String truncated = Utf8.truncate(value, maxBytes);
-        if (truncated == null) {
-            return value; // already within the limit
-        }
-        if (truncated.isEmpty() && !value.isEmpty()) {
-            return value; // would drop the whole value; keep the original rather than emit ""
-        }
-        counter.increment();
-        return truncated;
     }
 }

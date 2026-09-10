@@ -16,6 +16,10 @@ spans produced by the native Pinpoint agent.
 
 The collector is enabled by setting `pinpoint.modules.collector.otlptrace.enabled=true`.
 
+The OTLP **logs** receiver ([`otlplog`](../otlplog/README.md)) is co-hosted in this process when
+`pinpoint.modules.collector.otlplog.enabled=true`: `LogsService` on the same gRPC servers and
+`POST /v1/logs` on the same HTTP port, feeding exception log records into Error Analysis.
+
 ## Using the OpenTelemetry Java agent
 
 Point an OTel-instrumented application at the Pinpoint OTLP collector via the

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
+import com.navercorp.pinpoint.otlp.trace.collector.util.LogSafe;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.LogManager;
@@ -113,6 +114,6 @@ public class OtlpAgentStartTimeResolver {
     private void discard(String creationTime) {
         parseErrorCounter.increment();
         spanTimeCounter.increment();
-        throttledLogger.warn("Discarded invalid process.creation.time={}", creationTime);
+        throttledLogger.warn("Discarded invalid process.creation.time={}", LogSafe.value(creationTime));
     }
 }

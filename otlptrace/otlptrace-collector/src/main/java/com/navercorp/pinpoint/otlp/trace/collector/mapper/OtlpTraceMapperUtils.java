@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
+import com.navercorp.pinpoint.otlp.trace.collector.util.LogSafe;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.InstrumentationScope;
 import io.opentelemetry.proto.common.v1.ArrayValue;
@@ -99,7 +100,7 @@ public class OtlpTraceMapperUtils {
             return null;
         }
         if (!IdValidateUtils.validateId(agentName, PinpointConstants.AGENT_NAME_MAX_LEN_V4)) {
-            throw new IllegalArgumentException("invalid pinpoint.agentName=" + agentName);
+            throw new IllegalArgumentException("invalid pinpoint.agentName=" + LogSafe.value(agentName));
         }
         return agentName;
     }
@@ -113,7 +114,7 @@ public class OtlpTraceMapperUtils {
             }
         }
         if (!IdValidateUtils.validateId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
-            throw new IllegalArgumentException("invalid applicationName=" + applicationName);
+            throw new IllegalArgumentException("invalid applicationName=" + LogSafe.value(applicationName));
         }
 
         return applicationName;
@@ -147,7 +148,7 @@ public class OtlpTraceMapperUtils {
         final String agentId = AttributeUtils.getAttributeStringValue(attributes, KEY_AGENT_ID, null);
         if (agentId != null) {
             if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
-                throw new IllegalArgumentException("invalid pinpoint.agentId=" + agentId);
+                throw new IllegalArgumentException("invalid pinpoint.agentId=" + LogSafe.value(agentId));
             }
             return new AgentAuth(agentId, resolveAgentName(agentNameOverride, agentId));
         }
@@ -170,7 +171,7 @@ public class OtlpTraceMapperUtils {
         final String hostName = AttributeUtils.getAttributeStringValue(attributes, KEY_HOST_NAME, null);
         if (hostName != null) {
             if (!IdValidateUtils.validateId(hostName, PinpointConstants.AGENT_ID_MAX_LEN)) {
-                throw new IllegalArgumentException("invalid host.name=" + hostName);
+                throw new IllegalArgumentException("invalid host.name=" + LogSafe.value(hostName));
             }
             return new AgentAuth(hostName, resolveAgentName(agentNameOverride, hostName));
         }
@@ -178,10 +179,10 @@ public class OtlpTraceMapperUtils {
         // applicationName fallback — test/dev environment only.
         // Gated by pinpoint.collector.otlptrace.application-name-fallback.enabled (default: false).
         if (!allowApplicationNameFallback) {
-            throw new IllegalArgumentException("no per-instance identifier — set service.instance.id (e.g. via uuidgen), k8s.pod.uid, container.id, or host.name. applicationName='" + applicationName + "'");
+            throw new IllegalArgumentException("no per-instance identifier — set service.instance.id (e.g. via uuidgen), k8s.pod.uid, container.id, or host.name. applicationName='" + LogSafe.value(applicationName) + "'");
         }
         if (!IdValidateUtils.validateId(applicationName, PinpointConstants.AGENT_ID_MAX_LEN)) {
-            throw new IllegalArgumentException("invalid agentId(derived from applicationName)=" + applicationName);
+            throw new IllegalArgumentException("invalid agentId(derived from applicationName)=" + LogSafe.value(applicationName));
         }
         return new AgentAuth(applicationName, resolveAgentName(agentNameOverride, applicationName));
     }
@@ -196,7 +197,7 @@ public class OtlpTraceMapperUtils {
             }
         }
         if (!IdValidateUtils.validateId(id, PinpointConstants.AGENT_ID_MAX_LEN)) {
-            throw new IllegalArgumentException("invalid " + sourceKey + "=" + id);
+            throw new IllegalArgumentException("invalid " + sourceKey + "=" + LogSafe.value(id));
         }
         return new AgentAuth(id, resolveAgentName(agentNameOverride, id));
     }
@@ -214,7 +215,7 @@ public class OtlpTraceMapperUtils {
             }
         }
         if (!IdValidateUtils.validateId(containerId, PinpointConstants.AGENT_ID_MAX_LEN)) {
-            throw new IllegalArgumentException("invalid " + KEY_CONTAINER_ID + "=" + containerId);
+            throw new IllegalArgumentException("invalid " + KEY_CONTAINER_ID + "=" + LogSafe.value(containerId));
         }
         return new AgentAuth(containerId, resolveAgentName(agentNameOverride, containerId));
     }
