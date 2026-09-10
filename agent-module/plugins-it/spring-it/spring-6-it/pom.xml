@@ -31,6 +31,7 @@
     <properties>
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
+        <reactor-netty.version>1.2.18</reactor-netty.version>
         <spring.version>${spring6.version}</spring.version>
         <jakarta.servlet.version>${jakarta.servlet6.version}</jakarta.servlet.version>
     </properties>
@@ -57,13 +58,28 @@
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-http</artifactId>
+            <version>${reactor-netty.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugin-it-utils</artifactId>
+            <artifactId>pinpoint-spring-webflux-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-resttemplate-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-plugin-it-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

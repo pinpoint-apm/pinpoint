@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,12 +22,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 
-import java.util.Arrays;
-
 /**
- * @author jaehong.kim
+ * Only {@link HttpHeaders} methods whose signature is identical in Spring 5, 6 and 7 are used here
+ * ({@code getFirst(String)}, {@code set(String, String)}). Spring Framework 7.0 dropped the
+ * {@code MultiValueMap} implementation from {@code HttpHeaders}, so the {@code Map} methods this class
+ * was compiled against on 5.3 ({@code containsKey(Object)}, {@code keySet()}, {@code get(Object)})
+ * no longer exist at runtime and fail with {@code NoSuchMethodError}.
  */
 public class ClientHttpRequestClientHeaderAdaptor implements ClientHeaderAdaptor<ClientHttpRequest> {
+
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -37,8 +40,7 @@ public class ClientHttpRequestClientHeaderAdaptor implements ClientHeaderAdaptor
             if (request != null) {
                 final HttpHeaders headers = request.getHeaders();
                 if (headers != null) {
-                    final HttpHeaders httpHeaders = headers;
-                    httpHeaders.put(name, Arrays.asList(value));
+                    headers.set(name, value);
                     if (isDebug) {
                         logger.debug("Set header {}={}", name, value);
                     }
@@ -62,7 +64,6 @@ public class ClientHttpRequestClientHeaderAdaptor implements ClientHeaderAdaptor
             }
         } catch (Exception ignored) {
         }
-        
         return "";
     }
 
@@ -72,7 +73,7 @@ public class ClientHttpRequestClientHeaderAdaptor implements ClientHeaderAdaptor
             if (header != null) {
                 final HttpHeaders headers = header.getHeaders();
                 if (headers != null) {
-                    return headers.containsKey(name);
+                    return headers.getFirst(name) != null;
                 }
             }
         } catch (Exception ignored) {
