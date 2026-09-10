@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,21 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.resttemplate;
 
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseAdaptor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpResponse;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
- * @author yjqg6666
+ * Only {@link HttpHeaders} methods whose signature is identical in Spring 5, 6 and 7 are used
+ * ({@code getFirst}, {@code set}, {@code add}, {@code forEach}). Spring Framework 7.0 dropped the
+ * {@code MultiValueMap} implementation from {@code HttpHeaders}: {@code containsKey(Object)} and
+ * {@code keySet()} are gone and {@code get(Object)} became {@code get(String)}, so the {@code Map}
+ * calls this class was compiled against on 5.3 fail with {@code NoSuchMethodError} at runtime.
+ * {@code forEach(BiConsumer)} is declared on {@code HttpHeaders} in 6.x/7.x and inherited from
+ * {@code Map} as a default method in 5.x, so it resolves on every version.
  */
 public class RestTemplateResponseHeaderAdaptor implements ResponseAdaptor<ClientHttpResponse> {
 
     @Override
     public boolean containsHeader(ClientHttpResponse response, String name) {
-        return response.getHeaders().containsKey(name);
+        return response.getHeaders().getFirst(name) != null;
     }
 
     @Override
@@ -47,11 +57,20 @@ public class RestTemplateResponseHeaderAdaptor implements ResponseAdaptor<Client
 
     @Override
     public Collection<String> getHeaders(ClientHttpResponse response, String name) {
-        return response.getHeaders().get(name);
+        final List<String> values = new ArrayList<>();
+        // HTTP header names are case-insensitive, as is HttpHeaders' own lookup.
+        response.getHeaders().forEach((key, list) -> {
+            if (name.equalsIgnoreCase(key) && list != null) {
+                values.addAll(list);
+            }
+        });
+        return values;
     }
 
     @Override
     public Collection<String> getHeaderNames(ClientHttpResponse response) {
-        return response.getHeaders().keySet();
+        final List<String> names = new ArrayList<>();
+        response.getHeaders().forEach((key, list) -> names.add(key));
+        return names;
     }
 }

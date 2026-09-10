@@ -89,6 +89,32 @@ public class SpringBoot4WebfluxPluginController {
         return Mono.just("Welcome Home");
     }
 
+    /**
+     * Echoes the request headers, one {@code name: value} per line. Call it through {@code /client/headers}
+     * to see whether the WebClient instrumentation put its Pinpoint-* propagation headers on the wire.
+     */
+    @GetMapping("/server/headers")
+    public Mono<String> serverHeaders(ServerWebExchange exchange) {
+        StringBuilder sb = new StringBuilder();
+        exchange.getRequest().getHeaders().forEach((name, values) -> sb.append(name).append(": ").append(values).append('\n'));
+        return Mono.just(sb.toString());
+    }
+
+    /**
+     * WebClient call to {@code /server/headers} on this server; the body lists the headers the server received,
+     * so Pinpoint-TraceID / Pinpoint-SpanID / Pinpoint-pAppName should appear when the client plugin is working.
+     * The response headers are read back by the plugin as well (X-Test-Echo below).
+     */
+    @GetMapping("/client/headers")
+    public Mono<String> clientHeaders() {
+        WebClient client = WebClient.create("http://localhost:18080");
+        return client.get()
+                .uri("/server/headers")
+                .header("X-Test-Echo", "echo")
+                .retrieve()
+                .bodyToMono(String.class);
+    }
+
     @PostMapping("/server/post")
     public Mono<String> welcome(@RequestBody String body) {
         return Mono.just("Post=" + body);

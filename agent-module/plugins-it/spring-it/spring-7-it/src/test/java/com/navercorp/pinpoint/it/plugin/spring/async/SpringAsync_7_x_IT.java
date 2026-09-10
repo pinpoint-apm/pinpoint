@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -37,15 +36,12 @@ import java.util.concurrent.TimeUnit;
  * - {@code @Async} returning {@link Future}/void: routed through {@code doSubmit} -> {@code submit}.
  * - Direct {@link ThreadPoolTaskExecutor#submitCompletable(java.util.concurrent.Callable)}:
  *   exercises the new {@code submitCompletable} interceptor in {@code AsyncTaskExecutorTransform}.
- *
- * Disabled by default to match the other spring-it tests; flip to enabled when wiring CI.
  */
 @PluginForkedTest
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(17)
 @Dependency({"org.springframework:spring-context:[7.0.0,)", "org.springframework:spring-test"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
-@Disabled
 public class SpringAsync_7_x_IT {
 
     @Test
