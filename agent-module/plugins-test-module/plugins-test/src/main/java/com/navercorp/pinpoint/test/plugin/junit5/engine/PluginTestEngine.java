@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.test.plugin.junit5.engine;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.TestDescriptorBuilder;
 import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.TestDescriptorRegistry;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
+import org.eclipse.aether.ConfigurationProperties;
 import org.junit.jupiter.engine.config.CachingJupiterConfiguration;
 import org.junit.jupiter.engine.config.DefaultJupiterConfiguration;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
@@ -38,13 +40,18 @@ import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecutionContext> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final TestDescriptorRegistry registry = new TestDescriptorRegistry();
+    // created when the first plugin test suite asks for it, so that loading the engine or discovering junit-only tests does not wire a maven repository system
+    private DependencyResolverFactory resolverFactory;
 
     public PluginTestEngine() {
         logger.debug(() -> "PluginTestEngine created");
@@ -70,7 +77,7 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
 
     @Override
     public TestDescriptor discover(EngineDiscoveryRequest discoveryRequest, UniqueId uniqueId) {
-        DefaultJupiterConfiguration jupiterConfiguration = new DefaultJupiterConfiguration(discoveryRequest.getConfigurationParameters(), discoveryRequest.getOutputDirectoryProvider());
+        DefaultJupiterConfiguration jupiterConfiguration = new DefaultJupiterConfiguration(discoveryRequest.getConfigurationParameters(), discoveryRequest.getOutputDirectoryCreator());
         JupiterConfiguration configuration = new CachingJupiterConfiguration(jupiterConfiguration);
         JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(uniqueId, configuration);
         new DiscoverySelectorResolver().resolveSelectors(discoveryRequest, engineDescriptor);
@@ -112,7 +119,21 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
         if (builder == null) {
             return null;
         }
-        return builder.build(testDescriptor, testClass, configuration);
+        return builder.build(testDescriptor, testClass, configuration, this::getResolverFactory);
+    }
+
+    private synchronized DependencyResolverFactory getResolverFactory() {
+        if (this.resolverFactory == null) {
+            this.resolverFactory = new DependencyResolverFactory(resolverOption());
+        }
+        return this.resolverFactory;
+    }
+
+    private static Map<String, Object> resolverOption() {
+        Map<String, Object> resolverOption = new HashMap<>();
+        resolverOption.put(ConfigurationProperties.CONNECT_TIMEOUT, TimeUnit.SECONDS.toMillis(5));
+        resolverOption.put(ConfigurationProperties.REQUEST_TIMEOUT, TimeUnit.MINUTES.toMillis(5));
+        return resolverOption;
     }
 
 

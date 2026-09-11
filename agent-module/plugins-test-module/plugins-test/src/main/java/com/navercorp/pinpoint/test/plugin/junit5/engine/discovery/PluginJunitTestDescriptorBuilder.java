@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.profiler.test.junit5.TestClassWrapper;
 import com.navercorp.pinpoint.profiler.test.junit5.TestContext;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestClassTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginJunitTestMethodTestDescriptor;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.platform.commons.util.AnnotationUtils;
@@ -28,6 +29,7 @@ import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.engine.TestDescriptor;
 
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 public class PluginJunitTestDescriptorBuilder implements TestDescriptorBuilder {
 
@@ -36,7 +38,8 @@ public class PluginJunitTestDescriptorBuilder implements TestDescriptorBuilder {
         return AnnotationUtils.isAnnotated(candidate, JunitAgentConfigPath.class);
     }
 
-    public TestDescriptor build(TestDescriptor testDescriptor, Class<?> testClass, JupiterConfiguration configuration) {
+    public TestDescriptor build(TestDescriptor testDescriptor, Class<?> testClass, JupiterConfiguration configuration, Supplier<DependencyResolverFactory> resolverFactory) {
+        // a junit test runs on the agent of the current process and declares no maven dependencies
         final TestContext testContext = new TestContext(new TestClassWrapper(testClass));
         final Class<?> newTestClass = testContext.createTestClass();
 
