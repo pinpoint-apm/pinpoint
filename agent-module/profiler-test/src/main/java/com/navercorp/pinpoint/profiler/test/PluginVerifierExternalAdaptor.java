@@ -61,10 +61,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -703,6 +705,28 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
             AssertionErrorBuilder builder = new AssertionErrorBuilder("Span.isLoggingTransactionInfo value",
                     loggingInfo.getName(), codeName);
             builder.setComparison(loggingInfo.getName(), codeName);
+            builder.throwAssertionError();
+        }
+    }
+
+    @Override
+    public void verifyUriTemplate(String expectedUriTemplate) {
+        Objects.requireNonNull(expectedUriTemplate, "expectedUriTemplate");
+
+        final Set<String> actualUriTemplates = new LinkedHashSet<>();
+        for (Item<SpanType> item : this.handler.getOrderedSpanRecorder().snapshotItems()) {
+            final TraceRoot traceRoot = item.getTraceRoot();
+            if (traceRoot == null) {
+                continue;
+            }
+            final String uriTemplate = traceRoot.getShared().getUriTemplate();
+            if (uriTemplate != null) {
+                actualUriTemplates.add(uriTemplate);
+            }
+        }
+        if (!actualUriTemplates.contains(expectedUriTemplate)) {
+            AssertionErrorBuilder builder = new AssertionErrorBuilder("Span.uriTemplate", expectedUriTemplate, actualUriTemplates);
+            builder.setComparison(expectedUriTemplate, actualUriTemplates);
             builder.throwAssertionError();
         }
     }

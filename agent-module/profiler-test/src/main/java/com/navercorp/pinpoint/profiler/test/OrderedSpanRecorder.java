@@ -96,6 +96,13 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener<SpanTy
         return item.getValue();
     }
 
+    /**
+     * @return a copy of the recorded items, oldest first; the recorder itself is left untouched
+     */
+    public synchronized List<Item<SpanType>> snapshotItems() {
+        return new ArrayList<>(list);
+    }
+
     public synchronized Item<SpanType> popItem() {
         if (list.isEmpty()) {
             return null;
