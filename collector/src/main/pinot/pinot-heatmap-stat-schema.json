@@ -1,0 +1,44 @@
+{
+  "schemaName": "heatmapStat",
+  "dimensionFieldSpecs": [
+    {
+      "name": "serviceName",
+      "dataType": "STRING",
+      "defaultNullValue": "DEFAULT"
+    },
+    {
+      "name": "applicationName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "agentId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "sortKey",
+      "dataType": "STRING"
+    },
+    {
+      "name": "resultType",
+      "dataType": "STRING"
+    },
+    {
+      "name": "elapsedTime",
+      "dataType": "INT"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "countValue",
+      "dataType": "INT"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "roundedEventTime",
+      "dataType": "TIMESTAMP",
+      "format" : "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

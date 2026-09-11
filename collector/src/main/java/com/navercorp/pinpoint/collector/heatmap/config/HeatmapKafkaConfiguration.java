@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.heatmap.config;
 
+import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapAgentStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
 import com.navercorp.pinpoint.pinot.kafka.KafkaConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +35,11 @@ public class HeatmapKafkaConfiguration {
 
     @Bean
     public KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean
+    public KafkaTemplate<String, HeatmapAgentStat> kafkaHeatmapAgentStatTemplate(@Qualifier("kafkaProducerFactory") ProducerFactory producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.heatmap.dao.pinot;
 
 import com.navercorp.pinpoint.collector.heatmap.config.HeatmapProperties;
 import com.navercorp.pinpoint.collector.heatmap.dao.HeatmapDao;
+import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapAgentStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
 import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
 import org.apache.logging.log4j.LogManager;
@@ -36,13 +37,19 @@ public class PinotHeatmapDao implements HeatmapDao {
 
     private final Logger logger = LogManager.getLogger(getClass());
     private final KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate;
+    private final KafkaTemplate<String, HeatmapAgentStat> kafkaHeatmapAgentStatTemplate;
     private final TopicNameManager topicNameManager;
     private final int keyPartitionCount;
+    private final String agentTopic;
 
-    public PinotHeatmapDao(KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate, HeatmapProperties heatmapProperties) {
+    public PinotHeatmapDao(KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate,
+                           KafkaTemplate<String, HeatmapAgentStat> kafkaHeatmapAgentStatTemplate,
+                           HeatmapProperties heatmapProperties) {
         this.kafkaHeatmapStatTemplate = Objects.requireNonNull(kafkaHeatmapStatTemplate, "kafkaHeatmapStatTemplate");
+        this.kafkaHeatmapAgentStatTemplate = Objects.requireNonNull(kafkaHeatmapAgentStatTemplate, "kafkaHeatmapAgentStatTemplate");
         this.topicNameManager = new TopicNameManager(heatmapProperties.getHeatmapTopicPrefix(), heatmapProperties.getHeatMapTopicPaddingLength(), heatmapProperties.getHeatmapTopicCount());
         this.keyPartitionCount = heatmapProperties.getHeatmapKeyPartitionCount();
+        this.agentTopic = Objects.requireNonNull(heatmapProperties.getAgentTopic(), "agentTopic");
     }
 
     @Override
@@ -60,5 +67,14 @@ public class PinotHeatmapDao implements HeatmapDao {
             return 0;
         }
         return ThreadLocalRandom.current().nextInt(keyPartitionCount);
+    }
+
+    @Override
+    public void insertAgentStat(HeatmapAgentStat heatmapAgentStat) {
+        if (heatmapAgentStat.getElapsedTime() < 0) {
+            logger.warn("elapsedTime is negative. {}", heatmapAgentStat);
+            return;
+        }
+        kafkaHeatmapAgentStatTemplate.send(agentTopic, heatmapAgentStat.getAgentId(), heatmapAgentStat);
     }
 }

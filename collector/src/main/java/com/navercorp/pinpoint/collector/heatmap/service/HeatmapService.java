@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.heatmap.service;
 
+import com.navercorp.pinpoint.collector.heatmap.config.HeatmapProperties;
 import com.navercorp.pinpoint.collector.heatmap.dao.HeatmapDao;
+import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapAgentStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -32,9 +34,14 @@ import java.util.Objects;
 public class HeatmapService implements TraceService {
 
     private final HeatmapDao heatmapDao;
+    private final boolean appEnabled;
+    private final boolean agentEnabled;
 
-    public HeatmapService(HeatmapDao heatmapDao) {
+    public HeatmapService(HeatmapDao heatmapDao, HeatmapProperties heatmapProperties) {
         this.heatmapDao = Objects.requireNonNull(heatmapDao, "heatmapDao");
+        Objects.requireNonNull(heatmapProperties, "heatmapProperties");
+        this.appEnabled = heatmapProperties.isAppEnabled();
+        this.agentEnabled = heatmapProperties.isAgentEnabled();
     }
 
     @Override
@@ -43,7 +50,13 @@ public class HeatmapService implements TraceService {
 
     @Override
     public void insertSpan(SpanBo spanBo) {
-        HeatmapStat heatmapStat = new HeatmapStat(spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getErrCode());
-        heatmapDao.insert(heatmapStat);
+        if (appEnabled) {
+            HeatmapStat heatmapStat = new HeatmapStat(spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getErrCode());
+            heatmapDao.insert(heatmapStat);
+        }
+        if (agentEnabled) {
+            HeatmapAgentStat heatmapAgentStat = new HeatmapAgentStat(spanBo.getServiceName(), spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getErrCode());
+            heatmapDao.insertAgentStat(heatmapAgentStat);
+        }
     }
 }
