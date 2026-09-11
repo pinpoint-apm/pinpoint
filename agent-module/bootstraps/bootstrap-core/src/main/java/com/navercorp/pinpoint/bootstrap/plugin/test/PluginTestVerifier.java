@@ -47,6 +47,12 @@ public interface PluginTestVerifier {
     void cleanUp(boolean detachTraceObject);
     void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo);
 
+    /**
+     * Asserts that one of the recorded traces carries {@code expectedUriTemplate} as its URI template
+     * (recorded through {@code SpanRecorder.recordUriTemplate}). Does not consume the recorded traces.
+     */
+    void verifyUriTemplate(String expectedUriTemplate);
+
     void awaitTrace(ExpectedTrace expectedTrace, long waitUnitTime, long maxWaitTime);
     void awaitTraceCount(int expectedTraceCount, long waitUnitTime, long maxWaitTime);
 

@@ -51,6 +51,10 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @Dependency({"org.apache.httpcomponents.client5:httpclient5:[5.2,5.4)", WebServer.VERSION})
 public class CloaeableHttpClient_5_2_IT extends HttpClientITBase {
 
+    private static final String DO_EXECUTE = "org.apache.hc.client5.http.impl.classic.InternalHttpClient"
+            + ".doExecute(org.apache.hc.core5.http.HttpHost, org.apache.hc.core5.http.ClassicHttpRequest, org.apache.hc.core5.http.protocol.HttpContext)";
+
+
     @Test
     public void test() throws Exception {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
@@ -63,8 +67,9 @@ public class CloaeableHttpClient_5_2_IT extends HttpClientITBase {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
 
-        verifier.ignoreServiceType("HTTP_CLIENT_5");
-//        verifier.verifyTrace(event("HTTP_CLIENT_5", annotations(annotation("http.url", "/"), annotation("http.status.code", "200"))));
+        // The client event: destinationId from HttpHost, http.url from the request uri, status from the response.
+        verifier.verifyTrace(event("HTTP_CLIENT_5", DO_EXECUTE, null, null, getHostPort(),
+                annotation("http.url", "/"), annotation("http.status.code", 200)));
         Method connect1 = PoolingHttpClientConnectionManager.class.getMethod("connect", ConnectionEndpoint.class, TimeValue.class, HttpContext.class);
         verifier.verifyTrace(event("HTTP_CLIENT_5_INTERNAL", connect1));
         Method connect2 = DefaultHttpClientConnectionOperator.class.getMethod("connect", ManagedHttpClientConnection.class, HttpHost.class, InetSocketAddress.class, Timeout.class, SocketConfig.class, Object.class, HttpContext.class);

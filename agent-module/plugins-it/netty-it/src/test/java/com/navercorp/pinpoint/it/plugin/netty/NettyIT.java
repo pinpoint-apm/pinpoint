@@ -16,6 +16,12 @@
 
 package com.navercorp.pinpoint.it.plugin.netty;
 
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import org.junit.jupiter.api.Assertions;
+import java.net.SocketAddress;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.WebServer;
@@ -53,9 +59,15 @@ import java.util.concurrent.TimeUnit;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"io.netty:netty-all:[4.1.0.Final,4.1.max]", WebServer.VERSION, PluginITConstants.VERSION})
+// 4.1.102.Final is skipped: that release was built without --release 8 and fails on Java 8 with
+// NoSuchMethodError java.nio.ByteBuffer.limit(I)Ljava/nio/ByteBuffer; inside PooledByteBuf (fixed in 4.1.103).
+@Dependency({"io.netty:netty-all:[4.1.0.Final,4.1.101.Final],[4.1.103.Final,4.1.max]", WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-netty-plugin-test.config")
 public class NettyIT {
+
+    private static final String WRITE_AND_FLUSH = "io.netty.channel.DefaultChannelPipeline.writeAndFlush(java.lang.Object)";
+    private static final String HTTP_ENCODE = "io.netty.handler.codec.http.HttpObjectEncoder.encode(io.netty.channel.ChannelHandlerContext, java.lang.Object, java.util.List)";
+
 
     @AutoClose("stop")
     private static WebServer webServer;
@@ -84,15 +96,16 @@ public class NettyIT {
             channel.writeAndFlush(request);
 
             boolean await = awaitLatch.await(3000, TimeUnit.MILLISECONDS);
-//            Assertions.assertTrue(await);
-//
-//            PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-//            verifier.printCache();
-//
-//            verifier.verifyTrace(event("NETTY", Bootstrap.class.getMethod("connect", SocketAddress.class), annotation("netty.address", webServer.getHostAndPort())));
-//            verifier.verifyTrace(event("NETTY", "io.netty.channel.DefaultChannelPipeline.writeAndFlush(java.lang.Object)"));
-//            verifier.verifyTrace(event("ASYNC", "Asynchronous Invocation"));
-//            verifier.verifyTrace(event("NETTY_HTTP", "io.netty.handler.codec.http.HttpObjectEncoder.encode(io.netty.channel.ChannelHandlerContext, java.lang.Object, java.util.List)", annotation("http.url", "/")));
+            Assertions.assertTrue(await, "no response within 3s");
+
+            PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+            // the encoder runs on the event loop after writeAndFlush returns
+            verifier.awaitTrace(event("NETTY_HTTP", HTTP_ENCODE, null, null, remoteAddress(), annotation("http.url", "/")), 20, 3000);
+            verifier.printCache();
+            verifier.verifyDiscreteTrace(
+                    event("NETTY", Bootstrap.class.getMethod("connect", SocketAddress.class), annotation("netty.address", webServer.getHostAndPort())),
+                    event("NETTY", WRITE_AND_FLUSH),
+                    event("NETTY_HTTP", HTTP_ENCODE, null, null, remoteAddress(), annotation("http.url", "/")));
         } finally {
             channel.close().sync();
             workerGroup.shutdownGracefully().sync();
@@ -128,20 +141,19 @@ public class NettyIT {
         });
 
         boolean await = awaitLatch.await(3000, TimeUnit.MILLISECONDS);
-//        Assertions.assertTrue(await);
+        Assertions.assertTrue(await, "no response within 3s");
 
         final Channel channel = connect.channel();
         try {
-//            PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-//            verifier.printCache();
-//
-//            verifier.verifyTrace(event("NETTY", Bootstrap.class.getMethod("connect", SocketAddress.class), annotation("netty.address", webServer.getHostAndPort())));
-//            verifier.verifyTrace(event("NETTY", "io.netty.channel.DefaultChannelPromise.addListener(io.netty.util.concurrent.GenericFutureListener)"));
-//            verifier.verifyTrace(event("ASYNC", "Asynchronous Invocation"));
-//            verifier.verifyTrace(event("NETTY_INTERNAL", "io.netty.util.concurrent.DefaultPromise.notifyListenersNow()"));
-//            verifier.verifyTrace(event("NETTY_INTERNAL", "io.netty.util.concurrent.DefaultPromise.notifyListener0(io.netty.util.concurrent.Future, io.netty.util.concurrent.GenericFutureListener)"));
-//            verifier.verifyTrace(event("NETTY", "io.netty.channel.DefaultChannelPipeline.writeAndFlush(java.lang.Object)"));
-//            verifier.verifyTrace(event("NETTY_HTTP", "io.netty.handler.codec.http.HttpObjectEncoder.encode(io.netty.channel.ChannelHandlerContext, java.lang.Object, java.util.List)", annotation("http.url", "/")));
+            PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+            verifier.printCache();
+            // Only the synchronous part is pinned here. The write issued inside the connect listener is not
+            // linked to this trace on netty 4.1.45+ (and sporadically on 4.1.2x): the cache then holds just
+            // connect + addListener while the request still completes. The request/encode events are
+            // asserted in listenerTest, where writeAndFlush runs on the test thread.
+            verifier.verifyDiscreteTrace(
+                    event("NETTY", Bootstrap.class.getMethod("connect", SocketAddress.class), annotation("netty.address", webServer.getHostAndPort())),
+                    event("NETTY", "io.netty.channel.DefaultChannelPromise.addListener(io.netty.util.concurrent.GenericFutureListener)"));
         } finally {
             channel.close().sync();
             workerGroup.shutdownGracefully().sync();
@@ -159,6 +171,11 @@ public class NettyIT {
                     }
                 });
         return bootstrap;
+    }
+
+    // NettyClientRequestWrapper records channel.remoteAddress() as ip:port
+    private static String remoteAddress() throws Exception {
+        return java.net.InetAddress.getByName(webServer.getHostname()).getHostAddress() + ":" + webServer.getListeningPort();
     }
 
 }
