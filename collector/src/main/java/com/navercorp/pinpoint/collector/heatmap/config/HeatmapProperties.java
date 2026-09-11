@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class HeatmapProperties {
 
+    @Value("${kafka.heatmap.app.enabled:true}")
+    private boolean appEnabled;
     @Value("${kafka.heatmap.topic.prefix}")
     private String heatmapTopicPrefix;
     @Value("${kafka.heatmap.topic.padding.length}")
@@ -33,6 +35,23 @@ public class HeatmapProperties {
     private int heatmapTopicCount;
     @Value("${kafka.heatmap.key.partition.count}")
     private int heatmapKeyPartitionCount;
+
+    @Value("${kafka.heatmap.agent.enabled:false}")
+    private boolean agentEnabled;
+    @Value("${kafka.heatmap.agent.topic:heatmap-stat}")
+    private String agentTopic;
+
+    public boolean isAppEnabled() {
+        return appEnabled;
+    }
+
+    public boolean isAgentEnabled() {
+        return agentEnabled;
+    }
+
+    public String getAgentTopic() {
+        return agentTopic;
+    }
 
     public String getHeatmapTopicPrefix() {
         return heatmapTopicPrefix;
