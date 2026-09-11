@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.heatmap.dao;
 
+import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapAgentStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
 
 /**
@@ -23,4 +24,6 @@ import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
  */
 public interface HeatmapDao {
     void insert(HeatmapStat heatmapStat);
+
+    void insertAgentStat(HeatmapAgentStat heatmapAgentStat);
 }

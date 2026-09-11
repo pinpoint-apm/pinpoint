@@ -1,0 +1,90 @@
+{
+  "tableName": "heatmapStat",
+  "tableType": "REALTIME",
+  "segmentsConfig": {
+    "timeColumnName": "roundedEventTime",
+    "schemaName": "heatmapStat",
+    "replication": "3",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "7"
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "sortedColumn": ["sortKey"],
+    "loadMode": "MMAP",
+    "segmentPartitionConfig": {
+      "columnPartitionMap": {
+        "agentId": {
+          "functionName": "Murmur",
+          "numPartitions": 1
+        }
+      }
+    }
+  },
+  "fieldConfigList": [
+    {
+      "name": "serviceName",
+      "indexes": {
+        "inverted": {}
+      }
+    },
+    {
+      "name": "applicationName",
+      "indexes": {
+        "inverted": {}
+      }
+    },
+    {
+      "name": "agentId",
+      "indexes": {
+        "inverted": {}
+      }
+    },
+    {
+      "name": "countValue",
+      "encodingType": "RAW"
+    }
+  ],
+  "ingestionConfig": {
+    "streamIngestionConfig": {
+      "streamConfigMaps": [
+        {
+          "streamType": "kafka",
+          "stream.kafka.topic.name": "heatmap-stat",
+          "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+          "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
+          "stream.kafka.broker.list": "localhost:19092",
+          "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
+          "realtime.segment.flush.threshold.rows": "0",
+          "realtime.segment.flush.threshold.time": "24h",
+          "realtime.segment.flush.threshold.segment.size": "64M"
+        }
+      ]
+    },
+    "transformConfigs": [
+      {
+        "columnName": "roundedEventTime",
+        "transformFunction": "DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '10:SECONDS')"
+      },
+      {
+        "columnName": "sortKey",
+        "transformFunction": "concat(concat(concat(concat(serviceName, '#'), applicationName), '#'), agentId)"
+      }
+    ],
+    "aggregationConfigs": [
+      {
+        "columnName": "countValue",
+        "aggregationFunction": "COUNT(*)"
+      }
+    ]
+  },
+  "routing": {
+    "segmentPrunerTypes": [
+      "time",
+      "partition"
+    ]
+  },
+  "metadata": {
+    "customConfigs": {}
+  }
+}
