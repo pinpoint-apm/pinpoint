@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.alarm.dao.AlarmNotificationChannelDao">
+    <sql id="channelServiceNamePredicate">
+        c.service_name = #{serviceName}
+    </sql>
+    <sql id="channelSelectColumns">
+        c.*,
+        COALESCE(usage_counts.template_count, 0) AS template_count,
+        COALESCE(usage_counts.affected_rule_count, 0) AS affected_rule_count,
+        COALESCE(usage_counts.enabled_affected_rule_count, 0) AS enabled_affected_rule_count
+    </sql>
+    <sql id="channelUsageJoin">
+        LEFT JOIN (
+            SELECT u.channel_id,
+                   COUNT(DISTINCT u.template_id) AS template_count,
+                   COUNT(DISTINCT u.rule_id) AS affected_rule_count,
+                   COUNT(DISTINCT CASE WHEN u.rule_enabled = 1 THEN u.rule_id END)
+                       AS enabled_affected_rule_count
+            FROM (
+                <!-- RULE and TEMPLATE bindings are split into a UNION ALL: ORed together in one
+                     ON clause they reach two different columns of r, and MySQL 5.6 then uses no
+                     index for the join (Range checked for each record), scanning all of
+                     alarm_rule_v2 once per driving row. -->
+                SELECT b.channel_id,
+                       NULL AS template_id,
+                       r.id AS rule_id,
+                       r.enabled AS rule_enabled
+                FROM alarm_channel_binding b
+                INNER JOIN alarm_rule_v2 r
+                        ON r.id = b.owner_id
+                       AND r.template_item_id IS NULL
+                WHERE b.owner_type = 'RULE'
+                UNION ALL
+                SELECT b.channel_id,
+                       t.id AS template_id,
+                       r.id AS rule_id,
+                       r.enabled AS rule_enabled
+                FROM alarm_channel_binding b
+                INNER JOIN alarm_template t
+                        ON t.id = b.owner_id
+                       AND t.deleted = 0
+                LEFT JOIN alarm_template_item i
+                       ON i.template_id = t.id
+                      AND i.deleted = 0
+                LEFT JOIN alarm_rule_v2 r
+                       ON r.template_item_id = i.id
+                WHERE b.owner_type = 'TEMPLATE'
+
+            ) u
+            GROUP BY u.channel_id
+        ) usage_counts ON usage_counts.channel_id = c.id
+    </sql>
+    <sql id="channelUsageJoinByServiceName">
+        LEFT JOIN (
+            SELECT u.channel_id,
+                   COUNT(DISTINCT u.template_id) AS template_count,
+                   COUNT(DISTINCT u.rule_id) AS affected_rule_count,
+                   COUNT(DISTINCT CASE WHEN u.rule_enabled = 1 THEN u.rule_id END)
+                       AS enabled_affected_rule_count
+            FROM (
+                <!-- Narrow by service first: this aggregate counts even the channels the outer
+                     query discards, so without pushing the filter into the derived table,
+                     looking at one service computes usage for every channel. Measured on 5.6
+                     with 600 channels, that is 405ms against 1.2ms. -->
+                SELECT b.channel_id,
+                       NULL AS template_id,
+                       r.id AS rule_id,
+                       r.enabled AS rule_enabled
+                FROM alarm_notification_channel fc
+                INNER JOIN alarm_channel_binding b
+                        ON b.channel_id = fc.id
+                INNER JOIN alarm_rule_v2 r
+                        ON r.id = b.owner_id
+                       AND r.template_item_id IS NULL
+                WHERE b.owner_type = 'RULE'
+                  AND fc.service_name = #{serviceName}
+                UNION ALL
+                SELECT b.channel_id,
+                       t.id AS template_id,
+                       r.id AS rule_id,
+                       r.enabled AS rule_enabled
+                FROM alarm_notification_channel fc
+                INNER JOIN alarm_channel_binding b
+                        ON b.channel_id = fc.id
+                INNER JOIN alarm_template t
+                        ON t.id = b.owner_id
+                       AND t.deleted = 0
+                LEFT JOIN alarm_template_item i
+                       ON i.template_id = t.id
+                      AND i.deleted = 0
+                LEFT JOIN alarm_rule_v2 r
+                       ON r.template_item_id = i.id
+                WHERE b.owner_type = 'TEMPLATE'
+                  AND fc.service_name = #{serviceName}
+
+            ) u
+            GROUP BY u.channel_id
+        ) usage_counts ON usage_counts.channel_id = c.id
+    </sql>
+    <sql id="channelUsageJoinById">
+        LEFT JOIN (
+            SELECT u.channel_id,
+                   COUNT(DISTINCT u.template_id) AS template_count,
+                   COUNT(DISTINCT u.rule_id) AS affected_rule_count,
+                   COUNT(DISTINCT CASE WHEN u.rule_enabled = 1 THEN u.rule_id END)
+                       AS enabled_affected_rule_count
+            FROM (
+                <!-- RULE and TEMPLATE bindings are split into a UNION ALL: ORed together in one
+                     ON clause they reach two different columns of r, and MySQL 5.6 then uses no
+                     index for the join (Range checked for each record), scanning all of
+                     alarm_rule_v2 once per driving row. -->
+                SELECT b.channel_id,
+                       NULL AS template_id,
+                       r.id AS rule_id,
+                       r.enabled AS rule_enabled
+                FROM alarm_channel_binding b
+                INNER JOIN alarm_rule_v2 r
+                        ON r.id = b.owner_id
+                       AND r.template_item_id IS NULL
+                WHERE b.owner_type = 'RULE'
+                  AND b.channel_id = #{id}
+                UNION ALL
+                SELECT b.channel_id,
+                       t.id AS template_id,
+                       r.id AS rule_id,
+                       r.enabled AS rule_enabled
+                FROM alarm_channel_binding b
+                INNER JOIN alarm_template t
+                        ON t.id = b.owner_id
+                       AND t.deleted = 0
+                LEFT JOIN alarm_template_item i
+                       ON i.template_id = t.id
+                      AND i.deleted = 0
+                LEFT JOIN alarm_rule_v2 r
+                       ON r.template_item_id = i.id
+                WHERE b.owner_type = 'TEMPLATE'
+                  AND b.channel_id = #{id}
+
+            ) u
+            GROUP BY u.channel_id
+        ) usage_counts ON usage_counts.channel_id = c.id
+    </sql>
+    <sql id="channelUsageJoinByIds">
+        LEFT JOIN (
+            SELECT u.channel_id,
+                   COUNT(DISTINCT u.template_id) AS template_count,
+                   COUNT(DISTINCT u.rule_id) AS affected_rule_count,
+                   COUNT(DISTINCT CASE WHEN u.rule_enabled = 1 THEN u.rule_id END)
+                       AS enabled_affected_rule_count
+            FROM (
+                <!-- RULE and TEMPLATE bindings are split into a UNION ALL: ORed together in one
+                     ON clause they reach two different columns of r, and MySQL 5.6 then uses no
+                     index for the join (Range checked for each record), scanning all of
+                     alarm_rule_v2 once per driving row. -->
+                SELECT b.channel_id,
+                       NULL AS template_id,
+                       r.id AS rule_id,
+                       r.enabled AS rule_enabled
+                FROM alarm_channel_binding b
+                INNER JOIN alarm_rule_v2 r
+                        ON r.id = b.owner_id
+                       AND r.template_item_id IS NULL
+                WHERE b.owner_type = 'RULE'
+                  AND b.channel_id IN
+                <foreach item="id" collection="list" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+                UNION ALL
+                SELECT b.channel_id,
+                       t.id AS template_id,
+                       r.id AS rule_id,
+                       r.enabled AS rule_enabled
+                FROM alarm_channel_binding b
+                INNER JOIN alarm_template t
+                        ON t.id = b.owner_id
+                       AND t.deleted = 0
+                LEFT JOIN alarm_template_item i
+                       ON i.template_id = t.id
+                      AND i.deleted = 0
+                LEFT JOIN alarm_rule_v2 r
+                       ON r.template_item_id = i.id
+                WHERE b.owner_type = 'TEMPLATE'
+                  AND b.channel_id IN
+                <foreach item="id" collection="list" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+
+            ) u
+            GROUP BY u.channel_id
+        ) usage_counts ON usage_counts.channel_id = c.id
+    </sql>
+
+    <insert id="insert"
+            parameterType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alarm_notification_channel (service_name, channel_name, method_type, destination, config)
+        VALUES (#{serviceName}, #{channelName}, #{methodType}, #{destination}, #{config})
+    </insert>
+
+    <update id="update"
+            parameterType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        UPDATE alarm_notification_channel
+        SET channel_name = #{channelName},
+            method_type = #{methodType},
+            destination = #{destination},
+            config = #{config}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM alarm_notification_channel WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByUserGroupDestination" parameterType="String">
+        DELETE FROM alarm_notification_channel
+        WHERE method_type IN ('EMAIL', 'SMS')
+          AND destination = #{userGroupId}
+    </delete>
+
+    <select id="selectByUserGroupDestinationForUpdate" parameterType="String"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT c.*
+        FROM alarm_notification_channel c
+        WHERE c.method_type IN ('EMAIL', 'SMS')
+          AND c.destination = #{userGroupId}
+        ORDER BY c.id
+        FOR UPDATE
+    </select>
+
+    <select id="selectById" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT <include refid="channelSelectColumns" />
+        FROM alarm_notification_channel c
+        <include refid="channelUsageJoinById" />
+        WHERE c.id = #{id}
+    </select>
+
+    <select id="selectByIdForUpdate" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT <include refid="channelSelectColumns" />
+        FROM alarm_notification_channel c
+        <include refid="channelUsageJoinById" />
+        WHERE c.id = #{id}
+        FOR UPDATE
+    </select>
+
+    <select id="selectByIds" parameterType="list"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT * FROM alarm_notification_channel
+        WHERE id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectByIdsWithUsage" parameterType="list"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT <include refid="channelSelectColumns" />
+        FROM alarm_notification_channel c
+        <include refid="channelUsageJoinByIds" />
+        WHERE c.id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectAll"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT <include refid="channelSelectColumns" />
+        FROM alarm_notification_channel c
+        <include refid="channelUsageJoin" />
+        LEFT JOIN user_group ug
+            ON ug.id = c.destination
+            AND c.method_type IN ('EMAIL', 'SMS')
+        WHERE (
+            c.method_type NOT IN ('EMAIL', 'SMS')
+            OR ug.id IS NOT NULL
+        )
+        ORDER BY c.id DESC
+    </select>
+
+    <select id="selectByService"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT <include refid="channelSelectColumns" />
+        FROM alarm_notification_channel c
+        <include refid="channelUsageJoinByServiceName" />
+        LEFT JOIN user_group ug
+            ON ug.id = c.destination
+            AND c.method_type IN ('EMAIL', 'SMS')
+        WHERE <include refid="channelServiceNamePredicate" />
+          AND (
+              c.method_type NOT IN ('EMAIL', 'SMS')
+              OR ug.id IS NOT NULL
+          )
+        ORDER BY c.id DESC
+    </select>
+
+    <select id="selectByServiceName"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT <include refid="channelSelectColumns" />
+        FROM alarm_notification_channel c
+        <include refid="channelUsageJoinByServiceName" />
+        LEFT JOIN user_group ug
+            ON ug.id = c.destination
+            AND c.method_type IN ('EMAIL', 'SMS')
+        WHERE <include refid="channelServiceNamePredicate" />
+          AND (
+              c.method_type NOT IN ('EMAIL', 'SMS')
+              OR ug.id IS NOT NULL
+          )
+        ORDER BY c.id DESC
+    </select>
+
+    <select id="selectByRuleId" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT c.*
+        FROM alarm_notification_channel c
+        INNER JOIN alarm_channel_binding b ON c.id = b.channel_id
+        INNER JOIN alarm_rule_v2 r
+          ON (
+            r.template_item_id IS NULL
+            AND b.owner_type = 'RULE'
+            AND b.owner_id = r.id
+          )
+          OR (
+            r.template_item_id IS NOT NULL
+            AND b.owner_type = 'TEMPLATE'
+            AND b.owner_id = (
+                SELECT ri.template_id
+                FROM alarm_template_item ri
+                WHERE ri.id = r.template_item_id
+            )
+          )
+        LEFT JOIN user_group ug
+            ON ug.id = c.destination
+            AND c.method_type IN ('EMAIL', 'SMS')
+        WHERE r.id = #{ruleId}
+          AND (
+              c.method_type NOT IN ('EMAIL', 'SMS')
+              OR ug.id IS NOT NULL
+          )
+    </select>
+
+    <select id="selectByApplication"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
+        SELECT <include refid="channelSelectColumns" />
+        FROM alarm_notification_channel c
+        INNER JOIN (
+            SELECT b.channel_id
+            FROM alarm_channel_binding b
+            INNER JOIN alarm_rule_v2 r
+                    ON r.id = b.owner_id
+                   AND r.template_item_id IS NULL
+            WHERE b.owner_type = 'RULE'
+              AND r.service_name = #{serviceName}
+              AND r.application_name = #{applicationName}
+              AND r.application_type = #{applicationType}
+            UNION
+            SELECT b.channel_id
+            FROM alarm_channel_binding b
+            INNER JOIN alarm_template_item i
+                    ON i.template_id = b.owner_id
+            INNER JOIN alarm_rule_v2 r
+                    ON r.template_item_id = i.id
+            WHERE b.owner_type = 'TEMPLATE'
+              AND r.service_name = #{serviceName}
+              AND r.application_name = #{applicationName}
+              AND r.application_type = #{applicationType}
+        ) app_channels ON app_channels.channel_id = c.id
+        <include refid="channelUsageJoinByServiceName" />
+        LEFT JOIN user_group ug
+            ON ug.id = c.destination
+            AND c.method_type IN ('EMAIL', 'SMS')
+        WHERE (
+            c.method_type NOT IN ('EMAIL', 'SMS')
+            OR ug.id IS NOT NULL
+        )
+        ORDER BY c.id DESC
+    </select>
+
+    <select id="existsUserGroup" parameterType="String" resultType="java.lang.Boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM user_group
+            WHERE id = #{userGroupId}
+        )
+    </select>
+
+</mapper>

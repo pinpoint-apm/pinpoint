@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.alarm.dao.AlarmTemplateDao">
+    <sql id="bundleRuleJoin">
+        FROM alarm_template_item i
+        JOIN alarm_rule_v2 r ON r.template_item_id = i.id
+        WHERE i.template_id = t.id
+          AND i.deleted = 0
+    </sql>
+
+    <sql id="templateSelectColumns">
+        t.*,
+        COALESCE((SELECT COUNT(*) <include refid="bundleRuleJoin" />), 0) AS used_rule_count,
+        COALESCE((SELECT COUNT(*) <include refid="bundleRuleJoin" /> AND r.enabled = 1), 0) AS enabled_used_rule_count,
+        COALESCE((SELECT COUNT(DISTINCT r.service_name, r.application_name, r.application_type)
+                  <include refid="bundleRuleJoin" />), 0) AS used_application_count,
+        COALESCE((SELECT COUNT(*)
+                  FROM alarm_channel_binding b
+                  WHERE b.owner_type = 'TEMPLATE'
+                    AND b.owner_id = t.id), 0) AS channel_count
+    </sql>
+
+    <insert id="insert"
+            parameterType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alarm_template (service_name, name, description)
+        VALUES (#{serviceName}, #{name}, #{description})
+    </insert>
+
+    <update id="update"
+            parameterType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate">
+        UPDATE alarm_template
+        SET name = #{name},
+            description = #{description}
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
+
+    <update id="markDeleted" parameterType="Long">
+        UPDATE alarm_template
+        SET deleted = 1
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
+
+    <select id="selectById" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate">
+        SELECT <include refid="templateSelectColumns" />
+        FROM alarm_template t
+        WHERE t.id = #{id}
+          AND t.deleted = 0
+    </select>
+
+    <select id="selectByIdForUpdate" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate">
+        SELECT t.*
+        FROM alarm_template t
+        WHERE t.id = #{id}
+          AND t.deleted = 0
+        FOR UPDATE
+    </select>
+
+    <select id="selectByIds"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate">
+        SELECT t.*
+        FROM alarm_template t
+        WHERE t.deleted = 0
+          AND t.id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectByService"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate">
+        SELECT <include refid="templateSelectColumns" />
+        FROM alarm_template t
+        WHERE t.service_name = #{serviceName}
+          AND t.deleted = 0
+        ORDER BY t.name
+    </select>
+
+    <select id="selectByServiceAndDataSource"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate">
+        SELECT <include refid="templateSelectColumns" />
+        FROM alarm_template t
+        WHERE t.service_name = #{serviceName}
+          AND t.deleted = 0
+          AND EXISTS (
+              SELECT 1
+              FROM alarm_template_item i
+              WHERE i.template_id = t.id
+                AND i.deleted = 0
+                AND i.data_source = #{dataSource}
+          )
+        ORDER BY t.name
+    </select>
+
+</mapper>

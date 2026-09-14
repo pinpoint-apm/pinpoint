@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao">
+
+    <insert id="insert"
+            parameterType="com.navercorp.pinpoint.alarm.vo.AlarmChannelBinding">
+        INSERT INTO alarm_channel_binding (owner_type, owner_id, channel_id)
+        VALUES (#{ownerType}, #{ownerId}, #{channelId})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM alarm_channel_binding
+        WHERE owner_type = #{ownerType}
+          AND owner_id = #{ownerId}
+          AND channel_id = #{channelId}
+    </delete>
+
+    <delete id="deleteByOwner">
+        DELETE FROM alarm_channel_binding
+        WHERE owner_type = #{ownerType}
+          AND owner_id = #{ownerId}
+    </delete>
+
+    <delete id="deleteByChannelId" parameterType="Long">
+        DELETE FROM alarm_channel_binding
+        WHERE channel_id = #{channelId}
+    </delete>
+
+    <delete id="deleteRuleBindingsByRuleIds">
+        DELETE FROM alarm_channel_binding
+        WHERE owner_type = 'RULE'
+          AND owner_id IN
+        <foreach item="ruleId" collection="ruleIds" open="(" separator="," close=")">
+            #{ruleId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByUserGroupDestination" parameterType="String">
+        DELETE b
+        FROM alarm_channel_binding b
+        INNER JOIN alarm_notification_channel c ON c.id = b.channel_id
+        WHERE c.method_type IN ('EMAIL', 'SMS')
+          AND c.destination = #{userGroupId}
+    </delete>
+
+    <select id="existsByChannelId" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM alarm_channel_binding
+            WHERE channel_id = #{channelId}
+        )
+    </select>
+
+    <select id="selectByOwner"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmChannelBinding">
+        SELECT owner_type, owner_id, channel_id
+        FROM alarm_channel_binding
+        WHERE owner_type = #{ownerType}
+          AND owner_id = #{ownerId}
+        ORDER BY channel_id
+    </select>
+
+</mapper>
