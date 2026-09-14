@@ -3,7 +3,7 @@ import {
   LayoutWithConfiguration as LayoutWithConfigurationComponent,
   LayoutWithConfigurationProps,
   SERVICE_CONFIG_MENU,
-  isServiceConfigPath,
+  findActiveConfigMenuGroup,
 } from '@pinpoint-fe/ui';
 import { useEnableServiceMap } from '@pinpoint-fe/ui/src/hooks';
 import { useLocation } from 'react-router';
@@ -85,7 +85,12 @@ export function useConfigMenuMap() {
           },
         ],
       },
-      SERVICE: SERVICE_CONFIG_MENU,
+      SERVICE: {
+        ...SERVICE_CONFIG_MENU,
+        // 설정이 꺼져 있으면 이 화면들은 Configuration 그룹의 것이다. 두 그룹이 같은 경로를
+        // 나눠 가지므로, 어느 쪽이 감추지 않았는지가 곧 그 경로의 그룹이다.
+        menus: SERVICE_CONFIG_MENU.menus.map((menu) => ({ ...menu, hide: !enableServiceMap })),
+      },
     }),
     [enableServiceMap],
   );
@@ -101,20 +106,16 @@ export const LayoutWithConfiguration = ({ ...props }: LayoutWithConfigurationPro
     title: `${CONFIG_MENU_MAP.SERVICE.title} (${selectedService})`,
   };
 
-  const configMenu = isServiceConfigPath(pathname)
-    ? pathname === APP_PATH.CONFIG_SERVICE_SETTING
+  const configMenu =
+    pathname === APP_PATH.CONFIG_SERVICE_SETTING
       ? { ...serviceConfigMenu, menus: [] }
-      : serviceConfigMenu
-    : Object.values(CONFIG_MENU_MAP).find(({ menus }) => {
-        return menus.some(({ path }) => {
-          if (typeof path === 'string') {
-            return pathname === path;
-          } else if (Array.isArray(path)) {
-            return path.some((item) => item === pathname);
-          }
-          return false;
-        });
-      });
+      : findActiveConfigMenuGroup(Object.values(CONFIG_MENU_MAP), pathname);
 
-  return <LayoutWithConfigurationComponent configMenu={configMenu} {...props} />;
+  return (
+    <LayoutWithConfigurationComponent
+      // Service 그룹은 제목에 지금 고른 service 이름을 붙여 보여준다.
+      configMenu={configMenu === CONFIG_MENU_MAP.SERVICE ? serviceConfigMenu : configMenu}
+      {...props}
+    />
+  );
 };

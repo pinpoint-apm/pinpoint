@@ -20,8 +20,8 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       name: `Alarm`,
       // Webhook은 자기 항목이 없다 — Alarm 화면의 탭으로만 오가므로 그 경로에서도 이 항목이
       // 선택된 것으로 보여야 한다.
-      path: [APP_PATH.CONFIG_SERVICE_ALARM, APP_PATH.CONFIG_SERVICE_WEBHOOK],
-      href: APP_PATH.CONFIG_SERVICE_ALARM,
+      path: [APP_PATH.CONFIG_ALARM, APP_PATH.CONFIG_WEBHOOK],
+      href: APP_PATH.CONFIG_ALARM,
     },
   ];
 

@@ -120,40 +120,6 @@ describe('resolveHiddenPageRedirect', () => {
     });
   });
 
-  // Alarms 화면도 설정에 따라 둘 중 하나만 메뉴에 보인다. map과 달리 세그먼트가 붙지 않는
-  // 고정 경로 쌍이라 `createHiddenPagePairRule`로 만들어져 있다.
-  describe('alarm pair', () => {
-    test('moves the alarm page to the service alarm page when serviceMap is enabled', async () => {
-      setConfigured(true);
-
-      await expect(resolve('/config/alarm')).resolves.toBe('/config/service/alarm');
-      await expect(resolve('/config/service/alarm')).resolves.toBeUndefined();
-    });
-
-    test('moves the service alarm page back when serviceMap is disabled', async () => {
-      setConfigured(false);
-
-      await expect(resolve('/config/service/alarm')).resolves.toBe('/config/alarm');
-      await expect(resolve('/config/alarm')).resolves.toBeUndefined();
-    });
-
-    // Webhook은 사이드 메뉴에 자기 항목이 없고 Alarms 화면의 탭으로만 오간다. 그래도 같은
-    // 설정으로 함께 옮겨져야 한다 — 안 그러면 service 쪽 Alarms의 탭이 service 밖으로 나간다.
-    test('moves the webhook page along with the alarm page', async () => {
-      setConfigured(true);
-
-      await expect(resolve('/config/webhook')).resolves.toBe('/config/service/webhook');
-      await expect(resolve('/config/service/webhook')).resolves.toBeUndefined();
-    });
-
-    test('moves the service webhook page back when serviceMap is disabled', async () => {
-      setConfigured(false);
-
-      await expect(resolve('/config/service/webhook')).resolves.toBe('/config/webhook');
-      await expect(resolve('/config/webhook')).resolves.toBeUndefined();
-    });
-  });
-
   // 사용자가 Experimental 설정에서 고른 값이 configuration 기본값을 덮는다.
   describe('the stored value wins over the configured default', () => {
     test('stored true moves the servermap page even when configured false', async () => {
@@ -191,29 +157,33 @@ describe('resolveHiddenPageRedirect', () => {
   // 이 저장소에 없는 화면(사내 배포판에만 있는 화면 등)의 규칙을 넘겨받는 자리다.
   // 넘긴 규칙도 map 규칙과 똑같이 "들어오는 길"에서 적용돼야 한다.
   describe('extra rules from the consuming app', () => {
-    const PAIR = createHiddenPagePairRule('/config/auth', '/config/service/userGroup');
+    const PAIR = createHiddenPagePairRule('/config/legacyOnly', '/config/service/legacyOnly');
     const resolveWithPair = (path: string) =>
       resolveHiddenPageRedirect(`http://localhost${path}`, [PAIR]);
 
     test('moves the servermap-era page when serviceMap is enabled', async () => {
       setConfigured(true);
 
-      await expect(resolveWithPair('/config/auth')).resolves.toBe('/config/service/userGroup');
-      await expect(resolveWithPair('/config/service/userGroup')).resolves.toBeUndefined();
+      await expect(resolveWithPair('/config/legacyOnly')).resolves.toBe(
+        '/config/service/legacyOnly',
+      );
+      await expect(resolveWithPair('/config/service/legacyOnly')).resolves.toBeUndefined();
     });
 
     test('moves the service page back when serviceMap is disabled', async () => {
       setConfigured(false);
 
-      await expect(resolveWithPair('/config/service/userGroup')).resolves.toBe('/config/auth');
-      await expect(resolveWithPair('/config/auth')).resolves.toBeUndefined();
+      await expect(resolveWithPair('/config/service/legacyOnly')).resolves.toBe(
+        '/config/legacyOnly',
+      );
+      await expect(resolveWithPair('/config/legacyOnly')).resolves.toBeUndefined();
     });
 
     test('keeps the query string', async () => {
       setConfigured(true);
 
-      await expect(resolveWithPair('/config/auth?tab=list')).resolves.toBe(
-        '/config/service/userGroup?tab=list',
+      await expect(resolveWithPair('/config/legacyOnly?tab=list')).resolves.toBe(
+        '/config/service/legacyOnly?tab=list',
       );
     });
 
@@ -221,21 +191,23 @@ describe('resolveHiddenPageRedirect', () => {
     test('moves the hidden page with a trailing slash', async () => {
       setConfigured(true);
 
-      await expect(resolveWithPair('/config/auth/')).resolves.toBe('/config/service/userGroup');
+      await expect(resolveWithPair('/config/legacyOnly/')).resolves.toBe(
+        '/config/service/legacyOnly',
+      );
     });
 
     // 하위 경로는 이 헬퍼가 맡는 화면이 아니다.
     test('leaves a deeper path alone', async () => {
       setConfigured(true);
 
-      await expect(resolveWithPair('/config/auth/detail')).resolves.toBeUndefined();
+      await expect(resolveWithPair('/config/legacyOnly/detail')).resolves.toBeUndefined();
     });
 
     // 넘기지 않은 화면은 아무 일도 일어나지 않는다 — 규칙을 넘기는 쪽만 그 화면을 안다.
     test('does nothing for the same path without the rule', async () => {
       setConfigured(true);
 
-      await expect(resolve('/config/auth')).resolves.toBeUndefined();
+      await expect(resolve('/config/legacyOnly')).resolves.toBeUndefined();
     });
 
     // 규칙이 늘어도 map 판정은 그대로다.
