@@ -7,17 +7,20 @@ import {
 import { FaCog } from 'react-icons/fa';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { LuCircleUser } from 'react-icons/lu';
-import { CONFIG_MENU_MAP } from './LayoutWithConfiguration';
+import { useConfigMenuMap } from './LayoutWithConfiguration';
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import { useMenuItems } from '@pinpoint-fe/web/src/hooks/useMenuItems';
 
 export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationProps) => {
+  const CONFIG_MENU_MAP = useConfigMenuMap();
   const { menuItems } = useMenuItems();
 
   const serviceGroupItems: SideNavigationMenuItem[] = [
     {
       name: `Alarm`,
-      path: APP_PATH.CONFIG_SERVICE_ALARM,
+      // Webhook은 자기 항목이 없다 — Alarm 화면의 탭으로만 오가므로 그 경로에서도 이 항목이
+      // 선택된 것으로 보여야 한다.
+      path: [APP_PATH.CONFIG_SERVICE_ALARM, APP_PATH.CONFIG_SERVICE_WEBHOOK],
       href: APP_PATH.CONFIG_SERVICE_ALARM,
     },
   ];
