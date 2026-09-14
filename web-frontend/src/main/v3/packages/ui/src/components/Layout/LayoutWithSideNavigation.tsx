@@ -40,7 +40,7 @@ import {
   DropdownMenuItem,
 } from '@pinpoint-fe/ui/src/components/ui/dropdown-menu';
 
-import { isMenuItemActive } from './menuItemActive';
+import { findActiveMenuItem, isMenuItemActive } from './menuItemActive';
 
 const SIDEBAR_WIDTH = 200;
 const SIDEBAR_COLLAPSED_WIDTH = 64;
@@ -92,9 +92,21 @@ export const LayoutWithSideNavigation = ({
   const [collapsed, setCollapsed] = useLocalStorage(APP_SETTING_KEYS.SIDE_NAV_BAR_SCALE, false);
   const { pathname } = useLocation();
 
+  // 이 경로의 주인인 최상위 항목. 보이는 항목으로 아무것도 안 걸릴 때만 감춘 항목까지 본다
+  // (`findActiveMenuItem`). 기능 설정으로 메뉴에서 빠진 화면에 URL로 들어오면 화면은 그 그룹
+  // 안에서 그려지므로(`findActiveConfigMenuGroup`), 사이드바도 같은 그룹을 켜야 한다.
+  const activeItem = findActiveMenuItem(
+    React.useMemo(
+      () => [...(topMenuItems ?? []), ...(bottomMenuItems ?? [])],
+      [topMenuItems, bottomMenuItems],
+    ),
+    pathname,
+  );
+
+  // 자식 항목은 위 목록에 없으므로 항목 자체로 판단한다(감춘 자식은 세지 않는 쪽).
   const isActive = React.useCallback(
-    (item: SideNavigationMenuItem) => isMenuItemActive(item, pathname),
-    [pathname],
+    (item: SideNavigationMenuItem) => item === activeItem || isMenuItemActive(item, pathname),
+    [activeItem, pathname],
   );
 
   const renderMenuItemContent = (item: SideNavigationMenuItem, isChildItem?: boolean) => {

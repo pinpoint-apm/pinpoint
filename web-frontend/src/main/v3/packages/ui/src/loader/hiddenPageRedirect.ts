@@ -7,19 +7,12 @@ import {
   getServiceMapPath,
   getServiceMapRealtimePath,
   parseServiceScopedPath,
+  withoutTrailingSlash,
 } from '@pinpoint-fe/ui/src/utils';
 
 /** 라우터 기준 pathname(basename 제외)이 해당 페이지의 경로인지 여부. */
 const isUnderPage = (pathname: string, pagePath: string) =>
   pathname === pagePath || pathname.startsWith(`${pagePath}/`);
-
-/**
- * 끝에 붙은 '/'를 뗀다. 라우터는 `/config/auth`와 `/config/auth/`를 같은 화면으로 매칭하므로,
- * 경로를 그대로 비교하면 '/'가 붙은 링크·북마크로 감춘 화면에 그대로 들어올 수 있다.
- * 루트('/')는 그 자체가 경로라 남긴다.
- */
-const withoutTrailingSlash = (pathname: string) =>
-  pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
 
 export interface HiddenPageRedirectParams {
   /**
@@ -138,18 +131,12 @@ export const getHiddenMapPageRedirect: HiddenPageRule = ({
  * | 쌍 | 꺼짐 (servermap 시절) | 켜짐 (service) |
  * |---|---|---|
  * | map | `/serverMap...` | `/serviceMap...` |
- * | Alarm | `/config/alarm` | `/config/service/alarm` |
- * | Webhook | `/config/webhook` | `/config/service/webhook` |
  *
- * Webhook은 사이드 메뉴가 아니라 Alarms 화면의 탭으로만 오간다(`LayoutWithAlarm`). 그래도 쌍이
- * 필요하다 — 짝을 만들지 않으면 service 쪽 Alarms에서 Webhook 탭을 눌렀을 때 service 밖의
- * 옛 경로로 나가 버린다.
+ * **설정 화면들은 여기 없다.** service 단위로 갈리는 설정 화면(Alarms와 그 탭인 Webhook)은
+ * 경로가 하나뿐이고, 같은 경로에서 보이는 메뉴 그룹과 내용만 달라진다. 옮길 짝이 없으므로
+ * 규칙도 없다.
  */
-const HIDDEN_PAGE_RULES: HiddenPageRule[] = [
-  getHiddenMapPageRedirect,
-  createHiddenPagePairRule(APP_PATH.CONFIG_ALARM, APP_PATH.CONFIG_SERVICE_ALARM),
-  createHiddenPagePairRule(APP_PATH.CONFIG_WEBHOOK, APP_PATH.CONFIG_SERVICE_WEBHOOK),
-];
+const HIDDEN_PAGE_RULES: HiddenPageRule[] = [getHiddenMapPageRedirect];
 
 /**
  * `enableServiceMap` 설정에 따라 사이드 메뉴에서 감춘 화면의 URL을, 남아 있는 쪽의 같은 화면으로

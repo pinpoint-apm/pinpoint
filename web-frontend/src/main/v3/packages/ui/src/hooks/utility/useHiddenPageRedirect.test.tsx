@@ -114,29 +114,29 @@ describe('useHiddenPageRedirect', () => {
   // 로더에 넘기는 것과 같은 목록을 받는다. 두 갈래의 판단이 갈리면 로더는 옮기는데 화면은
   // 안 옮기거나(또는 그 반대로) 서로 되돌리는 왕복이 생긴다.
   describe('extra rules from the consuming app', () => {
-    const PAIR = [createHiddenPagePairRule('/config/auth', '/config/service/userGroup')];
+    const PAIR = [createHiddenPagePairRule('/config/legacyOnly', '/config/service/legacyOnly')];
 
     test('moves the servermap-era page when serviceMap is on', () => {
-      expect(renderRedirect('/config/auth', true, PAIR)).toBe('/config/service/userGroup');
-      expect(renderRedirect('/config/service/userGroup', true, PAIR)).toBeUndefined();
+      expect(renderRedirect('/config/legacyOnly', true, PAIR)).toBe('/config/service/legacyOnly');
+      expect(renderRedirect('/config/service/legacyOnly', true, PAIR)).toBeUndefined();
     });
 
     test('moves the service page back when serviceMap is off', () => {
-      expect(renderRedirect('/config/service/userGroup', false, PAIR)).toBe('/config/auth');
-      expect(renderRedirect('/config/auth', false, PAIR)).toBeUndefined();
+      expect(renderRedirect('/config/service/legacyOnly', false, PAIR)).toBe('/config/legacyOnly');
+      expect(renderRedirect('/config/legacyOnly', false, PAIR)).toBeUndefined();
     });
 
     test('leaves the page alone without the rule', () => {
-      expect(renderRedirect('/config/auth', true)).toBeUndefined();
+      expect(renderRedirect('/config/legacyOnly', true)).toBeUndefined();
     });
 
     // 끝의 '/'가 붙은 링크·북마크로 열어 둔 탭도 같이 옮긴다(로더와 같은 판정).
     test('moves the hidden page with a trailing slash', () => {
-      expect(renderRedirect('/config/auth/', true, PAIR)).toBe('/config/service/userGroup');
+      expect(renderRedirect('/config/legacyOnly/', true, PAIR)).toBe('/config/service/legacyOnly');
     });
 
     test('leaves a deeper path alone', () => {
-      expect(renderRedirect('/config/auth/detail', true, PAIR)).toBeUndefined();
+      expect(renderRedirect('/config/legacyOnly/detail', true, PAIR)).toBeUndefined();
     });
   });
 });

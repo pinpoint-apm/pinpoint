@@ -10,6 +10,14 @@ import {
 import { convertParamsToQueryString } from '../string';
 
 /**
+ * 끝에 붙은 '/'를 뗀다. 라우터는 `/config/alarm`과 `/config/alarm/`을 같은 화면으로 매칭하므로,
+ * 경로를 그대로 비교하는 곳들('어느 메뉴가 이 경로의 주인인가', 'Alarms 화면의 어느 탭인가')은
+ * '/'가 붙은 링크·북마크에서 아무것도 못 찾는다. 루트('/')는 그 자체가 경로라 남긴다.
+ */
+export const withoutTrailingSlash = (pathname: string) =>
+  pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+
+/**
  * `window.location.pathname`에는 라우터 basename(BASE_PATH)이 포함되므로, 라우터가 보는 경로
  * (`useLocation().pathname`)와 비교하려면 접두사를 떼어내야 한다. BASE_PATH가 비어 있으면
  * 그대로 반환한다.

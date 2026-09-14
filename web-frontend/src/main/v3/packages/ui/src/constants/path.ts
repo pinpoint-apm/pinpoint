@@ -14,8 +14,6 @@ export const APP_PATH = {
   CONFIG_AGENT_STATISTIC: '/config/agentStatistic',
   CONFIG_SERVICES: '/config/service',
   CONFIG_SERVICE_SETTING: '/config/serviceSetting',
-  CONFIG_SERVICE_ALARM: '/config/service/alarm',
-  CONFIG_SERVICE_WEBHOOK: '/config/service/webhook',
   CONFIG: '/config',
   ERROR_ANALYSIS: '/errorAnalysis',
   FILTERED_MAP: '/filteredMap',

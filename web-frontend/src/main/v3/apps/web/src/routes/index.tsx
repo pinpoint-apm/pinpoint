@@ -53,8 +53,6 @@ const Webhook = lazy(() => import('@pinpoint-fe/web/src/pages/config/Webhook'));
 const AgentManagement = lazy(() => import('@pinpoint-fe/web/src/pages/config/AgentManagement'));
 const AgentStatistic = lazy(() => import('@pinpoint-fe/web/src/pages/config/AgentStatistic'));
 const ServiceSetting = lazy(() => import('@pinpoint-fe/web/src/pages/config/ServiceSetting'));
-const ServiceAlarm = lazy(() => import('@pinpoint-fe/web/src/pages/config/ServiceAlarm'));
-const ServiceWebhook = lazy(() => import('@pinpoint-fe/web/src/pages/config/ServiceWebhook'));
 
 const defaultLoader = () => {
   return redirect('/serverMap');
@@ -236,14 +234,6 @@ const router = createBrowserRouter(
                     {
                       path: `${APP_PATH.CONFIG_SERVICE_SETTING}`,
                       element: <ServiceSetting />,
-                    },
-                    {
-                      path: `${APP_PATH.CONFIG_SERVICE_ALARM}`,
-                      element: <ServiceAlarm />,
-                    },
-                    {
-                      path: `${APP_PATH.CONFIG_SERVICE_WEBHOOK}`,
-                      element: <ServiceWebhook />,
                     },
                   ],
                 },
