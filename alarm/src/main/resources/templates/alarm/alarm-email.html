@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title th:text="${name}">Alarm</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif">
+<div style="max-width:600px;margin:24px auto;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e0e0e0">
+
+    <!-- top bar: Pinpoint blue with logo (text fallback when the logo resource is missing) -->
+    <div style="background:#0288d1;padding:14px 24px;text-align:left">
+        <img th:if="${!logoDataUri.isBlank()}" th:src="${logoDataUri}" width="114" height="18" th:alt="${brandText}"
+             style="display:block;font-size:20px;font-weight:bold;color:#ffffff;font-family:Arial,sans-serif">
+        <span th:if="${logoDataUri.isBlank()}" th:text="${brandText}"
+              style="display:block;font-size:20px;font-weight:bold;color:#ffffff;font-family:Arial,sans-serif;line-height:18px"></span>
+    </div>
+
+    <!-- title section: rule name + severity badge -->
+    <div style="padding:20px 24px 12px 24px;border-bottom:1px solid #eeeeee">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span th:style="'display:inline-block;background:' + ${severityColor} + ';color:#fff;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:12px'"
+                  th:text="${severityName}"></span>
+            <span style="font-size:18px;font-weight:bold;color:#212121" th:text="${name}"></span>
+        </div>
+        <div th:if="${description != null and !description.isBlank()}"
+             style="color:#666;font-size:13px;margin-top:6px" th:text="${description}"></div>
+    </div>
+
+    <!-- body -->
+    <div style="padding:24px">
+
+        <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <tr>
+                <th scope="row" style="padding:6px 0;color:#888;width:130px;font-size:13px;font-weight:normal;text-align:left">Service</th>
+                <td style="padding:6px 0;font-size:13px;color:#222" th:text="${serviceName}"></td>
+            </tr>
+            <tr>
+                <th scope="row" style="padding:6px 0;color:#888;width:130px;font-size:13px;font-weight:normal;text-align:left">Application</th>
+                <td style="padding:6px 0;font-size:13px;color:#222" th:text="${applicationName}"></td>
+            </tr>
+            <tr>
+                <th scope="row" style="padding:6px 0;color:#888;width:130px;font-size:13px;font-weight:normal;text-align:left">Data Source</th>
+                <td style="padding:6px 0;font-size:13px;color:#222" th:text="${dataSource}"></td>
+            </tr>
+            <tr>
+                <th scope="row" style="padding:6px 0;color:#888;width:130px;font-size:13px;font-weight:normal;text-align:left">Check Interval</th>
+                <td style="padding:6px 0;font-size:13px;color:#222" th:text="${checkInterval}"></td>
+            </tr>
+            <tr>
+                <th scope="row" style="padding:6px 0;color:#888;width:130px;font-size:13px;font-weight:normal;text-align:left">Fired At</th>
+                <td style="padding:6px 0;font-size:13px;color:#222" th:text="${firedAt}"></td>
+            </tr>
+        </table>
+
+        <div style="margin-top:20px">
+            <div style="font-size:12px;font-weight:bold;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Conditions</div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;background:#f9f9f9;border-radius:6px;overflow:hidden">
+                <thead>
+                <tr style="background:#eeeeee">
+                    <th style="text-align:left;padding:8px 12px;color:#444">Metric</th>
+                    <th style="text-align:right;padding:8px 12px;color:#444">Value</th>
+                    <th style="text-align:left;padding:8px 12px;color:#444">Condition</th>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="row : ${conditions}">
+                <tr style="border-top:1px solid #e8e8e8">
+                    <td style="padding:8px 12px;font-family:monospace" th:text="${row.metric()}"></td>
+                    <td style="padding:8px 12px;text-align:right;font-weight:bold;color:#d32f2f" th:text="${row.value()}"></td>
+                    <td style="padding:8px 12px;color:#555">
+                        <th:block th:if="${row.displayCondition()}">
+                            <span th:text="${row.op() + ' ' + row.threshold()}"></span>
+                            <span th:if="${row.windowSec() != null}" style="color:#999;font-size:12px"
+                                  th:text="'(window: ' + ${row.windowSec()} + 's)'"></span>
+                        </th:block>
+                    </td>
+                </tr>
+                <tr th:if="${!row.details().isEmpty()}">
+                    <td colspan="3" style="padding:0 12px 10px 12px">
+                        <div th:each="line : ${row.details().lines()}"
+                             style="font-family:monospace;font-size:12px;color:#555;word-break:break-all;padding:2px 0"
+                             th:text="'- ' + ${line}"></div>
+                        <div th:if="${row.details().more() > 0}" style="font-size:12px;color:#999;padding:2px 0"
+                             th:text="${row.details().moreText()}"></div>
+                    </td>
+                </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${!filters.isEmpty()}" style="margin-top:16px">
+            <div style="font-size:12px;font-weight:bold;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Filters</div>
+            <div style="font-size:13px;background:#f9f9f9;border-radius:6px;padding:10px 12px">
+                <span th:each="f : ${filters}"
+                      style="display:inline-block;background:#e8eaf6;color:#3949ab;border-radius:4px;padding:2px 8px;margin:2px;font-family:monospace"
+                      th:text="${f.key + ' ' + f.op + ' ' + f.value}"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- footer links -->
+    <div th:if="${detailLink != null or historyLink != null}"
+         style="padding:16px 24px;background:#f9f9f9;border-top:1px solid #eeeeee;display:flex;gap:12px">
+        <a th:if="${detailLink != null}" th:href="${detailLink}"
+           style="display:inline-block;background:#1565c0;color:#fff;padding:9px 18px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:bold">View Details</a>
+        <a th:if="${historyLink != null}" th:href="${historyLink}"
+           style="display:inline-block;background:#fff;color:#1565c0;padding:9px 18px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:bold;border:1px solid #1565c0">Alarm History</a>
+    </div>
+
+</div>
+</body>
+</html>

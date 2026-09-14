@@ -136,6 +136,7 @@
         <module>otlptrace</module>
         <module>feature-flag</module>
         <module>service-module</module>
+        <module>alarm</module>
     </modules>
 
     <properties>

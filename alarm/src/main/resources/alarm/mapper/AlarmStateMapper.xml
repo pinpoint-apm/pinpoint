@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.alarm.dao.AlarmStateDao">
+
+    <select id="selectByRuleId" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmState">
+        SELECT * FROM alarm_state WHERE rule_id = #{ruleId}
+    </select>
+
+    <insert id="upsert" parameterType="com.navercorp.pinpoint.alarm.vo.AlarmState">
+        INSERT INTO alarm_state (
+            rule_id, status, last_checked_at, last_fired_at,
+            last_notification_enqueued_at, last_notified_at, next_check_at
+        )
+        SELECT #{ruleId}, #{status}, #{lastCheckedAt}, #{lastFiredAt},
+               #{lastNotificationEnqueuedAt}, #{lastNotifiedAt}, #{nextCheckAt}
+        FROM alarm_rule_v2
+        WHERE id = #{ruleId}
+        ON DUPLICATE KEY UPDATE
+            status = #{status},
+            last_checked_at = #{lastCheckedAt},
+            last_fired_at = #{lastFiredAt},
+            last_notification_enqueued_at = #{lastNotificationEnqueuedAt},
+            next_check_at = #{nextCheckAt}
+    </insert>
+
+    <update id="updateLastNotifiedAt">
+        UPDATE alarm_state
+        SET last_notified_at = CASE
+            WHEN last_notified_at IS NULL OR last_notified_at &lt; #{notifiedAt} THEN #{notifiedAt}
+            ELSE last_notified_at
+        END
+        WHERE rule_id = #{ruleId}
+    </update>
+
+    <delete id="deleteByRuleId" parameterType="Long">
+        DELETE FROM alarm_state WHERE rule_id = #{ruleId}
+    </delete>
+
+    <delete id="deleteByRuleIds">
+        DELETE FROM alarm_state
+        WHERE rule_id IN
+        <foreach item="ruleId" collection="ruleIds" open="(" separator="," close=")">
+            #{ruleId}
+        </foreach>
+    </delete>
+
+</mapper>

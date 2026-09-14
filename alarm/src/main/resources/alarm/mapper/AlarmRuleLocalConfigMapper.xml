@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.alarm.dao.mapper.AlarmRuleLocalConfigMapper">
+
+    <insert id="upsert"
+            parameterType="com.navercorp.pinpoint.alarm.dao.entity.AlarmRuleLocalConfigEntity">
+        INSERT INTO alarm_rule_local_config (
+            rule_id, name, description, severity, check_interval_sec, action_interval_sec,
+            conditions, filters
+        )
+        VALUES (
+            #{ruleId}, #{name}, #{description}, #{severity}, #{checkIntervalSec}, #{actionIntervalSec},
+            #{conditions}, #{filters}
+        )
+        ON DUPLICATE KEY UPDATE
+            name = #{name},
+            description = #{description},
+            severity = #{severity},
+            check_interval_sec = #{checkIntervalSec},
+            action_interval_sec = #{actionIntervalSec},
+            conditions = #{conditions},
+            filters = #{filters}
+    </insert>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM alarm_rule_local_config WHERE rule_id = #{ruleId}
+    </delete>
+
+    <delete id="deleteByRuleIds">
+        DELETE FROM alarm_rule_local_config
+        WHERE rule_id IN
+        <foreach item="ruleId" collection="ruleIds" open="(" separator="," close=")">
+            #{ruleId}
+        </foreach>
+    </delete>
+
+    <select id="selectByRuleId" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.dao.entity.AlarmRuleLocalConfigEntity">
+        SELECT * FROM alarm_rule_local_config WHERE rule_id = #{ruleId}
+    </select>
+
+    <select id="selectByRuleIds"
+            resultType="com.navercorp.pinpoint.alarm.dao.entity.AlarmRuleLocalConfigEntity">
+        SELECT * FROM alarm_rule_local_config
+        WHERE rule_id IN
+        <foreach item="ruleId" collection="ruleIds" open="(" separator="," close=")">
+            #{ruleId}
+        </foreach>
+    </select>
+
+</mapper>

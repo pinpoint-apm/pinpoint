@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.alarm.dao.mapper.AlarmTemplateItemMapper">
+    <sql id="itemSelectColumns">
+        i.*,
+        COALESCE((SELECT COUNT(*) FROM alarm_rule_v2 r WHERE r.template_item_id = i.id), 0) AS used_rule_count,
+        COALESCE((SELECT COUNT(*) FROM alarm_rule_v2 r WHERE r.template_item_id = i.id AND r.enabled = 1), 0) AS enabled_used_rule_count
+    </sql>
+
+    <insert id="insert"
+            parameterType="com.navercorp.pinpoint.alarm.dao.entity.AlarmTemplateItemEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alarm_template_item (
+            template_id, name, description, severity, data_source,
+            check_interval_sec, action_interval_sec, conditions, filters
+        )
+        VALUES (
+            #{templateId}, #{name}, #{description}, #{severity}, #{dataSource},
+            #{checkIntervalSec}, #{actionIntervalSec}, #{conditions}, #{filters}
+        )
+    </insert>
+
+    <update id="update"
+            parameterType="com.navercorp.pinpoint.alarm.dao.entity.AlarmTemplateItemEntity">
+        UPDATE alarm_template_item
+        SET name = #{name},
+            description = #{description},
+            severity = #{severity},
+            data_source = #{dataSource},
+            check_interval_sec = #{checkIntervalSec},
+            action_interval_sec = #{actionIntervalSec},
+            conditions = #{conditions},
+            filters = #{filters}
+        WHERE id = #{id}
+          AND template_id = #{templateId}
+          AND deleted = 0
+    </update>
+
+    <update id="markDeleted" parameterType="Long">
+        UPDATE alarm_template_item
+        SET deleted = 1
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
+
+    <update id="markDeletedByTemplateId" parameterType="Long">
+        UPDATE alarm_template_item
+        SET deleted = 1
+        WHERE template_id = #{templateId}
+          AND deleted = 0
+    </update>
+
+    <select id="selectById" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.dao.entity.AlarmTemplateItemEntity">
+        SELECT <include refid="itemSelectColumns" />
+        FROM alarm_template_item i
+        WHERE i.id = #{id}
+          AND i.deleted = 0
+    </select>
+
+    <!-- Locking read: config lives on the item, so a rule that binds to it must
+         validate against the latest committed values, not the transaction snapshot. -->
+    <select id="selectByIdForUpdate" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.dao.entity.AlarmTemplateItemEntity">
+        SELECT i.*
+        FROM alarm_template_item i
+        WHERE i.id = #{id}
+          AND i.deleted = 0
+        FOR UPDATE
+    </select>
+
+    <select id="selectByIds"
+            resultType="com.navercorp.pinpoint.alarm.dao.entity.AlarmTemplateItemEntity">
+        SELECT i.*
+        FROM alarm_template_item i
+        WHERE i.deleted = 0
+          AND i.id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectByTemplateId" parameterType="Long"
+            resultType="com.navercorp.pinpoint.alarm.dao.entity.AlarmTemplateItemEntity">
+        SELECT <include refid="itemSelectColumns" />
+        FROM alarm_template_item i
+        WHERE i.template_id = #{templateId}
+          AND i.deleted = 0
+        ORDER BY i.id
+    </select>
+
+    <select id="selectByTemplateIds"
+            resultType="com.navercorp.pinpoint.alarm.dao.entity.AlarmTemplateItemEntity">
+        SELECT <include refid="itemSelectColumns" />
+        FROM alarm_template_item i
+        WHERE i.deleted = 0
+          AND i.template_id IN
+        <foreach item="templateId" collection="templateIds" open="(" separator="," close=")">
+            #{templateId}
+        </foreach>
+        ORDER BY i.template_id, i.id
+    </select>
+
+    <select id="countRulesByTemplateItemId" parameterType="Long" resultType="int">
+        SELECT COUNT(*)
+        FROM alarm_rule_v2
+        WHERE template_item_id = #{templateItemId}
+    </select>
+
+</mapper>

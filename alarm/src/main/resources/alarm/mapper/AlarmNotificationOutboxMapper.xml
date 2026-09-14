@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.alarm.dao.AlarmNotificationOutboxDao">
+
+    <resultMap id="outboxCountsResultMap"
+               type="com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutboxCounts">
+        <constructor>
+            <arg column="total" javaType="_int" />
+            <arg column="sent" javaType="_int" />
+            <arg column="dead" javaType="_int" />
+        </constructor>
+    </resultMap>
+
+    <insert id="insert"
+            parameterType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alarm_notification_outbox (
+            history_id, channel_id, method_type, payload,
+            status, attempt_count, available_at
+        ) VALUES (
+            #{historyId}, #{channelId}, #{methodType}, #{payload},
+            'PENDING', 0, #{availableAt}
+        )
+    </insert>
+
+    <!-- Candidate selection is a separate non-locking read. Resolving it inside the UPDATE (as a
+         derived table over the same table) makes concurrent claimers take a shared lock on a row
+         and then upgrade it to exclusive, which deadlocks. -->
+    <select id="selectClaimCandidateIds" resultType="java.lang.Long">
+        SELECT outbox.id
+        FROM alarm_notification_outbox outbox
+        WHERE outbox.status IN ('PENDING', 'RETRY', 'PROCESSING')
+          AND outbox.available_at &lt;= #{now}
+          AND NOT EXISTS (
+              SELECT 1
+              FROM alarm_history_v2 history
+              INNER JOIN alarm_rule_v2 rule_v2 ON rule_v2.id = history.rule_id
+              INNER JOIN alarm_template_item item
+                      ON item.id = rule_v2.template_item_id
+              LEFT JOIN alarm_template header
+                      ON header.id = item.template_id
+              WHERE history.id = outbox.history_id
+                AND (item.deleted = 1 OR header.deleted = 1)
+          )
+        ORDER BY outbox.id
+        LIMIT #{limit}
+    </select>
+
+    <update id="claimAvailable">
+        <!-- The status/available_at re-check is required: it forces InnoDB's semi-consistent read to
+             re-evaluate the row against its latest committed state after a lock wait, so a row
+             already claimed (and re-leased) by a concurrent claimer is skipped instead of having its
+             claim_token overwritten. Ids arrive in ascending order so concurrent claimers always
+             lock rows in the same order. -->
+        UPDATE alarm_notification_outbox
+        SET status = 'PROCESSING',
+            claim_token = #{claimToken},
+            available_at = #{availableAt},
+            attempt_count = attempt_count + 1
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND status IN ('PENDING', 'RETRY', 'PROCESSING')
+          AND available_at &lt;= #{now}
+    </update>
+
+    <select id="selectByClaimToken" parameterType="String"
+            resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox">
+        SELECT *
+        FROM alarm_notification_outbox
+        WHERE claim_token = #{claimToken}
+          AND status = 'PROCESSING'
+        ORDER BY id
+    </select>
+
+    <update id="markSent">
+        UPDATE alarm_notification_outbox
+        SET status = 'SENT',
+            available_at = NULL,
+            claim_token = NULL
+        WHERE id = #{id}
+          AND claim_token = #{claimToken}
+          AND status = 'PROCESSING'
+    </update>
+
+    <update id="markRetry">
+        UPDATE alarm_notification_outbox
+        SET status = 'RETRY',
+            available_at = #{availableAt},
+            claim_token = NULL
+        WHERE id = #{id}
+          AND claim_token = #{claimToken}
+          AND status = 'PROCESSING'
+    </update>
+
+    <update id="markDead">
+        UPDATE alarm_notification_outbox
+        SET status = 'DEAD',
+            available_at = NULL,
+            claim_token = NULL
+        WHERE id = #{id}
+          AND claim_token = #{claimToken}
+          AND status = 'PROCESSING'
+    </update>
+
+    <delete id="deleteByRuleId" parameterType="Long">
+        DELETE outbox
+        FROM alarm_notification_outbox outbox
+        INNER JOIN alarm_history_v2 history ON history.id = outbox.history_id
+        WHERE history.rule_id = #{ruleId}
+    </delete>
+
+    <delete id="deleteByRuleIds">
+        DELETE outbox
+        FROM alarm_notification_outbox outbox
+        INNER JOIN alarm_history_v2 history ON history.id = outbox.history_id
+        WHERE history.rule_id IN
+        <foreach item="ruleId" collection="ruleIds" open="(" separator="," close=")">
+            #{ruleId}
+        </foreach>
+    </delete>
+
+    <select id="selectCountsByHistoryId" parameterType="Long" resultMap="outboxCountsResultMap">
+        SELECT COUNT(*) AS total,
+               COUNT(CASE WHEN status = 'SENT' THEN 1 END) AS sent,
+               COUNT(CASE WHEN status = 'DEAD' THEN 1 END) AS dead
+        FROM alarm_notification_outbox
+        WHERE history_id = #{historyId}
+    </select>
+
+</mapper>
