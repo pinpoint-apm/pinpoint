@@ -13,6 +13,10 @@ public class KafkaProperties {
     private String acks = "1";
     private String compressionType = "zstd";
     private Long maxBlockMs = 60 * 1000L;
+    // null: use the kafka client default (32MB)
+    private Long bufferMemory;
+    // null: use the kafka client default (0)
+    private Long lingerMs;
 
     public String getBootstrapServers() {
         return bootstrapServers;
@@ -74,6 +78,22 @@ public class KafkaProperties {
         this.maxBlockMs = maxBlockMs;
     }
 
+    public Long getBufferMemory() {
+        return bufferMemory;
+    }
+
+    public void setBufferMemory(Long bufferMemory) {
+        this.bufferMemory = bufferMemory;
+    }
+
+    public Long getLingerMs() {
+        return lingerMs;
+    }
+
+    public void setLingerMs(Long lingerMs) {
+        this.lingerMs = lingerMs;
+    }
+
     @Override
     public String toString() {
         return "KafkaProperties{" +
@@ -85,6 +105,8 @@ public class KafkaProperties {
                 ", acks='" + acks + '\'' +
                 ", compressionType='" + compressionType + '\'' +
                 ", maxBlockMs=" + maxBlockMs +
+                ", bufferMemory=" + bufferMemory +
+                ", lingerMs=" + lingerMs +
                 '}';
     }
 }

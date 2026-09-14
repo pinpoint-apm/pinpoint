@@ -34,6 +34,12 @@ public class KafkaConfiguration {
         config.put(ProducerConfig.ACKS_CONFIG, properties.getAcks());
         config.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, properties.getCompressionType());
         config.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, properties.getMaxBlockMs());
+        if (properties.getBufferMemory() != null) {
+            config.put(ProducerConfig.BUFFER_MEMORY_CONFIG, properties.getBufferMemory());
+        }
+        if (properties.getLingerMs() != null) {
+            config.put(ProducerConfig.LINGER_MS_CONFIG, properties.getLingerMs());
+        }
         return config;
     }
 
@@ -68,6 +74,8 @@ public class KafkaConfiguration {
         bindProperties(env, "pinpoint.metric.kafka.compressionType", properties::setCompressionType);
         bindProperties(env, "pinpoint.metric.kafka.partitionerClass", properties::setPartitionerClass);
         bindLongProperties(env, "pinpoint.metric.kafka.max.block.ms", properties::setMaxBlockMs);
+        bindLongProperties(env, "pinpoint.metric.kafka.buffer.memory", properties::setBufferMemory);
+        bindLongProperties(env, "pinpoint.metric.kafka.linger.ms", properties::setLingerMs);
 
         return properties;
     }
