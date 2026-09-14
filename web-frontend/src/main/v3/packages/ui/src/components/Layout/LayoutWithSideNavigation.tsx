@@ -40,6 +40,8 @@ import {
   DropdownMenuItem,
 } from '@pinpoint-fe/ui/src/components/ui/dropdown-menu';
 
+import { isMenuItemActive } from './menuItemActive';
+
 const SIDEBAR_WIDTH = 200;
 const SIDEBAR_COLLAPSED_WIDTH = 64;
 
@@ -91,16 +93,7 @@ export const LayoutWithSideNavigation = ({
   const { pathname } = useLocation();
 
   const isActive = React.useCallback(
-    (item: SideNavigationMenuItem) => {
-      if (item?.childItems && item?.childItems?.length > 0) {
-        return item?.childItems?.some(({ path }) => {
-          return Array.isArray(path) ? path.includes(pathname) : pathname.startsWith(path);
-        });
-      }
-      return Array.isArray(item.path)
-        ? item.path.includes(pathname)
-        : pathname.startsWith(item.path);
-    },
+    (item: SideNavigationMenuItem) => isMenuItemActive(item, pathname),
     [pathname],
   );
 

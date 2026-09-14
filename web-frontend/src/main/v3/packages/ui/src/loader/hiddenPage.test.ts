@@ -120,6 +120,40 @@ describe('resolveHiddenPageRedirect', () => {
     });
   });
 
+  // Alarms 화면도 설정에 따라 둘 중 하나만 메뉴에 보인다. map과 달리 세그먼트가 붙지 않는
+  // 고정 경로 쌍이라 `createHiddenPagePairRule`로 만들어져 있다.
+  describe('alarm pair', () => {
+    test('moves the alarm page to the service alarm page when serviceMap is enabled', async () => {
+      setConfigured(true);
+
+      await expect(resolve('/config/alarm')).resolves.toBe('/config/service/alarm');
+      await expect(resolve('/config/service/alarm')).resolves.toBeUndefined();
+    });
+
+    test('moves the service alarm page back when serviceMap is disabled', async () => {
+      setConfigured(false);
+
+      await expect(resolve('/config/service/alarm')).resolves.toBe('/config/alarm');
+      await expect(resolve('/config/alarm')).resolves.toBeUndefined();
+    });
+
+    // Webhook은 사이드 메뉴에 자기 항목이 없고 Alarms 화면의 탭으로만 오간다. 그래도 같은
+    // 설정으로 함께 옮겨져야 한다 — 안 그러면 service 쪽 Alarms의 탭이 service 밖으로 나간다.
+    test('moves the webhook page along with the alarm page', async () => {
+      setConfigured(true);
+
+      await expect(resolve('/config/webhook')).resolves.toBe('/config/service/webhook');
+      await expect(resolve('/config/service/webhook')).resolves.toBeUndefined();
+    });
+
+    test('moves the service webhook page back when serviceMap is disabled', async () => {
+      setConfigured(false);
+
+      await expect(resolve('/config/service/webhook')).resolves.toBe('/config/webhook');
+      await expect(resolve('/config/webhook')).resolves.toBeUndefined();
+    });
+  });
+
   // 사용자가 Experimental 설정에서 고른 값이 configuration 기본값을 덮는다.
   describe('the stored value wins over the configured default', () => {
     test('stored true moves the servermap page even when configured false', async () => {

@@ -10,3 +10,4 @@ export * from './AgentManagement';
 export * from './AgentStatistic';
 export * from './ServiceSetting';
 export * from './ServiceAlarm';
+export * from './ServiceWebhook';

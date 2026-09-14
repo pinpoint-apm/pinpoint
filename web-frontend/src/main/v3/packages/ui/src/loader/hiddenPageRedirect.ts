@@ -138,8 +138,18 @@ export const getHiddenMapPageRedirect: HiddenPageRule = ({
  * | 쌍 | 꺼짐 (servermap 시절) | 켜짐 (service) |
  * |---|---|---|
  * | map | `/serverMap...` | `/serviceMap...` |
+ * | Alarm | `/config/alarm` | `/config/service/alarm` |
+ * | Webhook | `/config/webhook` | `/config/service/webhook` |
+ *
+ * Webhook은 사이드 메뉴가 아니라 Alarms 화면의 탭으로만 오간다(`LayoutWithAlarm`). 그래도 쌍이
+ * 필요하다 — 짝을 만들지 않으면 service 쪽 Alarms에서 Webhook 탭을 눌렀을 때 service 밖의
+ * 옛 경로로 나가 버린다.
  */
-const HIDDEN_PAGE_RULES: HiddenPageRule[] = [getHiddenMapPageRedirect];
+const HIDDEN_PAGE_RULES: HiddenPageRule[] = [
+  getHiddenMapPageRedirect,
+  createHiddenPagePairRule(APP_PATH.CONFIG_ALARM, APP_PATH.CONFIG_SERVICE_ALARM),
+  createHiddenPagePairRule(APP_PATH.CONFIG_WEBHOOK, APP_PATH.CONFIG_SERVICE_WEBHOOK),
+];
 
 /**
  * `enableServiceMap` 설정에 따라 사이드 메뉴에서 감춘 화면의 URL을, 남아 있는 쪽의 같은 화면으로
