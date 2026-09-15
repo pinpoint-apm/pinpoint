@@ -122,12 +122,9 @@ describe('flattenServiceMapResponse', () => {
     const group: GetServiceMap.ServiceGroupNode = {
       key: 'empty-group',
       type: 'service',
-      serviceName: 'empty',
-      apdex: {
-        apdexScore: 0,
-        apdexFormula: { satisfiedCount: 0, toleratingCount: 0, totalSamples: 0 },
-      },
+      // apdex 가 없는 응답도 그릴 수 있어야 한다
       nodes: [],
+      serviceName: 'empty',
     };
 
     const node = flattenServiceMapResponse(makeResponse([group]))?.applicationMapData
@@ -139,6 +136,11 @@ describe('flattenServiceMapResponse', () => {
     expect(node?.instanceCount).toBe(0);
     expect(node?.totalCount).toBe(0);
     expect(node?.hasAlert).toBe(false);
+    // apdex 가 빠진 응답은 0 으로 채운다
+    expect(node?.apdex).toEqual({
+      apdexScore: 0,
+      apdexFormula: { satisfiedCount: 0, toleratingCount: 0, totalSamples: 0 },
+    });
   });
 
   test('passes through non-service (app) links unchanged', () => {
