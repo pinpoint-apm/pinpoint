@@ -67,10 +67,9 @@ export const getApplicationPath =
       [k: string]: string;
     },
   ) => {
-    let subPath = '';
     let queryString = '';
     if (application?.applicationName && application?.serviceType) {
-      subPath = `/${application?.applicationName}@${application?.serviceType}`;
+      const subPath = `/${application?.applicationName}@${application?.serviceType}`;
       if (queryParams?.from && queryParams?.to) {
         queryString = `${convertParamsToQueryString({
           from: queryParams?.from,
@@ -91,10 +90,9 @@ export const getHostGroupPath =
       [k: string]: string;
     },
   ) => {
-    let subPath = '';
     let queryString = '';
     if (hostGroup) {
-      subPath = `/${hostGroup}`;
+      const subPath = `/${hostGroup}`;
       if (queryParams?.from && queryParams?.to) {
         queryString = `${convertParamsToQueryString({
           from: queryParams.from,

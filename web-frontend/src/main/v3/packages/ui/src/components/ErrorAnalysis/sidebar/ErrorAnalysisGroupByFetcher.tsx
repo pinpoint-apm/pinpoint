@@ -39,14 +39,11 @@ export const ErrorAnalysisGroupByFetcher = ({
                   id={`${ID_PREFIX}_${option}`}
                   checked={selectedGroups?.includes(option)}
                   onCheckedChange={(checked) => {
-                    let groupBy = '';
-                    if (checked) {
-                      groupBy = [...selectedGroups, option].join(',');
-                    } else {
-                      groupBy = selectedGroups
-                        .filter((selectedGroup) => selectedGroup !== option)
-                        .join(',');
-                    }
+                    const groupBy = checked
+                      ? [...selectedGroups, option].join(',')
+                      : selectedGroups
+                          .filter((selectedGroup) => selectedGroup !== option)
+                          .join(',');
 
                     navigate(
                       `${getErrorAnalysisPath(application)}?${convertParamsToQueryString({

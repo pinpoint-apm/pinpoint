@@ -189,9 +189,8 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
   }, [filter]);
 
   useUpdateEffect(() => {
-    let filteredList: TransactionInfo.CallStackKeyValueMap[] = [];
     if (filter === 'hasException') {
-      filteredList = searchScope.filter((d) => d[filter]);
+      const filteredList = searchScope.filter((d) => d[filter]);
       const indexLists = filteredList.map((item) => String(item.id));
       setFilteredListIds(indexLists);
       setFocusRowId(indexLists[0]);
