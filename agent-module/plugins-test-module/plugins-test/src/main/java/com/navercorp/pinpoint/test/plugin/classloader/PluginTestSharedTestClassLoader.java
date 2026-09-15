@@ -19,9 +19,10 @@ package com.navercorp.pinpoint.test.plugin.classloader;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointTestPackage;
 
 import java.net.URL;
+import java.util.function.Predicate;
 
 public class PluginTestSharedTestClassLoader extends PluginTestClassLoader {
-    public static final IsPinpointTestPackage isPinpointTestPackage = new IsPinpointTestPackage();
+    public static final Predicate<String> isPinpointTestPackage = new IsPinpointTestPackage();
 
     public PluginTestSharedTestClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
