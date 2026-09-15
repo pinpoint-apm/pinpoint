@@ -20,10 +20,12 @@ import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.execution.ConditionEvaluator;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
-import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
+import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.hierarchical.Node;
+
+import java.util.Objects;
 
 public abstract class PluginTestDescriptor extends AbstractTestDescriptor implements Node<JupiterEngineExecutionContext> {
 
@@ -32,11 +34,18 @@ public abstract class PluginTestDescriptor extends AbstractTestDescriptor implem
     private static final ConditionEvaluator conditionEvaluator = new ConditionEvaluator();
 
     final JupiterConfiguration configuration;
+    // every plugin descriptor level stands for one test class: the unit, its dependency cases and the class itself
+    private final Class<?> testClass;
 
-    PluginTestDescriptor(UniqueId uniqueId, String displayName, TestSource source,
+    PluginTestDescriptor(UniqueId uniqueId, String displayName, Class<?> testClass,
                          JupiterConfiguration configuration) {
-        super(uniqueId, displayName, source);
+        super(uniqueId, displayName, ClassSource.from(testClass));
+        this.testClass = Objects.requireNonNull(testClass, "testClass");
         this.configuration = configuration;
+    }
+
+    public Class<?> getTestClass() {
+        return testClass;
     }
 
     // --- TestDescriptor ------------------------------------------------------

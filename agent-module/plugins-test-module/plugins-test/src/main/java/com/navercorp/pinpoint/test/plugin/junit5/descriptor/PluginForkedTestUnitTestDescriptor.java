@@ -27,7 +27,6 @@ import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.jupiter.engine.extension.MutableExtensionRegistry;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
-import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import java.util.ArrayList;
@@ -44,13 +43,11 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create("PLUGIN-TEST");
 
     private final ExceptionReader reader = new ExceptionReader();
-    private final Class<?> testClass;
     private final List<PluginForkedTestInstance> testInstanceList;
 
 
     public PluginForkedTestUnitTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, List<PluginForkedTestInstance> testInstanceList) {
-        super(uniqueId, DescriptorUtils.generateDisplayNameForClass(testClass), ClassSource.from(testClass), configuration);
-        this.testClass = testClass;
+        super(uniqueId, DescriptorUtils.generateDisplayNameForClass(testClass), testClass, configuration);
         this.testInstanceList = testInstanceList;
     }
 
@@ -61,7 +58,7 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
 
     @Override
     public String getLegacyReportingName() {
-        return this.testClass.getName();
+        return getTestClass().getName();
     }
 
     @Override
@@ -198,7 +195,4 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
 
     }
 
-    public Class<?> getTestClass() {
-        return this.testClass;
-    }
 }

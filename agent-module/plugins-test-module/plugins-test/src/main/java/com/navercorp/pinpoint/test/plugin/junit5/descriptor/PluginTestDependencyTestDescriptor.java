@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.test.plugin.junit5.descriptor;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.UniqueId;
-import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import static org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory.createThrowableCollector;
@@ -27,7 +26,7 @@ import static org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory.
 public class PluginTestDependencyTestDescriptor extends PluginTestDescriptor {
 
     public PluginTestDependencyTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, String displayName) {
-        super(uniqueId, displayName, ClassSource.from(testClass), configuration);
+        super(uniqueId, displayName, testClass, configuration);
     }
 
     @Override
