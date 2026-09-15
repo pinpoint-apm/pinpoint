@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
@@ -32,6 +33,7 @@ import com.navercorp.pinpoint.web.vo.SpanHint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,12 +62,25 @@ public class HeatMapServiceImpl implements HeatMapService {
     private final TraceDao traceDao;
     private final SpanService spanService;
 
+    private final boolean chunkedScanEnabled;
+    private final long chunkWindowMillis;
+    private final long chunkBudgetMillis;
+
     public HeatMapServiceImpl(TraceIndexDao traceIndexDao,
                               SpanService spanService,
-                              TraceDao traceDao) {
+                              TraceDao traceDao,
+                              @Value("${web.scatter.chunked-scan.enabled:true}") boolean chunkedScanEnabled,
+                              @Value("${web.scatter.chunked-scan.window-millis:300000}") long chunkWindowMillis,
+                              @Value("${web.scatter.chunked-scan.budget-millis:3000}") long chunkBudgetMillis) {
         this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
+        if (chunkWindowMillis <= 0) {
+            throw new IllegalArgumentException("non-positive chunkWindowMillis:" + chunkWindowMillis);
+        }
+        this.chunkedScanEnabled = chunkedScanEnabled;
+        this.chunkWindowMillis = chunkWindowMillis;
+        this.chunkBudgetMillis = chunkBudgetMillis;
     }
 
 
@@ -75,7 +90,7 @@ public class HeatMapServiceImpl implements HeatMapService {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
 
-        LimitedScanResult<List<DotMetaData>> scanResult = traceIndexDao.scanScatterDataV2(service, applicationName, serviceTypeCode, dragAreaQuery, null, limit);
+        LimitedScanResult<List<DotMetaData>> scanResult = scan(service, applicationName, serviceTypeCode, dragAreaQuery, limit);
         List<DotMetaData> scanData = scanResult.scanData();
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
 
@@ -83,6 +98,68 @@ public class HeatMapServiceImpl implements HeatMapService {
             return filterCompatibility(applicationName, serviceTypeCode, scanResult);
         }
         return scanResult;
+    }
+
+    private LimitedScanResult<List<DotMetaData>> scan(Service service, String applicationName, int serviceTypeCode,
+                                                      DragAreaQuery dragAreaQuery, int limit) {
+        if (!chunkedScanEnabled) {
+            return traceIndexDao.scanScatterDataV2(service, applicationName, serviceTypeCode, dragAreaQuery, null, limit);
+        }
+        final DragArea dragArea = dragAreaQuery.getDragArea();
+        final long from = dragArea.getXLow();
+        final long to = dragArea.getXHigh();
+
+        if ((to - from) <= chunkWindowMillis) {
+            return traceIndexDao.scanScatterDataV2(service, applicationName, serviceTypeCode, dragAreaQuery, null, limit);
+        }
+        return chunkedScan(service, applicationName, serviceTypeCode, dragAreaQuery, limit, from, to);
+    }
+
+    private LimitedScanResult<List<DotMetaData>> chunkedScan(Service service, String applicationName, int serviceTypeCode,
+                                                             DragAreaQuery dragAreaQuery, int limit, long from, long to) {
+        final long deadline = System.currentTimeMillis() + chunkBudgetMillis;
+
+        List<DotMetaData> collected = new ArrayList<>(limit);
+        long cursor = to;
+        long limitedTime = from;
+        boolean truncated = false;
+        int windows = 0;
+
+        while (cursor > from) {
+            final long windowFrom = Math.max(from, cursor - chunkWindowMillis);
+            final DragAreaQuery windowQuery = narrowTo(dragAreaQuery, windowFrom, cursor);
+            final int remaining = limit - collected.size();
+
+            LimitedScanResult<List<DotMetaData>> window =
+                    traceIndexDao.scanScatterDataV2(service, applicationName, serviceTypeCode, windowQuery, null, remaining);
+            collected.addAll(window.scanData());
+            windows++;
+
+            if (collected.size() >= limit) {
+                limitedTime = window.limitedTime();
+                break;
+            }
+
+            cursor = windowFrom;
+
+            if (cursor > from && System.currentTimeMillis() >= deadline) {
+                truncated = true;
+                limitedTime = cursor + 1;
+                break;
+            }
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("chunkedScan applicationName:{} windows:{} dots:{} truncated:{}",
+                    applicationName, windows, collected.size(), truncated);
+        }
+        return new LimitedScanResult<>(limitedTime, collected, truncated);
+    }
+
+    private static DragAreaQuery narrowTo(DragAreaQuery origin, long xLow, long xHigh) {
+        DragArea dragArea = origin.getDragArea();
+        DragArea narrowed = DragArea.normalize(xLow, xHigh, dragArea.getYLow(), dragArea.getYHigh());
+        return new DragAreaQuery(narrowed, origin.getAgentId(), origin.getDotStatus());
     }
 
     private boolean hasOldVersion(List<DotMetaData> scanData) {
@@ -139,7 +216,7 @@ public class HeatMapServiceImpl implements HeatMapService {
                 result.add(dotMetaData);
             }
         }
-        return new LimitedScanResult<>(scanResult.limitedTime(), result);
+        return new LimitedScanResult<>(scanResult.limitedTime(), result, scanResult.truncated());
     }
 
     private @NonNull List<Dot> filterLegacyTablePredicate(List<DotMetaData> scanData, Predicate<DotMetaData> legacyTablePredicate) {
