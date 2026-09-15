@@ -172,8 +172,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
 
             final Thread thread = Thread.currentThread();
             final ClassLoader currentClassLoader = thread.getContextClassLoader();
-            final PluginAgentTestClassLoader agentClassLoader = new PluginAgentTestClassLoader(agentUrls, currentClassLoader);
-            agentClassLoader.setTransformIncludeList(context.getTransformIncludeList());
+            final PluginAgentTestClassLoader agentClassLoader = new PluginAgentTestClassLoader(agentUrls, currentClassLoader, context.getTransformIncludeList());
             try {
                 thread.setContextClassLoader(agentClassLoader);
                 final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(currentClassLoader, testId, agentClassLoader,
