@@ -26,8 +26,6 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.10",
-    "@babel/preset-react": "^7.18.6",
     "@eslint/js": "^10.0.1",
     "@storybook/addon-docs": "^10.6.0",
     "@storybook/addon-links": "^10.6.0",
@@ -42,7 +40,6 @@
     "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.70.0",
     "@vitejs/plugin-react-swc": "^4.3.3",
-    "babel-loader": "^8.2.5",
     "chromatic": "^18.8.1",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",

@@ -32,7 +32,6 @@
     "lodash.merge": "^4.6.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.10",
     "@eslint/js": "^10.0.1",
     "@storybook/addon-docs": "^10.6.0",
     "@storybook/addon-links": "^10.6.0",
@@ -46,7 +45,6 @@
     "@types/lodash.merge": "^4.6.7",
     "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.70.0",
-    "babel-loader": "^8.2.5",
     "chromatic": "^18.8.1",
     "css-loader": "^6.7.3",
     "eslint": "^10.10.0",
