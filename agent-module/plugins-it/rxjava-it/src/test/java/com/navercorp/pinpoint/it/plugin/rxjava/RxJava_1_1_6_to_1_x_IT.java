@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.it.plugin.rxjava.runners.GroupedObservableTestRunn
 import com.navercorp.pinpoint.it.plugin.rxjava.runners.ObservableTestRunner;
 import com.navercorp.pinpoint.it.plugin.rxjava.runners.SingleTestRunner;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import org.junit.jupiter.api.Test;
 
 /**

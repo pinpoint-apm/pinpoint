@@ -16,7 +16,7 @@
 
 package test.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.test.plugin.shared.SharedPluginTestConstants;
+import com.navercorp.pinpoint.test.plugin.api.SharedPluginTestConstants;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;

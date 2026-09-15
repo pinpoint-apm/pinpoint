@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.it.plugin.activemq.client.util.ActiveMQClientITHel
 import com.navercorp.pinpoint.it.plugin.activemq.client.util.PortUtils;
 import com.navercorp.pinpoint.it.plugin.activemq.client.util.TestBroker;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import com.navercorp.pinpoint.testcase.util.SocketUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.it.plugin.jdbc.jtds;
 
 import com.navercorp.pinpoint.it.plugin.utils.LogOutputStream;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycle;
 import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

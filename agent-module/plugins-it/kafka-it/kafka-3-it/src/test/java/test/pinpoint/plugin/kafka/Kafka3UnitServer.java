@@ -16,7 +16,7 @@
 
 package test.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assumptions;

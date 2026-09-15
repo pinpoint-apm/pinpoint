@@ -16,7 +16,7 @@
 
 package test.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycle;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycle;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.streams.errors.StreamsException;
