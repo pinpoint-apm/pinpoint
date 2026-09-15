@@ -50,9 +50,7 @@ public class PluginTestInstanceFactory {
         List<Path> classPath = getClassPath(libs, this.context);
         final URL[] urls = URLUtils.pathToUrls(classPath);
 
-        PluginTestJunitTestClassLoader testClassLoader = new PluginTestJunitTestClassLoader(urls, parentClassLoader, instanceContext);
-        testClassLoader.setAgentClassLoader(agentClassLoader);
-        testClassLoader.setTransformIncludeList(transformIncludeList);
+        PluginTestJunitTestClassLoader testClassLoader = new PluginTestJunitTestClassLoader(urls, parentClassLoader, instanceContext, agentClassLoader, transformIncludeList);
         agentClassLoader.setTestClassLoader(testClassLoader);
 
         final Class<?> testClass = testClassLoader.loadClass(context.getTestClass().getName());

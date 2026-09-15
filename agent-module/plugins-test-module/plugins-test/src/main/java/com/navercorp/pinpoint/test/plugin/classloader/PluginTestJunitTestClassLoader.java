@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.test.plugin.TranslatorAdaptor;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointBootstrapPluginTestPackage;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointPackage;
+import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsTransformInclude;
 import com.navercorp.pinpoint.test.plugin.util.IOUtils;
 
 import java.io.IOException;
@@ -31,36 +32,31 @@ import java.security.CodeSource;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 // parent: "com.navercorp.pinpoint.bootstrap.plugin.test."
 public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
-    public static final IsPinpointPackage isPinpointPackage = new IsPinpointPackage();
-    public static final IsPinpointBootstrapPluginTestPackage isPinpointBootstrapPluginTestPackage = new IsPinpointBootstrapPluginTestPackage();
+    public static final Predicate<String> isPinpointPackage = new IsPinpointPackage();
+    public static final Predicate<String> isPinpointBootstrapPluginTestPackage = new IsPinpointBootstrapPluginTestPackage();
 
-    private PluginAgentTestClassLoader agentClassLoader;
+    private final PluginAgentTestClassLoader agentClassLoader;
     private final TranslatorAdaptor translator;
+    private final Predicate<String> isTransformInclude;
 
-    private List<String> transformIncludeList;
-
-    public PluginTestJunitTestClassLoader(URL[] urls, ClassLoader parent, TranslatorAdaptor translator) {
+    public PluginTestJunitTestClassLoader(URL[] urls, ClassLoader parent, TranslatorAdaptor translator,
+                                          PluginAgentTestClassLoader agentClassLoader, List<String> transformIncludeList) {
         super(urls, parent);
         this.translator = Objects.requireNonNull(translator, "translator");
+        this.agentClassLoader = Objects.requireNonNull(agentClassLoader, "agentClassLoader");
+        this.isTransformInclude = new IsTransformInclude(transformIncludeList);
         setClassLoaderName(getClass().getSimpleName());
-    }
-
-    public void setAgentClassLoader(PluginAgentTestClassLoader agentClassLoader) {
-        this.agentClassLoader = agentClassLoader;
-    }
-
-    public void setTransformIncludeList(List<String> transformIncludeList) {
-        this.transformIncludeList = transformIncludeList;
     }
 
     @Override
     protected boolean isDelegated(String name) {
-        if (isTransformInclude(name)) {
+        if (isTransformInclude.test(name)) {
             return false;
         }
 
@@ -70,9 +66,7 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
     @Override
     public Class<?> loadClassChildFirst(String name) throws ClassNotFoundException {
         if (isPinpointPackage.test(name)) {
-            if (agentClassLoader != null) {
-                return agentClassLoader.loadClass(name, false);
-            }
+            return agentClassLoader.loadClass(name, false);
         }
 
         final String classInternalName = JavaAssistUtils.javaClassNameToJvmResourceName(name);
@@ -110,22 +104,6 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
         return findLoadedClass(name) != null;
     }
 
-    boolean isTransformInclude(String name) {
-        if (transformIncludeList != null) {
-            for (String transformInclude : transformIncludeList) {
-                if (transformInclude.endsWith(".")) {
-                    if (name.startsWith(transformInclude)) {
-                        return true;
-                    }
-                } else {
-                    if (name.equals(transformInclude)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
 
     @Override
     public URL getResource(String name) {
@@ -135,9 +113,7 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
         }
 
         if (isPinpointPackage.test(className)) {
-            if (agentClassLoader != null) {
-                return agentClassLoader.getResource(name);
-            }
+            return agentClassLoader.getResource(name);
         }
 
         URL url = findResource(name);
@@ -155,9 +131,7 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
         }
 
         if (isPinpointPackage.test(className)) {
-            if (agentClassLoader != null) {
-                return agentClassLoader.getResources(name);
-            }
+            return agentClassLoader.getResources(name);
         }
 
         return findResources(name);
@@ -166,8 +140,6 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
     @Override
     public void clear() {
         super.clear();
-        if (this.agentClassLoader != null) {
-            this.agentClassLoader.clear();
-        }
+        this.agentClassLoader.clear();
     }
 }

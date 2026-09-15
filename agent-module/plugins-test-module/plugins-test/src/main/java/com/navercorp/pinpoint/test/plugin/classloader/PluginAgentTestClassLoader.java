@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointBoots
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointPackage;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointTestAgentPackage;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointTestPackage;
+import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsTransformInclude;
 
 import java.net.URL;
 import java.util.List;
@@ -33,11 +34,14 @@ public class PluginAgentTestClassLoader extends PluginTestClassLoader {
     public static final Predicate<String> isPinpointTestAgentPackage = new IsPinpointTestAgentPackage();
     public static final Predicate<String> isPinpointBootstrapPluginTestPackage = new IsPinpointBootstrapPluginTestPackage();
 
-    private PluginTestJunitTestClassLoader testClassLoader;
-    private List<String> transformIncludeList;
+    private final Predicate<String> isTransformInclude;
 
-    public PluginAgentTestClassLoader(URL[] urls, ClassLoader parent) {
+    // set once the agent has started: the test class loader needs the agent's callback, so it cannot exist yet
+    private PluginTestJunitTestClassLoader testClassLoader;
+
+    public PluginAgentTestClassLoader(URL[] urls, ClassLoader parent, List<String> transformIncludeList) {
         super(urls, parent);
+        this.isTransformInclude = new IsTransformInclude(transformIncludeList);
         setClassLoaderName(getClass().getSimpleName());
     }
 
@@ -45,13 +49,9 @@ public class PluginAgentTestClassLoader extends PluginTestClassLoader {
         this.testClassLoader = testClassLoader;
     }
 
-    public void setTransformIncludeList(List<String> transformIncludeList) {
-        this.transformIncludeList = transformIncludeList;
-    }
-
     @Override
     public boolean isDelegated(String name) {
-        if (isTransformInclude(name)) {
+        if (isTransformInclude.test(name)) {
             return false;
         }
 
@@ -84,20 +84,4 @@ public class PluginAgentTestClassLoader extends PluginTestClassLoader {
         return c;
     }
 
-    boolean isTransformInclude(String name) {
-        if (transformIncludeList != null) {
-            for (String transformInclude : transformIncludeList) {
-                if (transformInclude.endsWith(".")) {
-                    if (name.startsWith(transformInclude)) {
-                        return true;
-                    }
-                } else {
-                    if (name.equals(transformInclude)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
 }
