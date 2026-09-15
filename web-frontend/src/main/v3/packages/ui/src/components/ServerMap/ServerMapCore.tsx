@@ -49,6 +49,13 @@ import { Input } from '../ui/input';
 
 /** 팝업이 map 영역 가장자리에 닿지 않도록 두는 여백(px) */
 const POPPER_EDGE_GAP = 8;
+/**
+ * hover 팝업(Apdex)을 노드 왼쪽에 붙일 때 쓰는 팝업 폭(px).
+ *
+ * 팝업은 왼쪽 위 모서리 좌표로 배치되는데 그 폭은 렌더 전에 알 수 없으므로 고정값으로 잡는다.
+ * 최소 폭(min-w-40 = 160px)에 수치 열이 붙은 실제 폭에 맞춘 값이다.
+ */
+const HOVER_POPPER_WIDTH = 210;
 
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
@@ -330,16 +337,19 @@ export const ServerMapCore = ({
     if (eventType === 'hover') {
       if (data && data?.apdex) {
         if (target) {
+          // 팝업은 노드 테두리에 붙인다. 기준은 언제나 노드의 반지름이어야 한다 —
+          // 지름을 빼면 노드가 클수록 그만큼 더 멀어지는데, service group 노드는 일반 노드보다
+          // 1.3배(theme-helper의 width/height)라서 그 차이가 눈에 띄게 벌어졌다.
+          const centerX = target.renderedPosition()?.x;
+          const centerY = target.renderedPosition()?.y;
+          const radius = (target.renderedWidth() || 0) / 2;
+
           setPopperPosition(
             isLeftNode
-              ? {
-                  x: target.renderedPosition()?.x + (target.renderedWidth() || 0) / 2,
-                  y: target.renderedPosition()?.y,
-                }
-              : {
-                  x: target.renderedPosition()?.x - (target.renderedWidth() || 0) - 160, // Popper content min width is 160px (min-w-40)
-                  y: target.renderedPosition()?.y,
-                },
+              ? { x: centerX + radius, y: centerY }
+              : // 팝업은 왼쪽 위 모서리가 이 좌표에 놓이므로, 노드 왼쪽에 붙이려면 팝업 폭만큼
+                // 더 빼야 한다.
+                { x: centerX - radius - HOVER_POPPER_WIDTH, y: centerY },
           );
         } else {
           setPopperPosition(position);
