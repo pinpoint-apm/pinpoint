@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestDependency
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestMethodTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestUnitTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.platform.commons.util.AnnotationUtils;
@@ -15,6 +16,7 @@ import org.junit.platform.engine.TestDescriptor;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class PluginTestDescriptorBuilder implements TestDescriptorBuilder {
 
@@ -23,8 +25,9 @@ public class PluginTestDescriptorBuilder implements TestDescriptorBuilder {
         return AnnotationUtils.isAnnotated(candidate, PluginTest.class);
     }
 
-    public TestDescriptor build(TestDescriptor testDescriptor, Class<?> testClass, JupiterConfiguration configuration) {
-        final DefaultPluginTestSuite testSuite = new DefaultPluginTestSuite(testClass);
+    @Override
+    public TestDescriptor build(TestDescriptor testDescriptor, Class<?> testClass, JupiterConfiguration configuration, Supplier<DependencyResolverFactory> resolverFactory) {
+        final DefaultPluginTestSuite testSuite = new DefaultPluginTestSuite(testClass, resolverFactory.get());
         final PluginSharedInstance sharedInstance = testSuite.getPluginSharedInstance();
         final List<PluginTestInstance> testInstanceList = testSuite.getPluginTestInstanceList();
         final TestDescriptorFactory factory = new TestDescriptorFactory(configuration);

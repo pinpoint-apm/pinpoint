@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
-import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
@@ -38,10 +37,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 /**
  * We have referred OrderedThreadPoolExecutor ParentRunner of JUnit.
@@ -50,10 +48,11 @@ import java.util.concurrent.TimeUnit;
  * @author Taejin Koo
  */
 public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
-    private static final Map<String, Object> RESOLVER_OPTION = createResolverOption();
-    private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory(RESOLVER_OPTION);
     private static final DependencyVersionFilter DEPENDENCY_VERSION_FILTER = new DependencyVersionFilter();
     private final TaggedLogger logger = TestLogger.getLogger();
+
+    // shared by every suite of the engine: it owns the maven repository system and its session caches.
+    private final DependencyResolverFactory resolverFactory;
 
     private final ClassLoding classLoding;
 
@@ -63,19 +62,13 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     private final String[] sharedDependencies;
     private final String testClassName;
 
-    private static Map<String, Object> createResolverOption() {
-        Map<String, Object> resolverOption = new HashMap<>();
-        resolverOption.put(ConfigurationProperties.CONNECT_TIMEOUT, TimeUnit.SECONDS.toMillis(5));
-        resolverOption.put(ConfigurationProperties.REQUEST_TIMEOUT, TimeUnit.MINUTES.toMillis(5));
-        return resolverOption;
+    public DefaultPluginTestSuite(Class<?> testClass, DependencyResolverFactory resolverFactory) {
+        this(testClass, false, resolverFactory);
     }
 
-    public DefaultPluginTestSuite(Class<?> testClass) {
-        this(testClass, false);
-    }
-
-    public DefaultPluginTestSuite(Class<?> testClass, boolean sharedProcess) {
+    public DefaultPluginTestSuite(Class<?> testClass, boolean sharedProcess, DependencyResolverFactory resolverFactory) {
         super(testClass);
+        this.resolverFactory = Objects.requireNonNull(resolverFactory, "resolverFactory");
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
         this.classLoding = getClassLoding(onClassLoader);
@@ -200,7 +193,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     }
 
     private DependencyResolver getDependencyResolver(String[] repositories) {
-        return RESOLVER_FACTORY.get(repositories);
+        return this.resolverFactory.get(repositories);
     }
 
     private List<PluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) throws ClassNotFoundException {
