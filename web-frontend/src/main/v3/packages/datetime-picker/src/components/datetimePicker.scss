@@ -253,51 +253,67 @@
 
     @apply text-rgba8;
   }
+
   .rich-datetime-picker__trigger {
     @apply relative flex h-8 rounded border;
   }
+
   .rich-datetime-picker__trigger.div-disable {
     @apply pointer-events-none opacity-50;
   }
+
   .rich-datetime-picker__input {
     @apply w-full rounded bg-transparent pl-12.5 text-sm focus:outline-hidden;
   }
+
   .rich-datetime-picker__panel {
     @apply absolute top-[calc(100%+2px)] z-10 w-full rounded bg-white shadow-box1;
   }
+
   .rich-datetime-picker__panel.expand-left {
     @apply rounded-l-none;
   }
+
   .rich-datetime-picker__panel.expand-right {
     @apply rounded-r-none;
   }
+
   .rich-datetime-picker__panel.expand-bottom {
     @apply rounded-b-none;
   }
+
   .rich-datetime-picker__panel.expand-left .rich-datetime-picker__item {
     @apply first:rounded-l-none last:rounded-l-none;
   }
+
   .rich-datetime-picker__panel.expand-right .rich-datetime-picker__item {
     @apply first:rounded-r-none last:rounded-r-none;
   }
+
   .rich-datetime-picker__panel.expand-bottom .rich-datetime-picker__item {
     @apply last:rounded-b-none;
   }
+
   .rich-datetime-picker__item {
     @apply flex h-7.5 cursor-pointer items-center gap-2.5 bg-inherit p-1.5 first:rounded-t last:rounded-b hover:bg-rgba06;
   }
+
   .rich-datetime-picker__item-text {
     @apply text-sm font-normal;
   }
+
   .rich-datetime-picker__tag {
     @apply flex h-5 w-9 cursor-pointer items-center justify-center rounded-xs bg-rgba1 text-xs text-rgba5;
   }
+
   .rich-datetime-picker__tag--colorized {
     @apply flex h-5 items-center justify-center rounded-xs px-1.5 pt-1 text-xs text-primary;
   }
+
   .rich-datetime-picker__more {
     @apply absolute -z-10 h-full w-70 cursor-default overflow-auto bg-white shadow-box1;
   }
+
   .rich-datetime-picker__more-label {
     @apply flex cursor-pointer items-center justify-center rounded-xs bg-rgbaPrimary px-1.5 py-1 text-xs text-primary hover:bg-primary hover:text-white;
   }
