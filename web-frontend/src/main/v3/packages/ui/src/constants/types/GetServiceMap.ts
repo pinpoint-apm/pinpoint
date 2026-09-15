@@ -45,8 +45,12 @@ export namespace GetServiceMap {
     key: string;
     type: 'service';
     serviceName: string;
-    /** 소속 노드들의 apdexFormula를 합산해 백엔드가 계산한 값. */
-    apdex: GetServerMap.NodeData['apdex'];
+    /**
+     * 소속 노드들의 apdexFormula를 합산해 백엔드가 계산한 값.
+     * 이 필드가 생기기 전 형태의 응답도 그릴 수 있도록 optional로 둔다
+     * (없으면 flattenServiceMapResponse가 0으로 채운다).
+     */
+    apdex?: GetServerMap.NodeData['apdex'];
     nodes: AppNode[];
   }
 
