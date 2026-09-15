@@ -137,6 +137,7 @@
         <module>feature-flag</module>
         <module>service-module</module>
         <module>alarm</module>
+        <module>alarm-batch</module>
     </modules>
 
     <properties>
@@ -645,6 +646,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-alarm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-alarm-batch</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
