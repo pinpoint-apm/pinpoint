@@ -22,6 +22,35 @@ public final class ExceptionMessageUtils {
     private ExceptionMessageUtils() {
     }
 
+    /**
+     * The message to show the owner of a rule that could not be evaluated.
+     *
+     * <p>Not the root cause: a check failure is reported to the rule's own notification
+     * channels, and one of those is a webhook at an operator-supplied url, so whatever text
+     * comes back is leaving the process. The deepest cause is a backend's -- a driver error
+     * carrying a connection string, an error body from an upstream service -- and none of it
+     * was written with that in mind.
+     *
+     * <p>What is returned instead is the message of the outermost IllegalArgumentException in
+     * the chain, which is how this module signals a rule that cannot be evaluated as
+     * configured: the validators, the effective-rule resolver and the evaluation job all
+     * raise it, with messages written to be read. When there is none, only the exception's
+     * type is named, because the failure is then something the rule's owner cannot act on
+     * anyway. The root cause is still recorded in the history context, which stays inside.
+     */
+    public static String ruleOwnerMessage(Throwable failure) {
+        Objects.requireNonNull(failure, "failure");
+        for (Throwable current = failure; current != null; current = current.getCause()) {
+            if (current instanceof IllegalArgumentException) {
+                String message = current.getMessage();
+                if (message != null && !message.isBlank()) {
+                    return message;
+                }
+            }
+        }
+        return failure.getClass().getSimpleName();
+    }
+
     public static String rootCauseMessage(Throwable failure) {
         Throwable root = Objects.requireNonNull(failure, "failure");
         for (Throwable current = failure; current != null; current = current.getCause()) {

@@ -108,13 +108,32 @@ public class AlarmNotificationDispatcher {
         this.clock = Objects.requireNonNull(clock, "clock");
     }
 
+    /**
+     * @return how many of the claimed deliveries were actually attempted
+     */
     public int dispatch() {
         LocalDateTime claimTime = LocalDateTime.now(clock);
         List<AlarmNotificationOutbox> deliveries = claimService.claim(batchSize, claimTime, leaseDuration);
+
+        // Sends happen one at a time and each can take as long as its provider does, so a full
+        // batch can easily outlast the lease it was claimed under. Once that happens another
+        // dispatcher may claim the rows still waiting here, and the two can send the same
+        // notification. No send is started after the lease has lapsed, which leaves the rest
+        // claimable for the next run. The send already running when it lapses is not bounded by
+        // this -- that one row can still be claimed and sent again while it finishes.
+        LocalDateTime leaseExpiry = claimTime.plus(leaseDuration);
+        int attempted = 0;
         for (AlarmNotificationOutbox delivery : deliveries) {
+            if (!LocalDateTime.now(clock).isBefore(leaseExpiry)) {
+                logger.warn("Lease ran out with {} of {} deliveries left; they stay claimable "
+                                + "and the next run picks them up",
+                        deliveries.size() - attempted, deliveries.size());
+                break;
+            }
             dispatch(delivery);
+            attempted++;
         }
-        return deliveries.size();
+        return attempted;
     }
 
     private void dispatch(AlarmNotificationOutbox delivery) {

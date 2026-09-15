@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.navercorp.pinpoint.alarm.util.ExceptionMessageUtils.rootCauseMessage;
+import static com.navercorp.pinpoint.alarm.util.ExceptionMessageUtils.ruleOwnerMessage;
 
 /**
  * Persists alarm state, history, and notification deliveries atomically.
@@ -160,7 +161,7 @@ public class AlarmEventPersistenceService {
 
             AlarmHistoryV2 history = AlarmHistoryV2.checkFailed(
                     rule.getId(),
-                    "[CHECK_FAILED] " + ruleLabel(rule) + ": " + rootCauseMessage(failure),
+                    "[CHECK_FAILED] " + ruleLabel(rule) + ": " + ruleOwnerMessage(failure),
                     buildCheckFailedContext(rule, failure, preparation));
             persistEvent(state, history, preparation, now);
         });
@@ -229,7 +230,7 @@ public class AlarmEventPersistenceService {
     private AlarmRuleV2 buildCheckFailedNotificationRule(AlarmRuleV2 rule, RuntimeException failure) {
         return CheckFailedNotificationRuleBuilder.from(rule)
                 .name("Alarm check failed: " + ruleLabel(rule))
-                .description(rootCauseMessage(failure))
+                .description(ruleOwnerMessage(failure))
                 .severity(rule.getSeverity() != null ? rule.getSeverity() : AlarmSeverity.CRITICAL)
                 .checkIntervalSec(positiveOrDefault(
                         rule.getCheckIntervalSec(), DEFAULT_CHECK_FAILURE_RETRY_SEC))

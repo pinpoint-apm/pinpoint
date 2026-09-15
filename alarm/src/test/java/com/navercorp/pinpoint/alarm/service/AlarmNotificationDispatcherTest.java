@@ -115,6 +115,30 @@ class AlarmNotificationDispatcherTest {
         assertEquals(List.of(), notificationService.deliveryIds);
     }
 
+    /**
+     * Deliveries are sent one at a time and a provider can take as long as it likes, so a full
+     * batch can outlast the lease it was claimed under. Anything still waiting past that point
+     * may already have been claimed by another dispatcher, and sending it here would deliver
+     * the same notification twice -- so the run stops and leaves the rest to be re-claimed.
+     */
+    @Test
+    void dispatchStopsAtTheLeaseAndLeavesTheRestClaimable() {
+        AlarmNotificationOutbox first = seedDelivery(1L, 100L, 10L);
+        AlarmNotificationOutbox second = seedDelivery(2L, 100L, 20L);
+        AlarmNotificationOutbox third = seedDelivery(3L, 100L, 30L);
+        // Lease is one minute; each send burns forty seconds of it.
+        notificationService.clock = clock;
+        notificationService.sendDuration = Duration.ofSeconds(40);
+
+        assertEquals(2, dispatcher.dispatch());
+
+        assertEquals(List.of(1L, 2L), notificationService.deliveryIds);
+        assertEquals(AlarmNotificationOutboxStatus.SENT, first.getStatus());
+        // Left as claimed, so the next run finds it once the lease lapses.
+        assertEquals(AlarmNotificationOutboxStatus.SENT, second.getStatus());
+        assertEquals(AlarmNotificationOutboxStatus.PROCESSING, third.getStatus());
+    }
+
     @Test
     void successMarksSentUpdatesActualNotificationTimeAndHistory() throws Exception {
         AlarmNotificationOutbox delivery = seedDelivery(1L, 100L, 10L);
@@ -331,6 +355,8 @@ class AlarmNotificationDispatcherTest {
         private final List<Long> deliveryIds = new ArrayList<>();
         private final Map<Long, Integer> transientFailures = new HashMap<>();
         private final Map<Long, RuntimeException> permanentFailures = new HashMap<>();
+        private Duration sendDuration = Duration.ZERO;
+        private MutableClock clock;
 
         private RecordingNotificationService(ObjectMapper objectMapper) {
             super(noop(AlarmChannelBindingDao.class), noop(AlarmNotificationChannelDao.class),
@@ -340,6 +366,9 @@ class AlarmNotificationDispatcherTest {
         @Override
         public void deliver(AlarmNotificationOutbox delivery) {
             deliveryIds.add(delivery.getId());
+            if (clock != null && !sendDuration.isZero()) {
+                clock.advance(sendDuration);
+            }
             RuntimeException permanent = permanentFailures.get(delivery.getId());
             if (permanent != null) {
                 throw new AlarmSendException("permanent", permanent);
