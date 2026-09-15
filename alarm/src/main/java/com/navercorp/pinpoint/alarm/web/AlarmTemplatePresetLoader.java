@@ -8,6 +8,8 @@ import com.navercorp.pinpoint.alarm.validation.ConditionValidator;
 import com.navercorp.pinpoint.alarm.validation.FilterKeyValidator;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -32,6 +34,8 @@ import java.util.Set;
  */
 @Component
 public class AlarmTemplatePresetLoader {
+
+    private static final Logger logger = LogManager.getLogger(AlarmTemplatePresetLoader.class);
 
     private static final String PRESET_LOCATION_PATTERN = "classpath*:alarm/presets/*.json";
 
@@ -58,7 +62,14 @@ public class AlarmTemplatePresetLoader {
         this.dataSourceRegistry = Objects.requireNonNull(dataSourceRegistry, "dataSourceRegistry");
 
         // Presets are content a distribution supplies, not something this module ships,
-        // so a deployment that offers none still starts -- it simply offers no preset.
+        // so a deployment that offers none still starts -- it simply offers no preset. It is
+        // logged because the other way to end up here is a catalog that moved or stopped
+        // being packaged, which otherwise looks the same from the outside: an empty rule
+        // editor and nothing said about why.
+        if (resources.isEmpty()) {
+            logger.warn("No alarm template presets found on the classpath ({}); "
+                    + "the rule editor will offer none", PRESET_LOCATION_PATTERN);
+        }
         List<AlarmTemplatePreset> presets = new ArrayList<>(resources.size());
         for (Resource resource : resources) {
             presets.add(read(objectMapper, resource));
@@ -103,6 +114,10 @@ public class AlarmTemplatePresetLoader {
         Set<String> enNames = new HashSet<>();
         for (AlarmTemplatePreset preset : presets) {
             validateLocalizedText(preset.name(), "preset name");
+            // Optional, like a rule's, but a half-translated one shows a blank in one locale.
+            if (preset.description() != null) {
+                validateLocalizedText(preset.description(), "preset description");
+            }
             boolean koAdded = koNames.add(preset.name().ko());
             boolean enAdded = enNames.add(preset.name().en());
             if (!koAdded || !enAdded) {

@@ -61,6 +61,26 @@ class AlarmTemplatePresetLoaderTest {
         assertTrue(newGroupRule.description().ko() != null && newGroupRule.description().en() != null);
     }
 
+    // A preset description is optional, the same way a rule's is, but one translated
+    // halfway shows a blank in whichever locale it is missing.
+    @Test
+    void rejectsPresetDescriptionMissingOneLocale() {
+        Resource resource = resourceOf("""
+                {"name": {"ko": "프리셋", "en": "preset"},
+                 "description": {"ko": "설명만 한국어"},
+                 "rules": [{
+                  "name": {"ko": "규칙", "en": "rule"},
+                  "severity": "WARNING", "dataSource": "PRIMARY",
+                  "checkIntervalSec": 300, "actionIntervalSec": 1800,
+                  "conditions": {"type": "LEAF", "metric": "event_count", "op": ">=", "threshold": 1,
+                                 "windowSec": 300, "aggregation": "COUNT"}
+                }]}
+                """);
+
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> load(resource));
+        assertTrue(e.getMessage().contains("preset description"), e.getMessage());
+    }
+
     @Test
     void rejectsRuleDescriptionMissingOneLocale() {
         Resource resource = resourceOf("""
