@@ -22,19 +22,16 @@ import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
-import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import static org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory.createThrowableCollector;
 
 public class PluginForkedTestDependencyTestDescriptor extends PluginTestDescriptor {
 
-    private final Class<?> testClass;
     private PluginTestReport testReport;
 
     public PluginForkedTestDependencyTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, String displayName) {
-        super(uniqueId, displayName, ClassSource.from(testClass), configuration);
-        this.testClass = testClass;
+        super(uniqueId, displayName, testClass, configuration);
     }
 
     @Override
@@ -78,8 +75,5 @@ public class PluginForkedTestDependencyTestDescriptor extends PluginTestDescript
         return context;
     }
 
-    public Class<?> getTestClass() {
-        return testClass;
-    }
 
 }

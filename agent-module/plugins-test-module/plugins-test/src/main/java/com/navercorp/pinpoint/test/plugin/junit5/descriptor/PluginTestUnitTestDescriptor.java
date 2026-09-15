@@ -20,19 +20,16 @@ import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.platform.engine.UniqueId;
-import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import static org.junit.jupiter.engine.support.JupiterThrowableCollectorFactory.createThrowableCollector;
 
 public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
-    private final Class<?> testClass;
     private final PluginSharedInstance sharedInstance;
 
 
     public PluginTestUnitTestDescriptor(UniqueId uniqueId, Class<?> testClass, JupiterConfiguration configuration, PluginSharedInstance sharedInstance) {
-        super(uniqueId, DescriptorUtils.generateDisplayNameForClass(testClass), ClassSource.from(testClass), configuration);
-        this.testClass = testClass;
+        super(uniqueId, DescriptorUtils.generateDisplayNameForClass(testClass), testClass, configuration);
         this.sharedInstance = sharedInstance;
     }
 
@@ -43,7 +40,7 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
 
     @Override
     public String getLegacyReportingName() {
-        return this.testClass.getName();
+        return getTestClass().getName();
     }
 
 
@@ -93,9 +90,6 @@ public class PluginTestUnitTestDescriptor extends PluginTestDescriptor {
         }
     }
 
-    public Class<?> getTestClass() {
-        return testClass;
-    }
 
     @Override
     public void cleanUp(JupiterEngineExecutionContext context) throws Exception {
