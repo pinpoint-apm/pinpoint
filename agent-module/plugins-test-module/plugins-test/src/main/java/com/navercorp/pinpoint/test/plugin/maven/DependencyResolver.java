@@ -95,14 +95,18 @@ public class DependencyResolver {
         }
     }
 
-    static DefaultRepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
+    static DefaultRepositorySystemSession newRepositorySystemSession(RepositorySystem system, Map<String, Object> sessionConfig) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
         // maven-resolver-provider 3.9 no longer copies the JVM system properties into the session as 3.8 did.
         // Without java.version the model builder fails the <jdk> profile activation of every POM it reads,
         // the descriptor is then ignored as invalid and no transitive dependency is resolved.
         final Properties systemProperties = copySystemProperties();
         session.setSystemProperties(systemProperties);
+        // system properties are the defaults, the explicit session config overrides them
         session.setConfigProperties(systemProperties);
+        for (Map.Entry<String, Object> entry : sessionConfig.entrySet()) {
+            session.setConfigProperty(entry.getKey(), entry.getValue());
+        }
         session.setCache(newRepositoryCache());
 
         MavenRepository mavenRepository = new MavenRepository();
@@ -144,9 +148,9 @@ public class DependencyResolver {
         RemoteRepository mavenCentralRepository = newMavenCentralRepository();
         repositories.add(mavenCentralRepository);
 
-        int localRepositoriesCount = 0;
-        for (String url : urls) {
-            RemoteRepository remoteRepository = new RemoteRepository.Builder("local" + localRepositoriesCount, "default", url).build();
+        for (int i = 0; i < urls.length; i++) {
+            // the id keys the session update-check records and the _remote.repositories markers, so it must be unique per repository
+            RemoteRepository remoteRepository = new RemoteRepository.Builder("local" + i, "default", urls[i]).build();
             repositories.add(remoteRepository);
         }
 
