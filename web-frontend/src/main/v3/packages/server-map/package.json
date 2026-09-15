@@ -41,6 +41,7 @@
     "@types/react": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.70.0",
+    "@vitejs/plugin-react-swc": "^4.3.3",
     "babel-loader": "^8.2.5",
     "chromatic": "^18.8.1",
     "eslint": "^10.10.0",
@@ -53,6 +54,8 @@
     "prettier": "^3.3.3",
     "storybook": "^10.6.0",
     "ts-jest": "^29.4.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6",
+    "vite-plugin-dts": "^5.1.0"
   }
 }
