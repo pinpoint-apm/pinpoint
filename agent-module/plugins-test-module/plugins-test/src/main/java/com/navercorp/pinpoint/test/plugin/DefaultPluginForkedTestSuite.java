@@ -15,12 +15,17 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.api.ClassLoding;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.OnClassLoader;
+import com.navercorp.pinpoint.test.plugin.api.Repository;
+import com.navercorp.pinpoint.test.plugin.api.TestRoot;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyVersionFilter;
-import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
+import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;

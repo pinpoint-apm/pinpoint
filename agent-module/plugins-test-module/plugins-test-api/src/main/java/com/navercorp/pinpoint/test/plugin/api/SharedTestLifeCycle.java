@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.test.plugin.shared;
+package com.navercorp.pinpoint.test.plugin.api;
 
 import java.util.Properties;
 

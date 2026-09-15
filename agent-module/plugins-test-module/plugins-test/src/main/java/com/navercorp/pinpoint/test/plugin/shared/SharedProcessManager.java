@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.test.plugin.api.SharedPluginTestConstants;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.test.plugin.ConfigResolver;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;

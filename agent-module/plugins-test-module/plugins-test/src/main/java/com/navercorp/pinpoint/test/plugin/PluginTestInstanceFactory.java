@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.api.ClassLoding;
 import com.navercorp.pinpoint.test.plugin.agent.PluginTestAgentStarter;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestJunitTestClassLoader;

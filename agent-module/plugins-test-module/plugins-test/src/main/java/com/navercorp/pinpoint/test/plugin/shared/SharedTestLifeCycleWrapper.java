@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycle;
+
 import java.util.Objects;
 import java.util.Properties;
 

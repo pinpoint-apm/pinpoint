@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.test.plugin.api.SharedTestBeforeAllResult;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;

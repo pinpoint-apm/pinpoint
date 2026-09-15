@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.test.plugin.junit5.launcher;
 
 import com.navercorp.pinpoint.test.plugin.PluginClassLoading;
 import com.navercorp.pinpoint.test.plugin.ReflectPluginTestVerifier;
-import com.navercorp.pinpoint.test.plugin.TraceObjectManagable;
+import com.navercorp.pinpoint.test.plugin.api.TraceObjectManagable;
 import com.navercorp.pinpoint.test.plugin.shared.ReflectionDependencyResolver;
-import com.navercorp.pinpoint.test.plugin.shared.SharedPluginTestConstants;
+import com.navercorp.pinpoint.test.plugin.api.SharedPluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllInvoker;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestExecutor;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleWrapper;

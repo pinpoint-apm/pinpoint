@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.test.plugin.junit5.engine.discovery;
 
 import com.navercorp.pinpoint.test.plugin.DefaultPluginForkedTestSuite;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTestInstance;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestClassTestDescriptor;
 import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginForkedTestDependencyTestDescriptor;

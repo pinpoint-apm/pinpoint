@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.test.plugin.TranslatorAdaptor;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointBootstrapPluginTestPackage;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointPackage;
 import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsTransformInclude;
+import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPluginTestApiPackage;
 import com.navercorp.pinpoint.test.plugin.util.IOUtils;
 
 import java.io.IOException;
@@ -36,10 +37,11 @@ import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-// parent: "com.navercorp.pinpoint.bootstrap.plugin.test."
+// parent: "com.navercorp.pinpoint.bootstrap.plugin.test.", "com.navercorp.pinpoint.test.plugin.api."
 public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
     public static final Predicate<String> isPinpointPackage = new IsPinpointPackage();
     public static final Predicate<String> isPinpointBootstrapPluginTestPackage = new IsPinpointBootstrapPluginTestPackage();
+    public static final IsPluginTestApiPackage isPluginTestApiPackage = new IsPluginTestApiPackage();
 
     private final PluginAgentTestClassLoader agentClassLoader;
     private final TranslatorAdaptor translator;
@@ -60,7 +62,7 @@ public class PluginTestJunitTestClassLoader extends PluginTestClassLoader {
             return false;
         }
 
-        return super.isDelegated(name) || isPinpointBootstrapPluginTestPackage.test(name);
+        return super.isDelegated(name) || isPinpointBootstrapPluginTestPackage.test(name) || isPluginTestApiPackage.test(name);
     }
 
     @Override

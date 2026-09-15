@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.test.plugin.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,5 +23,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface PluginTest {
+public @interface TestRoot {
+    String value() default "";
+    String path() default "";
+    String[] libraryDir() default {};
 }
