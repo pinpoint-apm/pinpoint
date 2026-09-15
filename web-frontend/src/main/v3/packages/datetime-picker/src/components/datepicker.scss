@@ -9,6 +9,7 @@
 
   .react-datepicker__month-container {
     width: 100%;
+
     // padding: 0 1.5rem;
 
     .react-datepicker__header {
@@ -22,7 +23,7 @@
     }
 
     .react-datepicker__month {
-      margin: 0px;
+      margin: 0;
       padding: 0 1.5rem;
     }
 
@@ -46,7 +47,7 @@
     .react-datepicker__day {
       width: 2.25rem;
       line-height: 1.5rem;
-      margin: 0px;
+      margin: 0;
     }
 
     .react-datepicker__day--in-selecting-range:not(

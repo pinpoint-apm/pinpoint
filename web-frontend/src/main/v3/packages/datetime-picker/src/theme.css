@@ -6,4 +6,5 @@
  * `@reference` 로 가리킨다 — `@reference` 는 테마만 읽고 CSS 는 내보내지 않는다.
  */
 @import 'tailwindcss';
+
 @config '../tailwind.config.js';
