@@ -92,9 +92,10 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.29.4",
-    "@babel/preset-react": "^7.28.5",
-    "@babel/preset-typescript": "^7.27.0",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
+    "@babel/preset-typescript": "^7.29.7",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.56.1",
     "@storybook/addon-docs": "^10.6.0",
