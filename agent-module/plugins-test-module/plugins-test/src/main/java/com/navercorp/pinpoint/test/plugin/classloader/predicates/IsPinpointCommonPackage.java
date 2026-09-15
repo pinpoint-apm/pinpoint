@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-public class IsPinpointCommonPackage extends PackageFilter {
-    public static final String[] PACKAGES = new String[] {
-            "com.navercorp.pinpoint.common.",
-    };
+public class IsPinpointCommonPackage extends SinglePackageFilter {
+    public static final String PACKAGE = "com.navercorp.pinpoint.common.";
 
     public IsPinpointCommonPackage() {
-        super(PACKAGES);
+        super(PACKAGE);
     }
 }

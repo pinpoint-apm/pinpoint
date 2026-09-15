@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-public class IsFastXmlPackage extends PackageFilter {
-    public static final String[] PACKAGES = new String[] {
-            "com.fasterxml.",
-    };
+public class IsFastXmlPackage extends SinglePackageFilter {
+    public static final String PACKAGE = "com.fasterxml.";
 
     public IsFastXmlPackage() {
-        super(PACKAGES);
+        super(PACKAGE);
     }
 }

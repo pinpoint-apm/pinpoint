@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.test.plugin.classloader.predicates;
 
-public class IsPinpointBootstrapPluginTestPackage extends PackageFilter {
-    public static final String[] PACKAGES = new String[] {
-            "com.navercorp.pinpoint.bootstrap.plugin.test."
-    };
+public class IsPinpointBootstrapPluginTestPackage extends SinglePackageFilter {
+    public static final String PACKAGE = "com.navercorp.pinpoint.bootstrap.plugin.test.";
 
     public IsPinpointBootstrapPluginTestPackage() {
-        super(PACKAGES);
+        super(PACKAGE);
     }
 }

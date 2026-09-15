@@ -6,12 +6,11 @@ import java.util.function.Predicate;
 
 public class PackageFilter implements Predicate<String>  {
 
-    public final String[] filters;
+    private final String[] filters;
 
     public PackageFilter(String[] filters) {
         Objects.requireNonNull(filters, "filters");
         this.filters = Arrays.copyOf(filters, filters.length);
-        Arrays.sort(this.filters);
     }
 
     @Override
