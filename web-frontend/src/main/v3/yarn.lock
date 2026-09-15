@@ -4972,10 +4972,12 @@ chokidar@^5.0.0:
   dependencies:
     readdirp "^5.0.0"
 
-chromatic@^6.5.4:
-  version "6.24.1"
-  resolved "https://registry.yarnpkg.com/chromatic/-/chromatic-6.24.1.tgz#848209706b423a78fe4876505a5dca3deb8e8b4c"
-  integrity sha512-XbpdWWHvFpEHtcq1Km71UcuQ07effB+8q8L47E1Y7HJmJ4ZCoKCuPd8liNrbnvwEAxqfBZvTcONYU/3BPz2i5w==
+chromatic@^18.8.1:
+  version "18.8.1"
+  resolved "https://registry.yarnpkg.com/chromatic/-/chromatic-18.8.1.tgz#1b3d3290bf2b944f6999b19fc844709267a6b240"
+  integrity sha512-ATJyUUuUrK1GA3bPNHPHgwQtqw/cSapC/hReF53EBO0HT0yYCl5jEeWBQP64+bAlZTK7zTSjzKe4109qbdKTvQ==
+  dependencies:
+    semver "^7.3.5"
 
 ci-info@^4.2.0:
   version "4.4.0"
@@ -8524,7 +8526,7 @@ semver@^6.0.0, semver@^6.3.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
 
-semver@^7.3.4, semver@^7.5.3, semver@^7.5.4, semver@^7.6.2, semver@^7.7.2, semver@^7.7.3, semver@^7.8.5:
+semver@^7.3.4, semver@^7.3.5, semver@^7.5.3, semver@^7.5.4, semver@^7.6.2, semver@^7.7.2, semver@^7.7.3, semver@^7.8.5:
   version "7.8.5"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.8.5.tgz#39b646037dd50c14fb451e7e4cac58ed8b863f69"
   integrity sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==
