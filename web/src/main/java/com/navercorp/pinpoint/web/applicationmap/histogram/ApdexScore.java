@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -36,6 +37,25 @@ public class ApdexScore {
         final long totalCount = histogram.getTotalCount();
 
         return new ApdexScore(satisfiedCount, toleratingCount, totalCount);
+    }
+
+    /**
+     * Merges the given scores into a single score by summing up their formulas.
+     * Used to represent a group of nodes(e.g. a service) as one score.
+     */
+    public static ApdexScore newApdexScore(Collection<ApdexScore> apdexScores) {
+        Objects.requireNonNull(apdexScores, "apdexScores");
+
+        long satisfiedCount = 0;
+        long toleratingCount = 0;
+        long totalSamples = 0;
+        for (ApdexScore apdexScore : apdexScores) {
+            final ApdexFormula formula = apdexScore.getApdexFormula();
+            satisfiedCount += formula.satisfiedCount();
+            toleratingCount += formula.toleratingCount();
+            totalSamples += formula.totalSamples();
+        }
+        return new ApdexScore(satisfiedCount, toleratingCount, totalSamples);
     }
 
     public ApdexScore(long satisfiedCount, long toleratingCount, long totalSamples) {

@@ -10,6 +10,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ApdexScoreTest {
 
@@ -37,6 +38,25 @@ public class ApdexScoreTest {
     public void getApdexScore_divide_by_zero() {
         ApdexScore apdexScore = new ApdexScore(0, 0, 0);
         Assertions.assertEquals(0, apdexScore.getApdexScore(), 0.001);
+    }
+
+    @Test
+    public void merge() {
+        ApdexScore merged = ApdexScore.newApdexScore(List.of(
+                new ApdexScore(60, 30, 100),
+                new ApdexScore(40, 10, 100)
+        ));
+
+        Assertions.assertEquals(new ApdexScore.ApdexFormula(100, 40, 200), merged.getApdexFormula());
+        Assertions.assertEquals(0.60, merged.getApdexScore(), 0.001);
+    }
+
+    @Test
+    public void merge_empty() {
+        ApdexScore merged = ApdexScore.newApdexScore(List.of());
+
+        Assertions.assertEquals(new ApdexScore.ApdexFormula(0, 0, 0), merged.getApdexFormula());
+        Assertions.assertEquals(0, merged.getApdexScore(), 0.001);
     }
 
     @Test

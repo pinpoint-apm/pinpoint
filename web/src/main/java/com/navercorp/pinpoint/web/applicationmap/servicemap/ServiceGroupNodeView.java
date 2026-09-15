@@ -20,10 +20,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
 import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +47,17 @@ public class ServiceGroupNodeView implements NodeViewEntry {
         return nodes;
     }
 
+    /**
+     * Apdex score of this group, merged from the scores of the nodes it collapses.
+     */
+    public ApdexScore getApdexScore() {
+        final List<ApdexScore> apdexScores = new ArrayList<>(nodes.size());
+        for (NodeView nodeView : nodes) {
+            apdexScores.add(nodeView.getNode().getApdexScore());
+        }
+        return ApdexScore.newApdexScore(apdexScores);
+    }
+
     @JsonComponent
     public static class ServiceGroupNodeViewSerializer extends JsonSerializer<ServiceGroupNodeView> {
 
@@ -55,6 +68,8 @@ public class ServiceGroupNodeView implements NodeViewEntry {
             jgen.writeStringField("key", view.getServiceName());
             jgen.writeStringField("type", "service");
             jgen.writeStringField("serviceName", view.getServiceName());
+
+            jgen.writeObjectField("apdex", view.getApdexScore());
 
             jgen.writeArrayFieldStart("nodes");
             for (NodeView nodeView : view.getNodes()) {
