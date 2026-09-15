@@ -41,6 +41,7 @@
     "cpx2": "^8.0.0",
     "eslint": "^9.36.0",
     "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^16.5.0",
     "postcss": "^8.4.29",
     "rollup-plugin-visualizer": "^5.14.0",
