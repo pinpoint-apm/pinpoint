@@ -1,9 +1,5 @@
-import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
 import type { StorybookConfig } from '@storybook/react-vite';
 import { mergeConfig } from 'vite';
-
-const require = createRequire(import.meta.url);
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -12,7 +8,6 @@ const config: StorybookConfig = {
     '@storybook/addon-links',
     '@storybook/addon-onboarding',
     '@storybook/addon-docs',
-    // getAbsolutePath('@storybook/addon-styling'),
   ],
 
   core: {
