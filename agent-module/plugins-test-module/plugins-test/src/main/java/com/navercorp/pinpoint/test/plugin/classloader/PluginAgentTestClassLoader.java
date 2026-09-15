@@ -23,14 +23,15 @@ import com.navercorp.pinpoint.test.plugin.classloader.predicates.IsPinpointTestP
 
 import java.net.URL;
 import java.util.List;
+import java.util.function.Predicate;
 
 // parent: "java...", "javax...", "com.navercorp.pinpoint.test.", "com.navercorp.pinpoint.bootstrap.plugin.test."
 // this: "com.navercorp.pinpoint.profiler.test.", "com.navercorp.pinpoint.test.plugin.agent."
 public class PluginAgentTestClassLoader extends PluginTestClassLoader {
-    public static final IsPinpointPackage isPinpointPackage = new IsPinpointPackage();
-    public static final IsPinpointTestPackage isPinpointTestPackage = new IsPinpointTestPackage();
-    public static final IsPinpointTestAgentPackage isPinpointTestAgentPackage = new IsPinpointTestAgentPackage();
-    public static final IsPinpointBootstrapPluginTestPackage isPinpointBootstrapPluginTestPackage = new IsPinpointBootstrapPluginTestPackage();
+    public static final Predicate<String> isPinpointPackage = new IsPinpointPackage();
+    public static final Predicate<String> isPinpointTestPackage = new IsPinpointTestPackage();
+    public static final Predicate<String> isPinpointTestAgentPackage = new IsPinpointTestAgentPackage();
+    public static final Predicate<String> isPinpointBootstrapPluginTestPackage = new IsPinpointBootstrapPluginTestPackage();
 
     private PluginTestJunitTestClassLoader testClassLoader;
     private List<String> transformIncludeList;
@@ -63,7 +64,7 @@ public class PluginAgentTestClassLoader extends PluginTestClassLoader {
     @Override
     public Class<?> loadClassChildFirst(String name) throws ClassNotFoundException {
         // Find provided class
-        if (testClassLoader != null && Boolean.FALSE == isPinpointPackage.test(name)) {
+        if (testClassLoader != null && !isPinpointPackage.test(name)) {
             if (testClassLoader.isLoadedClass(name)) {
                 return testClassLoader.loadClass(name, false);
             }
@@ -76,7 +77,7 @@ public class PluginAgentTestClassLoader extends PluginTestClassLoader {
         }
 
         if (c == null) {
-            if (testClassLoader != null && Boolean.FALSE == isPinpointPackage.test(name)) {
+            if (testClassLoader != null && !isPinpointPackage.test(name)) {
                 c = testClassLoader.loadClass(name, false);
             }
         }
