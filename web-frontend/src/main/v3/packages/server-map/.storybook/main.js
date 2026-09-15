@@ -1,6 +1,4 @@
-const { dirname, join } = require('node:path');
-
-module.exports = {
+export default {
   stories: ['../**/*.stories.mdx', '../**/*.stories.@(js|jsx|ts|tsx)'],
   addons: ['@storybook/addon-links', '@storybook/addon-docs'],
   framework: {
@@ -9,14 +7,4 @@ module.exports = {
   },
   typescript: { reactDocgen: false },
   staticDirs: ['../../../apps/web/public'],
-  viteFinal: async (config) => {
-    config.resolve = {
-      ...config.resolve,
-      alias: {
-        ...config.resolve.alias,
-      },
-    };
-
-    return config;
-  },
 };
