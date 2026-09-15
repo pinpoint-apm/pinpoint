@@ -30,6 +30,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -90,16 +91,30 @@ public class WebhookAlarmSender implements AlarmSender {
             throw new AlarmSendException("Webhook content is null: delivery_id=" + delivery.getId());
         }
 
+        final ResponseEntity<String> response;
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<>(content, headers);
-            restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-            logger.info("Sent webhook alarm: delivery_id={}, host={}", delivery.getId(), host(url));
+            response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
         } catch (Exception e) {
             logger.error("Failed to send webhook alarm: delivery_id={}, host={}", delivery.getId(), host(url), e);
             throw new AlarmSendException("Failed to send webhook alarm: delivery_id=" + delivery.getId(), e);
         }
+
+        // Anything but 2xx means the notification did not arrive. What reaches here is a 3xx:
+        // the client refuses redirects on purpose, so that an allowed host cannot hand out one
+        // pointing at an internal address, and the default error handler does not count a 3xx
+        // as a failure -- so without this a webhook answering 302 is recorded as delivered.
+        // Raised without a cause, which marks it permanent: a redirect means the stored url is
+        // wrong, and repeating the request will get the same answer.
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            logger.error("Webhook did not accept the alarm: delivery_id={}, host={}, status={}",
+                    delivery.getId(), host(url), response.getStatusCode().value());
+            throw new AlarmSendException("Webhook answered " + response.getStatusCode().value()
+                    + " so the notification did not arrive: delivery_id=" + delivery.getId());
+        }
+        logger.info("Sent webhook alarm: delivery_id={}, host={}", delivery.getId(), host(url));
     }
 
     /**

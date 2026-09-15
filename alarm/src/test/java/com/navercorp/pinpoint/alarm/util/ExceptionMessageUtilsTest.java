@@ -17,6 +17,9 @@ package com.navercorp.pinpoint.alarm.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+
+import static com.navercorp.pinpoint.alarm.util.ExceptionMessageUtils.ruleOwnerMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ExceptionMessageUtilsTest {
@@ -41,5 +44,53 @@ class ExceptionMessageUtilsTest {
         RuntimeException failure = new IllegalStateException("   ");
 
         assertEquals("IllegalStateException", ExceptionMessageUtils.rootCauseMessage(failure));
+    }
+
+    /**
+     * A check failure goes out to the rule's own channels, one of which can be a webhook at
+     * an operator-supplied url. The backend's text is not written with that in mind -- here a
+     * driver error carrying a connection string -- so what leaves is the message this module
+     * wrote, from the exception the failure was classified on.
+     */
+    @Test
+    void ruleOwnerMessageStopsAtTheExceptionThisModuleRaised() {
+        RuntimeException failure = new IllegalStateException("evaluation failed",
+                new IllegalArgumentException("unsupported metric: error_rat",
+                        new SQLException("connect to jdbc:backend://user:secret@host failed")));
+
+        assertEquals("unsupported metric: error_rat", ruleOwnerMessage(failure));
+    }
+
+    // The root cause still goes to the history context, which stays inside.
+    @Test
+    void rootCauseMessageKeepsGoingForTheRecordThatStaysInternal() {
+        RuntimeException failure = new IllegalStateException("evaluation failed",
+                new IllegalArgumentException("unsupported metric",
+                        new SQLException("connect to jdbc:backend://user:secret@host failed")));
+
+        assertEquals("connect to jdbc:backend://user:secret@host failed",
+                ExceptionMessageUtils.rootCauseMessage(failure));
+    }
+
+    /**
+     * Nothing in the chain is ours, so there is no message worth showing: whatever went wrong
+     * is not something the rule's owner can act on, and naming the type says that much without
+     * forwarding text from somewhere else.
+     */
+    @Test
+    void aFailureWithNothingOfOursNamesOnlyItsType() {
+        RuntimeException failure = new IllegalStateException("pool exhausted",
+                new SQLException("connect to jdbc:backend://user:secret@host failed"));
+
+        assertEquals("IllegalStateException", ruleOwnerMessage(failure));
+    }
+
+    // A blank message is no better than none, so the search carries on past it.
+    @Test
+    void aBlankMessageIsSkipped() {
+        RuntimeException failure = new IllegalArgumentException("  ",
+                new IllegalArgumentException("conditions must not be empty"));
+
+        assertEquals("conditions must not be empty", ruleOwnerMessage(failure));
     }
 }

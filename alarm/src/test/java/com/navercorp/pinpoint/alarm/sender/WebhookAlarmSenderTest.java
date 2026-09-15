@@ -22,6 +22,9 @@ import com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -34,6 +37,9 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -137,6 +143,35 @@ class WebhookAlarmSenderTest {
                     () -> WebhookAlarmSender.validateWebhookUrl(url),
                     "should be rejected: " + url);
         }
+    }
+
+    /**
+     * The client refuses redirects on purpose, so that an allowed host cannot hand out one
+     * pointing at an internal address. That means a 3xx comes back as a response rather than
+     * being followed, and RestTemplate's default error handler does not treat it as a failure
+     * -- so without an explicit check a webhook answering 302 is recorded as delivered.
+     */
+    @Test
+    void aRedirectIsNotADelivery() {
+        RestTemplate restTemplate = mock(RestTemplate.class);
+        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>("moved", HttpStatus.FOUND));
+        WebhookAlarmSender sender = new WebhookAlarmSender(
+                restTemplate, mock(AlarmMessageFormatter.class));
+        AlarmNotificationOutbox delivery = new AlarmNotificationOutbox();
+        delivery.setId(9003L);
+        delivery.setMethodType(AlarmMethodType.WEBHOOK);
+        AlarmDeliveryPayload payload =
+                AlarmDeliveryPayload.forWebhook("{}", "https://example.test/hook");
+
+        AlarmSendException e = assertThrows(AlarmSendException.class,
+                () -> sender.send(delivery, payload));
+
+        assertTrue(e.getMessage().contains("302"), e.getMessage());
+        // No cause, which is how the dispatcher tells a permanent failure from a retryable
+        // one: a redirect means the stored url is wrong and the next attempt gets the same
+        // answer, so it is dead-lettered rather than retried five times.
+        assertNull(e.getCause());
     }
 
     @Test
