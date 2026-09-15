@@ -1,6 +1,4 @@
-const { dirname, join } = require('node:path');
-
-module.exports = {
+export default {
   stories: ['../src/stories/**/*.stories.mdx', '../src/stories/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: ['@storybook/addon-links', 'storybook-css-modules', '@storybook/addon-docs'],
   framework: {
