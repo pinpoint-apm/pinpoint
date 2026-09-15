@@ -335,7 +335,7 @@ export class ScatterChart {
           ? curr.y >= minCoord.y
           : curr.y >= minCoord.y && curr.y <= maxCoord.y;
         if (isInRangeX && isInRangeY) {
-          return ++acc;
+          return acc + 1;
         }
         return acc;
       }, 0) || 0;

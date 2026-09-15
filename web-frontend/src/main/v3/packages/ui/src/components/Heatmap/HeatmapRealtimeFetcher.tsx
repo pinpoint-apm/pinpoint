@@ -126,7 +126,7 @@ export const HeatmapRealtimeFetcher = ({
       if (!prevData) {
         return data;
       } else {
-        let newHeatmapData: GetHeatmapAppData.HeatmapData[] = [];
+        let newHeatmapData: GetHeatmapAppData.HeatmapData[];
         const preHeatmapData = prevData.heatmapData?.sort((a, b) => a.timestamp - b.timestamp);
         const indexOfFirstData = preHeatmapData.findIndex(
           (item) => item.timestamp === data?.heatmapData[data?.heatmapData?.length - 1].timestamp,

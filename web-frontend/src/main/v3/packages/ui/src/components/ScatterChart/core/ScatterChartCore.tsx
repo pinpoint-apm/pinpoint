@@ -273,15 +273,10 @@ export const ScatterChartCore = ({
 
   const handleApplySetting: ScatterSettingProps['onApply'] = ({ yMin, yMax }) => {
     let min = 0;
-    let max = 1;
     if (yMin > 0) {
       min = yMin;
     }
-    if (yMax <= min) {
-      max = min + 2;
-    } else {
-      max = yMax;
-    }
+    const max = yMax <= min ? min + 2 : yMax;
     toolbarOption?.axisSetting?.onApply?.({ yMin: min, yMax: max });
   };
 
