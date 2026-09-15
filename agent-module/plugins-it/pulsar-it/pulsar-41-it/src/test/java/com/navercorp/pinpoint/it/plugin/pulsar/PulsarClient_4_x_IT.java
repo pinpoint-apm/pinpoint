@@ -17,12 +17,12 @@ package com.navercorp.pinpoint.it.plugin.pulsar;
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
-import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
 import org.junit.jupiter.api.Test;
 import test.pinpoint.plugin.pulsar.TestProducer;
 

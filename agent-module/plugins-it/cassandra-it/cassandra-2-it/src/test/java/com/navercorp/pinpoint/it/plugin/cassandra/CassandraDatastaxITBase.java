@@ -25,7 +25,7 @@ import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.StatementWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AutoClose;

@@ -16,11 +16,11 @@
 package com.navercorp.pinpoint.it.plugin.spring.async;
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;

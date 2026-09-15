@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.testcontainers.DatabaseContainers;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestBeforeAllResult;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 

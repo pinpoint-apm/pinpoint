@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.it.plugin.kafka;
 
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestBeforeAllResult;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Properties;

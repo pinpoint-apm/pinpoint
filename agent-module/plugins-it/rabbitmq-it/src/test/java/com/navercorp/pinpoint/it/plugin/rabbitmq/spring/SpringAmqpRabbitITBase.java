@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.it.plugin.rabbitmq.spring;
 
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestBeforeAllResult;
 import org.junit.jupiter.api.BeforeAll;
 import test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
 

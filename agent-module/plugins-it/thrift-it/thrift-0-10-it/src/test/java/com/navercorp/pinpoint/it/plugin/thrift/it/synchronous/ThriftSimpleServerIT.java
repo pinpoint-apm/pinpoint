@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.it.plugin.thrift.common.server.ThriftEchoTestServe
 import com.navercorp.pinpoint.it.plugin.thrift.it.EchoTestRunner;
 import com.navercorp.pinpoint.it.plugin.thrift.it.ThriftVersion;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.jupiter.api.Assertions;

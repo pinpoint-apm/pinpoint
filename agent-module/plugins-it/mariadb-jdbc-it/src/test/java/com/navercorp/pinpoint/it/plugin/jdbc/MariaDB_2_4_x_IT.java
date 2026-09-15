@@ -24,12 +24,12 @@ import com.navercorp.pinpoint.it.plugin.utils.jdbc.DefaultJDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCTestConstants;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointLogLocationConfig;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
-import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
-import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PinpointLogLocationConfig;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
+import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

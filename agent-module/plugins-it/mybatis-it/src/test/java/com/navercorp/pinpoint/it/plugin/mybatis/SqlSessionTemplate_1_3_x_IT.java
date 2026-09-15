@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.it.plugin.mybatis;
 
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 
 /**
  * Tests against mybatis-spring 1.3.x (1.3.x requires mybatis 3.4.0 or higher)

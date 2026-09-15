@@ -17,12 +17,12 @@ package com.navercorp.pinpoint.it.plugin.log4j2;
 
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmArgument;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;

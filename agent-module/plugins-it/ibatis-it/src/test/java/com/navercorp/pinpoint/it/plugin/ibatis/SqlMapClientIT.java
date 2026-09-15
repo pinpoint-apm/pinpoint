@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.it.plugin.ibatis;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PluginTest;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import org.junit.jupiter.api.Test;
 
 
