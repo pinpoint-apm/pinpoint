@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.test.plugin.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-public @interface TraceObjectManagable {
+@Target(ElementType.TYPE)
+public @interface OnClassLoader {
+    ClassLoding type() default ClassLoding.Child;
 }

@@ -16,6 +16,15 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.api.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.api.PinpointLogLocationConfig;
+import com.navercorp.pinpoint.test.plugin.api.PinpointProfile;
+import com.navercorp.pinpoint.test.plugin.api.Repository;
+import com.navercorp.pinpoint.test.plugin.api.TraceObjectManagable;
+import com.navercorp.pinpoint.test.plugin.api.TransformInclude;
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.junit.platform.commons.JUnitException;

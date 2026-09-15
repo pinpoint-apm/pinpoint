@@ -29,6 +29,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>plugins-test-api</module>
         <module>plugins-it-utils</module>
         <module>plugins-it-utils-jdbc</module>
 

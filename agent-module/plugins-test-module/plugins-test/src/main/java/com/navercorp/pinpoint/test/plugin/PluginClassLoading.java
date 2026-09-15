@@ -20,6 +20,7 @@ public final class PluginClassLoading {
             "assertj-core",
             "pinpoint-plugins-test", // pinpoint-test-{VERSION}.jar
             path("agent-module", "plugins-test-module", "plugins-test", "target", "classes"),
+            path("agent-module", "plugins-test-module", "plugins-test-api", "target", "classes"),
 //            "/test/target/classes", // pinpoint-test build output directory
             path("testcase", "target", "classes"),
             "pinpoint-testcase",
@@ -39,6 +40,7 @@ public final class PluginClassLoading {
             "assertj-core",
             "pinpoint-plugins-test", // pinpoint-test-{VERSION}.jar
             path("agent-module", "plugins-test-module", "plugins-test", "target", "classes"),
+            path("agent-module", "plugins-test-module", "plugins-test-api", "target", "classes"),
 //            "/test/target/classes", // pinpoint-test build output directory
             path("testcase", "target", "classes"),
             "pinpoint-testcase",
@@ -82,6 +84,7 @@ public final class PluginClassLoading {
             "plexus",
             "pinpoint-plugins-test",
             path("agent-module", "plugins-test-module", "plugins-test", "target", "classes"),
+            path("agent-module", "plugins-test-module", "plugins-test-api", "target", "classes"),
 //            "/test/target/classes", // pinpoint-test build output directory
 
             // logger for child classloader

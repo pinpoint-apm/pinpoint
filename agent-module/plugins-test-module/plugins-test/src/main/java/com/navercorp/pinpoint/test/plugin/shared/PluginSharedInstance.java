@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycle;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.ThreadContextExecutor;
 import org.junit.platform.commons.JUnitException;

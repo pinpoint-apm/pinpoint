@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-plugins-test-module</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-plugins-test-api</artifactId>
+    <name>pinpoint-plugins-test-api</name>
+    <packaging>jar</packaging>
+
+    <!-- The annotations and contracts a plugin integration test compiles against.
+         Kept free of dependencies so that every plugin test class loader can share it from the parent. -->
+    <dependencies>
+    </dependencies>
+</project>

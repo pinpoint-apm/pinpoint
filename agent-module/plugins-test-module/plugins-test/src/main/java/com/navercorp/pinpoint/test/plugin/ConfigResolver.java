@@ -1,5 +1,12 @@
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
+import com.navercorp.pinpoint.test.plugin.api.JvmArgument;
+import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
+import com.navercorp.pinpoint.test.plugin.api.PinpointProfile;
+import com.navercorp.pinpoint.test.plugin.api.Repository;
+import com.navercorp.pinpoint.test.plugin.api.TransformInclude;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;

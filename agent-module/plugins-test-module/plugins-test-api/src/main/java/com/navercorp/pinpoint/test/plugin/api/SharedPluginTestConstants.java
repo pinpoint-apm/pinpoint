@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin.shared;
+package com.navercorp.pinpoint.test.plugin.api;
 
 /**
  * @author Taejin Koo
