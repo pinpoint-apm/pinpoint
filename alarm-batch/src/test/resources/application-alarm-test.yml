@@ -1,0 +1,11 @@
+spring:
+  batch:
+    jdbc:
+      initialize-schema: never
+    job:
+      enabled: false
+
+logging:
+  level:
+    com.navercorp.pinpoint: DEBUG
+    org.springframework.batch: INFO
