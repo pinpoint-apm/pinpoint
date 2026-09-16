@@ -60,8 +60,6 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     private static final HbaseColumnFamily INDEX = HbaseTables.TRACE_INDEX;
     private static final HbaseColumnFamily META = HbaseTables.TRACE_INDEX_META;
 
-    private static final int TIE_SLACK = 128;
-
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ScatterChartProperties scatterChartProperties;
@@ -95,7 +93,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
             throw new IllegalArgumentException("negative limitWithTies:" + limitWithTies);
         }
         logger.debug("scanTraceIndex {}", range);
-        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range, limitWithTies);
+        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
         scan.addFamily(META.getName()); //for txId
 
         RowMapper<List<DotMetaData>> dotMetaMapper = createDotMetaMapper(applicationName);
@@ -122,7 +120,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         }
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
         final int serviceUid = service.getServiceUid();
-        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range, limitWithTies);
+        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
 
         RowMapper<List<Dot>> dotMapper = new TraceIndexDotMapper(TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName));
         LastRowHandler<List<Dot>> lastRowAccessor = new DefaultLastRowHandler<>();
@@ -147,7 +145,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         Range range = Range.unchecked(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceScatterData-range:{}", range);
         final int serviceUid = service.getServiceUid();
-        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range, limitWithTies);
+        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
         setHbaseFilter(scan, dragAreaQuery, rpcRegex);
         scan.addFamily(META.getName());
 
@@ -172,11 +170,9 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
                 lastRowHandler);
     }
 
-    private Scan createScan(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limitWithTies) {
+    private Scan createScan(int serviceUid, String applicationName, int serviceTypeCode, Range range) {
         Scan scan = new Scan();
-        final int fetchSize = fetchSize(limitWithTies);
-        scan.setCaching(fetchSize);
-        scan.setLimit(fetchSize);
+        scan.setCaching(this.scanCacheSize);
 
         // reversed row timestamp is handled by TraceIndexScanKey: startKey <- range.to, endKey <- range.from
         TraceIndexScanKey scanKey = new TraceIndexScanKey(serviceUid, applicationName, serviceTypeCode, range);
@@ -186,13 +182,6 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         scan.addColumn(INDEX.getName(), INDEX.getName());
         scan.setId(INDEX.getTable().getName() + "scan");
         return scan;
-    }
-
-    private int fetchSize(int limitWithTies) {
-        if (limitWithTies <= 0 || limitWithTies > this.scanCacheSize - TIE_SLACK) {
-            return this.scanCacheSize;
-        }
-        return limitWithTies + TIE_SLACK;
     }
 
     private void setHbaseFilter(Scan scan, DragAreaQuery dragAreaQuery, String rpcRegex) {

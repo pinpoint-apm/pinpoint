@@ -98,7 +98,7 @@ public class HeatMapController {
 
         final List<DotMetaData> scanData = dotMetaData.scanData();
         final TransactionDotMetaDataViewModel transaction = new TransactionDotMetaDataViewModel(scanData);
-        final boolean complete = !dotMetaData.truncated() && scanData.size() < limit;
+        final boolean complete = scanData.size() < limit;
         final PagingStatus scanStatus = new PagingStatus(complete, dotMetaData.limitedTime());
         return new ResultView(transaction.getMetadata(), scanStatus);
 

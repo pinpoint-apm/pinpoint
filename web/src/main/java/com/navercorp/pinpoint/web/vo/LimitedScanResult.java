@@ -17,19 +17,10 @@
 package com.navercorp.pinpoint.web.vo;
 
 /**
- *
+ * 
  * @author netspider
  * @author emeroad
  * @param <V>
- * @param limitedTime the oldest point the scan actually reached; the resume cursor
- * @param scanData    rows collected
- * @param truncated   true when the scan gave up before reaching the requested range start
- *                    (e.g. a scan budget ran out), so {@code scanData} is partial even
- *                    though it holds fewer rows than the requested limit
  */
-public record LimitedScanResult<V>(long limitedTime, V scanData, boolean truncated) {
-
-    public LimitedScanResult(long limitedTime, V scanData) {
-        this(limitedTime, scanData, false);
-    }
+public record LimitedScanResult<V>(long limitedTime, V scanData) {
 }
