@@ -1647,7 +1647,7 @@
             <dependency>
                 <groupId>com.github.luben</groupId>
                 <artifactId>zstd-jni</artifactId>
-                <version>1.5.7-4</version>
+                <version>1.5.7-16</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
