@@ -28,15 +28,16 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @Configuration
-@ConditionalOnExpression("${kafka.heatmap.aggregation.interval-ms:0} > 0")
 public class HeatmapSchedulerConfiguration {
 
     @Bean
+    @ConditionalOnExpression("${kafka.heatmap.aggregation.interval-ms:0} > 0")
     public HeatmapCounter<HeatmapStatKey> heatmapStatCounter() {
         return new HeatmapCounter<>();
     }
 
     @Bean
+    @ConditionalOnExpression("${kafka.heatmap.aggregation.interval-ms:0} > 0")
     public TaskScheduler heatmapStatScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(1);
@@ -48,6 +49,7 @@ public class HeatmapSchedulerConfiguration {
     }
 
     @Bean
+    @ConditionalOnExpression("${kafka.heatmap.aggregation.interval-ms:0} > 0")
     public HeatmapFlusher<HeatmapStatKey> heatmapStatFlusher(HeatmapCounter<HeatmapStatKey> heatmapStatCounter,
                                                              HeatmapDao heatmapDao,
                                                              @Qualifier("heatmapStatScheduler") TaskScheduler scheduler,

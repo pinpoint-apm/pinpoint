@@ -53,6 +53,7 @@ public class HeatmapFlusher<K> {
 
     @PostConstruct
     public void scheduling() {
+        logger.info("start {} heatmap flusher. interval:{}", name, flushInterval);
         // random initial delay for collectors started together
         long jitterMillis = ThreadLocalRandom.current().nextLong(flushInterval.toMillis());
         Instant startTime = Instant.now().plusMillis(jitterMillis);
