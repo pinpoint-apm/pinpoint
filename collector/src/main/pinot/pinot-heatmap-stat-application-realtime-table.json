@@ -37,12 +37,16 @@
       {
         "columnName": "roundedEventTime",
         "transformFunction": "DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '10:SECONDS')"
+      },
+      {
+        "columnName": "countOrOne",
+        "transformFunction": "coalesce(count, 1)"
       }
     ],
     "aggregationConfigs": [
       {
         "columnName": "countValue",
-        "aggregationFunction": "COUNT(*)"
+        "aggregationFunction": "SUM(countOrOne)"
       }
     ]
   },
