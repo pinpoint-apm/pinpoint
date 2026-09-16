@@ -60,6 +60,7 @@ public class HeatmapService implements TraceService {
         Objects.requireNonNull(heatmapProperties, "heatmapProperties");
         this.appEnabled = heatmapProperties.isAppEnabled();
         this.agentEnabled = heatmapProperties.isAgentEnabled();
+        logger.info("HeatmapService aggregation:{}", this.statCounter != null);
     }
 
     @Override
