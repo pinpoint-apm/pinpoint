@@ -69,7 +69,7 @@
         </if>
         AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         GROUP BY "timestamp", uri, version
-        ORDER BY ${orderBy.optional} ${isDesc}
+        ORDER BY ${orderBy} ${isDesc}
         LIMIT #{tenTimesLimit}
     </sql>
 

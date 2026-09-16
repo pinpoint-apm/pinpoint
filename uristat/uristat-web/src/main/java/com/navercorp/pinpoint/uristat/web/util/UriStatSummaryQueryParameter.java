@@ -71,34 +71,24 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
 
     private enum OrderBy {
         URI("uri"),
-        APDEX("apdex", "(apdexRaw / totalCount)", "(totalApdexRaw / totalCount)"),
+        APDEX("apdex", "(totalApdexRaw / totalCount)"),
         TOTAL("totalCount"),
         FAILURE("failureCount"),
         MAX("maxTimeMs"),
-        AVG("avgTimeMs", "(totalTimeMs / totalCount)", "(sumOfTotalTimeMs / totalCount)");
+        AVG("avgTimeMs", "(sumOfTotalTimeMs / totalCount)");
 
         private final String name;
         private final String desc;
-        private String optional;
 
         private static final EnumGetter<OrderBy> GETTER = new EnumGetter<>(OrderBy.class);
 
         OrderBy(String name) {
-            this.name = name;
-            this.desc = name;
-            this.optional = name;
+            this(name, name);
         }
 
         OrderBy(String name, String desc) {
             this.name = name;
             this.desc = desc;
-            this.optional = desc;
-        }
-
-        OrderBy(String name, String desc, String optional) {
-            this.name = name;
-            this.desc = desc;
-            this.optional = optional;
         }
 
         public String getName() {
