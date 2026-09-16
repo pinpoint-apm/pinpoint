@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.heatmap.dao;
+package com.navercorp.pinpoint.collector.heatmap.counter;
 
-import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapAgentStat;
-import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
-import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStatKey;
+import com.google.common.util.concurrent.AtomicLongMap;
+import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
 
-/**
- * @author minwoo-jung
- */
-public interface HeatmapDao {
-    void insert(HeatmapStat heatmapStat);
+import java.util.Map;
 
-    void insert(HeatmapStatKey key, long count);
+public class HeatmapCounter<K> {
 
-    void insertAgentStat(HeatmapAgentStat heatmapAgentStat);
+    private final AtomicLongMap<K> counter = AtomicLongMap.create();
+
+    public void increment(K key) {
+        counter.incrementAndGet(key);
+    }
+
+    public Map<K, Long> snapshotAndClear() {
+        return AtomicLongMapUtils.remove(counter);
+    }
 }

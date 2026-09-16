@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.heatmap.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 /**
  * @author minwoo-jung
  */
@@ -35,6 +37,9 @@ public class HeatmapProperties {
     private int heatmapTopicCount;
     @Value("${kafka.heatmap.key.partition.count}")
     private int heatmapKeyPartitionCount;
+    // 0 disables aggregation and sends per span
+    @Value("${kafka.heatmap.aggregation.interval-ms:0}")
+    private long aggregationIntervalMillis;
 
     @Value("${kafka.heatmap.agent.enabled:false}")
     private boolean agentEnabled;
@@ -67,5 +72,9 @@ public class HeatmapProperties {
 
     public int getHeatmapKeyPartitionCount() {
         return heatmapKeyPartitionCount;
+    }
+
+    public Duration getAggregationInterval() {
+        return Duration.ofMillis(aggregationIntervalMillis);
     }
 }
