@@ -1,4 +1,5 @@
 export * from './Alarm';
+export * from './AlarmV2';
 export * from './Experimentals';
 export * from './General';
 export * from './Help';

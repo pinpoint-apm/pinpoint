@@ -5,6 +5,7 @@ export * from './AgentActiveThread';
 export * from './AgentManagementList';
 export * from './AgentOverview';
 export * from './AlarmRule';
+export * from './AlarmV2';
 export * from './Application';
 export * from './Bind';
 export * from './ConfigAgentDuplicationCheck';
