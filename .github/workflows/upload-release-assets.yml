@@ -66,7 +66,7 @@ jobs:
       - name: Build release artifacts (agent / batch / collector / web ...)
         run: |
           ./mvnw --batch-mode clean package --file pom.xml \
-            -P '!it-module,!agent-testweb-module' \
+            -P '!agent-testweb-module' \
             -DskipTests=true
 
       - name: Upload artifacts to GitHub Release

@@ -18,14 +18,14 @@ globs:
 # Run a single test method
 ./mvnw test -pl commons -Dtest=ClassName#methodName
 
-# Integration tests
-./mvnw verify
+# Integration tests (failsafe, verify phase; skipped by default)
+./mvnw verify -DskipITs=false
 
 # With coverage (JaCoCo)
 ./mvnw -Pcode.coverage package
 
 # Plugin integration tests
-./mvnw clean install -Pit-module -pl agent-module/plugins-it
+./mvnw clean install -f agent-module/plugins-it -DskipITs=false
 ```
 
 Test stack: JUnit 5, Mockito 4, Spring Test, TestContainers, AssertJ.
