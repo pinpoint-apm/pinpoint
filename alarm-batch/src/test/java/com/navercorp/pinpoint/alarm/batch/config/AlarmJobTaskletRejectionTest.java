@@ -101,7 +101,7 @@ class AlarmJobTaskletRejectionTest {
         // configuration error -- which is what tells the two failures apart.
         return new AlarmJobConfiguration().alarmTasklet(
                 ruleDao, resolver, evaluationService,
-                new AlarmEvaluationFailureClassifier(), List.of(), executor, 10, 6);
+                new AlarmEvaluationFailureClassifier(), List.of(), executor, 10);
     }
 
     private static AlarmRuleV2 rule(Long id) {

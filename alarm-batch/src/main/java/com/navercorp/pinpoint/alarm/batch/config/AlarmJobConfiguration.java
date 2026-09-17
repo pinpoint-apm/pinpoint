@@ -47,7 +47,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
@@ -122,16 +121,11 @@ public class AlarmJobConfiguration {
             AlarmEvaluationFailureClassifier failureClassifier,
             List<MetricQueryService> metricQueryServices,
             @Qualifier("alarmTaskExecutor") ThreadPoolTaskExecutor taskExecutor,
-            @Value("${pinpoint.modules.batch.alarm.batchSize:300}") int batchSize,
-            @Value("${pinpoint.alarm.evaluation.rule-timeout-sec:6}") int ruleTimeoutSec) {
+            @Value("${pinpoint.modules.batch.alarm.batchSize:300}") int batchSize) {
         // Rejected here rather than left to behave oddly: batchSize 0 makes the due-rule
-        // query return nothing and every sweep look like a successful empty one, and a
-        // timeout of 0 expires every rule that has not already finished.
+        // query return nothing and every sweep look like a successful empty one.
         if (batchSize <= 0) {
             throw new IllegalArgumentException("batchSize must be greater than zero");
-        }
-        if (ruleTimeoutSec <= 0) {
-            throw new IllegalArgumentException("ruleTimeoutSec must be greater than zero");
         }
         Map<String, MetricQueryService> serviceMap = metricQueryServices.stream()
                 .collect(Collectors.toMap(s -> s.getDataSource().name(), service -> service));
@@ -185,24 +179,20 @@ public class AlarmJobConfiguration {
                 }
             }
 
-            // Waited on one at a time rather than with a deadline attached at submission: the
-            // executor runs a few rules at a time, so a deadline set when a rule was queued
-            // would expire on rules that never got a thread and mark them failed without ever
-            // evaluating them. The wait starts when this rule's turn comes, so every rule gets
-            // the whole timeout to itself, and a sweep takes as long as its slowest rules need.
+            // Waited on without a deadline of its own. Every way an evaluation can block already
+            // ends on its own -- the metric backend's own request timeout, the statement timeout
+            // on the alarm queries, the lock wait on the state row -- so a deadline here would
+            // only be a second, shorter one layered over those. That is worse than none: the
+            // interrupt it cancels with is not binding on a query already in the driver, so the
+            // rule is recorded failed while its evaluation runs on and can still store a result
+            // over a newer one, and the failure carries a bare timeout instead of the reason the
+            // backend gave. A backend that can hang forever needs a bound where the hang is, not
+            // a blanket one here that fires first on every backend that already has one.
             for (int i = 0; i < futures.size(); i++) {
                 AlarmRuleV2 rule = submittedRules.get(i);
                 Future<?> future = futures.get(i);
                 try {
-                    future.get(ruleTimeoutSec, TimeUnit.SECONDS);
-                } catch (TimeoutException timeout) {
-                    // Interrupts the run so it stops at the next interruptible point and frees
-                    // its thread. It is not a guarantee: a query already blocked in the driver
-                    // can ignore it, finish, and commit a state that contradicts the failure
-                    // recorded below. Closing that window needs a deadline the query itself
-                    // honours, or a generation on the state row -- neither is here yet.
-                    future.cancel(true);
-                    recordFailure(evaluationService, failureClassifier, rule, timeout);
+                    future.get();
                 } catch (ExecutionException e) {
                     recordFailure(evaluationService, failureClassifier, rule, e.getCause());
                 } catch (InterruptedException e) {

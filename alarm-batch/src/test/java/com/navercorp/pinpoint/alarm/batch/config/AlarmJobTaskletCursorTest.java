@@ -106,7 +106,7 @@ class AlarmJobTaskletCursorTest {
 
         return new AlarmJobConfiguration().alarmTasklet(
                 ruleDao, resolver, mock(AlarmEvaluationService.class),
-                new AlarmEvaluationFailureClassifier(), List.of(), executor, batchSize, 6);
+                new AlarmEvaluationFailureClassifier(), List.of(), executor, batchSize);
     }
 
     private static AlarmRuleV2 rule(Long id) {
