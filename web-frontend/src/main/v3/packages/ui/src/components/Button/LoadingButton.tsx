@@ -1,6 +1,6 @@
 import { PiSpinner } from 'react-icons/pi';
-import { ButtonProps, Button } from '../../components/ui';
-import { cn } from '../../lib';
+import { ButtonProps, Button } from '../../components/ui/button';
+import { cn } from '../../lib/utils';
 
 export interface LoadingButtonProps extends ButtonProps {
   pending?: boolean;
@@ -11,11 +11,12 @@ export const LoadingButton = ({
   pending,
   spinnerClassName,
   children,
+  disabled,
   ...props
 }: LoadingButtonProps) => {
   return (
     <div className="relative">
-      <Button disabled={pending} {...props}>
+      <Button disabled={disabled || pending} {...props}>
         <span className={cn({ 'blur-xs': pending })}>{children}</span>
       </Button>
       {pending && (

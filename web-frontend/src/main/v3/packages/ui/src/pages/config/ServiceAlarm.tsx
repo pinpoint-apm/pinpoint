@@ -1,14 +1,15 @@
+import { useGetApplicationList } from '@pinpoint-fe/ui/src/hooks';
+import { ApplicationCombinedList } from '../../components/Application/ApplicationCombinedList';
+import { AlarmV2Page } from './AlarmV2';
+
 export const ServiceAlarmPage = () => {
+  const { data: applications } = useGetApplicationList();
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold">Alarm</h3>
-      </div>
-      <div
-        data-orientation="horizontal"
-        role="none"
-        className="shrink-0 bg-border h-px w-full"
-      ></div>
-    </div>
+    <AlarmV2Page
+      hasPermission
+      applications={applications}
+      ApplicationList={ApplicationCombinedList}
+    />
   );
 };
