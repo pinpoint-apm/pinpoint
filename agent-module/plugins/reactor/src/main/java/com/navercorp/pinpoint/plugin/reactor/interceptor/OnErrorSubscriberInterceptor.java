@@ -21,13 +21,23 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
-public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
-
+/**
+ * Traces {@code onError} of the onErrorResume / onErrorReturn / onErrorMap / onErrorComplete subscribers
+ * (enabled by {@code profiler.reactor.trace.onError}).
+ *
+ * <p>Block-based on purpose: the subscriber usually has no {@link AsyncContext} yet when {@code onError}
+ * starts, and it acquires one while the fallback publisher is subscribed inside {@code onError}
+ * ({@code p.subscribe(this)}). A before/after pair that looks the context up twice therefore skips
+ * {@code before()} but runs {@code after()}, and pops a frame it never pushed from whatever trace is
+ * bound to the thread. Carrying the {@link com.navercorp.pinpoint.bootstrap.context.TraceBlock} from
+ * {@code before()} to {@code after()} closes exactly what was opened, or nothing.
+ */
+public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventBlockApiIdAwareAroundInterceptor {
     private final boolean traceOnError;
     private final boolean markErrorOnError;
 
@@ -38,6 +48,7 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwar
     }
 
     // AsyncContext must exist in Target for tracking.
+    @Override
     public AsyncContext getAsyncContext(Object target, Object[] args) {
         if (traceOnError) {
             return AsyncContextAccessorUtils.getAsyncContext(target);
@@ -50,6 +61,7 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwar
         recorder.recordServiceType(ReactorConstants.REACTOR);
     }
 
+    @Override
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
         if (traceOnError) {
             return AsyncContextAccessorUtils.getAsyncContext(target);
