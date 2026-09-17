@@ -43,10 +43,10 @@ jobs:
         run: env | grep '^JAVA'
       - name: Maven build
         run: |
-          ./mvnw --batch-mode -Pit-module -DskipTests clean install
+          ./mvnw --batch-mode -DskipTests clean install
       - name: Integration Test
         working-directory: ./agent-module/plugins-it
-        run: ../../mvnw --batch-mode clean install -Pit-module  -Dmaven.test.failure.ignore=true
+        run: ../../mvnw --batch-mode clean install -Dmaven.test.failure.ignore=true -DskipITs=false
       - name: Collect reports
         working-directory: ./agent-module/plugins-it
         run: |

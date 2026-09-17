@@ -151,6 +151,8 @@
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <maven.compiler.executable>${jdk.home}/bin/javac</maven.compiler.executable>
         <test.jdk.home>${jdk.home}</test.jdk.home>
+        <!-- The failsafe integration tests are skipped by default, run them with -DskipITs=false -->
+        <skipITs>true</skipITs>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <maven.source.skip>true</maven.source.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>

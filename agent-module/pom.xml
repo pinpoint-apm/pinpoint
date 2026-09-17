@@ -39,6 +39,7 @@
         <module>plugins</module>
         <module>plugins-loader</module>
         <module>plugins-test-module</module>
+        <module>plugins-it</module>
 
         <module>profiler</module>
         <module>profiler-logging</module>
@@ -165,15 +166,6 @@
     </dependencyManagement>
 
     <profiles>
-        <profile>
-            <id>it-module</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>plugins-it</module>
-            </modules>
-        </profile>
         <profile>
             <id>agent-testweb-module</id>
             <activation>
