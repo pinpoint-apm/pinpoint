@@ -10,6 +10,7 @@ import { RxCaretSort } from 'react-icons/rx';
 import { ServerIcon } from './ServerIcon';
 import { t } from 'i18next';
 import { useToast } from '@pinpoint-fe/ui/src/lib';
+import { useIsDefaultService } from '@pinpoint-fe/ui/src/hooks';
 
 export interface ApplicationCombinedListForCommonProps {
   favoriteList?: ApplicationType[];
@@ -37,6 +38,12 @@ export const ApplicationCombinedListForCommon = ({
   selectedApplication,
   onClickApplication,
 }: ApplicationCombinedListForCommonProps) => {
+  // 즐겨찾기는 사용자 단위로만 저장된다 — 저장에도 조회에도 service 개념이 없다
+  // (`UserConfigController`는 serviceName을 받기만 하고 쓰지 않는다). 그래서 비DEFAULT service에서는
+  // 그 service에 없는 application이 목록에 섞여 나온다. 목록도, 등록/해제하는 별 버튼도 노출하지 않는다.
+  const showFavoriteList = useIsDefaultService();
+  const favoriteApplications = showFavoriteList ? favoriteList : undefined;
+
   const [isOpen, setIsOpen] = React.useState(!!open);
   const popoverContentRef = React.useRef<HTMLDivElement>(null);
   // 자동 열림 직후, 다른 Radix 레이어의 dismiss가 팝오버를 곧바로 닫지 못하게 막는 창(window).
@@ -162,12 +169,24 @@ export const ApplicationCombinedListForCommon = ({
   React.useEffect(() => {
     setIsMouseMove(false);
 
-    if (favoriteList && favoriteList.length > 0) {
+    if (favoriteApplications && favoriteApplications.length > 0) {
       setFocusInfo({ id: 'favoriteList', index: 0 });
     } else {
       setFocusInfo({ id: 'applicationList', index: 0 });
     }
-  }, [isOpen, favoriteList]);
+  }, [isOpen, favoriteApplications]);
+
+  // 즐겨찾기를 감추는 동안에는 그 목록을 가리키던 포커스도 함께 지운다. 목록을 렌더하지 않으면
+  // getFilteredList도 더는 호출되지 않아 이전 service에서 걸러 둔 값이 그대로 남는데, 그대로 두면
+  // Enter가 화면에 없는 항목을 선택한다.
+  React.useEffect(() => {
+    if (showFavoriteList) {
+      return;
+    }
+    setFilteredLists((prev) => (prev.favoriteList.length ? { ...prev, favoriteList: [] } : prev));
+    setMouseEnterInfo({ id: 'applicationList', index: 0 });
+    setFocusInfo({ id: 'applicationList', index: 0 });
+  }, [showFavoriteList]);
 
   React.useEffect(() => {
     // filterKeyword가 변경되었을 경우 focusInfo를 초기화
@@ -280,17 +299,21 @@ export const ApplicationCombinedListForCommon = ({
             <div className="flex items-center flex-1 gap-2 overflow-hidden group/applist-input">
               <ServerIcon className="w-6" application={selectedApplication} />
               <div className="truncate">{selectedApplication.applicationName}</div>
-              <div
-                className="flex-none hidden w-5 h-5 ml-auto cursor-pointer group-hover/applist-input:block"
-                onClick={(e) => handleClickFavorite(e, selectedApplication, { disableToast: true })}
-              >
-                <LuStar
-                  className={cn('opacity-50 pb-0.5', {
-                    'fill-emerald-400 stroke-emerald-400 opacity-70':
-                      isFavoriteApplication(selectedApplication),
-                  })}
-                />
-              </div>
+              {showFavoriteList && (
+                <div
+                  className="flex-none hidden w-5 h-5 ml-auto cursor-pointer group-hover/applist-input:block"
+                  onClick={(e) =>
+                    handleClickFavorite(e, selectedApplication, { disableToast: true })
+                  }
+                >
+                  <LuStar
+                    className={cn('opacity-50 pb-0.5', {
+                      'fill-emerald-400 stroke-emerald-400 opacity-70':
+                        isFavoriteApplication(selectedApplication),
+                    })}
+                  />
+                </div>
+              )}
             </div>
           ) : (
             t('APP_SELECT.SELECT_YOUR_APP')
@@ -319,46 +342,50 @@ export const ApplicationCombinedListForCommon = ({
           {(props) => {
             return (
               <div>
-                <Separator />
-                <div className="p-2 text-xs font-semibold">Favorite List</div>
-                <div className="h-48">
-                  {isFavoriteListLoading ? (
-                    <ListItemSkeleton skeletonOption={{ viewBoxHeight: 192 }} />
-                  ) : (
-                    <ApplicationVirtualList
-                      focusIndex={
-                        isMouseMove
-                          ? undefined
-                          : focusInfo?.id === 'favoriteList'
-                            ? focusInfo?.index
-                            : -1
-                      }
-                      getFilteredList={(filteredList) => {
-                        getFilteredList(filteredList, 'favoriteList');
-                      }}
-                      itemAs={PopoverClose}
-                      list={favoriteList}
-                      filterKeyword={props?.filterKeyword}
-                      onClickItem={handleClickItem}
-                      onMouseEnter={(idx, _item) => {
-                        setMouseEnterInfo({ id: 'favoriteList', index: idx });
-                      }}
-                      itemChild={(application) => {
-                        return (
-                          <>
-                            <ApplicationItem {...application} />
-                            <div
-                              className="flex-none w-6 h-6 ml-auto cursor-pointer"
-                              onClick={(e) => handleClickFavorite(e, application)}
-                            >
-                              <LuStar className=" fill-emerald-400 stroke-emerald-400" />
-                            </div>
-                          </>
-                        );
-                      }}
-                    />
-                  )}
-                </div>
+                {showFavoriteList && (
+                  <>
+                    <Separator />
+                    <div className="p-2 text-xs font-semibold">Favorite List</div>
+                    <div className="h-48">
+                      {isFavoriteListLoading ? (
+                        <ListItemSkeleton skeletonOption={{ viewBoxHeight: 192 }} />
+                      ) : (
+                        <ApplicationVirtualList
+                          focusIndex={
+                            isMouseMove
+                              ? undefined
+                              : focusInfo?.id === 'favoriteList'
+                                ? focusInfo?.index
+                                : -1
+                          }
+                          getFilteredList={(filteredList) => {
+                            getFilteredList(filteredList, 'favoriteList');
+                          }}
+                          itemAs={PopoverClose}
+                          list={favoriteApplications}
+                          filterKeyword={props?.filterKeyword}
+                          onClickItem={handleClickItem}
+                          onMouseEnter={(idx, _item) => {
+                            setMouseEnterInfo({ id: 'favoriteList', index: idx });
+                          }}
+                          itemChild={(application) => {
+                            return (
+                              <>
+                                <ApplicationItem {...application} />
+                                <div
+                                  className="flex-none w-6 h-6 ml-auto cursor-pointer"
+                                  onClick={(e) => handleClickFavorite(e, application)}
+                                >
+                                  <LuStar className=" fill-emerald-400 stroke-emerald-400" />
+                                </div>
+                              </>
+                            );
+                          }}
+                        />
+                      )}
+                    </div>
+                  </>
+                )}
                 <Separator />
                 <div className="p-2 text-xs font-semibold">Application List</div>
                 <ApplicationList
@@ -383,19 +410,21 @@ export const ApplicationCombinedListForCommon = ({
                     return (
                       <>
                         <ApplicationItem {...application} />
-                        <div
-                          className={cn('ml-auto h-6 w-6 cursor-pointer flex-none', {
-                            'hover:[&>svg]:fill-emerald-400 hover:[&>svg]:stroke-emerald-400':
-                              !isFavorite,
-                          })}
-                          onClick={(e) => handleClickFavorite(e, application)}
-                        >
-                          <LuStar
-                            className={cn({
-                              'fill-emerald-400 stroke-emerald-400': isFavorite,
+                        {showFavoriteList && (
+                          <div
+                            className={cn('ml-auto h-6 w-6 cursor-pointer flex-none', {
+                              'hover:[&>svg]:fill-emerald-400 hover:[&>svg]:stroke-emerald-400':
+                                !isFavorite,
                             })}
-                          />
-                        </div>
+                            onClick={(e) => handleClickFavorite(e, application)}
+                          >
+                            <LuStar
+                              className={cn({
+                                'fill-emerald-400 stroke-emerald-400': isFavorite,
+                              })}
+                            />
+                          </div>
+                        )}
                       </>
                     );
                   }}
