@@ -133,12 +133,15 @@ public class DefaultCallStack<T> implements CallStack<T> {
 
     @Override
     public T peek() {
-        if (index == DEFAULT_INDEX) {
-            return null;
-        }
-
+        // Same order as pop(): while overflowed frames are outstanding the top of the stack is the
+        // disabled instance, even when no real frame is stored (index == 0). Checking the empty index
+        // first returned null here, so every currentSpanEventRecorder() after a sequence overflow
+        // on an otherwise empty stack logged a "call stack is empty" stack dump.
         if (isOverflow() && overflowIndex > 0) {
             return factory.disableInstance();
+        }
+        if (index == DEFAULT_INDEX) {
+            return null;
         }
         return stack[index - 1];
     }

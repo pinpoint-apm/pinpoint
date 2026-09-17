@@ -193,4 +193,50 @@ public abstract class CallStackTest {
             assertTrue(callStack.isOverflow());
         }
     }
+
+    /**
+     * A ChildTrace created without an async frame keeps index 0 between balanced push/pop pairs.
+     * Once the sequence limit is exhausted, every later push is only counted in overflowIndex, so
+     * peek() has to answer with the disabled instance exactly like pop() does. Returning null here
+     * made currentSpanEventRecorder() dump the call stack on every intercepted call.
+     */
+    @Test
+    public void sequenceOverflow_peekOnEmptyIndexReturnsDisableInstance() {
+        final int maxDepth = 4;
+        final int maxSequence = 3;
+
+        DefaultCallStack<SpanEvent> callStack = (DefaultCallStack<SpanEvent>) newCallStack(maxDepth, maxSequence);
+
+        // balanced push/pop pairs consume the sequence while the stack stays empty in between
+        for (int i = 0; i < maxSequence; i++) {
+            assertEquals(1, callStack.push(getSpanEvent()));
+            assertFalse(callStack.isDisable(callStack.pop()));
+        }
+        assertTrue(callStack.isOverflow());
+        assertTrue(callStack.empty());
+        assertNull(callStack.peek());
+
+        // overflowed frame on an empty stack: peek() and pop() must agree on the disabled instance
+        callStack.push(getSpanEvent());
+        assertEquals(1, callStack.getIndex());
+        assertTrue(callStack.empty());
+
+        SpanEvent top = callStack.peek();
+        assertNotNull(top);
+        assertTrue(callStack.isDisable(top));
+
+        // nested overflowed frame
+        callStack.push(getSpanEvent());
+        assertEquals(2, callStack.getIndex());
+        assertTrue(callStack.isDisable(callStack.peek()));
+        assertTrue(callStack.isDisable(callStack.pop()));
+
+        assertTrue(callStack.isDisable(callStack.peek()));
+        assertTrue(callStack.isDisable(callStack.pop()));
+
+        // back to a genuinely empty stack
+        assertEquals(0, callStack.getIndex());
+        assertNull(callStack.peek());
+        assertNull(callStack.pop());
+    }
 }
