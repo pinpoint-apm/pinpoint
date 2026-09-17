@@ -56,8 +56,11 @@ public class DefaultEmailDispatcher implements EmailDispatcher {
         if (addresses.length == 0) {
             // Returning quietly would have the dispatcher mark the delivery SENT, so the
             // history would show a notification nobody could have received and the only
-            // record of the truth would be this log line. Retrying cannot help -- the
-            // addresses will not parse next time either -- so it is raised as permanent.
+            // record of the truth would be this log line. Raised instead -- and it is retried
+            // rather than given up on at once, because EmailAlarmSender rewraps this with a
+            // cause and the outbox only treats a bare AlarmSendException as permanent. That is
+            // not wasted work: every attempt re-reads the group, so an address fixed in the
+            // meantime still gets the alarm, and the delivery ends DEAD if none ever is.
             throw new AlarmSendException(
                     "No address in the group could be parsed, so nobody can receive this: subject="
                             + subject);

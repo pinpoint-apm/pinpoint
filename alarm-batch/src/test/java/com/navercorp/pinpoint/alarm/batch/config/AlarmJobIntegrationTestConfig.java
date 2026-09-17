@@ -285,8 +285,7 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
                 new AlarmEvaluationFailureClassifier(),
                 List.<MetricQueryService>of(metricQueryService),
                 taskExecutor,
-                300,
-                6
+                300
         );
     }
 
