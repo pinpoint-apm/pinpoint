@@ -36,11 +36,11 @@ public class ChildTrace implements Trace {
 
     private static final int ASYNC_BEGIN_STACK_ID = 1001;
 
-    // shared by every ChildTrace: one process-wide cap on corrupted call stack dumps for this trace type
-    private static final CallStackDumpLogger DUMP_LOGGER = CallStackDumpLogger.of(LogManager.getLogger(ChildTrace.class));
+    private static final Logger logger = LogManager.getLogger(ChildTrace.class);
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    protected final Logger logger = LogManager.getLogger(getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
+    // shared by every ChildTrace: one process-wide cap on corrupted call stack dumps for this trace type
+    private static final CallStackDumpLogger DUMP_LOGGER = CallStackDumpLogger.of(logger);
 
     private final CallStack<SpanEvent> callStack;
 

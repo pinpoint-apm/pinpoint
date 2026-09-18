@@ -35,8 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class DisableTraceBlock implements TraceBlock {
-    private final Logger logger = LogManager.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private static final Logger logger = LogManager.getLogger(DisableTraceBlock.class);
 
     private final Trace trace;
     private final SpanEventRecorder spanEventRecorder;
