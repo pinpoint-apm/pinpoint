@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

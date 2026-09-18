@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

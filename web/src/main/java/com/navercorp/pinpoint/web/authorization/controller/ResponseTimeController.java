@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.authorization.controller;
 
+import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
@@ -27,7 +28,6 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
-import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChart;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;

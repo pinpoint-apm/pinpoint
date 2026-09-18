@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.jupiter.api.Assertions;

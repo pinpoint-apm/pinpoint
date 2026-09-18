@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 public interface HostScanKeyFactory {
 

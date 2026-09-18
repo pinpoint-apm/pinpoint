@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.Collection;
 import java.util.HashMap;

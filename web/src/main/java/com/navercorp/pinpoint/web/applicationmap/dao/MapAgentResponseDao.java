@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.List;

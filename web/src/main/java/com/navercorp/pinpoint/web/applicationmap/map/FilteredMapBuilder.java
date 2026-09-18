@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -34,7 +35,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.filter.visitor.SpanAcceptor;
 import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
 import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
@@ -44,7 +44,7 @@ import com.navercorp.pinpoint.web.service.DotExtractor;
 import com.navercorp.pinpoint.web.util.OpenTelemetryAnnotationValueUtils;
 import com.navercorp.pinpoint.web.util.OtelLinkValue;
 import com.navercorp.pinpoint.web.util.OtelLinkValueSerde;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import org.apache.logging.log4j.LogManager;

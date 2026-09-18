@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.logging.log4j.LogManager;

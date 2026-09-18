@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidPrefix;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactory;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 public class MapAppScanKeyFactoryV3 implements MapScanKeyFactory {
     private static final int saltKeySize = ByteSaltKey.NONE.size();

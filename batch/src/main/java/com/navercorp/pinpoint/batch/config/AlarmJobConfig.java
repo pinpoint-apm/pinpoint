@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.batch.service.AlarmServiceImpl;
 import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import org.aopalliance.aop.Advice;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.aop.Advisor;

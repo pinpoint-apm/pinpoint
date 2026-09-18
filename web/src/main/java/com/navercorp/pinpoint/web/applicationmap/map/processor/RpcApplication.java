@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.Objects;
 

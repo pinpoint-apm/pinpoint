@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.view.id;
 
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.Objects;
 

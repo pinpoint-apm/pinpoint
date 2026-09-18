@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.ArrayList;
 import java.util.Collection;

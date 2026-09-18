@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMapUtils;
 import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.logging.log4j.LogManager;

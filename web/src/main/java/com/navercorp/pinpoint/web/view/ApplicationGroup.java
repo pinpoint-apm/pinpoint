@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.List;
 import java.util.Objects;

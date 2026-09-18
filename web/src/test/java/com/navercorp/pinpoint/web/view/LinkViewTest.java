@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
 import com.navercorp.pinpoint.web.applicationmap.view.ApplicationTimeSeriesHistogramLinkView;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistog
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.List;
 

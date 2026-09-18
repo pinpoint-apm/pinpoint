@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.web.view.TagApplications;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.List;
 

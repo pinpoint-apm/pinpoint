@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
@@ -45,14 +46,13 @@ import com.navercorp.pinpoint.web.applicationmap.view.TimeCount;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeseriesHistogramView;
-import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
+import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;

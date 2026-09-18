@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.inspector.web.service;
 
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Longs;
+import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.common.timeseries.point.Points;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -32,9 +33,8 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.util.TagUtils;
-import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
