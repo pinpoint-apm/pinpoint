@@ -23,7 +23,7 @@
         <foreach collection="tagList" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
-        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        AND eventTime >= #{range.from} AND eventTime <![CDATA[<]]> #{range.to}
         GROUP BY avgTime
         ORDER BY avgTime asc
         LIMIT ${limit}

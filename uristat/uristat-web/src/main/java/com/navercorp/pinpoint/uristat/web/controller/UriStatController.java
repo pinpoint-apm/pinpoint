@@ -107,7 +107,7 @@ public class UriStatController {
                 .setServiceName(serviceName.getName())
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
-                .setRange(range)
+                .setRange(timeWindow.getWindowRange())
                 .setTimeSize(timeWindow.getWindowSlotSize())
                 .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize()))
                 .setOrderby(column)

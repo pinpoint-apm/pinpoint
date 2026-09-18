@@ -22,7 +22,7 @@ class ChartGroupBuilderTest {
 
         builder.addPointFunction(AgentApdexScoreChart.ApdexScoreChartType.APDEX_SCORE, SampledApdexScore::getApdexScore);
 
-        TimeWindow timeWindow = new TimeWindow(Range.between(0, 1000), new FixedTimeWindowSampler(1000));
+        TimeWindow timeWindow = new TimeWindow(Range.between(0, 2000), new FixedTimeWindowSampler(1000));
         DataPoint<Double> point1 = Points.ofDouble(0, 100);
         DataPoint<Double> point2 = Points.ofDouble(1000, 200);
         StatChartGroup<DataPoint<Double>> chart = builder.build(timeWindow, List.of(new SampledApdexScore(point1), new SampledApdexScore(point2)));
