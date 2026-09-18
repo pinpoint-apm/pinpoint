@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactory;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 public class HostScanKeyFactoryV3 implements HostScanKeyFactory {
     private static final int saltKeySize = ByteSaltKey.NONE.size();

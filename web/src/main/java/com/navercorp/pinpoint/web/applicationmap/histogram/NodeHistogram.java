@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 

@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.Objects;
 

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 public interface MapScanKeyFactory {
     byte[] scanKey(int serviceUid, Application application, long timestamp);

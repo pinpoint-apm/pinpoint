@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsage;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.HashMap;
 import java.util.List;

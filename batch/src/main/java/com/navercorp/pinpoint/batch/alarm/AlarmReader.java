@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.web.service.AlarmService;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import jakarta.annotation.Nonnull;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;

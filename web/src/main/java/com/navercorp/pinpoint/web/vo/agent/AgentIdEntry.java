@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.vo.agent;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import org.jspecify.annotations.Nullable;
 

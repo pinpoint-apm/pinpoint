@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidRowKey;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.Objects;
 import java.util.function.Predicate;

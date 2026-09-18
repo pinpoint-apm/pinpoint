@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.service;
 
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.List;
 
