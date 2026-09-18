@@ -40,6 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ASMGuardedInterceptorFactoryTest {
+    private final ASMGuardedInterceptorFactory factory = new ASMGuardedInterceptorFactory(null);
 
     private final List<Throwable> handled = new ArrayList<>();
     private final ExceptionHandler guard = handled::add;
@@ -61,7 +62,7 @@ public class ASMGuardedInterceptorFactoryTest {
     @Test
     public void delegatesWithArguments() {
         RecordingAroundInterceptor delegate = new RecordingAroundInterceptor();
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrap(delegate, guard);
+        Interceptor wrapped = factory.wrap(delegate, guard);
 
         assertThat(wrapped).isNotNull().isInstanceOf(AroundInterceptor.class);
         assertThat(wrapped.getClass()).isNotEqualTo(RecordingAroundInterceptor.class);
@@ -79,7 +80,7 @@ public class ASMGuardedInterceptorFactoryTest {
 
     @Test
     public void guardSwallowsDelegateThrowable() {
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrap(new ThrowingAroundInterceptor(), guard);
+        Interceptor wrapped = factory.wrap(new ThrowingAroundInterceptor(), guard);
 
         assertThat(wrapped).isNotNull();
         ((AroundInterceptor) wrapped).before(null, null);
@@ -92,7 +93,7 @@ public class ASMGuardedInterceptorFactoryTest {
 
     @Test
     public void rethrowHandlerPropagates() {
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrap(new ThrowingAroundInterceptor(), rethrow);
+        Interceptor wrapped = factory.wrap(new ThrowingAroundInterceptor(), rethrow);
 
         assertThat(wrapped).isNotNull();
         assertThatThrownBy(() -> ((AroundInterceptor) wrapped).before(null, null))
@@ -102,8 +103,8 @@ public class ASMGuardedInterceptorFactoryTest {
 
     @Test
     public void generatedClassIsReusedPerDelegateClass() {
-        Interceptor first = ASMGuardedInterceptorFactory.wrap(new RecordingAroundInterceptor(), guard);
-        Interceptor second = ASMGuardedInterceptorFactory.wrap(new RecordingAroundInterceptor(), guard);
+        Interceptor first = factory.wrap(new RecordingAroundInterceptor(), guard);
+        Interceptor second = factory.wrap(new RecordingAroundInterceptor(), guard);
 
         assertThat(first).isNotNull();
         assertThat(second).isNotNull();
@@ -114,7 +115,7 @@ public class ASMGuardedInterceptorFactoryTest {
     @Test
     public void injectedAsyncContextShapeCoversWideDescriptors() {
         RecordingInjectedInterceptor delegate = new RecordingInjectedInterceptor();
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrap(delegate, guard);
+        Interceptor wrapped = factory.wrap(delegate, guard);
 
         assertThat(wrapped).isNotNull().isInstanceOf(InjectedAsyncContextApiIdAwareAroundInterceptor.class);
 
@@ -129,17 +130,17 @@ public class ASMGuardedInterceptorFactoryTest {
 
     @Test
     public void nonVoidShapeIsIneligible() {
-        assertThat(ASMGuardedInterceptorFactory.wrap(new ResultReplacingInterceptor(), guard)).isNull();
+        assertThat(factory.wrap(new ResultReplacingInterceptor(), guard)).isNull();
     }
 
     @Test
     public void multiShapeDelegateIsIneligible() {
-        assertThat(ASMGuardedInterceptorFactory.wrap(new MultiShapeInterceptor(), guard)).isNull();
+        assertThat(factory.wrap(new MultiShapeInterceptor(), guard)).isNull();
     }
 
     @Test
     public void nonPublicDelegateIsIneligible() {
-        assertThat(ASMGuardedInterceptorFactory.wrap(new PackagePrivateInterceptor(), guard)).isNull();
+        assertThat(factory.wrap(new PackagePrivateInterceptor(), guard)).isNull();
     }
 
     @Test
@@ -151,7 +152,7 @@ public class ASMGuardedInterceptorFactoryTest {
         when(invocation.canLeave(ExecutionPolicy.BOUNDARY)).thenReturn(true);
 
         RecordingAroundInterceptor delegate = new RecordingAroundInterceptor();
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrapScoped(delegate, scope, ExecutionPolicy.BOUNDARY, guard);
+        Interceptor wrapped = factory.wrapScoped(delegate, scope, ExecutionPolicy.BOUNDARY, guard);
 
         assertThat(wrapped).isNotNull().isInstanceOf(AroundInterceptor.class);
         assertThat(wrapped.getClass().getName()).contains("GuardedScopedInterceptor$$");
@@ -176,7 +177,7 @@ public class ASMGuardedInterceptorFactoryTest {
         when(invocation.canLeave(ExecutionPolicy.BOUNDARY)).thenReturn(false);
 
         RecordingAroundInterceptor delegate = new RecordingAroundInterceptor();
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrapScoped(delegate, scope, ExecutionPolicy.BOUNDARY, guard);
+        Interceptor wrapped = factory.wrapScoped(delegate, scope, ExecutionPolicy.BOUNDARY, guard);
 
         assertThat(wrapped).isNotNull();
         ((AroundInterceptor) wrapped).before(new Object(), null);
@@ -195,7 +196,7 @@ public class ASMGuardedInterceptorFactoryTest {
         when(invocation.tryEnter(ExecutionPolicy.ALWAYS)).thenReturn(true);
         when(invocation.canLeave(ExecutionPolicy.ALWAYS)).thenReturn(true);
 
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrapScoped(new ThrowingAroundInterceptor(), scope, ExecutionPolicy.ALWAYS, guard);
+        Interceptor wrapped = factory.wrapScoped(new ThrowingAroundInterceptor(), scope, ExecutionPolicy.ALWAYS, guard);
 
         assertThat(wrapped).isNotNull();
         ((AroundInterceptor) wrapped).before(null, null);
@@ -208,8 +209,8 @@ public class ASMGuardedInterceptorFactoryTest {
     @Test
     public void scopedGeneratedClassIsReusedPerDelegateClass() {
         InterceptorScope scope = mock(InterceptorScope.class);
-        Interceptor first = ASMGuardedInterceptorFactory.wrapScoped(new RecordingAroundInterceptor(), scope, ExecutionPolicy.BOUNDARY, guard);
-        Interceptor second = ASMGuardedInterceptorFactory.wrapScoped(new RecordingAroundInterceptor(), scope, ExecutionPolicy.BOUNDARY, guard);
+        Interceptor first = factory.wrapScoped(new RecordingAroundInterceptor(), scope, ExecutionPolicy.BOUNDARY, guard);
+        Interceptor second = factory.wrapScoped(new RecordingAroundInterceptor(), scope, ExecutionPolicy.BOUNDARY, guard);
 
         assertThat(first).isNotNull();
         assertThat(second).isNotNull();
@@ -219,7 +220,7 @@ public class ASMGuardedInterceptorFactoryTest {
     @Test
     public void scopedNonVoidShapeIsIneligible() {
         InterceptorScope scope = mock(InterceptorScope.class);
-        assertThat(ASMGuardedInterceptorFactory.wrapScoped(new ResultReplacingInterceptor(), scope, ExecutionPolicy.BOUNDARY, guard)).isNull();
+        assertThat(factory.wrapScoped(new ResultReplacingInterceptor(), scope, ExecutionPolicy.BOUNDARY, guard)).isNull();
     }
 
     public static class RecordingAroundInterceptor implements AroundInterceptor {

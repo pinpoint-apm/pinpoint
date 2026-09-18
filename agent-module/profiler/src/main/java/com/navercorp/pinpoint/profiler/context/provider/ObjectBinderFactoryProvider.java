@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
+import com.navercorp.pinpoint.profiler.instrument.ASMGuardedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -41,7 +42,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
     private final CustomMetricRegistryService customMetricRegistryService;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
 
-    private final BootstrapCore bootstrapCore;
+    private final ASMGuardedInterceptorFactory guardedInterceptorFactory;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
 
@@ -60,7 +61,9 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
         this.customMetricRegistryService = Objects.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
         this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
 
-        this.bootstrapCore = Objects.requireNonNull(bootstrapCore, "bootstrapCore");
+        Objects.requireNonNull(bootstrapCore, "bootstrapCore");
+        // one instance per agent: the generated wrapper caches live on it, ObjectBinderFactory is a singleton
+        this.guardedInterceptorFactory = new ASMGuardedInterceptorFactory(bootstrapCore);
         this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
         this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
     }
@@ -69,7 +72,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
     public ObjectBinderFactory get() {
         return new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService,
                 customMetricRegistryService, apiMetaDataServiceProvider,
-                bootstrapCore, exceptionHandlerFactory, requestRecorderFactory);
+                guardedInterceptorFactory, exceptionHandlerFactory, requestRecorderFactory);
     }
 
 }

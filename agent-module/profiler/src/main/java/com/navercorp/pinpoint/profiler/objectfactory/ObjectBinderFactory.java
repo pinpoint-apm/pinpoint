@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
-import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
+import com.navercorp.pinpoint.profiler.instrument.ASMGuardedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -44,7 +44,7 @@ public class ObjectBinderFactory {
     private final CustomMetricRegistry customMetricRegistry;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
 
-    private final BootstrapCore bootstrapCore;
+    private final ASMGuardedInterceptorFactory guardedInterceptorFactory;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
 
@@ -54,7 +54,7 @@ public class ObjectBinderFactory {
                                DataSourceMonitorRegistryService dataSourceMonitorRegistryService,
                                CustomMetricRegistryService customMonitorRegistryService,
                                Provider<ApiMetaDataService> apiMetaDataServiceProvider,
-                               BootstrapCore bootstrapCore,
+                               ASMGuardedInterceptorFactory guardedInterceptorFactory,
                                ExceptionHandlerFactory exceptionHandlerFactory,
                                RequestRecorderFactory requestRecorderFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
@@ -68,8 +68,7 @@ public class ObjectBinderFactory {
 
         this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
 
-        // nullable outside the DI wiring (tests); the scoped guard template fallback then stays off
-        this.bootstrapCore = bootstrapCore;
+        this.guardedInterceptorFactory = Objects.requireNonNull(guardedInterceptorFactory, "guardedInterceptorFactory");
         this.exceptionHandlerFactory = Objects.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
         this.requestRecorderFactory = Objects.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
     }
@@ -90,6 +89,6 @@ public class ObjectBinderFactory {
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
 
         return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService,
-                pluginContext, bootstrapCore, exceptionHandlerFactory, requestRecorderFactory);
+                pluginContext, guardedInterceptorFactory, exceptionHandlerFactory, requestRecorderFactory);
     }
 }

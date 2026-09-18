@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.instrument.ASMGuardedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -85,7 +86,7 @@ public class AnnotatedInterceptorFactoryTest {
 
     private AnnotatedInterceptorFactory newAnnotatedInterceptorFactory() {
         return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
-                apiMetaDataService, pluginContext, null, exceptionHandlerFactory, requestRecorderFactory);
+                apiMetaDataService, pluginContext, new ASMGuardedInterceptorFactory(null), exceptionHandlerFactory, requestRecorderFactory);
     }
 
     private ScopeInfo newEmptyScopeInfo() {
@@ -124,7 +125,7 @@ public class AnnotatedInterceptorFactoryTest {
     @Test
     public void injectedAsyncContextInterceptor_exceptionHandleScoped() {
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
-                apiMetaDataService, pluginContext, null, new ExceptionHandlerFactory(true), requestRecorderFactory);
+                apiMetaDataService, pluginContext, new ASMGuardedInterceptorFactory(null), new ExceptionHandlerFactory(true), requestRecorderFactory);
         final com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope scope = mock(com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope.class);
         final ScopeInfo scopeInfo = new ScopeInfo(scope, com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy.BOUNDARY);
         Interceptor interceptor = factory.newInterceptor(TestInjectedAsyncContextInterceptor.class, null, scopeInfo, instrumentMethod.getDescriptor());

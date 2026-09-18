@@ -113,7 +113,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
 import com.navercorp.pinpoint.profiler.instrument.ASMGuardedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
-import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
@@ -129,6 +128,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
 
     private final ProfilerConfig profilerConfig;
     private final boolean guardCodegen;
+    private final ASMGuardedInterceptorFactory guardedInterceptorFactory;
     private final TraceContext traceContext;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final CustomMetricRegistry customMetricRegistry;
@@ -144,15 +144,12 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
                                        CustomMetricRegistry customMetricRegistry,
                                        ApiMetaDataService apiMetaDataService,
                                        InstrumentContext pluginContext,
-                                       BootstrapCore bootstrapCore,
+                                       ASMGuardedInterceptorFactory guardedInterceptorFactory,
                                        ExceptionHandlerFactory exceptionHandlerFactory,
                                        RequestRecorderFactory requestRecorderFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.guardCodegen = profilerConfig.readBoolean(GUARD_CODEGEN_KEY, true);
-        if (this.guardCodegen) {
-            // nullable outside the DI wiring (tests); the scoped template fallback then stays off
-            ASMGuardedInterceptorFactory.initTemplateSource(bootstrapCore);
-        }
+        this.guardedInterceptorFactory = Objects.requireNonNull(guardedInterceptorFactory, "guardedInterceptorFactory");
         this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
         this.dataSourceMonitorRegistry = Objects.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry");
         this.customMetricRegistry = Objects.requireNonNull(customMetricRegistry, "customMetricRegistry");
@@ -253,7 +250,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             // Experimental: per-interceptor rewrite of the scoped guard template, keeping the
             // delegate call monomorphic. Ineligible shapes and any generation failure return null
             // and take the shared scoped wrapper as before.
-            final Interceptor generated = ASMGuardedInterceptorFactory.wrapScoped(interceptor, scope, policy, exceptionHandler);
+            final Interceptor generated = guardedInterceptorFactory.wrapScoped(interceptor, scope, policy, exceptionHandler);
             if (generated != null) {
                 return generated;
             }
@@ -312,7 +309,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             // monomorphic, instead of funnelling every interceptor of a shape through the shared
             // wrapper's single (megamorphic) call site below. Ineligible shapes and any generation
             // failure return null and take the shared wrapper as before.
-            final Interceptor generated = ASMGuardedInterceptorFactory.wrap(interceptor, exceptionHandler);
+            final Interceptor generated = guardedInterceptorFactory.wrap(interceptor, exceptionHandler);
             if (generated != null) {
                 return generated;
             }
