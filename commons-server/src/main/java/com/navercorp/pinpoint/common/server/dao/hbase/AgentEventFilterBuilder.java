@@ -1,8 +1,8 @@
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.common.server.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventQuery;
 import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.Filter;

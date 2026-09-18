@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.common.server.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.common.server.dao.hbase.mapper.ListMergeResultsExt
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
+import com.navercorp.pinpoint.common.server.dao.AgentEventDao;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventQuery;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;

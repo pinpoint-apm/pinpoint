@@ -46,7 +46,8 @@ import org.springframework.context.annotation.PropertySource;
 })
 @ComponentScan(
         basePackages = {
-                "com.navercorp.pinpoint.web.dao.hbase"
+                "com.navercorp.pinpoint.web.dao.hbase",
+                "com.navercorp.pinpoint.common.server.dao.hbase"
         }
 )
 @PropertySource(name = "WebHbaseModule", value = {

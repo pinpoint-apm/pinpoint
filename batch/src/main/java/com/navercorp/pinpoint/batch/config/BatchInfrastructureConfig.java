@@ -66,7 +66,7 @@ import java.util.Optional;
                 "com.navercorp.pinpoint.web.service",
                 "com.navercorp.pinpoint.web.mapper",
                 "com.navercorp.pinpoint.common.server.bo",
-                "com.navercorp.pinpoint.common.server.dao.hbase.mapper"
+                "com.navercorp.pinpoint.common.server.dao.hbase"
         },
         excludeFilters = {
                 @ComponentScan.Filter(

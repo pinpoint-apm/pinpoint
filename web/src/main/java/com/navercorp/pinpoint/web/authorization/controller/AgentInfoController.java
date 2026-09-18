@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.service.component.AgentEventQuery;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventQuery;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.service.component;
+package com.navercorp.pinpoint.common.server.bo.event;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 
