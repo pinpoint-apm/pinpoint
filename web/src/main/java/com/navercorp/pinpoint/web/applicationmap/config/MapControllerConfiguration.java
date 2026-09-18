@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.CommonService;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

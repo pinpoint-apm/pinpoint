@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.service.ActiveThreadDumpService;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.service.EchoService;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
 import com.navercorp.pinpoint.web.websocket.WebSocketTaskDecoratorFactory;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;

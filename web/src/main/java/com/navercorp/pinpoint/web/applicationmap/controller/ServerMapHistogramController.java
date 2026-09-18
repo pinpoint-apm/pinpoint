@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
 import com.navercorp.pinpoint.web.applicationmap.view.ServerGroupListView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
