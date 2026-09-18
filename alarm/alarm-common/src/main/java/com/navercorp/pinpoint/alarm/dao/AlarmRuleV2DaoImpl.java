@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -107,8 +108,9 @@ public class AlarmRuleV2DaoImpl implements AlarmRuleV2Dao {
     }
 
     @Override
-    public List<AlarmRuleV2> selectDueEnabledRulesAfter(long afterId, int limit, LocalDateTime now) {
-        return toModels(mapper.selectDueEnabledRulesAfter(afterId, limit, now));
+    public List<AlarmRuleV2> selectDueEnabledRulesAfter(long afterId, int limit, LocalDateTime now,
+                                                        Collection<String> dataSources) {
+        return toModels(mapper.selectDueEnabledRulesAfter(afterId, limit, now, dataSources));
     }
 
     @Override

@@ -415,12 +415,15 @@ class AlarmJobIntegrationTest {
         assertNotNull(brokenState);
         assertEquals(AlarmStatus.CHECK_FAILED, brokenState.getStatus());
         assertNotNull(brokenState.getLastCheckedAt());
-        assertNotNull(brokenState.getLastNotificationEnqueuedAt());
-        assertNull(brokenState.getLastNotifiedAt());
+        // A rule nobody can evaluate is the operator's to find, not the owner's to be told
+        // about: it is written to history so there is something to find, and nothing is enqueued.
         assertEquals(1, countHistory(brokenRule.getId(), "CHECK_FAILED"));
+        assertNull(brokenState.getLastNotificationEnqueuedAt());
+        assertNull(brokenState.getLastNotifiedAt());
+        assertEquals(0, countOutbox(brokenRule.getId()));
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(healthyRule.getId()).getStatus());
         assertEquals(1, countHistory(healthyRule.getId(), "FIRED"));
-        verify(mockNotificationService, times(2)).prepareNotifications(any(), any());
+        verify(mockNotificationService, times(1)).prepareNotifications(any(), any());
     }
 
     @Test
@@ -444,41 +447,46 @@ class AlarmJobIntegrationTest {
         AlarmState brokenState = alarmStateDao.selectByRuleId(brokenRule.getId());
         assertEquals(AlarmStatus.CHECK_FAILED, brokenState.getStatus());
         assertNull(brokenState.getLastNotificationEnqueuedAt());
-        assertEquals(0, countHistory(brokenRule.getId(), "CHECK_FAILED"));
+        assertEquals(1, countHistory(brokenRule.getId(), "CHECK_FAILED"));
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(healthyRule.getId()).getStatus());
         assertEquals(1, countHistory(healthyRule.getId(), "FIRED"));
         verify(mockNotificationService, times(1)).prepareNotifications(any(), any());
     }
 
-    // A deployable can run without the module that owns a rule's data source: the code the
-    // rule stores then resolves to no metric query service. That rule has to fail on its
-    // own -- with the enum it failed while the chunk was being read, taking the rest with it.
+    // More than one evaluation process can share these tables, one per set of data sources it
+    // has the stores for. A rule belonging to another one must come back from neither the
+    // query nor anything this process writes: recording it as failed would move its next check
+    // and tell its owner their rule is broken, from a process that was never meant to read it.
     @Test
-    void aDataSourceWithNoMetricQueryService_failsOnlyItsOwnRuleAndTellsItsOwner() throws Exception {
-        AlarmRuleV2 uninstalledRule = insertRuleWithDataSource("NOT_INSTALLED");
+    void aRuleOfAnotherProcessDataSource_isLeftUntouchedEntirely() throws Exception {
+        AlarmRuleV2 otherProcessRule = insertRuleWithDataSource("OWNED_BY_ANOTHER_PROCESS");
         AlarmRuleV2 healthyRule = insertRule("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 150.0));
+        AlarmState before = alarmStateDao.selectByRuleId(otherProcessRule.getId());
 
         JobExecution exec = jobLauncherTestUtils.launchJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
-        assertEquals(AlarmStatus.CHECK_FAILED,
-                alarmStateDao.selectByRuleId(uninstalledRule.getId()).getStatus());
-        // Only the rule's owner can fix a data source no installed module measures, so the
-        // failure is recorded and notified rather than kept in the log. Reported as
-        // infrastructure it would leave no history and no delivery, and the rule would look
-        // healthy while never being evaluated.
-        assertEquals(1, countHistory(uninstalledRule.getId(), "CHECK_FAILED"));
+
+        AlarmState after = alarmStateDao.selectByRuleId(otherProcessRule.getId());
+        assertEquals(before.getStatus(), after.getStatus());
+        assertEquals(before.getNextCheckAt(), after.getNextCheckAt(),
+                "another process schedules this rule; this one must not move it");
+        assertEquals(0, countHistory(otherProcessRule.getId(), "CHECK_FAILED"));
 
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(healthyRule.getId()).getStatus());
         assertEquals(1, countHistory(healthyRule.getId(), "FIRED"));
-        verify(mockNotificationService, times(2)).prepareNotifications(any(), any());
+        // Only the rule this process owns produced a notification.
+        verify(mockNotificationService, times(1)).prepareNotifications(any(), any());
     }
 
     @Test
-    void outboxInsertFailure_rollsBackStateAndHistoryAndDoesNotSkipOtherRules() throws Exception {
-        AlarmRuleV2 brokenRule = insertBrokenTemplateRule();
+    void outboxInsertFailure_rollsBackTheFiringWriteAndDoesNotSkipOtherRules() throws Exception {
+        // Both rules fire; only one of them cannot have its delivery enqueued. A check
+        // failure no longer enqueues anything, so firing is the path this can happen on.
+        AlarmRuleV2 blockedRule = insertRule(
+                "error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
         AlarmRuleV2 healthyRule = insertRule(
                 "error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
         when(mockMetricQueryService.query(any(), any(), any(), any()))
@@ -486,7 +494,7 @@ class AlarmJobIntegrationTest {
         when(mockNotificationService.prepareNotifications(any(), any()))
                 .thenAnswer(invocation -> {
                     AlarmRuleV2 notificationRule = invocation.getArgument(0);
-                    return brokenRule.getId().equals(notificationRule.getId())
+                    return blockedRule.getId().equals(notificationRule.getId())
                             ? duplicatePreparedDelivery(10L)
                             : preparedDelivery(20L);
                 });
@@ -494,9 +502,17 @@ class AlarmJobIntegrationTest {
         JobExecution exec = jobLauncherTestUtils.launchJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
-        assertEquals(AlarmStatus.NORMAL, alarmStateDao.selectByRuleId(brokenRule.getId()).getStatus());
-        assertEquals(0, countHistory(brokenRule.getId(), "CHECK_FAILED"));
-        assertEquals(0, countOutbox(brokenRule.getId()));
+        // The firing write rolled back whole, and the tasklet then recorded the rule as one
+        // whose check did not complete. The status alone does not prove the rollback -- the
+        // CHECK_FAILED write sets it either way -- so the two columns only recordFired touches
+        // are what says the firing transaction left nothing behind.
+        AlarmState blockedState = alarmStateDao.selectByRuleId(blockedRule.getId());
+        assertEquals(AlarmStatus.CHECK_FAILED, blockedState.getStatus());
+        assertNull(blockedState.getLastFiredAt());
+        assertNull(blockedState.getLastNotificationEnqueuedAt());
+        assertEquals(0, countHistory(blockedRule.getId(), "FIRED"));
+        assertEquals(1, countHistory(blockedRule.getId(), "CHECK_FAILED"));
+        assertEquals(0, countOutbox(blockedRule.getId()));
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(healthyRule.getId()).getStatus());
         assertEquals(1, countHistory(healthyRule.getId(), "FIRED"));
         assertEquals(1, countOutbox(healthyRule.getId()));

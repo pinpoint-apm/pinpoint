@@ -282,7 +282,6 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
                 alarmRuleV2Dao,
                 effectiveAlarmRuleBulkResolver,
                 evaluationService,
-                new AlarmEvaluationFailureClassifier(),
                 List.<MetricQueryService>of(metricQueryService),
                 taskExecutor,
                 300
