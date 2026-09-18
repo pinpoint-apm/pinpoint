@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 
 public class AlertViewService {
 

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import java.util.Collection;
 
 public class HistogramAggregator {

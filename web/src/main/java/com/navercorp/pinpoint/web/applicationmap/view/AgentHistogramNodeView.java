@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
 import com.google.common.util.concurrent.MoreExecutors;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -28,8 +29,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.Serv
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.common.server.bo.Application;

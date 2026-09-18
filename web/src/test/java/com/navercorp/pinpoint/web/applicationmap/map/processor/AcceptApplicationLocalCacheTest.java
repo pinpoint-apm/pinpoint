@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
+import com.navercorp.pinpoint.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

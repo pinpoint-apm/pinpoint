@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.batch.job.AgentIdCleanupTasklet;
 import com.navercorp.pinpoint.batch.job.ApplicationCleanupTasklet;
 import com.navercorp.pinpoint.batch.util.JobParametersUtils;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
+import com.navercorp.pinpoint.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;

@@ -7,7 +7,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
+import com.navercorp.pinpoint.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;

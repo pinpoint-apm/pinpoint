@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.web.applicationmap.histogram.StatisticsHistogram;
+import com.navercorp.pinpoint.applicationmap.histogram.StatisticsHistogram;
 
 public record ResponseTimeStatics(long totalCount, long sumTime, long avgTime, long maxTime) {
 

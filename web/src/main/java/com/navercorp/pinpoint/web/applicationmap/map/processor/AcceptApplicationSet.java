@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
-import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
+import com.navercorp.pinpoint.applicationmap.map.AcceptApplication;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 

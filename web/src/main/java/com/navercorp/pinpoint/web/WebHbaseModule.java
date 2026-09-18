@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web;
 
+import com.navercorp.pinpoint.applicationmap.config.MapDaoConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
@@ -24,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataDecoder;
 import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguration;
-import com.navercorp.pinpoint.web.applicationmap.config.MapDaoConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;

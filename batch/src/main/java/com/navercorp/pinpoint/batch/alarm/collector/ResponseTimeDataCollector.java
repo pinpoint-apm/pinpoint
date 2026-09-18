@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.batch.alarm.collector;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.applicationmap.dao.ApplicationResponse;
+import com.navercorp.pinpoint.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.Collection;
