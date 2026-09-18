@@ -82,11 +82,11 @@ import java.util.logging.Logger;
  * the same pattern {@code ASMInterceptorHolder} uses. One class per delegate class, cached via
  * {@link ClassValue} so unloading follows the delegate's loader.
  * <p>
- * The caches live on the instance, so a single instance is expected (wired as a singleton through
- * {@code ObjectBinderFactory}); only the class-name counter stays global, so generated names remain
- * unique even if several instances ever define classes into the same loader.
+ * The caches live on the instance, so a single instance is expected (bound as a singleton by
+ * {@code GuardedInterceptorFactoryProvider}); only the class-name counter stays global, so generated
+ * names remain unique even if several instances ever define classes into the same loader.
  */
-public final class ASMGuardedInterceptorFactory {
+public final class ASMGuardedInterceptorFactory implements GuardedInterceptorFactory {
     // JUL on purpose: this can run before the plugin logging bridge is ready.
     private static final Logger logger = Logger.getLogger(ASMGuardedInterceptorFactory.class.getName());
 
@@ -169,6 +169,7 @@ public final class ASMGuardedInterceptorFactory {
      * CHECKCAST to the shape's base interface holds and the shared-wrapper {@code instanceof}
      * cascade would have picked the same shape.
      */
+    @Override
     public Interceptor wrap(Interceptor delegate, ExceptionHandler exceptionHandler) {
         final GeneratedWrapper wrapper = wrapperClasses.get(delegate.getClass());
         if (wrapper == null) {
@@ -189,6 +190,7 @@ public final class ASMGuardedInterceptorFactory {
      * class is produced by retyping the template's delegate field instead of emitting from
      * scratch, so the scope enter/leave semantics stay in the template's Java source.
      */
+    @Override
     public Interceptor wrapScoped(Interceptor delegate, InterceptorScope scope, ExecutionPolicy policy, ExceptionHandler exceptionHandler) {
         final GeneratedWrapper wrapper = scopedWrapperClasses.get(delegate.getClass());
         if (wrapper == null) {
