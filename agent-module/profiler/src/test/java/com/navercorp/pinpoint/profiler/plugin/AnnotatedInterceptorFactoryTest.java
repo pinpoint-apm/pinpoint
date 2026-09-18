@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.ASMGuardedInterceptorFactory;
+import com.navercorp.pinpoint.profiler.instrument.DisableGuardedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
@@ -45,6 +46,7 @@ import org.mockito.stubbing.Answer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.any;
@@ -124,13 +126,27 @@ public class AnnotatedInterceptorFactoryTest {
 
     @Test
     public void injectedAsyncContextInterceptor_exceptionHandleScoped() {
+        // codegen disabled: the shared scoped wrapper
+        AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
+                apiMetaDataService, pluginContext, new DisableGuardedInterceptorFactory(), new ExceptionHandlerFactory(true), requestRecorderFactory);
+        final com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope scope = mock(com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope.class);
+        final ScopeInfo scopeInfo = new ScopeInfo(scope, com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy.BOUNDARY);
+        Interceptor interceptor = factory.newInterceptor(TestInjectedAsyncContextInterceptor.class, null, scopeInfo, instrumentMethod.getDescriptor());
+
+        assertEquals(com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInjectedAsyncContextApiIdAwareAroundInterceptor.class, interceptor.getClass());
+    }
+
+    @Test
+    public void injectedAsyncContextInterceptor_exceptionHandleScoped_codegen() {
+        // codegen enabled: a generated per-class scoped guard that still implements the shape
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry,
                 apiMetaDataService, pluginContext, new ASMGuardedInterceptorFactory(null), new ExceptionHandlerFactory(true), requestRecorderFactory);
         final com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope scope = mock(com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope.class);
         final ScopeInfo scopeInfo = new ScopeInfo(scope, com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy.BOUNDARY);
         Interceptor interceptor = factory.newInterceptor(TestInjectedAsyncContextInterceptor.class, null, scopeInfo, instrumentMethod.getDescriptor());
 
-        assertEquals(com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInjectedAsyncContextApiIdAwareAroundInterceptor.class, interceptor.getClass());
+        assertThat(interceptor).isInstanceOf(com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor.class);
+        assertThat(interceptor.getClass().getName()).startsWith("com.navercorp.pinpoint.profiler.instrument.interceptor.GuardedScopedInterceptor$$");
     }
 
 

@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistry
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
-import com.navercorp.pinpoint.profiler.instrument.ASMGuardedInterceptorFactory;
+import com.navercorp.pinpoint.profiler.instrument.GuardedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -44,7 +44,7 @@ public class ObjectBinderFactory {
     private final CustomMetricRegistry customMetricRegistry;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
 
-    private final ASMGuardedInterceptorFactory guardedInterceptorFactory;
+    private final GuardedInterceptorFactory guardedInterceptorFactory;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
 
@@ -54,7 +54,7 @@ public class ObjectBinderFactory {
                                DataSourceMonitorRegistryService dataSourceMonitorRegistryService,
                                CustomMetricRegistryService customMonitorRegistryService,
                                Provider<ApiMetaDataService> apiMetaDataServiceProvider,
-                               ASMGuardedInterceptorFactory guardedInterceptorFactory,
+                               GuardedInterceptorFactory guardedInterceptorFactory,
                                ExceptionHandlerFactory exceptionHandlerFactory,
                                RequestRecorderFactory requestRecorderFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");

@@ -79,6 +79,7 @@ import com.navercorp.pinpoint.profiler.context.provider.DeadlockMonitorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DeadlockThreadRegistryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DynamicTransformTriggerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ExceptionHandlerFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.GuardedInterceptorFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParsingServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
@@ -110,6 +111,7 @@ import com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParser
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.GuardedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
@@ -203,6 +205,7 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(InstrumentEngine.class).toProvider(InstrumentEngineProvider.class).in(Scopes.SINGLETON);
         bind(ExceptionHandlerFactory.class).toProvider(ExceptionHandlerFactoryProvider.class).in(Scopes.SINGLETON);
+        bind(GuardedInterceptorFactory.class).toProvider(GuardedInterceptorFactoryProvider.class).in(Scopes.SINGLETON);
         bind(ObjectBinderFactory.class).toProvider(ObjectBinderFactoryProvider.class).in(Scopes.SINGLETON);
         bind(ClassFileTransformer.class).toProvider(ClassFileTransformerProvider.class).in(Scopes.SINGLETON);
         bind(DynamicTransformerRegistry.class).to(DefaultDynamicTransformerRegistry.class).in(Scopes.SINGLETON);
