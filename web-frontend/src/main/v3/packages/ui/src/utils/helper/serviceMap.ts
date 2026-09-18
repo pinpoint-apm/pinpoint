@@ -29,7 +29,7 @@ export const flattenServiceMapResponse = (
       const firstNode = innerNodes[0];
       nodeDataArray.push({
         key: entry.key,
-        // group 노드는 백엔드가 key/serviceName/nodes 만 내려준다(ServiceGroupNodeView).
+        // group 노드는 백엔드가 key/serviceName/apdex/nodes 만 내려준다(ServiceGroupNodeView).
         // 나머지는 여기서 합성하므로, 소속 노드들이 공유하는 값은 firstNode 에서 가져온다.
         serviceKey: entry.key,
         serviceName: entry.serviceName,
@@ -45,7 +45,8 @@ export const flattenServiceMapResponse = (
         hasAlert: innerNodes.some((n) => n.hasAlert),
         responseStatistics: emptyResponseStatistics,
         histogram: emptyHistogram,
-        apdex: {
+        // group 노드의 apdex는 백엔드가 소속 노드들의 apdexFormula를 합산해 내려준다.
+        apdex: entry.apdex ?? {
           apdexScore: 0,
           apdexFormula: { satisfiedCount: 0, toleratingCount: 0, totalSamples: 0 },
         },

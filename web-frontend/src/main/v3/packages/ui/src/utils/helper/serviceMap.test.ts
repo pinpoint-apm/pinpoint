@@ -84,6 +84,10 @@ describe('flattenServiceMapResponse', () => {
       key: 'svc-group',
       type: 'service',
       serviceName: 'my-service',
+      apdex: {
+        apdexScore: 0.8,
+        apdexFormula: { satisfiedCount: 10, toleratingCount: 4, totalSamples: 15 },
+      },
       nodes: [child1, child2],
     };
 
@@ -107,8 +111,9 @@ describe('flattenServiceMapResponse', () => {
     expect(node?.isAuthorized).toBe(true);
     // original children are preserved under subNodes for the popup list
     expect(node?.subNodes).toEqual([child1, child2]);
-    // aggregated detail metrics are intentionally emptied on the group node
-    expect(node?.apdex?.apdexScore).toBe(0);
+    // apdex is aggregated by the backend and passed through as-is
+    expect(node?.apdex).toEqual(group.apdex);
+    // the remaining detail metrics are intentionally emptied on the group node
     expect(node?.histogram).toEqual({ '1s': 0, '3s': 0, '5s': 0, Slow: 0, Error: 0 });
     expect(node?.timeSeriesHistogram).toEqual([]);
   });
@@ -117,8 +122,9 @@ describe('flattenServiceMapResponse', () => {
     const group: GetServiceMap.ServiceGroupNode = {
       key: 'empty-group',
       type: 'service',
-      serviceName: 'empty',
+      // apdex 가 없는 응답도 그릴 수 있어야 한다
       nodes: [],
+      serviceName: 'empty',
     };
 
     const node = flattenServiceMapResponse(makeResponse([group]))?.applicationMapData
@@ -130,6 +136,11 @@ describe('flattenServiceMapResponse', () => {
     expect(node?.instanceCount).toBe(0);
     expect(node?.totalCount).toBe(0);
     expect(node?.hasAlert).toBe(false);
+    // apdex 가 빠진 응답은 0 으로 채운다
+    expect(node?.apdex).toEqual({
+      apdexScore: 0,
+      apdexFormula: { satisfiedCount: 0, toleratingCount: 0, totalSamples: 0 },
+    });
   });
 
   test('passes through non-service (app) links unchanged', () => {
