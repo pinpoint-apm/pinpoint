@@ -43,6 +43,18 @@
               WHERE history.id = outbox.history_id
                 AND (item.deleted = 1 OR header.deleted = 1)
           )
+          <!-- Only what this process evaluates: the processes that share the outbox each know how
+               to render their own data sources. -->
+          AND EXISTS (
+              SELECT 1
+              FROM alarm_history_v2 history
+              INNER JOIN alarm_rule_v2 rule_v2 ON rule_v2.id = history.rule_id
+              WHERE history.id = outbox.history_id
+                AND rule_v2.data_source IN
+                  <foreach collection="dataSources" item="dataSource" separator="," open="(" close=")">
+                      #{dataSource}
+                  </foreach>
+          )
         ORDER BY outbox.id
         LIMIT #{limit}
     </select>

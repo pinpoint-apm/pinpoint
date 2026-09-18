@@ -18,6 +18,12 @@ package com.navercorp.pinpoint.alarm.batch.config;
 import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.service.AlarmEvaluationService;
 import com.navercorp.pinpoint.alarm.service.EffectiveAlarmRuleBulkResolutionService;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
+import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
+import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
+import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
+import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.StepExecution;
@@ -87,7 +93,7 @@ class AlarmJobTaskletCursorTest {
 
     private Tasklet tasklet(int batchSize, List<AlarmRuleV2> due) {
         AlarmRuleV2Dao ruleDao = mock(AlarmRuleV2Dao.class);
-        when(ruleDao.selectDueEnabledRulesAfter(anyLong(), anyInt(), any(LocalDateTime.class)))
+        when(ruleDao.selectDueEnabledRulesAfter(anyLong(), anyInt(), any(LocalDateTime.class), any()))
                 .thenAnswer(invocation -> {
                     requestedAfterIds.add(invocation.getArgument(0));
                     return due;
@@ -106,7 +112,24 @@ class AlarmJobTaskletCursorTest {
 
         return new AlarmJobConfiguration().alarmTasklet(
                 ruleDao, resolver, mock(AlarmEvaluationService.class),
-                new AlarmEvaluationFailureClassifier(), List.of(), executor, batchSize);
+                List.of(emptyResultService()), executor,
+                batchSize);
+    }
+
+    /** The sweep needs a service for the rules' data source; what it answers does not matter. */
+    private static MetricQueryService emptyResultService() {
+        return new MetricQueryService() {
+            @Override
+            public AlarmDataSource getDataSource() {
+                return IntegrationTestAlarmDataSource.PRIMARY;
+            }
+
+            @Override
+            public MetricQueryResult query(AlarmRuleV2 rule, List<AlarmCondition> conditions,
+                                           List<AlarmFilter> filters, AlarmState state) {
+                return MetricQueryResult.empty();
+            }
+        };
     }
 
     private static AlarmRuleV2 rule(Long id) {
