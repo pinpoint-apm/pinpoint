@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 import com.navercorp.pinpoint.web.service.CommonService;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;

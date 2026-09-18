@@ -15,7 +15,7 @@
  *
  */
 
-package com.navercorp.pinpoint.web.component;
+package com.navercorp.pinpoint.service.component;
 
 import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;
 
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import java.util.Objects;
 
 /**

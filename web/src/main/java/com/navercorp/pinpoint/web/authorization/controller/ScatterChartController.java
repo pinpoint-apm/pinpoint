@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterView;
 import com.navercorp.pinpoint.web.scatter.Status;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.view.transactionlist.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;

@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

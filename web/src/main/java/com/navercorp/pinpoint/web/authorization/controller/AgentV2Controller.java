@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentListV2Service;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.view.tree.AgentIdView;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import jakarta.validation.constraints.NotBlank;

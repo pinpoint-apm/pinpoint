@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.service.service;
 
 /**
  * @author minwoo.jung

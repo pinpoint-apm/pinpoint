@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
