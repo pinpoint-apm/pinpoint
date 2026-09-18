@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -50,7 +50,7 @@ class DataSourceDataCollectorTest {
 
 
     @Mock
-    private AlarmDao alarmDao;
+    private AgentStatAlarmDao alarmDao;
 
     @Test
     public void collect() {

@@ -26,11 +26,12 @@ import com.navercorp.pinpoint.batch.alarm.AlarmWriter;
 import com.navercorp.pinpoint.batch.alarm.AlarmWriterInterceptor;
 import com.navercorp.pinpoint.batch.alarm.CheckerRegistry;
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.dao.pinot.PinotAlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.PinotAgentStatAlarmDao;
 import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.batch.common.Divider;
-import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
+import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.batch.dao.mysql.MysqlAlarmDao;
 import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.batch.service.AlarmServiceImpl;
@@ -183,12 +184,16 @@ public class AlarmJobConfig {
 
     @Bean
     @Qualifier("alarmDao")
-    public AlarmDao alarmDao(
+    public AgentStatAlarmDao alarmDao(
             PinotAsyncTemplate pinotAsyncTemplate,
             @Qualifier("batchPinotTemplate") SqlSessionTemplate batchPinotTemplate,
             BatchProperties batchProperties
     ) {
-        return new PinotAlarmDao(pinotAsyncTemplate, batchPinotTemplate, batchProperties);
+        TableNameManager tableNameManager = new TableNameManager(
+                batchProperties.getAgentInspectorStatTablePrefix(),
+                batchProperties.getAgentInspectorStatTablePaddingLength(),
+                batchProperties.getAgentInspectorStatTableCount());
+        return new PinotAgentStatAlarmDao(pinotAsyncTemplate, batchPinotTemplate, tableNameManager);
     }
 
     @Bean(name = "retryableAdvisor")
@@ -199,7 +204,7 @@ public class AlarmJobConfig {
     @Bean
     public Advisor pinotAlarmDaoRetryAdvisor(@Qualifier("retryableAdvisor") Advice retryAdvice) {
         JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
-        pointcut.setPatterns("com.navercorp.pinpoint.batch.alarm.dao.pinot.PinotAlarmDao.*");
+        pointcut.setPatterns("com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.PinotAgentStatAlarmDao.*");
         return new DefaultPointcutAdvisor(pointcut, retryAdvice);
     }
 }

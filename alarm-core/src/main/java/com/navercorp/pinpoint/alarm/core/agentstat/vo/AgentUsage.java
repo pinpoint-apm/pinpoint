@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.alarm.vo;
+package com.navercorp.pinpoint.alarm.core.agentstat.vo;
 
 /**
  * @author minwoo-jung
  */
-public class AgentFieldUsage extends AgentUsage {
+public class AgentUsage {
+    private final String agentId;
+    private final Double value;
 
-    private final String fieldName;
-
-    public AgentFieldUsage(String agentId, String fieldName, Double value) {
-        super(agentId, value);
-        this.fieldName = fieldName;
+    public AgentUsage(String agentId, Double value) {
+        this.agentId = agentId;
+        this.value = value;
     }
 
-    public String getFieldName() {
-        return fieldName;
+    public String getAgentId() {
+        return this.agentId;
+    }
+
+    public Double getValue() {
+        return this.value;
     }
 }

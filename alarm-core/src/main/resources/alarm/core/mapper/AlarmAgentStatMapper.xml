@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.navercorp.pinpoint.batch.alarm.dao.pinot.PinotAlarmDao">
+<mapper namespace="com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.PinotAgentStatAlarmDao">
 
     <resultMap id="tagInfoMap" type="TagInformation">
         <constructor>
@@ -13,7 +13,7 @@
         </constructor>
     </resultMap>
 
-    <select id="selectSumGroupByField" parameterType="BatchQueryParameter" resultType="AgentFieldUsage">
+    <select id="selectSumGroupByField" parameterType="AgentStatQueryParameter" resultType="AgentFieldUsage">
         SELECT agentId, fieldName, SUM(fieldValue) AS sumValue
         FROM ${tableName}
         WHERE
@@ -28,7 +28,7 @@
     </select>
 
 
-    <select id="selectAvgGroupByField" parameterType="BatchQueryParameter" resultType="AgentFieldUsage">
+    <select id="selectAvgGroupByField" parameterType="AgentStatQueryParameter" resultType="AgentFieldUsage">
         SELECT 'agentId', fieldName, AVG(fieldValue) AS sumValue
         FROM ${tableName}
         WHERE
@@ -45,7 +45,7 @@
     </select>
 
 
-    <select id="selectSumCount" parameterType="BatchQueryParameter" resultType="AgentUsageCount">
+    <select id="selectSumCount" parameterType="AgentStatQueryParameter" resultType="AgentUsageCount">
         SELECT agentId, SUM(fieldValue) AS sumValue, COUNT(*) AS countValue
         FROM ${tableName}
         WHERE
@@ -56,7 +56,7 @@
         GROUP BY agentId
     </select>
 
-    <select id="selectAvg" parameterType="BatchQueryParameter" resultType="AgentUsage">
+    <select id="selectAvg" parameterType="AgentStatQueryParameter" resultType="AgentUsage">
         SELECT agentId, AVG(fieldValue) AS avgValue
         FROM ${tableName}
         WHERE
@@ -67,7 +67,7 @@
         GROUP BY agentId
     </select>
 
-    <select id="selectTagInfo" parameterType="BatchQueryParameter" resultType="Tag">
+    <select id="selectTagInfo" parameterType="AgentStatQueryParameter" resultType="Tag">
         SELECT DISTINCT(tags)
         FROM ${tableName}
         WHERE
@@ -76,7 +76,7 @@
             AND eventTime BETWEEN #{range.from} AND #{range.to}
     </select>
 
-    <select id="selectTagInfoContainedSpecificTag" parameterType="BatchQueryParameter" resultMap="tagInfoMap">
+    <select id="selectTagInfoContainedSpecificTag" parameterType="AgentStatQueryParameter" resultMap="tagInfoMap">
         SELECT applicationName, agentId, metricName, fieldName, tags
         FROM ${tableName}
         WHERE

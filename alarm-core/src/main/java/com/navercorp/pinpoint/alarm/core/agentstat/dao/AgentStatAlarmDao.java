@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.alarm.dao;
+package com.navercorp.pinpoint.alarm.core.agentstat.dao;
 
-import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentUsage;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentUsageCount;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentFieldUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsageCount;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author minwoo-jung
  */
-public interface AlarmDao {
+public interface AgentStatAlarmDao {
 
     List<AgentFieldUsage> selectSumGroupByField(String applicationName, String metricName, List<String> fieldList, Range range);
 

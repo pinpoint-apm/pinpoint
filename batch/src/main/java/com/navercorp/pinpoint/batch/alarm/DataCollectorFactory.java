@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.batch.alarm.collector.pinot.FileDescriptorDataColl
 import com.navercorp.pinpoint.batch.alarm.collector.pinot.HeapDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.pinot.JvmCpuDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.pinot.SystemCpuDataCollector;
-import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.applicationmap.dao.MapOutLinkDao;
@@ -52,12 +52,12 @@ public class DataCollectorFactory {
 
     private final MapOutLinkDao outLinkDao;
 
-    private final AlarmDao alarmDao;
+    private final AgentStatAlarmDao alarmDao;
     
     public DataCollectorFactory(MapResponseDao mapResponseDao,
                                 AgentEventDao agentEventDao,
                                 MapOutLinkDao outLinkDao,
-                                AlarmDao alarmDao) {
+                                AgentStatAlarmDao alarmDao) {
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
         this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
         this.outLinkDao = Objects.requireNonNull(outLinkDao, "outLinkDao");

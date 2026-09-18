@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.config;
+package com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.batch.alarm.dao.model.BatchQueryParameter;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentUsage;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentUsageCount;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.model.AgentStatQueryParameter;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentFieldUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsageCount;
 import com.navercorp.pinpoint.common.dao.pinot.MultiValueTagTypeHandler;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.metric.common.model.Tag;
@@ -35,13 +35,19 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * The mybatis aliases and handlers the agent stat alarm queries are written against.
+ *
+ * <p>It travels with the dao rather than with whichever session factory happens to load the
+ * mapper: the aliases name this module's own value classes, so a deployable that reads agent
+ * stats has to register them and one that does not has no reason to.
+ *
  * @author minwoo-jung
  */
-public class BatchRegistryHandler implements MyBatisRegistryHandler {
+public class AgentStatRegistryHandler implements MyBatisRegistryHandler {
 
     private final ObjectMapper mapper;
 
-    public BatchRegistryHandler(ObjectMapper mapper) {
+    public AgentStatRegistryHandler(ObjectMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
@@ -55,7 +61,7 @@ public class BatchRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias(AgentUsage.class);
         typeAliasRegistry.registerAlias(AgentFieldUsage.class);
         typeAliasRegistry.registerAlias(AgentUsageCount.class);
-        typeAliasRegistry.registerAlias(BatchQueryParameter.class);
+        typeAliasRegistry.registerAlias(AgentStatQueryParameter.class);
         typeAliasRegistry.registerAlias(Tag.class);
         typeAliasRegistry.registerAlias(MultiValueTagTypeHandler.class);
         typeAliasRegistry.registerAlias(TagInformation.class);
