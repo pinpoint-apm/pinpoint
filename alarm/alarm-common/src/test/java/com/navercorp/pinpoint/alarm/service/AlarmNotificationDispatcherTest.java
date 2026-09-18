@@ -51,9 +51,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -80,7 +82,7 @@ class AlarmNotificationDispatcherTest {
         stateDao = new InMemoryStateDao();
         notificationService = new RecordingNotificationService(objectMapper);
         NoOpTransactionManager transactionManager = new NoOpTransactionManager();
-        claimService = new AlarmNotificationOutboxClaimService(outboxDao, transactionManager);
+        claimService = new AlarmNotificationOutboxClaimService(outboxDao, transactionManager, Set.of("PRIMARY"));
         AlarmNotificationResultService resultService = new AlarmNotificationResultService(
                 outboxDao, stateDao, historyDao, transactionManager, objectMapper);
         dispatcher = new AlarmNotificationDispatcher(
@@ -388,7 +390,8 @@ class AlarmNotificationDispatcherTest {
         @Override public void insert(AlarmNotificationOutbox delivery) { deliveries.add(delivery); }
 
         @Override
-        public synchronized List<Long> selectClaimCandidateIds(LocalDateTime now, int limit) {
+        public synchronized List<Long> selectClaimCandidateIds(LocalDateTime now, int limit,
+                                                           Collection<String> dataSources) {
             return deliveries.stream()
                     .filter(delivery -> isAvailable(delivery, now))
                     .sorted((left, right) -> Long.compare(left.getId(), right.getId()))

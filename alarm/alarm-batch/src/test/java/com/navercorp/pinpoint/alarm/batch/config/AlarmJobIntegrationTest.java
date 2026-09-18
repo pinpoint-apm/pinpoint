@@ -70,6 +70,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,6 +94,9 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = AlarmJobIntegrationTestConfig.class)
 @TestPropertySource(locations = "classpath:application-alarm-test.yml")
 class AlarmJobIntegrationTest {
+
+    /** What the dispatcher of this test's process claims: the data source its sweep evaluates. */
+    private static final Set<String> PRIMARY_ONLY = Set.of(IntegrationTestAlarmDataSource.PRIMARY.name());
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
@@ -407,17 +411,25 @@ class AlarmJobIntegrationTest {
         AlarmState brokenState = alarmStateDao.selectByRuleId(brokenRule.getId());
         assertNotNull(brokenState);
         assertEquals(AlarmStatus.CHECK_FAILED, brokenState.getStatus());
-        assertNotNull(brokenState.getLastCheckedAt());
+        // The cursor is left where it was -- here never set, since this check read nothing
+        // and a metric reading from the last check has to be given that stretch again.
+        assertNull(brokenState.getLastCheckedAt());
+        assertNotNull(brokenState.getNextCheckAt());
+
+        AlarmState healthyState = alarmStateDao.selectByRuleId(healthyRule.getId());
         // At the column's precision and no later than the sweep: rounded up on write, the
         // next window would start after the one this check read ends.
-        assertEquals(0, brokenState.getLastCheckedAt().getNano() % 1_000_000);
-        assertFalse(brokenState.getLastCheckedAt().isAfter(LocalDateTime.now(ZoneOffset.UTC)));
-        assertNotNull(brokenState.getLastNotificationEnqueuedAt());
-        assertNull(brokenState.getLastNotifiedAt());
+        assertEquals(0, healthyState.getLastCheckedAt().getNano() % 1_000_000);
+        assertFalse(healthyState.getLastCheckedAt().isAfter(LocalDateTime.now(ZoneOffset.UTC)));
+        // A rule nobody can evaluate is the operator's to find, not the owner's to be told
+        // about: it is written to history so there is something to find, and nothing is enqueued.
         assertEquals(1, countHistory(brokenRule.getId(), "CHECK_FAILED"));
+        assertNull(brokenState.getLastNotificationEnqueuedAt());
+        assertNull(brokenState.getLastNotifiedAt());
+        assertEquals(0, countOutbox(brokenRule.getId()));
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(healthyRule.getId()).getStatus());
         assertEquals(1, countHistory(healthyRule.getId(), "FIRED"));
-        verify(mockNotificationService, times(2)).prepareNotifications(any(), any());
+        verify(mockNotificationService, times(1)).prepareNotifications(any(), any());
     }
 
     @Test
@@ -441,41 +453,46 @@ class AlarmJobIntegrationTest {
         AlarmState brokenState = alarmStateDao.selectByRuleId(brokenRule.getId());
         assertEquals(AlarmStatus.CHECK_FAILED, brokenState.getStatus());
         assertNull(brokenState.getLastNotificationEnqueuedAt());
-        assertEquals(0, countHistory(brokenRule.getId(), "CHECK_FAILED"));
+        assertEquals(1, countHistory(brokenRule.getId(), "CHECK_FAILED"));
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(healthyRule.getId()).getStatus());
         assertEquals(1, countHistory(healthyRule.getId(), "FIRED"));
         verify(mockNotificationService, times(1)).prepareNotifications(any(), any());
     }
 
-    // A deployable can run without the module that owns a rule's data source: the code the
-    // rule stores then resolves to no metric query service. That rule has to fail on its
-    // own -- with the enum it failed while the chunk was being read, taking the rest with it.
+    // More than one evaluation process can share these tables, one per set of data sources it
+    // has the stores for. A rule belonging to another one must come back from neither the
+    // query nor anything this process writes: recording it as failed would move its next check
+    // and tell its owner their rule is broken, from a process that was never meant to read it.
     @Test
-    void aDataSourceWithNoMetricQueryService_failsOnlyItsOwnRuleAndTellsItsOwner() throws Exception {
-        AlarmRuleV2 uninstalledRule = insertRuleWithDataSource("NOT_INSTALLED");
+    void aRuleOfAnotherProcessDataSource_isLeftUntouchedEntirely() throws Exception {
+        AlarmRuleV2 otherProcessRule = insertRuleWithDataSource("OWNED_BY_ANOTHER_PROCESS");
         AlarmRuleV2 healthyRule = insertRule("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 150.0));
+        AlarmState before = alarmStateDao.selectByRuleId(otherProcessRule.getId());
 
         JobExecution exec = jobLauncherTestUtils.launchJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
-        assertEquals(AlarmStatus.CHECK_FAILED,
-                alarmStateDao.selectByRuleId(uninstalledRule.getId()).getStatus());
-        // Only the rule's owner can fix a data source no installed module measures, so the
-        // failure is recorded and notified rather than kept in the log. Reported as
-        // infrastructure it would leave no history and no delivery, and the rule would look
-        // healthy while never being evaluated.
-        assertEquals(1, countHistory(uninstalledRule.getId(), "CHECK_FAILED"));
+
+        AlarmState after = alarmStateDao.selectByRuleId(otherProcessRule.getId());
+        assertEquals(before.getStatus(), after.getStatus());
+        assertEquals(before.getNextCheckAt(), after.getNextCheckAt(),
+                "another process schedules this rule; this one must not move it");
+        assertEquals(0, countHistory(otherProcessRule.getId(), "CHECK_FAILED"));
 
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(healthyRule.getId()).getStatus());
         assertEquals(1, countHistory(healthyRule.getId(), "FIRED"));
-        verify(mockNotificationService, times(2)).prepareNotifications(any(), any());
+        // Only the rule this process owns produced a notification.
+        verify(mockNotificationService, times(1)).prepareNotifications(any(), any());
     }
 
     @Test
-    void outboxInsertFailure_rollsBackStateAndHistoryAndDoesNotSkipOtherRules() throws Exception {
-        AlarmRuleV2 brokenRule = insertBrokenTemplateRule();
+    void outboxInsertFailure_rollsBackTheFiringWriteAndDoesNotSkipOtherRules() throws Exception {
+        // Both rules fire; only one of them cannot have its delivery enqueued. A check
+        // failure no longer enqueues anything, so firing is the path this can happen on.
+        AlarmRuleV2 blockedRule = insertRule(
+                "error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
         AlarmRuleV2 healthyRule = insertRule(
                 "error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
         when(mockMetricQueryService.query(any(), any(), any(), any()))
@@ -483,7 +500,7 @@ class AlarmJobIntegrationTest {
         when(mockNotificationService.prepareNotifications(any(), any()))
                 .thenAnswer(invocation -> {
                     AlarmRuleV2 notificationRule = invocation.getArgument(0);
-                    return brokenRule.getId().equals(notificationRule.getId())
+                    return blockedRule.getId().equals(notificationRule.getId())
                             ? duplicatePreparedDelivery(10L)
                             : preparedDelivery(20L);
                 });
@@ -491,9 +508,17 @@ class AlarmJobIntegrationTest {
         JobExecution exec = jobLauncherTestUtils.launchJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
-        assertEquals(AlarmStatus.NORMAL, alarmStateDao.selectByRuleId(brokenRule.getId()).getStatus());
-        assertEquals(0, countHistory(brokenRule.getId(), "CHECK_FAILED"));
-        assertEquals(0, countOutbox(brokenRule.getId()));
+        // The firing write rolled back whole, and the tasklet then recorded the rule as one
+        // whose check did not complete. The status alone does not prove the rollback -- the
+        // CHECK_FAILED write sets it either way -- so the two columns only recordFired touches
+        // are what says the firing transaction left nothing behind.
+        AlarmState blockedState = alarmStateDao.selectByRuleId(blockedRule.getId());
+        assertEquals(AlarmStatus.CHECK_FAILED, blockedState.getStatus());
+        assertNull(blockedState.getLastFiredAt());
+        assertNull(blockedState.getLastNotificationEnqueuedAt());
+        assertEquals(0, countHistory(blockedRule.getId(), "FIRED"));
+        assertEquals(1, countHistory(blockedRule.getId(), "CHECK_FAILED"));
+        assertEquals(0, countOutbox(blockedRule.getId()));
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(healthyRule.getId()).getStatus());
         assertEquals(1, countHistory(healthyRule.getId(), "FIRED"));
         assertEquals(1, countOutbox(healthyRule.getId()));
@@ -523,9 +548,10 @@ class AlarmJobIntegrationTest {
 
     @Test
     void expiredLeaseCanBeReclaimedButActiveLeaseCannot() {
-        AlarmNotificationOutbox delivery = insertOutbox(100L, 10L, nowUtc());
+        AlarmRuleV2 rule = insertRule("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
+        AlarmNotificationOutbox delivery = insertOutbox(insertHistory(rule).getId(), 10L, nowUtc());
         AlarmNotificationOutboxClaimService claimService =
-                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager);
+                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager, PRIMARY_ONLY);
         LocalDateTime now = nowUtc().withNano(0);
 
         List<AlarmNotificationOutbox> first = claimService.claim(10, now, Duration.ofMinutes(1));
@@ -543,11 +569,12 @@ class AlarmJobIntegrationTest {
 
     @Test
     void concurrentDispatchersCannotClaimSameDelivery() throws Exception {
-        AlarmNotificationOutbox delivery = insertOutbox(100L, 10L, nowUtc());
+        AlarmRuleV2 rule = insertRule("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
+        AlarmNotificationOutbox delivery = insertOutbox(insertHistory(rule).getId(), 10L, nowUtc());
         AlarmNotificationOutboxClaimService firstService =
-                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager);
+                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager, PRIMARY_ONLY);
         AlarmNotificationOutboxClaimService secondService =
-                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager);
+                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager, PRIMARY_ONLY);
         LocalDateTime now = nowUtc().withNano(0);
         CountDownLatch ready = new CountDownLatch(2);
         CountDownLatch start = new CountDownLatch(1);
@@ -575,6 +602,23 @@ class AlarmJobIntegrationTest {
         } finally {
             executor.shutdownNow();
         }
+    }
+
+    @Test
+    void aDeliveryOfAnotherProcessDataSourceIsLeftForThatProcess() {
+        // Theirs is written first and claimed with a limit of one: read before the data
+        // sources narrow the rows, a queue of another process's deliveries would starve
+        // this one rather than be passed over.
+        AlarmRuleV2 theirs = insertRuleWithDataSource("OWNED_BY_ANOTHER_PROCESS");
+        insertOutbox(insertHistory(theirs).getId(), 20L, nowUtc());
+        AlarmRuleV2 ours = insertRule("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
+        AlarmNotificationOutbox ourDelivery = insertOutbox(insertHistory(ours).getId(), 10L, nowUtc());
+        AlarmNotificationOutboxClaimService claimService =
+                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager, PRIMARY_ONLY);
+
+        List<AlarmNotificationOutbox> claimed = claimService.claim(1, nowUtc(), Duration.ofMinutes(1));
+
+        assertEquals(List.of(ourDelivery.getId()), claimed.stream().map(AlarmNotificationOutbox::getId).toList());
     }
 
     @Test
@@ -638,7 +682,7 @@ class AlarmJobIntegrationTest {
                 retry.getId());
 
         AlarmNotificationOutboxClaimService claimService =
-                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager);
+                new AlarmNotificationOutboxClaimService(alarmNotificationOutboxDao, transactionManager, PRIMARY_ONLY);
         AlarmNotificationOutbox claimed = claimService.claim(
                 1, nowUtc(), Duration.ofMinutes(1)).get(0);
         AlarmNotificationResultService resultService = new AlarmNotificationResultService(

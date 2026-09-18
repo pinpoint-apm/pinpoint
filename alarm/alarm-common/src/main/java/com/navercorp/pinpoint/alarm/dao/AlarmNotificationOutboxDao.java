@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutboxCounts;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface AlarmNotificationOutboxDao {
@@ -27,7 +28,8 @@ public interface AlarmNotificationOutboxDao {
     void insert(AlarmNotificationOutbox delivery);
 
     List<Long> selectClaimCandidateIds(@Param("now") LocalDateTime now,
-                                       @Param("limit") int limit);
+                                       @Param("limit") int limit,
+                                       @Param("dataSources") Collection<String> dataSources);
 
     int claimAvailable(@Param("claimToken") String claimToken,
                        @Param("now") LocalDateTime now,

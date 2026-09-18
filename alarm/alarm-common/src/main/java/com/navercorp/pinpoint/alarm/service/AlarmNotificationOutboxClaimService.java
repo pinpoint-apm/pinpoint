@@ -16,7 +16,9 @@
 package com.navercorp.pinpoint.alarm.service;
 
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationOutboxDao;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -27,7 +29,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Claims a bounded outbox batch in a short transaction.
@@ -37,13 +41,35 @@ public class AlarmNotificationOutboxClaimService {
 
     private final AlarmNotificationOutboxDao outboxDao;
     private final TransactionTemplate requiresNew;
+    private final Set<String> dataSources;
 
+    /**
+     * Claims only the notifications of rules this process evaluates -- the same data sources
+     * the sweep reads. Processes share the outbox, and each one renders only its own data
+     * sources' links and pages correctly.
+     */
+    @Autowired
     public AlarmNotificationOutboxClaimService(AlarmNotificationOutboxDao outboxDao,
                                                @Qualifier("transactionManager")
-                                               PlatformTransactionManager transactionManager) {
+                                               PlatformTransactionManager transactionManager,
+                                               List<MetricQueryService> metricQueryServices) {
+        this(outboxDao, transactionManager, metricQueryServices.stream()
+                .map(service -> service.getDataSource().name())
+                .collect(Collectors.toUnmodifiableSet()));
+    }
+
+    public AlarmNotificationOutboxClaimService(AlarmNotificationOutboxDao outboxDao,
+                                               PlatformTransactionManager transactionManager,
+                                               Set<String> dataSources) {
         this.outboxDao = Objects.requireNonNull(outboxDao, "outboxDao");
         this.requiresNew = new TransactionTemplate(Objects.requireNonNull(transactionManager, "transactionManager"));
         this.requiresNew.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        this.dataSources = Set.copyOf(Objects.requireNonNull(dataSources, "dataSources"));
+        // An empty IN list is invalid SQL; the sweep refuses to start the same way.
+        if (this.dataSources.isEmpty()) {
+            throw new IllegalStateException(
+                    "No metric query service is installed, so this process owns no notification to send");
+        }
     }
 
     public List<AlarmNotificationOutbox> claim(int limit, LocalDateTime now, Duration leaseDuration) {
@@ -58,7 +84,7 @@ public class AlarmNotificationOutboxClaimService {
 
         String claimToken = UUID.randomUUID().toString().replace("-", "");
         List<AlarmNotificationOutbox> claimed = requiresNew.execute(status -> {
-            List<Long> candidateIds = outboxDao.selectClaimCandidateIds(now, limit);
+            List<Long> candidateIds = outboxDao.selectClaimCandidateIds(now, limit, dataSources);
             if (candidateIds.isEmpty()) {
                 return List.<AlarmNotificationOutbox>of();
             }
