@@ -81,6 +81,10 @@ import java.util.logging.Logger;
  * everywhere; the concrete delegate type only from its own loader) under a pinpoint-owned name,
  * the same pattern {@code ASMInterceptorHolder} uses. One class per delegate class, cached via
  * {@link ClassValue} so unloading follows the delegate's loader.
+ * <p>
+ * The caches live on the instance, so a single instance is expected (wired as a singleton through
+ * {@code ObjectBinderFactory}); only the class-name counter stays global, so generated names remain
+ * unique even if several instances ever define classes into the same loader.
  */
 public final class ASMGuardedInterceptorFactory {
     // JUL on purpose: this can run before the plugin logging bridge is ready.
@@ -121,14 +125,8 @@ public final class ASMGuardedInterceptorFactory {
      * straight from the bootstrap jar list instead. Absent (unit tests, plain-classpath runs)
      * the resource lookup alone suffices.
      */
-    private static volatile BootstrapCore templateSource;
-    private static final ConcurrentMap<Class<?>, byte[]> TEMPLATE_BYTES_CACHE = new ConcurrentHashMap<>();
-
-    public static void initTemplateSource(BootstrapCore bootstrapCore) {
-        if (bootstrapCore != null && templateSource == null) {
-            templateSource = bootstrapCore;
-        }
-    }
+    private final BootstrapCore templateSource;
+    private final ConcurrentMap<Class<?>, byte[]> templateBytesCache = new ConcurrentHashMap<>();
 
     private static final String DELEGATE_FIELD = "delegate";
     private static final String HANDLER_FIELD = "exceptionHandler";
@@ -141,21 +139,27 @@ public final class ASMGuardedInterceptorFactory {
      * A failed generation is cached as {@code null} holder content and never retried — the
      * fallback path is permanent for that class.
      */
-    private static final ClassValue<GeneratedWrapper> WRAPPER_CLASSES = new ClassValue<GeneratedWrapper>() {
+    private final ClassValue<GeneratedWrapper> wrapperClasses = new ClassValue<GeneratedWrapper>() {
         @Override
         protected GeneratedWrapper computeValue(Class<?> delegateClass) {
             return generate(delegateClass);
         }
     };
 
-    private static final ClassValue<GeneratedWrapper> SCOPED_WRAPPER_CLASSES = new ClassValue<GeneratedWrapper>() {
+    private final ClassValue<GeneratedWrapper> scopedWrapperClasses = new ClassValue<GeneratedWrapper>() {
         @Override
         protected GeneratedWrapper computeValue(Class<?> delegateClass) {
             return generateScoped(delegateClass);
         }
     };
 
-    private ASMGuardedInterceptorFactory() {
+    /**
+     * @param templateSource the bootstrap jar list the scoped templates are read from; nullable
+     *                       outside the DI wiring (unit tests, plain-classpath runs), the resource
+     *                       lookup alone then suffices
+     */
+    public ASMGuardedInterceptorFactory(BootstrapCore templateSource) {
+        this.templateSource = templateSource;
     }
 
     /**
@@ -165,8 +169,8 @@ public final class ASMGuardedInterceptorFactory {
      * CHECKCAST to the shape's base interface holds and the shared-wrapper {@code instanceof}
      * cascade would have picked the same shape.
      */
-    public static Interceptor wrap(Interceptor delegate, ExceptionHandler exceptionHandler) {
-        final GeneratedWrapper wrapper = WRAPPER_CLASSES.get(delegate.getClass());
+    public Interceptor wrap(Interceptor delegate, ExceptionHandler exceptionHandler) {
+        final GeneratedWrapper wrapper = wrapperClasses.get(delegate.getClass());
         if (wrapper == null) {
             return null;
         }
@@ -185,8 +189,8 @@ public final class ASMGuardedInterceptorFactory {
      * class is produced by retyping the template's delegate field instead of emitting from
      * scratch, so the scope enter/leave semantics stay in the template's Java source.
      */
-    public static Interceptor wrapScoped(Interceptor delegate, InterceptorScope scope, ExecutionPolicy policy, ExceptionHandler exceptionHandler) {
-        final GeneratedWrapper wrapper = SCOPED_WRAPPER_CLASSES.get(delegate.getClass());
+    public Interceptor wrapScoped(Interceptor delegate, InterceptorScope scope, ExecutionPolicy policy, ExceptionHandler exceptionHandler) {
+        final GeneratedWrapper wrapper = scopedWrapperClasses.get(delegate.getClass());
         if (wrapper == null) {
             return null;
         }
@@ -220,7 +224,7 @@ public final class ASMGuardedInterceptorFactory {
         }
     }
 
-    private static GeneratedWrapper generateScoped(Class<?> delegateClass) {
+    private GeneratedWrapper generateScoped(Class<?> delegateClass) {
         try {
             if (!Modifier.isPublic(delegateClass.getModifiers())) {
                 return null;
@@ -252,11 +256,11 @@ public final class ASMGuardedInterceptorFactory {
      * a monomorphic {@code invokevirtual}. The {@code implements} clause alone keeps the base
      * interface, so the woven CHECKCAST to the shape's type still holds.
      */
-    private static byte[] rewriteTemplate(Class<?> template, String newClassName, Class<?> baseInterface, Class<?> delegateClass) throws IOException {
-        byte[] templateBytes = TEMPLATE_BYTES_CACHE.get(template);
+    private byte[] rewriteTemplate(Class<?> template, String newClassName, Class<?> baseInterface, Class<?> delegateClass) throws IOException {
+        byte[] templateBytes = templateBytesCache.get(template);
         if (templateBytes == null) {
             templateBytes = readTemplateBytes(template);
-            TEMPLATE_BYTES_CACHE.putIfAbsent(template, templateBytes);
+            templateBytesCache.putIfAbsent(template, templateBytes);
         }
         final String newInternalName = JavaAssistUtils.javaNameToJvmName(newClassName);
         final String baseInterfaceInternalName = Type.getInternalName(baseInterface);
@@ -275,7 +279,7 @@ public final class ASMGuardedInterceptorFactory {
         return classWriter.toByteArray();
     }
 
-    private static byte[] readTemplateBytes(Class<?> template) throws IOException {
+    private byte[] readTemplateBytes(Class<?> template) throws IOException {
         final InputStream inputStream = openTemplateStream(template);
         if (inputStream == null) {
             throw new IOException("not found template class resource " + template.getName());
@@ -287,15 +291,14 @@ public final class ASMGuardedInterceptorFactory {
         }
     }
 
-    private static InputStream openTemplateStream(Class<?> template) {
+    private InputStream openTemplateStream(Class<?> template) {
         final InputStream inputStream = template.getResourceAsStream(template.getSimpleName() + ".class");
         if (inputStream != null) {
             return inputStream;
         }
-        final BootstrapCore bootstrapCore = templateSource;
-        if (bootstrapCore != null) {
+        if (templateSource != null) {
             final String resourceName = JavaAssistUtils.javaNameToJvmName(template.getName()) + ".class";
-            return bootstrapCore.openStream(resourceName);
+            return templateSource.openStream(resourceName);
         }
         return null;
     }

@@ -47,6 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @EnabledIfSystemProperty(named = "pinpoint.jdk9.define.test", matches = "true")
 public class GuardCodegenJdk9DefineTest {
+    private final ASMGuardedInterceptorFactory factory = new ASMGuardedInterceptorFactory(null);
 
     private final List<Throwable> handled = new ArrayList<>();
     private final ExceptionHandler guard = handled::add;
@@ -65,7 +66,7 @@ public class GuardCodegenJdk9DefineTest {
     @Test
     public void emittedGuardIsDefinedAndRuns() {
         RecordingAroundInterceptor delegate = new RecordingAroundInterceptor();
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrap(delegate, guard);
+        Interceptor wrapped = factory.wrap(delegate, guard);
 
         // non-null proves emit + define succeeded on this JVM (every failure falls back to null)
         assertThat(wrapped).isNotNull().isInstanceOf(AroundInterceptor.class);
@@ -83,7 +84,7 @@ public class GuardCodegenJdk9DefineTest {
 
     @Test
     public void definedGuardStillSwallowsThrowable() {
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrap(new ThrowingAroundInterceptor(), guard);
+        Interceptor wrapped = factory.wrap(new ThrowingAroundInterceptor(), guard);
 
         assertThat(wrapped).isNotNull();
         ((AroundInterceptor) wrapped).before(null, null);
@@ -99,7 +100,7 @@ public class GuardCodegenJdk9DefineTest {
         RecordingScope scope = new RecordingScope();
 
         RecordingAroundInterceptor delegate = new RecordingAroundInterceptor();
-        Interceptor wrapped = ASMGuardedInterceptorFactory.wrapScoped(delegate, scope, ExecutionPolicy.BOUNDARY, guard);
+        Interceptor wrapped = factory.wrapScoped(delegate, scope, ExecutionPolicy.BOUNDARY, guard);
 
         assertThat(wrapped).isNotNull().isInstanceOf(AroundInterceptor.class);
         assertThat(wrapped.getClass().getName()).contains("GuardedScopedInterceptor$$");
