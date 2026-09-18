@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.histogram.ApdexScore;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.jspecify.annotations.Nullable;

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
+import com.navercorp.pinpoint.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 

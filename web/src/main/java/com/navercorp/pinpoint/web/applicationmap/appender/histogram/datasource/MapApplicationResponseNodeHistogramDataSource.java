@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.applicationmap.dao.ApplicationResponse;
+import com.navercorp.pinpoint.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.HashMap;

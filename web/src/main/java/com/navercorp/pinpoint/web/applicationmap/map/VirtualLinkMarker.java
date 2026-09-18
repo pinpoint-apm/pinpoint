@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.AcceptApplicationSet;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

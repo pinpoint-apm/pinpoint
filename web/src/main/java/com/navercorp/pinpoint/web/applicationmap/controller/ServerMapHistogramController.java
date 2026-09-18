@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.applicationmap.controller;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -31,7 +32,6 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;

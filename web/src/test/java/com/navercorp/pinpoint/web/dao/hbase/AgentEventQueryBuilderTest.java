@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import com.navercorp.pinpoint.web.dao.hbase.AgentEventFilterBuilder;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import io.jsonwebtoken.impl.lang.Bytes;
 import org.apache.hadoop.hbase.KeyValue;

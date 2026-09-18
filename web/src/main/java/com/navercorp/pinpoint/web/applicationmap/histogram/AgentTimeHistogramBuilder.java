@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
+import com.navercorp.pinpoint.applicationmap.rawdata.AgentHistogram;
+import com.navercorp.pinpoint.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.common.server.bo.Application;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.applicationmap.vo.ResponseTime;
 
 import java.util.ArrayList;
 import java.util.List;

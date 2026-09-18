@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.common.server.bo.Application;
 

@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.applicationmap.rawdata.AgentHistogram;
+import com.navercorp.pinpoint.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import inet.ipaddr.IPAddressString;

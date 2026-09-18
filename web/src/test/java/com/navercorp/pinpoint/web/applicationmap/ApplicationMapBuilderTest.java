@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -30,13 +31,12 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.R
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.applicationmap.vo.ResponseTime;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;

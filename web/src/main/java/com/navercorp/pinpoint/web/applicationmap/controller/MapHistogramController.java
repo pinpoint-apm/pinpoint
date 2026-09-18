@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;

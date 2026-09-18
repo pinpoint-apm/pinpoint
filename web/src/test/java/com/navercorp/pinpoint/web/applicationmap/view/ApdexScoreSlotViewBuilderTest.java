@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.applicationmap.view;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

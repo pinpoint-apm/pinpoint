@@ -18,9 +18,9 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.applicationmap.dao.MapInLinkDao;
+import com.navercorp.pinpoint.applicationmap.dao.MapOutLinkDao;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.springframework.stereotype.Service;
 

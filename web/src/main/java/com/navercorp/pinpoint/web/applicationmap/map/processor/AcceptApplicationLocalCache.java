@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
-import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
+import com.navercorp.pinpoint.applicationmap.map.AcceptApplication;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.Nullable;

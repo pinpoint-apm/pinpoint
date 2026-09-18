@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 import org.apache.logging.log4j.LogManager;

@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.component;
 
-import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.server.bo.Application;

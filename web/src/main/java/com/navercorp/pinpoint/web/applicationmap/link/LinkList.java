@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
+import com.navercorp.pinpoint.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.common.server.bo.Application;
 

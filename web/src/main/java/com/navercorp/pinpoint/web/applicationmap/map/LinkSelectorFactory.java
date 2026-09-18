@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessors;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.RpcCallProcessor;

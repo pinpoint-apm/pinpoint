@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.applicationmap.vo.ResponseTime;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -23,7 +24,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

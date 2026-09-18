@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWriter;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;

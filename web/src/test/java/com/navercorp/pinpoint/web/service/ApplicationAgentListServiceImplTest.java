@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
+import com.navercorp.pinpoint.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.common.server.bo.Application;

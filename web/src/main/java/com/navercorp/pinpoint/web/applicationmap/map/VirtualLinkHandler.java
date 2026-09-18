@@ -17,14 +17,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.applicationmap.link.LinkKey;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkCallData;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkCallDataMap;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.apache.logging.log4j.LogManager;

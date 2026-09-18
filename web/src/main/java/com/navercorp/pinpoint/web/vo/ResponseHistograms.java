@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.applicationmap.vo.ResponseTime;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
 import org.eclipse.collections.api.factory.primitive.LongObjectMaps;
 import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 

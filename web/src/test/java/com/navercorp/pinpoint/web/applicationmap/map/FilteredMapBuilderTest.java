@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -32,16 +33,15 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.applicationmap.link.LinkKey;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
 import com.navercorp.pinpoint.web.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.applicationmap.vo.ResponseTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

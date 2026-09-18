@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.batch.alarm.collector.pinot.SystemCpuDataCollector
 import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.applicationmap.dao.MapOutLinkDao;
+import com.navercorp.pinpoint.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.springframework.stereotype.Component;

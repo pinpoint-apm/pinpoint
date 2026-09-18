@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.view;
 
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.rawdata.AgentHistogram;
+import com.navercorp.pinpoint.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;

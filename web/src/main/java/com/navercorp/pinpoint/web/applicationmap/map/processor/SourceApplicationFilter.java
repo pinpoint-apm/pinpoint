@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.Collection;

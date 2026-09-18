@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
@@ -33,8 +34,7 @@ import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.filter.visitor.SpanAcceptor;
 import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
 import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.EmptyNodeHistogramFactory;
@@ -32,7 +33,6 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.util.TimeoutWatcher;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.apache.logging.log4j.LogManager;

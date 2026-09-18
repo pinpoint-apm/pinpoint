@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;

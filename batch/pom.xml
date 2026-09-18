@@ -25,6 +25,10 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-applicationmap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
         </dependency>
         <dependency>

@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.config;
 
+import com.navercorp.pinpoint.applicationmap.config.MapDaoConfiguration;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.applicationmap.map.ApplicationsMapCreatorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.ApplicationLimiterProcessorFactory;

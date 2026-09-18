@@ -17,13 +17,13 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.applicationmap.link.LinkKey;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

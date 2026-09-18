@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.common.server.bo.Application;
 
 import java.util.Collections;

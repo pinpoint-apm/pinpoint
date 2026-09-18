@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.M
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.applicationmap.dao.MapAgentResponseDao;
+import com.navercorp.pinpoint.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import org.springframework.stereotype.Service;
 

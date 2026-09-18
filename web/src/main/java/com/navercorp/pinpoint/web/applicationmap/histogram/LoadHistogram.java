@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;

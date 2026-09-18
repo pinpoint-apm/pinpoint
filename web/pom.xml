@@ -64,6 +64,10 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-applicationmap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-mybatis</artifactId>
         </dependency>
         <dependency>
@@ -366,12 +370,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test-autoconfigure</artifactId>
             <version>${spring-boot.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.skyscreamer</groupId>
-            <artifactId>jsonassert</artifactId>
             <scope>test</scope>
         </dependency>
 
