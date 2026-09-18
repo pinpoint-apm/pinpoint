@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.JvmCpuDataGetter;
-import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentUsageCount;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsageCount;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.Application;
@@ -37,14 +37,14 @@ public class JvmCpuDataCollector extends DataCollector implements JvmCpuDataGett
     private final static String METRIC_NAME = "cpuLoad";
     private final static String FIELD_NAME = "jvm";
 
-    private final AlarmDao alarmDao;
+    private final AgentStatAlarmDao alarmDao;
     private final Application application;
     private final long timeSlotEndTime;
     private final long slotInterval;
 
     private final Map<String, Long> agentJvmCpuUsageRate = new HashMap<>();
 
-    public JvmCpuDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
+    public JvmCpuDataCollector(DataCollectorCategory dataCollectorCategory, AgentStatAlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");

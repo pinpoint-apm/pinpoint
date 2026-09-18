@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.batch.alarm.dao.model;
+package com.navercorp.pinpoint.alarm.core.agentstat.dao.model;
 
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * @author minwoo-jung
  */
-public class BatchQueryParameter {
+public class AgentStatQueryParameter {
 
     private final static String DEFAULT_AGENT_ID = "agentId";
     private final static String DEFAULT_FIELD_NAME = "fieldName";
@@ -42,7 +42,7 @@ public class BatchQueryParameter {
     private final String fieldName;
     private final Range range;
 
-    public BatchQueryParameter(String tableName,
+    public AgentStatQueryParameter(String tableName,
                                String applicationName,
                                String agentId,
                                String metricName,
@@ -52,7 +52,7 @@ public class BatchQueryParameter {
         this(tableName, applicationName, agentId, metricName, fieldName, Collections.emptyList(), tagList, range);
     }
 
-    public BatchQueryParameter(String tableName,
+    public AgentStatQueryParameter(String tableName,
                                String applicationName,
                                String agentId,
                                String metricName,
@@ -62,7 +62,7 @@ public class BatchQueryParameter {
         this(tableName, applicationName, agentId, metricName, DEFAULT_FIELD_NAME, fieldList, tagList, range);
     }
 
-    public BatchQueryParameter(String tableName,
+    public AgentStatQueryParameter(String tableName,
                                String applicationName,
                                String agentId,
                                String metricName,
@@ -71,7 +71,7 @@ public class BatchQueryParameter {
         this(tableName, applicationName, agentId, metricName, fieldName, Collections.emptyList(), Collections.emptyList(), range);
     }
 
-    public BatchQueryParameter(String tableName,
+    public AgentStatQueryParameter(String tableName,
                                String applicationName,
                                String metricName,
                                List<String> fieldList,
@@ -80,7 +80,7 @@ public class BatchQueryParameter {
         this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, DEFAULT_FIELD_NAME, fieldList, tagList, range);
     }
 
-    public BatchQueryParameter(String tableName,
+    public AgentStatQueryParameter(String tableName,
                                String applicationName,
                                String metricName,
                                String fieldName,
@@ -88,7 +88,7 @@ public class BatchQueryParameter {
         this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, fieldName, Collections.emptyList(), Collections.emptyList(), range);
     }
 
-    public BatchQueryParameter(String tableName,
+    public AgentStatQueryParameter(String tableName,
                                String applicationName,
                                String metricName,
                                List<String> fieldList,
@@ -96,7 +96,7 @@ public class BatchQueryParameter {
         this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, DEFAULT_FIELD_NAME, fieldList, Collections.emptyList(), range);
     }
 
-    private BatchQueryParameter(String tableName,
+    private AgentStatQueryParameter(String tableName,
                                 String applicationName,
                                 String agentId,
                                 String metricName,
@@ -151,7 +151,7 @@ public class BatchQueryParameter {
         return sortKey;
     }
 
-    public BatchQueryParameter(String tableName, String applicationName, String agentId, String metricName, String sortKey, List<String> fieldList, List<Tag> tagList, String fieldName, Range range) {
+    public AgentStatQueryParameter(String tableName, String applicationName, String agentId, String metricName, String sortKey, List<String> fieldList, List<Tag> tagList, String fieldName, Range range) {
         this.tableName = tableName;
         this.applicationName = applicationName;
         this.agentId = agentId;
@@ -165,7 +165,7 @@ public class BatchQueryParameter {
 
     @Override
     public String toString() {
-        return "BatchQueryParameter{" +
+        return "AgentStatQueryParameter{" +
                 "tableName='" + tableName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +

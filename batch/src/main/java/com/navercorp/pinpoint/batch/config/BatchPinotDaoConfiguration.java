@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.batch.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.AgentStatRegistryHandler;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.PinotAgentStatAlarmDao;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.ibatis.session.Configuration;
@@ -45,10 +47,14 @@ public class BatchPinotDaoConfiguration {
 
     @Bean
     public FactoryBean<SqlSessionFactory> batchSessionFactory(
-            BatchRegistryHandler batchRegistryHandler,
+            AgentStatRegistryHandler agentStatRegistryHandler,
             @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
-            @Value("classpath*:/mapper/batch/*Mapper.xml") Resource[] mappers) {
+            // The dao's own pattern, not a copy of it. The batch had a mapper directory of
+            // its own that held exactly this one file, and a pattern left pointing at it
+            // matches nothing on a clean build while still picking up a stale copy left in a
+            // build directory -- which mybatis rejects as a duplicate result map.
+            @Value(PinotAgentStatAlarmDao.MAPPER_LOCATION) Resource[] mappers) {
 
         for (Resource mapper : mappers) {
             logger.info("Mapper location: {}", mapper.getDescription());
@@ -56,7 +62,7 @@ public class BatchPinotDaoConfiguration {
         Configuration config = new Configuration();
         customizer.customize(config);
 
-        batchRegistryHandler.registerHandlers(config);
+        agentStatRegistryHandler.registerHandlers(config);
 
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource);
@@ -74,8 +80,8 @@ public class BatchPinotDaoConfiguration {
     }
 
     @Bean
-    public BatchRegistryHandler batchRegistryHandler(ObjectMapper objectMapper) {
-        return new BatchRegistryHandler(objectMapper);
+    public AgentStatRegistryHandler agentStatRegistryHandler(ObjectMapper objectMapper) {
+        return new AgentStatRegistryHandler(objectMapper);
     }
 
     @Bean

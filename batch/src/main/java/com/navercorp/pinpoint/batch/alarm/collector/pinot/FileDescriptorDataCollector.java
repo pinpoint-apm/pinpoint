@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataGetter;
-import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsage;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.Application;
@@ -36,13 +36,13 @@ public class FileDescriptorDataCollector extends DataCollector implements FileDe
     protected final static String METRIC_NAME = "fileDescriptor";
     protected final static String FIELD_NAME = "openFileDescriptorCount";
 
-    private final AlarmDao alarmDao;
+    private final AgentStatAlarmDao alarmDao;
     private final Application application;
     private final long timeSlotEndTime;
     private final long slotInterval;
     private final Map<String, Long> agentFileDescriptorCount = new HashMap<>();
 
-    public FileDescriptorDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
+    public FileDescriptorDataCollector(DataCollectorCategory dataCollectorCategory, AgentStatAlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");

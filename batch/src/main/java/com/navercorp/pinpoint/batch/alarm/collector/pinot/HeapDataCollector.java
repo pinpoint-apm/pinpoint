@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.HeapDataGetter;
-import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
@@ -38,14 +38,14 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
     private final static String METRIC_NAME = "jvmGc";
     protected final static String FIELD_HEAP_USED = "heapUsed";
     protected final static String FIELD_HEAP_MAX = "heapMax";
-    private final AlarmDao alarmDao;
+    private final AgentStatAlarmDao alarmDao;
     private final Application application;
     private final Map<String, Long> agentHeapUsageRate = new HashMap<>();
     private final List<String> fieldList = List.of(FIELD_HEAP_MAX, FIELD_HEAP_USED);
     private final long timeSlotEndTime;
     private final long slotInterval;
 
-    public HeapDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
+    public HeapDataCollector(DataCollectorCategory dataCollectorCategory, AgentStatAlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");

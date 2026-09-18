@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.common.server.bo.Application;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 class HeapDataCollectorTest {
 
     @Mock
-    AlarmDao alarmDao;
+    AgentStatAlarmDao alarmDao;
 
     @Test
     public void collect() {
