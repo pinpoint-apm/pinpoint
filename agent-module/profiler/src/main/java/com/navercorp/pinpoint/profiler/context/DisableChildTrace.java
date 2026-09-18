@@ -33,8 +33,8 @@ public class DisableChildTrace implements Trace {
     // private static final int ASYNC_BEGIN_STACK_ID = 1001;
     public static final String UNSUPPORTED_OPERATION = "disable async child trace";
 
-    protected final Logger logger = LogManager.getLogger(getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
+    private static final Logger logger = LogManager.getLogger(DisableChildTrace.class);
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private boolean closed = false;
 

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -29,6 +31,10 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class AsyncDisableTrace extends DisableTrace {
+    // own logger so the async lifecycle logs keep this class as their category;
+    // the parent declares a static one for its own messages
+    private static final Logger logger = LogManager.getLogger(AsyncDisableTrace.class);
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final AsyncState asyncState;
 

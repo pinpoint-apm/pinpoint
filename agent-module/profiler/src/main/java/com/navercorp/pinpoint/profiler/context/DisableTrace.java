@@ -36,8 +36,8 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class DisableTrace implements Trace {
-    protected final Logger logger = LogManager.getLogger(getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
+    private static final Logger logger = LogManager.getLogger(DisableTrace.class);
+    private final boolean isDebug = logger.isDebugEnabled();
 
     public static final String UNSUPPORTED_OPERATION = "disable trace";
     public static final long DISABLE_TRACE_OBJECT_ID = -1;

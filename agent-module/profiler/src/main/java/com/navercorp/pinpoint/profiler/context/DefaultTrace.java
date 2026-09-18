@@ -40,11 +40,11 @@ import java.util.Objects;
  */
 public class DefaultTrace implements Trace {
 
-    // shared by every DefaultTrace: one process-wide cap on corrupted call stack dumps for this trace type
-    private static final CallStackDumpLogger DUMP_LOGGER = CallStackDumpLogger.of(LogManager.getLogger(DefaultTrace.class));
+    private static final Logger logger = LogManager.getLogger(DefaultTrace.class);
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    protected final Logger logger = LogManager.getLogger(getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
+    // shared by every DefaultTrace: one process-wide cap on corrupted call stack dumps for this trace type
+    private static final CallStackDumpLogger DUMP_LOGGER = CallStackDumpLogger.of(logger);
 
     private final CallStack<SpanEvent> callStack;
 
