@@ -110,6 +110,10 @@
             <AppenderRef ref="console"/>
         </Logger>
 
+        <Logger name="com.navercorp.pinpoint.common.server.dao" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
         <Logger name="com.navercorp.pinpoint.web.mapper.ApiMetaDataMapper" level="${logger_level}" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>

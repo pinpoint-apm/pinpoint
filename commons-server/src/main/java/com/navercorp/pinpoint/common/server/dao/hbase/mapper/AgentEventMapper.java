@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
