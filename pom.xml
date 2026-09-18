@@ -139,8 +139,6 @@
         <module>service-module</module>
         <module>applicationmap</module>
         <module>alarm</module>
-        <module>alarm-batch</module>
-        <module>alarm-core</module>
     </modules>
 
     <properties>
@@ -660,7 +658,12 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-alarm</artifactId>
+                <artifactId>pinpoint-alarm-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-alarm-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
