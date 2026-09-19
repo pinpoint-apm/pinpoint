@@ -97,6 +97,9 @@ pinpoint:
     uid:
       version: v3
   collector:
+    service:
+      lookup:
+        enabled: true
     otlptrace:
       # Test/dev only. When true, requests with no per-instance identifier
       # (service.instance.id / k8s.pod.uid / container.id / host.name) fall back

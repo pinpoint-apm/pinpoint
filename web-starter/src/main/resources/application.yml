@@ -96,6 +96,8 @@ pinpoint:
         enabled: true
       systemmetric:
         enabled: true
+      servicemap:
+        enabled: true
     realtime:
       enabled: true
 
