@@ -33,9 +33,9 @@ class HeatmapAgentStatTest {
     }
 
     @Test
-    public void resultTypeTest() {
-        assertEquals("SUCCESS", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 0).getResultType());
-        assertEquals("FAILURE", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 1).getResultType());
-        assertEquals("FAILURE", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, -1).getResultType());
+    public void resultTest() {
+        assertEquals("suc", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 0).getResult());
+        assertEquals("fal", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, 1).getResult());
+        assertEquals("fal", new HeatmapAgentStat("svc", "app", "agent", 1000, 100, -1).getResult());
     }
 }
