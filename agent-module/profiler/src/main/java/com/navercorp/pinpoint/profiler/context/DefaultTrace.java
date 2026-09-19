@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
@@ -40,6 +39,9 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class DefaultTrace implements Trace {
+
+    // shared by every DefaultTrace: one process-wide cap on corrupted call stack dumps for this trace type
+    private static final CallStackDumpLogger DUMP_LOGGER = CallStackDumpLogger.of(LogManager.getLogger(DefaultTrace.class));
 
     protected final Logger logger = LogManager.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
@@ -121,8 +123,7 @@ public class DefaultTrace implements Trace {
     }
 
     private void stackDump(String caused) {
-        PinpointException exception = new PinpointException(caused);
-        logger.warn("Corrupted call stack found TraceRoot:{}, CallStack:{}", getTraceRoot(), callStack, exception);
+        DUMP_LOGGER.dump(caused, getTraceRoot(), callStack);
     }
 
     @Override
