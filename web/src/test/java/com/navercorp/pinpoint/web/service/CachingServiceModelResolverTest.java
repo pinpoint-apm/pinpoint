@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.service.service.ServiceNotFoundException;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.common.server.uid.Service;

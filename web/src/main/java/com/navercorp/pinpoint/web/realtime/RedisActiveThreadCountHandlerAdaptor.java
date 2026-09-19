@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.web.realtime.activethread.count.websocket.RedisActiveThreadCountWebSocketHandler;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler;
 import com.navercorp.pinpoint.web.websocket.message.PinpointWebSocketMessageConverter;
 import org.apache.logging.log4j.LogManager;

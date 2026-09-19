@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.common.server.util.RandomServiceUidGenerator;
 import com.navercorp.pinpoint.service.config.ServiceMysqlConfiguration;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.service.service.ServiceRegistryServiceImpl;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

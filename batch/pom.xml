@@ -27,6 +27,11 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-applicationmap</artifactId>
         </dependency>
+        <!-- The core alarm data sources. Goes away with the v1 alarm job that still reads them. -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-alarm-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>

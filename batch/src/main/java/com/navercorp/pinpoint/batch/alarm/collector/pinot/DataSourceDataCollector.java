@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.batch.alarm.collector.pinot;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataGetter;
-import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
-import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
+import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
+import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -53,7 +53,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
     private final static String ID = "id";
     private final static String DATABASE_NAME = "databaseName";
 
-    private final AlarmDao alarmDao;
+    private final AgentStatAlarmDao alarmDao;
     private final Application application;
     private final List<String> agentIds;
     private final long timeSlotEndTime;
@@ -61,7 +61,7 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
     private final List<String> fieldList = List.of(FIELD_ACTIVE_CONNECTION, FIELD_MAX_CONNECTION);
     private final MultiValueMap<String, DataSourceAlarmVO> agentDataSourceConnectionUsageRateMap = new LinkedMultiValueMap<>();
 
-    public DataSourceDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, List<String> agentIds, long timeSlotEndTime, long slotInterval) {
+    public DataSourceDataCollector(DataCollectorCategory dataCollectorCategory, AgentStatAlarmDao alarmDao, Application application, List<String> agentIds, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");

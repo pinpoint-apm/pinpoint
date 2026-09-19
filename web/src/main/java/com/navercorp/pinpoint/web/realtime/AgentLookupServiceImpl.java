@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ClusterKeyAndM
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.common.server.uid.Service;
-import com.navercorp.pinpoint.web.service.ServiceModelResolver;
-import com.navercorp.pinpoint.web.service.ServiceNotFoundException;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.service.ServiceNotFoundException;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.apache.logging.log4j.LogManager;
