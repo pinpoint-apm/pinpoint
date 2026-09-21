@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWriter;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.web.applicationmap.view.ApplicationApdexScoreSlotV
 import com.navercorp.pinpoint.web.applicationmap.view.ApplicationTimeSeriesHistogramNodeView;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
 import com.navercorp.pinpoint.web.applicationmap.view.ServerListNodeView;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
