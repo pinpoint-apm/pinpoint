@@ -5,13 +5,13 @@ through the framework's own OTLP exporter (`quarkus.otel.exporter.otlp.*`); a se
 sample, fan-out to another backend is a Collector concern (guide section D).
 
 - Do **not** attach the Pinpoint agent or the OpenTelemetry Java Agent (duplicate instrumentation).
-- The module is in the **`otel-framework-testweb`** profile (off by default): it pulls `quarkus-maven-plugin` into the reactor.
+- The module is built by default (compile + plain jar); the Quarkus build (`quarkus-maven-plugin`, `target/quarkus-app`) runs only with `-Dspring-boot-build-skip=false`.
 - `quarkus.otel.exporter.otlp.protocol` defaults to `grpc` already.
 
 ### Run (JDK 17)
 
 ```
-./mvnw -Potel-framework-testweb -pl agent-module/agent-testweb/quarkus-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
+./mvnw -pl agent-module/agent-testweb/quarkus-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
 java -jar agent-module/agent-testweb/quarkus-opentelemetry-testweb/target/quarkus-app/quarkus-run.jar \
   -Dquarkus.otel.exporter.otlp.endpoint=http://<collector>:9998
 ```

@@ -13,7 +13,7 @@ spans to Pinpoint by adding a second `SpanExporter` bean. Boot 3 counterpart: `s
 ### Run (JDK 17)
 
 ```
-./mvnw -Pjdk17 -pl agent-module/agent-testweb/spring-boot4-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
+./mvnw -pl agent-module/agent-testweb/spring-boot4-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
 java -jar agent-module/agent-testweb/spring-boot4-opentelemetry-testweb/target/pinpoint-spring-boot4-opentelemetry-testweb-*-exec.jar \
   --pinpoint.otel.trace.endpoint=http://<collector>:9998 \
   --management.opentelemetry.tracing.export.otlp.endpoint=http://<existing-backend>:4317

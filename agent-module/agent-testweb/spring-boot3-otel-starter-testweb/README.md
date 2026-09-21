@@ -12,7 +12,7 @@ OTel SDK autoconfigure, no javaagent). Pinpoint is added as a second exporter th
 ### Run (JDK 17)
 
 ```
-./mvnw -Pjdk17 -pl agent-module/agent-testweb/spring-boot3-otel-starter-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
+./mvnw -pl agent-module/agent-testweb/spring-boot3-otel-starter-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
 java -jar agent-module/agent-testweb/spring-boot3-otel-starter-testweb/target/pinpoint-spring-boot3-otel-starter-testweb-*-exec.jar \
   --pinpoint.otel.trace.endpoint=http://<collector>:9998 \
   --otel.exporter.otlp.endpoint=http://<existing-backend>:4317

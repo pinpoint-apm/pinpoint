@@ -66,7 +66,7 @@
                     <parameters>true</parameters>
                 </configuration>
             </plugin>
-            <!-- jdk 17 is required: ./mvnw -Potel-framework-testweb -pl agent-module/agent-testweb/quarkus-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false -->
+            <!-- jdk 17 is required: ./mvnw -pl agent-module/agent-testweb/quarkus-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false -->
             <plugin>
                 <groupId>io.quarkus.platform</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>

@@ -97,7 +97,7 @@
                 </configuration>
             </plugin>
             <!-- JDK 25 is required (also for Maven itself):
-                 JAVA_HOME=<jdk25> ./mvnw -Potel-framework-testweb -pl agent-module/agent-testweb/micronaut-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false -->
+                 JAVA_HOME=<jdk25> ./mvnw -Pjdk25-testweb -pl agent-module/agent-testweb/micronaut-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
