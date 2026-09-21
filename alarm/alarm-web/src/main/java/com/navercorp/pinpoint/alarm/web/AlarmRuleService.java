@@ -161,14 +161,20 @@ public class AlarmRuleService {
     @Transactional(transactionManager = "transactionManager", rollbackFor = Exception.class)
     public void updateEnabled(String serviceName, String applicationName, Long id, boolean enabled) {
         AlarmOwnerships.verifyServiceName(serviceName);
-        locks.lockRuleAfterBundleHeaders(id, serviceName,
-                locked -> AlarmOwnerships.verifyRule(locked, serviceName, applicationName));
+        AlarmRuleV2 locked = locks.lockRuleAfterBundleHeaders(id, serviceName,
+                rule -> AlarmOwnerships.verifyRule(rule, serviceName, applicationName));
         ruleDao.updateEnabled(id, enabled);
         AlarmState state = stateDao.selectByRuleId(id);
         if (state == null) {
             state = new AlarmState(id);
         }
         state.setNextCheckAt(enabled ? LocalDateTime.now(ZoneOffset.UTC) : null);
+        if (enabled && !locked.isEnabled()) {
+            // Only where the rule was off: a metric that reads from the last check would
+            // otherwise report what happened while it was. Said of a rule already on, the
+            // same call would drop the span since its last check instead.
+            state.setLastCheckedAt(null);
+        }
         stateDao.upsert(state);
     }
 

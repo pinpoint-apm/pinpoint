@@ -408,6 +408,10 @@ class AlarmJobIntegrationTest {
         assertNotNull(brokenState);
         assertEquals(AlarmStatus.CHECK_FAILED, brokenState.getStatus());
         assertNotNull(brokenState.getLastCheckedAt());
+        // At the column's precision and no later than the sweep: rounded up on write, the
+        // next window would start after the one this check read ends.
+        assertEquals(0, brokenState.getLastCheckedAt().getNano() % 1_000_000);
+        assertFalse(brokenState.getLastCheckedAt().isAfter(LocalDateTime.now(ZoneOffset.UTC)));
         assertNotNull(brokenState.getLastNotificationEnqueuedAt());
         assertNull(brokenState.getLastNotifiedAt());
         assertEquals(1, countHistory(brokenRule.getId(), "CHECK_FAILED"));

@@ -31,6 +31,12 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface AgentStatAlarmDao {
 
+    /**
+     * The agents that reported the metric in the window, which is what an application's live
+     * agents are as far as the stat table is concerned.
+     */
+    List<String> selectAgentIds(String applicationName, String metricName, Range range);
+
     List<AgentFieldUsage> selectSumGroupByField(String applicationName, String metricName, List<String> fieldList, Range range);
 
     CompletableFuture<List<AgentFieldUsage>> selectAvgGroupByField(String applicationName, String agentId, String metricName, List<String> fieldList, List<Tag> tagList, Range range);

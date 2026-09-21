@@ -113,6 +113,18 @@ class EffectiveAlarmRuleResolverTest {
     }
 
     @Test
+    void aTemplateItemWithoutFiltersResolvesToNoFilters() {
+        AlarmRuleV2 rule = rule(10L, TestAlarmDataSource.AGENT_STAT.name());
+        AlarmTemplateItem item = item();
+        item.setFilters(null);
+
+        AlarmRuleV2 effective = resolver.resolve(rule, item, template(), null);
+
+        // Left null it reaches a metric query service, which reads it as a list.
+        assertEquals(List.of(), effective.getFilters());
+    }
+
+    @Test
     void templateLinkedRuleOverridesOnlyNonNullFields() {
         AlarmRuleV2 rule = rule(10L, TestAlarmDataSource.AGENT_STAT.name());
         AlarmTemplateItem item = item();

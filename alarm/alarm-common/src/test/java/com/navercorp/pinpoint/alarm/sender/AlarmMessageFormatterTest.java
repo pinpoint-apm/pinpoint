@@ -41,6 +41,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmMessageFormatterTest {
 
@@ -104,7 +105,7 @@ class AlarmMessageFormatterTest {
         AlarmRuleV2 rule = createRule();
         String body = formatter.formatBody(rule, null, metricResults(rule, 127.0));
 
-        assertThat(body).contains("test-service", "test-app", "AGENT_STAT", "error_count", "127.0");
+        assertThat(body).contains("test-service", "test-app", "AGENT_STAT", "error_count", "127");
     }
 
     @Test
@@ -113,7 +114,7 @@ class AlarmMessageFormatterTest {
         String body = formatter.formatBody(rule, null, metricResults(rule, 3.0));
 
         assertThat(body)
-                .contains("deadlock_count: 3.0")
+                .contains("deadlock_count: 3")
                 .doesNotContain("condition:", "trigger=", "window=", "aggregation=", "null");
     }
 
@@ -122,7 +123,7 @@ class AlarmMessageFormatterTest {
         AlarmRuleV2 rule = createNewGroupRule();
         String body = formatter.formatBody(rule, "${metrics}", metricResults(rule, 3.0));
 
-        assertEquals("deadlock_count=3.0", body);
+        assertEquals("deadlock_count=3", body);
     }
 
     @Test
@@ -132,7 +133,7 @@ class AlarmMessageFormatterTest {
                 "${metric} is ${value} on ${application_name}",
                 metricResults(rule, 127.0));
 
-        assertEquals("error_count is 127.0 on test-app", body);
+        assertEquals("error_count is 127 on test-app", body);
     }
 
     @Test
@@ -141,7 +142,7 @@ class AlarmMessageFormatterTest {
         String body = formatter.formatBody(rule, "threshold: ${op} ${threshold}",
                 metricResults(rule, 127.0));
 
-        assertEquals("threshold: >= 50.0", body);
+        assertEquals("threshold: >= 50", body);
     }
 
     @Test
@@ -151,8 +152,8 @@ class AlarmMessageFormatterTest {
         String html = formatter.formatHtmlBody(rule, null, metricResults(rule, 127.0));
 
         assertThat(html)
-                .contains("Test Alarm", "CRITICAL", "test-service", "error_count", "127.0",
-                        "&gt;= 50.0", "(window: 300s)")
+                .contains("Test Alarm", "CRITICAL", "test-service", "error_count", "127",
+                        "&gt;= 50", "(window: 300s)")
                 // logo img rendered from the data URI, with brand alt text
                 .contains("<img", "PINPOINT")
                 // template fully processed — no leftover thymeleaf attributes
@@ -178,7 +179,7 @@ class AlarmMessageFormatterTest {
         String html = formatter.formatHtmlBody(rule, null, metricResults(rule, 3.0));
 
         assertThat(html)
-                .contains("deadlock_count", "3.0")
+                .contains("deadlock_count", "3")
                 .doesNotContain("(window:", "null");
     }
 
@@ -238,9 +239,38 @@ class AlarmMessageFormatterTest {
     void defaultBody_moreNewGroupsThanDescribed_reportsTheRemainder() {
         AlarmRuleV2 rule = createNewGroupRule();
         String body = formatter.formatBody(rule, null, metricResults(rule, 12.0,
-                List.of("TypeError: undefined is not a function")));
+                List.of("TypeError: undefined is not a function"), 11));
 
         assertThat(body).contains("    ... and 11 more");
+    }
+
+    // The value is not a line count: three deadlocked agents summed up in one line are not
+    // "one shown, two more".
+    @Test
+    void defaultBody_oneSummaryLine_reportsNoRemainder() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = formatter.formatBody(rule, null, metricResults(rule, 3.0,
+                List.of("deadlocked thread detected on 3 of 10 agents")));
+
+        assertThat(body).contains("    - deadlocked thread detected on 3 of 10 agents")
+                .doesNotContain("more");
+    }
+
+    @Test
+    void defaultBody_measuredValue_reportsNoRemainder() {
+        AlarmRuleV2 rule = createRule();
+        String body = formatter.formatBody(rule, null, metricResults(rule, 92.5,
+                List.of("max 92.50 over 3 agents")));
+
+        assertThat(body).contains("    - max 92.50 over 3 agents").doesNotContain("more");
+    }
+
+    @Test
+    void numbersRenderWithAtMostTwoDecimals() {
+        assertEquals("40.99", AlarmMessageFormatter.formatNumber(40.98925754941743));
+        assertEquals("7", AlarmMessageFormatter.formatNumber(7.0));
+        assertEquals("0.5", AlarmMessageFormatter.formatNumber(0.5));
+        assertEquals("", AlarmMessageFormatter.formatNumber(null));
     }
 
     @Test
@@ -273,7 +303,7 @@ class AlarmMessageFormatterTest {
     void defaultHtmlBody_newGroupRule_listsNewErrorGroups() {
         AlarmRuleV2 rule = createNewGroupRule();
         String html = formatter.formatHtmlBody(rule, null, metricResults(rule, 3.0,
-                List.of("TypeError: undefined is not a function")));
+                List.of("TypeError: undefined is not a function"), 2));
 
         assertThat(html)
                 .contains("TypeError: undefined is not a function")
@@ -321,7 +351,7 @@ class AlarmMessageFormatterTest {
                 .startsWith("⚠️ *[WARNING]* *[test-app]* Test Alarm")
                 .contains("• 🌐 *Service:* test-service")
                 .contains("• 🔍 *Conditions:*")
-                .contains("    └ `deadlock_count` : 1.0")
+                .contains("    └ `deadlock_count` : 1")
                 .contains("        • TypeError: x is not a function");
     }
 
@@ -335,7 +365,7 @@ class AlarmMessageFormatterTest {
                 // the DEFAULT payload carries the headline in its own title field
                 .startsWith("• 🌐 Service: test-service")
                 .doesNotContain("[WARNING]", "Test Alarm")
-                .contains("    └ deadlock_count : 1.0")
+                .contains("    └ deadlock_count : 1")
                 .doesNotContain("*", "`");
     }
 
@@ -346,7 +376,7 @@ class AlarmMessageFormatterTest {
 
         assertThat(body)
                 .startsWith("🚨 *[CRITICAL]* *[test-app]* Test Alarm")
-                .contains("    └ `error_count` : 127.0 (>= 50.0, window: 300s)");
+                .contains("    └ `error_count` : 127 (>= 50, window: 300s)");
     }
 
     @Test
@@ -354,7 +384,7 @@ class AlarmMessageFormatterTest {
         AlarmRuleV2 rule = createRule();
         String body = formatter.formatWebhookBody(rule, "${metrics}", metricResults(rule, 127.0), true);
 
-        assertEquals("error_count=127.0", body);
+        assertEquals("error_count=127", body);
     }
 
     @Test
@@ -384,6 +414,23 @@ class AlarmMessageFormatterTest {
 
         assertEquals("https://pinpoint.example.com/detail/test-app@javascript"
                 + "?from=" + fromMs + "&to=" + toMs, link);
+    }
+
+    // An application name is whatever the agent reported. A '#' ends the path at the browser,
+    // a '/' moves the link to a different route, and a raw space breaks the href outright.
+    @Test
+    void detailLink_encodesWhatTheAgentNamedTheApplication() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setApplicationName("my app/v2#1");
+        rule.setApplicationType(AlarmApplication.TYPE_JAVASCRIPT);
+        long toMs = 1789041600000L;
+        MetricQueryResult results = metricResultsWithRange(rule, 3.0,
+                new QueriedRange(toMs - Duration.ofHours(1).toMillis(), toMs));
+
+        String link = linkFormatter.formatBody(rule, "${detail_link}", results);
+
+        assertTrue(link.startsWith("https://pinpoint.example.com/detail/my%20app%2Fv2%231@javascript?"),
+                "the name has to survive as one path segment, was " + link);
     }
 
     @Test
@@ -498,8 +545,13 @@ class AlarmMessageFormatterTest {
     }
 
     private MetricQueryResult metricResults(AlarmRuleV2 rule, double value, List<String> details) {
+        return metricResults(rule, value, details, 0);
+    }
+
+    private MetricQueryResult metricResults(AlarmRuleV2 rule, double value, List<String> details,
+                                            int omitted) {
         MetricQueryKey key = MetricQueryKey.from(rule.getConditions());
-        return new MetricQueryResult(Map.of(key, value), Map.of(key, details), null);
+        return new MetricQueryResult(Map.of(key, value), Map.of(key, details), Map.of(key, omitted), null);
     }
 
     private MetricQueryResult metricResultsWithRange(AlarmRuleV2 rule, double value, QueriedRange range) {

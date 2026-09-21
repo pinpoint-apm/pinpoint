@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -50,6 +51,7 @@ public class FilterKeyValidator {
             throw new IllegalArgumentException(
                     "Filter count exceeds maximum of " + AlarmValidationConstants.MAX_FILTER_COUNT);
         }
+        Set<String> seenEqualityKeys = new HashSet<>();
         for (AlarmFilter filter : filters) {
             if (filter == null) {
                 throw new IllegalArgumentException("Filter must not be null");
@@ -69,6 +71,15 @@ public class FilterKeyValidator {
             if (filter.getValue().length() > AlarmValidationConstants.MAX_FILTER_VALUE_LENGTH) {
                 throw new IllegalArgumentException(
                         "Filter value exceeds maximum length of " + AlarmValidationConstants.MAX_FILTER_VALUE_LENGTH);
+            }
+            // Filters are ANDed, so two equalities on one key accept nothing. The other
+            // operators still say something together -- two exclusions exclude both -- and a
+            // rule saved before this check reaches evaluation, where rejecting it would mark
+            // the rule failed rather than the value missing.
+            if (filter.getOp() == AlarmFilter.Op.EQ && !seenEqualityKeys.add(filter.getKey())) {
+                throw new IllegalArgumentException(
+                        "Duplicate equality filter on key '" + filter.getKey()
+                                + "'. A key can be equal to one value.");
             }
         }
         return filters;

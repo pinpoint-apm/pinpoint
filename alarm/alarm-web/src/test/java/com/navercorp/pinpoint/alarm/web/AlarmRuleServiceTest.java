@@ -34,10 +34,14 @@ import com.navercorp.pinpoint.alarm.vo.AlarmRuleDetails;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleLocalConfig;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
+import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +52,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class AlarmRuleServiceTest extends AlarmServiceTestSupport {
 
@@ -426,6 +432,41 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(List.of(7L), ruleDao.updatedEnabledIds);
         assertEquals(List.of(false), ruleDao.updatedEnabledValues);
+    }
+
+    @Test
+    void enablingForgetsTheLastCheckSoTheOffPeriodIsNotRead() {
+        AlarmStateDao stateDao = mock(AlarmStateDao.class);
+        AlarmState stored = new AlarmState(7L);
+        stored.setLastCheckedAt(LocalDateTime.now(ZoneOffset.UTC).minusHours(5));
+        when(stateDao.selectByRuleId(7L)).thenReturn(stored);
+        AlarmRuleService service = newService(new RecordingRuleDao(true),                 new RecordingChannelBindingDao(), stateDao);
+
+        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+
+        ArgumentCaptor<AlarmState> upserted = ArgumentCaptor.forClass(AlarmState.class);
+        verify(stateDao).upsert(upserted.capture());
+        assertNull(upserted.getValue().getLastCheckedAt());
+        assertNotNull(upserted.getValue().getNextCheckAt());
+    }
+
+    @Test
+    void enablingARuleThatIsAlreadyOnKeepsItsLastCheck() {
+        // Said again -- a stale tab, a retried call -- this would otherwise drop the span
+        // since the last check, and a metric reading from there would skip it.
+        AlarmStateDao stateDao = mock(AlarmStateDao.class);
+        AlarmState stored = new AlarmState(7L);
+        LocalDateTime lastCheckedAt = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(1);
+        stored.setLastCheckedAt(lastCheckedAt);
+        when(stateDao.selectByRuleId(7L)).thenReturn(stored);
+        AlarmRuleService service = newService(new RecordingRuleDao(true).withEnabled(true),
+                new RecordingChannelBindingDao(), stateDao);
+
+        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+
+        ArgumentCaptor<AlarmState> upserted = ArgumentCaptor.forClass(AlarmState.class);
+        verify(stateDao).upsert(upserted.capture());
+        assertEquals(lastCheckedAt, upserted.getValue().getLastCheckedAt());
     }
 
     @Test

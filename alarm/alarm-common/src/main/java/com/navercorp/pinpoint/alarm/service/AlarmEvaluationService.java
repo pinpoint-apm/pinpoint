@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,7 +53,9 @@ public class AlarmEvaluationService {
      * @return true if the alarm fired
      */
     public boolean evaluate(AlarmRuleV2 rule, MetricQueryService metricQueryService) {
-        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        // At the column's precision: rounded up on write, the next window would start after
+        // the one this check reads ends.
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MILLIS);
         AlarmState state = stateDao.selectByRuleId(rule.getId());
         if (state == null) {
             state = new AlarmState(rule.getId());
@@ -74,15 +77,19 @@ public class AlarmEvaluationService {
         return fired;
     }
 
-    public void handleRuleConfigurationFailed(AlarmRuleV2 rule, RuntimeException failure) {
+    /**
+     * Records that a rule could not be checked, without telling the rule's owner.
+     *
+     * <p>Nothing that reaches here is theirs to fix: an authoring mistake is refused when the
+     * rule is saved, by these same validators, so what gets this far is a data source whose
+     * process is not deployed, a metric the catalog dropped, a missing template row, or a
+     * service someone deleted on purpose. Those are all operator work, so the failure is
+     * written down rather than sent anywhere: a CHECK_FAILED history row carrying the
+     * exception, and the state moved to CHECK_FAILED with the next check pushed out.
+     */
+    public void handleEvaluationFailed(AlarmRuleV2 rule, RuntimeException failure) {
         Objects.requireNonNull(rule, "rule");
         Objects.requireNonNull(failure, "failure");
         eventPersistenceService.recordCheckFailed(rule, failure, LocalDateTime.now(ZoneOffset.UTC));
-    }
-
-    public void handleInfrastructureFailed(AlarmRuleV2 rule, RuntimeException failure) {
-        Objects.requireNonNull(rule, "rule");
-        Objects.requireNonNull(failure, "failure");
-        eventPersistenceService.recordCheckFailedSilently(rule, LocalDateTime.now(ZoneOffset.UTC));
     }
 }
