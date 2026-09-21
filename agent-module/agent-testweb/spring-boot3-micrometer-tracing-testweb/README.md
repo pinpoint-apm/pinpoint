@@ -13,7 +13,7 @@ and sends its spans to Pinpoint by adding a second `SpanExporter` bean.
 ### Run (JDK 17)
 
 ```
-./mvnw -Pjdk17 -pl agent-module/agent-testweb/spring-boot3-micrometer-tracing-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
+./mvnw -pl agent-module/agent-testweb/spring-boot3-micrometer-tracing-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
 java -jar agent-module/agent-testweb/spring-boot3-micrometer-tracing-testweb/target/pinpoint-spring-boot3-micrometer-tracing-testweb-*-exec.jar \
   --pinpoint.otel.trace.endpoint=http://<collector>:9998 \
   --management.otlp.tracing.endpoint=http://<existing-backend>:4317   # optional: simulates the app's existing OTLP backend

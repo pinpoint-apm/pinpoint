@@ -86,7 +86,7 @@
 
     <build>
         <plugins>
-            <!-- jdk 17 is required: ./mvnw -Pjdk17 -pl agent-module/agent-testweb/spring-boot4-opentelemetry-testweb package -Dspring-boot-build-skip=false -->
+            <!-- jdk 17 is required: ./mvnw -pl agent-module/agent-testweb/spring-boot4-opentelemetry-testweb package -Dspring-boot-build-skip=false -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

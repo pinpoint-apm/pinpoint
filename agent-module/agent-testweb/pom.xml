@@ -99,6 +99,15 @@
         <module>spring-kafka-plugin-testweb</module>
         <module>aws-sdk-s3-plugin-testweb</module>
         <module>db2-jdbc-plugin-testweb</module>
+        <module>spring-boot3-testweb</module>
+        <module>spring-boot3-webflux-plugin-testweb</module>
+        <module>spring-boot3-micrometer-tracing-testweb</module>
+        <module>spring-boot3-otel-starter-testweb</module>
+        <module>jetty12-plugin-testweb</module>
+        <module>spring-boot4-plugin-testweb</module>
+        <module>spring-boot4-webflux-plugin-testweb</module>
+        <module>spring-boot4-opentelemetry-testweb</module>
+        <module>quarkus-opentelemetry-testweb</module>
     </modules>
 
     <dependencyManagement>
@@ -142,24 +151,10 @@
 
     <profiles>
         <profile>
-            <id>jdk17</id>
+            <!-- Micronaut 5 is compiled for Java 25 (class file 69.0), so the compiler, the app and the Maven JVM itself
+                 must be JDK 25; CI runs Maven on JDK 17. Build it with JAVA_HOME=<jdk25> ./mvnw -Pjdk25-testweb ... -->
+            <id>jdk25-testweb</id>
             <modules>
-                <module>spring-boot3-testweb</module>
-                <module>spring-boot3-webflux-plugin-testweb</module>
-                <module>spring-boot3-micrometer-tracing-testweb</module>
-                <module>spring-boot3-otel-starter-testweb</module>
-                <module>jetty12-plugin-testweb</module>
-                <module>spring-boot4-plugin-testweb</module>
-                <module>spring-boot4-webflux-plugin-testweb</module>
-                <module>spring-boot4-opentelemetry-testweb</module>
-            </modules>
-        </profile>
-        <profile>
-            <!-- OTel-SDK sample apps on non-Spring frameworks. Off by default: they pull their own build plugins
-                 (quarkus-maven-plugin, maven-shade) and Micronaut 5 needs JDK 25 for Maven itself. -->
-            <id>otel-framework-testweb</id>
-            <modules>
-                <module>quarkus-opentelemetry-testweb</module>
                 <module>micronaut-opentelemetry-testweb</module>
             </modules>
         </profile>

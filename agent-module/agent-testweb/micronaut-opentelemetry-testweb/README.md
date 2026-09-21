@@ -5,7 +5,7 @@ Micronaut app instrumented with **`micronaut-tracing-opentelemetry-http`** (OTel
 exporter (`otel.exporter.otlp.*`).
 
 - Do **not** attach the Pinpoint agent or the OpenTelemetry Java Agent (duplicate instrumentation).
-- The module is in the **`otel-framework-testweb`** profile (off by default).
+- The module is in the **`jdk25-testweb`** profile (off by default): CI runs Maven on JDK 17 and this module needs JDK 25 (next bullet).
 - **Micronaut 5.x is compiled for Java 25**: the app, the compiler and the Maven JVM itself must run on JDK 25
   (`micronaut-maven-plugin` / `micronaut-core` are class file version 69.0). This module therefore uses
   `jdk.home=${java.home}` and must be built with `JAVA_HOME=<jdk25>`.
@@ -14,7 +14,7 @@ exporter (`otel.exporter.otlp.*`).
 ### Run (JDK 25, also for Maven)
 
 ```
-JAVA_HOME=<jdk25> ./mvnw -Potel-framework-testweb -pl agent-module/agent-testweb/micronaut-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
+JAVA_HOME=<jdk25> ./mvnw -Pjdk25-testweb -pl agent-module/agent-testweb/micronaut-opentelemetry-testweb package -Dmaven.test.skip=true -Dspring-boot-build-skip=false
 <jdk25>/bin/java --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow \
   -jar agent-module/agent-testweb/micronaut-opentelemetry-testweb/target/pinpoint-micronaut-opentelemetry-testweb-*-exec.jar \
   -Dotel.exporter.otlp.endpoint=http://<collector>:9998
