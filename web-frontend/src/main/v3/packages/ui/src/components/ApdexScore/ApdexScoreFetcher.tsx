@@ -6,40 +6,11 @@ import {
 } from '@pinpoint-fe/ui/src/hooks';
 import { HelpPopover } from '..';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { RANK, RankColorClassNameMap, getRank } from './apdexRank';
 
 // 기간은 호출부에서 받지 않고 여기서 URL을 읽는다. 조회 훅은 URL과 분리해 두어야 하므로
 // (`.claude/rules/api-hooks.md`) 읽는 자리를 컴포넌트로 내렸다.
 export interface ApdexScoreFetcherProps extends Omit<UseGetApdexScoreProps, 'dateRange'> {}
-
-enum RANK {
-  EXCELLENT,
-  GOOD,
-  FAIR,
-  POOR,
-  UNACCEPTABLE,
-}
-
-export const RankColorClassNameMap: { [key: string]: string } = {
-  [RANK.EXCELLENT]: 'text-status-success',
-  [RANK.GOOD]: 'text-status-good',
-  [RANK.FAIR]: 'text-[#f7d84a]',
-  [RANK.POOR]: 'text-status-warn',
-  [RANK.UNACCEPTABLE]: 'text-status-fail',
-};
-
-export const getRank = (score: number) => {
-  if (score >= 0.94) {
-    return RANK.EXCELLENT;
-  } else if (score >= 0.85) {
-    return RANK.GOOD;
-  } else if (score >= 0.7) {
-    return RANK.FAIR;
-  } else if (score >= 0.5) {
-    return RANK.POOR;
-  } else {
-    return RANK.UNACCEPTABLE;
-  }
-};
 
 export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
   const { dateRange } = useServerMapSearchParameters();
