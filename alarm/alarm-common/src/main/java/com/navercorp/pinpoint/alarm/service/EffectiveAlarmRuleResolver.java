@@ -114,8 +114,10 @@ public class EffectiveAlarmRuleResolver {
                         templateItem.getActionIntervalSec()),
                 ResolvedValue.override(localValue(localConfig, AlarmRuleLocalConfig::getConditions),
                         templateItem.getConditions()),
+                // Emptied rather than passed on: a template item saved without filters holds
+                // null, and the standalone path above already answers with a list either way.
                 ResolvedValue.override(localValue(localConfig, AlarmRuleLocalConfig::getFilters),
-                        templateItem.getFilters()));
+                        Objects.requireNonNullElse(templateItem.getFilters(), List.of())));
     }
 
     private AlarmRuleV2 buildEffectiveRule(AlarmRuleV2 source, ResolvedConfig config) {

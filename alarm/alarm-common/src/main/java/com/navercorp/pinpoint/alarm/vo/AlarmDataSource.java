@@ -15,6 +15,10 @@
  */
 package com.navercorp.pinpoint.alarm.vo;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -59,5 +63,14 @@ public interface AlarmDataSource {
      */
     default String detailLink(String baseUrl, String application, long fromMs, long toMs) {
         return null;
+    }
+
+    /** How the web's pages take a time in their {@code from} and {@code to} parameters. */
+    DateTimeFormatter LINK_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+
+    /** Written in this process's zone, the one the message prints its own times in. */
+    static String linkTime(long epochMs) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMs), ZoneId.systemDefault())
+                .format(LINK_TIME_FORMAT);
     }
 }

@@ -577,6 +577,8 @@ abstract class AlarmServiceTestSupport {
         String targetApplicationServiceName = SERVICE_NAME;
         long nextInsertedRuleId = 11L;
 
+        private boolean enabled;
+
         RecordingRuleDao(boolean exists) {
             this(exists, true);
         }
@@ -584,6 +586,11 @@ abstract class AlarmServiceTestSupport {
         RecordingRuleDao(boolean exists, boolean targetApplicationExists) {
             this.exists = exists;
             this.targetApplicationExists = targetApplicationExists;
+        }
+
+        RecordingRuleDao withEnabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
         }
 
         RecordingRuleDao withLockLog(List<String> lockLog) {
@@ -703,6 +710,7 @@ abstract class AlarmServiceTestSupport {
             rule.setServiceName(SERVICE_NAME);
             rule.setApplicationName(APPLICATION_NAME);
             rule.setTemplateItemId(templateItemId);
+            rule.setEnabled(enabled);
             return rule;
         }
 
@@ -717,7 +725,8 @@ abstract class AlarmServiceTestSupport {
         }
 
         @Override
-        public List<AlarmRuleV2> selectDueEnabledRulesAfter(long afterId, int limit, LocalDateTime now) {
+        public List<AlarmRuleV2> selectDueEnabledRulesAfter(long afterId, int limit, LocalDateTime now,
+                                                            java.util.Collection<String> dataSources) {
             throw new UnsupportedOperationException();
         }
 

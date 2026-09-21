@@ -42,6 +42,7 @@ class AgentStatMapperTest {
     private static final String NAMESPACE = PinotAgentStatAlarmDao.class.getName() + ".";
 
     private static final List<String> STATEMENTS = List.of(
+            "selectAgentIds",
             "selectSumGroupByField",
             "selectAvgGroupByField",
             "selectSumCount",

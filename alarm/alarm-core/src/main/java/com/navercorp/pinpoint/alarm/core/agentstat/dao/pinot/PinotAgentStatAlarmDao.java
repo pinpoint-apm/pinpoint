@@ -67,6 +67,12 @@ public class PinotAgentStatAlarmDao implements AgentStatAlarmDao {
     }
 
     @Override
+    public List<String> selectAgentIds(String applicationName, String metricName, Range range) {
+        AgentStatQueryParameter batchQueryParameter = new AgentStatQueryParameter(getTableName(applicationName), applicationName, metricName, List.of(), range);
+        return syncTemplate.selectList(NAMESPACE + "selectAgentIds", batchQueryParameter);
+    }
+
+    @Override
     public List<AgentFieldUsage> selectSumGroupByField(String applicationName, String metricName, List<String> fieldList, Range range) {
         AgentStatQueryParameter queryParameter = new AgentStatQueryParameter(getTableName(applicationName), applicationName, metricName, fieldList, range);
         return syncTemplate.selectList(NAMESPACE + "selectSumGroupByField", queryParameter);

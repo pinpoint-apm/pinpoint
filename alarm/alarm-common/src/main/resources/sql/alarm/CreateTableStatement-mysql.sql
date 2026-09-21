@@ -84,7 +84,7 @@ CREATE TABLE alarm_channel_binding (
 CREATE TABLE alarm_state (
     rule_id             BIGINT PRIMARY KEY,
     status              VARCHAR(20)     NOT NULL DEFAULT 'NORMAL',
-    last_checked_at     DATETIME,
+    last_checked_at     DATETIME(3),
     last_fired_at       DATETIME,
     last_notification_enqueued_at DATETIME,
     last_notified_at    DATETIME,

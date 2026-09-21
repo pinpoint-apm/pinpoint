@@ -30,9 +30,12 @@ import org.apache.commons.text.StringSubstitutor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -177,9 +180,9 @@ public class AlarmMessageFormatter {
         for (Map.Entry<MetricQueryKey, Double> e : metricResults.values().entrySet()) {
             AlarmCondition leaf = leafByMetric.get(e.getKey());
             sb.append("    └ ").append(code(metricName(e.getKey()), mrkdwn))
-                    .append(" : ").append(e.getValue());
+                    .append(" : ").append(formatNumber(e.getValue()));
             if (hasDisplayCondition(leaf)) {
-                sb.append(" (").append(nullSafe(leaf.getOp())).append(" ").append(leaf.getThreshold());
+                sb.append(" (").append(nullSafe(leaf.getOp())).append(" ").append(formatNumber(leaf.getThreshold()));
                 if (leaf.getWindowSec() != null) {
                     sb.append(", window: ").append(leaf.getWindowSec()).append("s");
                 }
@@ -187,7 +190,7 @@ public class AlarmMessageFormatter {
             }
             sb.append("\n");
 
-            Details details = buildDetails(metricResults.details(e.getKey()), e.getValue(),
+            Details details = buildDetails(metricResults.details(e.getKey()), metricResults.omittedDetails(e.getKey()),
                     HTML_DETAIL_MAX_CHARS, UNLIMITED_DETAIL_BYTES);
             for (String line : details.lines()) {
                 sb.append("        • ").append(escapeMrkdwn(line, mrkdwn)).append("\n");
@@ -278,7 +281,7 @@ public class AlarmMessageFormatter {
         Map<MetricQueryKey, AlarmCondition> leafByMetric = buildLeafByMetricKey(rule);
         List<ConditionRow> conditions = metricResults.values().entrySet().stream()
                 .map(e -> ConditionRow.from(e.getKey(), e.getValue(), leafByMetric.get(e.getKey()),
-                        buildDetails(metricResults.details(e.getKey()), e.getValue(),
+                        buildDetails(metricResults.details(e.getKey()), metricResults.omittedDetails(e.getKey()),
                                 HTML_DETAIL_MAX_CHARS, UNLIMITED_DETAIL_BYTES)))
                 .toList();
 
@@ -307,14 +310,14 @@ public class AlarmMessageFormatter {
      * comparison symbol; condition columns are {@code null} when the leaf is a pulse
      * trigger with no displayable threshold.
      */
-    record ConditionRow(String metric, Double value, boolean displayCondition,
-                        String op, Double threshold, Integer windowSec, Details details) {
+    record ConditionRow(String metric, String value, boolean displayCondition,
+                        String op, String threshold, Integer windowSec, Details details) {
         static ConditionRow from(MetricQueryKey key, Double value, AlarmCondition leaf, Details details) {
             if (!hasDisplayCondition(leaf)) {
-                return new ConditionRow(metricName(key), value, false, null, null, null, details);
+                return new ConditionRow(metricName(key), formatNumber(value), false, null, null, null, details);
             }
-            return new ConditionRow(metricName(key), value, true,
-                    nullSafe(leaf.getOp()), leaf.getThreshold(), leaf.getWindowSec(), details);
+            return new ConditionRow(metricName(key), formatNumber(value), true,
+                    nullSafe(leaf.getOp()), formatNumber(leaf.getThreshold()), leaf.getWindowSec(), details);
         }
     }
 
@@ -336,10 +339,10 @@ public class AlarmMessageFormatter {
 
     /**
      * Keeps detail lines within {@code maxChars} each and {@code budgetBytes} in total.
-     * {@code value} is the metric value, so the omitted count stays right even when the
-     * query itself already returned only a sample of the groups.
+     * {@code omitted} is what the query already left out, so the count stays right when it
+     * returned only a sample.
      */
-    private static Details buildDetails(List<String> details, Double value, int maxChars, int budgetBytes) {
+    private static Details buildDetails(List<String> details, int omitted, int maxChars, int budgetBytes) {
         if (details.isEmpty()) {
             return Details.NONE;
         }
@@ -354,8 +357,7 @@ public class AlarmMessageFormatter {
             lines.add(line);
             consumed += size;
         }
-        int total = value != null ? (int) Math.round(value) : details.size();
-        return new Details(lines, Math.max(0, total - lines.size()));
+        return new Details(lines, details.size() - lines.size() + omitted);
     }
 
     private static String truncate(String text, int maxChars) {
@@ -409,9 +411,10 @@ public class AlarmMessageFormatter {
         int detailBudget = detailBudgetBytes;
         for (Map.Entry<MetricQueryKey, Double> e : metricResults.values().entrySet()) {
             AlarmCondition leaf = leafByMetric.get(e.getKey());
-            sb.append("  ").append(metricName(e.getKey())).append(": ").append(e.getValue());
+            sb.append("  ").append(metricName(e.getKey())).append(": ").append(formatNumber(e.getValue()));
             if (hasDisplayCondition(leaf)) {
-                sb.append(" (condition: ").append(nullSafe(leaf.getOp())).append(" ").append(leaf.getThreshold());
+                sb.append(" (condition: ").append(nullSafe(leaf.getOp())).append(" ")
+                        .append(formatNumber(leaf.getThreshold()));
                 if (leaf.getWindowSec() != null) {
                     sb.append(", window: ").append(leaf.getWindowSec()).append("s");
                 }
@@ -419,7 +422,7 @@ public class AlarmMessageFormatter {
             }
             sb.append("\n");
 
-            Details details = buildDetails(metricResults.details(e.getKey()), e.getValue(),
+            Details details = buildDetails(metricResults.details(e.getKey()), metricResults.omittedDetails(e.getKey()),
                     PLAIN_DETAIL_MAX_CHARS, detailBudget);
             for (String line : details.lines()) {
                 sb.append("    - ").append(line).append("\n");
@@ -456,10 +459,6 @@ public class AlarmMessageFormatter {
      * Links to the range the queries actually covered, so the recipient sees the data that
      * fired the alarm. The range is absent only when no query ran (a check failure), and the
      * check interval is then the best guess available.
-     * <p>
-     * from/to are epoch millis: a wall clock string would have to be written in some zone,
-     * and the screen reads it back in the viewer's own timezone setting -- which the batch
-     * cannot know. Epoch carries the instant with no zone to agree on.
      */
     private String buildDetailLink(AlarmRuleV2 rule, QueriedRange range) {
         AlarmDataSource dataSource = dataSourceRegistry.find(rule.getDataSource()).orElse(null);
@@ -472,9 +471,19 @@ public class AlarmMessageFormatter {
                 : toMs - 1000L * (rule.getCheckIntervalSec() != null ? rule.getCheckIntervalSec() : 0);
         return dataSource.detailLink(
                 pinpointBaseUrl,
-                rule.getApplicationName() + "@" + nullSafe(rule.getApplicationType()),
+                encodePathSegment(nullSafe(rule.getApplicationName()))
+                        + "@" + encodePathSegment(nullSafe(rule.getApplicationType())),
                 fromMs,
                 toMs);
+    }
+
+    /**
+     * An application name is whatever the agent reported it to be, and every detailLink puts it
+     * in a path, so it is encoded here rather than left to each data source. Each half is a path
+     * segment of its own; '@' joins them.
+     */
+    private static String encodePathSegment(String segment) {
+        return UriUtils.encodePathSegment(segment, StandardCharsets.UTF_8);
     }
 
     private String buildHistoryLink(AlarmRuleV2 rule) {
@@ -514,13 +523,13 @@ public class AlarmMessageFormatter {
 
         if (!metricResults.isEmpty()) {
             String summary = metricResults.values().entrySet().stream()
-                    .map(e -> metricName(e.getKey()) + "=" + e.getValue())
+                    .map(e -> metricName(e.getKey()) + "=" + formatNumber(e.getValue()))
                     .collect(Collectors.joining(", "));
             variables.put("metrics", summary);
 
             Map.Entry<MetricQueryKey, Double> first = metricResults.values().entrySet().iterator().next();
             variables.put("metric", metricName(first.getKey()));
-            variables.put("value", String.valueOf(first.getValue()));
+            variables.put("value", formatNumber(first.getValue()));
             variables.put("details", buildDetailSummary(metricResults, detailBudgetBytes));
         }
 
@@ -529,8 +538,7 @@ public class AlarmMessageFormatter {
             if (!leaves.isEmpty()) {
                 AlarmCondition firstLeaf = leaves.get(0);
                 variables.put("op", nullSafe(firstLeaf.getOp()));
-                variables.put("threshold", firstLeaf.getThreshold() != null
-                        ? String.valueOf(firstLeaf.getThreshold()) : "");
+                variables.put("threshold", formatNumber(firstLeaf.getThreshold()));
             }
         }
 
@@ -558,7 +566,7 @@ public class AlarmMessageFormatter {
         List<String> lines = new ArrayList<>();
         int budget = detailBudgetBytes;
         for (Map.Entry<MetricQueryKey, Double> e : metricResults.values().entrySet()) {
-            Details details = buildDetails(metricResults.details(e.getKey()), e.getValue(),
+            Details details = buildDetails(metricResults.details(e.getKey()), metricResults.omittedDetails(e.getKey()),
                     PLAIN_DETAIL_MAX_CHARS, budget);
             for (String line : details.lines()) {
                 lines.add("- " + line);
@@ -578,6 +586,17 @@ public class AlarmMessageFormatter {
     // ComparisonOp.toString() is its symbol, so formatted output matches the raw string form
     private static String nullSafe(Object value) {
         return Objects.toString(value, "");
+    }
+
+    /** Two decimals at most and no trailing zeros: 7.0 reads 7, 40.98925 reads 40.99. */
+    static String formatNumber(Double value) {
+        if (value == null) {
+            return "";
+        }
+        if (!Double.isFinite(value)) {
+            return String.valueOf(value);
+        }
+        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
     }
 
     private static String metricName(MetricQueryKey metricKey) {

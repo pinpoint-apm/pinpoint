@@ -31,6 +31,7 @@ import java.util.Objects;
  */
 public record MetricQueryResult(Map<MetricQueryKey, Double> values,
                                 Map<MetricQueryKey, List<String>> details,
+                                Map<MetricQueryKey, Integer> omittedDetails,
                                 QueriedRange range) {
 
     private static final MetricQueryResult EMPTY = new MetricQueryResult(Map.of(), Map.of(), null);
@@ -41,6 +42,13 @@ public record MetricQueryResult(Map<MetricQueryKey, Double> values,
         // first one), so the same rule would render differently after every restart.
         values = unmodifiableCopy(Objects.requireNonNull(values, "values"));
         details = unmodifiableCopy(Objects.requireNonNull(details, "details"));
+        omittedDetails = unmodifiableCopy(Objects.requireNonNull(omittedDetails, "omittedDetails"));
+    }
+
+    public MetricQueryResult(Map<MetricQueryKey, Double> values,
+                             Map<MetricQueryKey, List<String>> details,
+                             QueriedRange range) {
+        this(values, details, Map.of(), range);
     }
 
     private static <V> Map<MetricQueryKey, V> unmodifiableCopy(Map<MetricQueryKey, V> map) {
@@ -61,6 +69,11 @@ public record MetricQueryResult(Map<MetricQueryKey, Double> values,
 
     public List<String> details(MetricQueryKey key) {
         return details.getOrDefault(key, List.of());
+    }
+
+    /** Detail lines the query itself left out, as when it describes only a sample of the groups. */
+    public int omittedDetails(MetricQueryKey key) {
+        return omittedDetails.getOrDefault(key, 0);
     }
 
     public boolean isEmpty() {

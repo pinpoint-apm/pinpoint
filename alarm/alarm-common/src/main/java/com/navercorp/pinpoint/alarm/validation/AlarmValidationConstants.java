@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.alarm.validation;
 
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -60,6 +61,16 @@ public final class AlarmValidationConstants {
 
     /** Minimum query window for an ordinary metric condition; NEW_GROUP triggers ignore it. */
     public static final int MIN_WINDOW_SEC = 60;
+
+    /**
+     * Maximum query window for an ordinary metric condition.
+     *
+     * <p>The window is the range the metric query reads, and the rule re-reads it every check
+     * interval -- as often as once a minute. Without a ceiling one rule can ask for years of
+     * map statistics on that schedule, which is a scan of the whole store repeated forever.
+     * A day is what the rule editor already offers as its longest window.
+     */
+    public static final int MAX_WINDOW_SEC = (int) Duration.ofDays(1).toSeconds();
 
     /** Selectable check intervals, in seconds. Must stay ascending. */
     public static final List<Integer> CHECK_INTERVAL_SEC_OPTIONS = List.of(60, 300, 600, 1800, 3600);
