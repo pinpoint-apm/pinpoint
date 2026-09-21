@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -50,6 +51,7 @@ public class FilterKeyValidator {
             throw new IllegalArgumentException(
                     "Filter count exceeds maximum of " + AlarmValidationConstants.MAX_FILTER_COUNT);
         }
+        Set<String> seenKeys = new HashSet<>();
         for (AlarmFilter filter : filters) {
             if (filter == null) {
                 throw new IllegalArgumentException("Filter must not be null");
@@ -69,6 +71,11 @@ public class FilterKeyValidator {
             if (filter.getValue().length() > AlarmValidationConstants.MAX_FILTER_VALUE_LENGTH) {
                 throw new IllegalArgumentException(
                         "Filter value exceeds maximum length of " + AlarmValidationConstants.MAX_FILTER_VALUE_LENGTH);
+            }
+            // Filters on one key are ANDed, so a second one narrows to nothing.
+            if (!seenKeys.add(filter.getKey())) {
+                throw new IllegalArgumentException(
+                        "Duplicate filter key '" + filter.getKey() + "'. One filter per key.");
             }
         }
         return filters;

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmState;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Queries metric values for condition evaluation.
@@ -53,5 +54,14 @@ public interface MetricQueryService {
 
     default List<AlarmFilter> validateFilterKeys(List<AlarmFilter> filters) {
         return FilterKeyValidator.validateFilterKeys(getDataSource(), filters);
+    }
+
+    /**
+     * How far back a leaf reads. Optional on the condition -- a NEW_GROUP leaf need not carry
+     * one -- so it falls back to the check interval, which is the span the previous
+     * evaluation ended at.
+     */
+    default int windowSecOf(AlarmRuleV2 rule, AlarmCondition leaf) {
+        return Objects.requireNonNullElse(leaf.getWindowSec(), rule.getCheckIntervalSec());
     }
 }
