@@ -43,6 +43,7 @@ import {
   TooltipTrigger,
   ServerMapSkeleton,
 } from '..';
+import { ApdexScoreValue } from '../ApdexScore/ApdexScoreValue';
 import cytoscape from 'cytoscape';
 import { cn } from '../../lib';
 import { Input } from '../ui/input';
@@ -731,9 +732,15 @@ export const ServerMapCore = ({
                                     width={28}
                                     className="shrink-0"
                                   />
-                                  <div className="truncate" title={subNode.applicationName}>
+                                  <div className="flex-1 truncate" title={subNode.applicationName}>
                                     {subNode.applicationName}
                                   </div>
+                                  {/* 목록의 Apdex는 map 응답에 실려 온 노드의 값을 그대로 쓴다
+                                      (ChartsBoard처럼 노드마다 /getApdexScore를 부르지 않는다). */}
+                                  <ApdexScoreValue
+                                    score={subNode.apdex?.apdexScore ?? 0}
+                                    className="shrink-0"
+                                  />
                                 </ServerMapMenuItem>
                               );
                             })
