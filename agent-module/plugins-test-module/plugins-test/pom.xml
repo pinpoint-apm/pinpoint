@@ -119,10 +119,7 @@
             <artifactId>maven-repository-metadata</artifactId>
             <version>${maven-core}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
+
 
         <!-- Logging dependencies -->
         <dependency>

@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.util.ClassPath;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.test.plugin.util.TestLogger;
+import org.tinylog.TaggedLogger;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 public class ClassLoading {
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    private final TaggedLogger logger = TestLogger.getLogger();
 
     public ClassLoading() {
     }
