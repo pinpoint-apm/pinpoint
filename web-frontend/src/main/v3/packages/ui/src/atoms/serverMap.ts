@@ -1,7 +1,6 @@
 import { atom } from 'jotai';
 import {
   FilteredMapType as FilteredMap,
-  GetHistogramStatistics,
   GetServerMap,
   AgentOverview,
 } from '@pinpoint-fe/ui/src/constants';
@@ -123,10 +122,6 @@ export const serverMapCurrentTargetDataAtom = atom((get) => {
   }
 });
 
-export const currentNodeStatisticsAtom = atom<GetHistogramStatistics.Response | undefined>(
-  undefined,
-);
-
 /**
  * 실시간 activeThreadCount(WebSocket)의 조회 대상.
  *
@@ -156,7 +151,5 @@ export const currentServerAgentIdAtom = atom<string | undefined>((get) => {
   const currentServer = get(currentServerAtom);
   return currentServer?.agentId;
 });
-
-export const realtimeDateRanage = atom<{ from: Date; to: Date } | undefined>(undefined);
 
 export const serverMapChartTypeAtom = atom<'scatter' | 'heatmap'>('heatmap');
