@@ -13,6 +13,12 @@
         </constructor>
     </resultMap>
 
+    <!--
+        Pinot applies its own LIMIT of 10 when a query does not say otherwise, and these group
+        by agent: without a limit an application would be read as its first ten agents and a
+        rule on the eleventh could never fire. The cap is set far above any real agent count
+        rather than tuned, since it exists to replace the default and not to page.
+    -->
     <select id="selectSumGroupByField" parameterType="AgentStatQueryParameter" resultType="AgentFieldUsage">
         SELECT agentId, fieldName, SUM(fieldValue) AS sumValue
         FROM ${tableName}
@@ -25,6 +31,7 @@
                 </foreach>
             AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY agentId, fieldName
+        LIMIT 100000
     </select>
 
 
@@ -54,6 +61,7 @@
             AND fieldName = #{fieldName}
             AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY agentId
+        LIMIT 100000
     </select>
 
     <select id="selectAvg" parameterType="AgentStatQueryParameter" resultType="AgentUsage">
@@ -65,6 +73,7 @@
           AND fieldName = #{fieldName}
           AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY agentId
+        LIMIT 100000
     </select>
 
     <select id="selectTagInfo" parameterType="AgentStatQueryParameter" resultType="Tag">
