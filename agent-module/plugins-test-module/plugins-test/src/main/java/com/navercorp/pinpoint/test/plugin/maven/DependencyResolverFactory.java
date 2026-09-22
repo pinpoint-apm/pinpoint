@@ -45,6 +45,11 @@ public class DependencyResolverFactory {
         this.session = DependencyResolver.newRepositorySystemSession(this.system, sessionConfig);
     }
 
+    public DependencyResolver get(List<String> repositoryUrls) {
+        Objects.requireNonNull(repositoryUrls, "repositoryUrls");
+        return get(repositoryUrls.toArray(new String[0]));
+    }
+
     public DependencyResolver get(String... repositoryUrls) {
         List<RemoteRepository> remoteRepositories = DependencyResolver.newRepositories(repositoryUrls);
         return new DependencyResolver(system, session, remoteRepositories);

@@ -49,15 +49,8 @@ public class PluginForkedTestContext {
     public PluginForkedTestContext(Path agentJar, String profile, Path configFile, Path logLocationConfig,
                                    List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> sharedLibraries, List<String> repositoryUrls,
                                    Class<?> testClass, Path testClassLocation, List<String> jvmArguments,
-                                   boolean debug, List<String> importPluginIds, List<String> pluginLibList, boolean manageTraceObject, List<String> transformIncludeList) {
-        this(agentJar, profile, configFile, logLocationConfig, requiredLibraries, mavenDependencyLibraries, sharedLibraries, repositoryUrls, testClass, testClassLocation, jvmArguments, debug, -1, "", importPluginIds, pluginLibList, manageTraceObject, transformIncludeList);
-    }
-
-    public PluginForkedTestContext(Path agentJar, String profile, Path configFile, Path logLocationConfig,
-                                   List<String> requiredLibraries, List<String> mavenDependencyLibraries, List<String> sharedLibraries, List<String> repositoryUrls,
-                                   Class<?> testClass, Path testClassLocation, List<String> jvmArguments,
-                                   boolean debug, int jvmVersion,
-                                   String javaExecutable, List<String> importPluginIds, List<String> pluginLibList, boolean manageTraceObject, List<String> transformIncludeList) {
+                                   boolean debug, int jvmVersion, String javaExecutable,
+                                   List<String> importPluginIds, List<String> pluginLibList, boolean manageTraceObject, List<String> transformIncludeList) {
         this.agentJar = agentJar;
         this.profile = profile;
         this.configFile = configFile;
