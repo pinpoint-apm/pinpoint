@@ -88,8 +88,8 @@ public class AlarmJobConfiguration {
     }
 
     @Bean
-    public Job alarmJob(JobRepository jobRepository, Step alarmStep) {
-        return new JobBuilder("alarmJob", jobRepository)
+    public Job alarmEvaluationJob(JobRepository jobRepository, Step alarmStep) {
+        return new JobBuilder("alarmEvaluationJob", jobRepository)
                 .start(alarmStep)
                 .build();
     }
