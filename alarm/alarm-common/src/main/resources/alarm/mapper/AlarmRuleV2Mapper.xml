@@ -93,10 +93,12 @@
             parameterType="com.navercorp.pinpoint.alarm.dao.entity.AlarmRuleEntity"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO alarm_rule_v2 (
-            data_source, template_item_id, service_name, application_name, application_type, enabled
+            data_source, template_item_id, service_name, application_name, application_type, enabled,
+            updated_at
         )
         VALUES (
-            #{dataSource}, #{templateItemId}, #{serviceName}, #{applicationName}, #{applicationType}, #{enabled}
+            #{dataSource}, #{templateItemId}, #{serviceName}, #{applicationName}, #{applicationType}, #{enabled},
+            UTC_TIMESTAMP()
         )
     </insert>
 
@@ -109,12 +111,12 @@
             application_name = #{applicationName},
             application_type = #{applicationType},
             enabled = #{enabled},
-            updated_at = CURRENT_TIMESTAMP
+            updated_at = UTC_TIMESTAMP()
         WHERE id = #{id}
     </update>
 
     <update id="updateEnabled">
-        UPDATE alarm_rule_v2 SET enabled = #{enabled} WHERE id = #{id}
+        UPDATE alarm_rule_v2 SET enabled = #{enabled}, updated_at = UTC_TIMESTAMP() WHERE id = #{id}
     </update>
 
     <delete id="deleteRule" parameterType="Long">

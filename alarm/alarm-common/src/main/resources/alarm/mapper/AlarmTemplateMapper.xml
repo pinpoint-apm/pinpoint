@@ -24,22 +24,24 @@
     <insert id="insert"
             parameterType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO alarm_template (service_name, name, description)
-        VALUES (#{serviceName}, #{name}, #{description})
+        INSERT INTO alarm_template (service_name, name, description, updated_at)
+        VALUES (#{serviceName}, #{name}, #{description}, UTC_TIMESTAMP())
     </insert>
 
     <update id="update"
             parameterType="com.navercorp.pinpoint.alarm.vo.AlarmTemplate">
         UPDATE alarm_template
         SET name = #{name},
-            description = #{description}
+            description = #{description},
+            updated_at = UTC_TIMESTAMP()
         WHERE id = #{id}
           AND deleted = 0
     </update>
 
     <update id="markDeleted" parameterType="Long">
         UPDATE alarm_template
-        SET deleted = 1
+        SET deleted = 1,
+            updated_at = UTC_TIMESTAMP()
         WHERE id = #{id}
           AND deleted = 0
     </update>

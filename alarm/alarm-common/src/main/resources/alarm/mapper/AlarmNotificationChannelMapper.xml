@@ -195,8 +195,10 @@
     <insert id="insert"
             parameterType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO alarm_notification_channel (service_name, channel_name, method_type, destination, config)
-        VALUES (#{serviceName}, #{channelName}, #{methodType}, #{destination}, #{config})
+        INSERT INTO alarm_notification_channel (
+            service_name, channel_name, method_type, destination, config, updated_at
+        )
+        VALUES (#{serviceName}, #{channelName}, #{methodType}, #{destination}, #{config}, UTC_TIMESTAMP())
     </insert>
 
     <update id="update"
@@ -205,7 +207,8 @@
         SET channel_name = #{channelName},
             method_type = #{methodType},
             destination = #{destination},
-            config = #{config}
+            config = #{config},
+            updated_at = UTC_TIMESTAMP()
         WHERE id = #{id}
     </update>
 

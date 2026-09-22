@@ -56,7 +56,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -71,11 +72,43 @@ import static org.mockito.Mockito.when;
 @TestConfiguration
 public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport {
 
-    @SuppressWarnings("resource") // lifecycle managed by @Container in the test
+    @SuppressWarnings("resource") // started once below, reaped by ryuk when the jvm goes
     public static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.0.34")
             .withDatabaseName("pinpoint")
             .withUsername("test")
-            .withPassword("test");
+            .withPassword("test")
+            // Deliberately not UTC: there the DDL default and the UTC_TIMESTAMP() the statements
+            // assign are the same value, and a write that dropped the column reads back correct.
+            // An offset rather than a named zone, which would need the timezone tables loaded.
+            .withCommand("--default-time-zone=+09:00");
+
+    static {
+        // Not @Container in each test class: that stops the container when its class finishes, so
+        // the second class to use it gets a new container on a new port while a cached spring
+        // context still holds a pool pointing at the old one.
+        MYSQL.start();
+
+        // The schema likewise, since the database now outlives any one context and a create script
+        // owned by a context bean would run again for the next.
+        DriverManagerDataSource bootstrap = new DriverManagerDataSource(
+                MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+        bootstrap.setDriverClassName(MYSQL.getDriverClassName());
+
+        ResourceDatabasePopulator alarmSchema = new ResourceDatabasePopulator();
+        alarmSchema.setContinueOnError(false);
+        alarmSchema.addScript(new ClassPathResource("alarm/sql/CreateExternalTables.sql"));
+        // The deployed DDL, not a copy of it: a hand-maintained fixture drifts from the
+        // shipped script silently, and the tests that would catch an index or column
+        // change are exactly the ones running against the copy.
+        alarmSchema.addScript(new ClassPathResource("sql/alarm/CreateTableStatement-mysql.sql"));
+        DatabasePopulatorUtils.execute(alarmSchema, bootstrap);
+
+        ResourceDatabasePopulator batchSchema = new ResourceDatabasePopulator();
+        batchSchema.setContinueOnError(true); // tolerate "already exists"
+        batchSchema.addScript(
+                new ClassPathResource("org/springframework/batch/core/schema-mysql.sql"));
+        DatabasePopulatorUtils.execute(batchSchema, bootstrap);
+    }
 
     // ---- DataSource ----
 
@@ -89,34 +122,6 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
         config.setPassword(MYSQL.getPassword());
         config.setMaximumPoolSize(5);
         return new HikariDataSource(config);
-    }
-
-    // ---- Schema initialization ----
-
-    @Bean
-    public DataSourceInitializer alarmSchemaInitializer(DataSource dataSource) {
-        DataSourceInitializer initializer = new DataSourceInitializer();
-        initializer.setDataSource(dataSource);
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.setContinueOnError(false);
-        populator.addScript(new ClassPathResource("alarm/sql/CreateExternalTables.sql"));
-        // The deployed DDL, not a copy of it: a hand-maintained fixture drifts from the
-        // shipped script silently, and the tests that would catch an index or column
-        // change are exactly the ones running against the copy.
-        populator.addScript(new ClassPathResource("sql/alarm/CreateTableStatement-mysql.sql"));
-        initializer.setDatabasePopulator(populator);
-        return initializer;
-    }
-
-    @Bean
-    public DataSourceInitializer batchSchemaInitializer(DataSource dataSource) {
-        DataSourceInitializer initializer = new DataSourceInitializer();
-        initializer.setDataSource(dataSource);
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.setContinueOnError(true); // tolerate "already exists"
-        populator.addScript(new ClassPathResource("org/springframework/batch/core/schema-mysql.sql"));
-        initializer.setDatabasePopulator(populator);
-        return initializer;
     }
 
     // ---- Transaction / Spring Batch infrastructure ----
