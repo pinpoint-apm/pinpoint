@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.common.server.dao;
 
 import com.navercorp.pinpoint.common.server.bo.Application;
 

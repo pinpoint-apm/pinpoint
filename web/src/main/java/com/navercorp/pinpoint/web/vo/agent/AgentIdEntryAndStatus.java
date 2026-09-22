@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.agent;
 
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
+import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
 import java.util.Objects;
 
 public class AgentIdEntryAndStatus {

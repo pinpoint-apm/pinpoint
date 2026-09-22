@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
 import org.eclipse.collections.api.factory.primitive.LongObjectMaps;
 import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 import org.springframework.util.Assert;

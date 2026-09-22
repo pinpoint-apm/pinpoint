@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.uid.Service;
-import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
+import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
 
 import java.util.List;
 

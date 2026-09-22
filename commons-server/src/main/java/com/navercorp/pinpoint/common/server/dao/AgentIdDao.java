@@ -1,7 +1,7 @@
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.common.server.dao;
 
-import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
