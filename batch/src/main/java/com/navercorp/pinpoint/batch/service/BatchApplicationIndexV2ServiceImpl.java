@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.dao.AgentIdDao;
-import com.navercorp.pinpoint.web.dao.ApplicationDao;
+import com.navercorp.pinpoint.common.server.dao.AgentIdDao;
+import com.navercorp.pinpoint.common.server.dao.ApplicationDao;
 import com.navercorp.pinpoint.common.server.bo.Application;
-import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
+import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
