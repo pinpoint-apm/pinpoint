@@ -354,7 +354,7 @@
               "DESC": "Merge: Groups all mergeable nodes and displays it as a single node."
             },
             {
-              "DESC": "Refresh: Initialize the viewport and the zoom level of the server map."
+              "DESC": "Reset: Initialize the viewport and the zoom level of the server map."
             }
           ]
         }
@@ -374,7 +374,7 @@
               "DESC": "The value inside of the node represents the Apdex score of that application."
             },
             {
-              "DESC": "The border of the node represents the Apdex grade of each time slot as a color. The most recent slot is at the 12 o'clock direction and the slots continue counterclockwise, and the lower the grade, the redder the color."
+              "DESC": "The border of the node represents the Apdex grade of each time slot as a color. The most recent slot starts at the 12 o'clock direction and the slots get older as they continue clockwise, and the lower the grade, the redder the color."
             },
             {
               "DESC": "When the node is selected, the transaction information flowing into the application is displayed on the right side of the screen."
@@ -423,7 +423,7 @@
               "DESC": "Merge: Groups all mergeable nodes and displays it as a single node."
             },
             {
-              "DESC": "Refresh: Initialize the viewport and the zoom level of the service map."
+              "DESC": "Reset: Initialize the viewport and the zoom level of the service map."
             }
           ]
         }
