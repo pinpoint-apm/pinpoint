@@ -18,39 +18,76 @@ package com.navercorp.pinpoint.common.profiler.logging;
 
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ThrottledLogger {
-    private static final AtomicLongFieldUpdater<ThrottledLogger> UPDATER = AtomicLongFieldUpdater.newUpdater(ThrottledLogger.class, "counter");
-
-    private volatile long counter;
 
     private final Logger logger;
-    private final long ratio;
+    private final LogThrottle throttle;
 
+    /**
+     * Logs once per {@code ratio} calls.
+     *
+     * @deprecated call-count throttling emits in bursts under load spikes;
+     * use time-based {@link #getIntervalLogger(Logger, Duration)} instead
+     */
+    @Deprecated
     public static ThrottledLogger getLogger(Logger logger, long ratio) {
         Objects.requireNonNull(logger, "logger");
-        return new ThrottledLogger(logger, ratio);
+        return new ThrottledLogger(logger, new CountLogThrottle(ratio));
     }
 
-    private ThrottledLogger(Logger logger, long ratio) {
+    public static final Duration DEFAULT_INTERVAL = Duration.ofSeconds(3);
+
+    /**
+     * Logs at most once per {@link #DEFAULT_INTERVAL}; suppressed calls are still counted.
+     */
+    public static ThrottledLogger getIntervalLogger(Logger logger) {
+        return getIntervalLogger(logger, DEFAULT_INTERVAL);
+    }
+
+    /**
+     * Logs at most once per {@code interval}; suppressed calls are still counted.
+     */
+    public static ThrottledLogger getIntervalLogger(Logger logger, Duration interval) {
+        Objects.requireNonNull(logger, "logger");
+        Objects.requireNonNull(interval, "interval");
+        return new ThrottledLogger(logger, new CountingTimeLogThrottle(interval.toMillis()));
+    }
+
+    /**
+     * Logs at most once per {@link #DEFAULT_INTERVAL} without counting suppressed calls;
+     * {@link #getCounter()} returns {@link LogThrottle#DISABLED_COUNTER}.
+     */
+    public static ThrottledLogger getUncountedIntervalLogger(Logger logger) {
+        return getUncountedIntervalLogger(logger, DEFAULT_INTERVAL);
+    }
+
+    /**
+     * Logs at most once per {@code interval} without counting suppressed calls;
+     * {@link #getCounter()} returns {@link LogThrottle#DISABLED_COUNTER}.
+     */
+    public static ThrottledLogger getUncountedIntervalLogger(Logger logger, Duration interval) {
+        Objects.requireNonNull(logger, "logger");
+        Objects.requireNonNull(interval, "interval");
+        return new ThrottledLogger(logger, new TimeLogThrottle(interval.toMillis()));
+    }
+
+    private ThrottledLogger(Logger logger, LogThrottle throttle) {
         this.logger = Objects.requireNonNull(logger, "logger");
-        this.ratio = Math.max(ratio, 1);
+        this.throttle = Objects.requireNonNull(throttle, "throttle");
     }
 
     private boolean checkLogCounter() {
-        if (UPDATER.getAndIncrement(this) % ratio == 0) {
-            return true;
-        }
-        return false;
+        return throttle.tryAcquire();
     }
 
     public long getCounter() {
-        return UPDATER.get(this);
+        return throttle.getCounter();
     }
 
     public boolean isInfoEnabled() {
