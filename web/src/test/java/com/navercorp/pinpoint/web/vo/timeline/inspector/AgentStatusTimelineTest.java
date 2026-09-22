@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
@@ -8,13 +8,11 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-@Component
 public class ApplicationMapper implements RowMapper<List<Application>> {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final ApplicationFactory applicationFactory;

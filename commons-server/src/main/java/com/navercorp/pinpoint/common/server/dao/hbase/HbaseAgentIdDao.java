@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.common.server.dao.hbase;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -12,11 +12,11 @@ import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.server.util.AgentIdRowKeyUtils;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.web.dao.AgentIdDao;
-import com.navercorp.pinpoint.web.mapper.AgentIdEntryMapper;
-import com.navercorp.pinpoint.web.util.ListListUtils;
-import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.common.server.dao.AgentIdDao;
+import com.navercorp.pinpoint.common.server.dao.hbase.mapper.AgentIdEntryMapper;
+import com.navercorp.pinpoint.common.server.dao.hbase.mapper.ListMergeResultsExtractor;
+import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
 import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -76,8 +76,8 @@ public class HbaseAgentIdDao implements AgentIdDao {
         Scan scan = createScan(rowKeyPrefix);
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         RowMapper<List<AgentIdEntry>> agentStartTimeInfoMapper = new AgentIdEntryMapper(applicationFactory, AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName));
-        List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentStartTimeInfoMapper);
-        return ListListUtils.toList(results);
+        return hbaseTemplate.find(applicationIndexTableName, scan,
+                new ListMergeResultsExtractor<>(agentStartTimeInfoMapper));
     }
 
     private Scan createScan(byte[] rowKeyPrefix) {
@@ -100,8 +100,8 @@ public class HbaseAgentIdDao implements AgentIdDao {
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         RowMapper<List<AgentIdEntry>> agentStartTimeInfoMapper = new AgentIdEntryMapper(applicationFactory, AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName));
-        List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentStartTimeInfoMapper);
-        return ListListUtils.toList(results);
+        return hbaseTemplate.find(applicationIndexTableName, scan,
+                new ListMergeResultsExtractor<>(agentStartTimeInfoMapper));
     }
 
     @Override
@@ -210,7 +210,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         RowMapper<List<AgentIdEntry>> mapper = new AgentIdEntryMapper(applicationFactory, result -> true);
-        List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, mapper);
-        return ListListUtils.toList(results);
+        return hbaseTemplate.find(applicationIndexTableName, scan,
+                new ListMergeResultsExtractor<>(mapper));
     }
 }

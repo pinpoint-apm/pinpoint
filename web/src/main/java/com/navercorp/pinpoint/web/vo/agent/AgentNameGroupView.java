@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.vo.agent;
 
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.web.hyperlink.HyperLink;

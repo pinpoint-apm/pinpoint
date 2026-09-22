@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.batch.service;
 
-import com.navercorp.pinpoint.web.dao.AgentIdDao;
-import com.navercorp.pinpoint.web.dao.ApplicationDao;
+import com.navercorp.pinpoint.common.server.dao.AgentIdDao;
+import com.navercorp.pinpoint.common.server.dao.ApplicationDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
