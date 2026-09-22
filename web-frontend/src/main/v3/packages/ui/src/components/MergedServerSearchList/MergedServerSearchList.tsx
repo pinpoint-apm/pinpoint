@@ -2,7 +2,7 @@ import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/sr
 import { VirtualList, VirtualSearchList } from '../VirtualList';
 import { getTimeSeriesApdexInfo } from '@pinpoint-fe/ui/src/utils';
 import { colorMap, getApdexGrade } from '@pinpoint-fe/server-map';
-import { RankColorClassNameMap, getRank } from '../ApdexScore/apdexRank';
+import { ApdexScoreValue } from '../ApdexScore/ApdexScoreValue';
 
 export interface MergedServerSearchListProps {
   list?: (GetServerMap.NodeData | FilteredMap.NodeData)[];
@@ -38,11 +38,9 @@ export const MergedServerSearchList = ({ list = [], onClickItem }: MergedServerS
                       <div className="flex items-center justify-between text-xs">
                         <div className="truncate">{item.applicationName}</div>
                         <div className="flex items-center gap-2">
-                          <div
-                            className={`font-bold ${RankColorClassNameMap[getRank(item.apdex.apdexScore)]}`}
-                          >
-                            {item.apdex.apdexScore.toFixed(2)}
-                          </div>
+                          {/* ChartsBoard·service group 목록과 같은 규칙으로 보여준다. 여기만
+                              반올림하면 0.937이 이 목록에서는 0.94, 다른 화면에서는 0.93이 된다. */}
+                          <ApdexScoreValue apdex={item.apdex} />
                           <div className={'w-auto flex justify-between'}>
                             {timeSeriesApdexInfo.map((score, index) => {
                               const grade = getApdexGrade(score);

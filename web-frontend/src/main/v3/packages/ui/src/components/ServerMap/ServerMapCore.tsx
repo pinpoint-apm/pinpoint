@@ -736,11 +736,10 @@ export const ServerMapCore = ({
                                     {subNode.applicationName}
                                   </div>
                                   {/* 목록의 Apdex는 map 응답에 실려 온 노드의 값을 그대로 쓴다
-                                      (ChartsBoard처럼 노드마다 /getApdexScore를 부르지 않는다). */}
-                                  <ApdexScoreValue
-                                    score={subNode.apdex?.apdexScore ?? 0}
-                                    className="shrink-0"
-                                  />
+                                      (ChartsBoard처럼 노드마다 /getApdexScore를 부르지 않는다).
+                                      formula째로 넘겨야 표본이 없어 0으로 온 값을 실패로
+                                      칠하지 않는다. */}
+                                  <ApdexScoreValue apdex={subNode.apdex} className="shrink-0" />
                                 </ServerMapMenuItem>
                               );
                             })
