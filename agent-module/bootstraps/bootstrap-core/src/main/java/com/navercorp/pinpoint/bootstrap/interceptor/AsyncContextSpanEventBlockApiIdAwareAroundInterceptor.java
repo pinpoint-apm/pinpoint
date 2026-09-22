@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
-public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor extends AbstractAsyncContextSpanEventInterceptor implements BlockApiIdAwareAroundInterceptor {
+public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor extends AbstractAsyncContextSpanEventBlockInterceptor implements BlockApiIdAwareAroundInterceptor {
 
     public AsyncContextSpanEventBlockApiIdAwareAroundInterceptor(TraceContext traceContext) {
         this(traceContext, true);
@@ -87,12 +87,8 @@ public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor exte
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final AsyncContext asyncContext = getAsyncContext(target, args, result, throwable);
-        if (asyncContext == null) {
-            return;
-        }
-
         if (block == null) {
+            // before() did not open a block: nothing to balance.
             return;
         }
 
@@ -100,6 +96,11 @@ public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor exte
         if (trace == null) {
             return;
         }
+
+        // null when the 4-arg lookup answers differently from the 2-arg lookup before() used:
+        // the block is still closed and the scope still left below, only the context-bound hooks and
+        // the AsyncContext release are skipped.
+        final AsyncContext asyncContext = getAsyncContext(target, args, result, throwable);
 
         // leave scope.
         if (!ScopeUtils.leaveAsyncTraceScope(trace)) {
@@ -112,11 +113,13 @@ public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor exte
         }
 
         try (TraceBlock traceBlock = block) {
-            if (asyncTraceBlock && traceBlock.isBegin()) {
-                afterTrace(asyncContext, trace, traceBlock, target, apiId, args, result, throwable);
-                doInAfterTrace(traceBlock, target, apiId, args, result, throwable);
+            if (asyncContext != null) {
+                if (asyncTraceBlock && traceBlock.isBegin()) {
+                    afterTrace(asyncContext, trace, traceBlock, target, apiId, args, result, throwable);
+                    doInAfterTrace(traceBlock, target, apiId, args, result, throwable);
+                }
+                afterAction(asyncContext, trace, target, apiId, args, result, throwable);
             }
-            afterAction(asyncContext, trace, target, apiId, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);

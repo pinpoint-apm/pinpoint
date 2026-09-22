@@ -31,7 +31,7 @@ import java.util.Objects;
  * replaces the intercepted method's return value under the
  * {@link ResultReplaceBlockAroundInterceptor} contract. The default hook keeps the original.
  */
-public abstract class AsyncContextSpanEventResultReplaceBlockSimpleAroundInterceptor extends AbstractAsyncContextSpanEventInterceptor implements ResultReplaceBlockAroundInterceptor {
+public abstract class AsyncContextSpanEventResultReplaceBlockSimpleAroundInterceptor extends AbstractAsyncContextSpanEventBlockInterceptor implements ResultReplaceBlockAroundInterceptor {
 
     protected final MethodDescriptor methodDescriptor;
 
@@ -97,12 +97,8 @@ public abstract class AsyncContextSpanEventResultReplaceBlockSimpleAroundInterce
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final AsyncContext asyncContext = getAsyncContext(target, args, result, throwable);
-        if (asyncContext == null) {
-            return result;
-        }
-
         if (block == null) {
+            // before() did not open a block: nothing to balance.
             return result;
         }
 
@@ -110,6 +106,11 @@ public abstract class AsyncContextSpanEventResultReplaceBlockSimpleAroundInterce
         if (trace == null) {
             return result;
         }
+
+        // null when the 4-arg lookup answers differently from the 2-arg lookup before() used:
+        // the block is still closed and the scope still left below, only the context-bound hooks and
+        // the AsyncContext release are skipped.
+        final AsyncContext asyncContext = getAsyncContext(target, args, result, throwable);
 
         // leave scope.
         if (!ScopeUtils.leaveAsyncTraceScope(trace)) {
@@ -123,12 +124,14 @@ public abstract class AsyncContextSpanEventResultReplaceBlockSimpleAroundInterce
 
         Object replaced = result;
         try (TraceBlock traceBlock = block) {
-            if (asyncTraceBlock && traceBlock.isBegin()) {
-                afterTrace(asyncContext, trace, traceBlock, target, args, result, throwable);
-                doInAfterTrace(traceBlock, target, args, result, throwable);
-                replaced = replaceResult(traceBlock, asyncContext, target, returnType, args, result, throwable);
+            if (asyncContext != null) {
+                if (asyncTraceBlock && traceBlock.isBegin()) {
+                    afterTrace(asyncContext, trace, traceBlock, target, args, result, throwable);
+                    doInAfterTrace(traceBlock, target, args, result, throwable);
+                    replaced = replaceResult(traceBlock, asyncContext, target, returnType, args, result, throwable);
+                }
+                afterAction(asyncContext, trace, target, args, result, throwable);
             }
-            afterAction(asyncContext, trace, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);

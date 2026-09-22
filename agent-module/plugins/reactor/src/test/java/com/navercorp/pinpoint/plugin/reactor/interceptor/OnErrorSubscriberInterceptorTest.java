@@ -37,6 +37,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -88,11 +89,13 @@ class OnErrorSubscriberInterceptorTest {
         assertNull(block);
 
         // fallback subscribe (FluxAndMonoSubscribeMethodInterceptor / CoreSubscriberOnSubscribeInterceptor) attached a context
-        when(accessor._$PINPOINT$_getAsyncContext()).thenReturn(asyncContext);
+        lenient().when(accessor._$PINPOINT$_getAsyncContext()).thenReturn(asyncContext);
         lenient().when(asyncContext.currentAsyncTraceObject()).thenReturn(trace);
 
         interceptor.after(block, subscriber, API_ID, new Object[]{error}, null, null);
 
+        // without a block there is nothing to balance, so after() does not even look the context up
+        verify(accessor, times(1))._$PINPOINT$_getAsyncContext();
         verifyNoInteractions(trace, traceScope, traceBlock);
         verify(asyncContext, never()).currentAsyncTraceObject();
         verify(asyncContext, never()).close();
