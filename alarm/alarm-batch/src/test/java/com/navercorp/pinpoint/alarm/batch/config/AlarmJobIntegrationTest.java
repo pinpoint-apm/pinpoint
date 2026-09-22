@@ -63,9 +63,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
 import java.time.Duration;
@@ -93,13 +90,9 @@ import static org.mockito.Mockito.when;
 
 @SpringBatchTest
 @SpringJUnitConfig
-@Testcontainers
 @ContextConfiguration(classes = AlarmJobIntegrationTestConfig.class)
 @TestPropertySource(locations = "classpath:application-alarm-test.yml")
 class AlarmJobIntegrationTest {
-
-    @Container
-    static final MySQLContainer<?> MYSQL = AlarmJobIntegrationTestConfig.MYSQL;
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
