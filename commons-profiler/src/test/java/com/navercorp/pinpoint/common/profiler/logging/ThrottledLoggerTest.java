@@ -4,6 +4,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 public class ThrottledLoggerTest {
 
     @Test
@@ -47,5 +57,62 @@ public class ThrottledLoggerTest {
         throttledLogger.info("test tLogger info: negative ratio");
         throttledLogger.debug("test tLogger debug: negative ratio");
         throttledLogger.warn("test tLogger warn: negative ratio");
+    }
+
+    @Test
+    public void countBasedEmission() {
+        final Logger logger = mock(Logger.class);
+        when(logger.isInfoEnabled()).thenReturn(true);
+
+        final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(logger, 3);
+        for (int i = 0; i < 5; i++) {
+            throttledLogger.info("count based");
+        }
+
+        // 5 calls with ratio 3 -> call 1 and call 4 are emitted
+        verify(logger, times(2)).info("count based");
+        assertThat(throttledLogger.getCounter()).isEqualTo(5);
+    }
+
+    @Test
+    public void timeBasedEmission() {
+        final Logger logger = mock(Logger.class);
+        when(logger.isInfoEnabled()).thenReturn(true);
+
+        // interval is long enough that only the first call within this test is emitted
+        final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(logger, Duration.ofSeconds(10));
+        throttledLogger.info("time based");
+        throttledLogger.info("time based");
+        throttledLogger.info("time based");
+
+        verify(logger, times(1)).info("time based");
+        assertThat(throttledLogger.getCounter()).isEqualTo(3);
+    }
+
+    @Test
+    public void uncountedTimeBasedEmission() {
+        final Logger logger = mock(Logger.class);
+        when(logger.isInfoEnabled()).thenReturn(true);
+
+        // interval is long enough that only the first call within this test is emitted
+        final ThrottledLogger throttledLogger = ThrottledLogger.getUncountedIntervalLogger(logger, Duration.ofSeconds(10));
+        throttledLogger.info("uncounted time based");
+        throttledLogger.info("uncounted time based");
+        throttledLogger.info("uncounted time based");
+
+        verify(logger, times(1)).info("uncounted time based");
+        assertThat(throttledLogger.getCounter()).isEqualTo(LogThrottle.DISABLED_COUNTER);
+    }
+
+    @Test
+    public void disabledLevelDoesNotCount() {
+        final Logger logger = mock(Logger.class);
+        when(logger.isInfoEnabled()).thenReturn(false);
+
+        final ThrottledLogger throttledLogger = ThrottledLogger.getIntervalLogger(logger, Duration.ofSeconds(3));
+        throttledLogger.info("disabled");
+
+        verify(logger, never()).info(anyString());
+        assertThat(throttledLogger.getCounter()).isEqualTo(0);
     }
 }
