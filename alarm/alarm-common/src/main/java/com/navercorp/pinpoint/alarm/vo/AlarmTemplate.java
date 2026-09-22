@@ -21,6 +21,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,6 +49,7 @@ public class AlarmTemplate {
     @Size(max = AlarmValidationConstants.MAX_RULE_DESCRIPTION_LENGTH, message = "description is too long")
     private String description;
 
+    @JsonSerialize(using = UtcTimestampSerializer.class)
     private LocalDateTime updatedAt;
     private int usedRuleCount;
     private int enabledUsedRuleCount;
