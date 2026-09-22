@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.alarm.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 
 import java.time.LocalDateTime;
@@ -27,7 +29,7 @@ public record AlarmNotificationChannelResponse(
         AlarmMethodType methodType,
         String destination,
         JsonNode config,
-        LocalDateTime updatedAt,
+        @JsonSerialize(using = UtcTimestampSerializer.class) LocalDateTime updatedAt,
         String webhookAlias,
         String webhookUrl,
         int templateCount,
