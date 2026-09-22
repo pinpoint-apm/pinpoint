@@ -139,6 +139,7 @@
         <module>service-module</module>
         <module>applicationmap</module>
         <module>alarm</module>
+        <module>alarm-batch-starter</module>
     </modules>
 
     <properties>
