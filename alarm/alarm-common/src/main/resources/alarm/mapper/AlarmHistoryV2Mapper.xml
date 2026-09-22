@@ -6,8 +6,8 @@
     <insert id="insert"
             parameterType="com.navercorp.pinpoint.alarm.vo.AlarmHistoryV2"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO alarm_history_v2 (rule_id, event_type, message, context)
-        VALUES (#{ruleId}, #{eventType}, #{message}, #{context})
+        INSERT INTO alarm_history_v2 (rule_id, event_type, message, context, created_at)
+        VALUES (#{ruleId}, #{eventType}, #{message}, #{context}, UTC_TIMESTAMP())
     </insert>
 
     <update id="updateContext">

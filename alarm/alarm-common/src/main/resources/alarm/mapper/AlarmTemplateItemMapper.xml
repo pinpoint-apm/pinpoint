@@ -13,11 +13,11 @@
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO alarm_template_item (
             template_id, name, description, severity, data_source,
-            check_interval_sec, action_interval_sec, conditions, filters
+            check_interval_sec, action_interval_sec, conditions, filters, updated_at
         )
         VALUES (
             #{templateId}, #{name}, #{description}, #{severity}, #{dataSource},
-            #{checkIntervalSec}, #{actionIntervalSec}, #{conditions}, #{filters}
+            #{checkIntervalSec}, #{actionIntervalSec}, #{conditions}, #{filters}, UTC_TIMESTAMP()
         )
     </insert>
 
@@ -31,7 +31,8 @@
             check_interval_sec = #{checkIntervalSec},
             action_interval_sec = #{actionIntervalSec},
             conditions = #{conditions},
-            filters = #{filters}
+            filters = #{filters},
+            updated_at = UTC_TIMESTAMP()
         WHERE id = #{id}
           AND template_id = #{templateId}
           AND deleted = 0
@@ -39,14 +40,16 @@
 
     <update id="markDeleted" parameterType="Long">
         UPDATE alarm_template_item
-        SET deleted = 1
+        SET deleted = 1,
+            updated_at = UTC_TIMESTAMP()
         WHERE id = #{id}
           AND deleted = 0
     </update>
 
     <update id="markDeletedByTemplateId" parameterType="Long">
         UPDATE alarm_template_item
-        SET deleted = 1
+        SET deleted = 1,
+            updated_at = UTC_TIMESTAMP()
         WHERE template_id = #{templateId}
           AND deleted = 0
     </update>
