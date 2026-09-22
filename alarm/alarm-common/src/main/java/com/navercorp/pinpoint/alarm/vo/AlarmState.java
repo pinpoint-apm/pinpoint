@@ -15,16 +15,31 @@
  */
 package com.navercorp.pinpoint.alarm.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampDeserializer;
+
 import java.time.LocalDateTime;
 
 public class AlarmState {
 
     private Long ruleId;
     private AlarmStatus status; // NORMAL, FIRING, CHECK_FAILED
+    @JsonSerialize(using = UtcTimestampSerializer.class)
+    @JsonDeserialize(using = UtcTimestampDeserializer.class)
     private LocalDateTime lastCheckedAt;
+    @JsonSerialize(using = UtcTimestampSerializer.class)
+    @JsonDeserialize(using = UtcTimestampDeserializer.class)
     private LocalDateTime lastFiredAt;
+    @JsonSerialize(using = UtcTimestampSerializer.class)
+    @JsonDeserialize(using = UtcTimestampDeserializer.class)
     private LocalDateTime lastNotificationEnqueuedAt;
+    @JsonSerialize(using = UtcTimestampSerializer.class)
+    @JsonDeserialize(using = UtcTimestampDeserializer.class)
     private LocalDateTime lastNotifiedAt;
+    @JsonSerialize(using = UtcTimestampSerializer.class)
+    @JsonDeserialize(using = UtcTimestampDeserializer.class)
     private LocalDateTime nextCheckAt;
 
     public AlarmState() {

@@ -22,6 +22,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampDeserializer;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -63,6 +68,8 @@ public class AlarmTemplateItem {
     @Size(max = AlarmValidationConstants.MAX_FILTER_COUNT,
             message = "filters must contain at most " + AlarmValidationConstants.MAX_FILTER_COUNT + " items")
     private List<AlarmFilter> filters;
+    @JsonSerialize(using = UtcTimestampSerializer.class)
+    @JsonDeserialize(using = UtcTimestampDeserializer.class)
     private LocalDateTime updatedAt;
     private int usedRuleCount;
     private int enabledUsedRuleCount;

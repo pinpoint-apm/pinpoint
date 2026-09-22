@@ -21,6 +21,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampDeserializer;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +86,8 @@ public class AlarmRuleV2 {
     private List<AlarmFilter> filters;
     /** Matches the column default: a request that omits it means an evaluated rule. */
     private boolean enabled = true;
+    @JsonSerialize(using = UtcTimestampSerializer.class)
+    @JsonDeserialize(using = UtcTimestampDeserializer.class)
     private LocalDateTime updatedAt;
     private boolean overrideName;
     private boolean overrideDescription;

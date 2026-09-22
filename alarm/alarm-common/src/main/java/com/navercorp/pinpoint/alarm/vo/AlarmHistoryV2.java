@@ -15,6 +15,11 @@
  */
 package com.navercorp.pinpoint.alarm.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
+import com.navercorp.pinpoint.alarm.util.json.UtcTimestampDeserializer;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -27,6 +32,8 @@ public class AlarmHistoryV2 {
     private AlarmEventType eventType; // FIRED, RESOLVED, CHECK_FAILED
     private String message;
     private String context; // JSON string
+    @JsonSerialize(using = UtcTimestampSerializer.class)
+    @JsonDeserialize(using = UtcTimestampDeserializer.class)
     private LocalDateTime createdAt;
 
     public AlarmHistoryV2() {
