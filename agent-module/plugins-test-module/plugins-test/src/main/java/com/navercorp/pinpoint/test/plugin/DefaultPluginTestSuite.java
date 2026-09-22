@@ -15,10 +15,9 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.test.plugin.api.ClassLoding;
+import com.navercorp.pinpoint.test.plugin.api.ClassLoading;
 import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.OnClassLoader;
-import com.navercorp.pinpoint.test.plugin.api.Repository;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
@@ -58,9 +57,8 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     // shared by every suite of the engine: it owns the maven repository system and its session caches.
     private final DependencyResolverFactory resolverFactory;
 
-    private final ClassLoding classLoding;
+    private final ClassLoading classLoading;
 
-    private final String[] repositories;
     private final String[] dependencies;
     private final Class<?> sharedClass;
     private final String[] sharedDependencies;
@@ -75,28 +73,17 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         this.resolverFactory = Objects.requireNonNull(resolverFactory, "resolverFactory");
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
-        this.classLoding = getClassLoding(onClassLoader);
+        this.classLoading = resolver.getClassLoading(onClassLoader);
 
         Dependency deps = testClass.getAnnotation(Dependency.class);
-        this.dependencies = deps == null ? null : deps.value();
-
-        Repository repos = testClass.getAnnotation(Repository.class);
-        this.repositories = repos == null ? new String[0] : repos.value();
+        this.dependencies = resolver.getDependency(deps);
 
         SharedTestLifeCycleClass sharedTestLifeCycleClass = testClass.getAnnotation(SharedTestLifeCycleClass.class);
-        this.sharedClass = sharedTestLifeCycleClass == null ? null : sharedTestLifeCycleClass.value();
+        this.sharedClass = resolver.getSharedTestLifeCycleClass(sharedTestLifeCycleClass);
 
-        SharedDependency sharedDependency = testClass.getAnnotation(SharedDependency.class);
-        this.sharedDependencies = sharedDependency == null ? new String[0] : sharedDependency.value();
+        SharedDependency sharedDeps = testClass.getAnnotation(SharedDependency.class);
+        this.sharedDependencies = resolver.getSharedDependency(sharedDeps);
         this.testClassName = testClass.getName();
-    }
-
-    private ClassLoding getClassLoding(OnClassLoader onClassLoader) {
-        if (onClassLoader == null) {
-            return ClassLoding.Child;
-        } else {
-            return onClassLoader.type();
-        }
     }
 
     @Override
@@ -110,7 +97,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         libs.addAll(FileUtils.toPaths(context.getSharedLibList()));
 
         if (ArrayUtils.hasLength(sharedDependencies)) {
-            final DependencyResolver resolver = getDependencyResolver(repositories);
+            final DependencyResolver resolver = getDependencyResolver(context.getRepositoryUrls());
             final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(sharedDependencies);
 
             for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
@@ -143,7 +130,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     private List<PluginTestInstance> createCasesWithDependencies(PluginTestContext context) throws ClassNotFoundException {
         final PluginTestInstanceFactory pluginTestInstanceFactory = new PluginTestInstanceFactory(context);
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
-        final DependencyResolver resolver = getDependencyResolver(repositories);
+        final DependencyResolver resolver = getDependencyResolver(context.getRepositoryUrls());
 
         final String pluginsTest = "com.navercorp.pinpoint:pinpoint-plugins-test:" + VersionUtils.VERSION;
         final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets(pluginsTest);
@@ -180,7 +167,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
             try {
                 thread.setContextClassLoader(agentClassLoader);
                 final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(currentClassLoader, testId, agentClassLoader,
-                        libs, context.getTransformIncludeList(), classLoding);
+                        libs, context.getTransformIncludeList(), classLoading);
                 pluginTestInstanceList.add(pluginTestInstance);
             } finally {
                 thread.setContextClassLoader(currentClassLoader);
@@ -195,8 +182,8 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         return FileUtils.toAbsolutePath(files);
     }
 
-    private DependencyResolver getDependencyResolver(String[] repositories) {
-        return this.resolverFactory.get(repositories);
+    private DependencyResolver getDependencyResolver(List<String> repositoryUrls) {
+        return this.resolverFactory.get(repositoryUrls);
     }
 
     private List<PluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) throws ClassNotFoundException {
@@ -204,7 +191,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         ClassLoader contextClassLoader = ClassLoaderUtils.getContextClassLoader();
         List<Path> libs = Collections.emptyList();
         List<String> transformIncludeList = Collections.emptyList();
-        final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(contextClassLoader, "", null, libs, transformIncludeList, classLoding);
+        final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(contextClassLoader, "", null, libs, transformIncludeList, classLoading);
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();
         pluginTestInstanceList.add(pluginTestInstance);
         return pluginTestInstanceList;

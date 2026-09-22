@@ -40,7 +40,7 @@ public abstract class AbstractPluginTestSuite {
     private static final int NO_JVM_VERSION = -1;
     public static final String DEFAULT_CONFIG_PATH = "pinpoint.config";
 
-    private final ConfigResolver resolver = new ConfigResolver();
+    protected final ConfigResolver resolver = new ConfigResolver();
     private final ClassLoading classLoading = new ClassLoading();
 
     private final List<String> repositoryUrls;

@@ -24,5 +24,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface OnClassLoader {
+    ClassLoading value() default ClassLoading.Child;
+
+    /**
+     * @deprecated Use {@link #value()} instead.
+     */
+    @Deprecated
     ClassLoding type() default ClassLoding.Child;
 }

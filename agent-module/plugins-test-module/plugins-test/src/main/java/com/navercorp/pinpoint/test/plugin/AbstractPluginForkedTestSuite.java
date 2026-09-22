@@ -37,7 +37,7 @@ public abstract class AbstractPluginForkedTestSuite {
     public static final String DEFAULT_CONFIG_PATH = "pinpoint.config";
 
     private static final JavaHomeResolver javaHomeResolver = JavaHomeResolver.ofSystemEnv();
-    private final ConfigResolver resolver = new ConfigResolver();
+    protected final ConfigResolver resolver = new ConfigResolver();
     private final ClassLoading classLoading = new ClassLoading();
 
     private final List<String> requiredLibraries;

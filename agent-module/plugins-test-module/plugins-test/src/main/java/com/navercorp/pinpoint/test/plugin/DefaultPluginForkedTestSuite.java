@@ -15,17 +15,17 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.test.plugin.api.ClassLoding;
+import com.navercorp.pinpoint.test.plugin.api.ClassLoading;
 import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.OnClassLoader;
-import com.navercorp.pinpoint.test.plugin.api.Repository;
+import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
 import com.navercorp.pinpoint.test.plugin.api.TestRoot;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyVersionFilter;
-import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
-import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
+import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;
@@ -52,9 +52,8 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     // shared by every suite of the engine: it owns the maven repository system and its session caches.
     private final DependencyResolverFactory resolverFactory;
 
-    private final ClassLoding classLoding;
+    private final ClassLoading classLoading;
 
-    private final String[] repositories;
     private final String[] dependencies;
     private final Class<?> sharedClass;
     private final String[] sharedDependencies;
@@ -73,14 +72,17 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         this.resolverFactory = Objects.requireNonNull(resolverFactory, "resolverFactory");
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
-        this.classLoding = getClassLoding(onClassLoader);
+        this.classLoading = resolver.getClassLoading(onClassLoader);
 
         Dependency deps = testClass.getAnnotation(Dependency.class);
-        this.dependencies = deps == null ? null : deps.value();
+        this.dependencies = resolver.getDependency(deps);
+
         SharedTestLifeCycleClass sharedTestLifeCycleClass = testClass.getAnnotation(SharedTestLifeCycleClass.class);
-        this.sharedClass = sharedTestLifeCycleClass == null ? null : sharedTestLifeCycleClass.value();
+        this.sharedClass = resolver.getSharedTestLifeCycleClass(sharedTestLifeCycleClass);
+
         SharedDependency sharedDeps = testClass.getAnnotation(SharedDependency.class);
-        this.sharedDependencies = sharedDeps == null ? null : sharedDeps.value();
+        this.sharedDependencies = resolver.getSharedDependency(sharedDeps);
+
         TestRoot lib = testClass.getAnnotation(TestRoot.class);
         if (lib == null) {
             this.libraryPath = null;
@@ -99,18 +101,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         if (deps != null && lib != null) {
             throw new IllegalArgumentException("@Dependency and @TestRoot can not annotate a class at the same time");
         }
-
-        Repository repos = testClass.getAnnotation(Repository.class);
-        this.repositories = repos == null ? new String[0] : repos.value();
         this.sharedProcess = sharedProcess;
-    }
-
-    private ClassLoding getClassLoding(OnClassLoader onClassLoader) {
-        if (onClassLoader == null) {
-            return ClassLoding.Child;
-        } else {
-            return onClassLoader.type();
-        }
     }
 
     @Override
@@ -119,11 +110,11 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
     }
 
     private List<PluginForkedTestInstance> createSharedCasesWithDependencies(PluginForkedTestContext context) {
-        DependencyResolver resolver = getDependencyResolver(this.repositories);
+        DependencyResolver resolver = getDependencyResolver(context.getRepositoryUrls());
         List<Path> sharedLibs = new ArrayList<>();
         sharedLibs.add(context.getTestClassLocationPath());
         sharedLibs.addAll(FileUtils.toPaths(context.getSharedLibraries()));
-        if (sharedDependencies != null) {
+        if (ArrayUtils.hasLength(sharedDependencies)) {
             Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(sharedDependencies);
             for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
                 final String testId = artifactEntry.getKey();
@@ -171,12 +162,12 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         return FileUtils.toAbsolutePath(files);
     }
 
-    private DependencyResolver getDependencyResolver(String[] repositories) {
-        return this.resolverFactory.get(repositories);
+    private DependencyResolver getDependencyResolver(List<String> repositoryUrls) {
+        return this.resolverFactory.get(repositoryUrls);
     }
 
     private PluginForkedTestInstance newSharedProcessPluginTestCase(PluginForkedTestContext context, String testId, List<Path> libs, SharedProcessManager sharedProcessManager) {
-        if (classLoding == ClassLoding.System) {
+        if (classLoading == ClassLoading.System) {
             return new SharedPluginForkedTestInstance(context, testId, libs, true, sharedProcessManager);
         }
         return new SharedPluginForkedTestInstance(context, testId, libs, false, sharedProcessManager);

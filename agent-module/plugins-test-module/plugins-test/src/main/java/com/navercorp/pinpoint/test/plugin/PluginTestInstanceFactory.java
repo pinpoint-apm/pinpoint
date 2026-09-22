@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.test.plugin.api.ClassLoding;
 import com.navercorp.pinpoint.test.plugin.agent.PluginTestAgentStarter;
+import com.navercorp.pinpoint.test.plugin.api.ClassLoading;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestJunitTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
@@ -44,7 +44,7 @@ public class PluginTestInstanceFactory {
                                      PluginAgentTestClassLoader agentClassLoader,
                                      List<Path> libs,
                                      List<String> transformIncludeList,
-                                     ClassLoding classLoading) throws ClassNotFoundException {
+                                     ClassLoading classLoading) throws ClassNotFoundException {
         final String id = testId + ":" + classLoading;
         PluginTestInstanceCallback instanceContext = startAgent(context.getConfigFile().toString(), agentClassLoader);
 

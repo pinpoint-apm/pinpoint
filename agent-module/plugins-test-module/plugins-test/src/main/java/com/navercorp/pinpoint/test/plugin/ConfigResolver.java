@@ -1,11 +1,18 @@
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.api.ClassLoading;
+import com.navercorp.pinpoint.test.plugin.api.ClassLoding;
+import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.api.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.api.OnClassLoader;
 import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.api.PinpointProfile;
 import com.navercorp.pinpoint.test.plugin.api.Repository;
+import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycle;
+import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
 import com.navercorp.pinpoint.test.plugin.api.TransformInclude;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.CodeSourceUtils;
@@ -79,6 +86,19 @@ public class ConfigResolver {
         return profile.value();
     }
 
+    @SuppressWarnings("deprecation")
+    public ClassLoading getClassLoading(OnClassLoader onClassLoader) {
+        if (onClassLoader == null) {
+            return ClassLoading.Child;
+        }
+        // the deprecated type() attribute wins while a test still sets it to a non-default value
+        final ClassLoding legacy = onClassLoader.type();
+        if (legacy != ClassLoding.Child) {
+            return ClassLoading.valueOf(legacy.name());
+        }
+        return onClassLoader.value();
+    }
+
     public List<String> getJvmArguments(JvmArgument jvmArgument) {
         if (jvmArgument == null) {
             return Collections.emptyList();
@@ -109,6 +129,30 @@ public class ConfigResolver {
             return Collections.emptyList();
         }
         return Arrays.asList(repository.value());
+    }
+
+    /**
+     * @return null when the test class carries no {@link Dependency}, which selects the JDK-only case
+     */
+    public String[] getDependency(Dependency dependency) {
+        if (dependency == null) {
+            return null;
+        }
+        return dependency.value();
+    }
+
+    public String[] getSharedDependency(SharedDependency sharedDependency) {
+        if (sharedDependency == null) {
+            return new String[0];
+        }
+        return sharedDependency.value();
+    }
+
+    public Class<? extends SharedTestLifeCycle> getSharedTestLifeCycleClass(SharedTestLifeCycleClass sharedTestLifeCycleClass) {
+        if (sharedTestLifeCycleClass == null) {
+            return null;
+        }
+        return sharedTestLifeCycleClass.value();
     }
 
     public List<String> getTransformInclude(TransformInclude transformInclude) {
