@@ -52,7 +52,8 @@ public class AlarmJobSchedulerConfiguration {
     private final JobLauncher jobLauncher;
     private final Job alarmJob;
 
-    public AlarmJobSchedulerConfiguration(JobLauncher jobLauncher, @Qualifier("alarmJob") Job alarmJob) {
+    public AlarmJobSchedulerConfiguration(JobLauncher jobLauncher,
+                                          @Qualifier("alarmEvaluationJob") Job alarmJob) {
         this.jobLauncher = Objects.requireNonNull(jobLauncher, "jobLauncher");
         this.alarmJob = Objects.requireNonNull(alarmJob, "alarmJob");
     }

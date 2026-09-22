@@ -87,9 +87,16 @@ public class AlarmJobConfiguration {
         return executor;
     }
 
+    /**
+     * Spring Batch files an execution under the job's name, so two deployables sharing a
+     * metadata schema need two names to be told apart in the history. Settable because which
+     * deployables share one is a property of the installation, not of this module.
+     */
     @Bean
-    public Job alarmJob(JobRepository jobRepository, Step alarmStep) {
-        return new JobBuilder("alarmJob", jobRepository)
+    public Job alarmEvaluationJob(
+            JobRepository jobRepository, Step alarmStep,
+            @Value("${pinpoint.modules.batch.alarm.jobName:alarmEvaluationJob}") String jobName) {
+        return new JobBuilder(jobName, jobRepository)
                 .start(alarmStep)
                 .build();
     }
