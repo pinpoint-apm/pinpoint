@@ -22,10 +22,9 @@ import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -62,9 +61,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.root;
  * the reactor-netty root span, the SPRING_WEBFLUX span events of {@code DispatcherHandler} and
  * {@code InvocableHandlerMethod}, and the URI template taken from the best-matching {@code PathPattern}.
  */
-@PluginForkedTest
+@PluginTest
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(17)
 @Dependency({"org.springframework:spring-webflux:[7.0.0,7.max]",
         // same version as spring-webflux: @EnableWebFlux / WebHttpHandlerBuilder need spring-context
         "org.springframework:spring-context",

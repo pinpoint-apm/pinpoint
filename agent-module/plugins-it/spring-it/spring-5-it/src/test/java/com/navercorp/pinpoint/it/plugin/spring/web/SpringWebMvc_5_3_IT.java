@@ -18,14 +18,12 @@ package com.navercorp.pinpoint.it.plugin.spring.web;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import org.junit.jupiter.api.Test;
 
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(8)
 @Dependency({"org.springframework:spring-webmvc:[5.3.0,5.3.39]", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:4.0.1"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 public class SpringWebMvc_5_3_IT extends SpringWebMvc_5_1_IT {
