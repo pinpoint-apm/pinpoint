@@ -18,13 +18,11 @@ package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.objectweb.asm.Type;
 
 
 /**
@@ -36,8 +34,6 @@ public final class JavaAssistUtils {
     private static final String ARRAY = "[]";
 
     private static final String CLASS_POST_FIX = ".class";
-
-    private static final Pattern PARAMETER_SIGNATURE_PATTERN = Pattern.compile("\\[*L[^;]+;|\\[*[ZBCSIFDJ]|[ZBCSIFDJ]");
 
     private JavaAssistUtils() {
     }
@@ -249,14 +245,13 @@ public final class JavaAssistUtils {
         if (signature == null) {
             throw new NullPointerException("signature");
         }
-        final List<String> parameterSignatureList = splitParameterSignature(signature);
-        if (parameterSignatureList.isEmpty()) {
+        final Type[] argumentTypes = Type.getArgumentTypes(signature);
+        if (argumentTypes.length == 0) {
             return EMPTY_STRING_ARRAY;
         }
-        final String[] objectType = new String[parameterSignatureList.size()];
-        for (int i = 0; i < parameterSignatureList.size(); i++) {
-            final String parameterSignature = parameterSignatureList.get(i);
-            objectType[i] = byteCodeSignatureToObjectType(parameterSignature, 0);
+        final String[] objectType = new String[argumentTypes.length];
+        for (int i = 0; i < argumentTypes.length; i++) {
+            objectType[i] = argumentTypes[i].getClassName();
         }
         return objectType;
     }
@@ -264,7 +259,8 @@ public final class JavaAssistUtils {
     public static String javaClassNameToObjectName(String javaClassName) {
         final char scheme = javaClassName.charAt(0);
         if (scheme == '[') {
-            return toArrayType(javaClassName);
+            // "[Ljava.lang.String;" -> "java.lang.String[]"
+            return Type.getType(javaClassName).getClassName();
         }
         return javaClassName;
     }
@@ -294,100 +290,6 @@ public final class JavaAssistUtils {
             }
         }
         return builder.toString();
-    }
-
-    private static String byteCodeSignatureToObjectType(String signature, int startIndex) {
-        final char scheme = signature.charAt(startIndex);
-        switch (scheme) {
-            case 'B':
-                return "byte";
-            case 'C':
-                return "char";
-            case 'D':
-                return "double";
-            case 'F':
-                return "float";
-            case 'I':
-                return "int";
-            case 'J':
-                return "long";
-            case 'S':
-                return "short";
-            case 'V':
-                return "void";
-            case 'Z':
-                return "boolean";
-            case 'L':
-                return toObjectType(signature, startIndex + 1);
-            case '[': {
-                return toArrayType(signature);
-            }
-        }
-        throw new IllegalArgumentException("invalid signature :" + signature);
-    }
-
-    private static String toArrayType(String description) {
-        final int arraySize = getArraySize(description);
-        final String objectType = byteCodeSignatureToObjectType(description, arraySize);
-        return arrayType(objectType, arraySize);
-    }
-
-    private static String arrayType(String objectType, int arraySize) {
-        final int arrayStringLength = ARRAY.length() * arraySize;
-        StringBuilder sb = new StringBuilder(objectType.length() + arrayStringLength);
-        sb.append(objectType);
-        for (int i = 0; i < arraySize; i++) {
-            sb.append(ARRAY);
-        }
-        return sb.toString();
-    }
-
-    private static int getArraySize(String description) {
-        if (StringUtils.isEmpty(description)) {
-            return 0;
-        }
-        return StringMatchUtils.startsWithCountMatches(description, '[');
-    }
-
-    private static String toObjectType(String signature, int startIndex) {
-        // Ljava/lang/String;
-        final String assistClass = signature.substring(startIndex, signature.length() - 1);
-        final String objectName = jvmNameToJavaName(assistClass);
-        if (objectName.isEmpty()) {
-            throw new IllegalArgumentException("invalid signature. objectName not found :" + signature);
-        }
-        return objectName;
-    }
-
-
-    private static List<String> splitParameterSignature(String signature) {
-        final String parameterSignature = getParameterSignature(signature);
-        if (parameterSignature.isEmpty()) {
-            return Collections.emptyList();
-        }
-        final Matcher matcher = PARAMETER_SIGNATURE_PATTERN.matcher(parameterSignature);
-        final List<String> parameterTypeList = new ArrayList<>();
-        while (matcher.find()) {
-            parameterTypeList.add(matcher.group());
-        }
-        return parameterTypeList;
-    }
-
-
-    private static String getParameterSignature(String signature) {
-        int start = signature.indexOf('(');
-        if (start == -1) {
-            throw new IllegalArgumentException("'(' not found. signature:" + signature);
-        }
-        final int end = signature.indexOf(')', start + 1);
-        if (end == -1) {
-            throw new IllegalArgumentException("')' not found. signature:" + signature);
-        }
-        start = start + 1;
-        if (start == end) {
-            return "";
-        }
-        return signature.substring(start, end);
     }
 
     public static String[] getParameterType(Class<?>[] paramsClass) {
