@@ -10,7 +10,12 @@ import {
   getServiceMapPath,
   getServiceNameFromPath,
 } from '@pinpoint-fe/ui/src/utils';
-import { useConfiguration, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useConfiguration,
+  useIsForbiddenPath,
+  useServerMapSearchParameters,
+} from '@pinpoint-fe/ui/src/hooks';
+import { Forbidden403 } from './Forbidden403';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { useNavigate, useLocation } from 'react-router';
 import {
@@ -36,6 +41,7 @@ export const ScatterOrHeatmapFullScreenPage = () => {
 
   const { t } = useTranslation();
   const { dateRange, application, searchParameters } = useServerMapSearchParameters();
+  const isForbidden = useIsForbiddenPath();
   const isRealtime = dateRange.isRealtime;
   const agentId = searchParameters.agentId;
   // 이 화면의 service는 경로에 실려 온 값 하나로 정해진다. 전역 선택값으로 폴백하지 않는다 —
@@ -116,30 +122,36 @@ export const ScatterOrHeatmapFullScreenPage = () => {
           )}
         </div>
       </MainHeader>
-      <div className="flex items-center justify-center flex-1 overflow-x-hidden ">
-        <div className="relative max-w-7xl w-full p-10 aspect-[1.618]">
-          {agentId && (
-            <div className="absolute text-sm font-semibold top-4">Agent ID: {agentId}</div>
-          )}
-          {application &&
-            (type === 'scatter' ? (
-              <ScatterChart
-                agentId={agentId}
-                node={application}
-                realtime={isRealtime}
-                toolbarOption={{ expand: { hide: true } }}
-              />
-            ) : (
-              <Heatmap
-                realtime={isRealtime}
-                agentId={agentId}
-                nodeData={application}
-                toolbarOption={{ expand: { hide: true } }}
-              />
-            ))}
+      {/* 이 화면의 API 중 하나가 403을 받았다. **헤더는 남기고 본문만 바꾼다** — 본문을 언마운트해
+          남은 조회들도 함께 멈춘다. 헤더의 돌아갈 링크로 map으로 되돌아갈 수 있다.
+          (어느 화면이 이 판정에서 빠지는지는 `coversPageOnForbidden`. 이슈 #10744) */}
+      {isForbidden && <Forbidden403 />}
+      {!isForbidden && (
+        <div className="flex items-center justify-center flex-1 overflow-x-hidden ">
+          <div className="relative max-w-7xl w-full p-10 aspect-[1.618]">
+            {agentId && (
+              <div className="absolute text-sm font-semibold top-4">Agent ID: {agentId}</div>
+            )}
+            {application &&
+              (type === 'scatter' ? (
+                <ScatterChart
+                  agentId={agentId}
+                  node={application}
+                  realtime={isRealtime}
+                  toolbarOption={{ expand: { hide: true } }}
+                />
+              ) : (
+                <Heatmap
+                  realtime={isRealtime}
+                  agentId={agentId}
+                  nodeData={application}
+                  toolbarOption={{ expand: { hide: true } }}
+                />
+              ))}
+          </div>
+          {/* </div> */}
         </div>
-        {/* </div> */}
-      </div>
+      )}
     </div>
   );
 };

@@ -2,6 +2,7 @@ export * from './configuration';
 export * from './globalSearch';
 export * from './installationInfo';
 export * from './openTelemetry';
+export * from './permission';
 export * from './scatter';
 export * from './searchParameters';
 export * from './selectedService';

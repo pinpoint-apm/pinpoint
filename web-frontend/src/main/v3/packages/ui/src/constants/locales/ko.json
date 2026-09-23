@@ -7,6 +7,8 @@
     "REQUIRED": "{{requiredField}}를(을) 입력하세요.",
     "REQUIRED_SELECT": "{{requiredField}}를(을) 선택하세요.",
     "DO_NOT_HAVE_PERMISSION": "권한이 없습니다.",
+    "FORBIDDEN_TITLE": "접근 권한이 없습니다.",
+    "FORBIDDEN_DESCRIPTION": "업무상 접근이 필요한 경우, 관리자에게 문의하세요.",
     "CONFIRM": "확인",
     "SUBMIT": "저장",
     "UPDATE": "수정",

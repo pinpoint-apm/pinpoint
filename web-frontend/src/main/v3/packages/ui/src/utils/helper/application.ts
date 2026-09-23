@@ -13,7 +13,7 @@ export const getApplicationTypeAndName = (path = '') => {
 };
 
 /** 라우터 기준 pathname(basename 제외)이 해당 페이지의 경로인지 여부. */
-const isUnderPage = (pathname: string, pagePath: string) =>
+export const isUnderPage = (pathname: string, pagePath: string) =>
   pathname === pagePath || pathname.startsWith(`${pagePath}/`);
 
 /**

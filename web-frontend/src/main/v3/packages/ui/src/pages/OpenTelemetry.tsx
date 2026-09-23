@@ -12,7 +12,12 @@ import {
   OpenTelemetryDashboard,
 } from '../components';
 import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/ui/src/utils';
-import { useConfiguration, useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useConfiguration,
+  useIsForbiddenPath,
+  useOpenTelemetrySearchParameters,
+} from '@pinpoint-fe/ui/src/hooks';
+import { Forbidden403 } from './Forbidden403';
 import { SiOpentelemetry } from 'react-icons/si';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 
@@ -29,6 +34,7 @@ export const OpenTelemetryPage = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { searchParameters, application, agentId } = useOpenTelemetrySearchParameters();
+  const isForbidden = useIsForbiddenPath();
 
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate }) => {
@@ -75,7 +81,11 @@ export const OpenTelemetryPage = ({
           )}
         </div>
       </MainHeader>
-      {application && (
+      {/* 이 화면의 API 중 하나가 403을 받았다. **헤더는 남기고 본문만 바꾼다** — 본문을 언마운트해
+          남은 조회들도 함께 멈추고, 사용자는 위의 선택 박스로 다른 대상을 고를 수 있다.
+          (어느 화면이 이 판정에서 빠지는지는 `coversPageOnForbidden`. 이슈 #10744) */}
+      {isForbidden && <Forbidden403 />}
+      {!isForbidden && application && (
         <LayoutWithContentSidebar
           contentWrapperClassName="max-w-full"
           autoSaveId={APP_SETTING_KEYS.OPEN_TELEMETRY_METRIC_RESIZABLE}
