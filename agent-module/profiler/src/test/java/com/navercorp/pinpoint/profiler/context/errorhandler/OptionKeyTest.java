@@ -23,13 +23,6 @@ public class OptionKeyTest {
     }
 
     @Test
-    public void getHandlerId() {
-        String abc = OptionKey.getKey("handlerId", OptionKey.CLASSNAME);
-        String handlerId = OptionKey.parseHandlerId(abc);
-        assertEquals("handlerId", handlerId);
-    }
-
-    @Test
     public void readPattern() {
         Properties properties = new Properties();
         properties.put(OptionKey.getClassName("handler"), "java.lang.RuntimeException");

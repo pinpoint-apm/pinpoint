@@ -68,8 +68,9 @@ public class DescriptorParser {
     private Set<String> parseHandlerId() {
         Set<String> handlerIdSet = new HashSet<>();
 
+        final HandlerIdParser handlerIdParser = new HandlerIdParser();
         for (String key : property.keySet()) {
-            String handlerId = OptionKey.parseHandlerId(key);
+            String handlerId = handlerIdParser.parse(key);
             if (handlerId != null) {
                 handlerIdSet.add(handlerId);
             }
