@@ -8,7 +8,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <files>
         <file>
-            <source>${basedir}/src/main/v3/.claude/CLAUDE.md</source>
+            <source>${basedir}/src/main/v3/AGENTS.md</source>
             <outputDirectory></outputDirectory>
             <destName>PINPOINT-CLAUDE.md</destName>
         </file>
