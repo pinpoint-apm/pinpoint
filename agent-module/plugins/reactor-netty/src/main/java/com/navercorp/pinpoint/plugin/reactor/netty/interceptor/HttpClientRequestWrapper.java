@@ -23,6 +23,7 @@ import reactor.netty.http.HttpInfos;
 import reactor.netty.http.client.HttpClientRequest;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * @author jaehong.kim
@@ -63,12 +64,7 @@ public class HttpClientRequestWrapper implements ClientRequestWrapper {
             try {
                 @SuppressWarnings("rawtypes")
                 final ChannelOperations channelOperations = (ChannelOperations) request;
-                final InetSocketAddress inetSocketAddress = (InetSocketAddress) channelOperations.channel().remoteAddress();
-                if (inetSocketAddress != null) {
-                    String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
-                    int port = inetSocketAddress.getPort();
-                    return toHost(hostName, port);
-                }
+                return toRemoteHost(channelOperations.channel().remoteAddress());
             } catch (Exception ignored) {
             }
         }
@@ -76,7 +72,18 @@ public class HttpClientRequestWrapper implements ClientRequestWrapper {
         return null;
     }
 
-    private String toHost(String hostName, int port) {
+    // a channel bound to a non-inet address (e.g. a domain socket) has no host:port to record
+    static String toRemoteHost(SocketAddress socketAddress) {
+        if (socketAddress instanceof InetSocketAddress) {
+            final InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            String hostName = SocketAddressUtils.getHostNameFirst(inetSocketAddress);
+            int port = inetSocketAddress.getPort();
+            return toHost(hostName, port);
+        }
+        return null;
+    }
+
+    private static String toHost(String hostName, int port) {
         if (hostName == null) {
             return "";
         }
