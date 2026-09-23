@@ -18,9 +18,9 @@
 package com.navercorp.pinpoint.featureflag.service.properties;
 
 public interface FeatureFlagService {
-    boolean isEnabled(String applicationName);
+    boolean isEnabled(String serviceName, String applicationName);
 
-    default boolean isDisabled(String applicationName) {
-        return !isEnabled(applicationName);
+    default boolean isDisabled(String serviceName, String applicationName) {
+        return !isEnabled(serviceName, applicationName);
     }
 }
