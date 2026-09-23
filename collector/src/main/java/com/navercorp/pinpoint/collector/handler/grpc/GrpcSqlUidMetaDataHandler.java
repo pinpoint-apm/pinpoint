@@ -88,13 +88,14 @@ public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<PSqlUid
     }
 
     private static SqlUidMetaDataBo mapSqlUidMetaDataBo(ServerHeader agentInfo, PSqlUidMetaData sqlUidMetaData, ServiceUid serviceUid) {
+        final String serviceName = agentInfo.getServiceName();
         final String agentId = agentInfo.getAgentId();
         final long agentStartTime = agentInfo.getAgentStartTime();
         final String applicationName = agentInfo.getApplicationName();
         final byte[] sqlUid = sqlUidMetaData.getSqlUid().toByteArray();
         final String sql = sqlUidMetaData.getSql();
 
-        return new SqlUidMetaDataBo(serviceUid, agentId, agentStartTime, applicationName, sqlUid, sql);
+        return new SqlUidMetaDataBo(serviceUid, serviceName, agentId, agentStartTime, applicationName, sqlUid, sql);
     }
 
     private static PResult newResult(boolean success) {
