@@ -1,8 +1,6 @@
 package com.navercorp.pinpoint.profiler.context.errorhandler;
 
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class OptionKey {
     /**
@@ -37,16 +35,5 @@ public class OptionKey {
     public static String getExceptionMessageContains(String errorHandlerId) {
         return getKey(errorHandlerId, EXCEPTION_MESSAGE_CONTAINS);
     }
-
-
-    public static String parseHandlerId(String pattern) {
-        Pattern compile = Pattern.compile(PATTERN_REGEX);
-        final Matcher matcher = compile.matcher(pattern);
-        if (matcher.find()) {
-            return matcher.group(3);
-        }
-        return null;
-    }
-
 
 }
