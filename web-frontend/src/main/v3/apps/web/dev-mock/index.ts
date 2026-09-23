@@ -14,6 +14,9 @@
 /* eslint-disable no-console */
 
 import type { Plugin } from 'vite';
+
+// [MOCK #10744] 403 mock은 별도 파일이다(#10497 mock과 독립적으로 켜고 끈다).
+export { forbiddenMockPlugin } from './forbidden';
 import {
   MOCK_APPLICATIONS,
   MOCK_SERVICES,
