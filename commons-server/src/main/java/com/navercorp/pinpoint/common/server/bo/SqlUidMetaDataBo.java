@@ -26,25 +26,24 @@ import java.util.HexFormat;
 import java.util.Objects;
 
 public class SqlUidMetaDataBo implements UidMetaDataRowKey {
-    private final ServiceUid serviceUid;
+    private final @NonNull ServiceUid serviceUid;
+    private final @NonNull String serviceName;
 
-    @NonNull
-    private final String agentId;
+    private final @NonNull String agentId;
     private final long startTime;
-    @NonNull
-    private final String applicationName;
+    private final @NonNull String applicationName;
 
     private final byte[] sqlUid;
-    @NonNull
-    private final String sql;
+    private final @NonNull String sql;
 
     // used by web only
     public SqlUidMetaDataBo(ServiceUid serviceUid, String agentId, long startTime, byte[] sqlUid, String sql) {
-        this(serviceUid, agentId, startTime, "", sqlUid, sql);
+        this(serviceUid, "", agentId, startTime, "", sqlUid, sql);
     }
 
-    public SqlUidMetaDataBo(ServiceUid serviceUid, String agentId, long startTime, String applicationName, byte[] sqlUid, String sql) {
+    public SqlUidMetaDataBo(ServiceUid serviceUid, String serviceName, String agentId, long startTime, String applicationName, byte[] sqlUid, String sql) {
         this.serviceUid = Objects.requireNonNull(serviceUid, "serviceUid");
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
@@ -57,12 +56,16 @@ public class SqlUidMetaDataBo implements UidMetaDataRowKey {
     }
 
     @Override
-    public ServiceUid getServiceUid() {
+    public @NonNull ServiceUid getServiceUid() {
         return serviceUid;
     }
 
+    public @NonNull String getServiceName() {
+        return serviceName;
+    }
+
     @Override
-    public String getAgentId() {
+    public @NonNull String getAgentId() {
         return agentId;
     }
 
@@ -76,11 +79,11 @@ public class SqlUidMetaDataBo implements UidMetaDataRowKey {
         return sqlUid;
     }
 
-    public String getApplicationName() {
+    public @NonNull String getApplicationName() {
         return applicationName;
     }
 
-    public String getSql() {
+    public @NonNull String getSql() {
         return sql;
     }
 

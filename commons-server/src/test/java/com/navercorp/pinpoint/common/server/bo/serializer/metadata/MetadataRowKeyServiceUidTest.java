@@ -39,10 +39,10 @@ class MetadataRowKeyServiceUidTest {
 
     @Test
     void sqlUidBoRequiresMurmur128Length() {
-        assertThatThrownBy(() -> new SqlUidMetaDataBo(SERVICE, "agent", 10L, "app", new byte[15], "select 1"))
+        assertThatThrownBy(() -> new SqlUidMetaDataBo(SERVICE, "service", "agent", 10L, "app", new byte[15], "select 1"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sqlUid length");
-        assertThat(new SqlUidMetaDataBo(SERVICE, "agent", 10L, "app", new byte[UidMetaDataRowKey.UID_LENGTH], "select 1")
+        assertThat(new SqlUidMetaDataBo(SERVICE, "service", "agent", 10L, "app", new byte[UidMetaDataRowKey.UID_LENGTH], "select 1")
                 .getServiceUid()).isEqualTo(SERVICE);
     }
 }
