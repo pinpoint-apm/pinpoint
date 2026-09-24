@@ -169,6 +169,39 @@ class ConditionValidatorTest {
     }
 
     @Test
+    void regularLeaf_windowSecAtTheCeiling_valid() {
+        AlarmCondition leaf = createLeaf("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
+        leaf.setWindowSec(AlarmValidationConstants.MAX_WINDOW_SEC);
+
+        assertDoesNotThrow(() -> validator.validate(leaf));
+    }
+
+    // The window is the range every check re-reads, so an unbounded one is an unbounded scan
+    // repeated as often as once a minute.
+    @Test
+    void regularLeaf_windowSecAboveTheCeiling_invalid() {
+        AlarmCondition leaf = createLeaf("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
+        leaf.setWindowSec(AlarmValidationConstants.MAX_WINDOW_SEC + 1);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> validator.validate(leaf));
+        assertTrue(e.getMessage().contains(String.valueOf(AlarmValidationConstants.MAX_WINDOW_SEC)));
+    }
+
+    // A NEW_GROUP leaf may omit the window, so the minimum skips it -- but deadlock_count is
+    // a NEW_GROUP metric and its reader walks every agent, so a window it does name counts.
+    @Test
+    void newGroupLeaf_windowSecAboveTheCeiling_invalid() {
+        AlarmCondition leaf = new AlarmCondition();
+        leaf.setType(AlarmCondition.Type.LEAF);
+        leaf.setMetric("deadlock_count");
+        leaf.setTrigger(AlarmCondition.Trigger.NEW_GROUP);
+        leaf.setWindowSec(AlarmValidationConstants.MAX_WINDOW_SEC + 1);
+
+        assertThrows(IllegalArgumentException.class, () -> validator.validate(leaf));
+    }
+
+    @Test
     void leafMissingOp() {
         // invalid op strings are rejected at deserialization; the validator checks presence
         AlarmCondition leaf = createLeaf("error_count", null, 100.0);

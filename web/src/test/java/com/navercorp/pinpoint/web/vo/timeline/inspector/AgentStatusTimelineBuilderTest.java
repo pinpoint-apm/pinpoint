@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

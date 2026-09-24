@@ -18,6 +18,12 @@ package com.navercorp.pinpoint.alarm.batch.config;
 import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.service.AlarmEvaluationService;
 import com.navercorp.pinpoint.alarm.service.EffectiveAlarmRuleBulkResolutionService;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
+import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
+import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
+import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
+import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.StepExecution;
@@ -38,6 +44,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,6 +63,10 @@ class AlarmJobTaskletRejectionTest {
         AlarmRuleV2 refused = rule(10L);
         AlarmRuleV2 accepted = rule(20L);
         AlarmEvaluationService evaluationService = mock(AlarmEvaluationService.class);
+        // The rule that does get submitted fails as a rule configuration error, which is what
+        // tells the two failures apart in the assertions below.
+        doThrow(new IllegalArgumentException("the rule asks for something this cannot read"))
+                .when(evaluationService).evaluate(eq(accepted), any());
 
         Tasklet tasklet = tasklet(List.of(refused, accepted), evaluationService);
 
@@ -63,16 +74,16 @@ class AlarmJobTaskletRejectionTest {
         assertEquals(RepeatStatus.FINISHED,
                 tasklet.execute(null, new ChunkContext(new StepContext(stepExecution))));
 
-        // Refusing to run a rule is not the rule's owner's problem, so it is infrastructure.
-        verify(evaluationService).handleInfrastructureFailed(eq(refused), any());
+        // Refusing to run a rule is recorded against that rule.
+        verify(evaluationService).handleEvaluationFailed(eq(refused), any());
         // And the accepted rule is still the one the wait loop reports on. Indexing the whole
         // page rather than what was submitted would pin this failure on the refused rule.
-        verify(evaluationService).handleRuleConfigurationFailed(eq(accepted), any());
+        verify(evaluationService).handleEvaluationFailed(eq(accepted), any());
     }
 
     private Tasklet tasklet(List<AlarmRuleV2> due, AlarmEvaluationService evaluationService) {
         AlarmRuleV2Dao ruleDao = mock(AlarmRuleV2Dao.class);
-        when(ruleDao.selectDueEnabledRulesAfter(anyLong(), anyInt(), any(LocalDateTime.class)))
+        when(ruleDao.selectDueEnabledRulesAfter(anyLong(), anyInt(), any(LocalDateTime.class), any()))
                 .thenReturn(due);
 
         EffectiveAlarmRuleBulkResolutionService resolver =
@@ -97,11 +108,26 @@ class AlarmJobTaskletRejectionTest {
         executor.setMaxPoolSize(1);
         executor.initialize();
 
-        // No metric query service is registered, so whatever does get submitted fails as a rule
-        // configuration error -- which is what tells the two failures apart.
+        // A service for the rules' data source, without which the sweep would have nothing it
+        // could evaluate and refuse to start.
         return new AlarmJobConfiguration().alarmTasklet(
                 ruleDao, resolver, evaluationService,
-                new AlarmEvaluationFailureClassifier(), List.of(), executor, 10);
+                List.of(installedService()), executor, 10);
+    }
+
+    private static MetricQueryService installedService() {
+        return new MetricQueryService() {
+            @Override
+            public AlarmDataSource getDataSource() {
+                return IntegrationTestAlarmDataSource.PRIMARY;
+            }
+
+            @Override
+            public MetricQueryResult query(AlarmRuleV2 rule, List<AlarmCondition> conditions,
+                                           List<AlarmFilter> filters, AlarmState state) {
+                return MetricQueryResult.empty();
+            }
+        };
     }
 
     private static AlarmRuleV2 rule(Long id) {

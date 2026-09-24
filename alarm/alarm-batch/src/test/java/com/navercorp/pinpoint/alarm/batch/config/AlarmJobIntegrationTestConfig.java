@@ -282,7 +282,6 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
                 alarmRuleV2Dao,
                 effectiveAlarmRuleBulkResolver,
                 evaluationService,
-                new AlarmEvaluationFailureClassifier(),
                 List.<MetricQueryService>of(metricQueryService),
                 taskExecutor,
                 300
@@ -297,9 +296,9 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
     }
 
     @Bean
-    public Job alarmJob(AlarmJobConfiguration alarmJobConfiguration,
-                        JobRepository jobRepository,
-                        Step alarmStep) {
-        return alarmJobConfiguration.alarmJob(jobRepository, alarmStep);
+    public Job alarmEvaluationJob(AlarmJobConfiguration alarmJobConfiguration,
+                                  JobRepository jobRepository,
+                                  Step alarmStep) {
+        return alarmJobConfiguration.alarmEvaluationJob(jobRepository, alarmStep);
     }
 }

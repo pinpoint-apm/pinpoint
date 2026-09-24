@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventQuery;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.common.server.bo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;

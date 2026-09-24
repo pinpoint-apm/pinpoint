@@ -44,6 +44,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -54,8 +55,15 @@ import java.util.stream.Collectors;
  *
  * <p>A rule names the data source it measures and the module that owns that data source
  * contributes the {@link MetricQueryService} for it, so this job routes by code rather
- * than knowing any backend. A rule whose data source no installed module owns fails as a
- * configuration error instead of silently never being evaluated.
+ * than knowing any backend.
+ *
+ * <p>The sweep asks the database only for the data sources this process installed, so a
+ * deployment can be split across processes without each one reading and rejecting the
+ * others' rules. The cost is that a rule whose data source <em>no</em> process installed is
+ * not read by anyone: it stays enabled, its next check is never advanced, and nothing is
+ * reported to its owner. No single process can tell that case apart from a rule another
+ * process owns, so detecting it belongs outside the sweep -- a rule whose next check went
+ * stale by several of its own intervals is the signal, and it needs no catalog to find.
  */
 @Configuration
 public class AlarmJobConfiguration {
@@ -65,17 +73,6 @@ public class AlarmJobConfiguration {
 
     private static final Logger logger = LogManager.getLogger(AlarmJobConfiguration.class);
     private static final long SLOW_EVALUATION_WARN_MILLIS = TimeUnit.SECONDS.toMillis(60);
-
-    /**
-     * Declared here rather than annotated, so that importing this configuration is enough.
-     * A deployable that imports the configurations it wants -- the way the rest of this
-     * repository wires its modules -- would otherwise have to scan a config package to pick
-     * up a single stereotype, and miss it silently until the first evaluation failure.
-     */
-    @Bean
-    public AlarmEvaluationFailureClassifier alarmEvaluationFailureClassifier() {
-        return new AlarmEvaluationFailureClassifier();
-    }
 
     @Bean
     public ThreadPoolTaskExecutor alarmTaskExecutor(
@@ -91,8 +88,8 @@ public class AlarmJobConfiguration {
     }
 
     @Bean
-    public Job alarmJob(JobRepository jobRepository, Step alarmStep) {
-        return new JobBuilder("alarmJob", jobRepository)
+    public Job alarmEvaluationJob(JobRepository jobRepository, Step alarmStep) {
+        return new JobBuilder("alarmEvaluationJob", jobRepository)
                 .start(alarmStep)
                 .build();
     }
@@ -118,7 +115,6 @@ public class AlarmJobConfiguration {
             AlarmRuleV2Dao alarmRuleV2Dao,
             EffectiveAlarmRuleBulkResolutionService effectiveAlarmRuleBulkResolver,
             AlarmEvaluationService evaluationService,
-            AlarmEvaluationFailureClassifier failureClassifier,
             List<MetricQueryService> metricQueryServices,
             @Qualifier("alarmTaskExecutor") ThreadPoolTaskExecutor taskExecutor,
             @Value("${pinpoint.modules.batch.alarm.batchSize:300}") int batchSize) {
@@ -129,6 +125,16 @@ public class AlarmJobConfiguration {
         }
         Map<String, MetricQueryService> serviceMap = metricQueryServices.stream()
                 .collect(Collectors.toMap(s -> s.getDataSource().name(), service -> service));
+        // What this process can evaluate, which is what it asks the database for. More than one
+        // evaluation process may share the alarm tables, one per set of data sources it has the
+        // stores for, and a rule read by a process that cannot evaluate it is not merely
+        // skipped: the failure moves the rule's next check and leaves a CHECK_FAILED row.
+        Set<String> evaluableDataSources = Set.copyOf(serviceMap.keySet());
+        if (evaluableDataSources.isEmpty()) {
+            throw new IllegalStateException("No metric query service is installed, "
+                    + "so this process would evaluate nothing");
+        }
+        logger.info("Alarm evaluation is scoped to data sources: {}", evaluableDataSources);
         return (contribution, chunkContext) -> {
             ExecutionContext stepContext = chunkContext.getStepContext()
                     .getStepExecution().getExecutionContext();
@@ -136,7 +142,8 @@ public class AlarmJobConfiguration {
                     ? stepContext.getLong(LAST_RULE_ID_KEY) : 0L;
 
             LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-            List<AlarmRuleV2> fetched = alarmRuleV2Dao.selectDueEnabledRulesAfter(afterId, batchSize, now);
+            List<AlarmRuleV2> fetched = alarmRuleV2Dao.selectDueEnabledRulesAfter(
+                    afterId, batchSize, now, evaluableDataSources);
             if (fetched.isEmpty()) {
                 stepContext.remove(LAST_RULE_ID_KEY);
                 return RepeatStatus.FINISHED;
@@ -147,7 +154,7 @@ public class AlarmJobConfiguration {
             EffectiveAlarmRuleBulkResolutionService.ResolveResult resolveResult =
                     effectiveAlarmRuleBulkResolver.resolveWithFailures(fetched);
             resolveResult.failures().forEach(failure -> handleEvaluationFailureSafely(
-                    evaluationService, failureClassifier, failure.rule(), failure.exception()));
+                    evaluationService, failure.rule(), failure.exception()));
 
             List<AlarmRuleV2> rules = resolveResult.rules();
 
@@ -164,10 +171,7 @@ public class AlarmJobConfiguration {
                     futures.add(taskExecutor.submit(() -> {
                         MetricQueryService metricQueryService = serviceMap.get(rule.getDataSource());
                         if (metricQueryService == null) {
-                            // IllegalArgumentException, not IllegalStateException: this is a rule
-                            // nobody can evaluate as configured, and the classifier reports those
-                            // to the rule's own channels. AlarmDataSourceRegistry signals an
-                            // unknown code the same way.
+                            // AlarmDataSourceRegistry signals an unknown code the same way.
                             throw new IllegalArgumentException(
                                     "No metric query service for dataSource=" + rule.getDataSource());
                         }
@@ -175,7 +179,7 @@ public class AlarmJobConfiguration {
                     }));
                     submittedRules.add(rule);
                 } catch (TaskRejectedException rejected) {
-                    recordFailure(evaluationService, failureClassifier, rule, rejected);
+                    recordFailure(evaluationService, rule, rejected);
                 }
             }
 
@@ -194,7 +198,7 @@ public class AlarmJobConfiguration {
                 try {
                     future.get();
                 } catch (ExecutionException e) {
-                    recordFailure(evaluationService, failureClassifier, rule, e.getCause());
+                    recordFailure(evaluationService, rule, e.getCause());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     logger.warn("Alarm evaluation sweep was interrupted with {} rules left",
@@ -224,11 +228,10 @@ public class AlarmJobConfiguration {
     }
 
     private static void recordFailure(AlarmEvaluationService evaluationService,
-                                      AlarmEvaluationFailureClassifier failureClassifier,
                                       AlarmRuleV2 rule,
                                       Throwable failure) {
         logger.error("Failed or timed out evaluating alarm rule: {}", rule, failure);
-        handleEvaluationFailureSafely(evaluationService, failureClassifier, rule,
+        handleEvaluationFailureSafely(evaluationService, rule,
                 failure instanceof RuntimeException re ? re : new RuntimeException(failure));
     }
 
@@ -239,16 +242,10 @@ public class AlarmJobConfiguration {
      */
     private static void handleEvaluationFailureSafely(
             AlarmEvaluationService evaluationService,
-            AlarmEvaluationFailureClassifier failureClassifier,
             AlarmRuleV2 rule,
             RuntimeException failure) {
         try {
-            AlarmEvaluationFailureType failureType = failureClassifier.classify(failure);
-            if (failureType == AlarmEvaluationFailureType.RULE_CONFIGURATION) {
-                evaluationService.handleRuleConfigurationFailed(rule, failure);
-            } else {
-                evaluationService.handleInfrastructureFailed(rule, failure);
-            }
+            evaluationService.handleEvaluationFailed(rule, failure);
         } catch (RuntimeException recordFailure) {
             logger.error("Failed to record alarm check failure: {}", rule, recordFailure);
         }

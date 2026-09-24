@@ -19,6 +19,16 @@
         rule on the eleventh could never fire. The cap is set far above any real agent count
         rather than tuned, since it exists to replace the default and not to page.
     -->
+    <select id="selectAgentIds" parameterType="AgentStatQueryParameter" resultType="string">
+        SELECT DISTINCT(agentId)
+        FROM ${tableName}
+        WHERE
+            applicationName = #{applicationName}
+            AND metricName = #{metricName}
+            AND eventTime BETWEEN #{range.from} AND #{range.to}
+        LIMIT 100000
+    </select>
+
     <select id="selectSumGroupByField" parameterType="AgentStatQueryParameter" resultType="AgentFieldUsage">
         SELECT agentId, fieldName, SUM(fieldValue) AS sumValue
         FROM ${tableName}

@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmHistoryV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
-import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
 import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import com.navercorp.pinpoint.alarm.vo.AlarmStatus;
 import org.apache.logging.log4j.LogManager;
@@ -50,7 +49,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.navercorp.pinpoint.alarm.util.ExceptionMessageUtils.rootCauseMessage;
-import static com.navercorp.pinpoint.alarm.util.ExceptionMessageUtils.ruleOwnerMessage;
 
 /**
  * Persists alarm state, history, and notification deliveries atomically.
@@ -60,7 +58,6 @@ public class AlarmEventPersistenceService {
 
     private static final Logger logger = LogManager.getLogger(AlarmEventPersistenceService.class);
     private static final int DEFAULT_CHECK_FAILURE_RETRY_SEC = 300;
-    private static final int DEFAULT_CHECK_FAILURE_ACTION_INTERVAL_SEC = 3600;
 
     private final AlarmRuleV2Dao ruleDao;
     private final AlarmStateDao stateDao;
@@ -125,56 +122,66 @@ public class AlarmEventPersistenceService {
         requiresNew.executeWithoutResult(status -> {
             lockRule(rule.getId());
             AlarmState state = getOrCreateState(rule.getId());
-            boolean wasFiring = state.isFiring();
+            // Any abnormal state the rule comes out of earns a row, and a failed check is one:
+            // from FIRING it is the all-clear, from CHECK_FAILED it marks the end of whatever
+            // stopped the rule being checked. Only a rule that was already NORMAL writes
+            // nothing. This costs nobody an interruption -- unlike a firing, a resolve writes
+            // history and enqueues no notification.
+            //
+            // The one-shot exemption is about firing, not about this: a NEW_GROUP rule has no
+            // standing condition to clear, but it does sit in CHECK_FAILED and come out of it.
+            boolean resolvable = state.isCheckFailed()
+                    || (state.isFiring() && !isOneShotRule(leaves));
+            boolean recovered = state.isCheckFailed();
 
             state.setStatus(AlarmStatus.NORMAL);
             state.setLastCheckedAt(now);
             state.setNextCheckAt(now.plusSeconds(rule.getCheckIntervalSec()));
+            // Back to NORMAL ends the episode, and the throttle belongs to the episode. Left
+            // standing, it is read against the *next* firing: a rule that fires, resolves, has
+            // one failed check and fires again on something new comes back through a status
+            // that is not NORMAL, so recordFired consults this stamp instead of firing freely
+            // -- and the new alert is dropped for the remainder of an interval it never used.
+            state.setLastNotificationEnqueuedAt(null);
 
-            if (wasFiring && !isOneShotRule(leaves)) {
-                historyDao.insert(AlarmHistoryV2.resolved(
-                        rule.getId(), "[RESOLVED] " + rule.getName()));
+            if (resolvable) {
+                // Which of the two things ended is not otherwise recoverable from the row: both
+                // paths write the same event type, and the reader would have to guess from
+                // whatever precedes it.
+                historyDao.insert(AlarmHistoryV2.resolved(rule.getId(),
+                        "[RESOLVED] " + rule.getName() + (recovered ? " (check recovered)" : "")));
             }
             stateDao.upsert(state);
         });
     }
 
+    /**
+     * Records an evaluation failure, and tells nobody.
+     *
+     * <p>The history row is the whole point: the state alone says a rule stopped being checked
+     * but not why, and the why -- which backend, which exception -- is what an operator needs to
+     * tell a missing data source apart from a metric the catalog no longer has. No outbox row is
+     * written, because every failure that reaches evaluation is an operator or data problem that
+     * the rule's owner cannot act on.
+     */
     public void recordCheckFailed(AlarmRuleV2 rule, RuntimeException failure, LocalDateTime now) {
         requiresNew.executeWithoutResult(status -> {
             lockRule(rule.getId());
             AlarmState state = getOrCreateState(rule.getId());
-            AlarmRuleV2 notificationRule = buildCheckFailedNotificationRule(rule, failure);
-            int checkIntervalSec = notificationRule.getCheckIntervalSec();
-            int actionIntervalSec = notificationRule.getActionIntervalSec();
-            state.setStatus(AlarmStatus.CHECK_FAILED);
-            state.setLastCheckedAt(now);
-            state.setNextCheckAt(now.plusSeconds(checkIntervalSec));
-
-            if (!shouldEnqueue(state, now, actionIntervalSec)) {
-                stateDao.upsert(state);
-                return;
-            }
-
-            state.setLastNotificationEnqueuedAt(now);
-            AlarmNotificationService.PreparationResult preparation =
-                    prepareNotifications(notificationRule, MetricQueryResult.empty());
-
-            AlarmHistoryV2 history = AlarmHistoryV2.checkFailed(
-                    rule.getId(),
-                    "[CHECK_FAILED] " + ruleLabel(rule) + ": " + ruleOwnerMessage(failure),
-                    buildCheckFailedContext(rule, failure, preparation));
-            persistEvent(state, history, preparation, now);
-        });
-    }
-
-    public void recordCheckFailedSilently(AlarmRuleV2 rule, LocalDateTime now) {
-        requiresNew.executeWithoutResult(status -> {
-            lockRule(rule.getId());
-            AlarmState state = getOrCreateState(rule.getId());
+            boolean wasAlreadyFailing = state.isCheckFailed();
             state.setStatus(AlarmStatus.CHECK_FAILED);
             state.setLastCheckedAt(now);
             state.setNextCheckAt(now.plusSeconds(positiveOrDefault(
                     rule.getCheckIntervalSec(), DEFAULT_CHECK_FAILURE_RETRY_SEC)));
+            // Only on the way in. A data source that stays down is re-checked every interval,
+            // and a row per tick would bury the rule's own FIRED and RESOLVED rows on the one
+            // screen that shows them -- selectByRuleId orders by id and takes a limit, with no
+            // event type filter. Nothing prunes these either.
+            if (!wasAlreadyFailing) {
+                historyDao.insert(AlarmHistoryV2.checkFailed(rule.getId(),
+                        "[CHECK_FAILED] " + ruleLabel(rule) + ": " + rootCauseMessage(failure),
+                        buildCheckFailedContext(rule, failure)));
+            }
             stateDao.upsert(state);
         });
     }
@@ -227,19 +234,6 @@ public class AlarmEventPersistenceService {
                 .allMatch(leaf -> leaf.getTrigger() == AlarmCondition.Trigger.NEW_GROUP);
     }
 
-    private AlarmRuleV2 buildCheckFailedNotificationRule(AlarmRuleV2 rule, RuntimeException failure) {
-        return CheckFailedNotificationRuleBuilder.from(rule)
-                .name("Alarm check failed: " + ruleLabel(rule))
-                .description(ruleOwnerMessage(failure))
-                .severity(rule.getSeverity() != null ? rule.getSeverity() : AlarmSeverity.CRITICAL)
-                .checkIntervalSec(positiveOrDefault(
-                        rule.getCheckIntervalSec(), DEFAULT_CHECK_FAILURE_RETRY_SEC))
-                .actionIntervalSec(positiveOrDefault(
-                        rule.getActionIntervalSec(), DEFAULT_CHECK_FAILURE_ACTION_INTERVAL_SEC))
-                .filters(rule.getFilters() != null ? rule.getFilters() : List.of())
-                .build();
-    }
-
     /**
      * Names a rule for a CHECK_FAILED record.
      *
@@ -273,16 +267,13 @@ public class AlarmEventPersistenceService {
         return serialize(alarmContextWriter, context, "alarm context");
     }
 
-    private String buildCheckFailedContext(AlarmRuleV2 rule,
-                                           RuntimeException failure,
-                                           AlarmNotificationService.PreparationResult preparation) {
+    private String buildCheckFailedContext(AlarmRuleV2 rule, RuntimeException failure) {
         CheckFailedContext context = new CheckFailedContext(
                 new FailureSnapshot(failure.getClass().getName(), rootCauseMessage(failure)),
                 EffectiveRuleSnapshot.from(rule),
                 rule.getServiceName(),
                 rule.getApplicationName(),
-                rule.getDataSource(),
-                NotificationResult.pending(preparation));
+                rule.getDataSource());
         return serialize(checkFailedContextWriter, context, "alarm check failure context");
     }
 
@@ -307,8 +298,7 @@ public class AlarmEventPersistenceService {
                                       @JsonProperty("effective_rule") EffectiveRuleSnapshot effectiveRule,
                                       @JsonProperty("service_name") String serviceName,
                                       @JsonProperty("application_name") String applicationName,
-                                      @JsonProperty("data_source") String dataSource,
-                                      NotificationResult notification) {
+                                      @JsonProperty("data_source") String dataSource) {
     }
 
     private record ConditionResult(String metric,
@@ -360,83 +350,6 @@ public class AlarmEventPersistenceService {
     }
 
     private record FailureSnapshot(String type, String message) {
-    }
-
-    private static final class CheckFailedNotificationRuleBuilder {
-
-        private final AlarmRuleV2 source;
-        private String name;
-        private String description;
-        private AlarmSeverity severity;
-        private Integer checkIntervalSec;
-        private Integer actionIntervalSec;
-        private List<AlarmFilter> filters;
-
-        private CheckFailedNotificationRuleBuilder(AlarmRuleV2 source) {
-            this.source = Objects.requireNonNull(source, "source");
-        }
-
-        private static CheckFailedNotificationRuleBuilder from(AlarmRuleV2 source) {
-            return new CheckFailedNotificationRuleBuilder(source);
-        }
-
-        private CheckFailedNotificationRuleBuilder name(String name) {
-            this.name = Objects.requireNonNull(name, "name");
-            return this;
-        }
-
-        private CheckFailedNotificationRuleBuilder description(String description) {
-            this.description = Objects.requireNonNull(description, "description");
-            return this;
-        }
-
-        private CheckFailedNotificationRuleBuilder severity(AlarmSeverity severity) {
-            this.severity = Objects.requireNonNull(severity, "severity");
-            return this;
-        }
-
-        private CheckFailedNotificationRuleBuilder checkIntervalSec(int checkIntervalSec) {
-            this.checkIntervalSec = requirePositive(checkIntervalSec, "checkIntervalSec");
-            return this;
-        }
-
-        private CheckFailedNotificationRuleBuilder actionIntervalSec(int actionIntervalSec) {
-            this.actionIntervalSec = requirePositive(actionIntervalSec, "actionIntervalSec");
-            return this;
-        }
-
-        private CheckFailedNotificationRuleBuilder filters(List<AlarmFilter> filters) {
-            this.filters = Objects.requireNonNull(filters, "filters");
-            return this;
-        }
-
-        private AlarmRuleV2 build() {
-            AlarmRuleV2 notificationRule = new AlarmRuleV2();
-            notificationRule.setId(Objects.requireNonNull(source.getId(), "source.id"));
-            notificationRule.setName(Objects.requireNonNull(name, "name"));
-            notificationRule.setDescription(Objects.requireNonNull(description, "description"));
-            notificationRule.setSeverity(Objects.requireNonNull(severity, "severity"));
-            notificationRule.setDataSource(source.getDataSource());
-            notificationRule.setApplicationType(source.getApplicationType());
-            notificationRule.setTemplateId(source.getTemplateId());
-            notificationRule.setTemplateName(source.getTemplateName());
-            notificationRule.setServiceName(source.getServiceName());
-            notificationRule.setApplicationName(source.getApplicationName());
-            notificationRule.setCheckIntervalSec(Objects.requireNonNull(checkIntervalSec, "checkIntervalSec"));
-            notificationRule.setActionIntervalSec(Objects.requireNonNull(actionIntervalSec, "actionIntervalSec"));
-            notificationRule.setConditions(source.getConditions());
-            notificationRule.setFilters(Objects.requireNonNull(filters, "filters"));
-            notificationRule.setEnabled(source.isEnabled());
-            notificationRule.setUpdatedAt(source.getUpdatedAt());
-            return notificationRule;
-        }
-
-        private static int requirePositive(int value, String name) {
-            if (value <= 0) {
-                throw new IllegalArgumentException(name + " must be positive");
-            }
-            return value;
-        }
     }
 
     private record EffectiveRuleSnapshot(Long id,

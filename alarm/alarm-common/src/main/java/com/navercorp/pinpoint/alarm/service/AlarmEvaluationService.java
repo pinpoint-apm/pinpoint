@@ -74,15 +74,19 @@ public class AlarmEvaluationService {
         return fired;
     }
 
-    public void handleRuleConfigurationFailed(AlarmRuleV2 rule, RuntimeException failure) {
+    /**
+     * Records that a rule could not be checked, without telling the rule's owner.
+     *
+     * <p>Nothing that reaches here is theirs to fix: an authoring mistake is refused when the
+     * rule is saved, by these same validators, so what gets this far is a data source whose
+     * process is not deployed, a metric the catalog dropped, a missing template row, or a
+     * service someone deleted on purpose. Those are all operator work, so the failure is
+     * written down rather than sent anywhere: a CHECK_FAILED history row carrying the
+     * exception, and the state moved to CHECK_FAILED with the next check pushed out.
+     */
+    public void handleEvaluationFailed(AlarmRuleV2 rule, RuntimeException failure) {
         Objects.requireNonNull(rule, "rule");
         Objects.requireNonNull(failure, "failure");
         eventPersistenceService.recordCheckFailed(rule, failure, LocalDateTime.now(ZoneOffset.UTC));
-    }
-
-    public void handleInfrastructureFailed(AlarmRuleV2 rule, RuntimeException failure) {
-        Objects.requireNonNull(rule, "rule");
-        Objects.requireNonNull(failure, "failure");
-        eventPersistenceService.recordCheckFailedSilently(rule, LocalDateTime.now(ZoneOffset.UTC));
     }
 }

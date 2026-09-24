@@ -41,6 +41,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmMessageFormatterTest {
 
@@ -384,6 +385,23 @@ class AlarmMessageFormatterTest {
 
         assertEquals("https://pinpoint.example.com/detail/test-app@javascript"
                 + "?from=" + fromMs + "&to=" + toMs, link);
+    }
+
+    // An application name is whatever the agent reported. A '#' ends the path at the browser,
+    // a '/' moves the link to a different route, and a raw space breaks the href outright.
+    @Test
+    void detailLink_encodesWhatTheAgentNamedTheApplication() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setApplicationName("my app/v2#1");
+        rule.setApplicationType(AlarmApplication.TYPE_JAVASCRIPT);
+        long toMs = 1789041600000L;
+        MetricQueryResult results = metricResultsWithRange(rule, 3.0,
+                new QueriedRange(toMs - Duration.ofHours(1).toMillis(), toMs));
+
+        String link = linkFormatter.formatBody(rule, "${detail_link}", results);
+
+        assertTrue(link.startsWith("https://pinpoint.example.com/detail/my%20app%2Fv2%231@javascript?"),
+                "the name has to survive as one path segment, was " + link);
     }
 
     @Test

@@ -1,19 +1,19 @@
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.common.server.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.ApplicationRowKeyUtils;
-import com.navercorp.pinpoint.web.dao.ApplicationDao;
-import com.navercorp.pinpoint.web.util.ListListUtils;
+import com.navercorp.pinpoint.common.server.dao.ApplicationDao;
+import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
+import com.navercorp.pinpoint.common.server.dao.hbase.mapper.ApplicationMapper;
+import com.navercorp.pinpoint.common.server.dao.hbase.mapper.ListMergeResultsExtractor;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,13 +26,13 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
-    private final RowMapper<List<Application>> applicationMapper;
+    private final ApplicationMapper applicationMapper;
 
     public HbaseApplicationDao(HbaseOperations hbaseTemplate, TableNameProvider tableNameProvider,
-                               @Qualifier("applicationMapper") RowMapper<List<Application>> applicationMapper) {
+                               ApplicationFactory applicationFactory) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.applicationMapper = Objects.requireNonNull(applicationMapper, "applicationMapper");
+        this.applicationMapper = new ApplicationMapper(applicationFactory);
     }
 
     @Override
@@ -53,8 +53,8 @@ public class HbaseApplicationDao implements ApplicationDao {
         scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<List<Application>> results = hbaseTemplate.find(applicationIndexTableName, scan, applicationMapper);
-        return ListListUtils.toList(results);
+        return hbaseTemplate.find(applicationIndexTableName, scan,
+                new ListMergeResultsExtractor<>(applicationMapper));
     }
 
     @Override

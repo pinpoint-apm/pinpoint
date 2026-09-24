@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2026 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>pinpoint</artifactId>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <version>4.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>pinpoint-alarm-batch-starter</artifactId>
+    <name>pinpoint-alarm-batch-starter</name>
+    <packaging>jar</packaging>
+
+    <description>
+        Runs the alarm evaluation sweep and the notification dispatch on their own
+        schedules, as a process of its own. The batch application still carries the
+        alarm job it was built with; this replaces it, so that alarms are not
+        scheduled alongside jobs whose failure modes and cadence have nothing to do
+        with them.
+    </description>
+
+    <properties>
+        <jdk.version>17</jdk.version>
+        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-alarm-batch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-datasource</artifactId>
+        </dependency>
+        <!-- What a rule can measure about an application this installation already collects,
+             and the stores those numbers are read from. -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-alarm-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-applicationmap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-service-module</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-pinot-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <!-- log4j2 is configured below; the default bridge would conflict with it. -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <!-- The service registry and the alarm dao both retry, and spring's retry proxies
+             need the aspectj annotations on the classpath to be created at all. -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2database.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.navercorp.pinpoint.alarm.batch.starter.AlarmBatchApp</mainClass>
+                    <outputDirectory>${project.build.directory}/deploy</outputDirectory>
+                    <executable>true</executable>
+                    <attach>true</attach>
+                    <classifier>exec</classifier>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <configuration>
+                    <to>
+                        <image>${docker.repository.name}/pinpoint-alarm-batch</image>
+                        <tags>
+                            <tag>${project.version}</tag>
+                            <tag>latest</tag>
+                        </tags>
+                    </to>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

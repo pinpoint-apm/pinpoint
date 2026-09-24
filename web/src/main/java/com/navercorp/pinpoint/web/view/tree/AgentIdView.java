@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.view.tree;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.server.bo.Application;
-import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
+import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
 
 public final class AgentIdView {
     private final Application application;

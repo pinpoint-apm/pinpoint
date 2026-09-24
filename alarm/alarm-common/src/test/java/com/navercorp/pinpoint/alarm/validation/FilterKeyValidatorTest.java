@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FilterKeyValidatorTest {
 
@@ -61,6 +62,31 @@ class FilterKeyValidatorTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> validator.validateFilters(TestAlarmDataSource.AGENT_STAT, filters));
+    }
+
+    // Filters on one key are ANDed, so a second one narrows: EQ 'a' and EQ 'b' match nothing
+    // and the rule can never fire. The editor cannot express it; the API could.
+    @Test
+    void validateFilters_rejectsTwoFiltersOnTheSameKey() {
+        List<AlarmFilter> filters = List.of(
+                new AlarmFilter("agent", AlarmFilter.Op.EQ, "web-01"),
+                new AlarmFilter("agent", AlarmFilter.Op.EQ, "web-02"));
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> validator.validateFilters(TestAlarmDataSource.AGENT_STAT, filters));
+        assertTrue(e.getMessage().contains("agent"), e.getMessage());
+    }
+
+    // The AND across different keys is the useful case and has to keep working: a data
+    // source with several filter keys narrows with more than one of them at once.
+    @Test
+    void validateFilters_allowsOneFilterPerKeyAcrossSeveralKeys() {
+        List<AlarmFilter> filters = List.of(
+                new AlarmFilter("agent", AlarmFilter.Op.EQ, "web-01"),
+                new AlarmFilter("service_type", AlarmFilter.Op.NEQ, "TOMCAT"),
+                new AlarmFilter("host", AlarmFilter.Op.CONTAINS, "dev"));
+
+        assertDoesNotThrow(() -> validator.validateFilters(TestAlarmDataSource.AGENT_STAT, filters));
     }
 
     @Test

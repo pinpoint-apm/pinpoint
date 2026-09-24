@@ -39,6 +39,7 @@ public class ConditionValidator {
     private static final int MAX_LEAVES_PER_GROUP = AlarmValidationConstants.MAX_LEAVES_PER_GROUP;
     private static final int MAX_GROUPS_PER_GROUP = AlarmValidationConstants.MAX_GROUPS_PER_GROUP;
     private static final int MIN_WINDOW_SEC = AlarmValidationConstants.MIN_WINDOW_SEC;
+    private static final int MAX_WINDOW_SEC = AlarmValidationConstants.MAX_WINDOW_SEC;
 
     /**
      * Enforces node-count and depth limits across the recursive traversal.
@@ -152,6 +153,12 @@ public class ConditionValidator {
             if (node.getWindowSec() == null || node.getWindowSec() < MIN_WINDOW_SEC) {
                 throw new IllegalArgumentException("windowSec must be at least " + MIN_WINDOW_SEC);
             }
+        }
+        // Outside the branch above, unlike the minimum. A NEW_GROUP leaf is excused from
+        // carrying a window at all, which is why the minimum does not apply to it -- but if
+        // it names one, the ceiling still has to, and deadlock_count is a NEW_GROUP metric.
+        if (node.getWindowSec() != null && node.getWindowSec() > MAX_WINDOW_SEC) {
+            throw new IllegalArgumentException("windowSec must be at most " + MAX_WINDOW_SEC);
         }
     }
 

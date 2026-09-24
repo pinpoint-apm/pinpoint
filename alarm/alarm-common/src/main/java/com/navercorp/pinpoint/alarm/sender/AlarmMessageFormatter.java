@@ -472,9 +472,25 @@ public class AlarmMessageFormatter {
                 : toMs - 1000L * (rule.getCheckIntervalSec() != null ? rule.getCheckIntervalSec() : 0);
         return dataSource.detailLink(
                 pinpointBaseUrl,
-                rule.getApplicationName() + "@" + nullSafe(rule.getApplicationType()),
+                encodePathSegment(nullSafe(rule.getApplicationName()))
+                        + "@" + encodePathSegment(nullSafe(rule.getApplicationType())),
                 fromMs,
                 toMs);
+    }
+
+    /**
+     * An application name is whatever the agent reported it to be, and every detailLink puts
+     * it in a path. Encoded here rather than in each implementation so that a data source
+     * contributed by another module cannot forget: a name carrying '#', '?' or '/' otherwise
+     * truncates the link or points it at a different page.
+     *
+     * <p>The two halves are encoded separately and joined with a literal '@', because the '@'
+     * is this method's own separator rather than part of either value -- which also means a
+     * name containing one no longer moves where the link splits. URLEncoder is form encoding,
+     * where a space becomes '+', and in a path that is a literal plus, so it is put back.
+     */
+    private static String encodePathSegment(String segment) {
+        return URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     private String buildHistoryLink(AlarmRuleV2 rule) {

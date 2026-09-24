@@ -717,7 +717,8 @@ abstract class AlarmServiceTestSupport {
         }
 
         @Override
-        public List<AlarmRuleV2> selectDueEnabledRulesAfter(long afterId, int limit, LocalDateTime now) {
+        public List<AlarmRuleV2> selectDueEnabledRulesAfter(long afterId, int limit, LocalDateTime now,
+                                                            java.util.Collection<String> dataSources) {
             throw new UnsupportedOperationException();
         }
 

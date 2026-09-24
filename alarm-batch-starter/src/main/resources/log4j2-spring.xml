@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <Property name="default_logging_dir">logs</Property>
+        <Property name="logging_dir">${sys:logging.file.path:-${default_logging_dir}}</Property>
+
+        <Property name="rolling-date-format">%d{yyyy-MM-dd}</Property>
+        <Select>
+            <SpringProfile name="local">
+                <Property name="backupsize">1GB</Property>
+                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.SSS} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg%n</Property>
+                <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.SSS} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg%n</Property>
+                <Property name="accumulated_file_size">1GB</Property>
+                <Property name="accumulated_file_count">50</Property>
+                <Property name="logger_level">DEBUG</Property>
+            </SpringProfile>
+            <SpringProfile name="release">
+                <Property name="backupsize">100GB</Property>
+                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.SSS} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan} -- %msg%n</Property>
+                <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.SSS} [%15.15t] %-5level %-40.40logger{1.} -- %msg%n</Property>
+                <Property name="accumulated_file_size">2000GB</Property>
+                <Property name="accumulated_file_count">100</Property>
+                <Property name="logger_level">INFO</Property>
+            </SpringProfile>
+            <DefaultArbiter>
+                <Property name="backupsize">1GB</Property>
+                <Property name="console_message_pattern">%d{MM-dd HH:mm:ss.SSS} [%15.15t] %-5level %-40.40logger{1.} : %msg%n</Property>
+                <Property name="file_message_pattern">%d{MM-dd HH:mm:ss.SSS} [%15.15t] %-5level %-40.40logger{1.} : %msg%n</Property>
+                <Property name="accumulated_file_size">1GB</Property>
+                <Property name="accumulated_file_count">50</Property>
+                <Property name="logger_level">DEBUG</Property>
+            </DefaultArbiter>
+        </Select>
+
+    </Properties>
+
+    <Appenders>
+        <Select>
+            <SpringProfile name="local">
+                <Console name="console" target="system_out">
+                    <PatternLayout pattern="${console_message_pattern}"/>
+                </Console>
+            </SpringProfile>
+            <SpringProfile name="release">
+                <Console name="console" target="system_out">
+                    <PatternLayout pattern="${file_message_pattern}"/>
+                </Console>
+            </SpringProfile>
+            <DefaultArbiter>
+                <Console name="console" target="system_out">
+                    <PatternLayout pattern="${console_message_pattern}"/>
+                </Console>
+            </DefaultArbiter>
+        </Select>
+
+        <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint-alarm-batch.log"
+                     filepattern="${logging_dir}/pinpoint-alarm-batch-${rolling-date-format}-%i.log"  >
+            <PatternLayout>
+                <Pattern>${file_message_pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${backupsize}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20">
+                <Delete basePath="${logging_dir}/" maxDepth="1">
+                    <IfFileName glob="pinpoint-alarm-batch-*-*.log">
+                        <IfAny>
+                            <IfAccumulatedFileSize exceeds="${accumulated_file_size}" />
+                            <IfAccumulatedFileCount exceeds="${accumulated_file_count}" />
+                        </IfAny>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.navercorp.pinpoint" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+
+        <!-- What this process spends its time on: a rule evaluated, a notification sent. -->
+        <Logger name="com.navercorp.pinpoint.alarm" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Logger>
+
+        <!-- The stores a rule is measured against. -->
+        <Logger name="com.navercorp.pinpoint.applicationmap" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.common.server.dao" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.mybatis" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.springframework" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.apache.zookeeper" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.apache.hadoop.hbase" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.apache.hadoop.ipc" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.apache.hadoop" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Root level="${logger_level}">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

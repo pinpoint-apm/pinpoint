@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface AlarmRuleV2Mapper {
@@ -59,7 +60,8 @@ public interface AlarmRuleV2Mapper {
 
     List<AlarmRuleEntity> selectDueEnabledRulesAfter(@Param("afterId") long afterId,
                                                      @Param("limit") int limit,
-                                                     @Param("now") LocalDateTime now);
+                                                     @Param("now") LocalDateTime now,
+                                                     @Param("dataSources") Collection<String> dataSources);
 
     List<AlarmRuleEntity> selectRulesByApplication(@Param("serviceName") String serviceName,
             @Param("applicationName") String applicationName,

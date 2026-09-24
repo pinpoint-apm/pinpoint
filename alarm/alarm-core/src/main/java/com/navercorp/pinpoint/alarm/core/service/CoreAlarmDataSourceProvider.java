@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.alarm.batch.config;
+package com.navercorp.pinpoint.alarm.core.service;
 
-/**
- * Why a rule could not be evaluated, which decides whether the failure is worth telling
- * anyone about.
- */
-public enum AlarmEvaluationFailureType {
+import com.navercorp.pinpoint.alarm.core.vo.CoreAlarmDataSource;
+import com.navercorp.pinpoint.alarm.service.AlarmDataSourceProvider;
+import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 
-    /** The rule itself cannot be evaluated as configured; only its owner can fix it. */
-    RULE_CONFIGURATION,
+import java.util.List;
 
-    /** The backend behind the rule is unavailable, which no rule owner can act on. */
-    INFRASTRUCTURE
+public class CoreAlarmDataSourceProvider implements AlarmDataSourceProvider {
+
+    @Override
+    public List<AlarmDataSource> dataSources() {
+        return List.of(CoreAlarmDataSource.values());
+    }
 }

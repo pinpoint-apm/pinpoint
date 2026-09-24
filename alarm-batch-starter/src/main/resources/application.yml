@@ -1,0 +1,38 @@
+pinpoint:
+  zookeeper:
+    enable: false
+
+  # What the startup banner prints. Without a list it prints one empty key, which is where the
+  # lone "null" line came from. These are the settings that decide what this process evaluates
+  # and where it reads from, which is what someone reads the banner to check.
+  banner:
+    mode: console
+    configs: "pinpoint.profiles.active,\
+              spring.datasource.hikari.jdbc-url,\
+              spring.meta-datasource.hikari.jdbc-url,\
+              spring.pinot-datasource.pinot.jdbc-url,\
+              hbase.client.host,\
+              hbase.client.port,\
+              hbase.client.znode,\
+              hbase.namespace,\
+              pinpoint.modules.batch.alarm.fixedDelayMs,\
+              pinpoint.modules.batch.alarm.batchSize,\
+              pinpoint.modules.batch.alarm.worker.coreSize,\
+              pinpoint.modules.batch.alarm.worker.maxSize,\
+              pinpoint.modules.batch.alarm.outbox.fixedDelayMs,\
+              pinpoint.modules.batch.alarm.outbox.batchSize,\
+              pinpoint.modules.batch.alarm.outbox.leaseSec,\
+              alarm.pinpoint.web.url,\
+              alarm.email.sender,\
+              alarm.agent-stat.table.prefix,\
+              alarm.agent-stat.table.count"
+
+# Everything an operator sets lives in alarm-batch-root.properties and the profile file beside
+# it, not here: a value in this file sits above the external configuration file and would make
+# that file unable to change it. See AlarmBatchPropertySources.
+
+spring:
+  profiles:
+    active: ${pinpoint.profiles.active:release}
+  main:
+    banner-mode: off

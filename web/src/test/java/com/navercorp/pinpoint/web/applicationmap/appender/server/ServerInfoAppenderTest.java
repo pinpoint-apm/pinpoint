@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.common.server.bo.Application;
-import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
+import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;

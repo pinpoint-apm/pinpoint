@@ -254,6 +254,10 @@
         LEFT JOIN alarm_state s ON r.id = s.rule_id
         WHERE r.enabled = 1
           AND r.id &gt; #{afterId}
+          AND r.data_source IN
+            <foreach collection="dataSources" item="dataSource" separator="," open="(" close=")">
+                #{dataSource}
+            </foreach>
           AND <include refid="activeTemplatePredicate" />
           AND (
             s.next_check_at IS NULL
