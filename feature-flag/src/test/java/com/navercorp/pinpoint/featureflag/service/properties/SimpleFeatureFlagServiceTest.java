@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.featureflag.service.properties;
 
+import com.navercorp.pinpoint.common.server.uid.Service;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -25,65 +26,87 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SimpleFeatureFlagServiceTest {
-    static void assertEnabled(FeatureFlagService service, String application) {
-        assertTrue(service.isEnabled(application));
-    }
-
-    static void assertDisabled(FeatureFlagService service, String application) {
-        assertFalse(service.isEnabled(application));
-    }
+    private static final String DEFAULT_SERVICE = Service.DEFAULT.getServiceName();
 
     @Test
     void global() {
-        FeatureFlagService enabledFeature = new SimpleFeatureFlagService(true, null, null);
-        FeatureFlagService disabledFeature = new SimpleFeatureFlagService(false, null, null);
+        FeatureFlagService enabled = new SimpleFeatureFlagService(true, null, null);
+        FeatureFlagService disabled = new SimpleFeatureFlagService(false, null, null);
 
-        assertEnabled(enabledFeature, "other");
-        assertDisabled(disabledFeature, "other");
+        assertTrue(enabled.isEnabled(DEFAULT_SERVICE, "other"));
+        assertTrue(enabled.isEnabled("service-a", "other"));
+        assertTrue(disabled.isDisabled(DEFAULT_SERVICE, "other"));
+        assertTrue(disabled.isDisabled("service-a", "other"));
     }
 
     @Test
     void enabledForApp() {
-        FeatureFlagService enabledFeature = new SimpleFeatureFlagService(true, List.of("enabledApp"), null);
-        FeatureFlagService disabledFeature = new SimpleFeatureFlagService(false, List.of("enabledApp"), null);
+        for (boolean defaultFlag : List.of(true, false)) {
+            FeatureFlagService service = new SimpleFeatureFlagService(defaultFlag,
+                    List.of(new FeatureFlagTarget("DEFAULT", "app")), null);
 
-        assertEnabled(enabledFeature, "enabledApp");
-        assertEnabled(disabledFeature, "enabledApp");
-
-        assertEnabled(enabledFeature, "other");
-        assertDisabled(disabledFeature, "other");
+            assertTrue(service.isEnabled(DEFAULT_SERVICE, "app"));
+            assertTrue(service.isEnabled("DEFAULT", "app"));
+        }
     }
 
     @Test
     void disabledForApp() {
-        FeatureFlagService enabledFeature = new SimpleFeatureFlagService(true, null, List.of("disabledApp"));
-        FeatureFlagService disabledFeature = new SimpleFeatureFlagService(false, null, List.of("disabledApp"));
+        for (boolean defaultFlag : List.of(true, false)) {
+            FeatureFlagService service = new SimpleFeatureFlagService(defaultFlag,
+                    null, List.of(new FeatureFlagTarget("DEFAULT", "app")));
 
-        assertDisabled(enabledFeature, "disabledApp");
-        assertDisabled(disabledFeature, "disabledApp");
-
-        assertEnabled(enabledFeature, "other");
-        assertDisabled(disabledFeature, "other");
+            assertTrue(service.isDisabled(DEFAULT_SERVICE, "app"));
+            assertTrue(service.isDisabled("DEFAULT", "app"));
+        }
     }
 
     @Test
-    void bothSet() {
-        FeatureFlagService enabledFeature = new SimpleFeatureFlagService(true, List.of("enabledApp"), List.of("disabledApp"));
-        FeatureFlagService disabledFeature = new SimpleFeatureFlagService(false, List.of("enabledApp"), List.of("disabledApp"));
+    void enabledForServiceAndApplication() {
+        FeatureFlagService service = new SimpleFeatureFlagService(false,
+                List.of(new FeatureFlagTarget("service-a", "app"), new FeatureFlagTarget("DEFAULT", "legacy")), null);
 
-        assertEnabled(enabledFeature, "enabledApp");
-        assertEnabled(disabledFeature, "enabledApp");
+        assertTrue(service.isEnabled("service-a", "app"));
+        assertFalse(service.isDisabled("service-a", "app"));
+        assertFalse(service.isEnabled("service-b", "app"));
+        assertFalse(service.isEnabled(DEFAULT_SERVICE, "app"));
+        assertFalse(service.isEnabled("service-a", "other"));
+        assertTrue(service.isEnabled(DEFAULT_SERVICE, "legacy"));
+        assertFalse(service.isEnabled("service-a", "legacy"));
+    }
 
-        assertDisabled(enabledFeature, "disabledApp");
-        assertDisabled(disabledFeature, "disabledApp");
+    @Test
+    void disabledForServiceAndApplication() {
+        FeatureFlagService service = new SimpleFeatureFlagService(true, null,
+                List.of(new FeatureFlagTarget("service-a", "app"), new FeatureFlagTarget("DEFAULT", "legacy")));
 
-        assertEnabled(enabledFeature, "other");
-        assertDisabled(disabledFeature, "other");
+        assertTrue(service.isDisabled("service-a", "app"));
+        assertTrue(service.isEnabled("service-b", "app"));
+        assertTrue(service.isEnabled(DEFAULT_SERVICE, "app"));
+        assertTrue(service.isEnabled("service-a", "other"));
+        assertTrue(service.isDisabled(DEFAULT_SERVICE, "legacy"));
+        assertTrue(service.isEnabled("service-a", "legacy"));
     }
 
     @Test
     void disabledIfClashed() {
-        FeatureFlagService enabledFeature = new SimpleFeatureFlagService(true, List.of("app"), List.of("app"));
-        assertDisabled(enabledFeature, "app");
+        for (boolean defaultFlag : List.of(true, false)) {
+            FeatureFlagService service = new SimpleFeatureFlagService(defaultFlag,
+                    List.of(new FeatureFlagTarget("service-a", "app"), new FeatureFlagTarget("DEFAULT", "legacy")),
+                    List.of(new FeatureFlagTarget("service-a", "app"), new FeatureFlagTarget("DEFAULT", "legacy")));
+
+            assertTrue(service.isDisabled("service-a", "app"));
+            assertTrue(service.isDisabled(DEFAULT_SERVICE, "legacy"));
+        }
+    }
+
+    @Test
+    void applicationNamesAreLiteral() {
+        FeatureFlagService service = new SimpleFeatureFlagService(false,
+                List.of(new FeatureFlagTarget("service-a", "app^name"), new FeatureFlagTarget("service-a", "app\\name")), null);
+
+        assertTrue(service.isEnabled("service-a", "app^name"));
+        assertTrue(service.isEnabled("service-a", "app\\name"));
+        assertFalse(service.isEnabled("service-b", "app^name"));
     }
 }

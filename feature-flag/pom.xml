@@ -38,5 +38,9 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-mybatis</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-server</artifactId>
+        </dependency>
     </dependencies>
 </project>
