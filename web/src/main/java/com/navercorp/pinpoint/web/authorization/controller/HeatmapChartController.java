@@ -17,25 +17,29 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.heatmap.service.EmptyHeatmapService;
 import com.navercorp.pinpoint.web.heatmap.service.HeatmapChartService;
 import com.navercorp.pinpoint.web.heatmap.view.HeatMapDataView;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
-import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
-import com.navercorp.pinpoint.service.web.vo.ServiceName;
-import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
+import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -52,23 +56,39 @@ public class HeatmapChartController {
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, MAX_TIMESLOT_COUNT);
     private final HeatmapChartService heatmapChartService;
+    private final boolean agentTableEnabled;
+    // serve application heatmap from the agent table instead of the application table
+    private final boolean applicationUseAgentTable;
 
-    public HeatmapChartController(Optional<HeatmapChartService> heatmapChartService) {
+    public HeatmapChartController(Optional<HeatmapChartService> heatmapChartService,
+                                  @Value("${pinpoint.web.heatmap.agent.enabled:false}") boolean agentTableEnabled,
+                                  @Value("${pinpoint.web.heatmap.application.use-agent-table:false}") boolean applicationUseAgentTable) {
         this.heatmapChartService = heatmapChartService.orElseGet(EmptyHeatmapService::new);
+        this.agentTableEnabled = agentTableEnabled;
+        this.applicationUseAgentTable = applicationUseAgentTable;
         //TODO : (minwoo) need to set rangeValidator
     }
 
     @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
     @GetMapping(value = "/applicationData")
     public HeatMapDataView getHeatmapAppData(@ServiceParam ServiceName serviceName,
-                                  @RequestParam("applicationName") @NotBlank String applicationName,
-                                  @RequestParam("from") Timestamp from,
-                                  @RequestParam("to") Timestamp to,
-                                  @RequestParam("minElapsedTime") @PositiveOrZero int minElapsedTime,
-                                  @RequestParam("maxElapsedTime") @Positive int maxElapsedTime) {
+                                             @RequestParam("applicationName") @NotBlank String applicationName,
+                                             @RequestParam(value = "agentId", required = false) @NullOrNotBlank String agentId,
+                                             @RequestParam("from") Timestamp from,
+                                             @RequestParam("to") Timestamp to,
+                                             @RequestParam("minElapsedTime") @PositiveOrZero int minElapsedTime,
+                                             @RequestParam("maxElapsedTime") @Positive int maxElapsedTime) {
         Range range = Range.between(from, to);
         TimeWindow timeWindow = getTimeWindow(range);
-        HeatMapData heatMapData = heatmapChartService.getHeatmapAppData(serviceName.getName(), applicationName, timeWindow, minElapsedTime, maxElapsedTime);
+        HeatMapData heatMapData;
+        if (agentId != null || applicationUseAgentTable) {
+            if (!agentTableEnabled) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "agent level heatmap is disabled");
+            }
+            heatMapData = heatmapChartService.getHeatmapDataFromAgentTable(serviceName.getName(), applicationName, agentId, timeWindow, minElapsedTime, maxElapsedTime);
+        } else {
+            heatMapData = heatmapChartService.getHeatmapAppData(serviceName.getName(), applicationName, timeWindow, minElapsedTime, maxElapsedTime);
+        }
         return new HeatMapDataView(heatMapData);
     }
 
