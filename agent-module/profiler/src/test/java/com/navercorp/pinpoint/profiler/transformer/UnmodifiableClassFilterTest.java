@@ -31,6 +31,7 @@ public class UnmodifiableClassFilterTest {
 
         Assertions.assertSame(filter.accept(null, "java/test", null, null, null), ClassFileFilter.SKIP);
         Assertions.assertSame(filter.accept(null, "javax/test", null, null, null), ClassFileFilter.SKIP);
+        Assertions.assertSame(filter.accept(null, "jdk/test", null, null, null), ClassFileFilter.SKIP);
 
 
         Assertions.assertSame(filter.accept(null, "com/navercorp/pinpoint/", null, null, null), ClassFileFilter.CONTINUE);
