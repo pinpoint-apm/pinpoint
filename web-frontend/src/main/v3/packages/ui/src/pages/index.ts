@@ -1,6 +1,7 @@
 export * from './config';
 export * from './ErrorAnalysis';
 export * from './FilteredMap';
+export * from './Forbidden403';
 export * from './Inspector';
 export * from './NotFound404';
 export * from './OpenTelemetry';

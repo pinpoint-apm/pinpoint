@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import {
   getRequestService,
   useClearApplicationOnServiceChange,
+  useClearForbiddenOnPathChange,
   useEnableServiceMap,
   useExperimentals,
   useGetConfiguration,
@@ -54,6 +55,9 @@ export const InitialFetchOutlet = () => {
   // 그 변경에 따라 이전 service에서 고른 값들을 무효화한다. 순서가 이 방향이어야 한다.
   const { isUnknownServiceInPath } = useSyncSelectedServiceWithPath(enableServiceMap);
   useClearApplicationOnServiceChange(enableServiceMap);
+  // 권한 없음 판정은 그 화면을 떠날 때 버린다. 판정이 선 화면은 본문을 언마운트해 조회가
+  // 멈추므로, 남겨 두면 같은 URL로 다시 들어왔을 때 재조회 없이 그대로 막힌다.
+  useClearForbiddenOnPathChange();
   // 지금 보고 있는 화면이 설정에 따라 감춰진 화면이 되었는지. 값이 있으면 아래에서 옮긴다.
   const hiddenPageRedirect = useHiddenPageRedirect();
 

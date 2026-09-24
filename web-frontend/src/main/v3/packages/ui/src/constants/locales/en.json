@@ -7,6 +7,8 @@
     "REQUIRED": "{{requiredField}} is required.",
     "REQUIRED_SELECT": "Select {{requiredField}}",
     "DO_NOT_HAVE_PERMISSION": "Don't have permission.",
+    "FORBIDDEN_TITLE": "You are not authorized.",
+    "FORBIDDEN_DESCRIPTION": "Please ask your administrator for access.",
     "CONFIRM": "OK",
     "SUBMIT": "Submit",
     "UPDATE": "Update",

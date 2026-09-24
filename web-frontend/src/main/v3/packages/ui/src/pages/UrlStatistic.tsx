@@ -12,7 +12,12 @@ import {
 } from '../components';
 import { useNavigate } from 'react-router';
 import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/ui/src/utils';
-import { useConfiguration, useUrlStatSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useConfiguration,
+  useIsForbiddenPath,
+  useUrlStatSearchParameters,
+} from '@pinpoint-fe/ui/src/hooks';
+import { Forbidden403 } from './Forbidden403';
 import { useTranslation } from 'react-i18next';
 import { PiChartBarDuotone } from 'react-icons/pi';
 // import { ErrorBoundary } from '../../Error/ErrorBoundary';
@@ -42,6 +47,7 @@ export const UrlStatisticPage = ({
   const { searchParameters, application, agentId } = useUrlStatSearchParameters();
   const { t } = useTranslation();
   const [type, setType] = React.useState<TYPE>('total');
+  const isForbidden = useIsForbiddenPath();
 
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate }) => {
@@ -84,7 +90,11 @@ export const UrlStatisticPage = ({
           )}
         </div>
       </MainHeader>
-      {application && (
+      {/* 이 화면의 API 중 하나가 403을 받았다. **헤더는 남기고 본문만 바꾼다** — 본문을 언마운트해
+          남은 조회들도 함께 멈추고, 사용자는 위의 선택 박스로 다른 대상을 고를 수 있다.
+          (어느 화면이 이 판정에서 빠지는지는 `coversPageOnForbidden`. 이슈 #10744) */}
+      {isForbidden && <Forbidden403 />}
+      {!isForbidden && application && (
         <LayoutWithContentSidebar
           autoSaveId={APP_SETTING_KEYS.URL_STATISTIC_RESIZABLE}
           contentWrapperClassName="h-fit"
