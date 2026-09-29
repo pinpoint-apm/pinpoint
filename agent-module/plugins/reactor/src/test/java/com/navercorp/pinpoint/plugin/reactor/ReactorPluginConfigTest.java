@@ -33,24 +33,6 @@ public class ReactorPluginConfigTest {
     }
 
     @Test
-    public void publishOnPublisherWrapper_defaultsToFalse() {
-        ReactorPluginConfig config = createConfig(new Properties());
-
-        Assertions.assertFalse(config.isWrapPublisherPublishOn());
-    }
-
-    @Test
-    public void publishOnPublisherWrapper_on() {
-        Properties properties = new Properties();
-        properties.put("profiler.reactor.wrap.publisher.publishOn", "true");
-
-        ReactorPluginConfig config = createConfig(properties);
-
-        Assertions.assertTrue(config.isWrapPublisherPublishOn());
-        Assertions.assertTrue(config.isTracePublishOn());
-    }
-
-    @Test
     public void subscriberInstrument_off() {
         Properties properties = new Properties();
         properties.put("profiler.reactor.subscriber.instrument", "false");

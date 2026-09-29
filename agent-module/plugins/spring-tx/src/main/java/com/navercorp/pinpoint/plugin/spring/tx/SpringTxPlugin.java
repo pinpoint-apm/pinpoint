@@ -23,14 +23,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.spring.tx.interceptor.ReactiveTransactionSupportInterceptor;
 import com.navercorp.pinpoint.plugin.spring.tx.interceptor.TransactionAspectSupportInterceptor;
-import com.navercorp.pinpoint.plugin.spring.tx.interceptor.WrappingReactiveTransactionSupportInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -39,16 +37,6 @@ public class SpringTxPlugin implements ProfilerPlugin, MatchableTransformTemplat
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private MatchableTransformTemplate transformTemplate;
-
-    // profiler.spring.tx.wrap.publisher selects the wrapping variant, which hands the
-    // AsyncContext to a wrapped publisher instead of injecting it into the returned one.
-    static Class<? extends Interceptor> reactiveTransactionSupportInterceptor(Instrumentor instrumentor) {
-        final SpringTxConfig config = new SpringTxConfig(instrumentor.getProfilerConfig());
-        if (config.isWrapPublisher()) {
-            return WrappingReactiveTransactionSupportInterceptor.class;
-        }
-        return ReactiveTransactionSupportInterceptor.class;
-    }
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -92,7 +80,7 @@ public class SpringTxPlugin implements ProfilerPlugin, MatchableTransformTemplat
 
             final InstrumentMethod invokeWithinTransactionMethod = target.getDeclaredMethod("invokeWithinTransaction", "java.lang.reflect.Method", "java.lang.Class", "org.springframework.transaction.interceptor.TransactionAspectSupport$InvocationCallback", "org.springframework.transaction.interceptor.TransactionAttribute", "org.springframework.transaction.ReactiveTransactionManager");
             if (invokeWithinTransactionMethod != null) {
-                invokeWithinTransactionMethod.addInterceptor(reactiveTransactionSupportInterceptor(instrumentor));
+                invokeWithinTransactionMethod.addInterceptor(ReactiveTransactionSupportInterceptor.class);
             }
 
             return target.toBytecode();

@@ -50,42 +50,12 @@ public class ReactorPluginSetupTest {
     }
 
     @Test
-    public void publishOnUsesLegacyTransformByDefault() {
+    public void fluxAndMonoTransformsAreRegistered() {
         setup(new Properties());
 
         verify(transformTemplate).transform("reactor.core.publisher.Flux", ReactorPlugin.FluxMethodTransform.class);
         verify(transformTemplate).transform("reactor.core.publisher.Mono", ReactorPlugin.MonoMethodTransform.class);
-        verify(transformTemplate, never()).transform("reactor.core.publisher.Flux", ReactorPlugin.FluxPublishOnSeamMethodTransform.class);
-        verify(transformTemplate, never()).transform("reactor.core.publisher.Mono", ReactorPlugin.MonoPublishOnSeamMethodTransform.class);
-    }
-
-    @Test
-    public void publishOnSeamReplacesOnlyFluxAndMonoBaseTransforms() {
-        Properties properties = new Properties();
-        properties.put("profiler.reactor.wrap.publisher.publishOn", "true");
-
-        setup(properties);
-
-        verify(transformTemplate).transform("reactor.core.publisher.Flux", ReactorPlugin.FluxPublishOnSeamMethodTransform.class);
-        verify(transformTemplate).transform("reactor.core.publisher.Mono", ReactorPlugin.MonoPublishOnSeamMethodTransform.class);
-        verify(transformTemplate, never()).transform("reactor.core.publisher.Flux", ReactorPlugin.FluxMethodTransform.class);
-        verify(transformTemplate, never()).transform("reactor.core.publisher.Mono", ReactorPlugin.MonoMethodTransform.class);
-        // ParallelFlux.runOn remains on the legacy path during the publishOn-only PoC.
         verify(transformTemplate).transform("reactor.core.publisher.ParallelFlux", ReactorPlugin.ParallelFluxMethodTransform.class);
-    }
-
-    @Test
-    public void publishOnSeamDoesNotOverrideTracePublishOnOff() {
-        Properties properties = new Properties();
-        properties.put("profiler.reactor.wrap.publisher.publishOn", "true");
-        properties.put("profiler.reactor.trace.publishOn", "false");
-
-        setup(properties);
-
-        verify(transformTemplate).transform("reactor.core.publisher.Flux", ReactorPlugin.FluxMethodTransform.class);
-        verify(transformTemplate).transform("reactor.core.publisher.Mono", ReactorPlugin.MonoMethodTransform.class);
-        verify(transformTemplate, never()).transform("reactor.core.publisher.Flux", ReactorPlugin.FluxPublishOnSeamMethodTransform.class);
-        verify(transformTemplate, never()).transform("reactor.core.publisher.Mono", ReactorPlugin.MonoPublishOnSeamMethodTransform.class);
     }
 
     @Test
