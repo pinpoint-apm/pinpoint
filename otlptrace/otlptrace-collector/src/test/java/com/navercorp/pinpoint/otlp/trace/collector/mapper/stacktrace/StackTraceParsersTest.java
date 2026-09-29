@@ -120,6 +120,36 @@ class StackTraceParsersTest {
     }
 
     @Test
+    void v8LocationShapes() {
+        // accepted: "<file>:<line>:<col>", the file part may carry its own colons
+        assertThat(sep("/app/index.js:10:5")).isEqualTo(13);
+        assertThat(sep("C:\\app\\index.js:10:5")).isEqualTo(15);
+        assertThat(sep("node:internal/process/task_queues:95:5")).isEqualTo(33);
+        assertThat(sep("a:1:2")).isEqualTo(1);
+
+        // rejected: no location tail, missing file, non-digit line or column, trailing junk
+        assertThat(sep("<anonymous>")).isEqualTo(-1);
+        assertThat(sep("native")).isEqualTo(-1);
+        assertThat(sep("/app/index.js:10")).isEqualTo(-1);
+        assertThat(sep(":10:5")).isEqualTo(-1);
+        assertThat(sep("/app/index.js:1a:5")).isEqualTo(-1);
+        assertThat(sep("/app/index.js:10:5x")).isEqualTo(-1);
+        assertThat(sep("/app/index.js::5")).isEqualTo(-1);
+        assertThat(sep("/app/index.js:10:")).isEqualTo(-1);
+        assertThat(sep("Foo.java:42")).isEqualTo(-1);
+        assertThat(sep("Native Method")).isEqualTo(-1);
+        assertThat(sep("")).isEqualTo(-1);
+    }
+
+    private static int sep(String inner) {
+        // the parenthesized group is scanned in place, so wrap it like a real frame does
+        final String line = "at f (" + inner + ")";
+        final int from = line.indexOf('(') + 1;
+        final int separator = V8Location.separator(line, from, line.length() - 1);
+        return separator < 0 ? -1 : separator - from;
+    }
+
+    @Test
     void node_selectedBySniffing_notMistakenForJava() {
         // V8 frames also start with "at ", but the :line:col tail must route to the node parser.
         assertThat(registry.select(null, NODE_STACK).name()).isEqualTo("node");
@@ -183,26 +213,6 @@ class StackTraceParsersTest {
     @Test
     void dotnet_selectedBySniffingViaInLineMarker() {
         assertThat(registry.select(null, DOTNET_STACK).name()).isEqualTo("dotnet");
-    }
-
-    @Test
-    void java_v8LocationTailDetection() {
-        // "(file:line:col)" is the V8 shape the JVM sniffer must reject
-        assertThat(tail("/app/index.js:10:5")).isTrue();
-        assertThat(tail("C:\\app\\index.js:10:5")).isTrue();
-        assertThat(tail(":1:2")).isTrue();
-
-        assertThat(tail("Foo.java:42")).isFalse();
-        assertThat(tail("Native Method")).isFalse();
-        assertThat(tail("Foo.java:42:")).isFalse();
-        assertThat(tail("Foo.java:4a:2")).isFalse();
-        assertThat(tail("Foo.java:42:5x")).isFalse();
-        assertThat(tail("")).isFalse();
-    }
-
-    private static boolean tail(String fileInfo) {
-        final String element = "(" + fileInfo + ")";
-        return JavaStackTraceParser.isV8LocationTail(element, 1, element.length() - 1);
     }
 
     // =======================================================================

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper.stacktrace;
 
-import java.util.regex.Pattern;
-
 /**
  * Java/JVM {@code Throwable.printStackTrace} format:
  * <pre>{@code at com.example.Service.handle(Service.java:42)}</pre>
@@ -30,8 +28,6 @@ import java.util.regex.Pattern;
 public class JavaStackTraceParser implements StackTraceParser {
 
     private static final String AT = "at ";
-    // "file:line:col" is the V8/Node location tail; a JVM frame never carries a column
-    private static final Pattern V8_LOCATION_TAIL = Pattern.compile(".*:\\d+:\\d+$");
 
     @Override
     public String name() {
@@ -50,20 +46,13 @@ public class JavaStackTraceParser implements StackTraceParser {
             if (parenOpen < 0 || parenClose <= parenOpen) {
                 return false;
             }
-            if (isV8LocationTail(line, parenOpen + 1, parenClose)) {
+            if (V8Location.isLocation(line, parenOpen + 1, parenClose)) {
                 return false;
             }
             // a '.' inside the method signature, i.e. after "at " and before the '('
             return line.lastIndexOf('.', parenOpen - 1) > AT.length();
         }
         return false;
-    }
-
-    /**
-     * @return whether {@code line[from..to)} is a {@code file:line:col} location, matched in place
-     */
-    static boolean isV8LocationTail(String line, int from, int to) {
-        return V8_LOCATION_TAIL.matcher(line).region(from, to).matches();
     }
 
     @Override
