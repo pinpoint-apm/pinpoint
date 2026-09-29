@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper.stacktrace;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ import java.util.Map;
 public final class StackTraceParserRegistry {
 
     private final Map<String, StackTraceParser> byLanguage;
-    private final List<StackTraceParser> sniffOrder;
+    private final StackTraceParser[] sniffOrder;
     private final StackTraceParser rawFallback = new RawStackTraceParser();
 
     public StackTraceParserRegistry() {
@@ -55,7 +54,7 @@ public final class StackTraceParserRegistry {
                 "dotnet", dotNet,
                 "go", go
         );
-        this.sniffOrder = List.of(python, go, dotNet, node, java);
+        this.sniffOrder = new StackTraceParser[]{python, go, dotNet, node, java};
     }
 
     /**
