@@ -56,23 +56,26 @@ public class GoStackTraceParser implements StackTraceParser {
 
     @Override
     public void parse(String stackTrace, StackFrameSink sink) {
-        final String[] lines = stackTrace.split("\n");
-        for (int i = 0; i < lines.length - 1; i++) {
-            final String funcLine = lines[i].trim();
-            if (funcLine.isEmpty() || GOROUTINE_HEADER.matcher(funcLine).matches()) {
+        // A frame is a "function line" followed by its "file:line" location; the function line is
+        // held until the next line tells whether it completes the pair.
+        String funcLine = null;
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            if (GOROUTINE_HEADER.matcher(line).matches()) {
+                funcLine = null;
                 continue;
             }
-            final String location = lines[i + 1].trim();
-            final Matcher fileLine = FILE_LINE.matcher(location);
-            if (!fileLine.matches()) {
-                continue;
+            if (funcLine != null) {
+                final Matcher fileLine = FILE_LINE.matcher(line);
+                if (fileLine.matches()) {
+                    final StackFrame frame = frame(funcLine, fileLine.group(1), LineNumbers.parseLineNumber(line, fileLine, 2));
+                    if (frame != null && !sink.add(frame)) {
+                        return;
+                    }
+                    funcLine = null;
+                    continue;
+                }
             }
-
-            final StackFrame frame = frame(funcLine, fileLine.group(1), LineNumbers.parseLineNumber(location, fileLine, 2));
-            if (frame != null && !sink.add(frame)) {
-                return;
-            }
-            i++; // consume the file line of this pair
+            funcLine = line;
         }
     }
 
@@ -102,4 +105,5 @@ public class GoStackTraceParser implements StackTraceParser {
         }
         return new StackFrame(className, fileName, lineNumber, methodName);
     }
+
 }
