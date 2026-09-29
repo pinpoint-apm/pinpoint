@@ -36,8 +36,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.BlockStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceBlockAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import org.apache.logging.log4j.LogManager;
@@ -87,9 +85,7 @@ public class InterceptorDefinitionFactory {
         addTypeHandler(typeHandlerList, StaticAroundInterceptor.class, InterceptorType.STATIC);
         addTypeHandler(typeHandlerList, ApiIdAwareAroundInterceptor.class, InterceptorType.API_ID_AWARE);
         addTypeHandler(typeHandlerList, InjectedAsyncContextApiIdAwareAroundInterceptor.class, InterceptorType.ASYNC_CONTEXT_API_ID_AWARE);
-        addTypeHandler(typeHandlerList, ResultReplaceAroundInterceptor.class, InterceptorType.RESULT_REPLACE);
         // block variant: before() returning TraceBlock switches the capture type to BLOCK_AROUND.
-        addTypeHandler(typeHandlerList, ResultReplaceBlockAroundInterceptor.class, InterceptorType.RESULT_REPLACE);
         // block
         addTypeHandler(typeHandlerList, BlockAroundInterceptor.class, InterceptorType.ARRAY_ARGS);
         addTypeHandler(typeHandlerList, BlockAroundInterceptor0.class, InterceptorType.BASIC);
@@ -188,11 +184,6 @@ public class InterceptorDefinitionFactory {
                 throw new RuntimeException(after + " method not found. " + Arrays.toString(afterParamList));
             }
             final boolean afterIgnoreMethod = afterMethod.isAnnotationPresent(IgnoreMethod.class);
-
-            if (interceptorType == InterceptorType.RESULT_REPLACE && afterMethod.getReturnType() != Object.class) {
-                // a covariant override would change the weaved call descriptor and break the INVOKEINTERFACE site.
-                throw new RuntimeException(after + " must return java.lang.Object. " + targetInterceptorClazz.getName());
-            }
 
             if (beforeIgnoreMethod && afterIgnoreMethod) {
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.NON, null, null);

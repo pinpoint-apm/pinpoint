@@ -195,42 +195,6 @@ class AsyncContextSpanEventBlockInterceptorAfterWithoutContextTest {
         verify(asyncContext, never()).close();
     }
 
-    // ---- ResultReplace ------------------------------------------------------------------------
-
-    @Test
-    void resultReplace_afterWithoutContext_closesTheBlockAndReturnsTheOriginalResult() {
-        ResultReplaceStub interceptor = new ResultReplaceStub(traceContext, methodDescriptor, asyncContext, null);
-        Object result = new Object();
-
-        TraceBlock block = interceptor.before(target, Object.class, ARGS);
-        assertThat(block).isSameAs(traceBlock);
-        Object returned = interceptor.after(block, target, Object.class, ARGS, result, null);
-
-        assertThat(returned).isSameAs(result);
-        verify(traceScope).leave();
-        verify(traceBlock).close();
-        assertThat(interceptor.afterHooks.get()).isZero();
-        assertThat(interceptor.replaces.get()).as("replaceResult is a context-bound hook too").isZero();
-        verify(asyncContext, never()).close();
-    }
-
-    @Test
-    void resultReplace_withContext_replacesTheResult() {
-        when(traceScope.isActive()).thenReturn(false);
-        ResultReplaceStub interceptor = new ResultReplaceStub(traceContext, methodDescriptor, asyncContext, asyncContext);
-        Object result = new Object();
-
-        TraceBlock block = interceptor.before(target, Object.class, ARGS);
-        Object returned = interceptor.after(block, target, Object.class, ARGS, result, null);
-
-        assertThat(returned).as("replaceResult runs when the context is present").isNotSameAs(result);
-        assertThat(interceptor.replaces.get()).isEqualTo(1);
-        assertThat(interceptor.afterHooks.get()).isEqualTo(1);
-        verify(traceBlock).close();
-        verify(trace).close();
-        verify(asyncContext).close();
-    }
-
     // ---- stubs: before sees beforeContext, after sees afterContext ---------------------------
 
     static class ApiIdAwareStub extends AsyncContextSpanEventBlockApiIdAwareAroundInterceptor {
@@ -299,44 +263,6 @@ class AsyncContextSpanEventBlockInterceptorAfterWithoutContextTest {
         @Override
         protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
             afterHooks.incrementAndGet();
-        }
-    }
-
-    static class ResultReplaceStub extends AsyncContextSpanEventResultReplaceBlockSimpleAroundInterceptor {
-        final AtomicInteger afterHooks = new AtomicInteger();
-        final AtomicInteger replaces = new AtomicInteger();
-        private final AsyncContext beforeContext;
-        private final AsyncContext afterContext;
-
-        ResultReplaceStub(TraceContext traceContext, MethodDescriptor methodDescriptor, AsyncContext beforeContext, AsyncContext afterContext) {
-            super(traceContext, methodDescriptor, true);
-            this.beforeContext = beforeContext;
-            this.afterContext = afterContext;
-        }
-
-        @Override
-        protected AsyncContext getAsyncContext(Object target, Object[] args) {
-            return beforeContext;
-        }
-
-        @Override
-        protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-            return afterContext;
-        }
-
-        @Override
-        protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        }
-
-        @Override
-        protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-            afterHooks.incrementAndGet();
-        }
-
-        @Override
-        protected Object replaceResult(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-            replaces.incrementAndGet();
-            return new Object();
         }
     }
 }

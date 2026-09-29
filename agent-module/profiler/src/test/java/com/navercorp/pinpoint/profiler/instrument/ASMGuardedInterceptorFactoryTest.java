@@ -30,8 +30,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BlockStaticAroundInterceptor
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceBlockAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
@@ -140,87 +138,6 @@ public class ASMGuardedInterceptorFactoryTest {
         assertThat(delegate.beforeApiId).isEqualTo(42);
         assertThat(delegate.afterResult).isEqualTo("r");
         assertThat(handled).isEmpty();
-    }
-
-    @Test
-    public void resultReplaceAfterPassesThroughReplacedResult() {
-        ReplacingResultInterceptor delegate = new ReplacingResultInterceptor();
-        Interceptor wrapped = factory.wrap(delegate, guard);
-
-        assertThat(wrapped).isNotNull().isInstanceOf(ResultReplaceAroundInterceptor.class);
-        assertThat(wrapped.getClass().getName()).contains("GuardedInterceptor$$");
-
-        Object[] args = {"a"};
-        ((ResultReplaceAroundInterceptor) wrapped).before("t", String.class, args);
-        Object replaced = ((ResultReplaceAroundInterceptor) wrapped).after("t", String.class, args, "original", null);
-
-        assertThat(replaced).isSameAs(delegate.replacement);
-        assertThat(delegate.afterResult).isEqualTo("original");
-        assertThat(handled).isEmpty();
-    }
-
-    @Test
-    public void resultReplaceAfterReturnsOriginalResultWhenDelegateThrows() {
-        Interceptor wrapped = factory.wrap(new ThrowingResultReplaceInterceptor(), guard);
-
-        assertThat(wrapped).isNotNull();
-        Object original = new Object();
-        Object returned = ((ResultReplaceAroundInterceptor) wrapped).after("t", Object.class, null, original, null);
-
-        // the shared ExceptionHandleResultReplaceAroundInterceptor returns the result it was given, so
-        // the woven method still returns its own value
-        assertThat(returned).isSameAs(original);
-        assertThat(handled).hasSize(1);
-        assertThat(handled.get(0)).hasMessage("boom-after");
-    }
-
-    @Test
-    public void resultReplaceBlockPassesThroughBlockAndReplacedResult() {
-        ReplacingResultBlockInterceptor delegate = new ReplacingResultBlockInterceptor();
-        Interceptor wrapped = factory.wrap(delegate, guard);
-
-        assertThat(wrapped).isNotNull().isInstanceOf(ResultReplaceBlockAroundInterceptor.class);
-
-        Object[] args = {"a"};
-        TraceBlock block = ((ResultReplaceBlockAroundInterceptor) wrapped).before("t", String.class, args);
-        Object replaced = ((ResultReplaceBlockAroundInterceptor) wrapped).after(block, "t", String.class, args, "original", null);
-
-        assertThat(block).isSameAs(delegate.block);
-        assertThat(delegate.afterBlock).isSameAs(delegate.block);
-        assertThat(replaced).isSameAs(delegate.replacement);
-        assertThat(handled).isEmpty();
-    }
-
-    @Test
-    public void resultReplaceBlockFallsBackToNullBlockAndOriginalResultWhenDelegateThrows() {
-        Interceptor wrapped = factory.wrap(new ThrowingResultReplaceBlockInterceptor(), guard);
-
-        assertThat(wrapped).isNotNull();
-        TraceBlock block = ((ResultReplaceBlockAroundInterceptor) wrapped).before("t", Object.class, null);
-        Object original = new Object();
-        Object returned = ((ResultReplaceBlockAroundInterceptor) wrapped).after(mock(TraceBlock.class), "t", Object.class, null, original, null);
-
-        assertThat(block).isNull();
-        assertThat(returned).isSameAs(original);
-        assertThat(handled).hasSize(2);
-        assertThat(handled.get(0)).hasMessage("boom-before");
-        assertThat(handled.get(1)).hasMessage("boom-after");
-    }
-
-    /**
-     * The rules return the {@code result} argument by index (3 for ResultReplace, 4 for the Block
-     * variant); this pins the parameter lists those indexes were read from.
-     */
-    @Test
-    public void resultReplaceShapesKeepResultAtTheRegisteredIndex() throws Exception {
-        Method after = ResultReplaceAroundInterceptor.class.getMethod("after", Object.class, Class.class, Object[].class, Object.class, Throwable.class);
-        assertThat(after.getReturnType()).isEqualTo(Object.class);
-        assertThat(after.getParameterTypes()[3]).isEqualTo(Object.class);
-
-        Method blockAfter = ResultReplaceBlockAroundInterceptor.class.getMethod("after", TraceBlock.class, Object.class, Class.class, Object[].class, Object.class, Throwable.class);
-        assertThat(blockAfter.getReturnType()).isEqualTo(Object.class);
-        assertThat(blockAfter.getParameterTypes()[4]).isEqualTo(Object.class);
-        assertThat(ResultReplaceBlockAroundInterceptor.class.getMethod("before", Object.class, Class.class, Object[].class).getReturnType()).isEqualTo(TraceBlock.class);
     }
 
     @Test
@@ -431,29 +348,6 @@ public class ASMGuardedInterceptorFactoryTest {
     }
 
     @Test
-    public void scopedResultReplaceBlockLeavesInFinallyAndReturnsOriginalResultWhenDelegateThrows() {
-        InterceptorScope scope = mock(InterceptorScope.class);
-        InterceptorScopeInvocation invocation = mock(InterceptorScopeInvocation.class);
-        when(scope.getCurrentInvocation()).thenReturn(invocation);
-        when(invocation.tryEnter(ExecutionPolicy.ALWAYS)).thenReturn(true);
-        when(invocation.canLeave(ExecutionPolicy.ALWAYS)).thenReturn(true);
-
-        Interceptor wrapped = factory.wrapScoped(new ThrowingResultReplaceBlockInterceptor(), scope, ExecutionPolicy.ALWAYS, guard);
-
-        assertThat(wrapped).isNotNull().isInstanceOf(ResultReplaceBlockAroundInterceptor.class);
-        assertThat(wrapped.getClass().getName()).contains("GuardedScopedInterceptor$$");
-
-        Object original = new Object();
-        TraceBlock block = ((ResultReplaceBlockAroundInterceptor) wrapped).before("t", Object.class, null);
-        Object returned = ((ResultReplaceBlockAroundInterceptor) wrapped).after(block, "t", Object.class, null, original, null);
-
-        assertThat(block).isNull();
-        assertThat(returned).isSameAs(original);
-        assertThat(handled).hasSize(2);
-        verify(invocation).leave(ExecutionPolicy.ALWAYS);
-    }
-
-    @Test
     public void scopedBlockDelegatesInsideScopeAndLeavesInFinally() {
         InterceptorScope scope = mock(InterceptorScope.class);
         InterceptorScopeInvocation invocation = mock(InterceptorScopeInvocation.class);
@@ -542,62 +436,6 @@ public class ASMGuardedInterceptorFactoryTest {
         @Override
         public void after(Object target, AsyncContext asyncContext, int apiId, Object[] args, Object result, Throwable throwable) {
             this.afterResult = result;
-        }
-    }
-
-    public static class ReplacingResultInterceptor implements ResultReplaceAroundInterceptor {
-        final Object replacement = new Object();
-        Object afterResult;
-
-        @Override
-        public void before(Object target, Class<?> returnType, Object[] args) {
-        }
-
-        @Override
-        public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-            this.afterResult = result;
-            return replacement;
-        }
-    }
-
-    public static class ThrowingResultReplaceInterceptor implements ResultReplaceAroundInterceptor {
-        @Override
-        public void before(Object target, Class<?> returnType, Object[] args) {
-            throw new IllegalStateException("boom-before");
-        }
-
-        @Override
-        public Object after(Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-            throw new IllegalStateException("boom-after");
-        }
-    }
-
-    public static class ReplacingResultBlockInterceptor implements ResultReplaceBlockAroundInterceptor {
-        final TraceBlock block = mock(TraceBlock.class);
-        final Object replacement = new Object();
-        TraceBlock afterBlock;
-
-        @Override
-        public TraceBlock before(Object target, Class<?> returnType, Object[] args) {
-            return block;
-        }
-
-        @Override
-        public Object after(TraceBlock block, Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-            this.afterBlock = block;
-            return replacement;
-        }
-    }
-
-    public static class ThrowingResultReplaceBlockInterceptor implements ResultReplaceBlockAroundInterceptor {
-        @Override
-        public TraceBlock before(Object target, Class<?> returnType, Object[] args) {
-            throw new IllegalStateException("boom-before");
-        }
-
-        @Override
-        public Object after(TraceBlock block, Object target, Class<?> returnType, Object[] args, Object result, Throwable throwable) {
-            throw new IllegalStateException("boom-after");
         }
     }
 
