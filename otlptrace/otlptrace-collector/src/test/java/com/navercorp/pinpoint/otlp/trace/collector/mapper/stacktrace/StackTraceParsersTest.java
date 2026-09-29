@@ -185,6 +185,26 @@ class StackTraceParsersTest {
         assertThat(registry.select(null, DOTNET_STACK).name()).isEqualTo("dotnet");
     }
 
+    @Test
+    void java_v8LocationTailDetection() {
+        // "(file:line:col)" is the V8 shape the JVM sniffer must reject
+        assertThat(tail("/app/index.js:10:5")).isTrue();
+        assertThat(tail("C:\\app\\index.js:10:5")).isTrue();
+        assertThat(tail(":1:2")).isTrue();
+
+        assertThat(tail("Foo.java:42")).isFalse();
+        assertThat(tail("Native Method")).isFalse();
+        assertThat(tail("Foo.java:42:")).isFalse();
+        assertThat(tail("Foo.java:4a:2")).isFalse();
+        assertThat(tail("Foo.java:42:5x")).isFalse();
+        assertThat(tail("")).isFalse();
+    }
+
+    private static boolean tail(String fileInfo) {
+        final String element = "(" + fileInfo + ")";
+        return JavaStackTraceParser.isV8LocationTail(element, 1, element.length() - 1);
+    }
+
     // =======================================================================
     // Go
     // =======================================================================

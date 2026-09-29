@@ -46,12 +46,8 @@ public class GoStackTraceParser implements StackTraceParser {
 
     @Override
     public boolean matches(String stackTrace) {
-        for (String line : stackTrace.split("\n")) {
-            final String trimmed = line.trim();
-            if (trimmed.isEmpty()) {
-                continue;
-            }
-            if (GOROUTINE_HEADER.matcher(trimmed).matches() || FILE_LINE.matcher(trimmed).matches()) {
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            if (GOROUTINE_HEADER.matcher(line).matches() || FILE_LINE.matcher(line).matches()) {
                 return true;
             }
         }

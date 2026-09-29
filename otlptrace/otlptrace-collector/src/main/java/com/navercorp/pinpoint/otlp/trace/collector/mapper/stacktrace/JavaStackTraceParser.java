@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper.stacktrace;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
+import java.util.regex.Pattern;
 
 /**
  * Java/JVM {@code Throwable.printStackTrace} format:
@@ -29,6 +29,10 @@ import com.navercorp.pinpoint.common.util.StringUtils;
  */
 public class JavaStackTraceParser implements StackTraceParser {
 
+    private static final String AT = "at ";
+    // "file:line:col" is the V8/Node location tail; a JVM frame never carries a column
+    private static final Pattern V8_LOCATION_TAIL = Pattern.compile(".*:\\d+:\\d+$");
+
     @Override
     public String name() {
         return "java";
@@ -36,77 +40,82 @@ public class JavaStackTraceParser implements StackTraceParser {
 
     @Override
     public boolean matches(String stackTrace) {
-        for (String line : stackTrace.split("\n")) {
-            final String trimmed = line.trim();
-            if (!trimmed.startsWith("at ")) {
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            if (!line.startsWith(AT)) {
                 continue;
             }
             // A JVM frame's parens hold file info, never "file:line:col" (that tail is V8/Node).
-            final String element = trimmed.substring(3);
-            final int parenOpen = element.lastIndexOf('(');
-            final int parenClose = element.lastIndexOf(')');
+            final int parenOpen = line.lastIndexOf('(');
+            final int parenClose = line.lastIndexOf(')');
             if (parenOpen < 0 || parenClose <= parenOpen) {
                 return false;
             }
-            final String fileInfo = element.substring(parenOpen + 1, parenClose);
-            if (fileInfo.matches(".*:\\d+:\\d+$")) {
+            if (isV8LocationTail(line, parenOpen + 1, parenClose)) {
                 return false;
             }
-            return element.substring(0, parenOpen).lastIndexOf('.') > 0;
+            // a '.' inside the method signature, i.e. after "at " and before the '('
+            return line.lastIndexOf('.', parenOpen - 1) > AT.length();
         }
         return false;
     }
 
+    /**
+     * @return whether {@code line[from..to)} is a {@code file:line:col} location, matched in place
+     */
+    static boolean isV8LocationTail(String line, int from, int to) {
+        return V8_LOCATION_TAIL.matcher(line).region(from, to).matches();
+    }
+
     @Override
     public void parse(String stackTrace, StackFrameSink sink) {
-        for (String line : stackTrace.split("\n")) {
-            final String trimmed = line.trim();
-            if (!trimmed.startsWith("at ")) {
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            if (!line.startsWith(AT)) {
                 continue;
             }
 
-            final String element = trimmed.substring(3);
-            final int parenOpen = element.lastIndexOf('(');
-            final int parenClose = element.lastIndexOf(')');
+            final int parenOpen = line.lastIndexOf('(');
+            final int parenClose = line.lastIndexOf(')');
             if (parenOpen < 0 || parenClose <= parenOpen) {
                 continue;
             }
 
-            final String methodSignature = element.substring(0, parenOpen);
-            final String fileInfo = element.substring(parenOpen + 1, parenClose);
-
-            final int lastDot = methodSignature.lastIndexOf('.');
-            if (lastDot < 0) {
+            // "at <className>.<methodName>(" — both parts must be non-empty
+            final int lastDot = line.lastIndexOf('.', parenOpen - 1);
+            if (lastDot <= AT.length() || lastDot + 1 >= parenOpen) {
                 continue;
             }
+            final String className = line.substring(AT.length(), lastDot);
+            final String methodName = line.substring(lastDot + 1, parenOpen);
 
-            final String className = methodSignature.substring(0, lastDot);
-            final String methodName = methodSignature.substring(lastDot + 1);
-            if (!StringUtils.hasLength(className) || !StringUtils.hasLength(methodName)) {
-                continue;
-            }
-
+            // "(<fileName>:<lineNumber>)" or "(<fileName>)"
+            final int fileStart = parenOpen + 1;
+            final int colon = line.lastIndexOf(':', parenClose - 1);
             final String fileName;
             final int lineNumber;
-            final int colonIdx = fileInfo.lastIndexOf(':');
-            if (colonIdx >= 0) {
-                fileName = fileInfo.substring(0, colonIdx);
-                int parsed;
-                try {
-                    parsed = Integer.parseInt(fileInfo.substring(colonIdx + 1));
-                } catch (NumberFormatException e) {
-                    // malformed line token (e.g. "Foo.java:??") -> unknown, per the StackFrame contract
-                    parsed = -1;
-                }
-                lineNumber = parsed;
+            if (colon >= fileStart) {
+                fileName = line.substring(fileStart, colon);
+                lineNumber = parseInt(line, colon + 1, parenClose);
             } else {
-                fileName = fileInfo;
-                lineNumber = "Native Method".equals(fileInfo) ? -2 : -1;
+                fileName = line.substring(fileStart, parenClose);
+                lineNumber = "Native Method".equals(fileName) ? -2 : -1;
             }
 
             if (!sink.add(new StackFrame(className, fileName, lineNumber, methodName))) {
                 return;
             }
+        }
+    }
+
+    /**
+     * Parses {@code value[from..to)} in place, without a substring.
+     *
+     * @return the number, or -1 for a malformed line token (e.g. "Foo.java:??"), per the StackFrame contract
+     */
+    private static int parseInt(String value, int from, int to) {
+        try {
+            return Integer.parseInt(value, from, to, 10);
+        } catch (NumberFormatException e) {
+            return -1;
         }
     }
 }

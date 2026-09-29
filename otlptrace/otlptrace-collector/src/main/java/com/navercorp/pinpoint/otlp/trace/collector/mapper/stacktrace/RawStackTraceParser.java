@@ -46,12 +46,8 @@ public class RawStackTraceParser implements StackTraceParser {
 
     @Override
     public void parse(String stackTrace, StackFrameSink sink) {
-        for (String line : stackTrace.split("\n")) {
-            final String trimmed = line.trim();
-            if (trimmed.isEmpty()) {
-                continue;
-            }
-            final String scrubbed = HEX_ADDRESS.matcher(trimmed).replaceAll("0x?");
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            final String scrubbed = HEX_ADDRESS.matcher(line).replaceAll("0x?");
             if (!sink.add(new StackFrame(scrubbed, "", -1, UNKNOWN_METHOD))) {
                 return;
             }
