@@ -76,7 +76,7 @@ public class PythonStackTraceParser implements StackTraceParser {
             }
 
             final String fileName = matcher.group(1);
-            final int lineNumber = parseInt(matcher.group(2));
+            final int lineNumber = LineNumbers.parseLineNumber(line, matcher, 2);
             final String function = matcher.group(3);
             final String methodName = StringUtils.hasLength(function) ? function : MODULE;
             outermostFirst.add(new StackFrame(moduleName(fileName), fileName, lineNumber, methodName));
@@ -97,13 +97,5 @@ public class PythonStackTraceParser implements StackTraceParser {
             base = base.substring(0, base.length() - 3);
         }
         return StringUtils.hasLength(base) ? base : MODULE;
-    }
-
-    private static int parseInt(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
     }
 }

@@ -62,12 +62,13 @@ public class GoStackTraceParser implements StackTraceParser {
             if (funcLine.isEmpty() || GOROUTINE_HEADER.matcher(funcLine).matches()) {
                 continue;
             }
-            final Matcher fileLine = FILE_LINE.matcher(lines[i + 1].trim());
+            final String location = lines[i + 1].trim();
+            final Matcher fileLine = FILE_LINE.matcher(location);
             if (!fileLine.matches()) {
                 continue;
             }
 
-            final StackFrame frame = frame(funcLine, fileLine.group(1), parseInt(fileLine.group(2)));
+            final StackFrame frame = frame(funcLine, fileLine.group(1), LineNumbers.parseLineNumber(location, fileLine, 2));
             if (frame != null && !sink.add(frame)) {
                 return;
             }
@@ -100,13 +101,5 @@ public class GoStackTraceParser implements StackTraceParser {
             return null;
         }
         return new StackFrame(className, fileName, lineNumber, methodName);
-    }
-
-    private static int parseInt(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
     }
 }

@@ -77,19 +77,11 @@ public class DotNetStackTraceParser implements StackTraceParser {
             }
 
             final String fileName = matcher.group(3) != null ? matcher.group(3) : "";
-            final int lineNumber = matcher.group(4) != null ? parseInt(matcher.group(4)) : -1;
+            final int lineNumber = LineNumbers.parseLineNumber(line, matcher, 4);
 
             if (!sink.add(new StackFrame(className, fileName, lineNumber, methodName))) {
                 return;
             }
-        }
-    }
-
-    private static int parseInt(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return -1;
         }
     }
 }
