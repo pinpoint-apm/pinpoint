@@ -40,9 +40,6 @@ profiler.reactor.trace.scheduler.task=false
 profiler.reactor.trace.scheduler.task.periodic=false
 # Instrument the generic per-operator CoreSubscriber layer. See Lightweight mode below.
 profiler.reactor.subscriber.instrument=true
-# publishOn-only seam wrapper: replace the legacy publisher field injection on publishOn results
-# with a wrapping subscriber. Parked after its cost/benefit measurement - see the note below.
-profiler.reactor.wrap.publisher.publishOn=false
 ~~~
 
 ### Trace
@@ -147,16 +144,6 @@ JAR, and the `BoundedElasticThreadPerTaskScheduler` on the Java 8 class path is 
 methods all throw `UnsupportedOperationException`. The real implementation, and the nested
 `SchedulerTask` that Pinpoint instruments, live under `META-INF/versions/21`. Reading only the
 base entry makes the scheduler look uninstrumented when it is not.
-
-### publishOn seam wrapper (parked)
-
-`profiler.reactor.wrap.publisher.publishOn=true` replaces the legacy field injection on
-`publishOn` results with a wrapping subscriber that delivers every signal inside a trace window.
-The experiment is parked: an A/B on a response-coupled 1000-element publishOn chain measured a
-consistent 2-3% throughput cost from the per-signal window and the fusion suppression the
-wrapper requires, cancelling the relay-removal gain it was meant to earn. The gate stays off by
-default and its propagation IT (`ReactorPublishOnSeam_IT`) is disabled; both carry pointers to
-the measurement record.
 
 ### TODO
 

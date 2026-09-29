@@ -40,10 +40,6 @@ public class ReactorPluginConfig {
         return config.readBoolean("profiler.reactor.trace.publishOn", true);
     }
 
-    public static boolean isWrapPublisherPublishOn(ProfilerConfig config) {
-        return config.readBoolean("profiler.reactor.wrap.publisher.publishOn", false);
-    }
-
     public static boolean isTraceSubscribeOn(ProfilerConfig config) {
         return config.readBoolean("profiler.reactor.trace.subscribeOn", true);
     }
@@ -88,7 +84,6 @@ public class ReactorPluginConfig {
 
     private final boolean traceOnError;
     private final boolean tracePublishOn;
-    private final boolean wrapPublisherPublishOn;
     private final boolean traceSubscribeOn;
     private final boolean traceDelay;
     private final boolean traceInterval;
@@ -109,7 +104,6 @@ public class ReactorPluginConfig {
         this.traceOnError = isTraceOnError(config);
         this.markErrorOnError = isMarkErrorOnError(config);
         this.tracePublishOn = isTracePublishOn(config);
-        this.wrapPublisherPublishOn = isWrapPublisherPublishOn(config);
         this.traceSubscribeOn = isTraceSubscribeOn(config);
         this.traceDelay = isTraceDelay(config);
         this.traceInterval = isTraceInterval(config);
@@ -134,10 +128,6 @@ public class ReactorPluginConfig {
 
     public boolean isTracePublishOn() {
         return tracePublishOn;
-    }
-
-    public boolean isWrapPublisherPublishOn() {
-        return wrapPublisherPublishOn;
     }
 
     public boolean isTraceSubscribeOn() {
@@ -190,7 +180,6 @@ public class ReactorPluginConfig {
                 "enable=" + enable +
                 ", traceOnError=" + traceOnError +
                 ", tracePublishOn=" + tracePublishOn +
-                ", wrapPublisherPublishOn=" + wrapPublisherPublishOn +
                 ", traceSubscribeOn=" + traceSubscribeOn +
                 ", traceDelay=" + traceDelay +
                 ", traceInterval=" + traceInterval +

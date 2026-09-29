@@ -31,8 +31,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.CommandAsyncServiceMethodInterceptor;
 import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.ReactiveMethodInterceptor;
 import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.RedissonMethodInterceptor;
-import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.WrappingReactiveMethodInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
 import java.security.ProtectionDomain;
 
@@ -44,16 +42,6 @@ public class RedissonPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TransformTemplate transformTemplate;
-
-    // profiler.redis.redisson.wrap.publisher selects the wrapping variant, which hands the
-    // AsyncContext to a wrapped publisher instead of injecting it into the returned one.
-    static Class<? extends Interceptor> reactiveMethodInterceptor(Instrumentor instrumentor) {
-        final RedissonPluginConfig config = new RedissonPluginConfig(instrumentor.getProfilerConfig());
-        if (config.isWrapPublisher()) {
-            return WrappingReactiveMethodInterceptor.class;
-        }
-        return ReactiveMethodInterceptor.class;
-    }
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -200,17 +188,17 @@ public class RedissonPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             final InstrumentMethod executeMethod = target.getDeclaredMethod("execute", "java.lang.reflect.Method", "java.lang.Object", "java.lang.Object[]");
             if (executeMethod != null) {
-                executeMethod.addInterceptor(reactiveMethodInterceptor(instrumentor));
+                executeMethod.addInterceptor(ReactiveMethodInterceptor.class);
             }
             // redisson ~3.17.x: ProxyBuilder$Callback.execute(Method, Object, Method, Object[])
             final InstrumentMethod instanceExecuteMethod = target.getDeclaredMethod("execute", "java.lang.reflect.Method", "java.lang.Object", "java.lang.reflect.Method", "java.lang.Object[]");
             if (instanceExecuteMethod != null) {
-                instanceExecuteMethod.addInterceptor(reactiveMethodInterceptor(instrumentor));
+                instanceExecuteMethod.addInterceptor(ReactiveMethodInterceptor.class);
             }
             // redisson 3.19+: ProxyBuilder$Callback.execute(Callable, Method)
             final InstrumentMethod callableExecuteMethod = target.getDeclaredMethod("execute", "java.util.concurrent.Callable", "java.lang.reflect.Method");
             if (callableExecuteMethod != null) {
-                callableExecuteMethod.addInterceptor(reactiveMethodInterceptor(instrumentor));
+                callableExecuteMethod.addInterceptor(ReactiveMethodInterceptor.class);
             }
 
             return target.toBytecode();

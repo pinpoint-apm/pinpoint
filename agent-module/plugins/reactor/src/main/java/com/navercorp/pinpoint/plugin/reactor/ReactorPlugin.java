@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.SuperClassInt
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
@@ -58,7 +57,6 @@ import com.navercorp.pinpoint.plugin.reactor.interceptor.RetryWhenMainSubscriber
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableSubscriptionConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.RunnableSubscriptionInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.interceptor.TimeoutMainSubscriberDoTimeoutInterceptor;
-import com.navercorp.pinpoint.plugin.reactor.interceptor.WrappingFluxAndMonoPublishOnInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -96,7 +94,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         }
         logger.info("{}, config:{}", this.getClass().getSimpleName(), config);
 
-        addFluxAndMono(config.isTracePublishOn() && config.isWrapPublisherPublishOn());
+        addFluxAndMono();
         addThreadingAndSchedulers();
         if (config.isTraceSchedulerTask() || !config.isSubscriberInstrument()) {
             // The carrier is REQUIRED when the generic subscriber layer is off: a scheduler hop
@@ -134,12 +132,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         this.transformTemplate = transformTemplate;
     }
 
-    private void addFluxAndMono(boolean wrapPublishOn) {
-        if (wrapPublishOn) {
-            transformTemplate.transform("reactor.core.publisher.Flux", FluxPublishOnSeamMethodTransform.class);
-            transformTemplate.transform("reactor.core.publisher.Mono", MonoPublishOnSeamMethodTransform.class);
-            return;
-        }
+    private void addFluxAndMono() {
         transformTemplate.transform("reactor.core.publisher.Flux", FluxMethodTransform.class);
         transformTemplate.transform("reactor.core.publisher.Mono", MonoMethodTransform.class);
     }
@@ -244,19 +237,11 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     public static class FluxMethodTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            return transformFluxMethods(instrumentor, loader, className, classfileBuffer, FluxAndMonoPublishOnInterceptor.class);
+            return transformFluxMethods(instrumentor, loader, className, classfileBuffer);
         }
     }
 
-    public static class FluxPublishOnSeamMethodTransform implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            return transformFluxMethods(instrumentor, loader, className, classfileBuffer, WrappingFluxAndMonoPublishOnInterceptor.class);
-        }
-    }
-
-    private static byte[] transformFluxMethods(Instrumentor instrumentor, ClassLoader loader, String className, byte[] classfileBuffer,
-                                               Class<? extends Interceptor> publishOnInterceptor) throws InstrumentException {
+    private static byte[] transformFluxMethods(Instrumentor instrumentor, ClassLoader loader, String className, byte[] classfileBuffer) throws InstrumentException {
         final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
         final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
@@ -265,7 +250,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         }
         final InstrumentMethod publishOnMethod = target.getDeclaredMethod("publishOn", "reactor.core.scheduler.Scheduler", "boolean", "int", "int");
         if (publishOnMethod != null) {
-            publishOnMethod.addInterceptor(publishOnInterceptor);
+            publishOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
         }
         final InstrumentMethod subscribeOnMethod = target.getDeclaredMethod("subscribeOn", "reactor.core.scheduler.Scheduler", "boolean");
         if (subscribeOnMethod != null) {
@@ -423,19 +408,11 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
     public static class MonoMethodTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            return transformMonoMethods(instrumentor, loader, className, classfileBuffer, FluxAndMonoPublishOnInterceptor.class);
+            return transformMonoMethods(instrumentor, loader, className, classfileBuffer);
         }
     }
 
-    public static class MonoPublishOnSeamMethodTransform implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            return transformMonoMethods(instrumentor, loader, className, classfileBuffer, WrappingFluxAndMonoPublishOnInterceptor.class);
-        }
-    }
-
-    private static byte[] transformMonoMethods(Instrumentor instrumentor, ClassLoader loader, String className, byte[] classfileBuffer,
-                                               Class<? extends Interceptor> publishOnInterceptor) throws InstrumentException {
+    private static byte[] transformMonoMethods(Instrumentor instrumentor, ClassLoader loader, String className, byte[] classfileBuffer) throws InstrumentException {
         final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
         final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
@@ -444,7 +421,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
         }
         final InstrumentMethod publishOnMethod = target.getDeclaredMethod("publishOn", "reactor.core.scheduler.Scheduler");
         if (publishOnMethod != null) {
-            publishOnMethod.addInterceptor(publishOnInterceptor);
+            publishOnMethod.addInterceptor(FluxAndMonoPublishOnInterceptor.class);
         }
         // Keep the pre-existing Mono.subscribeOn wiring unchanged in this PoC so the seam effect
         // is isolated to publishOn.
