@@ -94,28 +94,15 @@ public class JavaStackTraceParser implements StackTraceParser {
             final int lineNumber;
             if (colon >= fileStart) {
                 fileName = line.substring(fileStart, colon);
-                lineNumber = parseInt(line, colon + 1, parenClose);
+                lineNumber = LineNumbers.parseLineNumber(line, colon + 1, parenClose);
             } else {
                 fileName = line.substring(fileStart, parenClose);
-                lineNumber = "Native Method".equals(fileName) ? -2 : -1;
+                lineNumber = "Native Method".equals(fileName) ? -2 : LineNumbers.UNKNOWN;
             }
 
             if (!sink.add(new StackFrame(className, fileName, lineNumber, methodName))) {
                 return;
             }
-        }
-    }
-
-    /**
-     * Parses {@code value[from..to)} in place, without a substring.
-     *
-     * @return the number, or -1 for a malformed line token (e.g. "Foo.java:??"), per the StackFrame contract
-     */
-    private static int parseInt(String value, int from, int to) {
-        try {
-            return Integer.parseInt(value, from, to, 10);
-        } catch (NumberFormatException e) {
-            return -1;
         }
     }
 }

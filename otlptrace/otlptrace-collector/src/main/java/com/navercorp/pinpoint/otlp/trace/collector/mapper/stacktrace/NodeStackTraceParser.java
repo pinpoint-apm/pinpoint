@@ -87,15 +87,15 @@ public class NodeStackTraceParser implements StackTraceParser {
             final String inner = parens.group(2);
             final Matcher location = LOCATION.matcher(inner);
             if (location.matches()) {
-                return frame(function, location.group(1), parseInt(location.group(2)));
+                return frame(function, location.group(1), LineNumbers.parseLineNumber(inner, location, 2));
             }
             // e.g. "(native)", "(node:internal/timers)" — no line info
-            return frame(function, inner, -1);
+            return frame(function, inner, LineNumbers.UNKNOWN);
         }
 
         final Matcher bare = BARE_FRAME.matcher(trimmed);
         if (bare.matches()) {
-            return frame(null, bare.group(1), parseInt(bare.group(2)));
+            return frame(null, bare.group(1), LineNumbers.parseLineNumber(trimmed, bare, 2));
         }
         return null;
     }
@@ -123,13 +123,5 @@ public class NodeStackTraceParser implements StackTraceParser {
             }
         }
         return new StackFrame(className, fileName, lineNumber, methodName);
-    }
-
-    private static int parseInt(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
     }
 }
