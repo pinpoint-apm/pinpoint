@@ -25,11 +25,10 @@ import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Metric;
 
-import java.util.Map;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 public abstract class OtlpMetricDataMapper {
     protected static final String CUSTOM_AGGRE_FUNCTION_KEY = "pinpoint.metric.aggregation";
@@ -41,16 +40,16 @@ public abstract class OtlpMetricDataMapper {
         builder.setMetricGroupName(MetricName.EMPTY_METRIC_GROUP_NAME);
         builder.setMetricName(MetricName.EMPTY_METRIC_NAME);
 
-        List<String> names = new LinkedList<>(Arrays.asList(metricName.split("\\.")));
-        int length = names.size();
+        String[] names = metricName.split("\\.");
+        int length = names.length;
 
-        if ( length == 0 ) {
+        if (length == 0) {
             return;
-        } else if ( length == 1 ) {
-            builder.setMetricGroupName(getName(names.get(0), MetricName.EMPTY_METRIC_GROUP_NAME));
+        } else if (length == 1) {
+            builder.setMetricGroupName(getName(names[0], MetricName.EMPTY_METRIC_GROUP_NAME));
         } else {
-            builder.setMetricName(getName(names.get(length - 1), MetricName.EMPTY_METRIC_NAME));
-            builder.setMetricGroupName(getName(String.join(".", names.subList(0, length - 1)), MetricName.EMPTY_METRIC_GROUP_NAME));
+            builder.setMetricName(getName(names[length - 1], MetricName.EMPTY_METRIC_NAME));
+            builder.setMetricGroupName(getName(join(names, length - 1), MetricName.EMPTY_METRIC_GROUP_NAME));
         }
     }
 
@@ -58,24 +57,35 @@ public abstract class OtlpMetricDataMapper {
         builder.setMetricGroupName(MetricName.EMPTY_METRIC_GROUP_NAME);
         builder.setMetricName(MetricName.EMPTY_METRIC_NAME);
 
-        List<String> names = new LinkedList<>(Arrays.asList(metricName.split("\\.")));
-        int length = names.size();
+        String[] names = metricName.split("\\.");
+        int length = names.length;
 
-        if ( length == 0 ) {
+        if (length == 0) {
             return MetricName.EMPTY_FIELD_NAME;
-        } else if ( length == 1 ) {
-            builder.setMetricGroupName(getName(names.get(0), MetricName.EMPTY_METRIC_GROUP_NAME));
+        } else if (length == 1) {
+            builder.setMetricGroupName(getName(names[0], MetricName.EMPTY_METRIC_GROUP_NAME));
             return MetricName.EMPTY_FIELD_NAME;
-        } else if ( length == 2 ) {
-            builder.setMetricName(getName(names.get(1), MetricName.EMPTY_METRIC_NAME));
-            builder.setMetricGroupName(getName(names.get(0), MetricName.EMPTY_METRIC_GROUP_NAME));
+        } else if (length == 2) {
+            builder.setMetricName(getName(names[1], MetricName.EMPTY_METRIC_NAME));
+            builder.setMetricGroupName(getName(names[0], MetricName.EMPTY_METRIC_GROUP_NAME));
             return MetricName.EMPTY_FIELD_NAME;
         } else {
-            String fieldName = getName(names.get(length - 1), MetricName.EMPTY_FIELD_NAME);
-            builder.setMetricName(getName(names.get(length - 2), MetricName.EMPTY_METRIC_NAME));
-            builder.setMetricGroupName(getName(String.join(".", names.subList(0, length - 2)), MetricName.EMPTY_METRIC_GROUP_NAME));
+            String fieldName = getName(names[length - 1], MetricName.EMPTY_FIELD_NAME);
+            builder.setMetricName(getName(names[length - 2], MetricName.EMPTY_METRIC_NAME));
+            builder.setMetricGroupName(getName(join(names, length - 2), MetricName.EMPTY_METRIC_GROUP_NAME));
             return fieldName;
         }
+    }
+
+    /**
+     * Joins {@code names[0..end)} with '.', the prefix that becomes the metric group name.
+     */
+    private static String join(String[] names, int end) {
+        StringJoiner joiner = new StringJoiner(".");
+        for (int i = 0; i < end; i++) {
+            joiner.add(names[i]);
+        }
+        return joiner.toString();
     }
 
     private String getName(String name, String defaultValue) {
