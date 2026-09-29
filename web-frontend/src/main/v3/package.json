@@ -11,6 +11,7 @@
     "build": "yarn workspace @pinpoint-fe/web build",
     "dev": "yarn workspace @pinpoint-fe/web dev",
     "dev:mock": "yarn workspace @pinpoint-fe/web dev:mock",
+    "dev:forbidden": "yarn workspace @pinpoint-fe/web dev:forbidden",
     "lint": "yarn workspaces run lint",
     "test": "yarn workspaces run test",
     "test:e2e": "yarn workspace @pinpoint-fe/web test:e2e",
