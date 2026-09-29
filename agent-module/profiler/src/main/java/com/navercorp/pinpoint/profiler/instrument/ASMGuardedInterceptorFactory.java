@@ -35,8 +35,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BlockStaticAroundInterceptor
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.interceptor.InjectedAsyncContextApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ResultReplaceBlockAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedBlockApiIdAwareAroundInterceptor;
@@ -56,8 +54,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedI
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor5;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedResultReplaceAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedResultReplaceBlockAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
@@ -82,6 +78,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -98,10 +95,10 @@ import java.util.logging.Logger;
  * <p>
  * Generation is best-effort: any failure returns {@code null} and the caller falls back to the
  * shared wrapper, so the worst case is exactly today's behavior. A shape is eligible when every
- * method of its interface returns {@code void}, or returns a reference that {@link #NON_VOID_RULES}
- * knows how to substitute when the delegate throws: the Block shapes' {@code before} returns
- * {@code null}, which makes the paired {@code after} a no-op, and the ResultReplace shapes'
- * {@code after} hands back the {@code result} it was given. Anything else keeps the shared wrapper.
+ * method of its interface returns {@code void}, or is a reference-returning method that
+ * {@link #NULL_RETURNING_METHODS} lists as returning {@code null} when the delegate throws: the
+ * Block shapes' {@code before}, whose null block makes the paired {@code after} a no-op. Anything
+ * else keeps the shared wrapper.
  * <p>
  * The class is defined in the delegate's class loader (bootstrap-core types are visible from
  * everywhere; the concrete delegate type only from its own loader) under a pinpoint-owned name,
@@ -149,74 +146,32 @@ public final class ASMGuardedInterceptorFactory implements GuardedInterceptorFac
         templates.put(BlockAroundInterceptor5.class, ExceptionHandleScopedBlockInterceptor5.class);
         templates.put(BlockStaticAroundInterceptor.class, ExceptionHandleScopedBlockStaticAroundInterceptor.class);
         templates.put(BlockApiIdAwareAroundInterceptor.class, ExceptionHandleScopedBlockApiIdAwareAroundInterceptor.class);
-        templates.put(ResultReplaceAroundInterceptor.class, ExceptionHandleScopedResultReplaceAroundInterceptor.class);
-        templates.put(ResultReplaceBlockAroundInterceptor.class, ExceptionHandleScopedResultReplaceBlockAroundInterceptor.class);
         return templates;
     }
 
     /**
-     * What the emitted guard returns from a non-void method when the delegate throws, per base
-     * interface and method name. This mirrors the catch clause of the shape's shared
+     * The non-void methods the emitted guard may implement, per base interface: each returns
+     * {@code null} when the delegate throws. This mirrors the catch clause of the shape's shared
      * {@code ExceptionHandle*} wrapper and must stay identical to it: {@code Block*.before} returns
-     * {@code null} (a null block makes the Block bases' {@code after} a no-op), and
-     * {@code ResultReplace*.after} returns its {@code result} argument so the woven method keeps
-     * the value it was going to return. A non-void method of an interface not listed here keeps the
-     * shared wrapper. Registered explicitly per interface rather than inferred from names or parameter
-     * positions, so a new shape can never be guessed wrong.
+     * {@code null}, and a null block makes the Block bases' {@code after} a no-op. A non-void method
+     * of an interface not listed here keeps the shared wrapper. Registered explicitly per interface
+     * rather than inferred from names, so a new shape can never be guessed wrong.
      */
-    private static final Map<Class<?>, Map<String, NonVoidRule>> NON_VOID_RULES = buildNonVoidRules();
+    private static final Map<Class<?>, Set<String>> NULL_RETURNING_METHODS = buildNullReturningMethods();
 
-    private static Map<Class<?>, Map<String, NonVoidRule>> buildNonVoidRules() {
-        final Map<String, NonVoidRule> blockBefore = Collections.singletonMap("before", NonVoidRule.RETURN_NULL);
-        final Map<Class<?>, Map<String, NonVoidRule>> rules = new HashMap<>();
-        rules.put(BlockAroundInterceptor.class, blockBefore);
-        rules.put(BlockAroundInterceptor0.class, blockBefore);
-        rules.put(BlockAroundInterceptor1.class, blockBefore);
-        rules.put(BlockAroundInterceptor2.class, blockBefore);
-        rules.put(BlockAroundInterceptor3.class, blockBefore);
-        rules.put(BlockAroundInterceptor4.class, blockBefore);
-        rules.put(BlockAroundInterceptor5.class, blockBefore);
-        rules.put(BlockStaticAroundInterceptor.class, blockBefore);
-        rules.put(BlockApiIdAwareAroundInterceptor.class, blockBefore);
-        // after(target, returnType, args, result, throwable)
-        rules.put(ResultReplaceAroundInterceptor.class,
-                Collections.singletonMap("after", NonVoidRule.returnArgument(3)));
-        // before -> null like the Block shapes; after(block, target, returnType, args, result, throwable)
-        final Map<String, NonVoidRule> resultReplaceBlock = new HashMap<>();
-        resultReplaceBlock.put("before", NonVoidRule.RETURN_NULL);
-        resultReplaceBlock.put("after", NonVoidRule.returnArgument(4));
-        rules.put(ResultReplaceBlockAroundInterceptor.class, resultReplaceBlock);
-        return rules;
-    }
-
-    /**
-     * The substitute a non-void guarded method returns on the exception path: {@code null}, or one
-     * of the method's own reference arguments (by 0-based index) for shapes that must hand back the
-     * value they were given.
-     */
-    private static final class NonVoidRule {
-        static final NonVoidRule RETURN_NULL = new NonVoidRule(-1);
-
-        static NonVoidRule returnArgument(int index) {
-            if (index < 0) {
-                throw new IllegalArgumentException("index:" + index);
-            }
-            return new NonVoidRule(index);
-        }
-
-        private final int returnArgumentIndex;
-
-        private NonVoidRule(int returnArgumentIndex) {
-            this.returnArgumentIndex = returnArgumentIndex;
-        }
-
-        boolean returnsNull() {
-            return returnArgumentIndex < 0;
-        }
-
-        int returnArgumentIndex() {
-            return returnArgumentIndex;
-        }
+    private static Map<Class<?>, Set<String>> buildNullReturningMethods() {
+        final Set<String> blockBefore = Collections.singleton("before");
+        final Map<Class<?>, Set<String>> methods = new HashMap<>();
+        methods.put(BlockAroundInterceptor.class, blockBefore);
+        methods.put(BlockAroundInterceptor0.class, blockBefore);
+        methods.put(BlockAroundInterceptor1.class, blockBefore);
+        methods.put(BlockAroundInterceptor2.class, blockBefore);
+        methods.put(BlockAroundInterceptor3.class, blockBefore);
+        methods.put(BlockAroundInterceptor4.class, blockBefore);
+        methods.put(BlockAroundInterceptor5.class, blockBefore);
+        methods.put(BlockStaticAroundInterceptor.class, blockBefore);
+        methods.put(BlockApiIdAwareAroundInterceptor.class, blockBefore);
+        return methods;
     }
 
     /**
@@ -455,7 +410,7 @@ public final class ASMGuardedInterceptorFactory implements GuardedInterceptorFac
      * The single interceptor interface the wrapper should implement. Deliberately conservative:
      * the delegate must expose exactly one direct interceptor interface (walking up the class
      * hierarchy), and every method of it must either return {@code void} or be a reference-returning
-     * method that {@link #NON_VOID_RULES} has a substitute for. Anything else is the shared wrapper's job.
+     * method that {@link #NULL_RETURNING_METHODS} lists. Anything else is the shared wrapper's job.
      */
     private static Class<?> findEligibleBaseInterface(Class<?> delegateClass) {
         Class<?> found = null;
@@ -472,7 +427,7 @@ public final class ASMGuardedInterceptorFactory implements GuardedInterceptorFac
         if (found == null) {
             return null;
         }
-        final Map<String, NonVoidRule> rules = NON_VOID_RULES.get(found);
+        final Set<String> nullReturning = NULL_RETURNING_METHODS.get(found);
         for (Method method : found.getMethods()) {
             if (Modifier.isStatic(method.getModifiers()) || method.isDefault()) {
                 continue;
@@ -481,11 +436,11 @@ public final class ASMGuardedInterceptorFactory implements GuardedInterceptorFac
             if (returnType == void.class) {
                 continue;
             }
-            if (rules == null || !rules.containsKey(method.getName())) {
+            if (nullReturning == null || !nullReturning.contains(method.getName())) {
                 return null;
             }
             if (returnType.isPrimitive()) {
-                // the substitutes are references (null or an argument); no shape returns a primitive
+                // the substitute is null; no shape returns a primitive
                 return null;
             }
         }
@@ -541,7 +496,7 @@ public final class ASMGuardedInterceptorFactory implements GuardedInterceptorFac
      *         this.delegate.m(...);                         return this.delegate.m(...);
      *     } catch (Throwable t) {                       } catch (Throwable t) {
      *         this.exceptionHandler.handleException(t);     this.exceptionHandler.handleException(t);
-     *     }                                                 return null;   // or an argument, per NON_VOID_RULES
+     *     }                                                 return null;
      * }                                             }
      *                                           }
      * </pre>
@@ -593,30 +548,12 @@ public final class ASMGuardedInterceptorFactory implements GuardedInterceptorFac
             mv.visitFrame(Opcodes.F_NEW, locals.length, locals, 0, new Object[0]);
             mv.visitInsn(Opcodes.RETURN);
         } else {
-            // findEligibleBaseInterface only admits non-void methods that have a rule
-            final NonVoidRule rule = NON_VOID_RULES.get(baseInterface).get(method.getName());
-            if (rule.returnsNull()) {
-                mv.visitInsn(Opcodes.ACONST_NULL);
-            } else {
-                mv.visitVarInsn(Opcodes.ALOAD, argumentSlot(methodDesc, rule.returnArgumentIndex()));
-            }
+            // findEligibleBaseInterface only admits non-void methods listed in NULL_RETURNING_METHODS
+            mv.visitInsn(Opcodes.ACONST_NULL);
             mv.visitInsn(Opcodes.ARETURN);
         }
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-    }
-
-    /**
-     * Local variable slot of the 0-based argument {@code index}: slot 0 is {@code this}, and
-     * long/double arguments take two slots.
-     */
-    private static int argumentSlot(String methodDesc, int index) {
-        int slot = 1;
-        final Type[] argumentTypes = Type.getArgumentTypes(methodDesc);
-        for (int i = 0; i < index; i++) {
-            slot += argumentTypes[i].getSize();
-        }
-        return slot;
     }
 
     private static Object[] buildLocalsFrame(String internalName, String methodDesc) {

@@ -266,13 +266,6 @@ public class ASMMethod implements InstrumentMethod {
             apiId = this.engineComponent.cacheApi(this.descriptor);
         }
 
-        if (interceptorType == InterceptorType.RESULT_REPLACE && !this.methodNode.hasObjectOrArrayReturnType()) {
-            // constructors and void/primitive returns have no reference return value to replace.
-            throw new InstrumentException("result-replace interceptor requires an object or array return type."
-                    + " class=" + this.declaringClass.getName() + ", method=" + this.methodNode.getName() + this.methodNode.getDesc()
-                    + ", interceptor=" + interceptorClass.getName());
-        }
-
         // add before interceptor.
         if (isBeforeInterceptor(captureType) && interceptorDefinition.getBeforeMethod() != null) {
             this.methodNode.addBeforeInterceptor(interceptorHolder, interceptorDefinition, apiId);
