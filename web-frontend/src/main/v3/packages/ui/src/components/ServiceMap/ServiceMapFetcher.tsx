@@ -180,6 +180,9 @@ export const ServiceMapFetcher = ({ shouldPoll, ...props }: ServiceMapFetcherPro
       onClickSubLink={handleClickSubLink}
       selectedSubNodeId={serverMapCurrentTarget?.id}
       selectedSubLinkId={serverMapCurrentTarget?.id}
+      // 팝업에서 고른 자식처럼 그래프를 클릭하지 않은 선택도 map이 기억해야, 묶고 펼칠 때
+      // 그 요소(또는 그것을 대신 그리는 묶음 요소)를 하이라이트할 수 있다.
+      selectedId={serverMapCurrentTarget?.id}
       onMergeStateChange={handleMergeStateChange}
       baseNodeId={baseNodeId}
       inputPlaceHolder={t('COMMON.SEARCH_INPUT')}

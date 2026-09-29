@@ -60,6 +60,15 @@ export const getServerMapStyle = ({
       },
     },
     {
+      // 부모(compound) 상자는 노드 그림(imgArr) 대신 배경만 칠한다. 크기는 cytoscape가 자식들로부터
+      // 계산하므로 위 width/height는 적용되지 않는다.
+      selector: 'node:parent' as const,
+      style: {
+        ...theme.node?.parent,
+        'background-image': 'none',
+      },
+    },
+    {
       selector: 'edge' as const,
       style: {
         ...theme.edge?.default,

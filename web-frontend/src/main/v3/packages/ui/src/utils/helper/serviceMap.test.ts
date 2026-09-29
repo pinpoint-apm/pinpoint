@@ -1,8 +1,10 @@
 import {
   buildServerMapSearchList,
+  expandServiceGroups,
   findServiceGroupLink,
   findServiceGroupNode,
   flattenServiceMapResponse,
+  getExpandedServiceGroupId,
 } from './serviceMap';
 import { GetServerMap, GetServiceMap } from '@pinpoint-fe/ui/src/constants';
 
@@ -306,5 +308,105 @@ describe('buildServerMapSearchList', () => {
     expect(buildServerMapSearchList([emptyGroup])).toEqual([
       { node: emptyGroup, serviceName: undefined },
     ]);
+  });
+});
+
+describe('expandServiceGroups', () => {
+  // A(보고 있는 service)의 a → B service(b-1 → b-2) → C service(c-1)
+  const a = makeAppNode({ key: 'A^a^TOMCAT', applicationName: 'a', serviceName: 'A' });
+  const b1 = makeAppNode({ key: 'B^b-1^TOMCAT', applicationName: 'b-1', serviceName: 'B' });
+  const b2 = makeAppNode({ key: 'B^b-2^TOMCAT', applicationName: 'b-2', serviceName: 'B' });
+  const c1 = makeAppNode({ key: 'C^c-1^TOMCAT', applicationName: 'c-1', serviceName: 'C' });
+
+  const aToB1 = makeAppLink({ key: 'a~b-1', from: a.key, to: b1.key, totalCount: 3 });
+  const aToB2 = makeAppLink({ key: 'a~b-2', from: a.key, to: b2.key, totalCount: 4 });
+  const b1ToB2 = makeAppLink({ key: 'b-1~b-2', from: b1.key, to: b2.key });
+  const b1ToC1 = makeAppLink({ key: 'b-1~c-1', from: b1.key, to: c1.key, totalCount: 1 });
+  const b2ToC1 = makeAppLink({ key: 'b-2~c-1', from: b2.key, to: c1.key, totalCount: 2 });
+
+  // 백엔드가 A만 펼쳐 보낸 모양(ServiceMapViewBuilder)을 flatten한 것.
+  const flattened = flattenServiceMapResponse(
+    makeResponse(
+      [
+        a,
+        { key: 'B', type: 'service', serviceName: 'B', nodes: [b1, b2] },
+        { key: 'C', type: 'service', serviceName: 'C', nodes: [c1] },
+      ],
+      [
+        { key: `${a.key}~B`, from: a.key, to: 'B', type: 'service', links: [aToB1, aToB2] },
+        { key: 'B~B', from: 'B', to: 'B', type: 'service', links: [b1ToB2] },
+        { key: 'B~C', from: 'B', to: 'C', type: 'service', links: [b1ToC1, b2ToC1] },
+      ],
+    ),
+  )!.applicationMapData;
+  const nodes = flattened.nodeDataArray as GetServerMap.NodeData[];
+  const links = flattened.linkDataArray as GetServerMap.LinkData[];
+  const keysOf = (items: { key: string }[]) => items.map(({ key }) => key).sort();
+
+  test('returns the input as is when nothing is expanded', () => {
+    const view = expandServiceGroups(nodes, links, new Set());
+
+    expect(view.nodes).toBe(nodes);
+    expect(view.links).toBe(links);
+    expect(view.expandedGroups).toEqual([]);
+  });
+
+  test('ignores keys that are not service groups', () => {
+    const view = expandServiceGroups(nodes, links, new Set([a.key, 'UNKNOWN']));
+
+    expect(view.nodes).toBe(nodes);
+    expect(view.links).toBe(links);
+  });
+
+  test('replaces an expanded group with its children and records their parent', () => {
+    const view = expandServiceGroups(nodes, links, new Set(['B']));
+    const parentId = getExpandedServiceGroupId('B');
+
+    expect(keysOf(view.nodes)).toEqual(keysOf([a, b1, b2, { key: 'C' }]));
+    expect(view.expandedGroups).toEqual([{ id: parentId, group: nodes[1] }]);
+    expect(view.parentOf).toEqual(
+      new Map([
+        [b1.key, parentId],
+        [b2.key, parentId],
+      ]),
+    );
+  });
+
+  test('draws links between applications as plain links, including those inside the service', () => {
+    const view = expandServiceGroups(nodes, links, new Set(['B']));
+
+    expect(view.links).toEqual(expect.arrayContaining([aToB1, aToB2, b1ToB2]));
+    expect(findServiceGroupLink(view.links, aToB1.key)).toBeUndefined();
+  });
+
+  test('regroups links whose other end is still collapsed', () => {
+    const view = expandServiceGroups(nodes, links, new Set(['B']));
+
+    const b1ToC = findServiceGroupLink(view.links, `${b1.key}~C`);
+    const b2ToC = findServiceGroupLink(view.links, `${b2.key}~C`);
+    expect(b1ToC).toMatchObject({ from: b1.key, to: 'C', totalCount: 1, subLinks: [b1ToC1] });
+    expect(b2ToC).toMatchObject({ from: b2.key, to: 'C', totalCount: 2, subLinks: [b2ToC1] });
+  });
+
+  test('merges links from a collapsed group into one group link per drawn pair', () => {
+    const view = expandServiceGroups(nodes, links, new Set(['C']));
+
+    expect(keysOf(view.nodes)).toEqual(keysOf([a, { key: 'B' }, c1]));
+    expect(findServiceGroupLink(view.links, `B~${c1.key}`)).toMatchObject({
+      from: 'B',
+      to: c1.key,
+      totalCount: 3,
+      subLinks: [b1ToC1, b2ToC1],
+    });
+    // C에 닿지 않는 group 링크는 그대로 둔다.
+    expect(view.links).toEqual(expect.arrayContaining([links[0], links[1]]));
+    expect(view.links).toHaveLength(3);
+  });
+
+  test('connects applications directly when both ends are expanded', () => {
+    const view = expandServiceGroups(nodes, links, new Set(['B', 'C']));
+
+    expect(keysOf(view.links)).toEqual(keysOf([aToB1, aToB2, b1ToB2, b1ToC1, b2ToC1]));
+    expect(view.links.some((link) => Array.isArray(link.subLinks))).toBe(false);
   });
 });

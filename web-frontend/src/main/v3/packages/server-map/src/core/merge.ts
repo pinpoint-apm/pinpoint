@@ -17,8 +17,10 @@ export const getMergedData = (
     return !edges.some((edge) => edge.source === id);
   });
 
+  // 부모(compound) 안의 노드는 합치지 않는다. 합친 노드는 부모 하나에 속할 수 없어 상자 밖으로 빠진다.
   const shouldMergeNodeIds = leafNodesIds.filter((id) => {
-    return !nodes.find((node) => id === node.id)?.shouldNotMerge?.();
+    const node = nodes.find((node) => id === node.id);
+    return !node?.parent && !node?.shouldNotMerge?.();
   });
 
   // { t1: 3, t2: 2, t3: 4, t4: 1, t5: 1 }

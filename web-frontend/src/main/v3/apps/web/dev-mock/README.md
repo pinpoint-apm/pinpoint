@@ -199,6 +199,18 @@ http://localhost:3000/serviceMap/A
 
 `a-1`을 골랐을 때는 `pServiceName=A`로 나가야 합니다. 같이 확인하세요.
 
+### 하위 노드가 많은 group
+
+`MOCK_SERVICE_MAP_APPS`로 B service에 묶일 application 개수를 정합니다(기본 2개).
+
+```bash
+MOCK_SERVICE_MAP_APPS=50 yarn dev:mock
+```
+
+3개 이상이면 홀수 번째(`b-1`, `b-3`, …)만 `a-1`이 부르고, 짝수 번째는 바로 앞 홀수 번째가
+부릅니다(`b-1 → b-2`). 그래서 `B` 노드에 자기 자신으로 돌아오는 `B→B` 링크가 생기고, 펼치면
+상자 안이 두 열로 놓입니다. 더블클릭으로 펼치고 접으며 주변 노드 위치와 화면 반응을 봅니다.
+
 ## 무엇을 가로채는가
 
 | 경로                                                                                                                                       | 동작                                                                                                                                                                              |

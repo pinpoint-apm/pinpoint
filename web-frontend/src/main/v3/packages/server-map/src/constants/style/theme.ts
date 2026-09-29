@@ -33,6 +33,8 @@ export type ServerMapTheme = {
     default?: Css.Node;
     highlight?: Css.Node;
     main?: Css.Node;
+    /** 펼친 묶음 노드를 감싸는 부모(compound) 상자 */
+    parent?: Css.Node;
   };
   edge?: {
     default?: Css.Edge;
@@ -96,6 +98,18 @@ export const defaultTheme: CompleteServerMapTheme = {
     main: {
       'font-weight': 'bold',
       'font-size': 14,
+    },
+    parent: {
+      shape: 'round-rectangle',
+      'background-color': '#F7F8FA',
+      'border-width': 1.5,
+      'border-style': 'dashed',
+      'border-color': '#C0C3C8',
+      padding: '30px',
+      'text-valign': 'top',
+      'text-halign': 'center',
+      'text-margin-y': -6,
+      'font-weight': 'bold',
     },
   },
   edge: {
