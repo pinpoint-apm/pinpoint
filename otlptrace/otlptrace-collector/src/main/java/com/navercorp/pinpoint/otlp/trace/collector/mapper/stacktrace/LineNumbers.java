@@ -52,4 +52,22 @@ final class LineNumbers {
         }
         return parseLineNumber(value, from, matcher.end(group));
     }
+
+    /**
+     * @return whether {@code value[from..to)} is non-empty and made of ASCII digits only, i.e. what the
+     * regex {@code \\d+} accepts; a cheaper pre-check than parsing when only the shape matters
+     */
+    static boolean isDigits(String value, int from, int to) {
+        if (from >= to) {
+            return false;
+        }
+        for (int i = from; i < to; i++) {
+            final char c = value.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

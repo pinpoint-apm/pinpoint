@@ -36,7 +36,6 @@ import java.util.regex.Pattern;
  */
 public class NodeStackTraceParser implements StackTraceParser {
 
-    private static final Pattern LOCATION = Pattern.compile("^(.+):(\\d+):(\\d+)$");
     private static final Pattern PARENS_FRAME = Pattern.compile("^at\\s+(?:async\\s+)?(.+?)\\s+\\((.+)\\)$");
     private static final Pattern BARE_FRAME = Pattern.compile("^at\\s+(?:async\\s+)?([^()].*?):(\\d+):(\\d+)$");
 
@@ -57,7 +56,7 @@ public class NodeStackTraceParser implements StackTraceParser {
                 return true;
             }
             final Matcher parens = PARENS_FRAME.matcher(line);
-            if (parens.matches() && LOCATION.matcher(parens.group(2)).matches()) {
+            if (parens.matches() && V8Location.isLocation(line, parens.start(2), parens.end(2))) {
                 return true;
             }
             // e.g. "at Array.map (<anonymous>)" — a built-in frame without a location tail;
@@ -84,13 +83,15 @@ public class NodeStackTraceParser implements StackTraceParser {
         final Matcher parens = PARENS_FRAME.matcher(trimmed);
         if (parens.matches()) {
             final String function = stripAlias(parens.group(1));
-            final String inner = parens.group(2);
-            final Matcher location = LOCATION.matcher(inner);
-            if (location.matches()) {
-                return frame(function, location.group(1), LineNumbers.parseLineNumber(inner, location, 2));
+            final int from = parens.start(2);
+            final int to = parens.end(2);
+            final int separator = V8Location.separator(trimmed, from, to);
+            if (separator >= 0) {
+                final int column = trimmed.indexOf(':', separator + 1);
+                return frame(function, trimmed.substring(from, separator), LineNumbers.parseLineNumber(trimmed, separator + 1, column));
             }
             // e.g. "(native)", "(node:internal/timers)" — no line info
-            return frame(function, inner, LineNumbers.UNKNOWN);
+            return frame(function, parens.group(2), LineNumbers.UNKNOWN);
         }
 
         final Matcher bare = BARE_FRAME.matcher(trimmed);
