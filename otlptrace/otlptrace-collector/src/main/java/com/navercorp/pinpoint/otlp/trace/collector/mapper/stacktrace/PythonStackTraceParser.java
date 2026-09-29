@@ -58,8 +58,8 @@ public class PythonStackTraceParser implements StackTraceParser {
         if (stackTrace.contains(TRACEBACK_HEADER)) {
             return true;
         }
-        for (String line : stackTrace.split("\n")) {
-            if (FRAME.matcher(line.trim()).matches()) {
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            if (FRAME.matcher(line).matches()) {
                 return true;
             }
         }
@@ -69,8 +69,8 @@ public class PythonStackTraceParser implements StackTraceParser {
     @Override
     public void parse(String stackTrace, StackFrameSink sink) {
         final List<StackFrame> outermostFirst = new ArrayList<>();
-        for (String line : stackTrace.split("\n")) {
-            final Matcher matcher = FRAME.matcher(line.trim());
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            final Matcher matcher = FRAME.matcher(line);
             if (!matcher.matches()) {
                 continue;
             }

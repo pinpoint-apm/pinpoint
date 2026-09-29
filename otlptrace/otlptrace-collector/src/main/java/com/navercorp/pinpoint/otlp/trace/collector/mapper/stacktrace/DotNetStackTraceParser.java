@@ -52,12 +52,11 @@ public class DotNetStackTraceParser implements StackTraceParser {
 
     @Override
     public void parse(String stackTrace, StackFrameSink sink) {
-        for (String line : stackTrace.split("\n")) {
-            final String trimmed = line.trim();
-            if (!trimmed.startsWith("at ")) {
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            if (!line.startsWith("at ")) {
                 continue;
             }
-            final Matcher matcher = FRAME.matcher(trimmed);
+            final Matcher matcher = FRAME.matcher(line);
             if (!matcher.matches()) {
                 continue;
             }

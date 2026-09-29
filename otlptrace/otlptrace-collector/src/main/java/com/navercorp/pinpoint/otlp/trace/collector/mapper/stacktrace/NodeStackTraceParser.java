@@ -49,15 +49,14 @@ public class NodeStackTraceParser implements StackTraceParser {
 
     @Override
     public boolean matches(String stackTrace) {
-        for (String line : stackTrace.split("\n")) {
-            final String trimmed = line.trim();
-            if (!trimmed.startsWith("at ")) {
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            if (!line.startsWith("at ")) {
                 continue;
             }
-            if (BARE_FRAME.matcher(trimmed).matches()) {
+            if (BARE_FRAME.matcher(line).matches()) {
                 return true;
             }
-            final Matcher parens = PARENS_FRAME.matcher(trimmed);
+            final Matcher parens = PARENS_FRAME.matcher(line);
             if (parens.matches() && LOCATION.matcher(parens.group(2)).matches()) {
                 return true;
             }
@@ -69,13 +68,12 @@ public class NodeStackTraceParser implements StackTraceParser {
 
     @Override
     public void parse(String stackTrace, StackFrameSink sink) {
-        for (String line : stackTrace.split("\n")) {
-            final String trimmed = line.trim();
-            if (!trimmed.startsWith("at ")) {
+        for (String line : StackTraceLines.trimmed(stackTrace)) {
+            if (!line.startsWith("at ")) {
                 continue;
             }
 
-            final StackFrame frame = parseLine(trimmed);
+            final StackFrame frame = parseLine(line);
             if (frame != null && !sink.add(frame)) {
                 return;
             }
