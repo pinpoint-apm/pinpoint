@@ -11,8 +11,10 @@ import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/sr
 import {
   addCommas,
   buildServerMapSearchList,
+  expandServiceGroups,
   findServiceGroupLink,
   findServiceGroupNode,
+  getExpandedServiceGroupId,
   getServerImagePath,
   getTimeSeriesApdexInfo,
   ServerMapSearchItem,
@@ -123,7 +125,35 @@ export const ServerMapCore = ({
     nodes: [],
     edges: [],
   });
+  // 더블클릭으로 펼친 service group의 key. 화면에서만 푸는 것이라 백엔드에 다시 묻지 않는다
+  // (`expandServiceGroups`). 실시간 보기처럼 데이터가 다시 와도 펼친 상태가 유지되도록 state로 둔다.
+  const [expandedServiceKeys, setExpandedServiceKeys] = React.useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const mapView = React.useMemo(
+    () =>
+      expandServiceGroups(
+        (data?.applicationMapData?.nodeDataArray ?? []) as GetServerMap.NodeData[],
+        (data?.applicationMapData?.linkDataArray ?? []) as GetServerMap.LinkData[],
+        expandedServiceKeys,
+      ),
+    [data, expandedServiceKeys],
+  );
+  // cytoscape 이벤트 핸들러는 한 번 등록되어 이후 렌더의 값을 보지 못한다(아래 popperContentTypeRef와
+  // 같은 이유). 펼칠 때마다 그려진 노드·링크가 바뀌므로 핸들러는 ref로 최신 값을 본다.
+  const mapViewRef = React.useRef(mapView);
+  React.useEffect(() => {
+    mapViewRef.current = mapView;
+  }, [mapView]);
   const serviceGroupTargetRef = React.useRef<GetServerMap.NodeData | undefined>(undefined);
+  /** service group이 지금 그래프에 그려진 id. 펼쳐져 있으면 자식들을 감싼 상자의 id다. */
+  const getDrawnServiceGroupId = (group?: GetServerMap.NodeData) => {
+    if (!group) {
+      return undefined;
+    }
+    const isExpanded = mapViewRef.current.expandedGroups.some((g) => g.group.key === group.key);
+    return isExpanded ? getExpandedServiceGroupId(group.key) : group.key;
+  };
   const serviceGroupLinkTargetRef = React.useRef<GetServerMap.LinkData | undefined>(undefined);
   const [serviceGroupSearch, setServiceGroupSearch] = React.useState('');
   const serviceGroupSearchRef = React.useRef<HTMLInputElement>(null);
@@ -208,7 +238,7 @@ export const ServerMapCore = ({
     const isLinkPopup = popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST;
     if (!isNodePopup && !isLinkPopup) return;
     const targetId = isNodePopup
-      ? serviceGroupTargetRef.current?.key
+      ? getDrawnServiceGroupId(serviceGroupTargetRef.current)
       : serviceGroupLinkTargetRef.current?.key;
     if (!targetId) return;
 
@@ -232,20 +262,37 @@ export const ServerMapCore = ({
     };
   }, [popperContentType]);
 
+  // 기준 application이 바뀌면 다른 map이다. 이전 map에서 펼친 상태를 이어 가지 않는다.
+  useUpdateEffect(() => {
+    setExpandedServiceKeys(new Set());
+  }, [baseNodeId]);
+
   useOnClickOutside(popperContentRef as React.RefObject<HTMLDivElement>, () => {
     setPopperContentType(undefined);
   });
 
   React.useEffect(() => {
-    const { nodeDataArray = [], linkDataArray = [] } = data?.applicationMapData || {};
+    const { nodeDataArray = [] } = data?.applicationMapData || {};
     const nodeTypes = new Set(nodeDataArray.map((node) => node.serviceType));
     const isFilteredMap = 'lastFetchedTimestamp' in (data || {});
 
     allServiceTypes.current = Array.from(nodeTypes);
 
-    const nodes: Node[] = nodeDataArray.map((node) => {
-      const subNodes = (node as GetServerMap.NodeData).subNodes;
+    // 펼친 group을 감싸는 부모(compound) 상자. 자식보다 먼저 둔다. 생길 때는 접혀 있던 group
+    // 노드 자리에 놓이고(anchorId), 다시 접으면 group 노드가 이 상자 자리에 놓인다.
+    const parentNodes: Node[] = mapView.expandedGroups.map(({ id, group }) => ({
+      id,
+      label: group.applicationName,
+      anchorId: group.key,
+    }));
+    const groupKeyOfParent = new Map(
+      mapView.expandedGroups.map(({ id, group }) => [id, group.key]),
+    );
+
+    const nodes: Node[] = mapView.nodes.map((node) => {
+      const subNodes = node.subNodes;
       const hasSubNodes = Array.isArray(subNodes);
+      const parent = mapView.parentOf.get(node.key);
       return {
         id: node.key,
         label: node.applicationName,
@@ -257,6 +304,16 @@ export const ServerMapCore = ({
         timeSeriesApdexInfo: isFilteredMap
           ? undefined // filtered map에서는 시간 시리즈 Apdex 정보를 사용하지 않는다.
           : getTimeSeriesApdexInfo(node),
+        parent,
+        // 묶음 노드는 자식들을 대신 그린다. 자식이 선택된 채로 묶이면 이 노드가 하이라이트된다.
+        memberIds: subNodes?.map(({ key }) => key),
+        // 펼친 group의 자식은 그 group 노드가 있던 자리에, 접힌 group은 자기를 감싸던 상자 자리에 놓인다.
+        // 기준 노드가 바로 전에 그려져 있지 않았으면 쓰이지 않는다.
+        anchorId: parent
+          ? groupKeyOfParent.get(parent)
+          : hasSubNodes
+            ? getExpandedServiceGroupId(node.key)
+            : undefined,
         shouldNotMerge: () => {
           // service group 노드(subNodes 보유)는 cytoscape의 자동 merge에 휘말리지 않도록 단독 표시한다.
           return (
@@ -269,18 +326,20 @@ export const ServerMapCore = ({
       };
     });
 
-    const edges = linkDataArray.map((link) => ({
+    const edges = mapView.links.map((link) => ({
       id: link.key,
       source: link.from,
       target: link.to,
+      // 묶음 링크는 자식 링크들을 대신 그린다. 노드의 memberIds와 같다.
+      memberIds: link.subLinks?.map(({ key }) => key),
       transactionInfo: {
         totalCount: link.totalCount,
         avgResponseTime: link.responseStatistics.Avg,
       },
     }));
 
-    setServerMapData({ nodes, edges });
-  }, [data, unCheckedServiceTypes]);
+    setServerMapData({ nodes: [...parentNodes, ...nodes], edges });
+  }, [data, mapView, unCheckedServiceTypes]);
 
   // 검색 목록. service group 노드는 그 자체와 소속 application을 모두 담아, service에 묶인
   // application도 이름으로 찾을 수 있게 한다.
@@ -368,10 +427,10 @@ export const ServerMapCore = ({
 
   const handleClickNode: ServerMapCoreProps['onClickNode'] = (params) => {
     const { eventType, position, data: clickedData } = params;
-    const serviceGroup = findServiceGroupNode(
-      data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined,
-      clickedData?.id,
-    );
+    const { nodes: viewNodes, expandedGroups } = mapViewRef.current;
+    const serviceGroup = findServiceGroupNode(viewNodes, clickedData?.id);
+    // 펼친 group을 감싼 상자.
+    const expandedGroup = expandedGroups.find(({ id }) => id === clickedData?.id)?.group;
 
     // service group 노드는 필터 메뉴를 열지 않는다. 기준 application이 없어 filteredMap 조회가
     // 성립하지 않으므로(`getFilterTargetApplication`이 null) 메뉴를 띄워봐야 눌러도 아무 일이
@@ -381,26 +440,79 @@ export const ServerMapCore = ({
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.NODE);
       rightClickTargetRef.current = clickedData;
     } else if (eventType === 'left' && clickedData) {
-      if (serviceGroup) {
-        setPopperPosition(position);
-        setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST);
-        serviceGroupTargetRef.current = serviceGroup;
-      } else if (
+      // group 노드와 상자의 자식 목록 팝업은 여기서 열지 않는다 → handleSingleClickNode
+      if (
+        !serviceGroup &&
+        !expandedGroup &&
         popperContentTypeRef.current !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST &&
         popperContentTypeRef.current !== SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST
       ) {
         setPopperContentType(undefined);
       }
     }
-    onClickNode?.(params);
+    // 상자는 응답에 없는 노드라 조회 대상이 될 수 없다. 넘기면 상위에서 상자의 id로 선택을 만든다.
+    if (!expandedGroup) {
+      onClickNode?.(params);
+    }
+  };
+
+  /**
+   * service group 노드나 펼친 상자를 한 번만 클릭하면 자식 목록 팝업을 연다.
+   *
+   * 좌클릭(`handleClickNode`)에서 열면 더블클릭의 첫 클릭에서도 팝업이 열렸다가, 곧이어 펼치면서
+   * 닫혀 깜빡인다. 한 번 클릭은 더블클릭이 아닌 것이 확인된 뒤에 오므로(cytoscape `onetap`)
+   * 팝업이 조금 늦게 뜨는 대신 더블클릭에서는 아예 열리지 않는다.
+   */
+  const handleSingleClickNode: ServerMapCoreProps['onSingleClickNode'] = ({
+    position,
+    data: clickedData,
+  }) => {
+    const { nodes: viewNodes, expandedGroups } = mapViewRef.current;
+    const group =
+      findServiceGroupNode(viewNodes, clickedData?.id) ??
+      expandedGroups.find(({ id }) => id === clickedData?.id)?.group;
+
+    if (group) {
+      setPopperPosition(position);
+      setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST);
+      serviceGroupTargetRef.current = group;
+    }
+  };
+
+  /**
+   * service group을 더블클릭하면 펼치고, 펼친 상자를 더블클릭하면 다시 접는다.
+   *
+   * 한 번 클릭으로 열어 둔 팝업이 있으면 닫는다. 펼치거나 접으면 그 노드가 그래프에서 사라져
+   * 팝업이 가리킬 곳이 없다.
+   */
+  const handleDoubleClickNode: ServerMapCoreProps['onDoubleClickNode'] = ({
+    data: clickedData,
+  }) => {
+    const { nodes: viewNodes, expandedGroups } = mapViewRef.current;
+    const serviceGroup = findServiceGroupNode(viewNodes, clickedData?.id);
+    const expandedGroup = expandedGroups.find(({ id }) => id === clickedData?.id)?.group;
+    const group = serviceGroup ?? expandedGroup;
+
+    if (!group) {
+      return;
+    }
+
+    setExpandedServiceKeys((prev) => {
+      const next = new Set(prev);
+      if (serviceGroup) {
+        next.add(group.key);
+      } else {
+        next.delete(group.key);
+      }
+      return next;
+    });
+    setPopperContentType(undefined);
   };
 
   const handleClickEdge: ServerMapCoreProps['onClickEdge'] = (params) => {
     const { eventType, position, data: clickedData } = params;
-    const serviceGroupLink = findServiceGroupLink(
-      data?.applicationMapData?.linkDataArray as GetServerMap.LinkData[] | undefined,
-      clickedData?.id,
-    );
+    // 펼친 group에 닿는 링크는 화면에서 다시 묶은 것이라 응답에 없다. 그려진 링크에서 찾는다.
+    const serviceGroupLink = findServiceGroupLink(mapViewRef.current.links, clickedData?.id);
 
     // service group 링크(Application→Service, Service→Application, Service→Service)는 필터
     // 메뉴를 열지 않는다. 한쪽 끝에 application이 없어 필터가 반쪽만 걸린 filteredMap이 열리기
@@ -421,7 +533,11 @@ export const ServerMapCore = ({
         setPopperContentType(undefined);
       }
     }
-    onClickEdge?.(params);
+    // group 링크는 조회 대상이 될 수 없다(팝업에서 자식 링크를 골라야 선택이다). 화면에서 다시 묶은
+    // group 링크는 응답에 없어서 상위가 group인지 알아볼 수 없으므로 여기서 거른다.
+    if (!serviceGroupLink) {
+      onClickEdge?.(params);
+    }
   };
 
   const handleClickMenuItem = (type: SERVERMAP_MENU_FUNCTION_TYPE) => {
@@ -436,7 +552,7 @@ export const ServerMapCore = ({
   const openServiceGroupList = (group: GetServerMap.NodeData) => {
     serviceGroupTargetRef.current = group;
 
-    const target = cyRef.current?.getElementById(group.key);
+    const target = cyRef.current?.getElementById(getDrawnServiceGroupId(group)!);
     const position = target && !target.empty() ? target.renderedPosition() : undefined;
 
     if (position) {
@@ -454,7 +570,19 @@ export const ServerMapCore = ({
    * 자식 선택과 같은 상태다).
    */
   const handleClickSearchListItem = ({ node, serviceGroup }: ServerMapSearchItem) => {
-    const key = serviceGroup?.key ?? node.key;
+    // 펼친 group의 자식은 그래프에 자기 노드가 있으므로 평범한 노드처럼 그 노드로 간다.
+    const isExpandedChild = Boolean(serviceGroup && mapViewRef.current.parentOf.has(node.key));
+    // group 노드 자체를 골랐을 때도 좌클릭과 같이 자식 목록을 펼친다. group은 그 자체로 조회
+    // 대상이 될 수 없어(ServiceMapFetcher가 선택으로 만들지 않는다) 목록을 열지 않으면 노드만
+    // 가운데로 오고 아무 일도 일어나지 않은 화면이 된다.
+    const group = isExpandedChild
+      ? undefined
+      : (serviceGroup ??
+        findServiceGroupNode(
+          data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined,
+          node.key,
+        ));
+    const key = getDrawnServiceGroupId(group) ?? node.key;
     let clickedNode = cyRef.current?.getElementById(key);
 
     if (clickedNode?.empty()) {
@@ -470,21 +598,30 @@ export const ServerMapCore = ({
     clickedNode?.select();
     clickedNode?.emit('tap');
 
-    // group 노드 자체를 골랐을 때도 좌클릭과 같이 자식 목록을 펼친다. group은 그 자체로 조회
-    // 대상이 될 수 없어(ServiceMapFetcher가 선택으로 만들지 않는다) 목록을 열지 않으면 노드만
-    // 가운데로 오고 아무 일도 일어나지 않은 화면이 된다.
-    const group =
-      serviceGroup ??
-      findServiceGroupNode(
-        data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined,
-        node.key,
-      );
-
     if (group) {
       openServiceGroupList(group);
     }
-    if (serviceGroup) {
+    if (serviceGroup && !isExpandedChild) {
       onClickSubNode?.(node);
+    }
+  };
+
+  /**
+   * 자식 목록 팝업에서 application을 고른다.
+   *
+   * 펼친 group의 자식은 그래프에 자기 노드가 있으므로 그 노드를 클릭한 것과 같게 한다 — 그래야
+   * 조회 대상과 그래프의 강조가 같은 노드를 가리킨다. 접힌 group은 자식 노드가 그래프에 없어
+   * 조회 대상만 넘긴다.
+   */
+  const handleClickSubNodeItem = (subNode: GetServerMap.NodeData) => {
+    const drawnNode = mapViewRef.current.parentOf.has(subNode.key)
+      ? cyRef.current?.getElementById(subNode.key)
+      : undefined;
+
+    if (drawnNode?.nonempty()) {
+      drawnNode.emit('tap');
+    } else {
+      onClickSubNode?.(subNode);
     }
   };
 
@@ -722,7 +859,7 @@ export const ServerMapCore = ({
                                 <ServerMapMenuItem
                                   key={subNode.key}
                                   className={cn(isSelected && 'bg-accent font-semibold')}
-                                  onClick={() => onClickSubNode?.(subNode)}
+                                  onClick={() => handleClickSubNodeItem(subNode)}
                                 >
                                   {/* 아이콘은 바로 옆 이름이 말해 주는 것을 되풀이할 뿐이라
                                       스크린 리더에는 읽히지 않게 둔다. */}
@@ -884,6 +1021,8 @@ export const ServerMapCore = ({
                   onHoverNode={handleHoverNode}
                   onClickBackground={handleClickBackground}
                   onClickNode={handleClickNode}
+                  onDoubleClickNode={handleDoubleClickNode}
+                  onSingleClickNode={handleSingleClickNode}
                   onClickEdge={handleClickEdge}
                   onDataMerged={({ types }) => setCheckedServiceTypes(types)}
                   cy={(cy) => {

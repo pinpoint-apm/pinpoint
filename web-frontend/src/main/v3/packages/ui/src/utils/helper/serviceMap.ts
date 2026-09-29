@@ -1,5 +1,51 @@
 import { GetServerMap, GetServiceMap } from '@pinpoint-fe/ui/src/constants';
 
+const emptyResponseStatistics: GetServerMap.ResponseStatistics = {
+  Tot: 0,
+  Sum: 0,
+  Avg: 0,
+  Max: 0,
+};
+const emptyHistogram: GetServerMap.Histogram = {
+  '1s': 0,
+  '3s': 0,
+  '5s': 0,
+  Slow: 0,
+  Error: 0,
+};
+
+/**
+ * 묶인 링크 여러 개를 service group 링크 하나로 합친다. 원본은 `subLinks`에 그대로 담는다.
+ *
+ * 백엔드가 묶어 보낸 링크(`type:'service'`)와, 화면에서 group을 펼치며 다시 묶은 링크
+ * (`expandServiceGroups`)가 같은 모양이어야 팝업·필터 판별(`findServiceGroupLink`)이 둘을
+ * 구분하지 않는다.
+ */
+const buildServiceGroupLink = (
+  key: string,
+  from: string,
+  to: string,
+  innerLinks: GetServerMap.LinkData[],
+): GetServerMap.LinkData => {
+  const firstLink = innerLinks[0];
+  return {
+    key,
+    from,
+    to,
+    sourceInfo: firstLink?.sourceInfo,
+    targetInfo: firstLink?.targetInfo,
+    filter: firstLink?.filter,
+    responseStatistics: emptyResponseStatistics,
+    histogram: emptyHistogram,
+    timeSeriesHistogram: [],
+    totalCount: innerLinks.reduce((acc, l) => acc + (l.totalCount ?? 0), 0),
+    errorCount: innerLinks.reduce((acc, l) => acc + (l.errorCount ?? 0), 0),
+    slowCount: innerLinks.reduce((acc, l) => acc + (l.slowCount ?? 0), 0),
+    hasAlert: innerLinks.some((l) => l.hasAlert),
+    subLinks: innerLinks,
+  } as GetServerMap.LinkData;
+};
+
 // /serviceMap 응답을 GetServerMap.Response 형태로 변환.
 // type:'service' 그룹은 그래프상 단일 노드로 그리되, 원본 자식 노드는 subNodes 필드에 보관해
 // 그래프에서 노드를 좌클릭했을 때 팝업으로 자식 리스트를 펼칠 수 있게 한다.
@@ -7,20 +53,6 @@ export const flattenServiceMapResponse = (
   data: GetServiceMap.Response | undefined,
 ): GetServerMap.Response | undefined => {
   if (!data) return undefined;
-
-  const emptyResponseStatistics: GetServerMap.ResponseStatistics = {
-    Tot: 0,
-    Sum: 0,
-    Avg: 0,
-    Max: 0,
-  };
-  const emptyHistogram: GetServerMap.Histogram = {
-    '1s': 0,
-    '3s': 0,
-    '5s': 0,
-    Slow: 0,
-    Error: 0,
-  };
 
   const nodeDataArray: GetServerMap.NodeData[] = [];
   for (const entry of data.applicationMapData.nodeDataArray) {
@@ -64,24 +96,7 @@ export const flattenServiceMapResponse = (
   const linkDataArray: GetServerMap.LinkData[] = [];
   for (const entry of data.applicationMapData.linkDataArray) {
     if (entry.type === 'service') {
-      const innerLinks = entry.links;
-      const firstLink = innerLinks[0];
-      linkDataArray.push({
-        key: entry.key,
-        from: entry.from,
-        to: entry.to,
-        sourceInfo: firstLink?.sourceInfo,
-        targetInfo: firstLink?.targetInfo,
-        filter: firstLink?.filter,
-        responseStatistics: emptyResponseStatistics,
-        histogram: emptyHistogram,
-        timeSeriesHistogram: [],
-        totalCount: innerLinks.reduce((acc, l) => acc + (l.totalCount ?? 0), 0),
-        errorCount: innerLinks.reduce((acc, l) => acc + (l.errorCount ?? 0), 0),
-        slowCount: innerLinks.reduce((acc, l) => acc + (l.slowCount ?? 0), 0),
-        hasAlert: innerLinks.some((l) => l.hasAlert),
-        subLinks: innerLinks,
-      } as GetServerMap.LinkData);
+      linkDataArray.push(buildServiceGroupLink(entry.key, entry.from, entry.to, entry.links));
     } else {
       linkDataArray.push(entry);
     }
@@ -136,6 +151,107 @@ export const findServiceGroupLink = <T extends GetServerMap.LinkData>(
   links?.find(
     (link) => link.key === key && Array.isArray(link.subLinks) && link.subLinks.length > 0,
   );
+
+/** 펼친 service group을 감싸는 부모(compound) 노드의 id. 응답의 어떤 key와도 겹치지 않게 접두사를 붙인다. */
+export const getExpandedServiceGroupId = (groupKey: string) => `service-group-expanded:${groupKey}`;
+
+export interface ServiceMapView {
+  /** 그래프에 그릴 노드. 펼친 group 자리에는 그 자식 application들이 들어간다. */
+  nodes: GetServerMap.NodeData[];
+  /** 그래프에 그릴 링크. 펼친 group에 닿는 링크는 자식 application 단위로 다시 이어져 있다. */
+  links: GetServerMap.LinkData[];
+  /** 펼친 group마다 하나씩, 자식들을 감싸는 부모 노드. `id`는 `getExpandedServiceGroupId`의 값이다. */
+  expandedGroups: { id: string; group: GetServerMap.NodeData }[];
+  /** 펼친 group의 자식 key → 그 자식을 감싸는 부모 노드 id */
+  parentOf: Map<string, string>;
+}
+
+/**
+ * 화면에서 펼친 service group을 자식 application 단위로 풀어 그릴 노드·링크를 만든다.
+ *
+ * 백엔드에 다시 묻지 않는다. group 노드는 `subNodes`에, group 링크는 `subLinks`에 원본을
+ * 전부 담아 오므로(service 안쪽끼리 잇는 링크도 `B→B` group 링크에 들어 있다 —
+ * `ServiceMapViewBuilder#buildLinks`) 그것만으로 어떤 조합이든 다시 만들 수 있다.
+ *
+ * 링크는 `subLinks`를 풀어 양 끝을 다시 잇는다. 끝이 **아직 접힌** group 소속이면 그 group
+ * key로, 펼친 group 소속이면 자식 key 그대로 잇는다. 이어 보니 양 끝이 모두 application이면
+ * 평범한 링크로, 한쪽이라도 group이면 다시 group 링크로 묶는다 — 백엔드와 같은 규칙이라
+ * (`fromExpanded && toExpanded`일 때만 평범한 링크) `findServiceGroupLink`로 필터 메뉴를
+ * 막는 판별이 그대로 동작한다.
+ *
+ * 펼친 group이 없으면 입력을 그대로 돌려준다.
+ */
+export const expandServiceGroups = (
+  nodes: GetServerMap.NodeData[],
+  links: GetServerMap.LinkData[],
+  expandedKeys: ReadonlySet<string>,
+): ServiceMapView => {
+  const expandedGroups = nodes
+    .filter((node) => expandedKeys.has(node.key) && findServiceGroupNode([node], node.key))
+    .map((group) => ({ id: getExpandedServiceGroupId(group.key), group }));
+
+  if (expandedGroups.length === 0) {
+    return { nodes, links, expandedGroups, parentOf: new Map() };
+  }
+
+  const expandedGroupKeys = new Set(expandedGroups.map(({ group }) => group.key));
+  const ownerGroupOf = new Map<string, string>();
+  nodes.forEach((node) => {
+    node.subNodes?.forEach((subNode) => ownerGroupOf.set(subNode.key, node.key));
+  });
+
+  const parentOf = new Map<string, string>();
+  const viewNodes = nodes.flatMap((node) => {
+    if (!expandedGroupKeys.has(node.key)) {
+      return [node];
+    }
+    const parentId = getExpandedServiceGroupId(node.key);
+    const subNodes = node.subNodes ?? [];
+    subNodes.forEach((subNode) => parentOf.set(subNode.key, parentId));
+    return subNodes;
+  });
+
+  // 링크 끝을 지금 그려진 노드로 옮긴다. 접힌 group 소속이면 group key, 아니면 자기 key.
+  const resolveEnd = (key: string) => {
+    const owner = ownerGroupOf.get(key);
+    return owner !== undefined && !expandedGroupKeys.has(owner) ? owner : key;
+  };
+  // resolveEnd를 지난 끝이 group key라면 그것은 곧 접힌 group이다.
+  const isGroupKey = (key: string) => Boolean(findServiceGroupNode(nodes, key));
+
+  const viewLinks: GetServerMap.LinkData[] = [];
+  const regrouped = new Map<string, { from: string; to: string; links: GetServerMap.LinkData[] }>();
+
+  links.forEach((link) => {
+    const touchesExpanded = expandedGroupKeys.has(link.from) || expandedGroupKeys.has(link.to);
+    if (!Array.isArray(link.subLinks) || !touchesExpanded) {
+      viewLinks.push(link);
+      return;
+    }
+
+    link.subLinks.forEach((subLink) => {
+      const from = resolveEnd(subLink.from);
+      const to = resolveEnd(subLink.to);
+      const key = `${from}~${to}`;
+      const bucket = regrouped.get(key);
+      if (bucket) {
+        bucket.links.push(subLink);
+      } else {
+        regrouped.set(key, { from, to, links: [subLink] });
+      }
+    });
+  });
+
+  regrouped.forEach(({ from, to, links: innerLinks }, key) => {
+    if (!isGroupKey(from) && !isGroupKey(to)) {
+      viewLinks.push(...innerLinks);
+    } else {
+      viewLinks.push(buildServiceGroupLink(key, from, to, innerLinks));
+    }
+  });
+
+  return { nodes: viewNodes, links: viewLinks, expandedGroups, parentOf };
+};
 
 /**
  * map 검색 목록의 한 항목.

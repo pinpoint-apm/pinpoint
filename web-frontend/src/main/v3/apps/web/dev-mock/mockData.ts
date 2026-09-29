@@ -26,7 +26,12 @@ export const OTHER_SERVICE = 'B';
 export const MOCK_SERVICES = [VIEWING_SERVICE, OTHER_SERVICE];
 
 const VIEWING_APPS = ['a-1', 'a-2'];
-const OTHER_APPS = ['b-1', 'b-2'];
+/**
+ * B service에 묶이는 application 개수. 기본은 2개이고, `MOCK_SERVICE_MAP_APPS=50 yarn dev:mock`처럼
+ * 늘려서 하위 노드가 아주 많은 group을 펼쳐 볼 수 있다.
+ */
+const OTHER_APP_COUNT = Math.max(1, Number(process.env.MOCK_SERVICE_MAP_APPS) || 2);
+const OTHER_APPS = Array.from({ length: OTHER_APP_COUNT }, (_, index) => `b-${index + 1}`);
 
 /** mock이 가로챌 application. 그 외 application 조회는 실제 백엔드로 그대로 넘긴다. */
 export const MOCK_APPLICATIONS = [...VIEWING_APPS, ...OTHER_APPS];
@@ -186,11 +191,19 @@ export const makeServiceMapResponse = (from: number, to: number) => {
   const user = makeAppNode(VIEWING_SERVICE, VIEWING_APPS[0], USER, timestamps);
   const a1 = makeAppNode(VIEWING_SERVICE, VIEWING_APPS[0], TOMCAT, timestamps);
   const a2 = makeAppNode(VIEWING_SERVICE, VIEWING_APPS[1], TOMCAT, timestamps);
-  const b1 = makeAppNode(OTHER_SERVICE, OTHER_APPS[0], TOMCAT, timestamps);
-  const b2 = makeAppNode(OTHER_SERVICE, OTHER_APPS[1], TOMCAT, timestamps);
+  const otherNodes = OTHER_APPS.map((name) => makeAppNode(OTHER_SERVICE, name, TOMCAT, timestamps));
 
-  const groupLinks = [makeAppLink(a1, b1, timestamps), makeAppLink(a1, b2, timestamps)];
+  // 기본(2개)은 a-1이 모든 B application을 부른다. 개수를 늘리면 펼친 상자 안의 배치(열)도 볼 수 있게
+  // 홀수 번째만 a-1이 부르고, 짝수 번째는 바로 앞 홀수 번째가 부른다(B→B, service 안쪽 링크).
+  const isFanOut = OTHER_APP_COUNT > 2;
+  const callees = isFanOut ? otherNodes.filter((_, index) => index % 2 === 0) : otherNodes;
+  const groupLinks = callees.map((node) => makeAppLink(a1, node, timestamps));
   const groupTotal = groupLinks.reduce((acc, link) => acc + link.totalCount, 0);
+  const innerLinks = isFanOut
+    ? otherNodes.flatMap((node, index) =>
+        index % 2 === 1 ? [makeAppLink(otherNodes[index - 1], node, timestamps)] : [],
+      )
+    : [];
 
   return {
     applicationMapData: {
@@ -207,7 +220,7 @@ export const makeServiceMapResponse = (from: number, to: number) => {
         a2,
         // 다른 service는 group 노드 하나로 접혀서 온다. key가 serviceName 하나뿐이고
         // 자식 노드는 nodes에 담겨 온다(ServiceGroupNodeView).
-        { key: OTHER_SERVICE, type: 'service', serviceName: OTHER_SERVICE, nodes: [b1, b2] },
+        { key: OTHER_SERVICE, type: 'service', serviceName: OTHER_SERVICE, nodes: otherNodes },
       ],
       linkDataArray: [
         makeAppLink(user, a1, timestamps),
@@ -221,6 +234,19 @@ export const makeServiceMapResponse = (from: number, to: number) => {
           totalCount: groupTotal,
           links: groupLinks,
         },
+        // service 안쪽끼리의 링크는 양 끝이 같은 group이라 `B→B` group 링크로 온다.
+        ...(innerLinks.length > 0
+          ? [
+              {
+                key: `${OTHER_SERVICE}~${OTHER_SERVICE}`,
+                from: OTHER_SERVICE,
+                to: OTHER_SERVICE,
+                type: 'service',
+                totalCount: innerLinks.reduce((acc, link) => acc + link.totalCount, 0),
+                links: innerLinks,
+              },
+            ]
+          : []),
       ],
     },
   };

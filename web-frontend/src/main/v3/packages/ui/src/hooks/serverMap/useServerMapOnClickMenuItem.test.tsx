@@ -127,6 +127,28 @@ describe('useServerMapOnClickMenuItem', () => {
     expect(openFilteredMap()).toContain('/filteredMap/ACL-PORTAL-DEV@SPRING_BOOT');
   });
 
+  // servicemap에서 group을 펼치면 그 자식 링크가 그래프에 직접 그려진다. 응답에서는 group
+  // 링크의 subLinks 안에만 있으므로 거기서도 찾아야 출발지(WAS)를 기준으로 열린다.
+  test('finds a link inside a service group link', () => {
+    const data = getDefaultStore().get(serverMapDataAtom)!;
+    act(() =>
+      getDefaultStore().set(serverMapDataAtom, {
+        applicationMapData: {
+          ...data.applicationMapData,
+          linkDataArray: [
+            {
+              key: 'FRONT^TOMCAT~B',
+              subLinks: data.applicationMapData.linkDataArray,
+            },
+          ],
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any),
+    );
+
+    expect(openFilteredMap()).toContain('/filteredMap/FRONT@TOMCAT');
+  });
+
   // 기준 application이 없으면 filteredMap은 조회를 못 한다. 빈 화면을 새 탭으로 열지 않는다.
   test('does not open anything when no application can be picked', () => {
     mockFilterState = EMPTY_FILTER_STATE;

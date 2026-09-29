@@ -44,6 +44,24 @@ describe('getMergedData', () => {
       expect(result.edges).toHaveLength(2);
     });
 
+    it('부모(compound) 안의 노드는 병합하지 않아야 함', () => {
+      const nodes: Node[] = [
+        { id: 'n1', label: 'Node 1', type: 'WAS' },
+        { id: 'group', label: 'Group' },
+        { id: 't1', label: 'Target 1', type: 'DB', parent: 'group' },
+        { id: 't2', label: 'Target 2', type: 'DB', parent: 'group' },
+      ];
+      const edges: Edge[] = [
+        { id: 'e1', source: 'n1', target: 't1' },
+        { id: 'e2', source: 'n1', target: 't2' },
+      ];
+
+      const result = getMergedData({ nodes, edges });
+
+      expect(result.nodes).toHaveLength(4);
+      expect(result.edges).toHaveLength(2);
+    });
+
     it('shouldNotMerge가 true인 노드는 병합하지 않아야 함', () => {
       const nodes: Node[] = [
         { id: 'n1', label: 'Node 1', type: 'WAS' },

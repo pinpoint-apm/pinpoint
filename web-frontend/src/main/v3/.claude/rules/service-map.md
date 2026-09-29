@@ -503,6 +503,33 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
   돌려준다. 기준으로 삼을 한쪽만 보고 통과시키면 Application→Service가 새어나간다(출발지가
   WAS라 출발지를 기준으로 잡고 열린다). 어느 쪽이 기준인지(`sourceIsWas`)와 무관하게 양쪽을 본다.
 
+## service group 펼치기/접기 (더블클릭)
+
+접힌 service group 노드를 더블클릭하면 자식 application들이 부모(compound) 상자 안에 풀려 그려지고,
+상자를 더블클릭하면 다시 접힌다. 상자를 한 번 클릭하면 접힌 group과 같은 자식 목록 팝업이 열린다.
+
+- **백엔드에 다시 묻지 않는다.** group 노드는 `subNodes`, group 링크는 `subLinks`에 원본을 전부
+  담아 온다(service 안쪽끼리의 링크도 `B→B` group 링크에 있다). 화면에서 다시 짠다 →
+  `expandServiceGroups` (`utils/helper/serviceMap.ts`)
+- **펼친 상태는 `ServerMapCore`의 state다.** cytoscape만 만지면 데이터가 다시 올 때(실시간 2초 주기)
+  diff가 펼친 노드를 지워 도로 접힌다. 기준 application(`baseNodeId`)이 바뀌면 비운다.
+- **링크는 끝을 다시 잇고 필요하면 다시 묶는다.** 끝이 접힌 group 소속이면 group key로 잇고, 양 끝이
+  모두 application일 때만 평범한 링크로 둔다 — 백엔드의 `fromExpanded && toExpanded`와 같은 규칙이라
+  필터 메뉴 판별(`findServiceGroupLink`)이 그대로 동작한다. 그래서 **group 판별은 응답이 아니라
+  그려진 것(`mapView`)으로 한다.** 화면에서 다시 묶은 링크는 응답에 없다.
+- **상자와 group 링크의 클릭은 상위로 넘기지 않는다.** 상자는 응답에 없는 노드이고, 다시 묶은 링크는
+  상위(`ServiceMapFetcher`)가 응답에서 찾을 수 없어 group인지 모른 채 선택으로 만든다.
+- **위치는 전체 배치를 다시 돌리지 않고 정한다** (`packages/server-map/src/core/anchor.ts`).
+  노드의 `anchorId`가 "새로 생기면 이 노드가 있던 자리에 놓아라"다. 추가된 노드가 모두 이 경우면
+  `forceLayoutUpdate`여도 dagre를 돌리지 않는다.
+  - 펼침: 자식들을 group이 있던 자리를 가운데로 놓고, 상자와 **같은 행/열**의 노드만 커진 만큼의
+    절반씩 민다(무관한 노드는 제자리). 민 양은 기록해 두었다가 접을 때 되돌린다.
+  - 접힘: 자식 위치의 가운데에 group을 놓는다. 상자의 가운데(`position()`)는 자식 라벨까지 포함해
+    아래로 치우쳐, 쓰면 펼치고 접을 때마다 group이 조금씩 내려간다.
+  - cytoscape layout을 쓰지 않는다. `layoutready`가 화면을 기준 노드로 다시 센터링한다.
+    반대로 전체 배치(`layoutstart`)가 돌면 민 기록은 무효라 지운다.
+- 상자 안의 노드는 자동 merge 대상이 아니다. 합친 노드는 부모 하나에 속할 수 없다.
+
 ## map의 선택은 경로에 묶인다
 
 `serverMapCurrentTargetAtom`(map에서 고른 노드/링크)은 **그것을 고른 경로와 함께** 저장된다.
@@ -578,3 +605,5 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 | 메뉴 화면 로더의 serviceName 채우기 | `loader/serviceScopedPage.ts`, `loader/systemMetric.ts` |
 | 로더의 날짜 정규화 (공유) | `loader/mapDateRange.ts` |
 | filteredMap 경로 읽기 | `hooks/searchParameters/useFilteredMapParameters.ts` |
+| service group 펼치기 (데이터) | `utils/helper/serviceMap.ts` (`expandServiceGroups`) |
+| service group 펼치기 (위치) | `packages/server-map/src/core/anchor.ts` |
