@@ -1,3 +1,4 @@
+import React from 'react';
 import { useLocation } from 'react-router';
 import { setRenderedRouterPath } from '@pinpoint-fe/ui/src/utils';
 
@@ -23,6 +24,18 @@ export const useSyncRenderedRouterPath = () => {
   const { pathname } = useLocation();
 
   setRenderedRouterPath(pathname);
+
+  // 다시 붙을 때(StrictMode의 effect 재실행 등) 아래에서 비운 값을 되살린다.
+  React.useEffect(() => {
+    setRenderedRouterPath(pathname);
+  }, [pathname]);
+
+  // 이 레이아웃을 떠나면(`/apiCheck` 같은 형제 라우트) 더는 라우터가 렌더한 경로를 알려 줄 곳이
+  // 없다. 값을 남겨 두면 그 화면의 요청이 **떠난 화면의 경로**로 판정된다 — 403이 떠난 화면에
+  // 도장을 찍어, 돌아왔을 때 요청 없이 곧바로 권한 없음이 떴다. 비워서 `window.location`으로
+  // 폴백한다(레이아웃 밖에는 라우터와 어긋날 조회가 없다). 경로가 바뀔 때마다 비우면 그 사이
+  // 다른 effect가 폴백 값을 읽으므로, 비우는 것은 언마운트 때뿐이다.
+  React.useEffect(() => () => setRenderedRouterPath(undefined), []);
 
   return pathname;
 };

@@ -1,3 +1,4 @@
+import React from 'react';
 import { renderHook } from '@testing-library/react';
 
 const goTo = (pathname: string) => window.history.pushState({}, '', pathname);
@@ -8,6 +9,9 @@ const goTo = (pathname: string) => window.history.pushState({}, '', pathname);
  */
 const load = () => {
   jest.resetModules();
+  // 훅이 React를 쓰므로, 새 레지스트리에서도 renderHook이 쓰는 React와 같은 것을 받게 한다.
+  // 두 벌이 섞이면 훅 호출이 실패한다.
+  jest.doMock('react', () => React);
   const route = require('@pinpoint-fe/ui/src/utils/helper/route');
   const sync = require('./useSyncRenderedRouterPath');
   return { getCurrentRouterPath: route.getCurrentRouterPath, ...sync };
@@ -50,5 +54,19 @@ describe('useSyncRenderedRouterPath', () => {
     // 라우터가 새 경로로 렌더하면 그때 따라간다
     rerender();
     expect(getCurrentRouterPath()).toBe('/serviceMap/bService');
+  });
+
+  // `/apiCheck`처럼 이 훅을 부르는 레이아웃 밖으로 나가면 경로를 알려 줄 곳이 없다. 떠난 화면의
+  // 경로를 남기면 그 화면의 요청이 떠난 화면의 것으로 판정된다(403 도장이 떠난 화면에 찍혔다).
+  test('falls back to window.location once the layout that calls it unmounts', () => {
+    goTo('/inspector/app-name@TOMCAT');
+    const { getCurrentRouterPath, useSyncRenderedRouterPath } = load();
+    const { unmount } = renderHook(() => useSyncRenderedRouterPath());
+
+    goTo('/apiCheck');
+    expect(getCurrentRouterPath()).toBe('/inspector/app-name@TOMCAT');
+
+    unmount();
+    expect(getCurrentRouterPath()).toBe('/apiCheck');
   });
 });

@@ -66,6 +66,14 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
   const { t } = useTranslation();
   // 기준 application이 필요 없는 map은 고를 대상이 없으므로 곧바로 그린다.
   const showMap = !requiresApplication || !!application;
+  /**
+   * 권한 없는 노드를 고른 상태. map API는 403을 내지 않고 그런 노드를 `isAuthorized: false`로
+   * 내려주므로(`MapController`) map은 그대로 그려진다. 하지만 우측/하단 패널이 부르는 것들
+   * (`/getScatterData`, `/heatmap/applicationData`, `/agent/activeThreadLightDump`)은 모두
+   * application 단위 권한 검사가 있어 403이 된다. **실시간 화면은 5초 tick마다 다시 물으므로**
+   * 조회를 아예 시작하지 않아야 한다 — 정지 화면(`ServerMapChartBoard`)과 같은 처리다.
+   */
+  const isUnauthorizedTarget = currentTargetData?.isAuthorized === false;
 
   React.useEffect(() => {
     if (application) {
@@ -139,11 +147,16 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel id="chart" minSize={10} maxSize={90} className="overflow-auto!">
-              {isFocus && (
-                <ErrorBoundary>
-                  <AgentActiveThreadFetcher serviceName={targetServiceName} />
-                </ErrorBoundary>
-              )}
+              {isFocus &&
+                (isUnauthorizedTarget ? (
+                  <div className="flex items-center justify-center w-full h-full font-semibold text-status-fail">
+                    {t('COMMON.DO_NOT_HAVE_PERMISSION')}
+                  </div>
+                ) : (
+                  <ErrorBoundary>
+                    <AgentActiveThreadFetcher serviceName={targetServiceName} />
+                  </ErrorBoundary>
+                ))}
             </ResizablePanel>
           </ResizablePanelGroup>
         )}
@@ -161,7 +174,7 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
             serverMapData?.applicationMapData
               ?.timestamp as GetServerMap.ApplicationMapData['timestamp']
           }
-          nodeData={currentTargetData?.isAuthorized === false ? undefined : currentTargetData}
+          nodeData={isUnauthorizedTarget ? undefined : currentTargetData}
           emptyMessage={t('COMMON.NO_DATA')}
           header={
             <ChartsBoardHeader
@@ -190,6 +203,10 @@ export const Realtime = ({ MapView = ServerMap, requiresApplication = true }: Re
               list={getClickedMergedNodeList(serverMapCurrentTarget)}
               onClickItem={handleClickMergedItem}
             />
+          ) : isUnauthorizedTarget ? (
+            <div className="flex justify-center pt-24 font-semibold text-status-fail">
+              {t('COMMON.DO_NOT_HAVE_PERMISSION')}
+            </div>
           ) : (
             <>
               {(currentTargetData as GetServerMap.NodeData)?.instanceCount ? (

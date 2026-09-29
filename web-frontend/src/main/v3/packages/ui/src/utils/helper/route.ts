@@ -43,8 +43,11 @@ export const toRouterPath = (pathname: string) =>
  */
 let renderedRouterPath: string | undefined;
 
-/** `useSyncRenderedRouterPath` 전용. 다른 곳에서 호출하지 않는다. */
-export const setRenderedRouterPath = (pathname: string) => {
+/**
+ * `useSyncRenderedRouterPath` 전용. 다른 곳에서 호출하지 않는다.
+ * undefined는 "그 훅을 부르는 레이아웃을 떠났다"는 뜻이다 — 다시 `window.location`으로 폴백한다.
+ */
+export const setRenderedRouterPath = (pathname: string | undefined) => {
   renderedRouterPath = pathname;
 };
 
