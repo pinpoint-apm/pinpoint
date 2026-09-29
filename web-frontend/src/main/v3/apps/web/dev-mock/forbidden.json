@@ -1,0 +1,4 @@
+{
+  "_comment": "[MOCK #10744] 403을 돌려줄 (화면, application) 조합. 요청마다 다시 읽으므로 dev 서버 재시작이 필요 없다. page: inspector | urlStatistic | threadDump | errorAnalysis | scatterFullScreenMode | heatmapFullScreenMode | config/agentStatistic | * , application: 이름 또는 * (생략하면 전체)",
+  "forbidden": [{ "page": "inspector", "application": "myApp" }]
+}
