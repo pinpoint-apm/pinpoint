@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
+import com.navercorp.pinpoint.service.config.ServiceModelCacheConfiguration;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -31,6 +32,7 @@ import org.springframework.context.annotation.Import;
 })
 @Import({
         HyperLinkConfiguration.class,
+        ServiceModelCacheConfiguration.class,
         WebServiceConfig.CommonConfig.class,
 })
 public class WebServiceConfig {

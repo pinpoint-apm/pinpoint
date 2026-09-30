@@ -1,8 +1,8 @@
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.service.service;
 
-import com.navercorp.pinpoint.service.service.ServiceNotFoundException;
+import com.navercorp.pinpoint.service.config.ServiceModelLoadProperties;
+import com.navercorp.pinpoint.service.config.ServiceModelCacheConfiguration;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
-import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

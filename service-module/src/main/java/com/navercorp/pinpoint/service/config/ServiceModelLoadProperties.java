@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.service.config;
 
 import org.springframework.beans.factory.annotation.Value;
 

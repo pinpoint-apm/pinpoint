@@ -1,8 +1,8 @@
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.service.service;
 
-import com.navercorp.pinpoint.service.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.config.ServiceModelCacheConfiguration;
+import com.navercorp.pinpoint.service.config.ServiceModelLoadProperties;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
-import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
