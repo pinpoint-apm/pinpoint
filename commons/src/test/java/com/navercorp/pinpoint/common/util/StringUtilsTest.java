@@ -339,6 +339,50 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testRightTrimIndex1() {
+        String testStr = "0123  ";
+        assertEquals(testStr.trim().length(), StringUtils.rightTrimIndex(testStr));
+    }
+
+    @Test
+    public void testRightTrimIndex2() {
+        String testStr = "0123";
+        assertEquals(testStr.length(), StringUtils.rightTrimIndex(testStr));
+    }
+
+    @Test
+    public void testRightTrimIndex3() {
+        assertEquals(0, StringUtils.rightTrimIndex(""));
+        assertEquals(0, StringUtils.rightTrimIndex("   "));
+    }
+
+    @Test
+    public void testRightTrimIndex_range() {
+        String testStr = "ab  cd  ";
+        assertEquals(2, StringUtils.rightTrimIndex(testStr, 0, 4));
+        assertEquals(6, StringUtils.rightTrimIndex(testStr, 4, testStr.length()));
+        assertEquals(6, StringUtils.rightTrimIndex(testStr, 0, testStr.length()));
+    }
+
+    @Test
+    public void testRightTrimIndex_range_stopsAtFrom() {
+        // whitespace-only range must not scan past from
+        String testStr = "at (foo)";
+        assertEquals(2, StringUtils.rightTrimIndex(testStr, 2, 3));
+        assertEquals(0, StringUtils.rightTrimIndex(testStr, 0, 0));
+        assertEquals(3, StringUtils.rightTrimIndex(testStr, 3, 3));
+    }
+
+    @Test
+    public void testRightTrimIndex_range_outOfBounds() {
+        String testStr = "abc";
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> StringUtils.rightTrimIndex(testStr, -1, 3));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> StringUtils.rightTrimIndex(testStr, 2, 1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> StringUtils.rightTrimIndex(testStr, 0, 4));
+        Assertions.assertThrows(NullPointerException.class, () -> StringUtils.rightTrimIndex(null));
+    }
+
+    @Test
     public void replace() {
         Assertions.assertEquals("1bc", StringUtils.replace("abc", "a", "1"));
         Assertions.assertEquals("abc", StringUtils.replace("abc", "z", "1"));
