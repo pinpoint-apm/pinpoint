@@ -38,8 +38,7 @@ import java.util.concurrent.Semaphore;
  * Admission control for the OTLP/HTTP trace ingestion endpoint (POST /v1/traces).
  *
  * <p>Mirrors the gRPC path ({@code GrpcOtlpTraceService}) safeguards on the servlet side, but
- * enforced in a filter <b>before</b> the protobuf body is materialized by
- * {@code ProtobufHttpMessageConverter}:
+ * enforced in a filter <b>before</b> the controller reads and parses the body:
  * <ul>
  *   <li>per-request size cap &rarr; 413 (Content-Length check; unknown-length bodies are bounded
  *       by a limiting input stream)</li>
@@ -177,8 +176,9 @@ public class OtlpTraceHttpAdmissionFilter extends OncePerRequestFilter {
 
     /**
      * Counting {@link ServletInputStream} that aborts once the body exceeds {@code limit} bytes.
-     * The resulting {@link IOException} surfaces to the protobuf converter as a read failure
-     * (HTTP 400), bounding heap usage for bodies without a Content-Length.
+     * The resulting {@link IOException} surfaces to the controller's body parse as a read failure
+     * (HTTP 400 with a {@code google.rpc.Status} body, counted as a parse_error rejection), bounding
+     * heap usage for bodies without a Content-Length.
      */
     private static final class LimitedServletInputStream extends ServletInputStream {
         private final ServletInputStream delegate;

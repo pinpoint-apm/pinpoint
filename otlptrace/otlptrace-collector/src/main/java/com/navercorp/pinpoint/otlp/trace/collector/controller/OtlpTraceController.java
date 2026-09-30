@@ -35,10 +35,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -62,9 +63,19 @@ public class OtlpTraceController {
     // server error -> retryable 503 + google.rpc.Status body.
     // The response encoding mirrors the request Content-Type (protobuf or JSON), not Accept — OTLP
     // exporters do not negotiate, and Spring's negotiation would not guarantee the mirror.
+    //
+    // The body is taken as a raw InputStream (no @RequestBody, so no HttpMessageConverter): a byte[]
+    // parameter would hold the whole wire body — transiently twice, through readAllBytes — on top of
+    // the parsed message. Protobuf is parsed straight off the stream instead, so only the parsed
+    // message is ever in heap. Two consequences, both matching the gRPC path:
+    // - an empty body is an empty ExportTraceServiceRequest (200), not Spring's "body missing" 400;
+    // - a body read failure — the admission/decompression filters' size-limit IOException, or a
+    //   truncated upload — reaches this method (the generated parser wraps it in
+    //   InvalidProtocolBufferException) and is answered as a 400 parse error with a Status body and
+    //   a parse_error rejection count, instead of Spring's bare 400 that counted nothing.
     @PostMapping(value = "/v1/traces",
             consumes = {MediaType.APPLICATION_PROTOBUF_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<byte[]> export(@RequestBody byte[] body,
+    public ResponseEntity<byte[]> export(InputStream body,
                                          @RequestHeader(HttpHeaders.CONTENT_TYPE) String contentType) {
         final boolean json = isJson(contentType);
         final MediaType responseType = json ? MediaType.APPLICATION_JSON : MediaType.APPLICATION_PROTOBUF;
@@ -72,7 +83,7 @@ public class OtlpTraceController {
         final ExportTraceServiceRequest request;
         try {
             request = parseRequest(body, json);
-        } catch (InvalidProtocolBufferException | OtlpTraceParseException e) {
+        } catch (IOException | OtlpTraceParseException e) {
             ingestMetrics.requestRejected(OtlpTransport.HTTP, OtlpRequestRejectReason.PARSE_ERROR);
             final Status status = Status.newBuilder()
                     .setCode(Code.INVALID_ARGUMENT_VALUE)
@@ -109,9 +120,11 @@ public class OtlpTraceController {
         return MediaType.parseMediaType(contentType).equalsTypeAndSubtype(MediaType.APPLICATION_JSON);
     }
 
-    private static ExportTraceServiceRequest parseRequest(byte[] body, boolean json) throws InvalidProtocolBufferException {
+    private static ExportTraceServiceRequest parseRequest(InputStream body, boolean json) throws IOException {
         if (json) {
-            return OtlpJsonTraceParser.parse(body);
+            // OTLP/JSON still materializes the body: the hex->base64 ID rewrite and JsonFormat's Gson
+            // tree dominate its footprint, so the raw copy is not the lever there.
+            return OtlpJsonTraceParser.parse(body.readAllBytes());
         }
         return ExportTraceServiceRequest.parseFrom(body);
     }

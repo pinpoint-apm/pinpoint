@@ -44,9 +44,9 @@ import java.util.zip.GZIPInputStream;
  * Content-Encoding decompression for the OTLP/HTTP trace endpoint (POST /v1/traces).
  *
  * <p>The OTel Collector's {@code otlphttp} exporter compresses with gzip by default, so without
- * this filter the raw gzip bytes reach {@code ProtobufHttpMessageConverter} and fail to parse
- * (HTTP 400) — an OTLP/HTTP interop break. This filter transparently inflates a
- * {@code Content-Encoding: gzip} body so the converter sees plain protobuf.
+ * this filter the raw gzip bytes reach the controller's protobuf parse and fail (HTTP 400) — an
+ * OTLP/HTTP interop break. This filter transparently inflates a {@code Content-Encoding: gzip}
+ * body so the controller sees plain protobuf.
  *
  * <ul>
  *   <li>no / empty Content-Encoding, or {@code identity} &rarr; passed through unchanged</li>
@@ -57,9 +57,10 @@ import java.util.zip.GZIPInputStream;
  * <p><b>Decompression-bomb guard.</b> The admission filter's per-request cap bounds only the
  * <i>compressed</i> size (Content-Length); a small gzip body can inflate by orders of magnitude.
  * The inflated stream is therefore capped at {@code maxDecompressedBytes}: exceeding it aborts the
- * read with an {@link IOException}, which surfaces to the converter as a 400 (same as the admission
- * filter's chunked-body guard). Worst-case heap is {@code maxConcurrentRequests * maxDecompressedBytes},
- * since the converter materializes the whole decompressed message.
+ * read with an {@link IOException}, which surfaces to the controller's parse as a 400 (same as the
+ * admission filter's chunked-body guard). Worst-case heap is on the order of
+ * {@code maxConcurrentRequests * maxDecompressedBytes}: protobuf is parsed straight off the stream,
+ * so only the parsed message (about wire size) is held, while OTLP/JSON still materializes the body.
  *
  * <p>Runs just after {@link OtlpTraceHttpAdmissionFilter} so the compressed-size gates (413 /
  * in-flight byte budget) apply to the raw request first. The gRPC path needs no counterpart: grpc-java
