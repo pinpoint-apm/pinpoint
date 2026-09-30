@@ -36,12 +36,16 @@ import io.opentelemetry.proto.trace.v1.Span;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HexFormat;
 import java.util.List;
@@ -70,6 +74,7 @@ class OtlpTraceControllerTest {
     private OtlpTraceExportService exportService;
     private SimpleMeterRegistry meterRegistry;
     private OtlpTraceIngestMetrics ingestMetrics;
+    private OtlpTraceController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -77,7 +82,7 @@ class OtlpTraceControllerTest {
         exportService = mock(OtlpTraceExportService.class);
         meterRegistry = new SimpleMeterRegistry();
         ingestMetrics = new OtlpTraceIngestMetrics(meterRegistry);
-        OtlpTraceController controller = new OtlpTraceController(exportService, ingestMetrics);
+        controller = new OtlpTraceController(exportService, ingestMetrics);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -306,19 +311,60 @@ class OtlpTraceControllerTest {
     }
 
     @Test
-    void emptyBody_400_pinnedSpringBehavior() throws Exception {
-        // A zero-length body never reaches the controller: Spring rejects a missing @RequestBody
-        // with 400 before parsing (no google.rpc.Status body). No OTLP exporter sends one, so this
-        // only pins the behavior for both encodings.
-        mockMvc.perform(post("/v1/traces")
+    void emptyBody_protobuf_isEmptyRequest() throws Exception {
+        // The body is read as a raw stream, so a zero-length protobuf body is a valid, empty
+        // ExportTraceServiceRequest — the same as an empty message on the gRPC path.
+        when(exportService.export(anyList(), any())).thenReturn(successResult());
+
+        byte[] body = mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_PROTOBUF)
                         .content(new byte[0]))
-                .andExpect(status().isBadRequest());
-        mockMvc.perform(post("/v1/traces")
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROTOBUF))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertThat(ExportTraceServiceResponse.parseFrom(body)).isEqualTo(ExportTraceServiceResponse.getDefaultInstance());
+        verify(exportService).export(eq(List.of()), eq(OtlpTransport.HTTP));
+    }
+
+    @Test
+    void emptyBody_json_400() throws Exception {
+        // An empty body is not a JSON document, so OTLP/JSON answers a parse error with a Status body.
+        String body = mockMvc.perform(post("/v1/traces")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new byte[0]))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
 
+        Status status = parseJson(body, Status.newBuilder()).build();
+        assertThat(status.getCode()).isEqualTo(Code.INVALID_ARGUMENT_VALUE);
+        verify(exportService, never()).export(anyList(), any());
+    }
+
+    @Test
+    void protobuf_bodyReadFailure_400WithStatusBody_countedAsParseError() throws Exception {
+        // The admission/decompression filters abort an oversized body with an IOException from the
+        // request stream. Parsing straight off the stream routes that failure through the controller's
+        // parse-error path — Status body + parse_error count — rather than Spring's bare 400.
+        InputStream failing = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                throw new IOException("OTLP/HTTP request body exceeded max size: limit=1");
+            }
+        };
+
+        ResponseEntity<byte[]> response = controller.export(failing, MediaType.APPLICATION_PROTOBUF_VALUE);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PROTOBUF);
+        Status status = Status.parseFrom(response.getBody());
+        assertThat(status.getCode()).isEqualTo(Code.INVALID_ARGUMENT_VALUE);
+        assertThat(status.getMessage()).contains("exceeded max size");
+        assertThat(meterRegistry.get(OtlpTraceIngestMetrics.REQUEST_REJECTED)
+                .tag(OtlpTraceIngestMetrics.TAG_TRANSPORT, "http")
+                .tag(OtlpTraceIngestMetrics.TAG_REASON, "parse_error")
+                .counter().count()).isEqualTo(1.0);
         verify(exportService, never()).export(anyList(), any());
     }
 
