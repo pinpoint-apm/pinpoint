@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.pinot.datasource;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.pinot.client.PreparedStatement;
 import org.apache.pinot.client.base.AbstractBasePreparedStatement;
 import org.apache.pinot.client.utils.DateTimeUtils;
@@ -13,10 +12,13 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.HexFormat;
 import java.util.Objects;
 
 public class ParameterRecorder extends AbstractBasePreparedStatement {
-    private PreparedStatement preparedStatement;
+    private static final HexFormat HEX = HexFormat.of();
+
+    private final PreparedStatement preparedStatement;
 
     public ParameterRecorder(PreparedStatement preparedStatement) {
         this.preparedStatement = Objects.requireNonNull(preparedStatement, "preparedStatement");
@@ -79,7 +81,7 @@ public class ParameterRecorder extends AbstractBasePreparedStatement {
 
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-        preparedStatement.setString(parameterIndex - 1, Hex.encodeHexString(x));
+        preparedStatement.setString(parameterIndex - 1, HEX.formatHex(x));
     }
 
     @Override

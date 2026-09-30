@@ -58,7 +58,6 @@ import com.navercorp.pinpoint.web.trace.span.SpanAligner;
 import com.navercorp.pinpoint.web.trace.span.SpanCallTree;
 import com.navercorp.pinpoint.web.trace.span.TraceState;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -70,6 +69,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +85,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SpanServiceImpl implements SpanService {
+
+    private static final HexFormat HEX = HexFormat.of();
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -473,7 +475,7 @@ public class SpanServiceImpl implements SpanService {
 
                 final int size = sqlUidMetaDataList.size();
                 if (size == 0) {
-                    String errorMessage = "SQL-UID not found sqlUid:" + Hex.encodeHexString(sqlUid);
+                    String errorMessage = "SQL-UID not found sqlUid:" + HEX.formatHex(sqlUid);
                     AnnotationBo api = AnnotationBo.of(AnnotationKey.SQL.getCode(), errorMessage);
                     annotationBoList.add(api);
                 } else if (size == 1) {
@@ -499,7 +501,7 @@ public class SpanServiceImpl implements SpanService {
                     }
                 } else {
                     // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
-                    String collisionSqlUidCodeMessage = "Collision Sql sqlUid:" + Hex.encodeHexString(sqlUid) + "\n" +
+                    String collisionSqlUidCodeMessage = "Collision Sql sqlUid:" + HEX.formatHex(sqlUid) + "\n" +
                             sqlUidMetaDataList.stream()
                                     .map(SqlUidMetaDataBo::getSql)
                                     .collect(Collectors.joining("or\n"));

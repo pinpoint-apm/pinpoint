@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.pinot.datasource;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.pinot.client.PinotConnection;
 import org.apache.pinot.client.PinotPreparedStatement;
 import org.apache.pinot.client.utils.DateTimeUtils;
@@ -28,11 +27,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.HexFormat;
 
 /**
  * @author Hyunjoon Cho
  */
 public class WrappedPinotPreparedStatement extends PinotPreparedStatement {
+    private static final HexFormat HEX = HexFormat.of();
+
     // Temporary variables for fillStatementWithParameters(). TODO: remove these when Pinot driver is fixed.
     private String query;
     private final String[] parameters;
@@ -138,7 +141,7 @@ public class WrappedPinotPreparedStatement extends PinotPreparedStatement {
 
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
         this.validateState();
-        this.parameters[parameterIndex - 1] = Hex.encodeHexString(x);
+        this.parameters[parameterIndex - 1] = HEX.formatHex(x);
     }
 
     public void setDate(int parameterIndex, Date x) throws SQLException {
@@ -162,9 +165,7 @@ public class WrappedPinotPreparedStatement extends PinotPreparedStatement {
 
     public void clearParameters() throws SQLException {
         this.validateState();
-        for (int i = 0; i < this.parameters.length; i++) {
-            this.parameters[i] = null;
-        }
+        Arrays.fill(this.parameters, null);
     }
 
     public int getFetchSize() throws SQLException {
