@@ -33,6 +33,14 @@
                 <artifactId>okhttp</artifactId>
                 <version>4.12.0</version>
             </dependency>
+            <!-- imported before spring-boot-dependencies so the repo-wide micrometer version wins over Boot's pin -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-bom</artifactId>
+                <version>${micrometer-metrics.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -76,6 +84,12 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-otel</artifactId>
+            <version>${micrometer-tracing.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing</artifactId>
+            <version>${micrometer-tracing.version}</version>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
