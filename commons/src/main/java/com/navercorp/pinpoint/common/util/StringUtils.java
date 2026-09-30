@@ -74,21 +74,44 @@ public final class StringUtils {
         if (string == null) {
             return defaultString;
         }
-        if (string.isEmpty()) {
+        final int length = string.length();
+        if (length == 0) {
             return "";
         }
-        final int length = string.length();
-        int index = length - 1;
-        while (index >= 0 && string.charAt(index) <= ' ') {
+        final int rTrimIndex = rightTrimIndex(string, 0, length);
+        if (rTrimIndex == length) {
+            return string;
+        }
+        return string.substring(0, rTrimIndex);
+    }
+
+    /**
+     * @return the exclusive end index of {@code string} once its trailing whitespace is dropped,
+     * in {@code [0, string.length()]}; the whitespace test is {@code <= ' '}, as in {@link String#trim()}
+     * @throws NullPointerException if {@code string} is null
+     */
+    public static int rightTrimIndex(final String string) {
+        Objects.requireNonNull(string, "string");
+        return rightTrimIndex(string, 0, string.length());
+    }
+
+    /**
+     * @param from the inclusive start of the range to scan
+     * @param to   the exclusive end of the range to scan
+     * @return the exclusive end index of {@code string[from..to)} once its trailing whitespace is dropped,
+     * in {@code [from, to]}; the whitespace test is {@code <= ' '}, as in {@link String#trim()}
+     * @throws NullPointerException      if {@code string} is null
+     * @throws IndexOutOfBoundsException if the range is out of bounds of {@code string}
+     */
+    static int rightTrimIndex(final String string, final int from, final int to) {
+        if (from < 0 || from > to || to > string.length()) {
+            throw new IndexOutOfBoundsException("from=" + from + ", to=" + to + ", length=" + string.length());
+        }
+        int index = to - 1;
+        while (index >= from && string.charAt(index) <= ' ') {
             index--;
         }
-        index++;
-
-        if (index == length) {
-            return string;
-        } else {
-            return string.substring(0, index);
-        }
+        return index + 1;
     }
 
 
