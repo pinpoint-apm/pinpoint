@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.batch.common.JobFailListener;
 import com.navercorp.pinpoint.batch.common.JobFailMessageSender;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.mybatis.plugin.BindingLogPlugin;
+import com.navercorp.pinpoint.service.config.ServiceModelCacheConfiguration;
 import com.navercorp.pinpoint.user.dao.mysql.MysqlUserGroupDao;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
@@ -58,6 +59,7 @@ import java.util.Optional;
 @Configuration
 @Import({
         MetaDataBatchConfiguration.class,
+        ServiceModelCacheConfiguration.class,
 })
 @ComponentScan(
         basePackages = {

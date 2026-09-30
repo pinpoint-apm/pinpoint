@@ -1,5 +1,6 @@
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.service.config;
 
+import com.navercorp.pinpoint.service.service.CachingServiceModelResolver;
 import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.common.server.uid.EagerServiceNameFactory;
