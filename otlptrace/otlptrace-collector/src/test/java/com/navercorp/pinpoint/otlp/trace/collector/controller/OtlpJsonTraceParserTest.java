@@ -46,12 +46,14 @@ class OtlpJsonTraceParserTest {
     private static final ByteString SPAN_ID = hexBytes(SPAN_ID_HEX);
     private static final ByteString PARENT_SPAN_ID = hexBytes(PARENT_SPAN_ID_HEX);
 
+    private static final OtlpJsonTraceParser PARSER = new OtlpJsonTraceParser();
+
     private static ByteString hexBytes(String hex) {
         return ByteString.copyFrom(HexFormat.of().parseHex(hex));
     }
 
     private static ExportTraceServiceRequest parse(String json) {
-        return OtlpJsonTraceParser.parse(json.getBytes(StandardCharsets.UTF_8));
+        return PARSER.parse(json.getBytes(StandardCharsets.UTF_8));
     }
 
     private static Span firstSpan(ExportTraceServiceRequest request) {
@@ -166,7 +168,7 @@ class OtlpJsonTraceParserTest {
 
     @Test
     void emptyBody_rejected() {
-        assertThatThrownBy(() -> OtlpJsonTraceParser.parse(new byte[0])).isInstanceOf(OtlpTraceParseException.class);
+        assertThatThrownBy(() -> PARSER.parse(new byte[0])).isInstanceOf(OtlpTraceParseException.class);
     }
 
     @Test

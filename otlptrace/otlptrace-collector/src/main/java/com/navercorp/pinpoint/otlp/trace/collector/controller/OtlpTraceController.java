@@ -51,6 +51,7 @@ public class OtlpTraceController {
 
     private final OtlpTraceExportService exportService;
     private final OtlpTraceIngestMetrics ingestMetrics;
+    private final OtlpJsonTraceParser jsonParser = new OtlpJsonTraceParser();
 
     public OtlpTraceController(OtlpTraceExportService exportService, OtlpTraceIngestMetrics ingestMetrics) {
         this.exportService = Objects.requireNonNull(exportService, "exportService");
@@ -120,11 +121,11 @@ public class OtlpTraceController {
         return MediaType.parseMediaType(contentType).equalsTypeAndSubtype(MediaType.APPLICATION_JSON);
     }
 
-    private static ExportTraceServiceRequest parseRequest(InputStream body, boolean json) throws IOException {
+    private ExportTraceServiceRequest parseRequest(InputStream body, boolean json) throws IOException {
         if (json) {
             // OTLP/JSON still materializes the body: the hex->base64 ID rewrite and JsonFormat's Gson
             // tree dominate its footprint, so the raw copy is not the lever there.
-            return OtlpJsonTraceParser.parse(body.readAllBytes());
+            return jsonParser.parse(body.readAllBytes());
         }
         return ExportTraceServiceRequest.parseFrom(body);
     }
