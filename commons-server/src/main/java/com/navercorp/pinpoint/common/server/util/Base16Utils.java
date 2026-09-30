@@ -1,19 +1,26 @@
 package com.navercorp.pinpoint.common.server.util;
 
-import org.apache.commons.codec.binary.Base16;
+import java.util.HexFormat;
 
+/**
+ * Lower-case Base16 (hex) over {@link HexFormat}. Decoding accepts either case, per RFC 4648 §8
+ * ("the hexadecimal alphabet is case insensitive"), and rejects an odd-length string.
+ */
 public final class Base16Utils {
-    private static final Base16 BASE16 = new Base16(true);
+    private static final HexFormat HEX = HexFormat.of();
 
     private Base16Utils() {
     }
 
     public static String encodeToString(byte[] bytes) {
-        return BASE16.encodeToString(bytes);
+        return HEX.formatHex(bytes);
     }
 
-    public static byte[] decodeToBytes(String pArray) {
-        return BASE16.decode(pArray);
+    /**
+     * @throws IllegalArgumentException if the string has an odd length or a non-hex character
+     */
+    public static byte[] decodeToBytes(String hex) {
+        return HEX.parseHex(hex);
     }
 
     /**
