@@ -59,17 +59,17 @@ public final class OtlpJsonTraceParser {
             "spanId", "span_id",
             "parentSpanId", "parent_span_id");
 
-    private static final JsonFactory JSON_FACTORY = new JsonFactory();
-    private static final JsonFormat.Parser PROTO_JSON_PARSER = JsonFormat.parser().ignoringUnknownFields();
+    private final JsonFactory jsonFactory = new JsonFactory();
+    private final JsonFormat.Parser protoJsonParser = JsonFormat.parser().ignoringUnknownFields();
 
-    private OtlpJsonTraceParser() {
+    public OtlpJsonTraceParser() {
     }
 
-    public static ExportTraceServiceRequest parse(byte[] body) {
+    public ExportTraceServiceRequest parse(byte[] body) {
         try {
             final String protoJson = rewriteIdsToBase64(body);
             final ExportTraceServiceRequest.Builder builder = ExportTraceServiceRequest.newBuilder();
-            PROTO_JSON_PARSER.merge(protoJson, builder);
+            protoJsonParser.merge(protoJson, builder);
             return builder.build();
         } catch (JsonProcessingException e) {
             throw new OtlpTraceParseException(syntaxErrorMessage(e), e);
@@ -97,10 +97,10 @@ public final class OtlpJsonTraceParser {
 
     private static final Pattern SOURCE_LOCATION = Pattern.compile("\\[Source: [^\\]]*?; line: (\\d+), column: (\\d+)\\]");
 
-    private static String rewriteIdsToBase64(byte[] body) throws IOException {
+    private String rewriteIdsToBase64(byte[] body) throws IOException {
         final StringWriter out = new StringWriter(Math.max(body.length, 32));
-        try (JsonParser parser = JSON_FACTORY.createParser(body);
-             JsonGenerator generator = JSON_FACTORY.createGenerator(out)) {
+        try (JsonParser parser = jsonFactory.createParser(body);
+             JsonGenerator generator = jsonFactory.createGenerator(out)) {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 generator.copyCurrentEvent(parser);
