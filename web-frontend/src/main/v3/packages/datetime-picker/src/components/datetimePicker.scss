@@ -1,6 +1,4 @@
-/* 이 파일은 유틸리티를 내보내지 않고 `@apply` 로만 쓴다. Tailwind 4 에서는 그런 파일이
-   테마를 직접 참조해야 한다. */
-@reference '../theme.css';
+@reference './tailwind.css';
 
 @layer components {
   .rich-datetime-picker {
@@ -126,7 +124,7 @@
       --tw-ring-inset:  ;
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
-      --tw-ring-color: rgb(59 130 246 / 0.5);
+      --tw-ring-color: rgb(59 130 246 / 50%);
       --tw-ring-offset-shadow: 0 0 #0000;
       --tw-ring-shadow: 0 0 #0000;
       --tw-shadow: 0 0 #0000;
@@ -176,7 +174,7 @@
       --tw-ring-inset:  ;
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
-      --tw-ring-color: rgb(59 130 246 / 0.5);
+      --tw-ring-color: rgb(59 130 246 / 50%);
       --tw-ring-offset-shadow: 0 0 #0000;
       --tw-ring-shadow: 0 0 #0000;
       --tw-shadow: 0 0 #0000;
@@ -226,7 +224,7 @@
       --tw-ring-inset:  ;
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
-      --tw-ring-color: rgb(59 130 246 / 0.5);
+      --tw-ring-color: rgb(59 130 246 / 50%);
       --tw-ring-offset-shadow: 0 0 #0000;
       --tw-ring-shadow: 0 0 #0000;
       --tw-shadow: 0 0 #0000;
@@ -251,70 +249,195 @@
       --tw-backdrop-sepia:  ;
     }
 
-    @apply text-rgba8;
+    /* 루트에는 색을 강제하지 않는다. 트리거는 호스트 배경 위에 놓이므로 호스트의
+       텍스트 색(currentColor)을 상속받아 라이트/다크에 적응해야 한다. 흰 배경 위의
+       패널 텍스트 색은 아래 `.rich-datetime-picker__panel`에서 별도로 지정한다. */
   }
 
   .rich-datetime-picker__trigger {
-    @apply relative flex h-8 rounded border;
+    @apply rdp:relative rdp:flex rdp:h-8 rdp:rounded rdp:border;
   }
 
-  .rich-datetime-picker__trigger.div-disable {
-    @apply pointer-events-none opacity-50;
+  .rich-datetime-picker__trigger.disable {
+    @apply rdp:pointer-events-none rdp:opacity-50;
+  }
+
+  .rich-datetime-picker__trigger-icon {
+    /* 색을 고정하지 않고 주변 텍스트 색(currentColor)을 상속받아 라이트/다크에 모두 적응.
+       muted 느낌은 opacity로 표현한다 (검정 고정 시 다크 배경에서 안 보이는 문제 해결). */
+    @apply rdp:pointer-events-none rdp:flex rdp:shrink-0 rdp:items-center rdp:pl-2 rdp:opacity-50;
+
+    svg {
+      @apply rdp:h-4 rdp:w-4;
+    }
   }
 
   .rich-datetime-picker__input {
-    @apply w-full rounded bg-transparent pl-12.5 text-sm focus:outline-hidden;
+    @apply rdp:w-full rdp:rounded rdp:bg-transparent rdp:px-2 rdp:text-sm rdp:focus:outline-none;
   }
 
   .rich-datetime-picker__panel {
-    @apply absolute top-[calc(100%+2px)] z-10 w-full rounded bg-white shadow-box1;
+    /* 패널은 항상 흰 배경이므로 검정 텍스트 색을 고정한다 (루트에서 옮겨옴). */
+    @apply rdp:absolute rdp:top-[calc(100%+2px)] rdp:z-10 rdp:w-max rdp:rounded rdp:bg-white rdp:text-rgba8 rdp:shadow-box1;
   }
 
-  .rich-datetime-picker__panel.expand-left {
-    @apply rounded-l-none;
+  .rich-datetime-picker__layout {
+    @apply rdp:flex;
   }
 
-  .rich-datetime-picker__panel.expand-right {
-    @apply rounded-r-none;
+  .rich-datetime-picker__quick-col {
+    @apply rdp:flex rdp:w-44 rdp:flex-col rdp:border-r rdp:border-r-rgba15 rdp:p-2;
   }
 
-  .rich-datetime-picker__panel.expand-bottom {
-    @apply rounded-b-none;
+  .rich-datetime-picker__quick-list {
+    @apply rdp:m-0 rdp:flex rdp:list-none rdp:flex-col rdp:gap-0.5 rdp:p-0;
   }
 
-  .rich-datetime-picker__panel.expand-left .rich-datetime-picker__item {
-    @apply first:rounded-l-none last:rounded-l-none;
+  /* button으로 렌더되므로 컴포넌트 reset(.rich-datetime-picker button, 특이도 0,1,1)을
+     덮기 위해 .rich-datetime-picker 로 감싸 특이도를 높인다 (custom-trigger와 동일 패턴). */
+  .rich-datetime-picker .rich-datetime-picker__quick-item {
+    @apply rdp:flex rdp:h-8 rdp:w-full rdp:cursor-pointer rdp:items-center rdp:rounded rdp:border-0 rdp:bg-transparent rdp:px-3 rdp:text-left rdp:text-sm rdp:hover:bg-rgba06;
   }
 
-  .rich-datetime-picker__panel.expand-right .rich-datetime-picker__item {
-    @apply first:rounded-r-none last:rounded-r-none;
+  .rich-datetime-picker .rich-datetime-picker__quick-item.active {
+    @apply rdp:bg-rgba06 rdp:font-medium;
   }
 
-  .rich-datetime-picker__panel.expand-bottom .rich-datetime-picker__item {
-    @apply last:rounded-b-none;
+  /* 아래 셀렉터는 .rich-datetime-picker 로 감싸 특이도를 높인다.
+     컴포넌트 리셋의 `.rich-datetime-picker button { background/color }`(0,1,1)가
+     단일 클래스(0,1,0)를 덮어쓰기 때문. */
+  .rich-datetime-picker .rich-datetime-picker__custom-trigger {
+    @apply rdp:mb-1 rdp:inline-flex rdp:cursor-pointer rdp:items-center rdp:gap-1.5 rdp:px-3 rdp:py-1 rdp:text-xs rdp:text-rgba5 rdp:hover:text-rgba8;
+  }
+
+  .rich-datetime-picker__custom-icon {
+    @apply rdp:h-3.5 rdp:w-3.5;
+  }
+
+  .rich-datetime-picker__main {
+    @apply rdp:flex rdp:w-[320px] rdp:flex-col rdp:gap-3 rdp:p-3;
+  }
+
+  .rich-datetime-picker__badges {
+    @apply rdp:flex rdp:items-center rdp:gap-2;
+  }
+
+  .rich-datetime-picker__badge {
+    @apply rdp:flex rdp:items-center rdp:gap-0.5 rdp:rounded rdp:border rdp:border-rgba15 rdp:px-2 rdp:py-1.5 rdp:text-sm;
+  }
+
+  .rich-datetime-picker__badge-icon {
+    @apply rdp:mr-1 rdp:text-rgba5;
+  }
+
+  .rich-datetime-picker__badge-sep {
+    @apply rdp:text-rgba5;
+  }
+
+  .rich-datetime-picker__badge-input {
+    @apply rdp:w-5 rdp:bg-transparent rdp:text-center rdp:tabular-nums rdp:focus:outline-none;
+  }
+
+  .rich-datetime-picker__tooltip-wrapper {
+    /* self-start: flex 컬럼에서 전체 너비로 늘어나지 않고 트리거 콘텐츠 너비만 차지 */
+    @apply rdp:relative rdp:self-start;
+  }
+
+  /* 배경을 고정하는 표면은 글자색도 함께 고정해야 한다. 배경만 흰색으로 박아두면
+     패널 색을 다크로 바꾼 사용처에서 밝은 글자를 상속해 흰 바탕에 흰 글자가 된다. */
+  .rich-datetime-picker__tooltip {
+    @apply rdp:absolute rdp:z-20 rdp:min-w-56 rdp:rounded rdp:border rdp:border-rgba15 rdp:bg-white rdp:text-rgba8 rdp:shadow-box1;
+  }
+
+  .rich-datetime-picker__tooltip--bottom-end {
+    @apply rdp:right-0 rdp:top-[calc(100%+4px)];
+  }
+
+  .rich-datetime-picker__tooltip--right-end {
+    @apply rdp:bottom-0 rdp:left-[calc(100%+8px)];
+  }
+
+  .rich-datetime-picker__tooltip--right-start {
+    @apply rdp:top-0 rdp:left-[calc(100%+8px)];
+  }
+
+  .rich-datetime-picker__header-label {
+    @apply rdp:flex rdp:items-center rdp:gap-1;
+  }
+
+  .rich-datetime-picker__year {
+    @apply rdp:relative rdp:inline-flex rdp:items-center;
+  }
+
+  /* 네이티브 팝업은 살리고 겉모양만 덮는다. 캐럿 자리를 pr로 비워 둔다. */
+  .rich-datetime-picker__year-select {
+    @apply rdp:cursor-pointer rdp:appearance-none rdp:rounded rdp:border-0 rdp:bg-transparent rdp:py-0 rdp:pr-4 rdp:pl-1 rdp:text-sm rdp:font-medium rdp:text-inherit rdp:hover:bg-rgba06;
+  }
+
+  /* currentColor 삼각형이라 패널 색을 따라간다(다크모드).
+     select 위에 얹히므로 클릭이 select로 가도록 pointer-events를 끈다. */
+  .rich-datetime-picker__year-caret {
+    @apply rdp:pointer-events-none rdp:absolute rdp:right-1 rdp:h-0 rdp:w-0 rdp:opacity-50;
+
+    border-right: 0.25rem solid transparent;
+    border-left: 0.25rem solid transparent;
+    border-top: 0.25rem solid currentcolor;
+  }
+
+  .rich-datetime-picker__footer {
+    @apply rdp:flex rdp:flex-col rdp:gap-1;
+  }
+
+  /* min-h로 한 줄을 상시 예약한다. 오류가 떴다 사라질 때 Apply 버튼이 움직여
+     오클릭이 나는 걸 막는다. 패널 높이는 항상 같은 만큼 늘어나므로 흔들림이 없다.
+     line-clamp로 최대 성장을 두 줄로 묶고, 잘린 전문은 title 속성으로 노출한다. */
+  .rich-datetime-picker__error {
+    @apply rdp:min-h-4 rdp:text-xs rdp:leading-4 rdp:text-stateRed rdp:line-clamp-2;
+
+    /* consumer가 넣은 ISO 문자열·URL 같은 무분절 토큰이 320px을 넘지 않게 */
+    overflow-wrap: anywhere;
+
+    /* ko/zh는 어절 중간에서 끊지 않는다 */
+    word-break: keep-all;
+  }
+
+  .rich-datetime-picker__footer-slot {
+    @apply rdp:text-xs;
+  }
+
+  /* 컴포넌트 reset(.rich-datetime-picker button)이 단일 클래스를 이기므로,
+     슬롯 안에 consumer가 넣은 버튼에는 탈출구를 준다. */
+  .rich-datetime-picker .rich-datetime-picker__footer-slot button {
+    all: revert;
+  }
+
+  .rich-datetime-picker__actions {
+    @apply rdp:mt-1 rdp:flex rdp:items-center rdp:justify-end rdp:gap-3;
+  }
+
+  .rich-datetime-picker .rich-datetime-picker__copy {
+    @apply rdp:text-xs rdp:text-rgba5 rdp:hover:text-rgba8;
+  }
+
+  .rich-datetime-picker .rich-datetime-picker__copy--copied {
+    @apply rdp:text-primary rdp:hover:text-primary;
+  }
+
+  .rich-datetime-picker .rich-datetime-picker__apply {
+    @apply rdp:flex rdp:h-7 rdp:items-center rdp:justify-center rdp:rounded rdp:bg-primary rdp:px-3 rdp:text-xs rdp:font-medium rdp:text-white rdp:hover:opacity-90;
   }
 
   .rich-datetime-picker__item {
-    @apply flex h-7.5 cursor-pointer items-center gap-2.5 bg-inherit p-1.5 first:rounded-t last:rounded-b hover:bg-rgba06;
+    @apply rdp:flex rdp:h-7.5 rdp:cursor-pointer rdp:items-center rdp:gap-2.5 rdp:bg-inherit rdp:p-1.5 rdp:first:rounded-t rdp:last:rounded-b rdp:hover:bg-rgba06;
   }
 
   .rich-datetime-picker__item-text {
-    @apply text-sm font-normal;
+    @apply rdp:text-sm rdp:font-normal;
   }
 
-  .rich-datetime-picker__tag {
-    @apply flex h-5 w-9 cursor-pointer items-center justify-center rounded-xs bg-rgba1 text-xs text-rgba5;
-  }
-
-  .rich-datetime-picker__tag--colorized {
-    @apply flex h-5 items-center justify-center rounded-xs px-1.5 pt-1 text-xs text-primary;
-  }
-
-  .rich-datetime-picker__more {
-    @apply absolute -z-10 h-full w-70 cursor-default overflow-auto bg-white shadow-box1;
-  }
-
-  .rich-datetime-picker__more-label {
-    @apply flex cursor-pointer items-center justify-center rounded-xs bg-rgbaPrimary px-1.5 py-1 text-xs text-primary hover:bg-primary hover:text-white;
+  /* button으로 렌더되므로 컴포넌트 reset(background transparent 등)을 덮기 위해
+     .rich-datetime-picker 로 감싸 특이도를 높인다. */
+  .rich-datetime-picker .rich-datetime-picker__more-label {
+    @apply rdp:flex rdp:cursor-pointer rdp:items-center rdp:justify-center rdp:rounded-sm rdp:border-0 rdp:bg-rgbaPrimary rdp:px-1.5 rdp:py-1 rdp:text-xs rdp:text-primary rdp:hover:bg-primary rdp:hover:text-white;
   }
 }

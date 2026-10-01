@@ -7,10 +7,8 @@ export type AppContextType = {
 
 const AppContext = React.createContext<{
   appContext: AppContextType;
-  setAppContext: React.Dispatch<React.SetStateAction<AppContextType>>;
 }>({
   appContext: { seamToken: '', timeZone: '' },
-  setAppContext: () => {},
 });
 
 export default AppContext;

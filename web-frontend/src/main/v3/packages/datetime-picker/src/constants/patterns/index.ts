@@ -1,6 +1,8 @@
-import { TimePatternKeys, TimePatterns } from '../..';
+import { TimePatternKeys, TimePatterns } from '../../types';
 import { timePattern as enPatterns } from './en';
 import { timePattern as koPatterns } from './ko';
+import { timePattern as jaPatterns } from './ja';
+import { timePattern as zhPatterns } from './zh';
 
 export const SEAM_TOKEN = '-';
 
@@ -57,6 +59,6 @@ export const timePatternKeys: TimePatternKeys[] = [
 export const timePatterns = timePatternKeys.reduce((acc, key) => {
   return {
     ...acc,
-    [key]: [enPatterns[key], koPatterns[key]],
+    [key]: [enPatterns[key], koPatterns[key], jaPatterns[key], zhPatterns[key]],
   };
 }, {} as TimePatterns);

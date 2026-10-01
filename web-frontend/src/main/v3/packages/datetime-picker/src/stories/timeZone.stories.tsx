@@ -34,7 +34,7 @@ const TemplateDatetimePicker = (args: RichDatetimePickerProps) => {
   };
 
   return (
-    <div className="flex h-[400px] flex-col gap-4 font-sans">
+    <div className="rdp:flex rdp:h-[400px] rdp:flex-col rdp:gap-4 rdp:font-sans">
       <select onChange={(e) => setTimeZone(e.target.value)} value={timeZone}>
         {Intl.supportedValuesOf('timeZone').map((tz, i) => {
           return (
@@ -49,7 +49,7 @@ const TemplateDatetimePicker = (args: RichDatetimePickerProps) => {
         startDate={startDate}
         endDate={endDate}
         onChange={handleChange}
-        className="w-85"
+        className="rdp:w-85"
         timeZone={timeZone}
       />
     </div>
