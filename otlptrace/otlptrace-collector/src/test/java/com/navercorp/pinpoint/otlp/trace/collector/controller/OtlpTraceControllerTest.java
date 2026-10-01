@@ -343,6 +343,31 @@ class OtlpTraceControllerTest {
     }
 
     @Test
+    void json_bodyReadFailure_400WithStatusBody_countedAsParseError() throws Exception {
+        // JsonFormat unwraps the stream's IOException, so the JSON path answers a read failure the
+        // same way as the protobuf path.
+        InputStream failing = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                throw new IOException("OTLP/HTTP decompressed request body exceeded max size: limit=1");
+            }
+        };
+
+        ResponseEntity<byte[]> response = controller.export(failing, MediaType.APPLICATION_JSON_VALUE);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        Status status = parseJson(new String(response.getBody(), StandardCharsets.UTF_8), Status.newBuilder()).build();
+        assertThat(status.getCode()).isEqualTo(Code.INVALID_ARGUMENT_VALUE);
+        assertThat(status.getMessage()).contains("exceeded max size");
+        assertThat(meterRegistry.get(OtlpTraceIngestMetrics.REQUEST_REJECTED)
+                .tag(OtlpTraceIngestMetrics.TAG_TRANSPORT, "http")
+                .tag(OtlpTraceIngestMetrics.TAG_REASON, "parse_error")
+                .counter().count()).isEqualTo(1.0);
+        verify(exportService, never()).export(anyList(), any());
+    }
+
+    @Test
     void protobuf_bodyReadFailure_400WithStatusBody_countedAsParseError() throws Exception {
         // The admission/decompression filters abort an oversized body with an IOException from the
         // request stream. Parsing straight off the stream routes that failure through the controller's

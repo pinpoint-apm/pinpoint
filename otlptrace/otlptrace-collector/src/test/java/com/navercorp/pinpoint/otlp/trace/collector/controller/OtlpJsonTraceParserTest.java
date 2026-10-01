@@ -28,6 +28,7 @@ import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HexFormat;
 
@@ -53,7 +54,7 @@ class OtlpJsonTraceParserTest {
     }
 
     private static ExportTraceServiceRequest parse(String json) {
-        return PARSER.parse(json.getBytes(StandardCharsets.UTF_8));
+        return PARSER.parse(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     }
 
     private static Span firstSpan(ExportTraceServiceRequest request) {
@@ -66,9 +67,9 @@ class OtlpJsonTraceParserTest {
 
     @Test
     void hexIds_lowercase() {
-        ExportTraceServiceRequest request = parse(spanRequest(
-                "{\"traceId\":\"" + TRACE_ID_HEX + "\",\"spanId\":\"" + SPAN_ID_HEX + "\"," +
-                        "\"parentSpanId\":\"" + PARENT_SPAN_ID_HEX + "\",\"name\":\"op\"}"));
+        ExportTraceServiceRequest request = parse(spanRequest("""
+                {"traceId":"%s","spanId":"%s","parentSpanId":"%s","name":"op"}
+                """.formatted(TRACE_ID_HEX, SPAN_ID_HEX, PARENT_SPAN_ID_HEX)));
 
         Span span = firstSpan(request);
         assertThat(span.getTraceId()).isEqualTo(TRACE_ID);
@@ -88,9 +89,12 @@ class OtlpJsonTraceParserTest {
 
     @Test
     void linkIds_converted() {
-        ExportTraceServiceRequest request = parse(spanRequest(
-                "{\"traceId\":\"" + TRACE_ID_HEX + "\",\"spanId\":\"" + SPAN_ID_HEX + "\"," +
-                        "\"links\":[{\"traceId\":\"" + LINK_TRACE_ID_HEX + "\",\"spanId\":\"" + LINK_SPAN_ID_HEX + "\"}]}"));
+        ExportTraceServiceRequest request = parse(spanRequest("""
+                {
+                  "traceId":"%s","spanId":"%s",
+                  "links":[{"traceId":"%s","spanId":"%s"}]
+                }
+                """.formatted(TRACE_ID_HEX, SPAN_ID_HEX, LINK_TRACE_ID_HEX, LINK_SPAN_ID_HEX)));
 
         Span.Link link = firstSpan(request).getLinks(0);
         assertThat(link.getTraceId()).isEqualTo(hexBytes(LINK_TRACE_ID_HEX));
@@ -99,10 +103,11 @@ class OtlpJsonTraceParserTest {
 
     @Test
     void snakeCaseFieldNames_accepted() {
-        ExportTraceServiceRequest request = parse(
-                "{\"resource_spans\":[{\"scope_spans\":[{\"spans\":[" +
-                        "{\"trace_id\":\"" + TRACE_ID_HEX + "\",\"span_id\":\"" + SPAN_ID_HEX + "\"," +
-                        "\"parent_span_id\":\"" + PARENT_SPAN_ID_HEX + "\",\"start_time_unix_nano\":\"123\"}]}]}]}");
+        ExportTraceServiceRequest request = parse("""
+                {"resource_spans":[{"scope_spans":[{"spans":[
+                  {"trace_id":"%s","span_id":"%s","parent_span_id":"%s","start_time_unix_nano":"123"}
+                ]}]}]}
+                """.formatted(TRACE_ID_HEX, SPAN_ID_HEX, PARENT_SPAN_ID_HEX));
 
         Span span = firstSpan(request);
         assertThat(span.getTraceId()).isEqualTo(TRACE_ID);
@@ -138,17 +143,22 @@ class OtlpJsonTraceParserTest {
     }
 
     /**
-     * The depth-agnostic field-name rewrite must not touch user data: attribute keys and string
-     * values are JSON <i>values</i> ({@code {"key": ..., "value": {"stringValue": ...}}}), never
-     * field names, so a user string "traceId" (or a hex-looking value) passes through verbatim.
+     * The hex recovery touches only the Span/Link ID fields of the parsed message, never user data:
+     * an attribute key "traceId" or a hex-looking string value passes through verbatim.
      */
     @Test
     void attributeValues_notRewritten() {
-        ExportTraceServiceRequest request = parse(spanRequest(
-                "{\"traceId\":\"" + TRACE_ID_HEX + "\",\"attributes\":[" +
-                        "{\"key\":\"traceId\",\"value\":{\"stringValue\":\"" + TRACE_ID_HEX + "\"}}," +
-                        "{\"key\":\"nested\",\"value\":{\"kvlistValue\":{\"values\":[" +
-                        "{\"key\":\"spanId\",\"value\":{\"stringValue\":\"plain\"}}]}}}]}"));
+        ExportTraceServiceRequest request = parse(spanRequest("""
+                {
+                  "traceId":"%s",
+                  "attributes":[
+                    {"key":"traceId","value":{"stringValue":"%s"}},
+                    {"key":"nested","value":{"kvlistValue":{"values":[
+                      {"key":"spanId","value":{"stringValue":"plain"}}
+                    ]}}}
+                  ]
+                }
+                """.formatted(TRACE_ID_HEX, TRACE_ID_HEX)));
 
         Span span = firstSpan(request);
         KeyValue first = span.getAttributes(0);
@@ -168,7 +178,7 @@ class OtlpJsonTraceParserTest {
 
     @Test
     void emptyBody_rejected() {
-        assertThatThrownBy(() -> PARSER.parse(new byte[0])).isInstanceOf(OtlpTraceParseException.class);
+        assertThatThrownBy(() -> PARSER.parse(new ByteArrayInputStream(new byte[0]))).isInstanceOf(OtlpTraceParseException.class);
     }
 
     @Test
@@ -191,26 +201,34 @@ class OtlpJsonTraceParserTest {
 
     @Test
     void malformedJson_messageKeepsCauseAndPositionOnly() {
-        // Jackson's default message repeats the JsonLocation boilerplate ("[Source: REDACTED (...);
-        // line: 1, column: N]") up to twice — ~265 chars for this input. Only the cause and the
-        // position are forwarded to the client.
+        // JsonFormat's message is the Gson exception's toString() plus a troubleshooting link line;
+        // only the cause, position and path are forwarded to the client.
         assertThatThrownBy(() -> parse("{\"resourceSpans\":[}"))
                 .isInstanceOf(OtlpTraceParseException.class)
-                .hasMessage("Unexpected close marker '}': expected ']' (for Array starting at line 1, column 18) (line 1, column 19)");
+                .hasMessage("Expected value at line 1 column 19 path $.resourceSpans[0]");
         assertThatThrownBy(() -> parse("{\"resourceSpans\":[{\"scopeSpans\":"))
-                .hasMessage("Unexpected end-of-input within/between Object entries (line 1, column 33)");
+                .hasMessage("End of input at line 1 column 33 path $.resourceSpans[0].scopeSpans");
     }
 
     /**
-     * A non-string ID value skips the hex rewrite; {@link com.google.protobuf.util.JsonFormat} then
-     * coerces the number through its lenient base64 handling instead of erroring. Pinned as accepted:
-     * the garbage bytes it yields are rejected downstream by {@code OtlpIdValidator}, which owns ID
-     * validation for both transports.
+     * There is no pre-parse rewrite any more, so a non-string ID goes through JsonFormat's lenient
+     * base64 coercion of its text and then fails the hex recovery like any non-hex string would.
      */
     @Test
-    void nonStringIdValue_pinnedAsAccepted() {
-        ExportTraceServiceRequest request = parse(spanRequest("{\"traceId\":123,\"name\":\"op\"}"));
-        assertThat(firstSpan(request).getName()).isEqualTo("op");
+    void nonStringIdValue_rejected() {
+        assertThatThrownBy(() -> parse(spanRequest("{\"traceId\":123,\"name\":\"op\"}")))
+                .isInstanceOf(OtlpTraceParseException.class);
+    }
+
+    /**
+     * A base64 ID (the proto3 JSON form, which OTLP/JSON does not allow) decodes to 16/8 bytes whose
+     * re-encoding is not hex, so it is a parse error rather than a silently mis-sized ID.
+     */
+    @Test
+    void base64Id_rejected() {
+        assertThatThrownBy(() -> parse(spanRequest("{\"traceId\":\"AQIDBAUGBwgJCgsMDQ4PEA==\"}")))
+                .isInstanceOf(OtlpTraceParseException.class)
+                .hasMessage("not a hexadecimal digit: \"Q\" = 81");
     }
 
     /**
@@ -262,20 +280,23 @@ class OtlpJsonTraceParserTest {
                                         .setStatus(Status.newBuilder().setCode(Status.StatusCode.STATUS_CODE_OK)))))
                 .build();
 
-        String json = "{\"resourceSpans\":[{" +
-                "\"resource\":{\"attributes\":[{\"key\":\"service.name\",\"value\":{\"stringValue\":\"svc\"}}]}," +
-                "\"scopeSpans\":[{\"spans\":[{" +
-                "\"traceId\":\"" + TRACE_ID_HEX + "\"," +
-                "\"spanId\":\"" + SPAN_ID_HEX + "\"," +
-                "\"parentSpanId\":\"" + PARENT_SPAN_ID_HEX + "\"," +
-                "\"name\":\"op\"," +
-                "\"kind\":\"SPAN_KIND_INTERNAL\"," +
-                "\"startTimeUnixNano\":\"1700000000000000001\"," +
-                "\"endTimeUnixNano\":\"1700000000000000002\"," +
-                "\"attributes\":[{\"key\":\"input_tokens\",\"value\":{\"intValue\":\"42\"}}]," +
-                "\"links\":[{\"traceId\":\"" + LINK_TRACE_ID_HEX + "\",\"spanId\":\"" + LINK_SPAN_ID_HEX + "\"}]," +
-                "\"status\":{\"code\":\"STATUS_CODE_OK\"}" +
-                "}]}]}]}";
+        String json = """
+                {"resourceSpans":[{
+                  "resource":{"attributes":[{"key":"service.name","value":{"stringValue":"svc"}}]},
+                  "scopeSpans":[{"spans":[{
+                    "traceId":"%s",
+                    "spanId":"%s",
+                    "parentSpanId":"%s",
+                    "name":"op",
+                    "kind":"SPAN_KIND_INTERNAL",
+                    "startTimeUnixNano":"1700000000000000001",
+                    "endTimeUnixNano":"1700000000000000002",
+                    "attributes":[{"key":"input_tokens","value":{"intValue":"42"}}],
+                    "links":[{"traceId":"%s","spanId":"%s"}],
+                    "status":{"code":"STATUS_CODE_OK"}
+                  }]}]
+                }]}
+                """.formatted(TRACE_ID_HEX, SPAN_ID_HEX, PARENT_SPAN_ID_HEX, LINK_TRACE_ID_HEX, LINK_SPAN_ID_HEX);
 
         ExportTraceServiceRequest fromJson = parse(json);
         ExportTraceServiceRequest fromProtobuf = parseProtobuf(expected.toByteArray());

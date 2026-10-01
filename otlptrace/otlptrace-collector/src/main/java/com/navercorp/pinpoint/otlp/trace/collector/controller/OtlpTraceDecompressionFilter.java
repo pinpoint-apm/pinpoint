@@ -60,7 +60,8 @@ import java.util.zip.GZIPInputStream;
  * read with an {@link IOException}, which surfaces to the controller's parse as a 400 (same as the
  * admission filter's chunked-body guard). Worst-case heap is on the order of
  * {@code maxConcurrentRequests * maxDecompressedBytes}: protobuf is parsed straight off the stream,
- * so only the parsed message (about wire size) is held, while OTLP/JSON still materializes the body.
+ * so only the parsed message (about wire size) is held; OTLP/JSON is held as JsonFormat's element
+ * tree, a small multiple of the wire size.
  *
  * <p>Runs just after {@link OtlpTraceHttpAdmissionFilter} so the compressed-size gates (413 /
  * in-flight byte budget) apply to the raw request first. The gRPC path needs no counterpart: grpc-java
