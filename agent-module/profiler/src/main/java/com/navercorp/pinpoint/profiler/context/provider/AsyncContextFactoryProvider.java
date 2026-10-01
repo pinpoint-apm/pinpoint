@@ -33,17 +33,17 @@ import java.util.Objects;
  */
 public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory> {
 
-    private final Provider<AsyncTraceContext> asyncTraceContextProvider;
+    private final AsyncTraceContext asyncTraceContext;
     private final AsyncIdGenerator asyncIdGenerator;
     private final Binder<Trace> binder;
     private final PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry;
 
     @Inject
-    public AsyncContextFactoryProvider(Provider<AsyncTraceContext> asyncTraceContextProvider,
+    public AsyncContextFactoryProvider(AsyncTraceContext asyncTraceContext,
                                        AsyncIdGenerator asyncIdGenerator,
                                        Binder<Trace> binder,
                                        PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
-        this.asyncTraceContextProvider = Objects.requireNonNull(asyncTraceContextProvider, "asyncTraceContextProvider");
+        this.asyncTraceContext = Objects.requireNonNull(asyncTraceContext, "asyncTraceContext");
         this.asyncIdGenerator = Objects.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
         this.binder = Objects.requireNonNull(binder, "binder");
         this.predefinedMethodDescriptorRegistry = Objects.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
@@ -53,7 +53,6 @@ public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory
 
     @Override
     public AsyncContextFactory get() {
-        final AsyncTraceContext asyncTraceContext = asyncTraceContextProvider.get();
         return new DefaultAsyncContextFactory(asyncTraceContext, binder, asyncIdGenerator, predefinedMethodDescriptorRegistry);
     }
 }
