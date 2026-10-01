@@ -22,19 +22,14 @@ import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapAgentStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStatKey;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStatRecord;
-import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
 
-import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
 
 /**
  * @author minwoo-jung
@@ -42,8 +37,6 @@ import java.util.function.BiConsumer;
 @Repository
 public class PinotHeatmapDao implements HeatmapDao {
 
-    private final Logger logger = LogManager.getLogger(getClass());
-    private final ThrottledLogger sendFailureLogger = ThrottledLogger.getIntervalLogger(logger, Duration.ofSeconds(10));
     private final KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate;
     private final KafkaTemplate<String, Object> kafkaHeatmapRecordTemplate;
     private final TopicNameManager topicNameManager;
@@ -61,25 +54,16 @@ public class PinotHeatmapDao implements HeatmapDao {
     }
 
     @Override
-    public void insert(HeatmapStat heatmapStat) {
+    public CompletableFuture<?> insert(HeatmapStat heatmapStat) {
         String topic = topicNameManager.getTopicName(heatmapStat.getApplicationName());
-        kafkaHeatmapStatTemplate.send(topic, heatmapStat.getSortKey() + "#" + randomPartitionSuffix(), heatmapStat);
+        return kafkaHeatmapStatTemplate.send(topic, heatmapStat.getSortKey() + "#" + randomPartitionSuffix(), heatmapStat);
     }
 
     @Override
-    public void insert(HeatmapStatKey key, long count) {
+    public CompletableFuture<?> insert(HeatmapStatKey key, long count) {
         HeatmapStatRecord record = HeatmapStatRecord.of(key, count);
         String topic = topicNameManager.getTopicName(record.applicationName());
-        kafkaHeatmapRecordTemplate.send(topic, record.sortKey() + "#" + randomPartitionSuffix(), record)
-                .whenComplete(logOnFailure(topic, record));
-    }
-
-    private BiConsumer<SendResult<String, Object>, Throwable> logOnFailure(String topic, Object record) {
-        return (result, throwable) -> {
-            if (throwable != null) {
-                sendFailureLogger.warn("failed to send heatmap record. topic:{} record:{}", topic, record, throwable);
-            }
-        };
+        return kafkaHeatmapRecordTemplate.send(topic, record.sortKey() + "#" + randomPartitionSuffix(), record);
     }
 
     private int randomPartitionSuffix() {
@@ -90,14 +74,13 @@ public class PinotHeatmapDao implements HeatmapDao {
     }
 
     @Override
-    public void insertAgentStat(HeatmapAgentStat heatmapAgentStat) {
-        kafkaHeatmapRecordTemplate.send(agentTopic, heatmapAgentStat.getAgentId(), heatmapAgentStat);
+    public CompletableFuture<?> insertAgentStat(HeatmapAgentStat heatmapAgentStat) {
+        return kafkaHeatmapRecordTemplate.send(agentTopic, heatmapAgentStat.getAgentId(), heatmapAgentStat);
     }
 
     @Override
-    public void insertAgentStat(HeatmapStatKey key, long count) {
+    public CompletableFuture<?> insertAgentStat(HeatmapStatKey key, long count) {
         HeatmapAgentStat record = HeatmapAgentStat.of(key, count);
-        kafkaHeatmapRecordTemplate.send(agentTopic, record.getAgentId(), record)
-                .whenComplete(logOnFailure(agentTopic, record));
+        return kafkaHeatmapRecordTemplate.send(agentTopic, record.getAgentId(), record);
     }
 }

@@ -20,15 +20,17 @@ import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapAgentStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStatKey;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author minwoo-jung
  */
 public interface HeatmapDao {
-    void insert(HeatmapStat heatmapStat);
+    CompletableFuture<?> insert(HeatmapStat heatmapStat);
 
-    void insert(HeatmapStatKey key, long count);
+    CompletableFuture<?> insert(HeatmapStatKey key, long count);
 
-    void insertAgentStat(HeatmapAgentStat heatmapAgentStat);
+    CompletableFuture<?> insertAgentStat(HeatmapAgentStat heatmapAgentStat);
 
-    void insertAgentStat(HeatmapStatKey key, long count);
+    CompletableFuture<?> insertAgentStat(HeatmapStatKey key, long count);
 }
