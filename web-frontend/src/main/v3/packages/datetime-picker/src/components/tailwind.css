@@ -1,0 +1,7 @@
+/* Tailwind CSS v4 entry for the library bundle.
+ * Imports only the theme tokens and generated utilities (no preflight/base
+ * reset) so the picker does not clobber host page styles.
+ * The legacy JS config (prefix `rdp`, custom theme) is loaded via @config. */
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@config '../../tailwind.config.js';

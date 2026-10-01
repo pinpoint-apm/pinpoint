@@ -1,51 +1,22 @@
+import './tailwind.css';
 import './datetimePicker.scss';
 import React from 'react';
-import classNames from 'classnames';
 import { isValid } from 'date-fns';
-import { useOnClickOutside } from 'usehooks-ts';
+import { formatInTimeZone } from 'date-fns-tz';
 import { useUpdateEffect } from '../utils/useUpdateEffect';
-import { getLocale } from '../utils/locale';
-import { DateRange, LocaleKey } from '../types';
 import { SEAM_TOKEN } from '../constants/patterns';
-import { useCaptureKeydown } from '../utils/useCaptureKeydown';
-import { getFormattedTimeUnit, getZonedEndOfDay, parseTimeString } from '../utils/date';
-import { DatePanel, DatePanelProps } from './DatePanel';
+import { DateRange, PickerError } from '../types';
+import { getLocale } from '../utils/locale';
+import { getUiText } from '../utils/uiText';
+import { DatePanel } from './DatePanel';
 import { withPortalPanelContainer } from './hoc/withPortalPanelContainer';
 import AppContext from './context/appContext';
-import { formatInTimeZone } from 'date-fns-tz';
-
-export interface RichDatetimePickerProps extends Omit<
-  DatePanelProps,
-  'locale' | 'open' | 'className' | 'onChangeDatePicker'
-> {
-  disable?: boolean;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  minDate?: Date;
-  maxDate?: Date;
-  className?: string;
-  inputClassName?: string;
-  triggerClassName?: string;
-  panelClassName?: string;
-  localeKey?: LocaleKey;
-  timeZone?: string;
-  seamToken?: string;
-  defaultOpen?: boolean;
-  displayedInput?: string;
-  getPanelContainer?: () => HTMLElement | null;
-  validateDatePickerRange?: (params: DateRange) => boolean;
-}
-
-export interface RichDatetimePickerListItemProps {
-  timeUnit: string;
-  timeUnitToMilliseconds: number;
-  formattedTimeUnit: string;
-  close: () => void;
-}
-
-export interface RichDatetiemPickerMoreViewProps {
-  open: boolean;
-}
+import { cn } from '../utils/style';
+import { RichDatetimePickerProps } from './types';
+export type { RichDatetimePickerProps };
+import { useRichDatetimePicker } from './hooks/useRichDatetimePicker';
+import { useDateInput } from './hooks/useDateInput';
+import { DateTimeTrigger } from './DateTimeTrigger';
 
 const DatePanelWithPortalContainer = withPortalPanelContainer(DatePanel);
 
@@ -55,9 +26,13 @@ export const RichDatetimePicker = ({
   inputClassName = '',
   triggerClassName = '',
   panelClassName = '',
+  renderIcon,
   datePickerClassName = '',
   startDate,
   endDate,
+  minDate,
+  maxDate,
+  children,
   seamToken = SEAM_TOKEN,
   localeKey = 'en',
   timeZone,
@@ -66,182 +41,227 @@ export const RichDatetimePicker = ({
   onChange,
   getPanelContainer,
   validateDatePickerRange = () => true,
-  formatTag,
   displayedInput,
+  // deprecated: 하위 호환을 위해 수용하지만 동작하지 않으며 아래에서 경고만 남긴다
+  formatTag,
+  customTimeViewSlideDirection,
   ...props
 }: RichDatetimePickerProps) => {
   const tz = timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const hasPanelContainer = getPanelContainer && getPanelContainer?.();
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const triggerRef = React.useRef<HTMLDivElement>(null);
-  const locale = React.useMemo(() => getLocale(localeKey), [localeKey]);
-  const [from, setFrom] = React.useState<Date | null | undefined>(startDate);
-  const [to, setTo] = React.useState<Date | null | undefined>(endDate);
-  const [open, setOpen] = React.useState(defaultOpen);
-  const [isValidInput, setValidInput] = React.useState(true);
-  const [dateInput, setDateInput] = React.useState('');
-  const [displayInput, setDisplayInput] = React.useState(displayedInput);
-  const [appContext, setAppContext] = React.useState({ seamToken, timeZone: tz });
 
-  useOnClickOutside(containerRef as React.RefObject<HTMLElement>, () => {
-    if (!hasPanelContainer) {
-      setOpen(false);
-    }
-  });
-
-  useCaptureKeydown((event) => {
-    if (event.code === 'Escape') {
-      if (open) {
-        setOpen(false);
-      }
-    }
-  });
-
-  useUpdateEffect(() => {
-    setFrom(startDate);
-  }, [startDate]);
-
-  useUpdateEffect(() => {
-    setTo(endDate);
-  }, [endDate]);
-
-  useUpdateEffect(() => {
-    setDisplayInput(displayedInput);
-  }, [displayedInput]);
-
-  useUpdateEffect(() => {
-    // datepicker에서 startDate만 선택하고 패널을 닫는 경우
-    if (!open && !to && from instanceof Date) {
-      onChange?.(
-        [from, getZonedEndOfDay(from, tz)],
-        getFormattedDate(from, getZonedEndOfDay(from, tz)),
+  // deprecated prop 사용 시 1회 경고 (동작에는 영향 없음)
+  React.useEffect(() => {
+    if (formatTag !== undefined) {
+      console.warn(
+        '[RichDatetimePicker] `formatTag` is deprecated and no longer has any effect; the duration tag was removed in the 2-column redesign.',
       );
     }
-  }, [open]);
+    if (customTimeViewSlideDirection !== undefined) {
+      console.warn(
+        '[RichDatetimePicker] `customTimeViewSlideDirection` is deprecated and no longer has any effect; the slide-out was replaced by the "?" custom-time tooltip.',
+      );
+    }
+    // 마운트 시 1회만 검사
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  // 날짜 포맷팅 함수 (useDateInput에서 사용)
+  const getFormattedDate = React.useCallback(
+    (fromDate: Date, toDate: Date) => {
+      const locale = getLocale(localeKey);
+      const zonedFrom = formatInTimeZone(fromDate, tz, dateFormat, { locale });
+      const zonedTo = formatInTimeZone(toDate, tz, dateFormat, { locale });
+      return `${zonedFrom} ${seamToken} ${zonedTo}`;
+    },
+    [tz, dateFormat, localeKey, seamToken],
+  );
+
+  // 메인 상태 관리 훅
+  const {
+    locale,
+    from,
+    to,
+    draftFrom,
+    draftTo,
+    open,
+    setOpen,
+    openPanel,
+    appContext,
+    containerRef,
+    triggerRef,
+    displayInputRef,
+    handleDraftDatePickerChange,
+    handleTimeBadgeChange,
+    handleApply,
+    handleCancel,
+    handlePanelChange,
+    runConsumerValidation,
+    rangeError,
+    setRangeError,
+  } = useRichDatetimePicker({
+    startDate,
+    endDate,
+    localeKey,
+    timeZone,
+    seamToken,
+    defaultOpen,
+    getPanelContainer,
+    minDate,
+    maxDate,
+    validateDatePickerRange,
+    onChange,
+    getFormattedDate,
+  });
+
+  // 입력 검증 및 포맷팅 훅
+  const {
+    isValidInput,
+    inputError,
+    dateInput,
+    displayInput,
+    clearInputError,
+    setDateInput,
+    setDisplayInput,
+    handleChangeInput,
+    handleKeyDownInput,
+  } = useDateInput({
+    from,
+    to,
+    locale,
+    dateFormat,
+    timeZone: tz,
+    seamToken: appContext.seamToken,
+    minDate,
+    maxDate,
+    validateRange: runConsumerValidation,
+  });
+
+  // displayedInput prop 변경 시 동기화
   useUpdateEffect(() => {
-    setAppContext((prev) => ({ ...prev, timeZone: tz }));
-  }, [tz]);
+    setDisplayInput(displayedInput);
+  }, [displayedInput, setDisplayInput]);
 
+  // 날짜 변경 시 입력 필드 업데이트
   React.useEffect(() => {
     if (from && to) {
       setDateInput(getFormattedDate(from, to));
+      if (isValid(from) && isValid(to)) {
+        clearInputError();
+      }
     }
-  }, [from, to, locale, dateFormat, tz]);
+  }, [from, to, locale, dateFormat, tz, getFormattedDate, setDateInput, clearInputError]);
 
-  const getFormattedDate = (from: Date, to: Date) => {
-    const zonedFrom = formatInTimeZone(from, tz, dateFormat, { locale });
-    const zonedTo = formatInTimeZone(to, tz, dateFormat, { locale });
+  // 입력이 바뀌면 직전 범위 검증 실패 문구는 무효다
+  const handleInputChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setRangeError(null);
+      handleChangeInput(e);
+    },
+    [handleChangeInput, setRangeError],
+  );
 
-    return `${zonedFrom} ${appContext.seamToken} ${zonedTo}`;
-  };
+  // Enter 키 입력 처리
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent) => {
+      // rangeError는 이미 handleInputChange가 키 입력마다 비웠고, 커밋되면 패널이 닫힌 뒤
+      // openPanel이 다시 비운다. 여기서 또 지울 필요 없다.
+      const shouldClose = handleKeyDownInput(e, (dates, text) => {
+        onChange?.(dates, text);
+        setDisplayInput(text);
+      });
+      if (shouldClose) {
+        setOpen(false);
+      }
+    },
+    [handleKeyDownInput, onChange, setDisplayInput, setOpen],
+  );
 
-  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newInput = e.target.value;
+  // 패널 변경 핸들러 (입력 검증 상태도 업데이트)
+  const handlePanelChangeWithValidation = React.useCallback(
+    (dates: DateRange, text: string, timeUnit?: string) => {
+      clearInputError();
+      // 커밋된 경우에만 트리거에 라벨 텍스트를 노출한다
+      if (handlePanelChange(dates, text, timeUnit)) {
+        setDisplayInput(text);
+      }
+    },
+    [handlePanelChange, clearInputError, setDisplayInput],
+  );
 
-    if (
-      parseTimeString(newInput.trim(), locale, {
-        dateFormat,
-        seamToken: appContext.seamToken,
-        timeZone: tz,
-      }).every((date) => isValid(date))
-    ) {
-      setValidInput(true);
-    } else {
-      setValidInput(false);
+  // Apply(절대 범위 확정) 시에는 라벨을 지워 날짜 범위 텍스트가 보이도록 한다.
+  // 검증에 걸려 커밋되지 않았으면 기존 라벨을 그대로 둔다.
+  const handleApplyWithDisplay = React.useCallback(() => {
+    // Apply는 텍스트 입력 경로를 포기한다는 의사표시다. 여기서 입력 오류를 비우지 않으면
+    // 입력 오류가 항상 우선하므로 범위 검증 문구가 영영 보이지 않는다.
+    clearInputError();
+    if (handleApply()) {
+      setDisplayInput(undefined);
     }
+  }, [handleApply, clearInputError, setDisplayInput]);
 
-    setDateInput(newInput);
-  };
+  // 입력 오류가 범위 오류보다 우선한다. 기본 문구는 state에 담지 않고 렌더 중 해소해
+  // 로케일이 바뀌면 문구도 따라가게 한다.
+  const t = React.useMemo(() => getUiText(localeKey), [localeKey]);
+  const rawError = inputError ?? rangeError;
+  const error = React.useMemo<PickerError | null>(
+    () => (rawError ? { ...rawError, message: rawError.message ?? t.errors[rawError.code] } : null),
+    [rawError, t],
+  );
 
-  const handleKeyDownInput = (e: React.KeyboardEvent) => {
-    if (e.code === 'Enter' && isValidInput) {
-      onChange?.(
-        parseTimeString(dateInput, locale, {
-          dateFormat,
-          seamToken: appContext.seamToken,
-          timeZone: tz,
-        }),
-        dateInput,
-      );
-      setOpen(false);
-    }
-  };
+  // children은 패널 본문을 통째로 대체하므로 메시지 노드가 렌더되지 않는다.
+  // 판정 기준은 DatePanel의 분기(`children ? ... : 기본 본문`)와 **같아야** 한다 —
+  // `children != null`로 보면 `{cond && <X/>}`의 false에서 둘이 갈라진다.
+  const hasCustomBody = Boolean(children);
+  const reactId = React.useId();
+  const errorId = `${reactId}error`;
+  // 메시지 노드가 실제로 렌더될 때만 참조한다.
+  const describedBy = open && error && !hasCustomBody ? errorId : undefined;
+
+  const contextValue = React.useMemo(() => ({ appContext }), [appContext]);
 
   return (
-    <AppContext.Provider value={{ appContext, setAppContext }}>
-      <div className={classNames('rich-datetime-picker relative', className)} ref={containerRef}>
-        <div
-          ref={triggerRef}
-          className={classNames(
-            'rich-datetime-picker__trigger',
-            {
-              'border-primary': open,
-              'border-stateRed': !isValidInput,
-            },
-            {
-              'div-disable': disable,
-            },
-            triggerClassName,
-          )}
-          onClick={() => setOpen(true)}
-        >
-          <div className="rich-datetime-picker__tag absolute top-1.5 left-1.5">
-            {from && to ? getFormattedTimeUnit(to?.getTime() - from?.getTime(), formatTag) : '-'}
-          </div>
-          {open ? (
-            <input
-              type="text"
-              value={dateInput}
-              className={classNames('rich-datetime-picker__input', inputClassName)}
-              onClick={(e) => open && e.stopPropagation()}
-              onChange={handleChangeInput}
-              onKeyDown={handleKeyDownInput}
-            />
-          ) : (
-            <input
-              type="text"
-              value={displayInput || dateInput}
-              className={classNames('rich-datetime-picker__input', inputClassName)}
-              onClick={(e) => open && e.stopPropagation()}
-              readOnly
-            />
-          )}
-        </div>
+    <AppContext.Provider value={contextValue}>
+      <div className={cn('rich-datetime-picker rdp:relative', className)} ref={containerRef}>
+        <DateTimeTrigger
+          open={open}
+          disable={disable}
+          isValidInput={isValidInput}
+          triggerClassName={triggerClassName}
+          inputClassName={inputClassName}
+          renderIcon={renderIcon}
+          dateInput={dateInput}
+          displayInput={displayInput}
+          displayInputRef={displayInputRef}
+          onOpen={openPanel}
+          onInputChange={handleInputChange}
+          onInputKeyDown={handleKeyDown}
+          describedBy={describedBy}
+        />
         {open && (
           <DatePanelWithPortalContainer
             open={open}
             className={panelClassName}
             datePickerClassName={datePickerClassName}
-            startDate={from}
-            endDate={to}
+            startDate={draftFrom}
+            endDate={draftTo}
             locale={locale}
-            formatTag={formatTag}
-            onChange={(dates, text, timeUnit) => {
-              setValidInput(true);
-              setDisplayInput(text);
-              setOpen(false);
-              onChange?.(dates, text, timeUnit);
-            }}
-            onChangeDatePicker={(dates) => {
-              if (dates[0] && dates[1] === null) {
-                setFrom(dates[0]);
-                setTo(dates[1]);
-              } else if (dates[0] && dates[1]) {
-                if (validateDatePickerRange(dates)) {
-                  setFrom(dates[0]);
-                  setTo(dates[1]);
-                  onChange?.(dates, getFormattedDate(dates[0], dates[1]));
-                  setDisplayInput('');
-                  setOpen(false);
-                }
-              }
-            }}
+            dateFormat={dateFormat}
+            onChange={handlePanelChangeWithValidation}
+            onChangeDatePicker={handleDraftDatePickerChange}
+            onTimeBadgeChange={handleTimeBadgeChange}
+            onApply={handleApplyWithDisplay}
+            onClose={handleCancel}
             getPanelContainer={getPanelContainer}
-            onClickOutside={() => setOpen(false)}
+            onClickOutside={handleCancel}
             triggerRef={triggerRef}
+            minDate={minDate}
+            maxDate={maxDate}
+            error={error}
+            errorId={errorId}
             {...props}
-          />
+          >
+            {children}
+          </DatePanelWithPortalContainer>
         )}
       </div>
     </AppContext.Provider>

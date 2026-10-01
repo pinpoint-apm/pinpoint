@@ -1,41 +1,8 @@
-.rich-datetime-picker__tag {
-  /* background-color: hsl(var(--ui-secondary)); */
-}
-.rich-datetime-picker__item:hover {
-  background-color: hsl(var(--ui-accent)) !important;
-}
-.rich-datetime-picker__more-label {
-  color: hsl(var(--ui-primary)) !important;
-  background-color: hsl(var(--ui-secondary)) !important;
-}
-.rich-datetime-picker__more-label:hover {
-  color: hsl(var(--ui-muted)) !important;
-  background-color: hsl(var(--ui-primary)) !important;
-}
-.rich-datetime-picker__day:hover:not(.react-datepicker__day--disabled) {
-  outline-color: hsl(var(--ui-primary)) !important;
-}
-.react-datepicker {
-  border: none !important;
-}
-
-.rich-datetime-picker__date-picker
-  .react-datepicker__month-container
-  .react-datepicker__day--selected,
-.rich-datetime-picker__day.__day--in-range {
-  background-color: hsl(var(--ui-primary)) !important;
-}
-.react-datepicker__day--in-selecting-range:not(
-    .react-datepicker__day--in-range,
-    .react-datepicker__month-text--in-range,
-    .react-datepicker__quarter-text--in-range,
-    .react-datepicker__year-text--in-range
-  ) {
-  background-color: hsl(var(--ui-primary) / 0.25) !important;
-}
-.border-primary {
-  border-color: hsl(var(--ui-primary)) !important;
-}
-.border-stateRed {
-  border-color: hsl(var(--ui-destructive)) !important;
+/* datetime-picker 의 강조색을 pinpoint 테마색으로 맞춘다.
+   피커는 이 변수들이 없으면 원본의 보라색을 쓴다(packages/datetime-picker/tailwind.config.js). */
+.rich-datetime-picker {
+  --rdp-primary: hsl(var(--ui-primary));
+  --rdp-primary-soft: hsl(var(--ui-primary) / 0.1);
+  --rdp-primary-band: hsl(var(--ui-primary) / 0.12);
+  --rdp-danger: hsl(var(--ui-destructive));
 }

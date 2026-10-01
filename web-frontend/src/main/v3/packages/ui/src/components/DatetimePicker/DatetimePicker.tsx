@@ -1,5 +1,4 @@
 import './datetime-picker.css';
-// import '@pinpoint-fe/datetime-picker/dist/rich-datetime-picker.css';
 import React from 'react';
 import { subDays, subYears } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -8,8 +7,6 @@ import {
   RichDatetimePicker,
   RichDatetimePickerProps,
   TimeUnitFormat,
-  convertToMilliseconds,
-  convertToTimeUnit,
 } from '@pinpoint-fe/datetime-picker';
 import Marquee from 'react-fast-marquee';
 
@@ -175,8 +172,8 @@ export const DatetimePicker = React.memo(
               validateDatePickerRange={([from, to]) => {
                 if (from && to) {
                   if (subDays(to, maxDateRangeDays) > from) {
-                    toast.warn(outOfDateRangeMessage);
-                    return false;
+                    // 반환한 문구가 패널 하단 오류 영역에 표시된다.
+                    return outOfDateRangeMessage;
                   } else {
                     return true;
                   }
@@ -184,21 +181,6 @@ export const DatetimePicker = React.memo(
                 return false;
               }}
               timeUnits={timeUnits as TimeUnitFormat[]}
-              formatTag={
-                timeUnits
-                  ? (ms) => {
-                      return (
-                        timeUnits?.find((timeUnit) => {
-                          const milliseconds = convertToMilliseconds(
-                            timeUnit as TimeUnitFormat,
-                            '',
-                          );
-                          return ms === milliseconds;
-                        }) || convertToTimeUnit(ms)
-                      );
-                    }
-                  : undefined
-              }
               {...props}
             />
           )}
