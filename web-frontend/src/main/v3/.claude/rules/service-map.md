@@ -185,16 +185,68 @@ service 전체를 대상으로 필터를 걸 수 있게 할지 정해지면 경�
   원래 탭에서 service를 바꾸면 전역 선택값이 따라 바뀌므로, 그것에 기대면 보고 있는 화면과
   조회가 어긋난다. fullScreenMode의 돌아갈 링크도 경로의 serviceName으로 정한다
   (`Servicemap / Scatter` ↔ `Servermap / Scatter`) — filteredMap과 같은 규칙이다.
-- 싣는 화면 목록: `SERVICE_NAME_SEGMENT_PAGES` (`utils/helper/application.ts`).
+- **어느 화면이 serviceName을 싣는지는 라우트 정의가 정한다** (`apps/web/src/routes`).
+  라우트 경로에 `:serviceName`이 있으면 그 자리를 serviceName으로 읽는다. 앱이 라우터를 만들기 전에
+  같은 배열을 `registerAppRoutes`로 넘긴다(`utils/helper/application.ts`). 화면 목록을 따로 두지
+  않는다 — 경로의 첫 세그먼트는 화면마다 뜻이 달라(`/config/alarm`, `/serviceMap/realtime/...`)
+  모양으로 가릴 수 없고, 목록이 라우트와 갈리면 경로에는 A service가 적혀 있는데 헤더·캐시 키는
+  전역 선택값인 B service로 나간다. **화면에 serviceName 세그먼트를 추가할 때 고칠 곳은 라우트
+  하나다** — 이 패키지 밖(앱)의 화면도 같다(경로 빌더는 `getServiceScopedApplicationPath`).
   **앞으로는 serviceName을 싣는 것이 기본**이고, 아직 안 옮긴 화면은 줄어드는 예외다.
   그 경로에서는 serviceName을 읽을 수 없어 전역 선택값으로 폴백한다.
-  로더가 리다이렉트 목적지를 만들 때 쓰는 페이지 접두사도 같은 목록에서 뽑는다
-  (`getServiceNameSegmentPage`) — 판정이 갈리면 serviceName은 읽었는데 리다이렉트 목적지에서만
-  빠진다.
+  - 로더가 리다이렉트 목적지를 만들 때 쓰는 페이지 접두사도 같은 매칭에서 뽑는다
+    (`getServiceNameSegmentPage` — 라우트 경로의 `:serviceName` 앞까지). 판정이 갈리면 serviceName은
+    읽었는데 리다이렉트 목적지에서만 빠진다.
+  - 하위 경로끼리의 우선순위(`/serviceMap/realtime` ↔ `/serviceMap`)는 react-router의 경로 랭킹이
+    정한다. 라우터가 실제로 고르는 라우트와 언제나 같으므로 순서를 맞출 필요가 없다.
+  - **라우트로는 화면만 고르고, serviceName 자체는 원본(raw) 세그먼트로 읽는다.** 매칭 결과의
+    `params`는 디코딩된 값이라 '%40'이 '@'로 풀려 service 이름 `a@b`와 application `app@TOMCAT`을
+    구별할 수 없다.
+  - 등록을 빠뜨리면 어느 경로에서도 serviceName을 읽지 못해 전역 선택값으로 폴백한다(깨지지는
+    않는다). 첫 로더가 경로를 읽으므로 `createBrowserRouter`보다 **먼저** 등록한다.
+  - 테스트에는 앱이 없으므로 같은 모양의 라우트(`utils/helper/__fixtures__/appRoutes.ts`)를 매 테스트
+    전에 등록한다(`jest.setupAfterEnv.cjs`). 실제 라우트에 serviceName 세그먼트를 추가·제거하면
+    여기도 맞춘다. 로더 테스트가 react-router를 mock할 때는 `jest.requireActual`을 펼쳐
+    `matchRoutes`를 남긴다.
+  - 아직 싣지 않는 화면: servermap 계열(`/serverMap`, `/serverMap/realtime` — servicemap이 켜져 있으면
+    감춰지는 화면이라 service 개념이 없다), config 화면들.
+- **모든 serviceName 세그먼트는 `enableServiceMap`이 켜져 있을 때만 싣는다.** 꺼져 있으면 경로
+  빌더가 undefined를 받아 세그먼트를 붙이지 않고(예전과 같은 경로), 경로에 serviceName이 없어도
+  화면은 그대로 동작한다. 켜져 있을 때 세그먼트가 빠진 경로로 들어와도 조회는 전역 선택값으로
+  폴백하므로 깨지지 않는다(`pickServiceName`).
+- **사이드 메뉴의 화면(inspector, urlStatistic, errorAnalysis, openTelemetryMetric, systemMetric)과
+  threadDump는 로더가 serviceName을 채운다.** servicemap 로더와 같은 규칙이다 — 세그먼트가 없으면
+  `getRequestService()`(지금 보고 있는 service)를 붙여 표준 형태로 옮긴다. 세그먼트가 생기기 전
+  형태의 북마크가 들어오기 때문이다. 설정이 꺼져 있으면 붙이지 않는다.
+  **메뉴 링크는 이 채우기에 기대지 않는다** — application(systemMetric은 hostGroup)을 아직 고르지
+  않았어도 경로 빌더가 `/{page}/{serviceName}`을 만든다. DEFAULT가 아닌 servicemap에는 기준
+  application이 없어 메뉴 링크가 늘 이 형태인데, 페이지 경로만 주면 새 탭으로 연 화면의 로더가
+  탭 간 공유 저장소인 전역 선택값으로 service를 채운다. → `loader/serviceScopedPage.ts` (`resolveServiceScopedPage`).
+  transaction·fullScreenMode 로더는 채우지 않는다 — 새 탭으로만 열리고 여는 쪽이 언제나 싣는다.
+- **systemMetric은 경로 형태를 `enableServiceMap`이 정한다.** hostGroup 세그먼트는 `{app}@{type}`처럼
+  구분자가 없어 `/systemMetric/X`의 X가 service인지 hostGroup인지 모양으로 알 수 없다. 켜져 있으면
+  첫 세그먼트가 언제나 serviceName이고, 꺼져 있으면 마지막 세그먼트가 hostGroup이다
+  (`parseSystemMetricPath`). 켜진 상태에서 세그먼트가 하나뿐이면 로더가 service 목록(`getServices`)과
+  대조해, service가 아니면 옛 형태로 보고 `/systemMetric/{service}/{hostGroup}`으로 옮긴다.
+  이때 붙일 service를 **지금 경로로 판정하지 않는다**(`getRequestService(APP_PATH.SYSTEM_METRIC)`).
+  첫 로드에서는 렌더한 경로가 없어 `getRequestService`가 주소창, 즉 그 옛 경로 자체를 읽으므로
+  hostGroup을 service로 읽어 `/systemMetric/{hostGroup}/{hostGroup}`으로 옮기게 된다.
+  (백엔드의 systemMetric API는 service를 읽지 않는다 — 헤더는 실리지만 조회 결과는 같다.
+  URL 형태를 다른 메뉴와 맞추려고 싣는다.)
+- 이 화면들로 가는 링크도 조회 대상의 service를 싣는다. map 우측 패널의 서버 목록 → inspector
+  (`ServerListFetcher`), 실시간 액티브 스레드 → threadDump(`AgentActiveTable`)는 **고른 노드의
+  service**다(아래 "화면의 service ≠ 조회 대상의 service"). 액티브 스레드는 비DEFAULT 실시간 보기에서
+  경로에 application이 없으므로 application도 고른 노드에서 받는다.
 - serviceName은 백엔드가 형식을 검증하지 않으므로(`ServiceNameRequest`에 제약이 없다) `/`나 `@`가
   들어올 수 있다. 반드시 `encodeURIComponent`로 싣는다.
 - **읽을 때는 인코딩된 raw pathname을 넘긴다.** react-router의 `params`는 디코딩된 값이라
   `%2F`가 `/`로 풀려 세그먼트 경계가 어긋난다. 로더에서 특히 주의.
+  - **로더의 `request.url`에는 라우터 basename(`BASE_PATH`)이 붙어 있다.** `APP_PATH` 길이로 자르기 전에
+    `toRouterPath`로 뗀다(`resolveServiceScopedPage`, `systemMetricRouteLoader`). 떼지 않으면 하위 경로
+    배포에서만 세그먼트가 어긋난다 — `/pinpoint/threadDump/{app}@{type}`가 application을 못 읽어
+    servermap으로 쫓겨났다. 개발 서버와 테스트는 basename이 비어 있어 이 차이를 보지 못하므로
+    `loader/basePath.test.ts`가 따로 확인한다. 리다이렉트 목적지는 basename 없이 만든다(react-router가
+    상대 경로 redirect에 붙인다).
 - 첫 세그먼트가 `{app}@{type}`으로 파싱되면 serviceName이 아니다. serviceName 세그먼트가 생기기
   전 형태(`/serviceMap/myApp@TOMCAT`)의 링크·북마크를 살리기 위한 가드다.
 
@@ -512,7 +564,7 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 | 조회할 service 판단 (렌더 밖) | `hooks/api/serviceNameFetchInterceptor.ts` (`getRequestService`) |
 | Experimental 설정 항목 | `hooks/utility/useExperimentals.ts`, `pages/config/Experimentals.tsx` |
 | DEFAULT 여부 판단 | `hooks/utility/useIsDefaultService.ts` |
-| 경로에 실린 serviceName 읽기 | `utils/helper/application.ts` (`getServiceNameFromPath`) |
+| 경로에 실린 serviceName 읽기 | `utils/helper/application.ts` (`getServiceNameFromPath`, `registerAppRoutes`) |
 | 경로 분해 (로더용) | `utils/helper/application.ts` (`parseServiceScopedPath`) |
 | 경로 만들기 | `utils/helper/route.ts` (`getServiceMapPath`, `getServiceMapRealtimePath`, `getFilteredMapPath`, `getTransactionListPath`, `getScatterFullScreenPath`, `getHeatmapFullScreenPath`) |
 | 조회 대상의 service | `hooks/serverMap/useServerMapTargetServiceName.ts` |
@@ -523,5 +575,6 @@ servermap/filteredMap 응답에는 이 필드가 없어 그 화면들의 동작�
 | service 단위 캐시 키 | `hooks/api/reactQueryHelper.tsx` (`serviceScopedQueryKeyHashFn`) |
 | service 변경 시 초기화 | `hooks/utility/useClearApplicationOnServiceChange.ts` |
 | 라우트 로더 | `loader/serviceMap.ts`, `loader/serviceMapRealtime.ts`, `loader/filteredMap.ts` |
+| 메뉴 화면 로더의 serviceName 채우기 | `loader/serviceScopedPage.ts`, `loader/systemMetric.ts` |
 | 로더의 날짜 정규화 (공유) | `loader/mapDateRange.ts` |
 | filteredMap 경로 읽기 | `hooks/searchParameters/useFilteredMapParameters.ts` |

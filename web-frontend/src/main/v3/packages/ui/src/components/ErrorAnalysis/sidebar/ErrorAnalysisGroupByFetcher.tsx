@@ -1,6 +1,7 @@
 import {
   useErrorAnalysisSearchParameters,
   useGetErrorAnalysisGroupsData,
+  useRequestService,
 } from '@pinpoint-fe/ui/src/hooks';
 import { cn } from '../../../lib';
 import { Checkbox } from '../../ui';
@@ -24,6 +25,7 @@ export const ErrorAnalysisGroupByFetcher = ({
   const navigate = useNavigate();
   const ID_PREFIX = 'error_analysis_groupby';
   const { agentId, application, dateRange, parsedGroupBy } = useErrorAnalysisSearchParameters();
+  const serviceName = useRequestService();
   const { data } = useGetErrorAnalysisGroupsData();
   const selectedGroups = parsedGroupBy || [];
 
@@ -46,11 +48,13 @@ export const ErrorAnalysisGroupByFetcher = ({
                           .join(',');
 
                     navigate(
-                      `${getErrorAnalysisPath(application)}?${convertParamsToQueryString({
-                        ...getFormattedDateRange(dateRange),
-                        agentId,
-                        groupBy,
-                      })}`,
+                      `${getErrorAnalysisPath(application, undefined, serviceName)}?${convertParamsToQueryString(
+                        {
+                          ...getFormattedDateRange(dateRange),
+                          agentId,
+                          groupBy,
+                        },
+                      )}`,
                     );
                   }}
                 />

@@ -4,18 +4,14 @@ import {
   SEARCH_PARAMETER_DATE_FORMAT,
 } from '@pinpoint-fe/ui/src/constants';
 import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
-import {
-  getApplicationTypeAndName,
-  getParsedDateRange,
-  isValidDateRange,
-  getTimezone,
-} from '@pinpoint-fe/ui/src/utils';
+import { getParsedDateRange, isValidDateRange, getTimezone } from '@pinpoint-fe/ui/src/utils';
 import { parse } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router';
+import { resolveServiceScopedPage } from './serviceScopedPage';
 
-export const urlStatisticRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
-  const application = getApplicationTypeAndName(params.application!);
+export const urlStatisticRouteLoader = async ({ request }: LoaderFunctionArgs) => {
+  const requestUrl = new URL(request.url);
 
   let configuration: Configuration | undefined;
   try {
@@ -25,10 +21,14 @@ export const urlStatisticRouteLoader = async ({ params, request }: LoaderFunctio
   }
 
   const timezone = getTimezone();
+  // 설정을 읽은 뒤에 불러야 한다 — serviceName 세그먼트를 붙일지는 enableServiceMap에 달렸다.
+  const { application, basePath, isServiceNameMissing } = resolveServiceScopedPage(
+    APP_PATH.URL_STATISTIC,
+    requestUrl.pathname,
+  );
 
   if (application?.applicationName && application.serviceType) {
-    const basePath = `${APP_PATH.URL_STATISTIC}/${params.application}`;
-    const queryParam = Object.fromEntries(new URL(request.url).searchParams);
+    const queryParam = Object.fromEntries(requestUrl.searchParams);
     const conditions = Object.keys(queryParam);
 
     const from = queryParam?.from ?? '';
@@ -56,11 +56,16 @@ export const urlStatisticRouteLoader = async ({ params, request }: LoaderFunctio
         conditions.includes('to') &&
         validateDateRange(parsedDateRange)
       ) {
-        return application;
+        // 날짜는 이미 표준 형태다. serviceName만 채워 그대로 옮긴다.
+        return isServiceNameMissing ? redirect(`${basePath}${requestUrl.search}`) : application;
       } else {
         return redirect(defaultDestination);
       }
     }
+  }
+
+  if (isServiceNameMissing) {
+    return redirect(`${basePath}${requestUrl.search}`);
   }
 
   return application;

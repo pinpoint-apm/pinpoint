@@ -55,9 +55,9 @@ export const ErrorAnalysisPage = ({
   const periodInterval = configuration?.['periodInterval.exceptionTrace'];
   const navigate = useNavigate();
   const [timezone] = useTimezone();
-  // errorAnalysis 경로는 URL에 service를 싣지 않으므로, 새 탭으로 여는 transactionDetail에는
-  // 클릭 시점의 선택된 service를 실어 그 탭이 전역 선택값 변화에 흔들리지 않게 한다.
-  const serviceNameForLink = useRequestService();
+  // 이 화면의 URL에 실린 service. 화면 안의 이동과, 새 탭으로 여는 transactionDetail에 그대로
+  // 이어 실어 그 탭이 전역 선택값 변화에 흔들리지 않게 한다.
+  const serviceName = useRequestService();
   const {
     searchParameters,
     application,
@@ -76,13 +76,15 @@ export const ErrorAnalysisPage = ({
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate }) => {
       navigate(
-        `${getErrorAnalysisPath(application!)}?${convertParamsToQueryString({
-          ...formattedDate,
-          ...{ agentId, groupBy },
-        })}`,
+        `${getErrorAnalysisPath(application!, undefined, serviceName)}?${convertParamsToQueryString(
+          {
+            ...formattedDate,
+            ...{ agentId, groupBy },
+          },
+        )}`,
       );
     }) as DatetimePickerChangeHandler,
-    [application?.applicationName, agentId, groupBy],
+    [application?.applicationName, agentId, groupBy, serviceName],
   );
 
   return (
@@ -97,7 +99,9 @@ export const ErrorAnalysisPage = ({
         <ApplicationList
           open={!application}
           selectedApplication={application}
-          onClickApplication={(application) => navigate(getErrorAnalysisPath(application))}
+          onClickApplication={(application) =>
+            navigate(getErrorAnalysisPath(application, undefined, serviceName))
+          }
         />
         <div className="ml-auto">
           {application && (
@@ -181,7 +185,7 @@ export const ErrorAnalysisPage = ({
                             const path = getTransactionDetailPath(
                               application,
                               undefined,
-                              serviceNameForLink,
+                              serviceName,
                             );
                             window.open(
                               `${BASE_PATH}${path}?${getTransactionDetailQueryString({

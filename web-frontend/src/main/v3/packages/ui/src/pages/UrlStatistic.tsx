@@ -15,6 +15,7 @@ import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/ui/src/
 import {
   useConfiguration,
   useIsForbiddenPath,
+  useRequestService,
   useUrlStatSearchParameters,
 } from '@pinpoint-fe/ui/src/hooks';
 import { Forbidden403 } from './Forbidden403';
@@ -45,6 +46,7 @@ export const UrlStatisticPage = ({
   const periodInterval = configuration?.['periodInterval.uriStat'];
   const navigate = useNavigate();
   const { searchParameters, application, agentId } = useUrlStatSearchParameters();
+  const serviceName = useRequestService();
   const { t } = useTranslation();
   const [type, setType] = React.useState<TYPE>('total');
   const isForbidden = useIsForbiddenPath();
@@ -52,13 +54,13 @@ export const UrlStatisticPage = ({
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate }) => {
       navigate(
-        `${getUrlStatPath(application!)}?${convertParamsToQueryString({
+        `${getUrlStatPath(application!, undefined, serviceName)}?${convertParamsToQueryString({
           ...formattedDate,
           ...{ agentId },
         })}`,
       );
     }) as DatetimePickerChangeHandler,
-    [application?.applicationName, agentId],
+    [application?.applicationName, agentId, serviceName],
   );
 
   return (
@@ -73,7 +75,9 @@ export const UrlStatisticPage = ({
         <ApplicationList
           open={!application}
           selectedApplication={application}
-          onClickApplication={(application) => navigate(getUrlStatPath(application))}
+          onClickApplication={(application) =>
+            navigate(getUrlStatPath(application, undefined, serviceName))
+          }
         />
         <div className="ml-auto">
           {application && (

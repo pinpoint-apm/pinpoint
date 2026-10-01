@@ -13,6 +13,12 @@ import {
   getScatterFullScreenRealtimePath,
   getHeatmapFullScreenPath,
   getHeatmapFullScreenRealtimePath,
+  getInspectorPath,
+  getUrlStatPath,
+  getErrorAnalysisPath,
+  getOpenTelemetryPath,
+  getThreadDumpPath,
+  getSystemMetricPath,
 } from './route';
 
 describe('Test route helper utils', () => {
@@ -441,9 +447,9 @@ describe('Test route helper utils', () => {
     const application = { applicationName: 'appName', serviceType: 'TOMCAT' };
     const dateRange = { from: 'from', to: 'to' };
 
-    test('Return the page path only when application is not given', () => {
+    test('Return only the page and service segments when application is not given', () => {
       expect(getTransactionListPath()).toEqual('/transactionList');
-      expect(getTransactionListPath(null, dateRange, 'svc')).toEqual('/transactionList');
+      expect(getTransactionListPath(null, dateRange, 'svc')).toEqual('/transactionList/svc');
     });
 
     test('Omit the service segment when service name is not given', () => {
@@ -526,10 +532,12 @@ describe('Test route helper utils', () => {
       );
     });
 
-    test('Return the page path only when application is not given', () => {
-      expect(getScatterFullScreenPath(null, undefined, 'svc')).toEqual('/scatterFullScreenMode');
+    test('Return only the page and service segments when application is not given', () => {
+      expect(getScatterFullScreenPath(null, undefined, 'svc')).toEqual(
+        '/scatterFullScreenMode/svc',
+      );
       expect(getHeatmapFullScreenRealtimePath(null, undefined, 'svc')).toEqual(
-        '/heatmapFullScreenMode/realtime',
+        '/heatmapFullScreenMode/realtime/svc',
       );
     });
   });
@@ -538,9 +546,9 @@ describe('Test route helper utils', () => {
     const application = { applicationName: 'appName', serviceType: 'TOMCAT' };
     const dateRange = { from: 'from', to: 'to' };
 
-    test('Return the page path only when application is not given', () => {
+    test('Return only the page and service segments when application is not given', () => {
       expect(getTransactionDetailPath()).toEqual('/transactionDetail');
-      expect(getTransactionDetailPath(null, dateRange, 'svc')).toEqual('/transactionDetail');
+      expect(getTransactionDetailPath(null, dateRange, 'svc')).toEqual('/transactionDetail/svc');
     });
 
     test('Omit the service segment when service name is not given', () => {
@@ -560,6 +568,74 @@ describe('Test route helper utils', () => {
       expect(getTransactionDetailPath(application, undefined, 'a/b')).toEqual(
         '/transactionDetail/a%2Fb/appName@TOMCAT',
       );
+    });
+  });
+  describe('Test the application page path builders', () => {
+    const application = { applicationName: 'appName', serviceType: 'TOMCAT' };
+    const dateRange = { from: 'from', to: 'to' };
+
+    test.each([
+      [getInspectorPath, '/inspector'],
+      [getUrlStatPath, '/urlStatistic'],
+      [getErrorAnalysisPath, '/errorAnalysis'],
+      [getOpenTelemetryPath, '/openTelemetryMetric'],
+      [getThreadDumpPath, '/threadDump'],
+    ])('%#: carry the service name as its own segment, like servicemap', (builder, page) => {
+      expect(builder(application, dateRange, 'svc')).toEqual(
+        `${page}/svc/appName@TOMCAT?from=from&to=to`,
+      );
+      expect(builder(application, undefined, 'a/b')).toEqual(`${page}/a%2Fb/appName@TOMCAT`);
+    });
+
+    // enableServiceMap이 꺼져 있으면 serviceName이 undefined로 들어온다 — 예전과 같은 경로다.
+    test('Omit the service segment when service name is not given', () => {
+      expect(getInspectorPath(application, dateRange)).toEqual(
+        '/inspector/appName@TOMCAT?from=from&to=to',
+      );
+      expect(getThreadDumpPath(application)).toEqual('/threadDump/appName@TOMCAT');
+    });
+
+    // 메뉴 링크처럼 application을 아직 고르지 않았어도 service는 싣는다. 새 탭으로 열면 전역
+    // 선택값이 아니라 링크를 만든 화면의 service로 조회해야 한다(DEFAULT가 아닌 servicemap에는
+    // application이 없다).
+    test('Carry the service name even when application is not given', () => {
+      expect(getInspectorPath(null, dateRange, 'svc')).toEqual('/inspector/svc');
+      expect(getUrlStatPath(undefined, undefined, 'a/b')).toEqual('/urlStatistic/a%2Fb');
+      expect(
+        getErrorAnalysisPath({ applicationName: '', serviceType: '' }, dateRange, 'svc'),
+      ).toEqual('/errorAnalysis/svc');
+    });
+
+    test('Return the page path only when neither application nor service name is given', () => {
+      expect(getInspectorPath(null, dateRange)).toEqual('/inspector');
+      expect(getOpenTelemetryPath()).toEqual('/openTelemetryMetric');
+    });
+  });
+  describe('Test "getSystemMetricPath"', () => {
+    const dateRange = { from: 'from', to: 'to' };
+
+    test('Carry the service name as its own segment before the host group', () => {
+      expect(getSystemMetricPath('hostGroup', dateRange, 'svc')).toEqual(
+        '/systemMetric/svc/hostGroup?from=from&to=to',
+      );
+      expect(getSystemMetricPath('hostGroup', undefined, 'a/b')).toEqual(
+        '/systemMetric/a%2Fb/hostGroup',
+      );
+    });
+
+    test('Omit the service segment when service name is not given', () => {
+      expect(getSystemMetricPath('hostGroup', dateRange)).toEqual(
+        '/systemMetric/hostGroup?from=from&to=to',
+      );
+    });
+
+    test('Carry the service name even when host group is not given', () => {
+      expect(getSystemMetricPath(null, dateRange, 'svc')).toEqual('/systemMetric/svc');
+      expect(getSystemMetricPath(undefined, undefined, 'a/b')).toEqual('/systemMetric/a%2Fb');
+    });
+
+    test('Return the page path only when neither host group nor service name is given', () => {
+      expect(getSystemMetricPath()).toEqual('/systemMetric');
     });
   });
 });

@@ -271,19 +271,21 @@ export const getFilteredMapPathOfApplication = (
   return `${APP_PATH.FILTERED_MAP}${serviceSegment}/${application.applicationName}@${application.serviceType}`;
 };
 
-export const getErrorAnalysisPath = getApplicationPath(APP_PATH.ERROR_ANALYSIS);
-export const getUrlStatPath = getApplicationPath(APP_PATH.URL_STATISTIC);
-export const getInspectorPath = getApplicationPath(APP_PATH.INSPECTOR);
-export const getOpenTelemetryPath = getApplicationPath(APP_PATH.OPEN_TELEMETRY_METRIC);
-export const getSystemMetricPath = getHostGroupPath(APP_PATH.SYSTEM_METRIC);
 /**
  * serviceName이 주어지면 `/{page}/{serviceName}/{applicationName}@{serviceType}`를 만드는 경로
  * 빌더. servicemap과 같은 세그먼트 표기다.
  *
- * 이 경로들은 모두 새 탭으로 열린다(map의 drag&drop → transactionList, transactionList의 외부
- * 링크 → transactionDetail, 스캐터/히트맵의 확대 버튼 → fullScreenMode). 어떤 service를 보던
- * 중이었는지 URL에 남겨야 그 화면의 모든 API에 pServiceName 헤더를 실을 수 있다. 전역 선택값은
- * 탭 간 공유 저장소라 믿을 수 없다.
+ * 새 탭으로 열리는 화면(map의 drag&drop → transactionList, transactionList의 외부 링크 →
+ * transactionDetail, 스캐터/히트맵의 확대 버튼 → fullScreenMode, 서버 목록 → inspector,
+ * 액티브 스레드 → threadDump)도, 사이드 메뉴로 옮겨 다니는 화면(inspector, urlStatistic,
+ * errorAnalysis, openTelemetryMetric)도 같은 표기를 쓴다. 어떤 service를 보던 중이었는지 URL에
+ * 남겨야 그 화면의 모든 API에 pServiceName 헤더를 실을 수 있다. 전역 선택값은 탭 간 공유
+ * 저장소라 믿을 수 없다.
+ *
+ * application이 없어도 serviceName은 싣는다(`/{page}/{serviceName}`, servicemap과 같다). DEFAULT가
+ * 아닌 servicemap에는 기준 application이 없어 메뉴 링크가 늘 이 형태인데, 페이지 경로만 돌려주면
+ * 그 링크를 새 탭에 연 화면이 탭 간 공유 저장소인 전역 선택값으로 service를 정한다. 라우트 로더의
+ * 채우기(`resolveServiceScopedPage`)는 세그먼트가 생기기 전 형태의 북마크를 위한 것이다.
  *
  * enableServiceMap이 꺼져 있으면 service 개념이 없어 serviceName이 undefined로 들어온다.
  * 그때는 세그먼트를 붙이지 않아 예전과 같은 경로가 된다.
@@ -292,8 +294,11 @@ export const getSystemMetricPath = getHostGroupPath(APP_PATH.SYSTEM_METRIC);
  * '@'가 들어올 수 있어 인코딩한다. 인코딩하지 않으면 '/'가 세그먼트를 쪼개 라우트 매칭이 깨지고,
  * '@'는 application 세그먼트의 구분자와 구별되지 않는다. applicationName/serviceType은
  * 백엔드가 `[a-zA-Z0-9._\-]+`로 검증하므로(IdValidateUtils) 기존처럼 그대로 둔다.
+ *
+ * 앱이 자기 화면의 경로 빌더를 만들 때도 쓴다. 그 화면의 라우트 경로에 `:serviceName`이 있어야
+ * 경로에 실은 serviceName이 실제 조회에 쓰인다(`registerAppRoutes`).
  */
-const getServiceScopedApplicationPath =
+export const getServiceScopedApplicationPath =
   (pagePath: string) =>
   (
     application?: ApplicationType | null,
@@ -302,11 +307,12 @@ const getServiceScopedApplicationPath =
     },
     serviceName?: string,
   ) => {
+    const serviceSegment = serviceName ? `/${encodeURIComponent(serviceName)}` : '';
+
     if (!application?.applicationName || !application?.serviceType) {
-      return pagePath;
+      return `${pagePath}${serviceSegment}`;
     }
 
-    const serviceSegment = serviceName ? `/${encodeURIComponent(serviceName)}` : '';
     const queryString =
       queryParams?.from && queryParams?.to
         ? `?${convertParamsToQueryString({ from: queryParams.from, to: queryParams.to })}`
@@ -337,4 +343,43 @@ export const getHeatmapFullScreenPath = getServiceScopedApplicationPath(
 export const getHeatmapFullScreenRealtimePath = getServiceScopedApplicationPath(
   APP_PATH.HEATMAP_FULL_SCREEN_REALTIME,
 );
-export const getThreadDumpPath = getApplicationPath(APP_PATH.THREAD_DUMP);
+/** /errorAnalysis/{serviceName}?/{applicationName}@{serviceType} */
+export const getErrorAnalysisPath = getServiceScopedApplicationPath(APP_PATH.ERROR_ANALYSIS);
+/** /urlStatistic/{serviceName}?/{applicationName}@{serviceType} */
+export const getUrlStatPath = getServiceScopedApplicationPath(APP_PATH.URL_STATISTIC);
+/** /inspector/{serviceName}?/{applicationName}@{serviceType} */
+export const getInspectorPath = getServiceScopedApplicationPath(APP_PATH.INSPECTOR);
+/** /openTelemetryMetric/{serviceName}?/{applicationName}@{serviceType} */
+export const getOpenTelemetryPath = getServiceScopedApplicationPath(APP_PATH.OPEN_TELEMETRY_METRIC);
+/** /threadDump/{serviceName}?/{applicationName}@{serviceType} */
+export const getThreadDumpPath = getServiceScopedApplicationPath(APP_PATH.THREAD_DUMP);
+
+/**
+ * /systemMetric/{serviceName}?/{hostGroupName}
+ *
+ * 다른 화면과 같은 세그먼트 표기다. hostGroup이 없어도 serviceName은 싣는다
+ * (`/systemMetric/{serviceName}`, 위 application 화면들과 같은 이유). enableServiceMap이 꺼져 있으면
+ * serviceName이 undefined로 들어와 예전과 같은 경로가 된다. 경로를 읽는 규칙은 `parseSystemMetricPath`.
+ *
+ * hostGroup은 예전처럼 그대로 싣는다(수집 시 `TelegrafMetricController`가 형식을 검증한다).
+ */
+export const getSystemMetricPath = (
+  hostGroup?: string | null,
+  queryParams?: {
+    [k: string]: string;
+  },
+  serviceName?: string,
+) => {
+  const serviceSegment = serviceName ? `/${encodeURIComponent(serviceName)}` : '';
+
+  if (!hostGroup) {
+    return `${APP_PATH.SYSTEM_METRIC}${serviceSegment}`;
+  }
+
+  const queryString =
+    queryParams?.from && queryParams?.to
+      ? `?${convertParamsToQueryString({ from: queryParams.from, to: queryParams.to })}`
+      : '';
+
+  return `${APP_PATH.SYSTEM_METRIC}${serviceSegment}/${hostGroup}${queryString}`;
+};

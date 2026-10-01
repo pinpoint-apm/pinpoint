@@ -5,6 +5,8 @@ import {
 } from './scatterOrHeatmapFullScreen';
 
 jest.mock('react-router', () => ({
+  // 경로에서 serviceName을 읽을 때 라우트 매칭(`matchRoutes`)을 쓰므로 실제 모듈을 둔다.
+  ...jest.requireActual('react-router'),
   redirect: (url: string) => ({ __isRedirect: true, url }),
 }));
 

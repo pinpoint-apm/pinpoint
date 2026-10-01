@@ -4,6 +4,7 @@ import {
   useConfiguration,
   useInspectorSearchParameters,
   useIsForbiddenPath,
+  useRequestService,
 } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import {
@@ -39,18 +40,19 @@ export const InspectorPage = ({
   const periodInterval = configuration?.['periodInterval.inspector'];
   const navigate = useNavigate();
   const { searchParameters, application, agentId, version } = useInspectorSearchParameters();
+  const serviceName = useRequestService();
   const { t } = useTranslation();
 
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate }) => {
       navigate(
-        `${getInspectorPath(application!)}?${convertParamsToQueryString({
+        `${getInspectorPath(application!, undefined, serviceName)}?${convertParamsToQueryString({
           ...formattedDate,
           ...{ agentId, version },
         })}`,
       );
     }) as DatetimePickerChangeHandler,
-    [application?.applicationName, agentId],
+    [application?.applicationName, agentId, serviceName],
   );
 
   return (
@@ -70,9 +72,11 @@ export const InspectorPage = ({
           selectedApplication={application}
           onClickApplication={(application) =>
             navigate(
-              `${getInspectorPath(application)}?${convertParamsToQueryString({
-                version,
-              })}`,
+              `${getInspectorPath(application, undefined, serviceName)}?${convertParamsToQueryString(
+                {
+                  version,
+                },
+              )}`,
             )
           }
         />

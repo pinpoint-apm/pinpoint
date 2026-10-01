@@ -1,7 +1,7 @@
 import { ErrorAnalysisGroupBy } from './ErrorAnalysisGroupBy';
 import { Separator } from '../../ui';
 import { AgentSearchList } from '../../Agent';
-import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useErrorAnalysisSearchParameters, useRequestService } from '@pinpoint-fe/ui/src/hooks';
 import {
   getErrorAnalysisPath,
   convertParamsToQueryString,
@@ -13,6 +13,7 @@ import { ApplicationLinkButton } from '../../Button/ApplicationLinkButton';
 export const ErrorAnalysisSidebar = () => {
   const navigate = useNavigate();
   const { agentId, groupBy, application, dateRange } = useErrorAnalysisSearchParameters();
+  const serviceName = useRequestService();
   return (
     <div className="w-auto h-full min-w-auto">
       <ApplicationLinkButton />
@@ -23,11 +24,13 @@ export const ErrorAnalysisSidebar = () => {
         selectedAgentId={agentId}
         onClickAgent={(agent) => {
           navigate(
-            `${getErrorAnalysisPath(application)}?${convertParamsToQueryString({
-              ...getFormattedDateRange(dateRange),
-              groupBy,
-              agentId: agentId === agent?.agentId ? '' : agent?.agentId,
-            })}`,
+            `${getErrorAnalysisPath(application, undefined, serviceName)}?${convertParamsToQueryString(
+              {
+                ...getFormattedDateRange(dateRange),
+                groupBy,
+                agentId: agentId === agent?.agentId ? '' : agent?.agentId,
+              },
+            )}`,
           );
         }}
       />

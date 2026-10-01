@@ -580,16 +580,18 @@ const MethodCell = (props: {
       const baseTime = transactionInfo.focusTimestamp || metaData.callStackStart;
       const from = formatInTimeZone(baseTime - 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
       const to = formatInTimeZone(baseTime + 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
-      const href = `${BASE_PATH}${getErrorAnalysisPath(application)}?${convertParamsToQueryString({
-        from,
-        to,
-        transactionInfo: JSON.stringify({
-          ...errorKey,
-          timestamp: transactionInfo.focusTimestamp,
-          uriTemplate: metaData.uri,
-        }),
-        openErrorDetail: true,
-      })}`;
+      const href = `${BASE_PATH}${getErrorAnalysisPath(application, undefined, serviceName)}?${convertParamsToQueryString(
+        {
+          from,
+          to,
+          transactionInfo: JSON.stringify({
+            ...errorKey,
+            timestamp: transactionInfo.focusTimestamp,
+            uriTemplate: metaData.uri,
+          }),
+          openErrorDetail: true,
+        },
+      )}`;
 
       return (
         <>

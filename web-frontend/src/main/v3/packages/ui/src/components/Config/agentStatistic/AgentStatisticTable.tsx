@@ -12,7 +12,8 @@ import { cn } from '../../../lib';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { addMinutes } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import { useRequestService, useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import { getInspectorPath } from '@pinpoint-fe/ui/src/utils';
 
 function containsString(obj: AgentOverview.Instance, input: string): boolean {
   const keysToCheck: (keyof AgentOverview.Instance)[] = [
@@ -30,6 +31,7 @@ function containsString(obj: AgentOverview.Instance, input: string): boolean {
 
 export function AgentStatisticTable({ data }: { data?: AgentOverview.Response }) {
   const [timezone] = useTimezone();
+  const serviceName = useRequestService();
   const [input, setInput] = React.useState('');
   const [filterInput, setFilterInput] = React.useState('');
   const [filteredRowIds, setFilteredRowIds] = React.useState<string[]>([]);
@@ -102,9 +104,16 @@ export function AgentStatisticTable({ data }: { data?: AgentOverview.Response })
         timezone,
         SEARCH_PARAMETER_DATE_FORMAT,
       );
-      window.open(
-        `${BASE_PATH}${APP_PATH.INSPECTOR}/${original?.applicationName}@${original?.serviceType}?from=${formatInTimeZone(original?.startTimestamp, timezone, SEARCH_PARAMETER_DATE_FORMAT)}&to=${endTime}&agentId=${original?.agentId}`,
+      const inspectorPath = getInspectorPath(
+        { applicationName: original?.applicationName, serviceType: original?.serviceType },
+        {
+          from: formatInTimeZone(original?.startTimestamp, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+          to: endTime,
+        },
+        // 이 목록은 전역으로 고른 service의 agent다. 새 탭이 그 선택값에 흔들리지 않게 경로에 싣는다.
+        serviceName,
       );
+      window.open(`${BASE_PATH}${inspectorPath}&agentId=${original?.agentId}`);
     }
   }
 
