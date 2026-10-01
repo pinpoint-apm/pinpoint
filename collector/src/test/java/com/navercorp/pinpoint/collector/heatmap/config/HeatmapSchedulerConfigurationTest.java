@@ -7,6 +7,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.concurrent.CompletableFuture;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -20,14 +25,16 @@ class HeatmapSchedulerConfigurationTest {
 
     @Test
     void fanOutSendsToEachEnabledLevel() {
-        HeatmapSchedulerConfiguration.fanOut(heatmapDao, true, true).accept(key, 3L);
+        doReturn(CompletableFuture.completedFuture(null)).when(heatmapDao).insert(any(), anyLong());
+        doReturn(CompletableFuture.completedFuture(null)).when(heatmapDao).insertAgentStat(any(), anyLong());
+        HeatmapSchedulerConfiguration.fanOut(heatmapDao, true, true).apply(key, 3L);
         verify(heatmapDao).insert(key, 3L);
         verify(heatmapDao).insertAgentStat(key, 3L);
     }
 
     @Test
     void fanOutSkipsDisabledLevel() {
-        HeatmapSchedulerConfiguration.fanOut(heatmapDao, false, true).accept(key, 3L);
+        HeatmapSchedulerConfiguration.fanOut(heatmapDao, false, true).apply(key, 3L);
         verify(heatmapDao, never()).insert(key, 3L);
         verify(heatmapDao).insertAgentStat(key, 3L);
     }

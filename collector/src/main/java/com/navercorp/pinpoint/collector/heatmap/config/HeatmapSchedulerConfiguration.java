@@ -27,7 +27,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import java.util.function.BiConsumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 
 @Configuration
 public class HeatmapSchedulerConfiguration {
@@ -56,19 +57,21 @@ public class HeatmapSchedulerConfiguration {
                                                              HeatmapDao heatmapDao,
                                                              @Qualifier("heatmapStatScheduler") TaskScheduler scheduler,
                                                              HeatmapProperties heatmapProperties) {
-        return new HeatmapFlusher<>("heatmap", heatmapStatCounter,
+        return new HeatmapFlusher<>(heatmapStatCounter,
                 fanOut(heatmapDao, heatmapProperties.isAppEnabled(), heatmapProperties.isAgentEnabled()),
-                scheduler, heatmapProperties.getAggregationInterval());
+                scheduler, heatmapProperties.getAggregationInterval(), heatmapProperties.getFlushTimeout());
     }
 
-    static BiConsumer<HeatmapStatKey, Long> fanOut(HeatmapDao heatmapDao, boolean appEnabled, boolean agentEnabled) {
-        return (key, count) -> {
-            if (appEnabled) {
-                heatmapDao.insert(key, count);
-            }
-            if (agentEnabled) {
-                heatmapDao.insertAgentStat(key, count);
-            }
-        };
+    static BiFunction<HeatmapStatKey, Long, CompletableFuture<?>> fanOut(HeatmapDao heatmapDao, boolean appEnabled, boolean agentEnabled) {
+        if (appEnabled && agentEnabled) {
+            return (key, count) -> CompletableFuture.allOf(heatmapDao.insert(key, count), heatmapDao.insertAgentStat(key, count));
+        }
+        if (appEnabled) {
+            return heatmapDao::insert;
+        }
+        if (agentEnabled) {
+            return heatmapDao::insertAgentStat;
+        }
+        return (key, count) -> CompletableFuture.completedFuture(null);
     }
 }

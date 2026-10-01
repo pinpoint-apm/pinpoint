@@ -40,6 +40,8 @@ public class HeatmapProperties {
     // 0 disables aggregation and sends per span
     @Value("${kafka.heatmap.aggregation.interval-ms:0}")
     private long aggregationIntervalMillis;
+    @Value("${kafka.heatmap.aggregation.flush-timeout-ms:60000}")
+    private long flushTimeoutMillis;
 
     @Value("${kafka.heatmap.agent.enabled:false}")
     private boolean agentEnabled;
@@ -76,5 +78,9 @@ public class HeatmapProperties {
 
     public Duration getAggregationInterval() {
         return Duration.ofMillis(aggregationIntervalMillis);
+    }
+
+    public Duration getFlushTimeout() {
+        return Duration.ofMillis(flushTimeoutMillis);
     }
 }
