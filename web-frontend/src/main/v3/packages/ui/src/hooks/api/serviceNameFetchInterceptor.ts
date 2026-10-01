@@ -28,13 +28,18 @@ const API_PATH_PREFIX = '/api';
  *
  * configuration과 localStorage는 부트스트랩 이후에도 바뀌므로 값을 캡처하지 않고 부를 때마다
  * 최신값을 읽는다. 화면용 갈래는 `useRequestService`다.
+ *
+ * @param pathname 판정할 경로. 생략하면 라우터가 렌더한 경로다. 경로 모양만으로는 serviceName인지
+ *                 알 수 없는 로더(`systemMetricRouteLoader`)가 serviceName을 싣지 않은 경로를 넘겨
+ *                 전역 선택값을 받는 용도다 — 첫 로드에서는 렌더한 경로가 없어 `window.location`,
+ *                 즉 그 로더가 판정 중인 경로 자체로 폴백하기 때문이다.
  */
-export const getRequestService = (): string | undefined => {
+export const getRequestService = (pathname = getCurrentRouterPath()): string | undefined => {
   const store = getDefaultStore();
 
   return pickServiceName({
     enableServiceMap: getEnableServiceMap(store.get(configurationAtom)),
-    pathname: getCurrentRouterPath(),
+    pathname,
     selectedService: store.get(selectedServiceAtom),
   });
 };

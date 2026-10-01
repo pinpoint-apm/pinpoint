@@ -5,10 +5,10 @@ import React from 'react';
 import { TooltipContent, TooltipProvider, Tooltip, TooltipTrigger, Button } from '../ui';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { HiMiniExclamationCircle } from 'react-icons/hi2';
-import { BASE_PATH, colors } from '@pinpoint-fe/ui/src/constants';
+import { ApplicationType, BASE_PATH, colors } from '@pinpoint-fe/ui/src/constants';
 import { RxExternalLink } from 'react-icons/rx';
 import { getThreadDumpPath } from '@pinpoint-fe/ui/src/utils';
-import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useRequestService, useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { AgentIdNameTooltip } from '../Agent/AgentIdNameTooltip';
 
 export type AgentActiveData = {
@@ -24,15 +24,27 @@ export type AgentActiveData = {
 const SIZE = 50;
 
 export const AgentActiveTable = ({
+  application: targetApplication,
+  serviceName: targetServiceName,
   loading,
   data,
   clickedActiveThread,
 }: {
+  /**
+   * threadDump를 열 application. 비DEFAULT servicemap 실시간 보기는 경로에 application이 없고
+   * 조회 대상이 map에서 고른 노드로 정해지므로, 그 노드를 넘긴다. 없으면 경로의 application이다.
+   */
+  application?: ApplicationType;
+  /** threadDump를 열 service. 다른 service의 노드를 골랐으면 그 노드의 service다. */
+  serviceName?: string;
   loading?: boolean;
   data: AgentActiveData[];
   clickedActiveThread?: string;
 }) => {
-  const { application } = useSearchParameters();
+  const { application: pathApplication } = useSearchParameters();
+  const requestService = useRequestService();
+  const application = targetApplication ?? pathApplication;
+  const serviceName = targetServiceName ?? requestService;
   const focusRowId = React.useMemo(() => {
     return data.findIndex((d) => d.server === clickedActiveThread);
   }, [data, clickedActiveThread]);
@@ -65,7 +77,9 @@ export const AgentActiveTable = ({
                   className="text-muted-foreground p-0 w-4 h-4 mr-1.5"
                   variant="ghost"
                   onClick={() => {
-                    window.open(`${BASE_PATH}${getThreadDumpPath(application)}?agentId=${value}`);
+                    window.open(
+                      `${BASE_PATH}${getThreadDumpPath(application, undefined, serviceName)}?agentId=${value}`,
+                    );
                   }}
                 >
                   <RxExternalLink />
@@ -172,7 +186,7 @@ export const AgentActiveTable = ({
         },
       },
     ],
-    [application?.applicationName, application?.serviceType],
+    [application?.applicationName, application?.serviceType, serviceName],
   );
 
   return (

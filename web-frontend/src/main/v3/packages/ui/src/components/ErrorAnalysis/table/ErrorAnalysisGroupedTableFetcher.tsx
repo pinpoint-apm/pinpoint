@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import {
   useErrorAnalysisSearchParameters,
   useGetErrorAnalysisGroupedErrorListData,
+  useRequestService,
 } from '@pinpoint-fe/ui/src/hooks';
 import { cn } from '../../../lib';
 import { VirtualizedDataTable } from '../../DataTable';
@@ -21,15 +22,18 @@ export const ErrorAnalysisGroupedTableFetcher = ({
   const navigate = useNavigate();
   const { data } = useGetErrorAnalysisGroupedErrorListData();
   const { parsedGroupBy, agentId, application, dateRange } = useErrorAnalysisSearchParameters();
+  const serviceName = useRequestService();
 
   const columns = errorGroupedTableColumns({
     groupBy: parsedGroupBy,
     onClickGroupBy: (group) => {
       navigate(
-        `${getErrorAnalysisPath(application!)}?${convertParamsToQueryString({
-          ...getFormattedDateRange(dateRange),
-          ...{ agentId, groupBy: parsedGroupBy?.filter((g) => g !== group).join(',') },
-        })}`,
+        `${getErrorAnalysisPath(application!, undefined, serviceName)}?${convertParamsToQueryString(
+          {
+            ...getFormattedDateRange(dateRange),
+            ...{ agentId, groupBy: parsedGroupBy?.filter((g) => g !== group).join(',') },
+          },
+        )}`,
       );
     },
   });

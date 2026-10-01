@@ -3,6 +3,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   setupFiles: ['<rootDir>/jest.setup.cjs'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setupAfterEnv.cjs'],
   moduleDirectories: ['node_modules'],
   // Ignore compiled build output so jest does not pick up dist/*.js (ESM) alongside src tests.
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],

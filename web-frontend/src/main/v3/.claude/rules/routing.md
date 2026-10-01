@@ -20,6 +20,9 @@ paths:
 4. 날짜 검증이 필요한 경우 `packages/ui/src/loader/`에 라우트 로더 생성
 5. `apps/web/src/routes/index.tsx`의 `InitialFetchOutlet` children에 라우트 추가 (설정 페이지는 `ConfigurationOutlet`)
 6. 코드 분할을 위해 `React.lazy()` 사용 (기본 라우트 제외)
+7. service 단위 화면이면 경로에 `:serviceName?` 세그먼트를 둔다 — 그것만으로 경로의 serviceName을
+   읽는다(`registerAppRoutes`, `service-map.md`). 테스트용 라우트
+   (`packages/ui/src/utils/helper/__fixtures__/appRoutes.ts`)도 함께 맞춘다.
 
 ## 중첩 레이아웃 라우트 구조
 라우트는 중첩 `<Outlet />` 컴포넌트를 통해 공통 관심사를 처리합니다:
@@ -41,7 +44,9 @@ SideNavigationOutlet
 - 표준 형식으로 `SEARCH_PARAMETER_DATE_FORMAT` 사용
 
 ## URL 패턴
-- 애플리케이션 라우트: `/:pageName/:application?`
+- 애플리케이션 라우트: `/:pageName/:serviceName?/:application?` — serviceName은 `enableServiceMap`이
+  켜져 있을 때만 싣는다. 규칙은 `service-map.md`의 "serviceName은 URL 경로에 싣는다" 참고
+  (servermap 계열은 `/:pageName/:application?`, systemMetric은 `/:pageName/:serviceName?/:hostGroup?`)
 - 설정 라우트: `/config/:configPage`
 - 날짜 파라미터: `?from=YYYY-MM-DD-HH-mm-ss&to=YYYY-MM-DD-HH-mm-ss`
 - URL의 애플리케이션 형식: `applicationName@serviceType`

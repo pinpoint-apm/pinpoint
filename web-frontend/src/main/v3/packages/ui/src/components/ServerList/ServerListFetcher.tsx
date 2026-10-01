@@ -9,6 +9,7 @@ import { GetServerMap, BASE_PATH, GetHistogramStatistics } from '@pinpoint-fe/ui
 import { getParsedDate, getInspectorPath, toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import {
   useGetAgentOverview,
+  useRequestService,
   useSearchParameters,
   useServerMapLinkedData,
 } from '@pinpoint-fe/ui/src/hooks';
@@ -30,6 +31,9 @@ export interface ServerListFetcherProps extends ServerListProps {
 
 export const ServerListFetcher = ({ nodeStatistics, serviceName }: ServerListFetcherProps) => {
   const { searchParameters } = useSearchParameters();
+  // inspector 링크는 조회와 같은 service로 연다. 다른 service의 노드를 골랐으면 그 노드의 service다.
+  const requestService = useRequestService();
+  const inspectorServiceName = serviceName ?? requestService;
   // 값은 쓰지 않지만 선택 자체의 구독은 유지해야 하므로 호출은 남긴다.
   useServerMapCurrentTarget();
   const currentTargetData = useServerMapCurrentTargetData() as GetServerMap.NodeData;
@@ -108,7 +112,7 @@ export const ServerListFetcher = ({ nodeStatistics, serviceName }: ServerListFet
       itemRenderer={renderItem}
       onClickInspectorLink={(agentId) => {
         window.open(
-          `${BASE_PATH}${getInspectorPath(currentTargetData, searchParameters)}&agentId=${agentId}`,
+          `${BASE_PATH}${getInspectorPath(currentTargetData, searchParameters, inspectorServiceName)}&agentId=${agentId}`,
         );
       }}
     ></SL>

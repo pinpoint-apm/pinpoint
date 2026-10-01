@@ -6,12 +6,18 @@ import { AgentActiveChart } from './AgentActiveChart';
 
 export interface AgentActiveThreadViewProps {
   applicationName?: string;
+  /** threadDump 링크에 쓴다. 조회 대상 노드의 serviceType. */
+  serviceType?: string;
+  /** threadDump 링크에 쓴다. 조회 대상 노드가 소속된 service. */
+  serviceName?: string;
   activeThreadCounts?: AgentActiveThread.Result;
   setting?: AgentActiveSettingType;
 }
 
 export const AgentActiveThreadView = ({
   applicationName,
+  serviceType,
+  serviceName,
   activeThreadCounts,
   setting,
 }: AgentActiveThreadViewProps) => {
@@ -136,6 +142,8 @@ export const AgentActiveThreadView = ({
         </div>
       )}
       <AgentActiveTable
+        application={applicationName && serviceType ? { applicationName, serviceType } : undefined}
+        serviceName={serviceName}
         loading={loading}
         data={activeThreadCountsData}
         clickedActiveThread={clickedActiveThread}

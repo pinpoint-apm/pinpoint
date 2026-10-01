@@ -1,5 +1,5 @@
 import { AgentSearchList } from '../../Agent';
-import { useInspectorSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useInspectorSearchParameters, useRequestService } from '@pinpoint-fe/ui/src/hooks';
 import {
   convertParamsToQueryString,
   getFormattedDateRange,
@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router';
 export const InspectorSidebar = () => {
   const navigate = useNavigate();
   const { application, dateRange, agentId, version } = useInspectorSearchParameters();
+  const serviceName = useRequestService();
   return (
     <div className="w-auto h-full min-w-auto">
       <ApplicationLinkButton />
@@ -20,7 +21,7 @@ export const InspectorSidebar = () => {
         selectedAgentId={agentId}
         onClickAgent={(agent) => {
           navigate(
-            `${getInspectorPath(application)}?${convertParamsToQueryString({
+            `${getInspectorPath(application, undefined, serviceName)}?${convertParamsToQueryString({
               ...getFormattedDateRange(dateRange),
               agentId: agentId === agent?.agentId ? '' : agent?.agentId,
               version,

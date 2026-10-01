@@ -3,8 +3,10 @@ import {
   getApplicationKey,
   getServiceNameFromPath,
   getServiceNameSegmentPage,
+  parseSystemMetricPath,
   hasServiceNameInPath,
   parseServiceScopedPath,
+  registerAppRoutes,
 } from './application';
 import { APP_PATH, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 
@@ -76,9 +78,21 @@ describe('Test application helper utils', () => {
       [`${APP_PATH.SERVICE_MAP}/appName@TOMCAT`, false],
       [`${APP_PATH.TRANSACTION_LIST}/appName@TOMCAT`, false],
       [`${APP_PATH.TRANSACTION_LIST}`, false],
+      // 사이드 메뉴의 application 단위 화면들
+      [`${APP_PATH.INSPECTOR}/svc`, true],
+      [`${APP_PATH.INSPECTOR}/svc/appName@TOMCAT`, true],
+      [`${APP_PATH.URL_STATISTIC}/svc/appName@TOMCAT`, true],
+      [`${APP_PATH.ERROR_ANALYSIS}/svc/appName@TOMCAT`, true],
+      [`${APP_PATH.OPEN_TELEMETRY_METRIC}/svc/appName@TOMCAT`, true],
+      [`${APP_PATH.THREAD_DUMP}/svc/appName@TOMCAT`, true],
+      [`${APP_PATH.INSPECTOR}/appName@TOMCAT`, false],
+      // '@'가 그대로 남아 있으면 application 세그먼트다(serviceName은 '%40'으로 실린다).
+      [`${APP_PATH.INSPECTOR}/svc@appName@TOMCAT`, false],
       // 아직 serviceName을 싣지 않는 화면
       [`${APP_PATH.SERVER_MAP}/appName@TOMCAT`, false],
-      [`${APP_PATH.INSPECTOR}/svc@appName@TOMCAT`, false],
+      // systemMetric은 모양으로 구별하지 않는다 — 첫 세그먼트를 serviceName으로 읽고, 설정이 꺼져
+      // 있을 때의 해석은 `parseSystemMetricPath`와 `pickServiceName`이 맡는다.
+      [`${APP_PATH.SYSTEM_METRIC}/svc/hostGroup`, true],
       ['', false],
     ])('Return %p → %p', (pathname, expected) => {
       expect(hasServiceNameInPath(pathname)).toBe(expected);
@@ -228,6 +242,36 @@ describe('Test application helper utils', () => {
     });
   });
 
+  describe('Test "parseSystemMetricPath"', () => {
+    test('Read the first segment as the service name when the service map is enabled', () => {
+      expect(parseSystemMetricPath('/systemMetric/a%2Fb/hostGroup', true)).toEqual({
+        encodedServiceName: 'a%2Fb',
+        hostGroupName: 'hostGroup',
+      });
+      expect(parseSystemMetricPath('/systemMetric/svc', true)).toEqual({
+        encodedServiceName: 'svc',
+        hostGroupName: undefined,
+      });
+      expect(parseSystemMetricPath('/systemMetric', true)).toEqual({
+        encodedServiceName: undefined,
+        hostGroupName: undefined,
+      });
+    });
+
+    // service 개념이 없으면 예전처럼 마지막 세그먼트가 hostGroup이다.
+    test('Read the last segment as the host group when the service map is disabled', () => {
+      expect(parseSystemMetricPath('/systemMetric/hostGroup', false)).toEqual({
+        encodedServiceName: undefined,
+        hostGroupName: 'hostGroup',
+      });
+      expect(parseSystemMetricPath('/systemMetric/svc/hostGroup', false)).toEqual({
+        encodedServiceName: undefined,
+        hostGroupName: 'hostGroup',
+      });
+      expect(parseSystemMetricPath('/systemMetric/', false).hostGroupName).toBeUndefined();
+    });
+  });
+
   describe('Test "getServiceNameSegmentPage"', () => {
     // 로더가 리다이렉트 목적지를 만들 때 쓴다. 더 긴 경로가 먼저 매칭되어야
     // 실시간 화면의 리다이렉트가 비실시간 화면으로 새지 않는다.
@@ -242,11 +286,68 @@ describe('Test application helper utils', () => {
       expect(getServiceNameSegmentPage('/scatterFullScreenMode/appName@TOMCAT')).toBe(
         '/scatterFullScreenMode',
       );
+      expect(getServiceNameSegmentPage('/inspector/svc/appName@TOMCAT')).toBe('/inspector');
+      expect(getServiceNameSegmentPage('/errorAnalysis/svc')).toBe('/errorAnalysis');
     });
 
     test('Return undefined on a page that does not carry a service name segment', () => {
       expect(getServiceNameSegmentPage('/serverMap/appName@TOMCAT')).toBeUndefined();
-      expect(getServiceNameSegmentPage('/inspector/appName@TOMCAT')).toBeUndefined();
+      expect(getServiceNameSegmentPage('/config/alarm')).toBeUndefined();
+    });
+  });
+
+  // 어느 화면이 serviceName을 싣는지는 등록된 라우트 정의의 `:serviceName`이 정한다.
+  // 테스트 전체에는 앱과 같은 모양의 라우트가 등록돼 있다(`jest.setupAfterEnv.cjs`).
+  describe('Test "registerAppRoutes"', () => {
+    test('Read the service name on any route that declares a serviceName param', () => {
+      registerAppRoutes([{ path: '/appPage/:serviceName?/:application?' }]);
+
+      expect(getServiceNameSegmentPage('/appPage/svc/appName@TOMCAT')).toBe('/appPage');
+      expect(getServiceNameFromPath('/appPage/svc/appName@TOMCAT')).toBe('svc');
+      // 등록되지 않은 화면은 그 자리를 읽지 않는다.
+      expect(getServiceNameFromPath('/inspector/svc/appName@TOMCAT')).toBeUndefined();
+    });
+
+    // 레이아웃 라우트 아래의 상대 경로도 부모 경로와 이어 붙여 판단한다.
+    test('Join nested relative route paths', () => {
+      registerAppRoutes([
+        { path: '/section', children: [{ path: 'page/:serviceName?' }, { path: 'other/:id' }] },
+      ]);
+
+      expect(getServiceNameSegmentPage('/section/page/svc')).toBe('/section/page');
+      expect(getServiceNameFromPath('/section/page/a%2Fb')).toBe('a/b');
+      expect(getServiceNameSegmentPage('/section/other/svc')).toBeUndefined();
+    });
+
+    // 하위 경로끼리의 우선순위는 react-router의 경로 랭킹이 정한다 — 등록 순서와 무관하다.
+    test('Prefer the more specific route regardless of the declaration order', () => {
+      registerAppRoutes([
+        { path: '/page/:serviceName?/:application?' },
+        { path: '/page/realtime/:serviceName?/:application?' },
+      ]);
+
+      expect(getServiceNameSegmentPage('/page/realtime/svc')).toBe('/page/realtime');
+      expect(getServiceNameFromPath('/page/realtime/svc')).toBe('svc');
+    });
+
+    test('Do not take another param that only shares the name prefix', () => {
+      registerAppRoutes([{ path: '/page/:serviceNameX' }]);
+
+      expect(getServiceNameSegmentPage('/page/svc')).toBeUndefined();
+    });
+
+    // 등록을 빠뜨리면 깨지지 않고 전역 선택값으로 폴백한다(serviceName을 읽지 않는다).
+    test('Read no service name before any route is registered', () => {
+      registerAppRoutes([]);
+
+      expect(getServiceNameFromPath('/serviceMap/svc/appName@TOMCAT')).toBeUndefined();
+    });
+
+    // 라우트 매칭의 params는 디코딩된 값이다. 원본 세그먼트로 읽어야 '@'가 든 service 이름과
+    // application 세그먼트를 구별한다.
+    test('Keep telling an encoded service name from an application segment', () => {
+      expect(getServiceNameFromPath('/inspector/a%40b/appName@TOMCAT')).toBe('a@b');
+      expect(getServiceNameFromPath('/inspector/appName@TOMCAT')).toBeUndefined();
     });
   });
 

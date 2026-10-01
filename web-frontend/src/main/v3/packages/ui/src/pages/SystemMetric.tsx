@@ -12,6 +12,7 @@ import { useNavigate, useLocation } from 'react-router';
 import {
   useConfiguration,
   useIsForbiddenPath,
+  useRequestService,
   useSystemMetricSearchParameters,
 } from '@pinpoint-fe/ui/src/hooks';
 import { Forbidden403 } from './Forbidden403';
@@ -28,18 +29,22 @@ export const SystemMetricPage = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { searchParameters, hostGroupName, hostName } = useSystemMetricSearchParameters();
+  // 이 화면의 URL에 실린 service. 화면 안의 이동에 그대로 이어 싣는다.
+  const serviceName = useRequestService();
   const isForbidden = useIsForbiddenPath();
 
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate }) => {
       navigate(
-        `${getSystemMetricPath(hostGroupName)}?${convertParamsToQueryString({
-          ...formattedDate,
-          ...{ hostName },
-        })}`,
+        `${getSystemMetricPath(hostGroupName, undefined, serviceName)}?${convertParamsToQueryString(
+          {
+            ...formattedDate,
+            ...{ hostName },
+          },
+        )}`,
       );
     }) as DatetimePickerChangeHandler,
-    [hostGroupName, hostName],
+    [hostGroupName, hostName, serviceName],
   );
 
   return (
@@ -57,7 +62,7 @@ export const SystemMetricPage = () => {
           selectPlaceHolder={t('METRIC.SELECT_HOST_GROUP')}
           inputPlaceHolder={t('METRIC.INPUT_HOST_GROUP')}
           onClickHostGroup={(hostGroup) => {
-            const targetPath = getSystemMetricPath(hostGroup);
+            const targetPath = getSystemMetricPath(hostGroup, undefined, serviceName);
             if (location.pathname !== targetPath) {
               navigate(targetPath);
             }

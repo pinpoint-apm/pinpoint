@@ -27,8 +27,9 @@ import {
 export const useMenuItems = () => {
   const configuration = useAtomValue(configurationAtom);
   const { application, searchParameters } = useAtomValue(searchParametersAtom);
-  // servicemap 링크는 어떤 service를 볼지 경로에 담아야 한다. 지금 보고 있는 화면의 service를
-  // 그대로 이어받는다. (serviceName이 실린 경로면 그 값, 아니면 전역 선택값)
+  // servicemap과 application 단위 화면들의 링크는 어떤 service를 볼지 경로에 담아야 한다. 지금 보고
+  // 있는 화면의 service를 그대로 이어받는다. (serviceName이 실린 경로면 그 값, 아니면 전역 선택값.
+  // enableServiceMap이 꺼져 있으면 undefined라 세그먼트가 붙지 않는다.)
   const serviceName = useRequestService();
   const isDefaultService = useIsDefaultService();
   const enableServiceMap = useEnableServiceMap();
@@ -57,35 +58,36 @@ export const useMenuItems = () => {
       icon: <PiChartLine />,
       name: 'Inspector',
       path: APP_PATH.INSPECTOR,
-      href: getInspectorPath(application, searchParameters),
+      href: getInspectorPath(application, searchParameters, serviceName),
       hide: !configuration?.showInspector,
     },
     {
       icon: <PiChartBar />,
       name: 'URL Statistic',
       path: APP_PATH.URL_STATISTIC,
-      href: getUrlStatPath(application, searchParameters),
+      href: getUrlStatPath(application, searchParameters, serviceName),
       hide: !configuration?.showUrlStat,
     },
     {
       icon: <PiBugBeetle />,
       name: 'Error Analysis',
       path: APP_PATH.ERROR_ANALYSIS,
-      href: getErrorAnalysisPath(application, searchParameters),
+      href: getErrorAnalysisPath(application, searchParameters, serviceName),
       hide: !configuration?.showExceptionTrace,
     },
     {
       icon: <SiOpentelemetry />,
       name: 'OpenTelemetry Metric',
       path: APP_PATH.OPEN_TELEMETRY_METRIC,
-      href: getOpenTelemetryPath(application, searchParameters),
+      href: getOpenTelemetryPath(application, searchParameters, serviceName),
       hide: !configuration?.showOtlpMetric,
     },
     {
       icon: <PiHardDrives />,
       name: 'Infrastructure',
       path: APP_PATH.SYSTEM_METRIC,
-      href: getSystemMetricPath(),
+      // hostGroup은 이 화면 밖에서 이어받을 값이 없어 싣지 않는다. service는 다른 메뉴처럼 싣는다.
+      href: getSystemMetricPath(undefined, undefined, serviceName),
       hide: !configuration?.showSystemMetric,
     },
   ];

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useRequestService, useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   getSystemMetricPath,
   convertParamsToQueryString,
@@ -12,16 +12,19 @@ export interface SystemMetricSidebarProps {}
 export const SystemMetricSidebar = () => {
   const navigate = useNavigate();
   const { dateRange, hostGroupName, hostName } = useSystemMetricSearchParameters();
+  const serviceName = useRequestService();
   return (
     <div className="w-auto h-full min-w-auto">
       <HostSearchList
         selectedHost={hostName}
         onClickHost={(host) => {
           navigate(
-            `${getSystemMetricPath(hostGroupName)}?${convertParamsToQueryString({
-              ...getFormattedDateRange(dateRange),
-              hostName: host,
-            })}`,
+            `${getSystemMetricPath(hostGroupName, undefined, serviceName)}?${convertParamsToQueryString(
+              {
+                ...getFormattedDateRange(dateRange),
+                hostName: host,
+              },
+            )}`,
           );
         }}
       />

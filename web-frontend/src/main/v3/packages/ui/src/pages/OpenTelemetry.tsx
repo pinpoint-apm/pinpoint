@@ -16,6 +16,7 @@ import {
   useConfiguration,
   useIsForbiddenPath,
   useOpenTelemetrySearchParameters,
+  useRequestService,
 } from '@pinpoint-fe/ui/src/hooks';
 import { Forbidden403 } from './Forbidden403';
 import { SiOpentelemetry } from 'react-icons/si';
@@ -34,18 +35,21 @@ export const OpenTelemetryPage = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { searchParameters, application, agentId } = useOpenTelemetrySearchParameters();
+  const serviceName = useRequestService();
   const isForbidden = useIsForbiddenPath();
 
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate }) => {
       navigate(
-        `${getOpenTelemetryPath(application!)}?${convertParamsToQueryString({
-          ...formattedDate,
-          ...{ agentId },
-        })}`,
+        `${getOpenTelemetryPath(application!, undefined, serviceName)}?${convertParamsToQueryString(
+          {
+            ...formattedDate,
+            ...{ agentId },
+          },
+        )}`,
       );
     }) as DatetimePickerChangeHandler,
-    [application?.applicationName, agentId],
+    [application?.applicationName, agentId, serviceName],
   );
 
   return (
@@ -64,7 +68,9 @@ export const OpenTelemetryPage = ({
         <ApplicationList
           open={!application}
           selectedApplication={application}
-          onClickApplication={(application) => navigate(getOpenTelemetryPath(application))}
+          onClickApplication={(application) =>
+            navigate(getOpenTelemetryPath(application, undefined, serviceName))
+          }
         />
         <div className="ml-auto">
           {application && (
