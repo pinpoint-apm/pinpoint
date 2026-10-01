@@ -34,18 +34,18 @@ import java.util.Objects;
 public class GuardedInterceptorFactoryProvider implements Provider<GuardedInterceptorFactory> {
     public static final String GUARD_CODEGEN_KEY = "profiler.interceptor.exception.guard.codegen";
 
-    private final ProfilerConfig profilerConfig;
+    private final boolean guardCodegen;
     private final BootstrapCore bootstrapCore;
 
     @Inject
     public GuardedInterceptorFactoryProvider(ProfilerConfig profilerConfig, BootstrapCore bootstrapCore) {
-        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.guardCodegen = profilerConfig.readBoolean(GUARD_CODEGEN_KEY, true);
         this.bootstrapCore = Objects.requireNonNull(bootstrapCore, "bootstrapCore");
     }
 
     @Override
     public GuardedInterceptorFactory get() {
-        final boolean guardCodegen = profilerConfig.readBoolean(GUARD_CODEGEN_KEY, true);
         if (guardCodegen) {
             return new ASMGuardedInterceptorFactory(bootstrapCore);
         }
