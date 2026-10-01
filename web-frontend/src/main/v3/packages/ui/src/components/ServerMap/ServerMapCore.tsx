@@ -267,6 +267,21 @@ export const ServerMapCore = ({
     setExpandedServiceKeys(new Set());
   }, [baseNodeId]);
 
+  // 펼쳐 둔 group이 응답에서 사라지면(실시간 보기에서 그 service의 호출이 끊김) 펼친 상태도 지운다.
+  // 남겨 두면 다시 나타날 때 놓일 자리(접힌 group 노드)가 없는 채로 펼쳐져, 자식들이 엉뚱한 곳에 그려진다.
+  // 응답이 아직 없는 동안은 지우지 않는다 — 다시 조회하는 사이에 펼친 상태를 잃지 않도록.
+  React.useEffect(() => {
+    const nodeDataArray = data?.applicationMapData?.nodeDataArray as
+      GetServerMap.NodeData[] | undefined;
+    if (!nodeDataArray) {
+      return;
+    }
+    setExpandedServiceKeys((prev) => {
+      const next = [...prev].filter((key) => findServiceGroupNode(nodeDataArray, key));
+      return next.length === prev.size ? prev : new Set(next);
+    });
+  }, [data]);
+
   useOnClickOutside(popperContentRef as React.RefObject<HTMLDivElement>, () => {
     setPopperContentType(undefined);
   });
@@ -897,12 +912,12 @@ export const ServerMapCore = ({
                         )
                       : subLinks;
                     // 서비스 그룹 링크의 from/to는 ServiceGroupNode key를 가리키므로,
-                    // flatten된 nodeDataArray에서 노드를 찾아 applicationName(=serviceName)을 제목에 사용한다.
+                    // 그려진 노드에서 찾아 applicationName(=serviceName)을 제목에 사용한다.
+                    // 응답의 nodeDataArray가 아니라 mapView에서 찾는 이유: group을 펼치며 다시 묶은
+                    // 링크는 한쪽 끝이 펼친 group의 자식 application이라 응답의 최상위 노드에 없다.
                     const linkFromKey = serviceGroupLinkTargetRef.current?.from;
                     const linkToKey = serviceGroupLinkTargetRef.current?.to;
-                    const nodes =
-                      (data?.applicationMapData?.nodeDataArray as
-                        GetServerMap.NodeData[] | undefined) ?? [];
+                    const nodes = mapView.nodes;
                     const fromNode = nodes.find((n) => n.key === linkFromKey);
                     const toNode = nodes.find((n) => n.key === linkToKey);
                     const linkTitle = serviceGroupLinkTargetRef.current

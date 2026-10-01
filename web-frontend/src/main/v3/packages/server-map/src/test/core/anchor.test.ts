@@ -2,6 +2,8 @@ import cytoscape from 'cytoscape';
 import {
   layoutGroupChildren,
   placeAnchoredNodes,
+  relayoutChangedGroups,
+  releaseRemovedGroups,
   ShiftRecord,
   snapshotNodes,
 } from '../../core/anchor';
@@ -187,5 +189,240 @@ describe('placeAnchoredNodes', () => {
 
     expect(positionOf(cy, 'group').x).toBeCloseTo(50);
     expect(positionOf(cy, 'group').y).toBeCloseTo(20);
+  });
+  describe('with two groups in the same row', () => {
+    // g1(0) 과 g2(400) 이 같은 행에 있다. 한쪽을 펼치면 다른 쪽이 밀린다.
+    const setupTwo = () => {
+      const cy = createCy();
+      cy.add([
+        { data: { id: 'g1' }, position: { x: 0, y: 0 } },
+        { data: { id: 'g2' }, position: { x: 400, y: 0 } },
+      ]);
+      return cy;
+    };
+
+    const expandGroup = (cy: cytoscape.Core, shifts: Map<string, ShiftRecord>, id: string) => {
+      const snapshot = snapshotNodes(cy);
+      cy.getElementById(id).remove();
+      const added = [
+        cy.add({ data: { id: `${id}-box`, anchorId: id } }),
+        cy.add({ data: { id: `${id}-c1`, parent: `${id}-box`, anchorId: id } }),
+        cy.add({ data: { id: `${id}-c2`, parent: `${id}-box`, anchorId: id } }),
+      ];
+      placeAnchoredNodes(cy, added, snapshot, shifts);
+    };
+
+    const collapseGroup = (cy: cytoscape.Core, shifts: Map<string, ShiftRecord>, id: string) => {
+      const snapshot = snapshotNodes(cy);
+      cy.getElementById(`${id}-box`).children().remove();
+      cy.getElementById(`${id}-box`).remove();
+      const added = [cy.add({ data: { id, anchorId: `${id}-box` } })];
+      placeAnchoredNodes(cy, added, snapshot, shifts);
+    };
+
+    it('restores a child that joined a group after another group pushed it', () => {
+      const cy = setupTwo();
+      const shifts = new Map<string, ShiftRecord>();
+      expandGroup(cy, shifts, 'g1');
+      expandGroup(cy, shifts, 'g2');
+
+      // 실시간 갱신으로 g1이 밀어 둔 g2에 자식이 늘어난다.
+      const snapshot = snapshotNodes(cy);
+      cy.add({
+        data: { id: 'g2-c3', parent: 'g2-box', anchorId: 'g2' },
+        position: { x: 0, y: 0 },
+      });
+      relayoutChangedGroups(cy, snapshot, shifts);
+      const before = positionOf(cy, 'g2-c1');
+      const joinedBefore = positionOf(cy, 'g2-c3');
+
+      collapseGroup(cy, shifts, 'g1');
+
+      // g2의 자식들이 함께 같은 양만큼 되돌아온다.
+      const dx = positionOf(cy, 'g2-c1').x - before.x;
+      expect(dx).toBeLessThan(0);
+      expect(positionOf(cy, 'g2-c3').x - joinedBefore.x).toBeCloseTo(dx);
+    });
+
+    it.each([
+      ['in the order they were expanded', ['g1', 'g2']],
+      ['in the reverse order', ['g2', 'g1']],
+    ])('restores both groups when collapsed %s', (_, collapseOrder) => {
+      const cy = setupTwo();
+      const shifts = new Map<string, ShiftRecord>();
+      expandGroup(cy, shifts, 'g1');
+      expandGroup(cy, shifts, 'g2');
+      collapseOrder.forEach((id) => collapseGroup(cy, shifts, id));
+
+      expect(positionOf(cy, 'g1').x).toBeCloseTo(0);
+      expect(positionOf(cy, 'g1').y).toBeCloseTo(0);
+      expect(positionOf(cy, 'g2').x).toBeCloseTo(400);
+      expect(positionOf(cy, 'g2').y).toBeCloseTo(0);
+      expect(shifts.size).toBe(0);
+    });
+  });
+});
+
+describe('relayoutChangedGroups', () => {
+  // group(0, 0)을 펼친 상태에서 오른쪽(right)에 노드가 있다. 실시간 갱신으로 자식이 늘어난다.
+  const setup = () => {
+    const cy = createCy();
+    const shifts = new Map<string, ShiftRecord>();
+    cy.add([
+      { data: { id: 'group' }, position: { x: 0, y: 0 } },
+      { data: { id: 'right' }, position: { x: 400, y: 0 } },
+    ]);
+    const snapshot = snapshotNodes(cy);
+    cy.getElementById('group').remove();
+    const added = [
+      cy.add({ data: { id: 'box', anchorId: 'group' } }),
+      ...Array.from({ length: 8 }, (_, i) =>
+        cy.add({ data: { id: `c${i}`, parent: 'box', anchorId: 'group' } }),
+      ),
+    ];
+    placeAnchoredNodes(cy, added, snapshot, shifts);
+    return { cy, shifts };
+  };
+
+  // 한 칸에 8개까지 쌓이므로 아홉 번째부터 상자가 옆으로 넓어진다.
+  const join = (cy: cytoscape.Core, shifts: Map<string, ShiftRecord>, ids: string[]) => {
+    const snapshot = snapshotNodes(cy);
+    ids.forEach((id) =>
+      cy.add({ data: { id, parent: 'box', anchorId: 'group' }, position: { x: 0, y: 0 } }),
+    );
+    relayoutChangedGroups(cy, snapshot, shifts);
+  };
+
+  it('puts the new child into the grid instead of where it was added', () => {
+    const { cy, shifts } = setup();
+    join(cy, shifts, ['c8', 'c9']);
+
+    const positions = cy
+      .getElementById('box')
+      .children()
+      .map((child) => `${child.position().x},${child.position().y}`);
+    expect(new Set(positions).size).toBe(10);
+    expect(positionOf(cy, 'c8').x).not.toBe(positionOf(cy, 'c0').x);
+  });
+
+  it('keeps the box centered where it was', () => {
+    const { cy, shifts } = setup();
+    const children = () => cy.getElementById('box').children();
+    const center = () => {
+      const xs = children().map((child) => child.position().x);
+      const ys = children().map((child) => child.position().y);
+      return {
+        x: (Math.min(...xs) + Math.max(...xs)) / 2,
+        y: (Math.min(...ys) + Math.max(...ys)) / 2,
+      };
+    };
+    join(cy, shifts, ['c8', 'c9']);
+
+    expect(center().x).toBeCloseTo(0);
+    expect(center().y).toBeCloseTo(0);
+  });
+
+  it('moves the neighbors further out of the grown box', () => {
+    const { cy, shifts } = setup();
+    join(cy, shifts, ['c8', 'c9']);
+
+    const box = cy.getElementById('box').boundingBox();
+    expect(cy.getElementById('right').boundingBox().x1).toBeGreaterThanOrEqual(box.x2);
+  });
+
+  it('restores the neighbors by the whole amount when collapsed', () => {
+    const { cy, shifts } = setup();
+    join(cy, shifts, ['c8', 'c9']);
+
+    const snapshot = snapshotNodes(cy);
+    cy.getElementById('box').children().remove();
+    cy.getElementById('box').remove();
+    const added = [cy.add({ data: { id: 'group', anchorId: 'box' } })];
+    placeAnchoredNodes(cy, added, snapshot, shifts);
+
+    expect(positionOf(cy, 'right')).toEqual({ x: 400, y: 0 });
+    expect(shifts.size).toBe(0);
+  });
+
+  it('collapses back to where the group was after a child left', () => {
+    const { cy, shifts } = setup();
+
+    // 실시간 갱신으로 맨 위의 자식이 빠진다.
+    const snapshot = snapshotNodes(cy);
+    cy.getElementById('c0').remove();
+    relayoutChangedGroups(cy, snapshot, shifts);
+
+    const collapseSnapshot = snapshotNodes(cy);
+    cy.getElementById('box').children().remove();
+    cy.getElementById('box').remove();
+    const added = [cy.add({ data: { id: 'group', anchorId: 'box' } })];
+    placeAnchoredNodes(cy, added, collapseSnapshot, shifts);
+
+    expect(positionOf(cy, 'group').x).toBeCloseTo(0);
+    expect(positionOf(cy, 'group').y).toBeCloseTo(0);
+    expect(positionOf(cy, 'right')).toEqual({ x: 400, y: 0 });
+  });
+
+  it('leaves a box alone when its children did not change', () => {
+    const { cy, shifts } = setup();
+    const before = positionOf(cy, 'c0');
+    const record = new Map(shifts.get('group'));
+
+    relayoutChangedGroups(cy, snapshotNodes(cy), shifts);
+
+    expect(positionOf(cy, 'c0')).toEqual(before);
+    expect(shifts.get('group')).toEqual(record);
+  });
+});
+
+describe('releaseRemovedGroups', () => {
+  // group(0, 0)을 펼쳐 오른쪽(right)을 밀어 둔 상태.
+  const setup = () => {
+    const cy = createCy();
+    const shifts = new Map<string, ShiftRecord>();
+    cy.add([
+      { data: { id: 'group' }, position: { x: 0, y: 0 } },
+      { data: { id: 'right' }, position: { x: 400, y: 0 } },
+    ]);
+    const snapshot = snapshotNodes(cy);
+    cy.getElementById('group').remove();
+    const added = [
+      cy.add({ data: { id: 'box', anchorId: 'group' } }),
+      cy.add({ data: { id: 'c1', parent: 'box', anchorId: 'group' } }),
+      cy.add({ data: { id: 'c2', parent: 'box', anchorId: 'group' } }),
+    ];
+    placeAnchoredNodes(cy, added, snapshot, shifts);
+    return { cy, shifts };
+  };
+
+  it('moves the neighbors back when an expanded group disappears', () => {
+    const { cy, shifts } = setup();
+    expect(positionOf(cy, 'right').x).toBeGreaterThan(400);
+
+    cy.getElementById('box').children().remove();
+    cy.getElementById('box').remove();
+    releaseRemovedGroups(cy, shifts);
+
+    expect(positionOf(cy, 'right')).toEqual({ x: 400, y: 0 });
+    expect(shifts.size).toBe(0);
+  });
+
+  it('keeps the record of a group that is still drawn', () => {
+    const { cy, shifts } = setup();
+    const before = positionOf(cy, 'right');
+
+    releaseRemovedGroups(cy, shifts);
+
+    expect(positionOf(cy, 'right')).toEqual(before);
+    expect(shifts.get('group')?.has('right')).toBe(true);
+  });
+
+  it('forgets a pushed node that disappeared, so it is not pulled when it comes back', () => {
+    const { cy, shifts } = setup();
+
+    cy.getElementById('right').remove();
+    releaseRemovedGroups(cy, shifts);
+
+    expect(shifts.get('group')?.has('right')).toBe(false);
   });
 });

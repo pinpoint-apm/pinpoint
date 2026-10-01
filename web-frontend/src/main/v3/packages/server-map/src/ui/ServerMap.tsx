@@ -4,7 +4,14 @@ import dagre, { DagreLayoutOptions } from 'cytoscape-dagre';
 
 import { Node, Edge, MergedNode, MergedEdge, MergeInfo } from '../types';
 import { getMergedData } from '../core/merge';
-import { placeAnchoredNodes, ShiftRecord, snapshotNodes } from '../core/anchor';
+import { syncEdges } from '../core/edge';
+import {
+  placeAnchoredNodes,
+  relayoutChangedGroups,
+  releaseRemovedGroups,
+  ShiftRecord,
+  snapshotNodes,
+} from '../core/anchor';
 import { getServerMapStyle, getTheme } from '../constants/style/theme-helper';
 import { GraphStyle, ServerMapTheme } from '../constants/style/theme';
 import { keyBy } from 'lodash';
@@ -174,23 +181,15 @@ export const ServerMap = ({
               node.connectedEdges().remove();
             } else if (shouldAdd) {
               const { data } = newNodes.find(({ data }) => data.id === key)!;
-              const connectedEdges = newEdges.filter(
-                ({ data }) => data.source === key || data.target === key,
-              );
 
               addedNodes = addedNodes ? [...addedNodes, cy.add({ data })] : [cy.add({ data })]; // add node
-              connectedEdges.forEach(({ data }) => {
-                const sourceNode = cy.getElementById(data.source);
-                const targetNode = cy.getElementById(data.target);
-
-                if (sourceNode.inside() && targetNode.inside() && cy) {
-                  cy.add({ data }); // add edge
-                }
-              });
             } else {
               return;
             }
           });
+
+          // 링크는 노드와 따로 맞춘다. 노드가 그대로여도 링크만 생기거나 없어질 수 있다.
+          syncEdges(cy, newEdges);
         });
 
         const added = addedNodes ?? [];
@@ -198,11 +197,20 @@ export const ServerMap = ({
           const anchorId = node.data('anchorId');
           return Boolean(anchorId && prevSnapshot?.has(anchorId));
         };
+        // 이미 펼쳐져 있던 상자에 새로 들어온 자식(실시간 보기에서 group에 application이 늘어난 경우).
+        // 자식의 anchorId는 접힌 group 노드인데 지금은 상자가 그 자리를 대신하고 있어 anchor가 없다.
+        const isJoined = (node: cytoscape.CollectionReturnValue) => {
+          const parent = node.data('parent');
+          return !isAnchored(node) && Boolean(parent && prevSnapshot?.has(parent));
+        };
         const anchored = prevSnapshot ? added.filter(isAnchored) : [];
-        const unanchored = prevSnapshot ? added.filter((node) => !isAnchored(node)) : added;
+        const joined = prevSnapshot ? added.filter(isJoined) : [];
+        const unanchored = prevSnapshot
+          ? added.filter((node) => !isAnchored(node) && !isJoined(node))
+          : added;
         // 펼치기/묶기처럼 추가된 노드가 모두 제자리가 정해진 경우에는 전체 배치를 다시 돌리지 않는다.
         // 다시 돌리면 map 전체가 새로 배치되어 보던 자리를 잃는다.
-        const isAnchoredChange = anchored.length > 0 && unanchored.length === 0;
+        const isAnchoredChange = anchored.length + joined.length > 0 && unanchored.length === 0;
 
         if (!layoutRef.current || (forceLayoutUpdate && !isAnchoredChange)) {
           layoutRef.current = cy?.layout({
@@ -216,6 +224,10 @@ export const ServerMap = ({
           if (anchored.length > 0) {
             placeAnchoredNodes(cy, anchored, prevSnapshot!, shiftsRef.current);
           }
+          // 이미 펼쳐져 있던 상자의 자식이 늘거나 줄었으면 상자 안을 다시 배치한다.
+          relayoutChangedGroups(cy, prevSnapshot!, shiftsRef.current);
+          // 펼쳐 둔 group이 통째로 사라졌으면 그것이 밀어 둔 노드를 되돌린다. 위 둘보다 나중이어야 한다.
+          releaseRemovedGroups(cy, shiftsRef.current);
           const centerNode = cy.getElementById(baseNodeId);
           // 기준 노드가 없는 map(비DEFAULT servicemap)에서는 빈 컬렉션이라 위치를 읽을 수 없다
           // (position()이 undefined). 펼치거나 접으면서 병합 노드의 id가 바뀌면 anchor 없는 노드가

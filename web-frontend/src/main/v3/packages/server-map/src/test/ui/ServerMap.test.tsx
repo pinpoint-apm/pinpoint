@@ -29,6 +29,9 @@ jest.mock('cytoscape', () => {
       })),
       edges: jest.fn(() => ({
         style: jest.fn(),
+        filter: jest.fn(() => ({
+          remove: jest.fn(),
+        })),
       })),
       getElementById: jest.fn(() => ({
         id: jest.fn(() => 'n1'),
@@ -39,6 +42,7 @@ jest.mock('cytoscape', () => {
           remove: jest.fn(),
         })),
         inside: jest.fn(() => true),
+        nonempty: jest.fn(() => true),
         isNode: jest.fn(() => true),
         isEdge: jest.fn(() => false),
         same: jest.fn(() => false),
