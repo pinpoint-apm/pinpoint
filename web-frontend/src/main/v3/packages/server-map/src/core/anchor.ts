@@ -166,6 +166,24 @@ const getChildrenCenter = (prevSnapshot: Map<string, NodeSnapshot>, parentId: st
  * - 묶음(노드 하나): 부모가 있던 자리(지금 자식들의 가운데)에 놓고, 펼칠 때 적어 둔 양만큼
  *   주변 노드를 되돌린다.
  */
+/**
+ * 다른 group이 펼쳐지거나 묶이며 노드가 바뀌어도, 그 group을 밀어 둔 기록이 새 노드를 가리키게 옮긴다.
+ *
+ * 기록은 노드 id로 적으므로, A를 펼치며 B를 밀어 둔 뒤 B를 펼치면 기록 속의 B가 사라진다(반대로
+ * B의 자식 id로 적힌 뒤 B를 묶어도 같다). 그대로 두면 A를 묶을 때 B를 되돌리지 못해 B가 밀린 채로
+ * 남는다. 한 group은 언제나 통째로(같은 양만큼) 밀리므로 묶음 노드 ↔ 자식들로 그대로 옮겨 적는다.
+ */
+const migrateShifts = (shifts: Map<string, ShiftRecord>, fromIds: string[], toIds: string[]) => {
+  shifts.forEach((record) => {
+    const shift = fromIds.map((id) => record.get(id)).find(Boolean);
+    if (!shift) {
+      return;
+    }
+    fromIds.forEach((id) => record.delete(id));
+    toIds.forEach((id) => record.set(id, shift));
+  });
+};
+
 export const placeAnchoredNodes = (
   cy: cytoscape.Core,
   anchoredNodes: cytoscape.CollectionReturnValue[],
@@ -192,6 +210,11 @@ export const placeAnchoredNodes = (
         const { x, y } = relative[child.id()];
         child.position({ x: anchor.x + x, y: anchor.y + y });
       });
+      migrateShifts(
+        shifts,
+        [anchorId],
+        children.map((child) => child.id()),
+      );
 
       const box = parent.boundingBox();
       shifts.set(
@@ -207,8 +230,12 @@ export const placeAnchoredNodes = (
       );
     } else {
       const { x, y } = getChildrenCenter(prevSnapshot, anchorId);
+      const childIds = [...prevSnapshot.entries()]
+        .filter(([, { parent }]) => parent === anchorId)
+        .map(([id]) => id);
       nodes.forEach((node) => {
         node.position({ x, y });
+        migrateShifts(shifts, childIds, [node.id()]);
 
         shifts.get(node.id())?.forEach(({ dx, dy }, id) => {
           const target = cy.getElementById(id);
@@ -219,5 +246,121 @@ export const placeAnchoredNodes = (
         shifts.delete(node.id());
       });
     }
+  });
+};
+
+/**
+ * 이미 펼쳐져 있던 상자의 자식이 늘거나 줄면 자식들을 원래 가운데를 기준으로 다시 배치하고, 상자가 더
+ * 커졌으면 그만큼 주변 노드를 더 비켜 세운다. 실시간 보기에서 펼쳐 둔 group의 application이 바뀐 경우다.
+ *
+ * - 늘었을 때: 새 자식은 anchor(접힌 group 노드)가 지금 그래프에 없어 `placeAnchoredNodes`로 놓을 수
+ *   없다. 그대로 두면 원점 근처에 놓여 상자를 길게 늘인다.
+ * - 줄었을 때: 그대로 두면 남은 자식들의 가운데가 한쪽으로 쏠린다. 접을 때 group은 그 가운데에
+ *   놓이므로(`getChildrenCenter`) 펼치기 전 자리로 돌아오지 못한다.
+ *
+ * 더 비켜 세운 양은 그 group의 기록에 더해 두어 묶을 때 함께 되돌린다. 줄었을 때 주변을 다시 당기지는
+ * 않는다 — 틈이 조금 넓어질 뿐이고, 기록은 그대로라 묶으면 정확히 되돌아온다.
+ * 다른 group이 이 group을 밀어 둔 기록은 지금 자식들의 id로 옮겨 적는다(`migrateShifts`). 안 하면
+ * 그 group을 묶을 때 새 자식만 밀린 채 남아 상자가 찢어진다.
+ *
+ * 방금 펼친 상자(바로 전 그래프에 없던 상자)는 `placeAnchoredNodes`가 놓으므로 건드리지 않는다.
+ */
+export const relayoutChangedGroups = (
+  cy: cytoscape.Core,
+  prevSnapshot: Map<string, NodeSnapshot>,
+  shifts: Map<string, ShiftRecord>,
+) => {
+  cy.nodes(':parent').forEach((parent) => {
+    const parentId = parent.id();
+    const prevBox = prevSnapshot.get(parentId);
+    if (!prevBox) {
+      return;
+    }
+
+    const prevChildIds = [...prevSnapshot.entries()]
+      .filter(([, { parent }]) => parent === parentId)
+      .map(([id]) => id);
+    const children = parent.children();
+    const childIds = children.map((child) => child.id());
+    const isUnchanged =
+      childIds.length === prevChildIds.length &&
+      childIds.every((id) => prevSnapshot.get(id)?.parent === parentId);
+    if (isUnchanged) {
+      return;
+    }
+
+    // 빠진 자식까지 포함한 가운데 — 곧 펼치기 전 group이 있던 자리다.
+    const center = getChildrenCenter(prevSnapshot, parentId);
+    migrateShifts(shifts, prevChildIds, childIds);
+
+    const relative = layoutGroupChildren(
+      childIds,
+      children.edgesWith(children).map((edge) => [edge.source().id(), edge.target().id()]),
+    );
+    children.forEach((child) => {
+      const { x, y } = relative[child.id()];
+      child.position({ x: center.x + x, y: center.y + y });
+    });
+
+    const box = parent.boundingBox();
+    const grown = shiftAround(
+      cy,
+      center,
+      box,
+      parent.union(children),
+      Math.max(0, box.w - prevBox.w) / 2,
+      Math.max(0, box.h - prevBox.h) / 2,
+    );
+
+    const groupId = parent.data('anchorId') as string;
+    const record: ShiftRecord = shifts.get(groupId) ?? new Map();
+    grown.forEach(({ dx, dy }, id) => {
+      const prev = record.get(id);
+      record.set(id, { dx: dx + (prev?.dx ?? 0), dy: dy + (prev?.dy ?? 0) });
+    });
+    shifts.set(groupId, record);
+  });
+};
+
+/**
+ * 그래프에서 사라진 group이 밀어 둔 노드를 되돌리고, 사라진 노드를 가리키는 기록을 지운다.
+ * 실시간 보기에서 펼쳐 둔 group이 통째로 응답에서 빠진 경우다.
+ *
+ * - 사라진 group의 기록: 묶으면서 되돌릴 기회가 없으므로 지금 되돌린다. 안 하면 그 옆 노드들이 밀린
+ *   채로 남는다.
+ * - 다른 기록 속의 사라진 노드: 지워 둔다. 같은 id로 다시 나타난 노드는 새로 놓인 것이라, 남겨 두면
+ *   그 기록의 group을 묶을 때 밀린 적 없는 노드를 끌어당긴다.
+ *
+ * 펼친 group은 그 상자(`anchorId`가 group id인 최상위 노드)가 있는지로 본다. 기록은 펼쳐진 group에만
+ * 있으므로 group 노드 자체가 있는 경우는 없지만, 같은 데이터 갱신에서 접힌 경우를 위해 함께 본다.
+ * 다른 위치 정하기(`placeAnchoredNodes`, `relayoutChangedGroups`)가 끝난 뒤에 불러야 한다 — 그 둘이
+ * 기록을 새 id로 옮겨 적기 전에는 옮겨질 id가 사라진 것처럼 보인다.
+ */
+export const releaseRemovedGroups = (cy: cytoscape.Core, shifts: Map<string, ShiftRecord>) => {
+  shifts.forEach((record, groupId) => {
+    const isDrawn =
+      cy.getElementById(groupId).nonempty() ||
+      cy
+        .nodes()
+        .orphans()
+        .some((node) => node.data('anchorId') === groupId);
+    if (isDrawn) {
+      return;
+    }
+    record.forEach(({ dx, dy }, id) => {
+      const target = cy.getElementById(id);
+      if (target.nonempty() && target.isNode() && target.isChildless()) {
+        target.shift({ x: -dx, y: -dy });
+      }
+    });
+    shifts.delete(groupId);
+  });
+
+  shifts.forEach((record) => {
+    record.forEach((_, id) => {
+      if (cy.getElementById(id).empty()) {
+        record.delete(id);
+      }
+    });
   });
 };
