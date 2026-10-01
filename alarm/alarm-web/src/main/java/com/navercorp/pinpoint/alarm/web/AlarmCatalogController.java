@@ -30,16 +30,23 @@ public class AlarmCatalogController {
 
     private final AlarmTemplatePresetLoader templatePresetLoader;
     private final AlarmDataSourceRegistry dataSourceRegistry;
+    private final AlarmApplicationResolver applicationResolver;
 
     public AlarmCatalogController(AlarmTemplatePresetLoader templatePresetLoader,
-                                  AlarmDataSourceRegistry dataSourceRegistry) {
+                                  AlarmDataSourceRegistry dataSourceRegistry,
+                                  AlarmApplicationResolver applicationResolver) {
         this.templatePresetLoader = Objects.requireNonNull(templatePresetLoader, "templatePresetLoader");
         this.dataSourceRegistry = Objects.requireNonNull(dataSourceRegistry, "dataSourceRegistry");
+        this.applicationResolver = Objects.requireNonNull(applicationResolver, "applicationResolver");
     }
 
+    /** With an application type, only the data sources a rule on that type may use. */
     @GetMapping("/datasources")
-    public List<AlarmCatalogResponse.DataSource> getDataSources() {
+    public List<AlarmCatalogResponse.DataSource> getDataSources(
+            @RequestParam(value = "applicationType", required = false) String applicationType) {
+        String category = applicationType == null ? null : applicationResolver.categoryOf(applicationType);
         return dataSourceRegistry.all().stream()
+                .filter(dataSource -> category == null || category.equals(dataSource.category()))
                 .map(AlarmCatalogResponse.DataSource::from)
                 .toList();
     }

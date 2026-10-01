@@ -106,6 +106,7 @@ public class AlarmRuleService {
         locks.lockBundleHeadersOfItems(rule.getServiceName(), rule.getTemplateItemId());
         AlarmTemplateItem templateItem = locks.resolveTemplateItemUnderLock(rule);
         configValidator.validateRuleConfig(rule, templateItem);
+        validateCategory(rule);
         configValidator.roundUpIntervals(rule);
         ruleStamper.insertWithInitialState(rule);
         saveLocalConfig(rule);
@@ -150,6 +151,7 @@ public class AlarmRuleService {
         rule.setConditions(AlarmConfigValidator.normalizeConditions(rule.getConditions()));
         AlarmTemplateItem templateItem = locks.resolveTemplateItemUnderLock(rule);
         configValidator.validateRuleConfig(rule, templateItem);
+        validateCategory(rule);
         configValidator.roundUpIntervals(rule);
         ruleDao.updateRule(rule);
         saveLocalConfig(rule);
@@ -216,6 +218,12 @@ public class AlarmRuleService {
     private void verifyApplication(AlarmRuleV2 rule) {
         AlarmApplication application = applicationOf(rule);
         applicationResolver.verifyExists(application);
+    }
+
+    // A template-linked rule already carries its item's data source (resolveTemplateItemUnderLock).
+    private void validateCategory(AlarmRuleV2 rule) {
+        configValidator.validateCategory(applicationResolver.categoryOf(rule.getApplicationType()),
+                rule.getDataSource());
     }
 
     private static AlarmApplication applicationOf(AlarmRuleV2 rule) {

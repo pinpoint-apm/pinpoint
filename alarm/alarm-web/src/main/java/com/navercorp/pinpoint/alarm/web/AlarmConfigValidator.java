@@ -30,8 +30,11 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Validates and normalizes what a rule or a bundle item may hold.
@@ -143,6 +146,23 @@ class AlarmConfigValidator {
         }
     }
 
+    /**
+     * An item of another category than the bundle now measures may only go while no rule
+     * reads it: the bundle's new items are stamped onto the applications it is applied to.
+     * An item whose data source no installed module owns is left out, so it can still be removed.
+     */
+    void validateCategoryChange(Collection<AlarmTemplateItem> currentItems, String category) {
+        for (AlarmTemplateItem item : currentItems) {
+            String itemCategory = dataSourceRegistry.find(item.getDataSource())
+                    .map(AlarmDataSource::category)
+                    .orElse(category);
+            if (!itemCategory.equals(category) && templateItemDao.countRulesByTemplateItemId(item.getId()) > 0) {
+                throw new AlarmResourceConflictException(
+                        "Template category cannot change while rules reference it: itemId=" + item.getId());
+            }
+        }
+    }
+
     void requireStandaloneConfig(AlarmRuleV2 rule) {
         if (!StringUtils.hasText(rule.getDataSource())) {
             throw new IllegalArgumentException("dataSource must not be blank");
@@ -158,6 +178,25 @@ class AlarmConfigValidator {
             throw new IllegalArgumentException("conditions must not be null");
         }
         conditionValidator.validate(rule.getConditions());
+    }
+
+    void validateCategory(String applicationCategory, String dataSource) {
+        String category = dataSourceRegistry.get(dataSource).category();
+        if (!category.equals(applicationCategory)) {
+            throw new IllegalArgumentException("dataSource " + dataSource + " is for " + category
+                    + " applications, not " + applicationCategory);
+        }
+    }
+
+    /** The one category every item measures; a bundle mixing them cannot apply to any application. */
+    String requireOneCategory(Collection<AlarmTemplateItem> items) {
+        Set<String> categories = items.stream()
+                .map(item -> dataSourceRegistry.get(item.getDataSource()).category())
+                .collect(Collectors.toSet());
+        if (categories.size() != 1) {
+            throw new IllegalArgumentException("Template items must share one data source category: " + categories);
+        }
+        return categories.iterator().next();
     }
 
     void validateConfig(String dataSource,

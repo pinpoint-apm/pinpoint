@@ -35,11 +35,21 @@ import java.util.List;
  */
 public interface AlarmDataSource {
 
+    /** The category of the applications the agent reports. */
+    String APM_CATEGORY = "APM";
+
     /** Stable code. Persisted, so it must be unique across every contributor. */
     String name();
 
     /** Human readable name, for the rule editor. */
     String label();
+
+    /**
+     * What kind of target this measures. A rule may only use a data source of its
+     * application's category, and a bundle holds items of one category, since a data
+     * source read for an application it does not record answers nothing instead of failing.
+     */
+    String category();
 
     /**
      * Filter keys a rule may filter on. This is a whitelist: filter expressions
