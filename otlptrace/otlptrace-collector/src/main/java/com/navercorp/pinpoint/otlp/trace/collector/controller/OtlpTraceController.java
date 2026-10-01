@@ -68,7 +68,9 @@ public class OtlpTraceController {
     // The body is taken as a raw InputStream (no @RequestBody, so no HttpMessageConverter): a byte[]
     // parameter would hold the whole wire body — transiently twice, through readAllBytes — on top of
     // the parsed message. Protobuf is parsed straight off the stream instead, so only the parsed
-    // message is ever in heap. Two consequences, both matching the gRPC path:
+    // message is ever in heap; OTLP/JSON is read through a Reader into JsonFormat's element tree,
+    // which is its footprint (larger than the wire bytes) either way. Two consequences, both
+    // matching the gRPC path:
     // - an empty body is an empty ExportTraceServiceRequest (200), not Spring's "body missing" 400;
     // - a body read failure — the admission/decompression filters' size-limit IOException, or a
     //   truncated upload — reaches this method (the generated parser wraps it in
@@ -123,9 +125,7 @@ public class OtlpTraceController {
 
     private ExportTraceServiceRequest parseRequest(InputStream body, boolean json) throws IOException {
         if (json) {
-            // OTLP/JSON still materializes the body: the hex->base64 ID rewrite and JsonFormat's Gson
-            // tree dominate its footprint, so the raw copy is not the lever there.
-            return jsonParser.parse(body.readAllBytes());
+            return jsonParser.parse(body);
         }
         return ExportTraceServiceRequest.parseFrom(body);
     }
