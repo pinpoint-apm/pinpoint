@@ -42,7 +42,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
-    private final Provider<AsyncContextFactory> asyncContextFactoryProvider;
+    private final AsyncContextFactory asyncContextFactory;
     private final IgnoreErrorHandler errorHandler;
 
     private final ExceptionRecorderFactory exceptionRecorderFactory;
@@ -50,14 +50,14 @@ public class DefaultRecorderFactory implements RecorderFactory {
     private final SqlCountService sqlCountService;
 
     @Inject
-    public DefaultRecorderFactory(Provider<AsyncContextFactory> asyncContextFactoryProvider,
+    public DefaultRecorderFactory(AsyncContextFactory asyncContextFactory,
                                   StringMetaDataService stringMetaDataService,
                                   SqlMetaDataService sqlMetaDataService,
                                   IgnoreErrorHandler errorHandler,
                                   ExceptionRecorderFactory exceptionRecorderFactory,
                                   ErrorRecorderFactory errorRecorderFactory,
                                   SqlCountService sqlCountService) {
-        this.asyncContextFactoryProvider = Objects.requireNonNull(asyncContextFactoryProvider, "asyncContextFactoryProvider");
+        this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");
         this.stringMetaDataService = Objects.requireNonNull(stringMetaDataService, "stringMetaDataService");
         this.sqlMetaDataService = Objects.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
         this.errorHandler = Objects.requireNonNull(errorHandler, "errorHandler");
@@ -98,7 +98,6 @@ public class DefaultRecorderFactory implements RecorderFactory {
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot) {
         Objects.requireNonNull(traceRoot, "traceRoot");
 
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
         ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(traceRoot);
 
@@ -111,7 +110,6 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncState, "asyncState");
 
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
         ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(traceRoot);
 
@@ -123,7 +121,6 @@ public class DefaultRecorderFactory implements RecorderFactory {
     public WrappedSpanEventRecorder newChildTraceSpanEventRecorder(TraceRoot traceRoot) {
         Objects.requireNonNull(traceRoot, "traceRoot");
 
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         ExceptionRecorder exceptionRecorder = exceptionRecorderFactory.newRecorder(traceRoot);
         ErrorRecorder errorRecorder = errorRecorderFactory.newRecorder(traceRoot);
 
@@ -147,7 +144,6 @@ public class DefaultRecorderFactory implements RecorderFactory {
     }
 
     private DisableSpanEventRecorder newDisableSpanEventRecorder0(LocalTraceRoot traceRoot, AsyncState asyncState) {
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         return new DisableSpanEventRecorder(traceRoot, asyncContextFactory, asyncState);
     }
 
@@ -156,7 +152,6 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Objects.requireNonNull(traceRoot, "traceRoot");
         Objects.requireNonNull(asyncState, "asyncState");
 
-        final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         return new DisableChildTraceSpanEventRecorder(traceRoot, asyncContextFactory, asyncState);
     }
 }
