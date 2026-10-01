@@ -158,6 +158,29 @@ class AlarmTemplatePresetLoaderTest {
         assertTrue(e.getMessage().contains("Duplicate preset name"));
     }
 
+    // A distribution can ship presets for a module a deployment runs without.
+    @Test
+    void leavesOutAPresetOfADataSourceNoModuleOwns() {
+        String installedRule = """
+                {"name": {"ko": "규칙", "en": "rule"}, "severity": "WARNING", "dataSource": "AGENT_STAT",
+                 "checkIntervalSec": 300, "actionIntervalSec": 1800,
+                 "conditions": {"type": "LEAF", "metric": "deadlock_count", "trigger": "NEW_GROUP"}}
+                """;
+        String missingRule = """
+                {"name": {"ko": "규칙2", "en": "rule2"}, "severity": "WARNING", "dataSource": "NOT_INSTALLED",
+                 "checkIntervalSec": 300, "actionIntervalSec": 1800,
+                 "conditions": {"type": "LEAF", "metric": "lcp_p75", "op": ">=", "threshold": 1, "windowSec": 300}}
+                """;
+        Resource kept = resourceOf("{\"name\": {\"ko\": \"남김\", \"en\": \"kept\"}, \"rules\": [" + installedRule + "]}");
+        // One rule of a data source no module owns is enough to leave the whole preset out.
+        Resource mixed = resourceOf("{\"name\": {\"ko\": \"섞임\", \"en\": \"mixed\"}, \"rules\": ["
+                + installedRule + "," + missingRule + "]}");
+
+        List<AlarmTemplatePreset> presets = load(kept, mixed).getPresets();
+
+        assertEquals(List.of("kept"), presets.stream().map(preset -> preset.name().en()).toList());
+    }
+
     @Test
     void acceptsEmptyCatalog() {
         // Presets are content a distribution supplies, not something this module ships,

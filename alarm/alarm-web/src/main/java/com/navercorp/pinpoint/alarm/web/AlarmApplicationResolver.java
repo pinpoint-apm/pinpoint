@@ -32,21 +32,25 @@ import java.util.Objects;
  *
  * <p>Which registry owns the application depends on its type, so the lookup itself
  * is delegated to the {@link AlarmApplicationExistenceChecker} that claims the
- * type. An unclaimed type is a bad request rather than a missing application:
- * nothing can say whether it exists.
+ * type. A type none of them claims belongs to the application index, which every agent
+ * reports into and which is keyed by type as well as name -- it answers for a type no
+ * plugin registered the same way it answers for a name never reported.
  */
 @Component
 public class AlarmApplicationResolver {
 
     private final Map<String, AlarmApplicationExistenceChecker> byType;
+    private final ApplicationIndexExistenceChecker applicationIndex;
 
     /**
      * @throws IllegalStateException when two checkers claim one type -- bean order would
      *         otherwise decide which registry a target is validated against, accepting or
      *         rejecting it for the wrong reason.
      */
-    public AlarmApplicationResolver(List<AlarmApplicationExistenceChecker> checkers) {
+    public AlarmApplicationResolver(List<AlarmApplicationExistenceChecker> checkers,
+                                   ApplicationIndexExistenceChecker applicationIndex) {
         Objects.requireNonNull(checkers, "checkers");
+        this.applicationIndex = Objects.requireNonNull(applicationIndex, "applicationIndex");
 
         Map<String, AlarmApplicationExistenceChecker> collected = new HashMap<>();
         for (AlarmApplicationExistenceChecker checker : checkers) {
@@ -62,15 +66,20 @@ public class AlarmApplicationResolver {
         this.byType = Map.copyOf(collected);
     }
 
+    /** The data source category a rule on an application of this type must use. */
+    public String categoryOf(String applicationType) {
+        AlarmApplicationExistenceChecker checker = byType.get(applicationType);
+        return checker != null ? checker.category() : applicationIndex.category();
+    }
+
     public void verifyExists(AlarmApplication application) {
         requireComplete(application);
 
         AlarmApplicationExistenceChecker checker = byType.get(application.getApplicationType());
-        if (checker == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Unsupported applicationType: " + application.getApplicationType());
-        }
-        if (!checker.exists(application)) {
+        boolean exists = checker != null
+                ? checker.exists(application)
+                : applicationIndex.exists(application);
+        if (!exists) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Application not found: " + application);
         }

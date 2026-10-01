@@ -17,12 +17,17 @@ package com.navercorp.pinpoint.alarm.web;
 
 import com.navercorp.pinpoint.alarm.service.AlarmApplicationExistenceChecker;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
+import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,11 +39,22 @@ class AlarmApplicationResolverTest {
     private static final AlarmApplication APPLICATION =
             new AlarmApplication("service", "app", "javascript");
 
+    private static ApplicationIndexExistenceChecker applicationIndex(boolean exists) {
+        ApplicationIndexExistenceChecker index = mock(ApplicationIndexExistenceChecker.class);
+        when(index.exists(any())).thenReturn(exists);
+        return index;
+    }
+
     private static AlarmApplicationExistenceChecker checker(String ownedType, boolean exists) {
         return new AlarmApplicationExistenceChecker() {
             @Override
             public Set<String> supportedTypes() {
                 return Set.of(ownedType);
+            }
+
+            @Override
+            public String category() {
+                return "OTHER";
             }
 
             @Override
@@ -51,7 +67,8 @@ class AlarmApplicationResolverTest {
     @Test
     void asksTheCheckerThatOwnsTheType() {
         AlarmApplicationResolver resolver = new AlarmApplicationResolver(
-                List.of(checker("java", false), checker("javascript", true)));
+                List.of(checker("java", false), checker("javascript", true)),
+                applicationIndex(false));
 
         assertDoesNotThrow(() -> resolver.verifyExists(APPLICATION));
     }
@@ -59,21 +76,11 @@ class AlarmApplicationResolverTest {
     @Test
     void missingApplicationIsNotFound() {
         AlarmApplicationResolver resolver = new AlarmApplicationResolver(
-                List.of(checker("javascript", false)));
+                List.of(checker("javascript", false)), applicationIndex(true));
 
         ResponseStatusException e = assertThrows(ResponseStatusException.class,
                 () -> resolver.verifyExists(APPLICATION));
         assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
-    }
-
-    @Test
-    void unclaimedTypeIsABadRequest() {
-        AlarmApplicationResolver resolver = new AlarmApplicationResolver(
-                List.of(checker("java", true)));
-
-        ResponseStatusException e = assertThrows(ResponseStatusException.class,
-                () -> resolver.verifyExists(APPLICATION));
-        assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
     }
 
     // Letting bean order decide would validate the target against whichever registry
@@ -83,7 +90,49 @@ class AlarmApplicationResolverTest {
     void twoCheckersClaimingOneTypeIsRejected() {
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> new AlarmApplicationResolver(
-                        List.of(checker("javascript", true), checker("javascript", false))));
+                        List.of(checker("javascript", true), checker("javascript", false)),
+                        applicationIndex(false)));
         assertTrue(e.getMessage().contains("javascript"), e.getMessage());
+    }
+
+    @Test
+    void aTypeTakesTheCategoryOfWhatAnswersForIt() {
+        ApplicationIndexExistenceChecker index = applicationIndex(true);
+        when(index.category()).thenReturn(AlarmDataSource.APM_CATEGORY);
+        AlarmApplicationResolver resolver = new AlarmApplicationResolver(List.of(checker("javascript", false)), index);
+
+        assertEquals("OTHER", resolver.categoryOf("javascript"));
+        assertEquals(AlarmDataSource.APM_CATEGORY, resolver.categoryOf("SPRING_BOOT"));
+    }
+
+    @Test
+    void aTypeNoCheckerClaimsGoesToTheApplicationIndex() {
+        AlarmApplicationResolver resolver = new AlarmApplicationResolver(
+                List.of(checker("javascript", false)), applicationIndex(true));
+
+        assertDoesNotThrow(() ->
+                resolver.verifyExists(new AlarmApplication("service", "app", "SPRING_BOOT")));
+    }
+
+    @Test
+    void aClaimedTypeStillGoesToItsClaimer() {
+        // The claimer says no and the index says yes, so a 404 proves which answered.
+        AlarmApplicationResolver resolver = new AlarmApplicationResolver(
+                List.of(checker("javascript", false)), applicationIndex(true));
+
+        ResponseStatusException e = assertThrows(ResponseStatusException.class,
+                () -> resolver.verifyExists(APPLICATION));
+
+        assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+    }
+
+    @Test
+    void anUnknownTypeIsNotFoundRatherThanBadRequestOnceSomethingAnswersForIt() {
+        AlarmApplicationResolver resolver = new AlarmApplicationResolver(List.of(), applicationIndex(false));
+
+        ResponseStatusException e = assertThrows(ResponseStatusException.class,
+                () -> resolver.verifyExists(new AlarmApplication("service", "app", "NO_SUCH_TYPE")));
+
+        assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
     }
 }

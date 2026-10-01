@@ -45,7 +45,8 @@ import java.util.Set;
  * Loads the built-in alarm template presets from the classpath — one JSON file
  * per preset under {@value #PRESET_LOCATION_PATTERN}, listed in filename order —
  * and validates every rule at startup, so a broken preset fails deployment
- * instead of surfacing when a user opens the template start view.
+ * instead of surfacing when a user opens the template start view. A preset reading
+ * a data source no installed module owns is left out instead, with a warning.
  */
 @Component
 public class AlarmTemplatePresetLoader {
@@ -89,12 +90,30 @@ public class AlarmTemplatePresetLoader {
         for (Resource resource : resources) {
             presets.add(read(objectMapper, resource));
         }
-        validate(presets, conditionValidator, filterKeyValidator, dataSourceRegistry);
-        this.presets = List.copyOf(presets);
+        List<AlarmTemplatePreset> offered = presets.stream()
+                .filter(preset -> isInstalled(preset, dataSourceRegistry))
+                .toList();
+        validate(offered, conditionValidator, filterKeyValidator, dataSourceRegistry);
+        this.presets = offered;
     }
 
     public List<AlarmTemplatePreset> getPresets() {
         return presets;
+    }
+
+    // The distribution that ships a preset may run with its module turned off, so this is not
+    // a startup failure. A misspelled data source lands here too, hence the warning.
+    private static boolean isInstalled(AlarmTemplatePreset preset, AlarmDataSourceRegistry registry) {
+        List<String> missing = preset.rules() == null ? List.of() : preset.rules().stream()
+                .map(AlarmTemplatePreset.Rule::dataSource)
+                .filter(dataSource -> dataSource != null && registry.find(dataSource).isEmpty())
+                .distinct()
+                .toList();
+        if (!missing.isEmpty()) {
+            logger.warn("Alarm template preset {} reads data sources no installed module owns {}; not offered",
+                    preset.name() == null ? null : preset.name().ko(), missing);
+        }
+        return missing.isEmpty();
     }
 
     private static List<Resource> resolvePresetResources() {

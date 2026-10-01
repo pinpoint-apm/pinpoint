@@ -27,12 +27,14 @@ public final class AlarmCatalogResponse {
     private AlarmCatalogResponse() {
     }
 
-    public record DataSource(String value, String label, List<String> filterKeys, List<Metric> metrics) {
+    public record DataSource(String value, String label, String category, List<String> filterKeys,
+                             List<Metric> metrics) {
 
         public static DataSource from(AlarmDataSource dataSource) {
             return new DataSource(
                     dataSource.name(),
                     dataSource.label(),
+                    dataSource.category(),
                     dataSource.filterKeys(),
                     dataSource.metrics().stream()
                             .map(Metric::from)
