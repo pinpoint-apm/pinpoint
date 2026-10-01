@@ -51,14 +51,26 @@ public enum TestAlarmDataSource implements AlarmDataSource {
                     new AlarmMetricDefinition("total_count", "Total Count", null, Set.of("SUM")),
                     new AlarmMetricDefinition("apdex_score", "Apdex Score")
             )
+    ),
+    // Same metric as AGENT_STAT under another category, so only the category tells them apart.
+    OTHER_CATEGORY("Other Category",
+            List.of(),
+            List.of(new AlarmMetricDefinition("sample_count", "Sample Count", null, Set.of("COUNT"))),
+            "OTHER"
     );
 
     private final String label;
+    private final String category;
     private final List<String> filterKeys;
     private final List<AlarmMetricDefinition> metrics;
 
     TestAlarmDataSource(String label, List<String> filterKeys, List<AlarmMetricDefinition> metrics) {
+        this(label, filterKeys, metrics, AlarmDataSource.APM_CATEGORY);
+    }
+
+    TestAlarmDataSource(String label, List<String> filterKeys, List<AlarmMetricDefinition> metrics, String category) {
         this.label = label;
+        this.category = category;
         this.filterKeys = List.copyOf(filterKeys);
         this.metrics = List.copyOf(metrics);
     }
@@ -66,6 +78,11 @@ public enum TestAlarmDataSource implements AlarmDataSource {
     @Override
     public String label() {
         return label;
+    }
+
+    @Override
+    public String category() {
+        return category;
     }
 
     @Override
@@ -86,7 +103,7 @@ public enum TestAlarmDataSource implements AlarmDataSource {
     public static class Provider implements AlarmDataSourceProvider {
         @Override
         public List<AlarmDataSource> dataSources() {
-            return List.of(AGENT_STAT, APPLICATION_RESPONSE);
+            return List.of(AGENT_STAT, APPLICATION_RESPONSE, OTHER_CATEGORY);
         }
     }
 }

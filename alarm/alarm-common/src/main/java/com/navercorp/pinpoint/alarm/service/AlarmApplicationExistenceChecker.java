@@ -40,6 +40,9 @@ public interface AlarmApplicationExistenceChecker {
      */
     Set<String> supportedTypes();
 
+    /** The data source category of the applications this checker owns. */
+    String category();
+
     /**
      * Whether the application exists in this checker's registry. Only called for an
      * application whose type is in {@link #supportedTypes()}.

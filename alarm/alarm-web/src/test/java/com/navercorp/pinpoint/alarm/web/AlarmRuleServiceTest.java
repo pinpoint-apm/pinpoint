@@ -58,6 +58,17 @@ import static org.mockito.Mockito.when;
 class AlarmRuleServiceTest extends AlarmServiceTestSupport {
 
     @Test
+    void createRuleRejectsADataSourceOfAnotherCategory() {
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmRuleService service = newService(ruleDao, new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmRuleV2 rule = validRule(null);
+        rule.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+
+        assertThrows(IllegalArgumentException.class, () -> service.createRule(rule));
+        assertTrue(ruleDao.insertedRules.isEmpty());
+    }
+
+    @Test
     void createRuleUsesProvidedApplication() {
         RecordingRuleDao ruleDao = new RecordingRuleDao(true);
         AlarmRuleService service = newService(ruleDao,                 new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
@@ -227,7 +238,8 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         assertTrue(ruleDao.insertedRules.isEmpty());
     }
 
-    // No checker claims the type, so nothing can say whether the application exists.
+    // A type no checker claims goes to the application index, which has no such application
+    // either -- so the rule is rejected as missing rather than as unsupported.
     @Test
     void createRuleRejectsAnApplicationTypeNoCheckerOwns() {
         RecordingRuleDao ruleDao = new RecordingRuleDao(true);
@@ -240,8 +252,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 () -> service.createRule(rule)
         );
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertTrue(exception.getReason().contains("java"), exception.getReason());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertTrue(ruleDao.insertedRules.isEmpty());
     }
 
@@ -296,6 +307,17 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         assertEquals(7L, updatedRule.getId());
         assertEquals(AlarmApplication.TYPE_JAVASCRIPT, updatedRule.getApplicationType());
         assertEquals(SERVICE_NAME, updatedRule.getServiceName());
+    }
+
+    @Test
+    void updateRuleRejectsADataSourceOfAnotherCategory() {
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmRuleService service = newService(ruleDao, new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmRuleV2 rule = validRule(null);
+        rule.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+
+        assertThrows(IllegalArgumentException.class, () -> service.updateRule(7L, rule));
+        assertTrue(ruleDao.updatedRules.isEmpty());
     }
 
     @Test
@@ -646,7 +668,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 historyDao,
                 stateDao,
                 new EffectiveAlarmRuleResolver(),
-                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao))),
+                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao)), noIndex()),
                 new AlarmBundleLocks(ruleDao, templateDao, templateItemDao),
                 new AlarmConfigValidator(templateItemDao, new ConditionValidator(), new FilterKeyValidator(),
                         DATA_SOURCE_REGISTRY),
@@ -718,7 +740,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 historyDao,
                 stateDao,
                 new EffectiveAlarmRuleResolver(),
-                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao))),
+                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao)), noIndex()),
                 new AlarmBundleLocks(ruleDao, templateDao, templateItemDao),
                 new AlarmConfigValidator(templateItemDao, new ConditionValidator(), new FilterKeyValidator(),
                         DATA_SOURCE_REGISTRY),
@@ -726,5 +748,14 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 new AlarmRuleDeleter(ruleDao, localConfigDao, channelBindingDao, historyDao,
                         outboxDao, stateDao)
         );
+    }
+
+    /** These cases name a javascript application, so the index is asked nothing. */
+    private static ApplicationIndexExistenceChecker noIndex() {
+        ApplicationIndexExistenceChecker index =
+                org.mockito.Mockito.mock(ApplicationIndexExistenceChecker.class);
+        org.mockito.Mockito.lenient()
+                .when(index.exists(org.mockito.ArgumentMatchers.any())).thenReturn(false);
+        return index;
     }
 }

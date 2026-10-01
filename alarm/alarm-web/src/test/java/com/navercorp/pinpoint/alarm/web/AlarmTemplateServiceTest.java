@@ -68,6 +68,20 @@ class AlarmTemplateServiceTest extends AlarmServiceTestSupport {
     }
 
     @Test
+    void createTemplateRejectsItemsOfTwoCategories() {
+        RecordingTemplateDao templateDao = new RecordingTemplateDao();
+        AlarmTemplateService service = newTemplateService(new RecordingRuleDao(true), templateDao,
+                new RecordingTemplateItemDao(), new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmTemplateItem other = itemRequest();
+        other.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+        AlarmTemplate template = template(null, SERVICE_NAME);
+        template.setItems(List.of(itemRequest(), other));
+
+        assertThrows(IllegalArgumentException.class, () -> service.createTemplate(template));
+        assertEquals(0, templateDao.insertedCount);
+    }
+
+    @Test
     void createTemplateMintsNewItemIdsEvenWhenCopySourceIdsArePresent() {
         RecordingTemplateDao templateDao = new RecordingTemplateDao();
         RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao();
@@ -210,6 +224,62 @@ class AlarmTemplateServiceTest extends AlarmServiceTestSupport {
                 exception.getMessage());
         assertEquals(0, templateDao.updatedCount);
         assertTrue(templateItemDao.updatedItemIds.isEmpty());
+    }
+
+    // A new item of the other category would be stamped onto every application the bundle
+    // is applied to, while the item it replaces stops being evaluated there.
+    @Test
+    void updateTemplateRejectsACategoryChangeWhileRulesReadTheOldOne() {
+        RecordingTemplateDao templateDao = new RecordingTemplateDao(template(20L, SERVICE_NAME));
+        RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao(item(10L, 20L));
+        templateItemDao.ruleCounts.put(10L, 1);
+        AlarmTemplateService service = newTemplateService(new RecordingRuleDao(true), templateDao, templateItemDao,
+                new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmTemplate update = template(20L, SERVICE_NAME);
+        AlarmTemplateItem other = itemRequest();
+        other.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+        update.setItems(List.of(other));
+
+        assertThrows(AlarmResourceConflictException.class, () -> service.updateTemplate(update));
+        assertEquals(0, templateDao.updatedCount);
+    }
+
+    @Test
+    void updateTemplateAllowsACategoryChangeNoRuleReads() {
+        RecordingTemplateDao templateDao = new RecordingTemplateDao(template(20L, SERVICE_NAME));
+        RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao(item(10L, 20L));
+        AlarmTemplateService service = newTemplateService(new RecordingRuleDao(true), templateDao, templateItemDao,
+                new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmTemplate update = template(20L, SERVICE_NAME);
+        AlarmTemplateItem other = itemRequest();
+        other.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+        update.setItems(List.of(other));
+
+        service.updateTemplate(update);
+
+        assertEquals(1, templateDao.updatedCount);
+    }
+
+    // A bundle saved before categories were enforced may mix them; dropping the odd items out
+    // has to stay possible while rules read the ones that remain.
+    @Test
+    void updateTemplateLetsAMixedBundleDropItsOtherCategoryItems() {
+        RecordingTemplateDao templateDao = new RecordingTemplateDao(template(20L, SERVICE_NAME));
+        AlarmTemplateItem other = item(11L, 20L);
+        other.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+        RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao(item(10L, 20L));
+        templateItemDao.addItem(other);
+        templateItemDao.ruleCounts.put(10L, 1);
+        AlarmTemplateService service = newTemplateService(new RecordingRuleDao(true), templateDao, templateItemDao,
+                new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmTemplate update = template(20L, SERVICE_NAME);
+        AlarmTemplateItem kept = itemRequest();
+        kept.setId(10L);
+        update.setItems(List.of(kept));
+
+        service.updateTemplate(update);
+
+        assertEquals(1, templateDao.updatedCount);
     }
 
     // The stored code and the request's carry the same characters in different String
@@ -423,6 +493,20 @@ class AlarmTemplateServiceTest extends AlarmServiceTestSupport {
     }
 
     @Test
+    void applyTemplateRejectsAnApplicationOfAnotherCategory() {
+        AlarmTemplateItem other = item(10L, 20L);
+        other.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmTemplateService service = newTemplateService(ruleDao,
+                new RecordingTemplateDao(template(20L, SERVICE_NAME)), new RecordingTemplateItemDao(other),
+                new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.applyTemplate(SERVICE_NAME, APPLICATION_NAME, 20L, AlarmApplication.TYPE_JAVASCRIPT));
+        assertTrue(ruleDao.insertedRules.isEmpty());
+    }
+
+    @Test
     void applyTemplateRejectsSecondApplyToSameApplication() {
         RecordingTemplateDao templateDao = new RecordingTemplateDao(template(20L, SERVICE_NAME));
         RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao(item(10L, 20L));
@@ -524,7 +608,7 @@ class AlarmTemplateServiceTest extends AlarmServiceTestSupport {
                 ruleDao,
                 templateDao,
                 templateItemDao,
-                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao))),
+                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao)), noIndex()),
                 new AlarmBundleLocks(ruleDao, templateDao, templateItemDao),
                 new AlarmConfigValidator(templateItemDao, new ConditionValidator(), new FilterKeyValidator(),
                         DATA_SOURCE_REGISTRY),
@@ -533,5 +617,14 @@ class AlarmTemplateServiceTest extends AlarmServiceTestSupport {
                         historyDao, outboxDao, stateDao),
                 DATA_SOURCE_REGISTRY
         );
+    }
+
+    /** These cases name a javascript application, so the index is asked nothing. */
+    private static ApplicationIndexExistenceChecker noIndex() {
+        ApplicationIndexExistenceChecker index =
+                org.mockito.Mockito.mock(ApplicationIndexExistenceChecker.class);
+        org.mockito.Mockito.lenient()
+                .when(index.exists(org.mockito.ArgumentMatchers.any())).thenReturn(false);
+        return index;
     }
 }

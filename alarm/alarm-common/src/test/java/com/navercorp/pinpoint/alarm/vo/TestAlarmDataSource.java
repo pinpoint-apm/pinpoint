@@ -65,6 +65,11 @@ public enum TestAlarmDataSource implements AlarmDataSource {
     }
 
     @Override
+    public String category() {
+        return AlarmDataSource.APM_CATEGORY;
+    }
+
+    @Override
     public List<String> filterKeys() {
         return filterKeys;
     }

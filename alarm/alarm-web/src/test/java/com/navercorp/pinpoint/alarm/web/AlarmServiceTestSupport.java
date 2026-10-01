@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.alarm.dao.AlarmTemplateItemDao;
 import com.navercorp.pinpoint.alarm.vo.AlarmChannelBinding;
 import com.navercorp.pinpoint.alarm.vo.AlarmChannelOwnerType;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
+import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleDetails;
@@ -548,6 +549,11 @@ abstract class AlarmServiceTestSupport {
             @Override
             public Set<String> supportedTypes() {
                 return Set.of(AlarmApplication.TYPE_JAVASCRIPT);
+            }
+
+            @Override
+            public String category() {
+                return AlarmDataSource.APM_CATEGORY;
             }
 
             @Override

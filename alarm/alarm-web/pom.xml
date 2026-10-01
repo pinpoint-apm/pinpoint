@@ -56,6 +56,11 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-service-module</artifactId>
         </dependency>
+        <!-- ApplicationIndexExistenceChecker: the application index every agent reports into. -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-server</artifactId>
+        </dependency>
         <!-- AlarmWebDaoConfiguration wires the DAO beans only the endpoints read. -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
