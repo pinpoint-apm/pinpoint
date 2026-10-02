@@ -68,30 +68,6 @@ public final class PluginClassLoading {
         return CLASS_PATHS_TO_CHECK_AS_GLOB_MATCHES;
     }
 
-    public static final String[] MAVEN_DEPENDENCY_CLASS_PATHS = new String[]{
-            "maven-resolver",
-            "maven-model",
-            "maven-artifact",
-            "maven-model-builder",
-            "maven-builder-support",
-            "maven-repository-metadata",
-            "commons-lang3",
-            "apache/maven",
-            "commons-logging",
-            "httpclient",
-            "httpcore",
-            "guava",
-            "plexus",
-            "pinpoint-plugins-test",
-            path("agent-module", "plugins-test-module", "plugins-test", "target", "classes"),
-            path("agent-module", "plugins-test-module", "plugins-test-api", "target", "classes"),
-//            "/test/target/classes", // pinpoint-test build output directory
-
-            // logger for child classloader
-            "slf4j-api", // slf4j-api
-            "slf4j-tinylog"
-    };
-
     private static final String LOG4J2_VERSION = PluginEngineTemplate.LOG4J_VERSION;
     private static final String[] LOGGER_DEPENDENCY_ID = new String[]{
             "org.apache.logging.log4j:log4j-api:%s",

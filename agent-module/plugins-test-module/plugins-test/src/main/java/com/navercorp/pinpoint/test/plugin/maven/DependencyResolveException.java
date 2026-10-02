@@ -15,19 +15,16 @@
  */
 package com.navercorp.pinpoint.test.plugin.maven;
 
-import java.util.List;
-
 /**
- * @author emeroad
+ * Raised when an artifact or one of its transitive dependencies cannot be resolved.
  */
-public interface DependencyResolverFactory {
+public class DependencyResolveException extends Exception {
 
-    // org.eclipse.aether.ConfigurationProperties.CONNECT_TIMEOUT, in milliseconds
-    String CONNECT_TIMEOUT = "aether.connector.connectTimeout";
-    // org.eclipse.aether.ConfigurationProperties.REQUEST_TIMEOUT, in milliseconds
-    String REQUEST_TIMEOUT = "aether.connector.requestTimeout";
+    public DependencyResolveException(String message) {
+        super(message);
+    }
 
-    DependencyResolver get(List<String> repositoryUrls);
-
-    DependencyResolver get(String... repositoryUrls);
+    public DependencyResolveException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
