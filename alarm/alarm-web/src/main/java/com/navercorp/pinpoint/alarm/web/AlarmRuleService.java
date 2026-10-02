@@ -106,6 +106,7 @@ public class AlarmRuleService {
         locks.lockBundleHeadersOfItems(rule.getServiceName(), rule.getTemplateItemId());
         AlarmTemplateItem templateItem = locks.resolveTemplateItemUnderLock(rule);
         configValidator.validateRuleConfig(rule, templateItem);
+        validateCategory(rule);
         configValidator.roundUpIntervals(rule);
         ruleStamper.insertWithInitialState(rule);
         saveLocalConfig(rule);
@@ -143,13 +144,14 @@ public class AlarmRuleService {
         AlarmOwnerships.verifyServiceName(rule.getServiceName());
         // A rule update can move between bundles, so both headers are locked before the rule row.
         AlarmRuleV2 currentRule = locks.lockRuleAfterBundleHeaders(id, rule.getServiceName(),
-                locked -> AlarmOwnerships.verifyRule(locked, rule.getServiceName(), rule.getApplicationName()),
+                locked -> AlarmOwnerships.verifyRule(locked, applicationOf(rule)),
                 rule.getTemplateItemId());
         rule.setId(id);
         verifyApplication(rule);
         rule.setConditions(AlarmConfigValidator.normalizeConditions(rule.getConditions()));
         AlarmTemplateItem templateItem = locks.resolveTemplateItemUnderLock(rule);
         configValidator.validateRuleConfig(rule, templateItem);
+        validateCategory(rule);
         configValidator.roundUpIntervals(rule);
         ruleDao.updateRule(rule);
         saveLocalConfig(rule);
@@ -159,10 +161,10 @@ public class AlarmRuleService {
     }
 
     @Transactional(transactionManager = "transactionManager", rollbackFor = Exception.class)
-    public void updateEnabled(String serviceName, String applicationName, Long id, boolean enabled) {
-        AlarmOwnerships.verifyServiceName(serviceName);
-        AlarmRuleV2 locked = locks.lockRuleAfterBundleHeaders(id, serviceName,
-                rule -> AlarmOwnerships.verifyRule(rule, serviceName, applicationName));
+    public void updateEnabled(AlarmApplication application, Long id, boolean enabled) {
+        AlarmOwnerships.verifyServiceName(application.getServiceName());
+        AlarmRuleV2 locked = locks.lockRuleAfterBundleHeaders(id, application.getServiceName(),
+                rule -> AlarmOwnerships.verifyRule(rule, application));
         ruleDao.updateEnabled(id, enabled);
         AlarmState state = stateDao.selectByRuleId(id);
         if (state == null) {
@@ -179,10 +181,10 @@ public class AlarmRuleService {
     }
 
     @Transactional(transactionManager = "transactionManager", rollbackFor = Exception.class)
-    public void deleteRule(String serviceName, String applicationName, Long id) {
-        AlarmOwnerships.verifyServiceName(serviceName);
+    public void deleteRule(AlarmApplication application, Long id) {
+        AlarmOwnerships.verifyServiceName(application.getServiceName());
         AlarmRuleV2 rule = locks.getRuleForUpdate(id);
-        AlarmOwnerships.verifyRule(rule, serviceName, applicationName);
+        AlarmOwnerships.verifyRule(rule, application);
         ruleDeleter.deleteRule(id);
     }
 
@@ -216,6 +218,12 @@ public class AlarmRuleService {
     private void verifyApplication(AlarmRuleV2 rule) {
         AlarmApplication application = applicationOf(rule);
         applicationResolver.verifyExists(application);
+    }
+
+    // A template-linked rule already carries its item's data source (resolveTemplateItemUnderLock).
+    private void validateCategory(AlarmRuleV2 rule) {
+        configValidator.validateCategory(applicationResolver.categoryOf(rule.getApplicationType()),
+                rule.getDataSource());
     }
 
     private static AlarmApplication applicationOf(AlarmRuleV2 rule) {

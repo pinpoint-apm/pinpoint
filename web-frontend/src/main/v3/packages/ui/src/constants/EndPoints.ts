@@ -57,6 +57,14 @@ export const USER_GROUP = `${LOCAL_API_PATH}/userGroup`;
 // export const = '/userGroup/member';
 export const ALARM_RULE_CHECKER = `${LOCAL_API_PATH}/application/alarmRule/checker`;
 export const ALARM_RULE = `${LOCAL_API_PATH}/application/alarmRule`;
+
+// Service > Alarm. Not the per-application ALARM_RULE above.
+export const ALARM_V2_RULE = `${LOCAL_API_PATH}/alarm/rule`;
+export const ALARM_V2_CHANNEL = `${LOCAL_API_PATH}/alarm/channel`;
+export const ALARM_V2_TEMPLATE = `${LOCAL_API_PATH}/alarm/template`;
+export const ALARM_V2_TEMPLATE_PRESETS = `${LOCAL_API_PATH}/alarm/template-presets`;
+export const ALARM_V2_DATASOURCES = `${LOCAL_API_PATH}/alarm/datasources`;
+export const ALARM_V2_METRICS = `${LOCAL_API_PATH}/alarm/metrics`;
 // export const = '/getAgentStat/fileDescriptor/chart';
 // export const = '/getApplicationStat/fileDescriptor/chart';
 // export const = '/getAgentStat/directBuffer/chart';

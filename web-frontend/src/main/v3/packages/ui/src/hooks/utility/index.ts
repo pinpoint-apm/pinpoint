@@ -12,6 +12,7 @@ export * from './useIsDefaultService';
 export * from './useIsForbiddenPath';
 export * from './useLanguage';
 export * from './useLocalStorage';
+export * from './useAlarmV2CatalogLabels';
 export * from './useServerMapLinkedData';
 export * from './useRequestService';
 export * from './useSyncRenderedRouterPath';

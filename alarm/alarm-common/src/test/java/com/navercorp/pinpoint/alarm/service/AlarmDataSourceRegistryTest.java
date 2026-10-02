@@ -105,6 +105,11 @@ class AlarmDataSourceRegistryTest {
             }
 
             @Override
+            public String category() {
+                return AlarmDataSource.APM_CATEGORY;
+            }
+
+            @Override
             public List<String> filterKeys() {
                 return List.of();
             }

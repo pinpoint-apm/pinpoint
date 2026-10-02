@@ -62,8 +62,7 @@ public class AlarmRuleController {
      * so that reads take it from the same place the writes do -- the header.
      * <p>
      * A {@code ?serviceName=} parameter binds onto the attribute and wins over this
-     * value. That is left alone on purpose: reads are open across services, and the web
-     * app ships as one version, so no client sends it by accident.
+     * value. The read permission is checked against the bound value, so that is left alone.
      */
     @ModelAttribute
     AlarmApplication alarmApplication(
@@ -89,12 +88,14 @@ public class AlarmRuleController {
         return alarmRuleService.createRule(rule);
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#application.serviceName, #application.applicationName)")
     @GetMapping("/{id}")
     public AlarmRuleResponse getRule(@PathVariable Long id,
                                      @Valid @ModelAttribute AlarmApplication application) {
         return alarmRuleService.getRuleResponse(id, application);
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#application.serviceName, #application.applicationName)")
     @GetMapping
     public List<AlarmRuleResponse> getRules(
             @Valid @ModelAttribute AlarmApplication application) {
@@ -121,8 +122,9 @@ public class AlarmRuleController {
                            @NotBlank
                            @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
                            String serviceName,
-                           @RequestParam("applicationName") @NotBlank String applicationName) {
-        alarmRuleService.deleteRule(serviceName, applicationName, id);
+                           @RequestParam("applicationName") @NotBlank String applicationName,
+                           @RequestParam("applicationType") @NotBlank String applicationType) {
+        alarmRuleService.deleteRule(new AlarmApplication(serviceName, applicationName, applicationType), id);
     }
 
     @PatchMapping("/{id}")
@@ -133,14 +135,16 @@ public class AlarmRuleController {
                               @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
                               String serviceName,
                               @RequestParam("applicationName") @NotBlank String applicationName,
+                              @RequestParam("applicationType") @NotBlank String applicationType,
                               @RequestBody Map<String, Boolean> body) {
         Boolean enabled = body.get("enabled");
         if (enabled == null) {
             throw new IllegalArgumentException("'enabled' field is required");
         }
-        alarmRuleService.updateEnabled(serviceName, applicationName, id, enabled);
+        alarmRuleService.updateEnabled(new AlarmApplication(serviceName, applicationName, applicationType), id, enabled);
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#application.serviceName, #application.applicationName)")
     @GetMapping("/{id}/state")
     public AlarmState getRuleState(@PathVariable Long id,
                                    @Valid @ModelAttribute AlarmApplication application) {
@@ -151,6 +155,7 @@ public class AlarmRuleController {
         return state;
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#application.serviceName, #application.applicationName)")
     @GetMapping("/{id}/history")
     public List<AlarmHistoryV2> getRuleHistory(
             @PathVariable Long id,

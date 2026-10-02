@@ -1,0 +1,101 @@
+{
+  "name": {
+    "ko": "에이전트 상태 기본",
+    "en": "Agent Health Basics"
+  },
+  "description": {
+    "ko": "힙, CPU, 커넥션 풀 사용률과 데드락으로 에이전트 상태를 감시하는 표준 세트",
+    "en": "Standard set watching the agents: heap, CPU and connection pool usage, and deadlocks"
+  },
+  "rules": [
+    {
+      "name": {
+        "ko": "힙 사용률 높음",
+        "en": "High heap usage"
+      },
+      "description": {
+        "ko": "최근 10분 동안 한 에이전트라도 힙 사용률이 90% 이상이면 알립니다. 메모리 부족과 잦은 GC를 미리 알 수 있습니다.",
+        "en": "Fires when any agent's heap usage reaches 90% in the last 10 minutes, ahead of running out of memory or collecting garbage constantly."
+      },
+      "severity": "WARNING",
+      "dataSource": "AGENT_STAT",
+      "checkIntervalSec": 300,
+      "actionIntervalSec": 1800,
+      "conditions": {
+        "type": "LEAF",
+        "metric": "heap_usage_rate",
+        "op": ">=",
+        "threshold": 90,
+        "windowSec": 600,
+        "aggregation": "MAX"
+      },
+      "filters": []
+    },
+    {
+      "name": {
+        "ko": "JVM CPU 사용률 높음",
+        "en": "High JVM CPU usage"
+      },
+      "description": {
+        "ko": "최근 10분 동안 한 에이전트라도 JVM CPU 사용률이 90% 이상이면 알립니다.",
+        "en": "Fires when any agent's JVM CPU usage reaches 90% in the last 10 minutes."
+      },
+      "severity": "WARNING",
+      "dataSource": "AGENT_STAT",
+      "checkIntervalSec": 300,
+      "actionIntervalSec": 1800,
+      "conditions": {
+        "type": "LEAF",
+        "metric": "jvm_cpu_usage_rate",
+        "op": ">=",
+        "threshold": 90,
+        "windowSec": 600,
+        "aggregation": "MAX"
+      },
+      "filters": []
+    },
+    {
+      "name": {
+        "ko": "커넥션 풀 사용률 높음",
+        "en": "High connection pool usage"
+      },
+      "description": {
+        "ko": "최근 10분 동안 한 커넥션 풀이라도 사용률이 90% 이상이면 알립니다. 풀이 바닥나면 요청이 커넥션을 기다리며 멈춥니다.",
+        "en": "Fires when any connection pool reaches 90% usage in the last 10 minutes. Once a pool runs dry, requests stall waiting for a connection."
+      },
+      "severity": "CRITICAL",
+      "dataSource": "AGENT_STAT",
+      "checkIntervalSec": 300,
+      "actionIntervalSec": 1800,
+      "conditions": {
+        "type": "LEAF",
+        "metric": "datasource_connection_usage_rate",
+        "op": ">=",
+        "threshold": 90,
+        "windowSec": 600,
+        "aggregation": "MAX"
+      },
+      "filters": []
+    },
+    {
+      "name": {
+        "ko": "데드락 발생",
+        "en": "Deadlock detected"
+      },
+      "description": {
+        "ko": "에이전트가 데드락을 보고하면 알립니다. 데드락에 걸린 스레드는 스스로 풀리지 않아 임계값 없이 발생 자체가 신호입니다.",
+        "en": "Fires when an agent reports a deadlock. A deadlocked thread does not recover, so there is no threshold: the occurrence is the signal."
+      },
+      "severity": "CRITICAL",
+      "dataSource": "AGENT_EVENT",
+      "checkIntervalSec": 300,
+      "actionIntervalSec": 3600,
+      "conditions": {
+        "type": "LEAF",
+        "metric": "deadlock_count",
+        "trigger": "NEW_GROUP"
+      },
+      "filters": []
+    }
+  ]
+}

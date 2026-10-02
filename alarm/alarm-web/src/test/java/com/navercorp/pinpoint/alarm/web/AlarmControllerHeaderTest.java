@@ -178,7 +178,8 @@ class AlarmControllerHeaderTest {
                     stub(AlarmStateDao.class),
                     new EffectiveAlarmRuleResolver(),
                     new AlarmApplicationResolver(
-                            List.of(alwaysMissingChecker())),
+                            List.of(alwaysMissingChecker()),
+                            org.mockito.Mockito.mock(ApplicationIndexExistenceChecker.class)),
                     new AlarmBundleLocks(stub(AlarmRuleV2Dao.class),
                             stub(AlarmTemplateDao.class),
                             stub(AlarmTemplateItemDao.class)),
@@ -240,6 +241,11 @@ class AlarmControllerHeaderTest {
             @Override
             public Set<String> supportedTypes() {
                 return Set.of(AlarmApplication.TYPE_JAVASCRIPT);
+            }
+
+            @Override
+            public String category() {
+                return "OTHER";
             }
 
             @Override

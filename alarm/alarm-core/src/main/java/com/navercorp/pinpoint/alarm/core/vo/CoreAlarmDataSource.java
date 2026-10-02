@@ -127,6 +127,11 @@ public enum CoreAlarmDataSource implements AlarmDataSource {
     }
 
     @Override
+    public String category() {
+        return APM_CATEGORY;
+    }
+
+    @Override
     public List<String> filterKeys() {
         return filterKeys;
     }

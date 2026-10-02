@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.alarm.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleChannel;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmTemplate;
@@ -63,9 +64,9 @@ class AlarmControllerSecurityTest {
         assertAlarmEditPermission(AlarmRuleController.class.getMethod("createRule", String.class, AlarmRuleV2.class));
         assertAlarmEditPermission(AlarmRuleController.class.getMethod("updateRule", Long.class, String.class, AlarmRuleV2.class));
         assertAlarmEditPermission(AlarmRuleController.class.getMethod(
-                "deleteRule", Long.class, String.class, String.class));
+                "deleteRule", Long.class, String.class, String.class, String.class));
         assertAlarmEditPermission(AlarmRuleController.class.getMethod(
-                "updateEnabled", Long.class, String.class, String.class, java.util.Map.class));
+                "updateEnabled", Long.class, String.class, String.class, String.class, java.util.Map.class));
     }
 
     @Test
@@ -91,10 +92,10 @@ class AlarmControllerSecurityTest {
         assertAlarmEditPermission(AlarmChannelController.class.getMethod(
                 "deleteChannel", Long.class, String.class, String.class));
         assertAlarmEditPermission(AlarmChannelController.class.getMethod(
-                "linkRuleChannel", Long.class, Long.class, String.class, String.class,
+                "linkRuleChannel", Long.class, Long.class, String.class, String.class, String.class,
                 com.navercorp.pinpoint.alarm.vo.AlarmRuleChannel.class));
         assertAlarmEditPermission(AlarmChannelController.class.getMethod(
-                "unlinkRuleChannel", Long.class, Long.class, String.class, String.class));
+                "unlinkRuleChannel", Long.class, Long.class, String.class, String.class, String.class));
         assertAlarmEditPermission(AlarmChannelController.class.getMethod(
                 "linkTemplateChannel", Long.class, Long.class, String.class, String.class));
         assertAlarmEditPermission(AlarmChannelController.class.getMethod(
@@ -112,9 +113,9 @@ class AlarmControllerSecurityTest {
 
     @Test
     void deleteRuleDelegatesOwnershipCheckToService() {
-        ruleController.deleteRule(1L, "service", "app");
+        ruleController.deleteRule(1L, "service", "app", "javascript");
 
-        verify(alarmRuleService).deleteRule("service", "app", 1L);
+        verify(alarmRuleService).deleteRule(application("service", "app", "javascript"), org.mockito.ArgumentMatchers.eq(1L));
     }
 
     @Test
@@ -152,9 +153,9 @@ class AlarmControllerSecurityTest {
     void linkRuleChannelDelegatesOwnershipCheckToService() {
         AlarmRuleChannel ruleChannel = new AlarmRuleChannel();
 
-        channelController.linkRuleChannel(1L, 4L, "service", "app", ruleChannel);
+        channelController.linkRuleChannel(1L, 4L, "service", "app", "javascript", ruleChannel);
 
-        verify(channelService).linkRuleChannel("service", "app", ruleChannel);
+        verify(channelService).linkRuleChannel(application("service", "app", "javascript"), org.mockito.ArgumentMatchers.eq(ruleChannel));
     }
 
     @Test
@@ -171,11 +172,31 @@ class AlarmControllerSecurityTest {
         verify(channelService).getChannelsByTemplateId("default", 10L);
     }
 
+    @Test
+    void readEndpointsRequireAlarmReadPermission() throws Exception {
+        Class<?>[] controllers = {AlarmRuleController.class, AlarmChannelController.class, AlarmTemplateController.class};
+        for (Class<?> controller : controllers) {
+            for (Method method : controller.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(org.springframework.web.bind.annotation.GetMapping.class)) {
+                    PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
+                    assertNotNull(preAuthorize, method + " must be protected by @PreAuthorize");
+                    assertTrue(preAuthorize.value().contains("naverPermissionEvaluator.hasAlarmReadPermission"));
+                }
+            }
+        }
+    }
+
     private void assertAlarmEditPermission(Method method) {
         PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
         assertNotNull(preAuthorize, method + " must be protected by @PreAuthorize");
         assertTrue(preAuthorize.value().contains("naverPermissionEvaluator.hasAlarmPermission"));
         assertTrue(preAuthorize.value().contains("PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER"));
+    }
+
+    private static AlarmApplication application(String serviceName, String applicationName, String applicationType) {
+        return argThat(application -> serviceName.equals(application.getServiceName())
+                && applicationName.equals(application.getApplicationName())
+                && applicationType.equals(application.getApplicationType()));
     }
 
     private AlarmRuleV2 rule(String serviceName, String applicationName) {

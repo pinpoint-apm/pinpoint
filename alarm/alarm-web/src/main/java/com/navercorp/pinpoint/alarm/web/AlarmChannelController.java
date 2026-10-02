@@ -60,8 +60,7 @@ public class AlarmChannelController {
      * so that reads take it from the same place the writes do -- the header.
      * <p>
      * A {@code ?serviceName=} parameter binds onto the attribute and wins over this
-     * value. That is left alone on purpose: reads are open across services, and the web
-     * app ships as one version, so no client sends it by accident.
+     * value. The read permission is checked against the bound value, so that is left alone.
      */
     @ModelAttribute
     AlarmApplication alarmApplication(
@@ -74,6 +73,7 @@ public class AlarmChannelController {
         return application;
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#serviceName, null)")
     @GetMapping
     public List<AlarmNotificationChannelResponse> getChannels(
             @RequestHeader(value = ServiceConstants.KEY, defaultValue = ServiceConstants.DEFAULT)
@@ -99,6 +99,7 @@ public class AlarmChannelController {
                 channelService.createChannel(channelApiMapper.toModel(serviceName, request)));
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#serviceName, null)")
     @GetMapping("/{id}")
     public AlarmNotificationChannelResponse getChannel(
             @PathVariable Long id,
@@ -143,6 +144,7 @@ public class AlarmChannelController {
 
     // ---- Rule-Channel mapping ----
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#application.serviceName, #application.applicationName)")
     @GetMapping("/rule/{ruleId}")
     public List<AlarmNotificationChannelResponse> getChannelsByRule(
             @PathVariable Long ruleId,
@@ -161,13 +163,14 @@ public class AlarmChannelController {
                                  @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
                                  String serviceName,
                                  @RequestParam("applicationName") @NotBlank String applicationName,
+                                 @RequestParam("applicationType") @NotBlank String applicationType,
                                  @RequestBody(required = false) AlarmRuleChannel ruleChannel) {
         if (ruleChannel == null) {
             ruleChannel = new AlarmRuleChannel();
         }
         ruleChannel.setRuleId(ruleId);
         ruleChannel.setChannelId(channelId);
-        channelService.linkRuleChannel(serviceName, applicationName, ruleChannel);
+        channelService.linkRuleChannel(new AlarmApplication(serviceName, applicationName, applicationType), ruleChannel);
     }
 
     @DeleteMapping("/rule/{ruleId}/{channelId}")
@@ -179,10 +182,13 @@ public class AlarmChannelController {
                                    @NotBlank
                                    @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
                                    String serviceName,
-                                   @RequestParam("applicationName") @NotBlank String applicationName) {
-        channelService.unlinkRuleChannel(serviceName, applicationName, ruleId, channelId);
+                                   @RequestParam("applicationName") @NotBlank String applicationName,
+                                   @RequestParam("applicationType") @NotBlank String applicationType) {
+        channelService.unlinkRuleChannel(new AlarmApplication(serviceName, applicationName, applicationType),
+                ruleId, channelId);
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#serviceName, null)")
     @GetMapping("/template/{templateId}")
     public List<AlarmNotificationChannelResponse> getChannelsByTemplate(
             @PathVariable Long templateId,

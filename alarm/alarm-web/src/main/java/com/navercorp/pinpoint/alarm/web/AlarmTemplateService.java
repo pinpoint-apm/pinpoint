@@ -85,6 +85,7 @@ public class AlarmTemplateService {
         for (AlarmTemplateItem item : items) {
             configValidator.prepareItem(item);
         }
+        configValidator.requireOneCategory(items);
         templateDao.insert(template);
         for (AlarmTemplateItem item : items) {
             // Copy-from flows may carry source item ids; a create always mints new rows.
@@ -156,6 +157,8 @@ public class AlarmTemplateService {
             }
             configValidator.validateItemDataSourceChange(currentItem, item);
         }
+        configValidator.validateCategoryChange(currentItems.values(),
+                configValidator.requireOneCategory(requestedItems));
 
         templateDao.update(template);
         // Read before inserting, so the new items are not in the set and the lock is
@@ -245,6 +248,11 @@ public class AlarmTemplateService {
         List<AlarmTemplateItem> items = templateItemDao.selectByTemplateId(templateId);
         if (items.isEmpty()) {
             throw new IllegalArgumentException("Template has no items: templateId=" + templateId);
+        }
+        String category = configValidator.requireOneCategory(items);
+        if (!category.equals(applicationResolver.categoryOf(applicationType))) {
+            throw new IllegalArgumentException("Template measures " + category
+                    + " applications, not " + application);
         }
 
         List<AlarmRuleV2> createdRules = new ArrayList<>(items.size());

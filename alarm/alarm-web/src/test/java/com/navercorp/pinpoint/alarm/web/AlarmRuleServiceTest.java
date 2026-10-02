@@ -58,6 +58,17 @@ import static org.mockito.Mockito.when;
 class AlarmRuleServiceTest extends AlarmServiceTestSupport {
 
     @Test
+    void createRuleRejectsADataSourceOfAnotherCategory() {
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmRuleService service = newService(ruleDao, new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmRuleV2 rule = validRule(null);
+        rule.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+
+        assertThrows(IllegalArgumentException.class, () -> service.createRule(rule));
+        assertTrue(ruleDao.insertedRules.isEmpty());
+    }
+
+    @Test
     void createRuleUsesProvidedApplication() {
         RecordingRuleDao ruleDao = new RecordingRuleDao(true);
         AlarmRuleService service = newService(ruleDao,                 new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
@@ -227,7 +238,8 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         assertTrue(ruleDao.insertedRules.isEmpty());
     }
 
-    // No checker claims the type, so nothing can say whether the application exists.
+    // A type no checker claims goes to the application index, which has no such application
+    // either -- so the rule is rejected as missing rather than as unsupported.
     @Test
     void createRuleRejectsAnApplicationTypeNoCheckerOwns() {
         RecordingRuleDao ruleDao = new RecordingRuleDao(true);
@@ -240,8 +252,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 () -> service.createRule(rule)
         );
 
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertTrue(exception.getReason().contains("java"), exception.getReason());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertTrue(ruleDao.insertedRules.isEmpty());
     }
 
@@ -296,6 +307,17 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         assertEquals(7L, updatedRule.getId());
         assertEquals(AlarmApplication.TYPE_JAVASCRIPT, updatedRule.getApplicationType());
         assertEquals(SERVICE_NAME, updatedRule.getServiceName());
+    }
+
+    @Test
+    void updateRuleRejectsADataSourceOfAnotherCategory() {
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmRuleService service = newService(ruleDao, new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmRuleV2 rule = validRule(null);
+        rule.setDataSource(TestAlarmDataSource.OTHER_CATEGORY.name());
+
+        assertThrows(IllegalArgumentException.class, () -> service.updateRule(7L, rule));
+        assertTrue(ruleDao.updatedRules.isEmpty());
     }
 
     @Test
@@ -398,7 +420,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao(item(10L, 20L));
         AlarmRuleService service = newService(ruleDao, templateDao, templateItemDao,                 new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+        service.updateEnabled(APPLICATION, 7L, true);
 
         assertEquals(List.of("header:20", "rule:7"), lockLog);
     }
@@ -427,7 +449,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         RecordingRuleDao ruleDao = new RecordingRuleDao(true);
         AlarmRuleService service = newService(ruleDao,                 new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, false);
+        service.updateEnabled(APPLICATION, 7L, false);
 
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(List.of(7L), ruleDao.updatedEnabledIds);
@@ -442,7 +464,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         when(stateDao.selectByRuleId(7L)).thenReturn(stored);
         AlarmRuleService service = newService(new RecordingRuleDao(true),                 new RecordingChannelBindingDao(), stateDao);
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+        service.updateEnabled(APPLICATION, 7L, true);
 
         ArgumentCaptor<AlarmState> upserted = ArgumentCaptor.forClass(AlarmState.class);
         verify(stateDao).upsert(upserted.capture());
@@ -462,7 +484,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         AlarmRuleService service = newService(new RecordingRuleDao(true).withEnabled(true),
                 new RecordingChannelBindingDao(), stateDao);
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+        service.updateEnabled(APPLICATION, 7L, true);
 
         ArgumentCaptor<AlarmState> upserted = ArgumentCaptor.forClass(AlarmState.class);
         verify(stateDao).upsert(upserted.capture());
@@ -476,7 +498,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao(item(10L, 20L));
         AlarmRuleService service = newService(ruleDao, templateDao, templateItemDao,                 new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+        service.updateEnabled(APPLICATION, 7L, true);
 
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(List.of(20L), templateDao.lockedIds);
@@ -492,13 +514,34 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
 
         AlarmResourceNotFoundException exception = assertThrows(
                 AlarmResourceNotFoundException.class,
-                () -> service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true)
+                () -> service.updateEnabled(APPLICATION, 7L, true)
         );
 
         assertEquals("Template not found", exception.getMessage());
         // Rejected before any lock, so neither the header nor the rule row is held.
         assertTrue(templateDao.lockedIds.isEmpty());
         assertTrue(ruleDao.lockedIds.isEmpty());
+        assertTrue(ruleDao.updatedEnabledIds.isEmpty());
+    }
+
+    @Test
+    void updateRuleRejectsAChangeOfApplicationType() {
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmRuleService service = newService(ruleDao, new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmRuleV2 rule = validRule(7L);
+        rule.setApplicationType("other-type");
+
+        assertThrows(AlarmResourceNotFoundException.class, () -> service.updateRule(7L, rule));
+        assertTrue(ruleDao.updatedRules.isEmpty());
+    }
+
+    @Test
+    void updateEnabledRejectsASameNamedApplicationOfAnotherType() {
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmRuleService service = newService(ruleDao, new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmApplication other = new AlarmApplication(SERVICE_NAME, APPLICATION_NAME, "other-type");
+
+        assertThrows(AlarmResourceNotFoundException.class, () -> service.updateEnabled(other, 7L, true));
         assertTrue(ruleDao.updatedEnabledIds.isEmpty());
     }
 
@@ -529,7 +572,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, false)
+                () -> service.updateEnabled(APPLICATION, 7L, false)
         );
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
@@ -560,7 +603,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 stub(AlarmTemplateItemDao.class), channelBindingDao,
                 historyDao, outboxDao, stateDao);
 
-        service.deleteRule(SERVICE_NAME, APPLICATION_NAME, 7L);
+        service.deleteRule(APPLICATION, 7L);
 
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(DELETION_ORDER, deletionLog);
@@ -646,7 +689,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 historyDao,
                 stateDao,
                 new EffectiveAlarmRuleResolver(),
-                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao))),
+                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao)), noIndex()),
                 new AlarmBundleLocks(ruleDao, templateDao, templateItemDao),
                 new AlarmConfigValidator(templateItemDao, new ConditionValidator(), new FilterKeyValidator(),
                         DATA_SOURCE_REGISTRY),
@@ -718,7 +761,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 historyDao,
                 stateDao,
                 new EffectiveAlarmRuleResolver(),
-                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao))),
+                new AlarmApplicationResolver(List.of(existenceChecker(ruleDao)), noIndex()),
                 new AlarmBundleLocks(ruleDao, templateDao, templateItemDao),
                 new AlarmConfigValidator(templateItemDao, new ConditionValidator(), new FilterKeyValidator(),
                         DATA_SOURCE_REGISTRY),
@@ -726,5 +769,14 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 new AlarmRuleDeleter(ruleDao, localConfigDao, channelBindingDao, historyDao,
                         outboxDao, stateDao)
         );
+    }
+
+    /** These cases name a javascript application, so the index is asked nothing. */
+    private static ApplicationIndexExistenceChecker noIndex() {
+        ApplicationIndexExistenceChecker index =
+                org.mockito.Mockito.mock(ApplicationIndexExistenceChecker.class);
+        org.mockito.Mockito.lenient()
+                .when(index.exists(org.mockito.ArgumentMatchers.any())).thenReturn(false);
+        return index;
     }
 }
