@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.test.plugin.api.OnClassLoader;
 import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
 import com.navercorp.pinpoint.test.plugin.api.TestRoot;
+import com.navercorp.pinpoint.test.plugin.maven.MavenArtifact;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolveException;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyVersionFilter;
@@ -28,8 +30,6 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
 
 import java.nio.file.Path;
@@ -115,13 +115,13 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         sharedLibs.add(context.getTestClassLocationPath());
         sharedLibs.addAll(FileUtils.toPaths(context.getSharedLibraries()));
         if (ArrayUtils.hasLength(sharedDependencies)) {
-            Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(sharedDependencies);
-            for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
+            Map<String, List<MavenArtifact>> dependencyMap = resolver.resolveDependencySets(sharedDependencies);
+            for (Map.Entry<String, List<MavenArtifact>> artifactEntry : dependencyMap.entrySet()) {
                 final String testId = artifactEntry.getKey();
-                final List<Artifact> artifacts = artifactEntry.getValue();
+                final List<MavenArtifact> artifacts = artifactEntry.getValue();
                 try {
                     sharedLibs.addAll(resolveArtifactsAndDependencies(resolver, artifacts));
-                } catch (DependencyResolutionException ex) {
+                } catch (DependencyResolveException ex) {
                     logger.warn(ex, "resolveArtifactsAndDependencies failed testId={}", testId);
                 }
             }
@@ -129,21 +129,21 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         final String sharedClassName = sharedClass == null ? null : sharedClass.getName();
         SharedProcessManager sharedProcessManager = new SharedProcessManager(context, sharedClassName, sharedLibs);
 
-        Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(DEPENDENCY_VERSION_FILTER, dependencies);
+        Map<String, List<MavenArtifact>> dependencyMap = resolver.resolveDependencySets(DEPENDENCY_VERSION_FILTER, dependencies);
         if (logger.isDebugEnabled()) {
-            for (Map.Entry<String, List<Artifact>> entry : dependencyMap.entrySet()) {
+            for (Map.Entry<String, List<MavenArtifact>> entry : dependencyMap.entrySet()) {
                 logger.debug("{} {}", entry.getKey(), entry.getValue());
             }
         }
         List<PluginForkedTestInstance> cases = new ArrayList<>();
-        for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
+        for (Map.Entry<String, List<MavenArtifact>> artifactEntry : dependencyMap.entrySet()) {
             final String testId = artifactEntry.getKey();
-            final List<Artifact> artifacts = artifactEntry.getValue();
+            final List<MavenArtifact> artifacts = artifactEntry.getValue();
 
             List<Path> libs = null;
             try {
                 libs = resolveArtifactsAndDependencies(resolver, artifacts);
-            } catch (DependencyResolutionException e) {
+            } catch (DependencyResolveException e) {
                 // TODO Skip when running the test
                 logger.warn(e, "resolveArtifactsAndDependencies failed testId={}", testId);
                 continue;
@@ -157,7 +157,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         return cases;
     }
 
-    private List<Path> resolveArtifactsAndDependencies(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
+    private List<Path> resolveArtifactsAndDependencies(DependencyResolver resolver, List<MavenArtifact> artifacts) throws DependencyResolveException {
         final List<Path> files = resolver.resolveArtifactsAndDependencies(artifacts);
         return FileUtils.toAbsolutePath(files);
     }

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.test.plugin.maven;
+package com.navercorp.pinpoint.test.plugin.maven.resolver;
 
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.RepositoryCache;

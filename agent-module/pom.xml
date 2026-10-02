@@ -155,6 +155,11 @@
                 <artifactId>pinpoint-plugins-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-plugins-maven-resolver</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>

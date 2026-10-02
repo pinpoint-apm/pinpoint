@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.test.plugin.maven;
+package com.navercorp.pinpoint.test.plugin.maven.resolver;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
