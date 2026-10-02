@@ -9,6 +9,9 @@ import cytoscape from 'cytoscape';
  *
  * 남는 링크의 데이터(라벨의 수치)는 건드리지 않는다. 그리는 쪽이 `cy.data(id)`에서 읽으므로 그것을
  * 바꾸면 된다(`ServerMap`).
+ *
+ * 그려진 링크가 하나라도 바뀌었으면 true다. 새로 그린 링크에는 하이라이트가 없으므로, 그리는 쪽이
+ * 이것을 보고 하이라이트를 다시 입힌다.
  */
 export const syncEdges = (
   cy: cytoscape.Core,
@@ -16,7 +19,8 @@ export const syncEdges = (
 ) => {
   const nextById = new Map(edges.map(({ data }) => [data.id, data]));
 
-  cy.edges()
+  const removed = cy
+    .edges()
     .filter((edge) => {
       const next = nextById.get(edge.id());
       // id가 같아도 양 끝이 바뀌었으면 cytoscape에서는 끝을 바꿀 수 없으므로 지우고 다시 더한다.
@@ -24,12 +28,15 @@ export const syncEdges = (
     })
     .remove();
 
+  let isChanged = removed.nonempty();
   nextById.forEach((data) => {
     const isDrawn = cy.getElementById(data.id).nonempty();
     const hasEnds =
       cy.getElementById(data.source).nonempty() && cy.getElementById(data.target).nonempty();
     if (!isDrawn && hasEnds) {
       cy.add({ data });
+      isChanged = true;
     }
   });
+  return isChanged;
 };

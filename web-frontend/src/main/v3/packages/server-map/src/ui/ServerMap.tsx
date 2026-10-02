@@ -5,9 +5,9 @@ import dagre, { DagreLayoutOptions } from 'cytoscape-dagre';
 import { Node, Edge, MergedNode, MergedEdge, MergeInfo } from '../types';
 import { getMergedData } from '../core/merge';
 import { syncEdges } from '../core/edge';
+import { findDrawnElement, getHighlightTarget } from '../core/selection';
 import {
-  placeAnchoredNodes,
-  relayoutChangedGroups,
+  placeGroupChanges,
   releaseRemovedGroups,
   ShiftRecord,
   snapshotNodes,
@@ -90,6 +90,8 @@ export const ServerMap = ({
   const layoutRef = React.useRef<cytoscape.Layouts | undefined>(undefined);
   const serverMapTheme = getTheme(customTheme);
   const [selectedElementId, setSelectedElementId] = React.useState('');
+  // 지금 하이라이트된 요소의 id. 데이터가 바뀌어 선택을 대신 그리는 요소가 달라졌는지 알아보는 데 쓴다.
+  const highlightedIdRef = React.useRef<string | undefined>(undefined);
   // 펼칠 때 주변 노드를 비켜 세운 양(기준 노드 id → 이동량). 다시 묶을 때 되돌린다.
   const shiftsRef = React.useRef(new Map<string, ShiftRecord>());
 
@@ -153,6 +155,7 @@ export const ServerMap = ({
       if (cy) {
         const { nodes: newNodes, edges: newEdges, mergeInfo } = getMergedData(data, renderNode);
         let addedNodes: cytoscape.CollectionReturnValue[] | undefined;
+        let isEdgesChanged = false;
         onDataMerged?.(mergeInfo);
         // 지워지기 전 위치. 새 노드를 anchorId 노드가 있던 자리에 놓는 데 쓴다.
         const prevSnapshot = layoutRef.current ? snapshotNodes(cy) : undefined;
@@ -189,7 +192,7 @@ export const ServerMap = ({
           });
 
           // 링크는 노드와 따로 맞춘다. 노드가 그대로여도 링크만 생기거나 없어질 수 있다.
-          syncEdges(cy, newEdges);
+          isEdgesChanged = syncEdges(cy, newEdges);
         });
 
         const added = addedNodes ?? [];
@@ -221,12 +224,10 @@ export const ServerMap = ({
           } as DagreLayoutOptions);
           layoutRef.current?.run();
         } else {
-          if (anchored.length > 0) {
-            placeAnchoredNodes(cy, anchored, prevSnapshot!, shiftsRef.current);
-          }
-          // 이미 펼쳐져 있던 상자의 자식이 늘거나 줄었으면 상자 안을 다시 배치한다.
-          relayoutChangedGroups(cy, prevSnapshot!, shiftsRef.current);
-          // 펼쳐 둔 group이 통째로 사라졌으면 그것이 밀어 둔 노드를 되돌린다. 위 둘보다 나중이어야 한다.
+          // 펼치거나 접은 group, 자식이 늘거나 준 상자를 제자리에 놓는다. 한 응답에 여럿이 함께 실릴 수
+          // 있어 한꺼번에 넘긴다(하나씩 놓으면 뒤에 놓은 것이 앞의 것에 밀린 것을 지운다).
+          placeGroupChanges(cy, anchored, prevSnapshot!, shiftsRef.current);
+          // 펼쳐 둔 group이 통째로 사라졌으면 그것이 밀어 둔 노드를 되돌린다. 위보다 나중이어야 한다.
           releaseRemovedGroups(cy, shiftsRef.current);
           const centerNode = cy.getElementById(baseNodeId);
           // 기준 노드가 없는 map(비DEFAULT servicemap)에서는 빈 컬렉션이라 위치를 읽을 수 없다
@@ -299,23 +300,26 @@ export const ServerMap = ({
             });
           }
 
-          if (added.length > 0) {
-            // 묶여서 선택된 요소가 사라졌으면 그것을 대신 그리는 묶음 요소를 하이라이트한다.
-            // 선택은 그대로 두어, 다시 펼치면 원래 요소가 하이라이트된다.
-            //
-            // 바깥에서 정한 선택(selectedId)을 먼저 본다. 마지막으로 클릭한 요소(selectedElementId)는
-            // 선택이 아닐 수 있다 — 묶음 노드나 상자를 더블클릭하면 그 첫 클릭이 클릭한 요소가 되는데,
-            // 그것들은 조회 대상이 아니고 펼치거나 접으면 곧바로 사라진다.
-            const fromSelectedId = selectedId ? findDrawnElement(cy, selectedId) : undefined;
-            const selectedElement = fromSelectedId?.nonempty()
-              ? fromSelectedId
-              : findDrawnElement(cy, selectedElementId);
+          // 묶여서 선택된 요소가 사라졌으면 그것을 대신 그리는 묶음 요소를 하이라이트한다.
+          // 선택은 그대로 두어, 다시 펼치면 원래 요소가 하이라이트된다.
+          const highlightTarget = getHighlightTarget(cy, {
+            selectedId,
+            clickedId: selectedElementId,
+            baseNodeId,
+          });
 
-            if (selectedElement.nonempty()) {
-              highlightElement(selectedElement);
-            } else {
-              highlightNode(cy?.getElementById(baseNodeId));
-            }
+          // 노드가 그대로여도 다시 입혀야 하는 경우가 있다.
+          // - 링크만 바뀜: 새로 그린 링크에는 하이라이트가 없다(선택된 링크가 다시 생기거나, 선택된
+          //   노드에 새 링크가 붙은 경우).
+          // - 선택을 대신 그리는 요소가 달라짐: 묶음 링크의 memberIds에서 선택된 링크가 빠지면, 그
+          //   묶음 링크는 더 이상 선택을 대신하지 않는데 하이라이트가 남는다.
+          // 그 밖의 갱신(실시간 보기의 대부분)에서는 스타일을 건드리지 않는다.
+          if (
+            added.length > 0 ||
+            isEdgesChanged ||
+            highlightTarget.id() !== highlightedIdRef.current
+          ) {
+            highlightElement(highlightTarget);
           }
         }
       }
@@ -551,23 +555,9 @@ export const ServerMap = ({
     cy.nodes(':parent').removeStyle();
   };
 
-  /**
-   * id의 요소가 그려져 있으면 그것을, 없으면 그것을 대신 그리고 있는 요소(`memberIds`에 그 id가
-   * 있는 요소)를 찾는다. 둘 다 없으면 빈 컬렉션이다.
-   */
-  const findDrawnElement = (cy: cytoscape.Core, id: string) => {
-    const element = cy.getElementById(id);
-    if (!id || element.nonempty()) {
-      return element;
-    }
-    return cy
-      .elements()
-      .filter((el) => Boolean(cy.data(el.id())?.data?.memberIds?.includes(id)))
-      .first() as cytoscape.CollectionReturnValue;
-  };
-
   const highlightElement = (target: cytoscape.CollectionReturnValue) => {
-    if (target.isNode()) {
+    // 빈 컬렉션(기준 노드가 없는 map)은 노드로 다룬다 — 모든 하이라이트를 지운다.
+    if (!target.nonempty() || target.isNode()) {
       highlightNode(target);
     } else {
       highlightEdge(target);
@@ -576,6 +566,7 @@ export const ServerMap = ({
 
   const highlightNode = (target: cytoscape.CollectionReturnValue) => {
     const cy = cyRef.current!;
+    highlightedIdRef.current = target.nonempty() ? target.id() : undefined;
     /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
     resetNodeStyles();
     cy.edges().style(serverMapTheme.edge?.default!);
@@ -590,6 +581,7 @@ export const ServerMap = ({
 
   const highlightEdge = (target: cytoscape.CollectionReturnValue) => {
     const cy = cyRef.current!;
+    highlightedIdRef.current = target.nonempty() ? target.id() : undefined;
 
     /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
     resetNodeStyles();

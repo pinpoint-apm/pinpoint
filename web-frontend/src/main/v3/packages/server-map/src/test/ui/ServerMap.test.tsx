@@ -30,7 +30,7 @@ jest.mock('cytoscape', () => {
       edges: jest.fn(() => ({
         style: jest.fn(),
         filter: jest.fn(() => ({
-          remove: jest.fn(),
+          remove: jest.fn(() => ({ nonempty: jest.fn(() => false) })),
         })),
       })),
       getElementById: jest.fn(() => ({
