@@ -73,7 +73,7 @@ public final class AlarmValidationConstants {
     public static final int MAX_WINDOW_SEC = (int) Duration.ofDays(1).toSeconds();
 
     /** Selectable check intervals, in seconds. Must stay ascending. */
-    public static final List<Integer> CHECK_INTERVAL_SEC_OPTIONS = List.of(60, 300, 600, 1800, 3600);
+    public static final List<Integer> CHECK_INTERVAL_SEC_OPTIONS = List.of(60, 180, 300, 600, 1800, 3600);
 
     /** Selectable notification intervals, in seconds. Must stay ascending. */
     public static final List<Integer> ACTION_INTERVAL_SEC_OPTIONS =
