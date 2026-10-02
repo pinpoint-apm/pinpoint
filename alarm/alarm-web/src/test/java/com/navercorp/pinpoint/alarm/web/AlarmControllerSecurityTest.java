@@ -172,6 +172,20 @@ class AlarmControllerSecurityTest {
         verify(channelService).getChannelsByTemplateId("default", 10L);
     }
 
+    @Test
+    void readEndpointsRequireAlarmReadPermission() throws Exception {
+        Class<?>[] controllers = {AlarmRuleController.class, AlarmChannelController.class, AlarmTemplateController.class};
+        for (Class<?> controller : controllers) {
+            for (Method method : controller.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(org.springframework.web.bind.annotation.GetMapping.class)) {
+                    PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
+                    assertNotNull(preAuthorize, method + " must be protected by @PreAuthorize");
+                    assertTrue(preAuthorize.value().contains("naverPermissionEvaluator.hasAlarmReadPermission"));
+                }
+            }
+        }
+    }
+
     private void assertAlarmEditPermission(Method method) {
         PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
         assertNotNull(preAuthorize, method + " must be protected by @PreAuthorize");

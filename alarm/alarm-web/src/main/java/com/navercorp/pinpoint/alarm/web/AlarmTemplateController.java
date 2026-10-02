@@ -51,6 +51,7 @@ public class AlarmTemplateController {
         this.templateService = Objects.requireNonNull(templateService, "templateService");
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#serviceName, null)")
     @GetMapping
     public List<AlarmTemplate> getTemplates(
             @RequestHeader(value = ServiceConstants.KEY, defaultValue = ServiceConstants.DEFAULT)
@@ -75,6 +76,7 @@ public class AlarmTemplateController {
         return templateService.createTemplate(template);
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmReadPermission(#serviceName, null)")
     @GetMapping("/{id}")
     public AlarmTemplate getTemplate(
             @PathVariable Long id,
