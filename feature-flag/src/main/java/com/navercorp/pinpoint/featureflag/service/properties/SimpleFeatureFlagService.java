@@ -24,22 +24,23 @@ import java.util.List;
 public class SimpleFeatureFlagService implements FeatureFlagService {
     private final boolean defaultFlag;
 
-    private final List<String> enabledApplications;
-    private final List<String> disabledApplications;
+    private final List<FeatureFlagTarget> enabledApplications;
+    private final List<FeatureFlagTarget> disabledApplications;
 
-    public SimpleFeatureFlagService(boolean defaultFlag, @Nullable List<String> enabledApplications, @Nullable List<String> disabledApplications) {
+    public SimpleFeatureFlagService(boolean defaultFlag, @Nullable List<FeatureFlagTarget> enabledApplications, @Nullable List<FeatureFlagTarget> disabledApplications) {
         this.defaultFlag = defaultFlag;
-        this.enabledApplications = enabledApplications;
-        this.disabledApplications = disabledApplications;
+        this.enabledApplications = enabledApplications == null ? List.of() : List.copyOf(enabledApplications);
+        this.disabledApplications = disabledApplications == null ? List.of() : List.copyOf(disabledApplications);
     }
 
     @Override
-    public boolean isEnabled(String applicationName) {
+    public boolean isEnabled(String serviceName, String applicationName) {
+        FeatureFlagTarget target = new FeatureFlagTarget(serviceName, applicationName);
         // disabledApplications has higher priority
-        if (disabledApplications != null && disabledApplications.contains(applicationName)) {
+        if (disabledApplications.contains(target)) {
             return false;
         }
-        if (enabledApplications != null && enabledApplications.contains(applicationName)) {
+        if (enabledApplications.contains(target)) {
             return true;
         }
         return defaultFlag;

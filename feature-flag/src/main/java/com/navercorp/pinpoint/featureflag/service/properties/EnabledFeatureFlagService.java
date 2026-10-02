@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.featureflag.service.properties;
 
 public class EnabledFeatureFlagService implements FeatureFlagService {
     @Override
-    public boolean isEnabled(String applicationName) {
+    public boolean isEnabled(String serviceName, String applicationName) {
         return true;
     }
 }
