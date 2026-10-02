@@ -16,14 +16,16 @@ export const applyMetric = (
   const next = { ...leaf };
   delete next.aggregation;
   const aggregation = getDefaultAggregation(metric);
+  // A trigger's `> 0` would fire on almost every check of an ordinary metric.
+  const carried: Partial<AlarmV2Rule.AlarmCondition> = leaf.trigger ? {} : leaf;
 
   return {
     ...next,
     metric: metric?.value ?? leaf.metric,
     ...(aggregation && { aggregation }),
     trigger: metric?.trigger,
-    op: metric?.trigger ? '>' : (leaf.op ?? '>='),
-    threshold: metric?.trigger ? 0 : (leaf.threshold ?? 100),
+    op: metric?.trigger ? '>' : (carried.op ?? '>='),
+    threshold: metric?.trigger ? 0 : (carried.threshold ?? 100),
   };
 };
 

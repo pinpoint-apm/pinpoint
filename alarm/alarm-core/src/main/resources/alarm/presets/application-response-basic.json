@@ -1,0 +1,78 @@
+{
+  "name": {
+    "ko": "응답 품질 기본",
+    "en": "Response Quality Basics"
+  },
+  "description": {
+    "ko": "에러율, 느린 응답 비율, Apdex로 애플리케이션 응답 품질을 감시하는 표준 세트",
+    "en": "Standard set watching how well the application responds: error rate, slow rate and Apdex"
+  },
+  "rules": [
+    {
+      "name": {
+        "ko": "에러율 높음",
+        "en": "High error rate"
+      },
+      "description": {
+        "ko": "최근 5분 응답 중 에러가 10% 이상이면 알립니다. 건수가 아니라 비율이라 트래픽 규모와 관계없이 같은 기준으로 봅니다.",
+        "en": "Fires when 10% or more of the responses in the last 5 minutes are errors. As a ratio rather than a count, it holds the same bar whatever the traffic."
+      },
+      "severity": "CRITICAL",
+      "dataSource": "APPLICATION_RESPONSE",
+      "checkIntervalSec": 60,
+      "actionIntervalSec": 1800,
+      "conditions": {
+        "type": "LEAF",
+        "metric": "error_rate",
+        "op": ">=",
+        "threshold": 10,
+        "windowSec": 300
+      },
+      "filters": []
+    },
+    {
+      "name": {
+        "ko": "느린 응답 비율 높음",
+        "en": "High slow rate"
+      },
+      "description": {
+        "ko": "최근 5분 응답 중 느린 응답이 20% 이상이면 알립니다. 느린 응답은 대부분의 애플리케이션에서 3초를 넘긴 응답으로, 서버맵 히스토그램의 5s와 Slow 구간입니다. 에러 없이 느려지는 장애를 잡습니다.",
+        "en": "Fires when 20% or more of the responses in the last 5 minutes are slow, meaning over 3 seconds for most applications: the server map histogram's 5s and Slow buckets. It catches an application that degrades without failing."
+      },
+      "severity": "WARNING",
+      "dataSource": "APPLICATION_RESPONSE",
+      "checkIntervalSec": 60,
+      "actionIntervalSec": 1800,
+      "conditions": {
+        "type": "LEAF",
+        "metric": "slow_rate",
+        "op": ">=",
+        "threshold": 20,
+        "windowSec": 300
+      },
+      "filters": []
+    },
+    {
+      "name": {
+        "ko": "Apdex 저하",
+        "en": "Apdex drop"
+      },
+      "description": {
+        "ko": "최근 5분 Apdex가 70 미만이면 알립니다. 빠른 응답과 보통 응답을 함께 반영해, 사용자가 느끼는 만족도가 떨어지는 것을 봅니다.",
+        "en": "Fires when the Apdex of the last 5 minutes falls below 70. It weighs fast and normal responses together, so it follows how satisfied users are."
+      },
+      "severity": "WARNING",
+      "dataSource": "APPLICATION_RESPONSE",
+      "checkIntervalSec": 60,
+      "actionIntervalSec": 1800,
+      "conditions": {
+        "type": "LEAF",
+        "metric": "apdex_score",
+        "op": "<",
+        "threshold": 70,
+        "windowSec": 300
+      },
+      "filters": []
+    }
+  ]
+}

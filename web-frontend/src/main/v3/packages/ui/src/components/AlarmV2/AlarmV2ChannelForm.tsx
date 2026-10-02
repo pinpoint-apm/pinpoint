@@ -36,8 +36,7 @@ const makeFormSchema = (t: TFunction) =>
     })
     .superRefine((data, ctx) => {
       if (data.methodType === 'WEBHOOK') {
-        const url = data.destination;
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        if (!isHttpUrl(data.destination)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: t('CONFIGURATION.ALARM_V2.VALIDATION_INVALID_URL'),
@@ -66,6 +65,15 @@ const parseChannelConfig = (config?: AlarmV2Channel.Config | null): ParsedChanne
         : 'DEFAULT',
     values: config,
   };
+};
+
+const isHttpUrl = (value: string) => {
+  try {
+    const { protocol } = new URL(value);
+    return protocol === 'http:' || protocol === 'https:';
+  } catch {
+    return false;
+  }
 };
 
 export interface AlarmV2ChannelFormProps {

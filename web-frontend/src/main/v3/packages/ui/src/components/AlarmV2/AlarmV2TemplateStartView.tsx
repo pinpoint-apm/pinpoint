@@ -85,7 +85,7 @@ const ItemPreview = ({ items }: { items: AlarmV2Template.TemplateItemData[] }) =
   return (
     <span className="flex flex-wrap gap-1">
       {items.map((item, index) => {
-        const metrics = conditionMetrics(item.conditions).map(metricLabel);
+        const metrics = conditionMetrics(item.conditions).map((metric) => metricLabel(metric));
         return (
           <Badge
             key={index}

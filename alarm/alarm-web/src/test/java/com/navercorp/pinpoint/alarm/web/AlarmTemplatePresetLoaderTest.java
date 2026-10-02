@@ -182,6 +182,23 @@ class AlarmTemplatePresetLoaderTest {
     }
 
     @Test
+    void rejectsAPresetMixingCategories() {
+        Resource resource = resourceOf("""
+                {"name": {"ko": "프리셋", "en": "preset"}, "rules": [
+                 {"name": {"ko": "규칙", "en": "rule"}, "severity": "WARNING", "dataSource": "AGENT_STAT",
+                  "checkIntervalSec": 300, "actionIntervalSec": 1800,
+                  "conditions": {"type": "LEAF", "metric": "deadlock_count", "trigger": "NEW_GROUP"}},
+                 {"name": {"ko": "규칙2", "en": "rule2"}, "severity": "WARNING", "dataSource": "OTHER_CATEGORY",
+                  "checkIntervalSec": 300, "actionIntervalSec": 1800,
+                  "conditions": {"type": "LEAF", "metric": "sample_count", "op": ">=", "threshold": 1,
+                                 "windowSec": 300, "aggregation": "COUNT"}}]}
+                """);
+
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> load(resource));
+        assertTrue(e.getMessage().contains("mixes data source categories"));
+    }
+
+    @Test
     void acceptsEmptyCatalog() {
         // Presets are content a distribution supplies, not something this module ships,
         // so a deployment that offers none still starts -- it simply offers no preset.

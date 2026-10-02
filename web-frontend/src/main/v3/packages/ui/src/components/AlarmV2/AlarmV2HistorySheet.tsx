@@ -17,7 +17,6 @@ interface HistoryContext {
   results?: HistoryResult[];
 }
 
-const RATE_METRICS = new Set(['crash_free_session_rate', 'session_error_rate']);
 const RATE_NUMBER_FORMATTER = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 3,
 });
@@ -52,7 +51,7 @@ const formatHistoryMetricValue = (metric: string, value?: number | null): string
     return '-';
   }
 
-  if (RATE_METRICS.has(metric)) {
+  if (metric.endsWith('_rate')) {
     return `${RATE_NUMBER_FORMATTER.format(value)}%`;
   }
 

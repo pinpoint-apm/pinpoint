@@ -369,7 +369,10 @@ export const AlarmV2Page = ({
     }
     return undefined;
   }, [view, viewChannelId, channelsData]);
-  const { data: presetsData } = useAlarmV2TemplatePresetsQuery(isTemplateNewView);
+  const { data: presetsData } = useAlarmV2TemplatePresetsQuery(
+    isTemplateNewView,
+    selectedApplication?.serviceType,
+  );
   const editingTemplate = React.useMemo(
     () => templatesData?.find((template) => template.id === viewTemplateId),
     [templatesData, viewTemplateId],

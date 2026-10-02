@@ -46,4 +46,18 @@ describe('applyMetric', () => {
     expect(next).not.toHaveProperty('aggregation');
     expect(next).toMatchObject({ metric: 'error_count', op: '>=', threshold: 80, windowSec: 300 });
   });
+
+  it('drops the trigger condition when switching to an ordinary metric', () => {
+    const leaf: AlarmV2Rule.AlarmCondition = {
+      type: AlarmV2Rule.ConditionType.LEAF,
+      metric: 'deadlock_count',
+      trigger: 'NEW_GROUP',
+      op: '>',
+      threshold: 0,
+      windowSec: 300,
+    };
+    const next = applyMetric(leaf, { value: 'error_count', label: 'Errors' });
+    expect(next).toMatchObject({ metric: 'error_count', op: '>=', threshold: 100 });
+    expect(next.trigger).toBeUndefined();
+  });
 });
