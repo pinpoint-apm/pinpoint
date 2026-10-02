@@ -619,6 +619,7 @@ export const AlarmV2Page = ({
               ruleId,
               channelId,
               applicationName,
+              applicationType: ruleData.applicationType,
             }),
           currentTargetRule?.id ? undefined : `?view=rule-edit&ruleId=${ruleId}`,
         );
@@ -963,6 +964,7 @@ export const AlarmV2Page = ({
                     method: 'PATCH',
                     id: data.id,
                     applicationName: data.applicationName,
+                    applicationType: data.applicationType,
                     enabled,
                   });
                 }
@@ -1045,6 +1047,7 @@ export const AlarmV2Page = ({
               method: 'DELETE',
               id: currentDeletingRule.id,
               applicationName: currentDeletingRule.applicationName,
+              applicationType: currentDeletingRule.applicationType,
             });
           }
         }}

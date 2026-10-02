@@ -22,12 +22,14 @@ type AlarmV2ChannelMutationVariable =
       ruleId: number;
       channelId: number;
       applicationName: string;
+      applicationType: string;
     }
   | {
       method: 'UNLINK';
       ruleId: number;
       channelId: number;
       applicationName: string;
+      applicationType: string;
     }
   | {
       method: 'LINK_TEMPLATE';
@@ -75,7 +77,10 @@ export const useAlarmV2ChannelMutation = (
       const query = buildApplicationPermissionQuery(variable.applicationName);
       url = `${url}/${variable.id}?${query}`;
     } else if (variable.method === 'LINK' || variable.method === 'UNLINK') {
-      const query = buildApplicationPermissionQuery(variable.applicationName);
+      const query = new URLSearchParams({
+        applicationName: variable.applicationName,
+        applicationType: variable.applicationType,
+      }).toString();
       url = `${url}/rule/${variable.ruleId}/${variable.channelId}?${query}`;
     } else if (variable.method === 'LINK_TEMPLATE' || variable.method === 'UNLINK_TEMPLATE') {
       const query = buildApplicationPermissionQuery(variable.applicationName ?? '');

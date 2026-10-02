@@ -161,13 +161,14 @@ public class AlarmChannelController {
                                  @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
                                  String serviceName,
                                  @RequestParam("applicationName") @NotBlank String applicationName,
+                                 @RequestParam("applicationType") @NotBlank String applicationType,
                                  @RequestBody(required = false) AlarmRuleChannel ruleChannel) {
         if (ruleChannel == null) {
             ruleChannel = new AlarmRuleChannel();
         }
         ruleChannel.setRuleId(ruleId);
         ruleChannel.setChannelId(channelId);
-        channelService.linkRuleChannel(serviceName, applicationName, ruleChannel);
+        channelService.linkRuleChannel(new AlarmApplication(serviceName, applicationName, applicationType), ruleChannel);
     }
 
     @DeleteMapping("/rule/{ruleId}/{channelId}")
@@ -179,8 +180,10 @@ public class AlarmChannelController {
                                    @NotBlank
                                    @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
                                    String serviceName,
-                                   @RequestParam("applicationName") @NotBlank String applicationName) {
-        channelService.unlinkRuleChannel(serviceName, applicationName, ruleId, channelId);
+                                   @RequestParam("applicationName") @NotBlank String applicationName,
+                                   @RequestParam("applicationType") @NotBlank String applicationType) {
+        channelService.unlinkRuleChannel(new AlarmApplication(serviceName, applicationName, applicationType),
+                ruleId, channelId);
     }
 
     @GetMapping("/template/{templateId}")

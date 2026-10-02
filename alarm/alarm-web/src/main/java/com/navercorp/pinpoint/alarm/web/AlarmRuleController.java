@@ -121,8 +121,9 @@ public class AlarmRuleController {
                            @NotBlank
                            @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
                            String serviceName,
-                           @RequestParam("applicationName") @NotBlank String applicationName) {
-        alarmRuleService.deleteRule(serviceName, applicationName, id);
+                           @RequestParam("applicationName") @NotBlank String applicationName,
+                           @RequestParam("applicationType") @NotBlank String applicationType) {
+        alarmRuleService.deleteRule(new AlarmApplication(serviceName, applicationName, applicationType), id);
     }
 
     @PatchMapping("/{id}")
@@ -133,12 +134,13 @@ public class AlarmRuleController {
                               @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
                               String serviceName,
                               @RequestParam("applicationName") @NotBlank String applicationName,
+                              @RequestParam("applicationType") @NotBlank String applicationType,
                               @RequestBody Map<String, Boolean> body) {
         Boolean enabled = body.get("enabled");
         if (enabled == null) {
             throw new IllegalArgumentException("'enabled' field is required");
         }
-        alarmRuleService.updateEnabled(serviceName, applicationName, id, enabled);
+        alarmRuleService.updateEnabled(new AlarmApplication(serviceName, applicationName, applicationType), id, enabled);
     }
 
     @GetMapping("/{id}/state")

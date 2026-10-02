@@ -50,25 +50,35 @@ describe('useAlarmV2ChannelMutation', () => {
   // that meant to attach a channel detaches it instead -- both return void, so the
   // caller cannot tell, and the rule goes on firing to nowhere.
   it.each([
-    ['POST', { method: 'POST', applicationName: APP, params: PARAMS }, 'POST', `${BASE}?applicationName=test-app`],
+    [
+      'POST',
+      { method: 'POST', applicationName: APP, params: PARAMS },
+      'POST',
+      `${BASE}?applicationName=test-app`,
+    ],
     [
       'PUT',
       { method: 'PUT', id: 5, applicationName: APP, params: PARAMS },
       'PUT',
       `${BASE}/5?applicationName=test-app`,
     ],
-    ['DELETE', { method: 'DELETE', id: 5, applicationName: APP }, 'DELETE', `${BASE}/5?applicationName=test-app`],
+    [
+      'DELETE',
+      { method: 'DELETE', id: 5, applicationName: APP },
+      'DELETE',
+      `${BASE}/5?applicationName=test-app`,
+    ],
     [
       'LINK',
-      { method: 'LINK', ruleId: 3, channelId: 9, applicationName: APP },
+      { method: 'LINK', ruleId: 3, channelId: 9, applicationName: APP, applicationType: 'java' },
       'POST',
-      `${BASE}/rule/3/9?applicationName=test-app`,
+      `${BASE}/rule/3/9?applicationName=test-app&applicationType=java`,
     ],
     [
       'UNLINK',
-      { method: 'UNLINK', ruleId: 3, channelId: 9, applicationName: APP },
+      { method: 'UNLINK', ruleId: 3, channelId: 9, applicationName: APP, applicationType: 'java' },
       'DELETE',
-      `${BASE}/rule/3/9?applicationName=test-app`,
+      `${BASE}/rule/3/9?applicationName=test-app&applicationType=java`,
     ],
     [
       'LINK_TEMPLATE',
@@ -95,7 +105,11 @@ describe('useAlarmV2ChannelMutation', () => {
   it('sends a JSON body only when there is one', async () => {
     const result = renderMutation();
 
-    await result.current.mutateAsync({ method: 'POST', applicationName: APP, params: PARAMS } as never);
+    await result.current.mutateAsync({
+      method: 'POST',
+      applicationName: APP,
+      params: PARAMS,
+    } as never);
 
     const [, init] = lastCall();
     expect(init.body).toBe(JSON.stringify(PARAMS));

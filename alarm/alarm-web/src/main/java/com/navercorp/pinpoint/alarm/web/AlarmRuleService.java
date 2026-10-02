@@ -144,7 +144,7 @@ public class AlarmRuleService {
         AlarmOwnerships.verifyServiceName(rule.getServiceName());
         // A rule update can move between bundles, so both headers are locked before the rule row.
         AlarmRuleV2 currentRule = locks.lockRuleAfterBundleHeaders(id, rule.getServiceName(),
-                locked -> AlarmOwnerships.verifyRule(locked, rule.getServiceName(), rule.getApplicationName()),
+                locked -> AlarmOwnerships.verifyRule(locked, applicationOf(rule)),
                 rule.getTemplateItemId());
         rule.setId(id);
         verifyApplication(rule);
@@ -161,10 +161,10 @@ public class AlarmRuleService {
     }
 
     @Transactional(transactionManager = "transactionManager", rollbackFor = Exception.class)
-    public void updateEnabled(String serviceName, String applicationName, Long id, boolean enabled) {
-        AlarmOwnerships.verifyServiceName(serviceName);
-        AlarmRuleV2 locked = locks.lockRuleAfterBundleHeaders(id, serviceName,
-                rule -> AlarmOwnerships.verifyRule(rule, serviceName, applicationName));
+    public void updateEnabled(AlarmApplication application, Long id, boolean enabled) {
+        AlarmOwnerships.verifyServiceName(application.getServiceName());
+        AlarmRuleV2 locked = locks.lockRuleAfterBundleHeaders(id, application.getServiceName(),
+                rule -> AlarmOwnerships.verifyRule(rule, application));
         ruleDao.updateEnabled(id, enabled);
         AlarmState state = stateDao.selectByRuleId(id);
         if (state == null) {
@@ -181,10 +181,10 @@ public class AlarmRuleService {
     }
 
     @Transactional(transactionManager = "transactionManager", rollbackFor = Exception.class)
-    public void deleteRule(String serviceName, String applicationName, Long id) {
-        AlarmOwnerships.verifyServiceName(serviceName);
+    public void deleteRule(AlarmApplication application, Long id) {
+        AlarmOwnerships.verifyServiceName(application.getServiceName());
         AlarmRuleV2 rule = locks.getRuleForUpdate(id);
-        AlarmOwnerships.verifyRule(rule, serviceName, applicationName);
+        AlarmOwnerships.verifyRule(rule, application);
         ruleDeleter.deleteRule(id);
     }
 

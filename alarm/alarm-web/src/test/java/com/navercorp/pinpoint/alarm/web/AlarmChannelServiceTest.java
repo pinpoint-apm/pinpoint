@@ -479,7 +479,7 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
         ruleChannel.setRuleId(7L);
         ruleChannel.setChannelId(4L);
 
-        service.linkRuleChannel(SERVICE_NAME, APPLICATION_NAME, ruleChannel);
+        service.linkRuleChannel(APPLICATION, ruleChannel);
 
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(1, channelDao.lockedCount);
@@ -502,7 +502,7 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.linkRuleChannel(SERVICE_NAME, APPLICATION_NAME, ruleChannel)
+                () -> service.linkRuleChannel(APPLICATION, ruleChannel)
         );
 
         assertEquals("Template-linked rule channels cannot be customized: ruleId=7", exception.getMessage());
@@ -522,7 +522,8 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
 
         AlarmResourceNotFoundException exception = assertThrows(
                 AlarmResourceNotFoundException.class,
-                () -> service.linkRuleChannel(SERVICE_NAME, "other-app", ruleChannel)
+                () -> service.linkRuleChannel(new AlarmApplication(
+                        SERVICE_NAME, "other-app", AlarmApplication.TYPE_JAVASCRIPT), ruleChannel)
         );
 
         assertEquals("Rule not found", exception.getMessage());
@@ -545,7 +546,7 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.linkRuleChannel(SERVICE_NAME, APPLICATION_NAME, ruleChannel)
+                () -> service.linkRuleChannel(APPLICATION, ruleChannel)
         );
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -562,7 +563,7 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
         RecordingChannelBindingDao channelBindingDao = new RecordingChannelBindingDao();
         AlarmChannelService service = newChannelService(ruleDao, channelDao, channelBindingDao);
 
-        service.unlinkRuleChannel(SERVICE_NAME, APPLICATION_NAME, 7L, 4L);
+        service.unlinkRuleChannel(APPLICATION, 7L, 4L);
 
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(1, channelDao.lockedCount);

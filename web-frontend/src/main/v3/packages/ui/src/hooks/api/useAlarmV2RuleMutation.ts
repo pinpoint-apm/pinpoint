@@ -7,16 +7,22 @@ import { parseResponseError } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelp
 type AlarmV2RuleMutationVariable =
   | { method: 'POST'; params: AlarmV2Rule.RuleSaveData }
   | { method: 'PUT'; id: number; params: AlarmV2Rule.RuleSaveData }
-  | { method: 'DELETE'; id: number; applicationName: string }
+  | { method: 'DELETE'; id: number; applicationName: string; applicationType: string }
   | {
       method: 'PATCH';
       id: number;
       applicationName: string;
+      applicationType: string;
       enabled: boolean;
     };
 
-const appParams = (applicationName: string) =>
-  `applicationName=${encodeURIComponent(applicationName)}`;
+const appParams = ({
+  applicationName,
+  applicationType,
+}: {
+  applicationName: string;
+  applicationType: string;
+}) => new URLSearchParams({ applicationName, applicationType }).toString();
 
 export const useAlarmV2RuleMutation = (
   options?: UseMutationOptions<
@@ -37,9 +43,9 @@ export const useAlarmV2RuleMutation = (
       url = `${url}/${variable.id}`;
       body = JSON.stringify(variable.params);
     } else if (variable.method === 'DELETE') {
-      url = `${url}/${variable.id}?${appParams(variable.applicationName)}`;
+      url = `${url}/${variable.id}?${appParams(variable)}`;
     } else if (variable.method === 'PATCH') {
-      url = `${url}/${variable.id}?${appParams(variable.applicationName)}`;
+      url = `${url}/${variable.id}?${appParams(variable)}`;
       body = JSON.stringify({ enabled: variable.enabled });
     }
 
