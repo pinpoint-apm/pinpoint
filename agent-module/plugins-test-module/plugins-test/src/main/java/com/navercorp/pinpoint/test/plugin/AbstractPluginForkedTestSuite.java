@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.api.PinpointLogLocationConfig;
 import com.navercorp.pinpoint.test.plugin.api.PinpointProfile;
 import com.navercorp.pinpoint.test.plugin.api.Repository;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactoryLoader;
 import com.navercorp.pinpoint.test.plugin.util.JavaHomeResolver;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.tinylog.TaggedLogger;
@@ -100,10 +101,8 @@ public abstract class AbstractPluginForkedTestSuite {
             }
         }
 
-        final LibraryFilter mavenDependencyLibraryFilter = new LibraryFilter(
-                LibraryFilter.containsMatcher(PluginClassLoading.MAVEN_DEPENDENCY_CLASS_PATHS));
-
-        this.mavenDependencyLibraries = classLoading.filterLibs(libs, mavenDependencyLibraryFilter);
+        // the resolver module and its runtime dependencies, handed to the forked JVM for its resolver class loader
+        this.mavenDependencyLibraries = DependencyResolverFactoryLoader.findClassPaths();
         if (logger.isDebugEnabled()) {
             for (String mavenDependencyLibrary : mavenDependencyLibraries) {
                 logger.debug("mavenDependencyLibraries: {}", mavenDependencyLibrary);

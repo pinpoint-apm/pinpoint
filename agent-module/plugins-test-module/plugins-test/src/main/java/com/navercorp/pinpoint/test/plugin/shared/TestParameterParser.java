@@ -47,8 +47,7 @@ public class TestParameterParser {
             final String testId = testArguments[0];
             final String testMavenDependencies = testArguments[1];
 
-            String[] dependencies = testMavenDependencies.split(ArtifactIdUtils.ARTIFACT_SEPARATOR);
-
+            String[] dependencies = ArtifactIdUtils.split(testMavenDependencies);
             final TestParameter testParameter = new TestParameter(testId, Arrays.asList(dependencies));
             testParameters.add(testParameter);
         }

@@ -12,8 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.test.plugin.maven;
+package com.navercorp.pinpoint.test.plugin.maven.resolver;
 
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolveException;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyVersionFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
@@ -38,25 +40,25 @@ import java.util.Map;
 /**
  * @author Jongho Moon
  */
-public class DependencyResolverTest {
+public class MavenDependencyResolverTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void transporterFactories_supportRemote() {
-        Map<String, TransporterFactory> remote = new DependencyResolver.PinpointRepositorySystemSupplier(true)
+        Map<String, TransporterFactory> remote = new MavenDependencyResolver.PinpointRepositorySystemSupplier(true)
                 .getTransporterFactories(Collections.emptyMap());
         Assertions.assertThat(remote).containsKeys(FileTransporterFactory.NAME, HttpTransporterFactory.NAME);
 
-        Map<String, TransporterFactory> local = new DependencyResolver.PinpointRepositorySystemSupplier(false)
+        Map<String, TransporterFactory> local = new MavenDependencyResolver.PinpointRepositorySystemSupplier(false)
                 .getTransporterFactories(Collections.emptyMap());
         Assertions.assertThat(local).containsKey(FileTransporterFactory.NAME);
         Assertions.assertThat(local).doesNotContainKey(HttpTransporterFactory.NAME);
     }
 
     @Test
-    public void resolveArtifactsAndDependencies_includes_transitive_dependencies() throws DependencyResolutionException {
-        DependencyResolverFactory factory = new DependencyResolverFactory();
-        DependencyResolver resolver = factory.get();
+    public void resolveArtifactsAndDependencies_includes_transitive_dependencies() throws DependencyResolveException {
+        MavenDependencyResolverFactory factory = new MavenDependencyResolverFactory();
+        MavenDependencyResolver resolver = (MavenDependencyResolver) factory.get();
 
         // maven-resolver-util depends on maven-resolver-api; the resolver-provider POMs carry <jdk> profiles,
         // so this also fails when the session lacks the JVM system properties.
@@ -71,8 +73,8 @@ public class DependencyResolverTest {
         final String key = ConfigurationProperties.CONNECT_TIMEOUT;
         Assertions.assertThat(System.getProperty(key)).as("precondition: not leaked as a system property").isNull();
 
-        RepositorySystem system = DependencyResolver.newRepositorySystem(false);
-        DefaultRepositorySystemSession session = DependencyResolver.newRepositorySystemSession(system, Collections.singletonMap(key, 1234L));
+        RepositorySystem system = MavenDependencyResolver.newRepositorySystem(false);
+        DefaultRepositorySystemSession session = MavenDependencyResolver.newRepositorySystemSession(system, Collections.singletonMap(key, 1234L));
 
         Assertions.assertThat(ConfigUtils.getInteger(session, -1, key)).isEqualTo(1234);
         Assertions.assertThat(session.getSystemProperties()).containsKey("java.version");
@@ -81,31 +83,31 @@ public class DependencyResolverTest {
 
     @Test
     public void test() {
-        DependencyResolverFactory factory = new DependencyResolverFactory();
-        DependencyResolver resolver = factory.get();
+        MavenDependencyResolverFactory factory = new MavenDependencyResolverFactory();
+        MavenDependencyResolver resolver = (MavenDependencyResolver) factory.get();
         resolver.resolveDependencySets("junit:junit:[4.12,4.13)");
     }
 
     @Test
     public void testClassifier() {
-        DependencyResolverFactory factory = new DependencyResolverFactory();
-        DependencyResolver resolver = factory.get();
-        Map<String, List<Artifact>> sets = resolver.resolveDependencySets("net.sf.json-lib:json-lib:jar:jdk15:2.4");
+        MavenDependencyResolverFactory factory = new MavenDependencyResolverFactory();
+        MavenDependencyResolver resolver = (MavenDependencyResolver) factory.get();
+        Map<String, List<Artifact>> sets = resolver.resolveArtifactSets(DependencyVersionFilter::isNotFiltered, "net.sf.json-lib:json-lib:jar:jdk15:2.4");
         Assertions.assertThat(sets).isNotEmpty();
     }
 
     @Test
     public void resolveArtifactsAndDependencies() throws DependencyResolutionException, ArtifactResolutionException {
-        DependencyResolverFactory factory = new DependencyResolverFactory();
-        DependencyResolver resolver = factory.get();
+        MavenDependencyResolverFactory factory = new MavenDependencyResolverFactory();
+        MavenDependencyResolver resolver = (MavenDependencyResolver) factory.get();
 
-        Map<String, List<Artifact>> sets = resolver.resolveDependencySets("org.apache.maven.resolver:maven-resolver-util:[1.0,)",
+        Map<String, List<Artifact>> sets = resolver.resolveArtifactSets(DependencyVersionFilter::isNotFiltered, "org.apache.maven.resolver:maven-resolver-util:[1.0,)",
                 "org.apache.maven.resolver:maven-resolver-api");
 
         int i = 0;
         for (Map.Entry<String, List<Artifact>> set : sets.entrySet()) {
             logger.debug("{}", i++);
-            List<Path> results = resolver.resolveArtifactsAndDependencies(set.getValue());
+            List<Path> results = resolver.resolveArtifacts(set.getValue());
 
             logger.debug(set.getKey());
 
@@ -117,7 +119,7 @@ public class DependencyResolverTest {
 
     @Test
     public void newRepositories_uniqueIdPerUrl() {
-        List<RemoteRepository> repositories = DependencyResolver.newRepositories("http://repo-a.example/maven2", "http://repo-b.example/maven2");
+        List<RemoteRepository> repositories = MavenDependencyResolver.newRepositories("http://repo-a.example/maven2", "http://repo-b.example/maven2");
 
         Assertions.assertThat(repositories).hasSize(3);
         Assertions.assertThat(repositories.get(0).getId()).isEqualTo("central");

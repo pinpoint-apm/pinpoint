@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.test.plugin.ConfigResolver;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTestContext;
+import com.navercorp.pinpoint.test.plugin.maven.MavenArtifact;
 import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
 import com.navercorp.pinpoint.test.plugin.ProcessTerminator;
@@ -28,9 +29,7 @@ import com.navercorp.pinpoint.test.plugin.junit5.launcher.SharedPluginForkedTest
 import com.navercorp.pinpoint.test.plugin.util.ClassPath;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
 import com.navercorp.pinpoint.test.plugin.util.CommandLineOption;
-import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
-import org.eclipse.aether.artifact.Artifact;
 import org.tinylog.TaggedLogger;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class SharedProcessManager implements ProcessManager {
     private final TaggedLogger logger = TestLogger.getLogger();
 
     private final PluginForkedTestContext context;
-    private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<>();
+    private final Map<String, List<MavenArtifact>> testRepository = new LinkedHashMap<>();
     private final String sharedClassName;
     private final List<Path> sharedLibs;
 
@@ -111,7 +110,7 @@ public class SharedProcessManager implements ProcessManager {
         return process;
     }
 
-    public boolean registerTest(String testId, List<Artifact> artifactList) {
+    public boolean registerTest(String testId, List<MavenArtifact> artifactList) {
         if (testRepository.containsKey(testId)) {
             return false;
         }
@@ -121,7 +120,7 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     public boolean deregisterTest(String testId) {
-        List<Artifact> value = testRepository.remove(testId);
+        List<MavenArtifact> value = testRepository.remove(testId);
         return value != null;
     }
 
@@ -197,8 +196,8 @@ public class SharedProcessManager implements ProcessManager {
 
         option.addOption(mainClass);
 
-        Set<Map.Entry<String, List<Artifact>>> testEntries = testRepository.entrySet();
-        for (Map.Entry<String, List<Artifact>> testEntry : testEntries) {
+        Set<Map.Entry<String, List<MavenArtifact>>> testEntries = testRepository.entrySet();
+        for (Map.Entry<String, List<MavenArtifact>> testEntry : testEntries) {
             option.addOption(addTest(testEntry.getKey(), testEntry.getValue()));
         }
 
@@ -250,17 +249,14 @@ public class SharedProcessManager implements ProcessManager {
         return joiner.toString();
     }
 
-    private String addTest(String testId, List<Artifact> artifactList) {
+    private String addTest(String testId, List<MavenArtifact> artifactList) {
         StringBuilder mavenDependencyInfo = new StringBuilder();
         mavenDependencyInfo.append(testId);
         mavenDependencyInfo.append('=');
 
-        for (Artifact artifact : artifactList) {
-            String str = ArtifactIdUtils.artifactToString(artifact);
-            if (StringUtils.hasText(str)) {
-                mavenDependencyInfo.append(str);
-                mavenDependencyInfo.append(ArtifactIdUtils.ARTIFACT_SEPARATOR);
-            }
+        for (MavenArtifact artifact : artifactList) {
+            mavenDependencyInfo.append(artifact);
+            mavenDependencyInfo.append(ArtifactIdUtils.ARTIFACT_SEPARATOR);
         }
 
         return mavenDependencyInfo.toString();
