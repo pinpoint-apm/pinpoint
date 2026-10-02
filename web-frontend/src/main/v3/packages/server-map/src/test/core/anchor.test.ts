@@ -1,8 +1,7 @@
 import cytoscape from 'cytoscape';
 import {
   layoutGroupChildren,
-  placeAnchoredNodes,
-  relayoutChangedGroups,
+  placeGroupChanges,
   releaseRemovedGroups,
   ShiftRecord,
   snapshotNodes,
@@ -101,7 +100,7 @@ describe('layoutGroupChildren', () => {
   });
 });
 
-describe('placeAnchoredNodes', () => {
+describe('placeGroupChanges: expand and collapse', () => {
   // left(-400) → group(0) → right(400), group 바로 아래의 below(0, 300), 그리고 대각선의 far
   const setup = () => {
     const cy = createCy();
@@ -123,14 +122,14 @@ describe('placeAnchoredNodes', () => {
       cy.add({ data: { id: 'c1', parent: 'box', anchorId: 'group' } }),
       cy.add({ data: { id: 'c2', parent: 'box', anchorId: 'group' } }),
     ];
-    placeAnchoredNodes(cy, added, snapshot, shifts);
+    placeGroupChanges(cy, added, snapshot, shifts);
   };
 
   const collapse = (cy: cytoscape.Core, shifts: Map<string, ShiftRecord>) => {
     const snapshot = snapshotNodes(cy);
     cy.getElementById('box').remove();
     const added = [cy.add({ data: { id: 'group', anchorId: 'box' } })];
-    placeAnchoredNodes(cy, added, snapshot, shifts);
+    placeGroupChanges(cy, added, snapshot, shifts);
   };
 
   it('places the children around where the group node was', () => {
@@ -209,7 +208,7 @@ describe('placeAnchoredNodes', () => {
         cy.add({ data: { id: `${id}-c1`, parent: `${id}-box`, anchorId: id } }),
         cy.add({ data: { id: `${id}-c2`, parent: `${id}-box`, anchorId: id } }),
       ];
-      placeAnchoredNodes(cy, added, snapshot, shifts);
+      placeGroupChanges(cy, added, snapshot, shifts);
     };
 
     const collapseGroup = (cy: cytoscape.Core, shifts: Map<string, ShiftRecord>, id: string) => {
@@ -217,7 +216,7 @@ describe('placeAnchoredNodes', () => {
       cy.getElementById(`${id}-box`).children().remove();
       cy.getElementById(`${id}-box`).remove();
       const added = [cy.add({ data: { id, anchorId: `${id}-box` } })];
-      placeAnchoredNodes(cy, added, snapshot, shifts);
+      placeGroupChanges(cy, added, snapshot, shifts);
     };
 
     it('restores a child that joined a group after another group pushed it', () => {
@@ -232,7 +231,7 @@ describe('placeAnchoredNodes', () => {
         data: { id: 'g2-c3', parent: 'g2-box', anchorId: 'g2' },
         position: { x: 0, y: 0 },
       });
-      relayoutChangedGroups(cy, snapshot, shifts);
+      placeGroupChanges(cy, [], snapshot, shifts);
       const before = positionOf(cy, 'g2-c1');
       const joinedBefore = positionOf(cy, 'g2-c3');
 
@@ -263,7 +262,7 @@ describe('placeAnchoredNodes', () => {
   });
 });
 
-describe('relayoutChangedGroups', () => {
+describe('placeGroupChanges: children of an expanded box change', () => {
   // group(0, 0)을 펼친 상태에서 오른쪽(right)에 노드가 있다. 실시간 갱신으로 자식이 늘어난다.
   const setup = () => {
     const cy = createCy();
@@ -280,7 +279,7 @@ describe('relayoutChangedGroups', () => {
         cy.add({ data: { id: `c${i}`, parent: 'box', anchorId: 'group' } }),
       ),
     ];
-    placeAnchoredNodes(cy, added, snapshot, shifts);
+    placeGroupChanges(cy, added, snapshot, shifts);
     return { cy, shifts };
   };
 
@@ -290,7 +289,7 @@ describe('relayoutChangedGroups', () => {
     ids.forEach((id) =>
       cy.add({ data: { id, parent: 'box', anchorId: 'group' }, position: { x: 0, y: 0 } }),
     );
-    relayoutChangedGroups(cy, snapshot, shifts);
+    placeGroupChanges(cy, [], snapshot, shifts);
   };
 
   it('puts the new child into the grid instead of where it was added', () => {
@@ -338,7 +337,7 @@ describe('relayoutChangedGroups', () => {
     cy.getElementById('box').children().remove();
     cy.getElementById('box').remove();
     const added = [cy.add({ data: { id: 'group', anchorId: 'box' } })];
-    placeAnchoredNodes(cy, added, snapshot, shifts);
+    placeGroupChanges(cy, added, snapshot, shifts);
 
     expect(positionOf(cy, 'right')).toEqual({ x: 400, y: 0 });
     expect(shifts.size).toBe(0);
@@ -350,13 +349,13 @@ describe('relayoutChangedGroups', () => {
     // 실시간 갱신으로 맨 위의 자식이 빠진다.
     const snapshot = snapshotNodes(cy);
     cy.getElementById('c0').remove();
-    relayoutChangedGroups(cy, snapshot, shifts);
+    placeGroupChanges(cy, [], snapshot, shifts);
 
     const collapseSnapshot = snapshotNodes(cy);
     cy.getElementById('box').children().remove();
     cy.getElementById('box').remove();
     const added = [cy.add({ data: { id: 'group', anchorId: 'box' } })];
-    placeAnchoredNodes(cy, added, collapseSnapshot, shifts);
+    placeGroupChanges(cy, added, collapseSnapshot, shifts);
 
     expect(positionOf(cy, 'group').x).toBeCloseTo(0);
     expect(positionOf(cy, 'group').y).toBeCloseTo(0);
@@ -368,7 +367,7 @@ describe('relayoutChangedGroups', () => {
     const before = positionOf(cy, 'c0');
     const record = new Map(shifts.get('group'));
 
-    relayoutChangedGroups(cy, snapshotNodes(cy), shifts);
+    placeGroupChanges(cy, [], snapshotNodes(cy), shifts);
 
     expect(positionOf(cy, 'c0')).toEqual(before);
     expect(shifts.get('group')).toEqual(record);
@@ -391,7 +390,7 @@ describe('releaseRemovedGroups', () => {
       cy.add({ data: { id: 'c1', parent: 'box', anchorId: 'group' } }),
       cy.add({ data: { id: 'c2', parent: 'box', anchorId: 'group' } }),
     ];
-    placeAnchoredNodes(cy, added, snapshot, shifts);
+    placeGroupChanges(cy, added, snapshot, shifts);
     return { cy, shifts };
   };
 
@@ -424,5 +423,63 @@ describe('releaseRemovedGroups', () => {
     releaseRemovedGroups(cy, shifts);
 
     expect(shifts.get('group')?.has('right')).toBe(false);
+  });
+});
+
+describe('placeGroupChanges: several groups change in one update', () => {
+  // 두 group을 나란히 펼친 상태. 같은 행이라 서로를 밀어 둔다.
+  const setup = () => {
+    const cy = createCy();
+    const shifts = new Map<string, ShiftRecord>();
+    cy.add([
+      { data: { id: 'g1' }, position: { x: 0, y: 0 } },
+      { data: { id: 'g2' }, position: { x: 400, y: 0 } },
+    ]);
+    const expand = (groupId: string) => {
+      const snapshot = snapshotNodes(cy);
+      cy.getElementById(groupId).remove();
+      const added = [
+        cy.add({ data: { id: `${groupId}-box`, anchorId: groupId } }),
+        ...Array.from({ length: 8 }, (_, i) =>
+          cy.add({ data: { id: `${groupId}-c${i}`, parent: `${groupId}-box`, anchorId: groupId } }),
+        ),
+      ];
+      placeGroupChanges(cy, added, snapshot, shifts);
+    };
+    expand('g1');
+    expand('g2');
+    return { cy, shifts };
+  };
+
+  const collapse = (cy: cytoscape.Core, shifts: Map<string, ShiftRecord>, groupId: string) => {
+    const snapshot = snapshotNodes(cy);
+    cy.getElementById(`${groupId}-box`).children().remove();
+    cy.getElementById(`${groupId}-box`).remove();
+    const added = [cy.add({ data: { id: groupId, anchorId: `${groupId}-box` } })];
+    placeGroupChanges(cy, added, snapshot, shifts);
+    releaseRemovedGroups(cy, shifts);
+  };
+
+  it('puts both groups back in place when children join both boxes at once', () => {
+    const { cy, shifts } = setup();
+
+    // 실시간 응답 하나에 두 상자의 새 자식이 함께 실린다. 한 칸에 8개까지 쌓이므로 둘 다 넓어진다.
+    const snapshot = snapshotNodes(cy);
+    ['g1', 'g2'].forEach((groupId) =>
+      cy.add({
+        data: { id: `${groupId}-c8`, parent: `${groupId}-box`, anchorId: groupId },
+        position: { x: 0, y: 0 },
+      }),
+    );
+    placeGroupChanges(cy, [], snapshot, shifts);
+
+    collapse(cy, shifts, 'g1');
+    collapse(cy, shifts, 'g2');
+
+    expect(positionOf(cy, 'g1').x).toBeCloseTo(0);
+    expect(positionOf(cy, 'g1').y).toBeCloseTo(0);
+    expect(positionOf(cy, 'g2').x).toBeCloseTo(400);
+    expect(positionOf(cy, 'g2').y).toBeCloseTo(0);
+    expect(shifts.size).toBe(0);
   });
 });

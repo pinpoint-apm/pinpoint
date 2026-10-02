@@ -1,7 +1,6 @@
 import cytoscape from 'cytoscape';
 import {
-  placeAnchoredNodes,
-  relayoutChangedGroups,
+  placeGroupChanges,
   releaseRemovedGroups,
   ShiftRecord,
   snapshotNodes,
@@ -12,9 +11,10 @@ import {
  * 모두 접으면, 모든 노드가 제자리로 돌아와야 한다. 하나씩 해 보는 테스트로는 순서가 엇갈릴 때의
  * 문제(다른 group이 밀어 둔 기록이 사라지는 등)를 잡지 못해 리뷰에서야 드러났다.
  *
- * 매 동작은 `ServerMap`이 데이터가 바뀔 때 하는 일을 그대로 거친다(`update`): 바꾸기 전에 위치를 떠
- * 두고, 노드를 지우고 더한 뒤, anchor가 있는 노드는 `placeAnchoredNodes`로 놓고, 자식이 바뀐 상자는
- * `relayoutChangedGroups`로 다시 배치하고, 사라진 group은 `releaseRemovedGroups`로 정리한다.
+ * 매 갱신은 `ServerMap`이 데이터가 바뀔 때 하는 일을 그대로 거친다(`update`): 바꾸기 전에 위치를 떠
+ * 두고, 노드를 지우고 더한 뒤, 펼치고 접히고 자식이 바뀐 group을 `placeGroupChanges`로 놓고, 사라진
+ * group은 `releaseRemovedGroups`로 정리한다. 한 갱신에 두 group의 변화가 함께 실리기도 한다 — 하나씩
+ * 처리하면 뒤에 놓은 group이 앞의 group에 밀린 것을 지워 버려 그 경우에만 깨졌다.
  *
  * 제자리 = 처음 자리. 사라졌다 다시 나타난 group은 다시 나타난 자리다(`ServerMap`은 anchor 없는 노드를
  * 기준 노드 옆에 따로 놓으므로, 여기서는 처음 자리에 둔다).
@@ -74,15 +74,15 @@ const createWorld = () => {
   const isExpanded = (groupId: string) => cy.getElementById(boxIdOf(groupId)).nonempty();
   const isDrawn = (groupId: string) => cy.getElementById(groupId).nonempty() || isExpanded(groupId);
 
-  /** 데이터가 바뀐 한 번. `change`가 노드를 지우고 더하며, 더한 노드를 돌려준다. */
-  const update = (change: () => cytoscape.CollectionReturnValue[]) => {
+  /**
+   * 데이터가 바뀐 한 번. 실시간 응답 하나에 여러 group의 변화가 함께 실릴 수 있으므로 변화를 여럿 받는다.
+   * 각 변화는 노드를 지우고 더하며, 더한 노드를 돌려준다.
+   */
+  const update = (changes: Change[]) => {
     const snapshot = snapshotNodes(cy);
-    const added = change();
+    const added = changes.flatMap((change) => change());
     const anchored = added.filter((node) => snapshot.has(node.data('anchorId')));
-    if (anchored.length > 0) {
-      placeAnchoredNodes(cy, anchored, snapshot, shifts);
-    }
-    relayoutChangedGroups(cy, snapshot, shifts);
+    placeGroupChanges(cy, anchored, snapshot, shifts);
     releaseRemovedGroups(cy, shifts);
   };
 
@@ -93,8 +93,8 @@ const createWorld = () => {
     cy.getElementById(groupId).remove();
   };
 
-  const expand = (groupId: string) =>
-    update(() => {
+  const expand = (groupId: string): Change => {
+    return () => {
       cy.getElementById(groupId).remove();
       return [
         cy.add({ data: { id: boxIdOf(groupId), anchorId: groupId } }),
@@ -102,50 +102,71 @@ const createWorld = () => {
           .get(groupId)!
           .map((id) => cy.add({ data: { id, parent: boxIdOf(groupId), anchorId: groupId } })),
       ];
-    });
-
-  const collapse = (groupId: string) =>
-    update(() => {
-      removeGroup(groupId);
-      return [cy.add({ data: { id: groupId, anchorId: boxIdOf(groupId) } })];
-    });
-
-  const join = (groupId: string) => {
-    const id = `${groupId}-c${nextChild++}`;
-    members.get(groupId)!.push(id);
-    if (isExpanded(groupId)) {
-      // ServerMap은 위치 없이 더한다(원점).
-      update(() => [cy.add({ data: { id, parent: boxIdOf(groupId), anchorId: groupId } })]);
-    }
+    };
   };
 
-  const leave = (groupId: string, random: () => number) => {
+  const collapse = (groupId: string): Change => {
+    return () => {
+      removeGroup(groupId);
+      return [cy.add({ data: { id: groupId, anchorId: boxIdOf(groupId) } })];
+    };
+  };
+
+  const join = (groupId: string): Change | undefined => {
+    const id = `${groupId}-c${nextChild++}`;
+    members.get(groupId)!.push(id);
+    if (!isExpanded(groupId)) {
+      return undefined;
+    }
+    // ServerMap은 위치 없이 더한다(원점).
+    return () => [cy.add({ data: { id, parent: boxIdOf(groupId), anchorId: groupId } })];
+  };
+
+  const leave = (groupId: string, random: () => number): Change | undefined => {
     const list = members.get(groupId)!;
     if (list.length <= 1) {
-      return;
+      return undefined;
     }
     const [id] = list.splice(Math.floor(random() * list.length), 1);
-    if (isExpanded(groupId)) {
-      update(() => {
-        cy.getElementById(id).remove();
-        return [];
-      });
+    if (!isExpanded(groupId)) {
+      return undefined;
     }
+    return () => {
+      cy.getElementById(id).remove();
+      return [];
+    };
   };
 
   // 그 service의 호출이 끊겨 group이 응답에서 통째로 빠진다. 펼쳐져 있었으면 상자째로 사라진다.
   // (ServerMapCore는 이때 펼친 상태도 지우므로, 다시 나타날 때는 접힌 채로 온다.)
-  const vanish = (groupId: string) =>
-    update(() => {
+  const vanish = (groupId: string): Change => {
+    return () => {
       removeGroup(groupId);
       return [];
-    });
+    };
+  };
 
-  const reappear = (groupId: string) =>
-    update(() => [cy.add({ data: { id: groupId }, position: { ...INITIAL_POSITIONS[groupId] } })]);
+  const reappear = (groupId: string): Change => {
+    return () => [cy.add({ data: { id: groupId }, position: { ...INITIAL_POSITIONS[groupId] } })];
+  };
 
-  return { cy, shifts, isExpanded, isDrawn, expand, collapse, join, leave, vanish, reappear };
+  return {
+    cy,
+    shifts,
+    isExpanded,
+    isDrawn,
+    update,
+    expand,
+    collapse,
+    join,
+    leave,
+    vanish,
+    reappear,
+  };
 };
+
+/** 한 번의 데이터 갱신에서 일어나는 변화 하나. 노드를 지우고 더하며, 더한 노드를 돌려준다. */
+type Change = () => cytoscape.CollectionReturnValue[];
 
 const OPERATIONS = ['toggle', 'toggle', 'toggle', 'join', 'leave', 'vanish'] as const;
 
@@ -153,46 +174,53 @@ const run = (seed: number, steps: number) => {
   const random = createRandom(seed);
   const world = createWorld();
   const log: string[] = [];
+  const pickGroup = () => GROUP_IDS[Math.floor(random() * GROUP_IDS.length)];
 
-  for (let i = 0; i < steps; i++) {
-    const groupId = GROUP_IDS[Math.floor(random() * GROUP_IDS.length)];
+  /** group 하나에 일어날 변화를 정한다. 지금 상태에 맞춰 정하므로 같은 갱신 안의 다른 group과 무관하다. */
+  const plan = (groupId: string): { label: string; change?: Change } => {
     const operation = OPERATIONS[Math.floor(random() * OPERATIONS.length)];
-
     if (!world.isDrawn(groupId)) {
       // 사라진 group은 다음에 뽑히면 다시 나타난다.
-      world.reappear(groupId);
-      log.push(`reappear ${groupId}`);
-    } else if (operation === 'toggle') {
-      if (world.isExpanded(groupId)) {
-        world.collapse(groupId);
-        log.push(`collapse ${groupId}`);
-      } else {
-        world.expand(groupId);
-        log.push(`expand ${groupId}`);
-      }
-    } else if (operation === 'join') {
-      world.join(groupId);
-      log.push(`join ${groupId}`);
-    } else if (operation === 'leave') {
-      world.leave(groupId, random);
-      log.push(`leave ${groupId}`);
-    } else {
-      world.vanish(groupId);
-      log.push(`vanish ${groupId}`);
+      return { label: `reappear ${groupId}`, change: world.reappear(groupId) };
     }
+    if (operation === 'toggle') {
+      return world.isExpanded(groupId)
+        ? { label: `collapse ${groupId}`, change: world.collapse(groupId) }
+        : { label: `expand ${groupId}`, change: world.expand(groupId) };
+    }
+    if (operation === 'join') {
+      return { label: `join ${groupId}`, change: world.join(groupId) };
+    }
+    if (operation === 'leave') {
+      return { label: `leave ${groupId}`, change: world.leave(groupId, random) };
+    }
+    return { label: `vanish ${groupId}`, change: world.vanish(groupId) };
+  };
+
+  for (let i = 0; i < steps; i++) {
+    // 절반은 한 응답에 두 group의 변화가 함께 실린다(실시간 보기에서 두 상자의 자식이 함께 바뀌는 등).
+    const groupIds =
+      random() < 0.5
+        ? [pickGroup()]
+        : GROUP_IDS.slice()
+            .sort(() => random() - 0.5)
+            .slice(0, 2);
+    const plans = groupIds.map(plan);
+    world.update(plans.flatMap(({ change }) => (change ? [change] : [])));
+    log.push(plans.map(({ label }) => label).join(' + '));
   }
 
-  // 남은 group을 무작위 순서로 모두 접는다.
+  // 남은 group을 무작위 순서로 하나씩 접는다.
   const remaining = GROUP_IDS.filter(world.isExpanded).sort(() => random() - 0.5);
   remaining.forEach((groupId) => {
-    world.collapse(groupId);
+    world.update([world.collapse(groupId)]);
     log.push(`collapse ${groupId}`);
   });
 
   return { ...world, log };
 };
 
-describe('placeAnchoredNodes / relayoutChangedGroups / releaseRemovedGroups in shuffled order', () => {
+describe('placeGroupChanges / releaseRemovedGroups in shuffled order', () => {
   const SEEDS = Array.from({ length: 200 }, (_, i) => i + 1);
 
   it.each(SEEDS)('puts every node back in place after collapsing everything (seed %i)', (seed) => {
