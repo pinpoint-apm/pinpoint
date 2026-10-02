@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.test.plugin.junit5.descriptor.PluginTestDescriptor
 import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.TestDescriptorBuilder;
 import com.navercorp.pinpoint.test.plugin.junit5.engine.discovery.TestDescriptorRegistry;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
-import org.eclipse.aether.ConfigurationProperties;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactoryLoader;
 import org.junit.jupiter.engine.config.CachingJupiterConfiguration;
 import org.junit.jupiter.engine.config.DefaultJupiterConfiguration;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
@@ -124,15 +124,27 @@ public class PluginTestEngine extends HierarchicalTestEngine<JupiterEngineExecut
 
     private synchronized DependencyResolverFactory getResolverFactory() {
         if (this.resolverFactory == null) {
-            this.resolverFactory = new DependencyResolverFactory(resolverOption());
+            this.resolverFactory = newResolverFactory();
         }
         return this.resolverFactory;
     }
 
+    // the maven resolver runs in its own child-first class loader, see DependencyResolverFactoryLoader
+    private DependencyResolverFactory newResolverFactory() {
+        final ClassLoader parent = getClass().getClassLoader();
+        final List<String> classPaths = DependencyResolverFactoryLoader.findClassPaths();
+        if (classPaths.isEmpty()) {
+            throw new IllegalStateException("pinpoint-plugins-maven-resolver distribution is empty");
+        }
+        logger.debug(() -> "resolver classpath: " + classPaths);
+        final ClassLoader resolverClassLoader = DependencyResolverFactoryLoader.newClassLoader(classPaths, parent);
+        return DependencyResolverFactoryLoader.load(resolverClassLoader, resolverOption());
+    }
+
     private static Map<String, Object> resolverOption() {
         Map<String, Object> resolverOption = new HashMap<>();
-        resolverOption.put(ConfigurationProperties.CONNECT_TIMEOUT, TimeUnit.SECONDS.toMillis(5));
-        resolverOption.put(ConfigurationProperties.REQUEST_TIMEOUT, TimeUnit.MINUTES.toMillis(5));
+        resolverOption.put(DependencyResolverFactory.CONNECT_TIMEOUT, TimeUnit.SECONDS.toMillis(5));
+        resolverOption.put(DependencyResolverFactory.REQUEST_TIMEOUT, TimeUnit.MINUTES.toMillis(5));
         return resolverOption;
     }
 

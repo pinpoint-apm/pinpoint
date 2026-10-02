@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.test.plugin.api.ClassLoading;
 import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.OnClassLoader;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
+import com.navercorp.pinpoint.test.plugin.maven.MavenArtifact;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolveException;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
 import com.navercorp.pinpoint.test.plugin.maven.DependencyVersionFilter;
@@ -32,8 +34,6 @@ import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
 
 import java.net.URL;
@@ -98,14 +98,14 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
 
         if (ArrayUtils.hasLength(sharedDependencies)) {
             final DependencyResolver resolver = getDependencyResolver(context.getRepositoryUrls());
-            final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(sharedDependencies);
+            final Map<String, List<MavenArtifact>> dependencyCases = resolver.resolveDependencySets(sharedDependencies);
 
-            for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
+            for (Map.Entry<String, List<MavenArtifact>> dependencyCase : dependencyCases.entrySet()) {
                 final String testId = dependencyCase.getKey();
                 try {
-                    final List<Artifact> artifactList = dependencyCase.getValue();
+                    final List<MavenArtifact> artifactList = dependencyCase.getValue();
                     libs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
-                } catch (DependencyResolutionException ex) {
+                } catch (DependencyResolveException ex) {
                     logger.info(ex, "Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
                 }
             }
@@ -133,28 +133,28 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         final DependencyResolver resolver = getDependencyResolver(context.getRepositoryUrls());
 
         final String pluginsTest = "com.navercorp.pinpoint:pinpoint-plugins-test:" + VersionUtils.VERSION;
-        final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets(pluginsTest);
+        final Map<String, List<MavenArtifact>> agentDependency = resolver.resolveDependencySets(pluginsTest);
         final List<Path> agentLibs = new ArrayList<>(16);
         agentLibs.addAll(FileUtils.toPaths(context.getAgentLibList()));
 
-        for (Map.Entry<String, List<Artifact>> dependencyCase : agentDependency.entrySet()) {
+        for (Map.Entry<String, List<MavenArtifact>> dependencyCase : agentDependency.entrySet()) {
             try {
-                final List<Artifact> artifactList = dependencyCase.getValue();
+                final List<MavenArtifact> artifactList = dependencyCase.getValue();
                 agentLibs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
-            } catch (DependencyResolutionException e) {
+            } catch (DependencyResolveException e) {
                 logger.info(e, "Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
                 return pluginTestInstanceList;
             }
         }
 
-        final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(DEPENDENCY_VERSION_FILTER, dependencies);
-        for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
+        final Map<String, List<MavenArtifact>> dependencyCases = resolver.resolveDependencySets(DEPENDENCY_VERSION_FILTER, dependencies);
+        for (Map.Entry<String, List<MavenArtifact>> dependencyCase : dependencyCases.entrySet()) {
             final String testId = dependencyCase.getKey();
             final List<Path> libs = new ArrayList<>();
             try {
-                final List<Artifact> artifactList = dependencyCase.getValue();
+                final List<MavenArtifact> artifactList = dependencyCase.getValue();
                 libs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
-            } catch (DependencyResolutionException e) {
+            } catch (DependencyResolveException e) {
                 logger.info(e, "Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
                 continue;
             }
@@ -177,7 +177,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         return pluginTestInstanceList;
     }
 
-    private List<Path> resolveArtifactsAndDependencies(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
+    private List<Path> resolveArtifactsAndDependencies(DependencyResolver resolver, List<MavenArtifact> artifacts) throws DependencyResolveException {
         final List<Path> files = resolver.resolveArtifactsAndDependencies(artifacts);
         return FileUtils.toAbsolutePath(files);
     }

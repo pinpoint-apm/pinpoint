@@ -34,6 +34,7 @@
         <module>plugins-it-utils-jdbc</module>
 
         <module>plugins-test</module>
+        <module>plugins-maven-resolver</module>
         <module>testcase</module>
     </modules>
 

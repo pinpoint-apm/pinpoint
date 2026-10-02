@@ -16,13 +16,8 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,64 +25,19 @@ import java.util.List;
  */
 public class ArtifactIdUtils {
 
-    private static final String ARTIFACT_DELIMITER = ":";
-
     public static final String ARTIFACT_SEPARATOR = ";";
 
-    public static List<Artifact> toArtifact(String[] artifactNameArray) {
-        if (artifactNameArray == null) {
-            return Collections.emptyList();
-        }
-
-        List<Artifact> result = new ArrayList<>(artifactNameArray.length);
-        for (String artifactName : artifactNameArray) {
-            Artifact artifact = toArtifact(artifactName);
-            if (artifact != null) {
-                result.add(artifact);
-            }
-        }
-
-        return result;
+    private ArtifactIdUtils() {
     }
 
-    public static Artifact toArtifact(String artifactName) {
-        if (artifactName == null) {
-            return null;
-        }
-
-        String[] splitValue = artifactName.split(ARTIFACT_DELIMITER, 4);
-        if (ArrayUtils.isEmpty(splitValue)) {
-            return null;
-        }
-
-        if (splitValue.length == 3) {
-            return new DefaultArtifact(splitValue[0], splitValue[1], "jar", splitValue[2]);
-        } else if (splitValue.length == 4) {
-            return new DefaultArtifact(splitValue[0], splitValue[1], splitValue[3], "jar", splitValue[2]);
-        }
-
-        return null;
+    public static String join(List<String> artifacts) {
+        return String.join(ARTIFACT_SEPARATOR, artifacts);
     }
 
-    public static String artifactToString(Artifact artifact) {
-        StringBuilder result = new StringBuilder();
-
-        String groupId = artifact.getGroupId();
-        result.append(groupId).append(ARTIFACT_DELIMITER);
-
-        String artifactId = artifact.getArtifactId();
-        result.append(artifactId).append(ARTIFACT_DELIMITER);
-
-        String version = artifact.getVersion();
-        result.append(version);
-
-        if (StringUtils.hasText(artifact.getClassifier())) {
-            String classifier = artifact.getClassifier();
-            result.append(ARTIFACT_DELIMITER).append(classifier);
+    public static String[] split(String artifacts) {
+        if (StringUtils.isEmpty(artifacts)) {
+            return new String[0];
         }
-
-
-        return result.toString();
+        return artifacts.split(ARTIFACT_SEPARATOR);
     }
-
 }

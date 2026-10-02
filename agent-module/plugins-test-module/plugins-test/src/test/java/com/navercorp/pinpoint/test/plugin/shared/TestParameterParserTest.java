@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.test.plugin.shared;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,10 +31,10 @@ public class TestParameterParserTest {
     @Test
     public void parse() {
         TestParameterParser parser = new TestParameterParser();
-        List<TestParameter> parameters = parser.parse(new String[]{"testId=dependency1"});
+        List<TestParameter> parameters = parser.parse(new String[]{"testId=g:a:1;g:b:jar:tests:2;"});
         assertThat(parameters).hasSize(1);
         TestParameter one = parameters.get(0);
         Assertions.assertEquals(one.getTestId(), "testId" );
-        Assertions.assertEquals(one.getMavenDependencies(), Collections.singletonList("dependency1"));
+        assertThat(one.getMavenDependencies()).containsExactly("g:a:1", "g:b:jar:tests:2");
     }
 }

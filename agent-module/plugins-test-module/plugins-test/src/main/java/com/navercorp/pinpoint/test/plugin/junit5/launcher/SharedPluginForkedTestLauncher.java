@@ -19,7 +19,10 @@ package com.navercorp.pinpoint.test.plugin.junit5.launcher;
 import com.navercorp.pinpoint.test.plugin.PluginClassLoading;
 import com.navercorp.pinpoint.test.plugin.ReflectPluginTestVerifier;
 import com.navercorp.pinpoint.test.plugin.api.TraceObjectManagable;
-import com.navercorp.pinpoint.test.plugin.shared.ReflectionDependencyResolver;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolveException;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolver;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactory;
+import com.navercorp.pinpoint.test.plugin.maven.DependencyResolverFactoryLoader;
 import com.navercorp.pinpoint.test.plugin.api.SharedPluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllInvoker;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestExecutor;
@@ -33,7 +36,6 @@ import com.navercorp.pinpoint.test.plugin.util.ChildFirstClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
 import com.navercorp.pinpoint.test.plugin.util.ProfilerClass;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
-import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 import org.junit.jupiter.engine.JupiterTestEngine;
 import org.junit.platform.engine.TestExecutionResult;
@@ -158,9 +160,8 @@ public class SharedPluginForkedTestLauncher {
         this.out = out;
     }
 
-    private List<TestInfo> newTestCaseInfo(List<TestParameter> testParameters, Path testClazzLocation, String[] repositoryUrls, ClassLoader dependencyClassLoader) throws Exception {
-        ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(dependencyClassLoader, repositoryUrls);
-        List<Path> loggerDependencies = getLoggerDependencies(dependencyResolver, dependencyClassLoader);
+    private List<TestInfo> newTestCaseInfo(List<TestParameter> testParameters, Path testClazzLocation, String[] repositoryUrls, DependencyResolver dependencyResolver) throws Exception {
+        List<Path> loggerDependencies = getLoggerDependencies(dependencyResolver);
         logger.debug("loggerDependency:{}", loggerDependencies);
 
         List<TestInfo> testInfos = new ArrayList<>();
@@ -170,7 +171,7 @@ public class SharedPluginForkedTestLauncher {
 
             testDependency.addAll(loggerDependencies);
 
-            List<Path> testParameterDependency = getTestParameterDependency(dependencyClassLoader, dependencyResolver, testParameter);
+            List<Path> testParameterDependency = getTestParameterDependency(dependencyResolver, testParameter);
             testDependency.addAll(testParameterDependency);
 
             final TestInfo testInfo = new TestInfo(testParameter.getTestId(), testDependency, Arrays.asList(repositoryUrls));
@@ -179,12 +180,9 @@ public class SharedPluginForkedTestLauncher {
         return testInfos;
     }
 
-    private List<Path> getTestParameterDependency(ClassLoader mavenDependencyResolverClassLoader,
-                                                  ReflectionDependencyResolver dependencyResolver,
-                                                  TestParameter testParameter) throws Exception {
-
+    private List<Path> getTestParameterDependency(DependencyResolver dependencyResolver, TestParameter testParameter) throws DependencyResolveException {
         final List<String> mavenDependencies = testParameter.getMavenDependencies();
-        List<Path> testDependencyFileList = lookup(dependencyResolver, mavenDependencies, mavenDependencyResolverClassLoader);
+        List<Path> testDependencyFileList = dependencyResolver.resolveArtifactsAndDependencies(mavenDependencies.toArray(new String[0]));
         if (logger.isDebugEnabled()) {
             logger.debug("@Dependency {}", mavenDependencies);
             for (Path file : testDependencyFileList) {
@@ -194,12 +192,12 @@ public class SharedPluginForkedTestLauncher {
         return testDependencyFileList;
     }
 
-    private List<Path> getLoggerDependencies(ReflectionDependencyResolver dependencyResolver, ClassLoader mavenDependencyResolverClassLoader) throws Exception {
+    private List<Path> getLoggerDependencies(DependencyResolver dependencyResolver) throws DependencyResolveException {
         if (!testLogger) {
             return Collections.emptyList();
         }
         List<String> dependencyLib = PluginClassLoading.LOGGER_DEPENDENCY;
-        List<Path> libFiles = lookup(dependencyResolver, dependencyLib, mavenDependencyResolverClassLoader);
+        List<Path> libFiles = dependencyResolver.resolveArtifactsAndDependencies(dependencyLib.toArray(new String[0]));
         if (logger.isDebugEnabled()) {
             logger.debug("LoggerDependency {}", dependencyLib);
             for (Path libFile : libFiles) {
@@ -207,16 +205,6 @@ public class SharedPluginForkedTestLauncher {
             }
         }
         return libFiles;
-    }
-
-    private List<Path> lookup(final ReflectionDependencyResolver dependencyResolver, final List<String> dependencyLib, ClassLoader cl) throws Exception {
-        Callable<List<Path>> callable = new ThreadContextCallable<>(new Callable<List<Path>>() {
-            @Override
-            public List<Path> call() throws Exception {
-                return dependencyResolver.lookup(dependencyLib);
-            }
-        }, cl);
-        return callable.call();
     }
 
     private void logTestInformation() {
@@ -237,10 +225,12 @@ public class SharedPluginForkedTestLauncher {
 
     public void execute() throws Exception {
         logTestInformation();
-        URL[] classPath = URLUtils.fileToUrls(mavenDependencyResolverClassPaths);
-        ClassLoader mavenDependencyResolverClassLoader = new ChildFirstClassLoader(classPath);
+        // parent: the system class loader, which holds pinpoint-plugins-test and the DependencyResolver contract
+        ClassLoader mavenDependencyResolverClassLoader = DependencyResolverFactoryLoader.newClassLoader(Arrays.asList(mavenDependencyResolverClassPaths), getClass().getClassLoader());
+        DependencyResolverFactory resolverFactory = DependencyResolverFactoryLoader.load(mavenDependencyResolverClassLoader, Collections.emptyMap());
+        DependencyResolver dependencyResolver = resolverFactory.get(repositoryUrls);
         Path testClazzLocation = Paths.get(testLocation);
-        List<TestInfo> testInfos = newTestCaseInfo(testParameters, testClazzLocation, repositoryUrls, mavenDependencyResolverClassLoader);
+        List<TestInfo> testInfos = newTestCaseInfo(testParameters, testClazzLocation, repositoryUrls, dependencyResolver);
 
         executes(testInfos);
     }
