@@ -24,74 +24,118 @@
 
     .react-datepicker__month {
       margin: 0;
-      padding: 0 1.5rem;
+      padding: 0;
     }
 
     .react-datepicker__day-names {
-      padding: 0 1.5rem;
+      padding: 0;
+      margin-bottom: 0.3125rem;
     }
 
     .react-datepicker__day-names,
     .react-datepicker__week {
       font-size: 0.75rem;
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.3125rem;
-
-      .react-datepicker__day--in-range {
-        border-radius: 2px;
-      }
     }
 
+    // 범위 배경이 가로로 끊기지 않으려면 셀이 서로 맞닿아야 한다.
+    // 고정 너비 + space-between은 셀 사이에 여백을 만들어 띠를 조각낸다.
     .react-datepicker__day-name,
     .react-datepicker__day {
-      width: 2.25rem;
-      line-height: 1.5rem;
+      flex: 1 1 0;
+      width: auto;
       margin: 0;
-    }
+      line-height: 1.75rem;
 
-    .react-datepicker__day--in-selecting-range:not(
-        .react-datepicker__day--in-range,
-        .react-datepicker__month-text--in-range,
-        .react-datepicker__quarter-text--in-range,
-        .react-datepicker__year-text--in-range
-      ) {
-      border-radius: 2px;
-      background-color: rgba(147, 56, 255, 0.2);
+      // stock CSS가 `.react-datepicker__day`에 `color: #000`을 직접 박아둬서,
+      // 루트(`.react-datepicker`)에 색을 상속시켜도 날짜에는 닿지 않는다.
+      // 패널 색만 바꾸면 따라오게 하려면 여기서 끊어줘야 한다(다크모드).
       color: inherit;
-
-      &:hover {
-        background-color: inherit;
-      }
     }
 
-    .react-datepicker__day--selected {
-      color: white !important;
-      background-color: #9338ff !important;
-      border-radius: 2px;
+    // 비활성 날짜는 고정색(#ccc) 대신 투명도로 흐린다 — 밝은 배경과 어두운 배경 양쪽에서 동작한다.
+    .react-datepicker__day--disabled {
+      color: inherit;
+      opacity: 0.35;
+    }
 
-      &:hover {
-        background-color: white;
-        color: inherit;
+    // 끝점 칩(::before)을 셀 배경 '위', 글자 '아래'에 그리려면 셀이 자체 stacking
+    // context를 만들어야 한다. 음수 z-index는 자신이 속한 컨텍스트의 배경 위에만 그려지므로,
+    // 여기서 z-index를 빼면 칩이 띠 배경 뒤로 숨어 보이지 않는다.
+    .react-datepicker__day {
+      position: relative;
+      z-index: 0;
+    }
+
+    // 선택 중이든 확정이든 범위 안쪽은 같은 띠다. 모서리를 주지 않아야 이어진다.
+    // `__day--in-range`(우리 dayClassName)까지 함께 잡는다 — stock `--in-range`는 타임존을
+    // 모르고 판정하므로 피커의 timeZone이 시스템 존과 다르면 경계 하루가 어긋날 수 있다.
+    // `__day--in-selecting-range`는 우리 dayClassName이 붙인다 — react-datepicker의 선택 중 하이라이트는
+    // 다른 달 날짜를 빼므로 그 자리를 채운다(DatePicker.tsx 참고).
+    .react-datepicker__day--in-selecting-range,
+    .react-datepicker__day--in-range,
+    .react-datepicker__day.__day--in-range,
+    .react-datepicker__day.__day--in-selecting-range {
+      background-color: var(--rdp-primary-band, rgb(147 56 255 / 12%));
+      color: inherit;
+      border-radius: 0;
+    }
+
+    // 띠의 양 끝만 둥글린다. 주가 바뀌는 지점은 각지게 둬서 다음 줄로 이어지는 것처럼 읽힌다.
+    .react-datepicker__day--selecting-range-start,
+    .react-datepicker__day--range-start {
+      border-start-start-radius: 0.25rem;
+      border-end-start-radius: 0.25rem;
+    }
+
+    .react-datepicker__day--selecting-range-end,
+    .react-datepicker__day--range-end,
+    .react-datepicker__day.__day--selecting-range-end {
+      border-start-end-radius: 0.25rem;
+      border-end-end-radius: 0.25rem;
+    }
+
+    // 끝점은 띠 위에 얹히는 칩으로 그린다. 셀이 띠 너비를 차지하므로
+    // 칩까지 셀을 꽉 채우면 날짜 하나가 과하게 커 보인다.
+    // 클래스를 겹쳐 띠 규칙(`.react-datepicker__day.__day--in-range`)과 특이도를 맞춘다.
+    // 특이도가 낮으면 띠의 `color: inherit`이 끝점 글자색을 덮는다.
+    .react-datepicker__day.react-datepicker__day--selected,
+    .react-datepicker__day.react-datepicker__day--range-start,
+    .react-datepicker__day.react-datepicker__day--range-end,
+    .react-datepicker__day.react-datepicker__day--selecting-range-start {
+      color: white;
+      font-weight: 500;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0 0.25rem;
+        z-index: -1;
+        border-radius: 0.25rem;
+        background-color: var(--rdp-primary, #9338ff);
       }
     }
   }
 }
 
-.rich-datetime-picker__day.__day--in-range {
-  background-color: #9338ff;
-  color: white;
-}
-
+// hover는 띠를 덮지 않도록 끝점 칩과 같은 모양의 테두리만 얹는다.
 .rich-datetime-picker__day {
-  &:hover:not(.react-datepicker__day--disabled) {
-    background-color: white;
-    outline: 1px solid #9338ff;
-    border-radius: 2px;
-    color: inherit;
+  &:hover:not(
+      .react-datepicker__day--disabled,
+      .react-datepicker__day--selected,
+      .react-datepicker__day--range-start,
+      .react-datepicker__day--range-end
+    )::after {
+    content: '';
+    position: absolute;
+    inset: 0 0.25rem;
+    border-radius: 0.25rem;
+    outline: 1px solid var(--rdp-primary, #9338ff);
   }
 }
 
+// 요일 헤더도 같은 이유로 고정색 대신 투명도를 쓴다.
 .rich-datetime-picker__day-name {
-  color: rgba(0, 0, 0, 0.5);
+  color: inherit;
+  opacity: 0.5;
 }

@@ -36,6 +36,8 @@ export default [
     rules: {
       ...typescript.configs.recommended.rules,
       'no-undef': 'off', // TypeScript가 이미 타입 체크를 하므로 비활성화
+      // rich-datetime-picker 원본이 `cond && fn()` 형태를 쓴다. 원본 설정과 같게 허용한다.
+      '@typescript-eslint/no-unused-expressions': ['error', { allowShortCircuit: true }],
     },
   },
 

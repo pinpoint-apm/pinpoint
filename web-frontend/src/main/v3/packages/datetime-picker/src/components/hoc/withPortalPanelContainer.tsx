@@ -11,7 +11,7 @@ interface WithPortalPanelContainerProps extends DatePanelProps {
 }
 
 export const withPortalPanelContainer = (WrappedComponent: React.ComponentType<DatePanelProps>) => {
-  return ({
+  const PortalPanelContainer = ({
     triggerRef,
     onClickOutside,
     getPanelContainer,
@@ -20,7 +20,7 @@ export const withPortalPanelContainer = (WrappedComponent: React.ComponentType<D
     const panelWrapperRef = React.useRef<HTMLDivElement>(null);
     const [datePanelStyle, setDatePanelStyle] = React.useState<React.CSSProperties>();
 
-    useOnClickOutside(panelWrapperRef as React.RefObject<HTMLElement>, (event) => {
+    useOnClickOutside(panelWrapperRef as React.RefObject<HTMLDivElement>, (event) => {
       const clickedElement = event.target as HTMLElement;
       const parentElement = clickedElement.parentNode as HTMLElement;
 
@@ -29,32 +29,35 @@ export const withPortalPanelContainer = (WrappedComponent: React.ComponentType<D
       }
     });
 
-    const setPanelStyle = () => {
+    const setPanelStyle = React.useCallback(() => {
       const triggerRect = triggerRef.current?.getBoundingClientRect();
 
       setDatePanelStyle({
-        width: triggerRect?.width,
         top: (triggerRect?.bottom || 0) + 2,
         left: triggerRect?.left,
       });
-    };
+    }, [triggerRef]);
+
+    // 안정된 단일 핸들러 — add/remove에 동일 참조를 써야 리스너가 실제로 해제된다
+    const handleResize = React.useMemo(() => throttle(setPanelStyle, 200), [setPanelStyle]);
 
     React.useEffect(() => {
-      if (props.open && getPanelContainer && getPanelContainer()) {
+      if (props.open && getPanelContainer?.()) {
         setPanelStyle();
-        window.addEventListener('resize', throttle(setPanelStyle, 200));
-      } else {
-        window.removeEventListener('resize', setPanelStyle);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
       }
-
-      return () => {
-        window.removeEventListener('resize', setPanelStyle);
-      };
-    }, [props.open]);
+    }, [props.open, getPanelContainer, handleResize, setPanelStyle]);
 
     return getPanelContainer?.() ? (
       createPortal(
-        <div className="rich-datetime-picker overflow-hidden" ref={panelWrapperRef}>
+        <div
+          className="rich-datetime-picker rdp:overflow-hidden"
+          ref={panelWrapperRef}
+          role="dialog"
+          aria-modal="false"
+          aria-label="Date range picker"
+        >
           <WrappedComponent style={datePanelStyle} {...props} />
         </div>,
         getPanelContainer() as HTMLElement,
@@ -63,4 +66,10 @@ export const withPortalPanelContainer = (WrappedComponent: React.ComponentType<D
       <WrappedComponent {...props} />
     );
   };
+
+  PortalPanelContainer.displayName = `withPortalPanelContainer(${
+    WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  })`;
+
+  return PortalPanelContainer;
 };
