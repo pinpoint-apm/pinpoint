@@ -3,7 +3,7 @@ import type { TFunction } from 'i18next';
 // Keep these lists ascending and aligned with backend AlarmValidationConstants:
 // CHECK_INTERVAL_SEC_OPTIONS, ACTION_INTERVAL_SEC_OPTIONS. The server rejects a value
 // above the last entry, so adding one here without the backend makes saving fail.
-export const CHECK_INTERVAL_SEC_OPTIONS = [60, 300, 600, 1800, 3600];
+export const CHECK_INTERVAL_SEC_OPTIONS = [60, 180, 300, 600, 1800, 3600];
 export const ACTION_INTERVAL_SEC_OPTIONS = [300, 600, 1800, 3600, 21600, 43200, 86400];
 
 export const DEFAULT_CHECK_INTERVAL_SEC = 600;

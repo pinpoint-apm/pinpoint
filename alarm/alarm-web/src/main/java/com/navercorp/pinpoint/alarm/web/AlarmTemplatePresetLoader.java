@@ -164,6 +164,14 @@ public class AlarmTemplatePresetLoader {
                 validateRule(preset.name().ko(), rule, conditionValidator, filterKeyValidator,
                         dataSourceRegistry);
             }
+            // A bundle holds one category, so a mixed preset could never be saved as one.
+            long categories = preset.rules().stream()
+                    .map(rule -> dataSourceRegistry.get(rule.dataSource()).category())
+                    .distinct()
+                    .count();
+            if (categories > 1) {
+                throw new IllegalStateException("Preset '" + preset.name().ko() + "' mixes data source categories");
+            }
         }
     }
 

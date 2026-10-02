@@ -377,7 +377,7 @@ class AlarmTemplateServiceTest extends AlarmServiceTestSupport {
         service.createTemplate(template);
 
         AlarmTemplateItem saved = templateItemDao.insertedItems.get(0);
-        assertEquals(300, saved.getCheckIntervalSec());
+        assertEquals(180, saved.getCheckIntervalSec());
         assertEquals(600, saved.getActionIntervalSec());
         assertEquals(1, templateDao.insertedCount);
     }
