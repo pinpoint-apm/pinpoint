@@ -87,7 +87,7 @@ public class OtlpMetricMapper {
         builder.setServiceName(serviceName);
 
         String agentId = commonTags.remove(OtlpResourceAttributes.KEY_PINPOINT_AGENTID);
-        if (StringUtils.isEmpty(serviceName)) {
+        if (StringUtils.isEmpty(agentId)) {
             throw new OtlpMappingException("Resource attribute `pinpoint.agentId` is required to save OTLP metrics to Pinpoint");
         }
 
