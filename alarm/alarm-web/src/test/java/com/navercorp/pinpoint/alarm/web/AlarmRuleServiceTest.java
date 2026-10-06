@@ -420,7 +420,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao(item(10L, 20L));
         AlarmRuleService service = newService(ruleDao, templateDao, templateItemDao,                 new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+        service.updateEnabled(APPLICATION, 7L, true);
 
         assertEquals(List.of("header:20", "rule:7"), lockLog);
     }
@@ -449,7 +449,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         RecordingRuleDao ruleDao = new RecordingRuleDao(true);
         AlarmRuleService service = newService(ruleDao,                 new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, false);
+        service.updateEnabled(APPLICATION, 7L, false);
 
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(List.of(7L), ruleDao.updatedEnabledIds);
@@ -464,7 +464,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         when(stateDao.selectByRuleId(7L)).thenReturn(stored);
         AlarmRuleService service = newService(new RecordingRuleDao(true),                 new RecordingChannelBindingDao(), stateDao);
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+        service.updateEnabled(APPLICATION, 7L, true);
 
         ArgumentCaptor<AlarmState> upserted = ArgumentCaptor.forClass(AlarmState.class);
         verify(stateDao).upsert(upserted.capture());
@@ -484,7 +484,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         AlarmRuleService service = newService(new RecordingRuleDao(true).withEnabled(true),
                 new RecordingChannelBindingDao(), stateDao);
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+        service.updateEnabled(APPLICATION, 7L, true);
 
         ArgumentCaptor<AlarmState> upserted = ArgumentCaptor.forClass(AlarmState.class);
         verify(stateDao).upsert(upserted.capture());
@@ -498,7 +498,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
         RecordingTemplateItemDao templateItemDao = new RecordingTemplateItemDao(item(10L, 20L));
         AlarmRuleService service = newService(ruleDao, templateDao, templateItemDao,                 new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
 
-        service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true);
+        service.updateEnabled(APPLICATION, 7L, true);
 
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(List.of(20L), templateDao.lockedIds);
@@ -514,13 +514,34 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
 
         AlarmResourceNotFoundException exception = assertThrows(
                 AlarmResourceNotFoundException.class,
-                () -> service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, true)
+                () -> service.updateEnabled(APPLICATION, 7L, true)
         );
 
         assertEquals("Template not found", exception.getMessage());
         // Rejected before any lock, so neither the header nor the rule row is held.
         assertTrue(templateDao.lockedIds.isEmpty());
         assertTrue(ruleDao.lockedIds.isEmpty());
+        assertTrue(ruleDao.updatedEnabledIds.isEmpty());
+    }
+
+    @Test
+    void updateRuleRejectsAChangeOfApplicationType() {
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmRuleService service = newService(ruleDao, new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmRuleV2 rule = validRule(7L);
+        rule.setApplicationType("other-type");
+
+        assertThrows(AlarmResourceNotFoundException.class, () -> service.updateRule(7L, rule));
+        assertTrue(ruleDao.updatedRules.isEmpty());
+    }
+
+    @Test
+    void updateEnabledRejectsASameNamedApplicationOfAnotherType() {
+        RecordingRuleDao ruleDao = new RecordingRuleDao(true);
+        AlarmRuleService service = newService(ruleDao, new RecordingChannelBindingDao(), mock(AlarmStateDao.class));
+        AlarmApplication other = new AlarmApplication(SERVICE_NAME, APPLICATION_NAME, "other-type");
+
+        assertThrows(AlarmResourceNotFoundException.class, () -> service.updateEnabled(other, 7L, true));
         assertTrue(ruleDao.updatedEnabledIds.isEmpty());
     }
 
@@ -551,7 +572,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.updateEnabled(SERVICE_NAME, APPLICATION_NAME, 7L, false)
+                () -> service.updateEnabled(APPLICATION, 7L, false)
         );
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
@@ -582,7 +603,7 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
                 stub(AlarmTemplateItemDao.class), channelBindingDao,
                 historyDao, outboxDao, stateDao);
 
-        service.deleteRule(SERVICE_NAME, APPLICATION_NAME, 7L);
+        service.deleteRule(APPLICATION, 7L);
 
         assertEquals(List.of(7L), ruleDao.lockedIds);
         assertEquals(DELETION_ORDER, deletionLog);

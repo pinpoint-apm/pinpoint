@@ -63,13 +63,6 @@ final class AlarmOwnerships {
         return channel;
     }
 
-    static void verifyRule(AlarmRuleV2 rule, String serviceName, String applicationName) {
-        if (!AlarmServiceNames.isSame(rule.getServiceName(), serviceName)
-                || !Objects.equals(rule.getApplicationName(), applicationName)) {
-            throw new AlarmResourceNotFoundException("Rule not found");
-        }
-    }
-
     static void verifyRule(AlarmRuleV2 rule, AlarmApplication application) {
         if (!Objects.equals(rule.getServiceName(), application.getServiceName())
                 || !Objects.equals(rule.getApplicationName(), application.getApplicationName())
