@@ -157,6 +157,7 @@ public class ConfigModule extends AbstractModule {
         bind(String.class).annotatedWith(Names.named(ObjectName.AGENT_ID)).toInstance(objectName.getAgentId());
         bind(String.class).annotatedWith(Names.named(ObjectName.AGENT_NAME)).toInstance(objectName.getAgentName());
         bind(String.class).annotatedWith(Names.named(ObjectName.APPLICATION_NAME)).toInstance(objectName.getApplicationName());
+        bind(String.class).annotatedWith(Names.named(ObjectName.SERVICE_NAME)).toInstance(serviceName(objectName));
 
         final ContainerResolver containerResolver = new ContainerResolver();
         final boolean isContainer = containerResolver.isContainer();
@@ -168,6 +169,17 @@ public class ConfigModule extends AbstractModule {
         bind(String.class).annotatedWith(ClusterNamespace.class).toProvider(ClusterNamespaceProvider.class).in(Scopes.SINGLETON);
     }
 
+
+    // V1 has no service name; keep the value the micrometer exporter has always reported
+    static final String V1_SERVICE_NAME = "default";
+
+    private static String serviceName(ObjectName objectName) {
+        final String serviceName = objectName.getServiceName();
+        if (serviceName == null) {
+            return V1_SERVICE_NAME;
+        }
+        return serviceName;
+    }
 
     private void bindShutdownHook(ContextConfig contextConfig) {
         // for lazy init
