@@ -27,7 +27,7 @@ import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/cons
 import { addCommas } from '@pinpoint-fe/ui/src/utils';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { HighLightCode } from '../../HighLightCode';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import {
   transactionInfoCallTreeFocusId,
   transactionInfoSteppedInSpanId,
@@ -161,27 +161,48 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
   const searchScope = visibleRows;
   const scrollRowIndex = focusRowId === undefined ? -1 : visibleRowIds.indexOf(String(focusRowId));
 
+  const [focusIdFromTimeline, setFocusIdFromTimeline] = useAtom(transactionInfoCallTreeFocusId);
+  // Set when the user steps in or out from this Call Tree; read by the step effect below.
+  const userSteppedRef = React.useRef(false);
+  const handleStepSpan = React.useCallback(
+    (id: string) => {
+      if (id !== steppedInSpanId) {
+        userSteppedRef.current = true;
+      }
+      setSteppedInSpanId(id);
+      // The Flame Graph's jump has been acted on; left in place it would outrank this step the
+      // next time the tree is drawn (see `getInitialFocusRowId`).
+      if (focusIdFromTimeline) {
+        setFocusIdFromTimeline('');
+      }
+    },
+    [steppedInSpanId, setSteppedInSpanId, focusIdFromTimeline, setFocusIdFromTimeline],
+  );
+
   const { defaultColumns, columns, updateColumns } = useCallTreeTableColumns({
     metaData,
     mapData,
     onClickDetailView,
-    onStepSpan: setSteppedInSpanId,
+    onStepSpan: handleStepSpan,
     steppedInSpanId,
     steppedInTimelineAxis,
   });
-  const focusIdFromTimeline = useAtomValue(transactionInfoCallTreeFocusId);
   const [timezone] = useTimezone();
 
   // Bumped with every new mark so the table scrolls to it even when it sits on the same row as the
   // previous one — two transactions of one endpoint usually focus the same `focusCallStackId`.
   const [focusRowScrollKey, setFocusRowScrollKey] = React.useState(0);
 
+  // The mark a freshly drawn tree starts with: the row the Flame Graph jumped to, else the row
+  // stepped into, else the transaction's `focusCallStackId`. The step comes before
+  // `focusCallStackId` because the tree is drawn again while still stepped in whenever the user
+  // comes back from another tab; marking `focusCallStackId` then moved the mark off the row they
+  // had stepped into (or off the drawn rows altogether).
+  const getInitialFocusRowId = (stepped: string) =>
+    focusIdFromTimeline || stepped || String(metaData?.focusCallStackId) || undefined;
+
   React.useEffect(() => {
-    if (focusIdFromTimeline) {
-      setFocusRowId(focusIdFromTimeline);
-    } else {
-      setFocusRowId(String(metaData?.focusCallStackId) || undefined);
-    }
+    setFocusRowId(getInitialFocusRowId(steppedInSpanId));
     setFocusRowScrollKey((key) => key + 1);
   }, [data, focusIdFromTimeline]);
 
@@ -244,18 +265,23 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
   // cancelled, exactly as it does with nothing stepped into. Declared after the search effect so
   // it wins on the render where both fire (a step in/out also re-runs the search).
   //
-  // Opening another transaction steps out too, but that is not the user stepping out: the parent
-  // (`TransactionInfoFetcher`) clears the step one render after the new `data` arrived, by which
-  // time the new transaction's `focusCallStackId` is already marked. Clearing it here would leave
-  // the new transaction with nothing marked. `stepDataRef` remembers which call tree the last step
-  // belonged to, so a step out that arrives with a different one is recognised and skipped.
-  const stepDataRef = React.useRef(data);
+  // Only the user's own step out clears the mark. The step is shared state, and the parent
+  // (`TransactionInfoFetcher`) also clears it whenever it shows another transaction — including
+  // when it mounts again after the user left the page stepped in and came back. That reset is not
+  // the user stepping out: it arrives after the tree was drawn with the stale step marked, so it
+  // puts back the mark the tree would have started with unstepped. A running search owns the mark
+  // instead, and has already moved it to its first hit. Guessing the reset from the data (a new
+  // tree) would miss the remount, where the tree is new to this component too, and mistake a
+  // refetch of the same transaction for a switch. The step buttons outside this tree (Flame Graph)
+  // are on another tab, so this component is not mounted when they are used.
   useUpdateEffect(() => {
-    const isTransactionChange = stepDataRef.current !== data;
-    stepDataRef.current = data;
-    if (!steppedInSpanId && isTransactionChange) {
+    if (!userSteppedRef.current) {
+      if (!steppedInSpanId && !filterInput) {
+        setFocusRowId(getInitialFocusRowId(''));
+      }
       return;
     }
+    userSteppedRef.current = false;
     setFocusRowId(steppedInSpanId || undefined);
   }, [steppedInSpanId]);
 
