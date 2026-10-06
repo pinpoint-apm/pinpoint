@@ -174,7 +174,7 @@
         <plugin.jacoco.skip>true</plugin.jacoco.skip>
 
         <!-- library -->
-        <dropwizard-metrics.version>4.2.26</dropwizard-metrics.version>
+        <dropwizard-metrics.version>4.2.40</dropwizard-metrics.version>
         <micrometer-metrics.version>1.17.1</micrometer-metrics.version>
         <micrometer-tracing.version>1.7.1</micrometer-tracing.version>
         <opentelemetry-metrics.version>1.53.0</opentelemetry-metrics.version>
