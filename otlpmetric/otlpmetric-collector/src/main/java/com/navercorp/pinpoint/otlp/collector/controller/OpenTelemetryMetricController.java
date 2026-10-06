@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.otlp.collector.controller;
 
 import com.navercorp.pinpoint.otlp.collector.mapper.OtlpMetricMapper;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
+import com.navercorp.pinpoint.otlp.collector.model.OtlpResource;
 import com.navercorp.pinpoint.otlp.collector.service.OtlpMetricCollectorService;
-import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Metric;
@@ -29,75 +29,60 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @RestController
 public class OpenTelemetryMetricController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final String tenantId;
     @NotNull private final OtlpMetricCollectorService otlpMetricCollectorService;
     @NotNull private final OtlpMetricMapper otlpMetricMapper;
 
-    public OpenTelemetryMetricController(TenantProvider tenantProvider,
-                                         @Valid OtlpMetricCollectorService otlpMetricCollectorService,
+    public OpenTelemetryMetricController(@Valid OtlpMetricCollectorService otlpMetricCollectorService,
                                          @Valid OtlpMetricMapper otlpMetricDataMapper) {
-        Objects.requireNonNull(tenantProvider, "tenantProvider");
-        this.tenantId = tenantProvider.getTenantId();
         this.otlpMetricCollectorService = Objects.requireNonNull(otlpMetricCollectorService, "otlpMetricCollectorService");
         this.otlpMetricMapper = Objects.requireNonNull(otlpMetricDataMapper, "otlpMetricDataMapper");
-        this.otlpMetricMapper.setTenantId(tenantId);
     }
 
-    @PostMapping(value = "/opentelemetry", consumes = "application/x-protobuf")
+    @PostMapping(value = "/opentelemetry", consumes = MediaType.APPLICATION_PROTOBUF_VALUE)
     public ResponseEntity<Void> saveOtlpMetric(@RequestBody ExportMetricsServiceRequest otlp)  {
         List<ResourceMetrics> resourceMetricsList = otlp.getResourceMetricsList();
 
         for (ResourceMetrics resourceMetrics : resourceMetricsList) {
+            // the resource attributes are shared by every metric below, parse and validate them once
             List<KeyValue> attributesList = resourceMetrics.getResource().getAttributesList();
-            Map<String, String> tags = convertToMap(attributesList);
+            OtlpResource resource = otlpMetricMapper.mapResource(attributesList);
+            if (resource == null) {
+                continue;
+            }
 
             List<ScopeMetrics> scopeMetricsList = resourceMetrics.getScopeMetricsList();
             for (ScopeMetrics scopeMetrics : scopeMetricsList) {
                 List<Metric> metricList = scopeMetrics.getMetricsList();
                 for (Metric metric: metricList) {
-                    OtlpMetricData metricData = toMetrics(metric, tags);
+                    OtlpMetricData metricData = otlpMetricMapper.map(metric, resource);
                     if (metricData != null) {
-                        otlpMetricCollectorService.save(metricData);
-
                         if (logger.isDebugEnabled()) {
-                            logger.debug("tenantId:{} serviceName:{} metricGroupName:{} metricName: {}",
+                            logger.debug("tenantId:{} serviceNamespace:{} serviceName:{} metricGroupName:{} metricName:{}",
                                     metricData.getTenantId(),
+                                    metricData.getServiceNamespace(),
                                     metricData.getServiceName(),
                                     metricData.getMetricGroupName(),
                                     metricData.getMetricName());
                         }
+                        otlpMetricCollectorService.save(metricData);
                     }
                 }
             }
         }
 
     return ResponseEntity.ok().build();
-    }
-
-    private OtlpMetricData toMetrics(Metric metric, Map<String, String> tags) {
-        OtlpMetricData otlpMetricData = otlpMetricMapper.map(metric, tags);
-        return otlpMetricData;
-    }
-
-    private Map<String, String> convertToMap(List<KeyValue> tags) {
-        Map<String, String> tagMap = new HashMap<>();
-        for (KeyValue tag : tags) {
-            tagMap.put(tag.getKey(), tag.getValue().getStringValue());
-        }
-        return tagMap;
     }
 }
