@@ -53,6 +53,9 @@ public class ApplicationMapBuilder {
 
     private static final String MERGE_AGENT = "_";
     private static final String MERGE_QUEUE = "_";
+    // Queue node name when a consumer entry span carries no broker/destination at all; the web and
+    // the OTLP mapper already show an unknown destination under this name.
+    private static final String UNKNOWN_QUEUE_NAME = "Unknown";
 
     private static final long UID_LOOKUP_TIMEOUT_MILLIS = 3000;
 
@@ -279,13 +282,28 @@ public class ApplicationMapBuilder {
 
     private enum InvalidSpanReason {
         ROOT_WITH_PARENT_APP,
-        CHILD_WITHOUT_PARENT_APP
+        CHILD_WITHOUT_PARENT_APP,
+        QUEUE_WITHOUT_ACCEPTOR_HOST
     }
 
     private @NonNull Vertex getQueueAcceptVertex(SpanBo span, ServiceType spanServiceType) {
+        // The plugins record the broker (kafka, rocketmq, mqtt) or the exchange/destination name
+        // (rabbitmq, activemq) as the acceptorHost of a consumer entry span, and the producer side
+        // records the same value as its destinationId, so both sides meet in one queue node. A span
+        // from a hand-written instrumentation may carry neither acceptorHost nor remoteAddr; use the
+        // endPoint it did record, and "Unknown" as the last resort, rather than failing the whole
+        // span and losing every link it would have contributed.
         String applicationName = span.getAcceptorHost();
         if (applicationName == null) {
             applicationName = span.getRemoteAddr();
+        }
+        if (applicationName == null) {
+            // neither the broker nor a destination name: not one of the plugins' consumer spans
+            logInvalidSpan(span, InvalidSpanReason.QUEUE_WITHOUT_ACCEPTOR_HOST);
+            applicationName = span.getEndPoint();
+        }
+        if (applicationName == null) {
+            applicationName = UNKNOWN_QUEUE_NAME;
         }
         ServiceUid serviceUid = span.getServiceUid();
         return Vertex.of(serviceUid.getUid(), applicationName, spanServiceType);
