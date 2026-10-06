@@ -20,14 +20,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.aws.sdk.s3.AwsSdkS3Constants;
 import com.navercorp.pinpoint.plugin.aws.sdk.s3.AwsSdkS3PluginConfig;
 import software.amazon.awssdk.http.SdkHttpResponse;
 
-public class AsyncResponseHandlerOnHeadersInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class AsyncResponseHandlerOnHeadersInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final boolean statusCode;
 
     public AsyncResponseHandlerOnHeadersInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {

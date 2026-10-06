@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientEntityExtractor
 import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientPluginConfig;
 import jdk.internal.net.http.HttpRequestImpl;
 
-public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanEventBlockSimpleAroundInterceptor {
+public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final ClientRequestRecorder<HttpRequestImpl> clientRequestRecorder;
 
     private final RequestTraceWriter<HttpRequestImpl> requestTraceWriter;

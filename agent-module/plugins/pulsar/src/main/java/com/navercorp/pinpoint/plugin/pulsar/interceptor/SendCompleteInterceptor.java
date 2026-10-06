@@ -19,14 +19,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.pulsar.PulsarConstants;
 import org.apache.pulsar.client.impl.OpSendMsgStats;
 
 /**
  * @author zhouzixin@apache.org
  */
-public class SendCompleteInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class SendCompleteInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     public SendCompleteInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

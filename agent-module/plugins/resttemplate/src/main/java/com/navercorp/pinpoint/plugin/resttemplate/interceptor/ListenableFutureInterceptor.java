@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.resttemplate.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ResponseHeaderRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServerResponseHeaderRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -35,7 +36,7 @@ import org.springframework.http.client.ClientHttpResponse;
 /**
  * @author Taejin Koo
  */
-public class ListenableFutureInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class ListenableFutureInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     private final ServerResponseHeaderRecorder<ClientHttpResponse> responseHeaderRecorder;
     private final HttpStatusProvider statusCodeProvider;
@@ -47,33 +48,17 @@ public class ListenableFutureInterceptor extends AsyncContextSpanEventSimpleArou
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    protected AsyncContext getAsyncContext(Object target, Object[] args) {
         if (!(target instanceof TraceFutureFlagAccessor)) {
             logger.debug("skip. caused: target can't assign to TraceFutureFlagAccessor");
-            return;
+            return null;
         }
         boolean traceFlag = ((TraceFutureFlagAccessor) target)._$PINPOINT$_getTraceFlag();
         if (!traceFlag) {
             logger.debug("skip. caused: traceFlag is false");
-            return;
+            return null;
         }
-
-        super.before(target, args);
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (!(target instanceof TraceFutureFlagAccessor)) {
-            logger.debug("skip. caused: target can't assign to TraceFutureFlagAccessor");
-            return;
-        }
-        boolean traceFlag = ((TraceFutureFlagAccessor) target)._$PINPOINT$_getTraceFlag();
-        if (!traceFlag) {
-            logger.debug("skip. caused: traceFlag is false");
-            return;
-        }
-
-        super.after(target, args, result, throwable);
+        return AsyncContextAccessorUtils.getAsyncContext(target);
     }
 
     @Override

@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContextTraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.DefaultExceptionRecorder;
@@ -147,6 +150,20 @@ public class DefaultTraceTest {
         Trace trace = newTrace();
         SpanEventRecorder recorder1 = trace.traceBlockBegin();
         trace.close();
+    }
+
+    @Test
+    public void getTraceBlock_withAsyncContext_carriesTheContext() {
+        Trace trace = newTrace();
+        AsyncContext asyncContext = mock(AsyncContext.class);
+
+        TraceBlock block = trace.getTraceBlock(asyncContext);
+
+        Assertions.assertInstanceOf(AsyncContextTraceBlock.class, block);
+        Assertions.assertSame(asyncContext, ((AsyncContextTraceBlock) block).getAsyncContext());
+        Assertions.assertSame(trace, block.getTrace());
+        // the plain factory stays a plain block
+        Assertions.assertFalse(trace.getTraceBlock() instanceof AsyncContextTraceBlock);
     }
 
     private Trace newTrace() {

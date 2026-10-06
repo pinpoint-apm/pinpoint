@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.spring.web.SpringWebMvcConstants;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -28,7 +28,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 /**
  * @author jaehong.kim
  */
-public class InvocableHandlerMethodInvokeForRequestMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class InvocableHandlerMethodInvokeForRequestMethodInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     public InvocableHandlerMethodInvokeForRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -41,10 +41,6 @@ public class InvocableHandlerMethodInvokeForRequestMethodInterceptor extends Asy
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         recorder.recordServiceType(SpringWebMvcConstants.SPRING_MVC);
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return getAsyncContextFromArgs(args);
     }
 
     @Override

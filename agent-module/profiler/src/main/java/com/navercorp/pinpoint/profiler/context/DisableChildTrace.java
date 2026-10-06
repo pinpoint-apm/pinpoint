@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -181,6 +182,11 @@ public class DisableChildTrace implements Trace {
     @Override
     public TraceBlock getTraceBlock() {
         return new DisableTraceBlock(this, spanEventRecorder);
+    }
+
+    @Override
+    public TraceBlock getTraceBlock(AsyncContext asyncContext) {
+        return new DisableAsyncContextTraceBlock(this, spanEventRecorder, asyncContext);
     }
 
     @Override

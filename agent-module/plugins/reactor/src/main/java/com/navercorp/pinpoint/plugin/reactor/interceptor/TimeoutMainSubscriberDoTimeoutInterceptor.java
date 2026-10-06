@@ -21,14 +21,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 import com.navercorp.pinpoint.plugin.reactor.TimeoutDescriptionGetter;
 
-public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
 
     private final boolean traceTimeout;
 
@@ -47,13 +47,6 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
         recorder.recordServiceType(ReactorConstants.REACTOR);
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (traceTimeout) {
-            return AsyncContextAccessorUtils.getAsyncContext(target);
-        }
-        return null;
     }
 
     @Override

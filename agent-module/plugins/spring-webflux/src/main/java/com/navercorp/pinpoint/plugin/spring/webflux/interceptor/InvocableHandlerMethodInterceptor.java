@@ -21,14 +21,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 
 /**
  * @author jaehong.kim
  */
-public class InvocableHandlerMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class InvocableHandlerMethodInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     public InvocableHandlerMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -41,10 +41,6 @@ public class InvocableHandlerMethodInterceptor extends AsyncContextSpanEventSimp
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return getAsyncContextFromArgs(args);
     }
 
     @Override

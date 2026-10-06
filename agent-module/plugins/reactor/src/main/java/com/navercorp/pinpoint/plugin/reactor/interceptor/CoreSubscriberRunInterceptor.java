@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiIdAwareAroundInterceptor {
+public class CoreSubscriberRunInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
     private final ServiceType serviceType;
 
     public CoreSubscriberRunInterceptor(TraceContext traceContext, ServiceType serviceType) {
@@ -38,11 +38,6 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiI
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apidId, Object[] args) {
-    }
-
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
     }
 
     @Override

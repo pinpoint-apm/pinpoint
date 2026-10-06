@@ -21,12 +21,12 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
-public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class RetryWhenMainSubscriberInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
 
     private final boolean traceRetry;
     private final boolean markErrorRetry;
@@ -47,13 +47,6 @@ public class RetryWhenMainSubscriberInterceptor extends AsyncContextSpanEventApi
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
         recorder.recordServiceType(ReactorConstants.REACTOR);
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (traceRetry) {
-            return AsyncContextAccessorUtils.getAsyncContext(target);
-        }
-        return null;
     }
 
     @Override

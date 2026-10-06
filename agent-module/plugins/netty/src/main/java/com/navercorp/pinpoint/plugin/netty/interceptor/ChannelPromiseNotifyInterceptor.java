@@ -20,13 +20,13 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
 
 /**
  * @author Taejin Koo
  */
-public class ChannelPromiseNotifyInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class ChannelPromiseNotifyInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     public ChannelPromiseNotifyInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);

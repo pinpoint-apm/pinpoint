@@ -21,12 +21,12 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyPluginConfig;
 
-public class ClientTransportSubscriberInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class ClientTransportSubscriberInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
     private final boolean traceTransportError;
     private final boolean markErrorTransportError;
 
@@ -48,13 +48,6 @@ public class ClientTransportSubscriberInterceptor extends AsyncContextSpanEventA
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
         recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (traceTransportError) {
-            return AsyncContextAccessorUtils.getAsyncContext(target);
-        }
-        return null;
     }
 
     @Override

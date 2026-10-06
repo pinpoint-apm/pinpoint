@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
@@ -41,7 +41,7 @@ import org.springframework.http.client.reactive.ClientHttpRequest;
 /**
  * @author jaehong.kim
  */
-public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSpanEventBlockSimpleAroundInterceptor {
+public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<ClientHttpRequest> cookieRecorder;
     private final RequestTraceWriter<ClientHttpRequest> requestTraceWriter;

@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import reactor.netty.channel.ChannelOperations;
 
-public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
     public ChannelOperationsOnInboundCompleteMethodInterceptor(TraceContext traceContext) {
         super(traceContext, false);
     }

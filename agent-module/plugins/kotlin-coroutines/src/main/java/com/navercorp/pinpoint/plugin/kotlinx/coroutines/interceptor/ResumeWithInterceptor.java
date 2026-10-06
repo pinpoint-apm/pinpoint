@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.CoroutinesConfig;
 import com.navercorp.pinpoint.plugin.kotlinx.coroutines.CoroutinesConstants;
@@ -32,7 +32,7 @@ import kotlin.coroutines.CoroutineContext;
 /**
  * @author Taejin Koo
  */
-public class ResumeWithInterceptor extends AsyncContextSpanEventBlockSimpleAroundInterceptor {
+public class ResumeWithInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     private final ServiceType serviceType;
 
@@ -48,11 +48,6 @@ public class ResumeWithInterceptor extends AsyncContextSpanEventBlockSimpleAroun
 
     public ResumeWithInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this(traceContext, methodDescriptor, ServiceType.INTERNAL_METHOD);
-    }
-
-    @Override
-    protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return getAsyncContext(target);
     }
 
     @Override
@@ -72,7 +67,6 @@ public class ResumeWithInterceptor extends AsyncContextSpanEventBlockSimpleAroun
         }
         return null;
     }
-
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {

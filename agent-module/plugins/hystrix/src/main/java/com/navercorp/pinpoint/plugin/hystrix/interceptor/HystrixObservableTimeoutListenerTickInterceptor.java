@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.hystrix.HystrixPluginConstants;
 import com.navercorp.pinpoint.plugin.hystrix.descriptor.HystrixCommandTimeoutTimerMethodDescriptor;
 import com.navercorp.pinpoint.plugin.hystrix.field.EnclosingInstanceAccessor;
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.hystrix.field.EnclosingInstanceAccessor;
 /**
  * @author HyunGil Jeong
  */
-public class HystrixObservableTimeoutListenerTickInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class HystrixObservableTimeoutListenerTickInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     private static final HystrixCommandTimeoutTimerMethodDescriptor HYSTRIX_COMMAND_TIMEOUT_TIMER_METHOD_DESCRIPTOR = new HystrixCommandTimeoutTimerMethodDescriptor();
 
@@ -53,14 +53,6 @@ public class HystrixObservableTimeoutListenerTickInterceptor extends AsyncContex
     }
 
     // AFTER
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (target instanceof EnclosingInstanceAccessor) {
-            return AsyncContextAccessorUtils.getAsyncContext(((EnclosingInstanceAccessor) target)._$PINPOINT$_getEnclosingInstance());
-        }
-        return null;
-    }
-
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(HYSTRIX_COMMAND_TIMEOUT_TIMER_METHOD_DESCRIPTOR);

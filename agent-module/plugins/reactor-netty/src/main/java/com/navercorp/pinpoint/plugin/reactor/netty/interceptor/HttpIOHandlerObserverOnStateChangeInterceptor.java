@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.reactor.netty.HttpCallContext;
 import com.navercorp.pinpoint.plugin.reactor.netty.HttpCallContextAccessor;
 import com.navercorp.pinpoint.plugin.reactor.netty.ReactorNettyConstants;
 
-public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
     // The request has been prepared and ready for I/O handler to be invoked
     private static final String REQUEST_PREPARED = "[request_prepared]";
     // The request has been sent
@@ -111,27 +111,6 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
         recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
-    }
-
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (asyncContext == null) {
-            return null;
-        }
-
-        // for compatibility.
-        final Object state = ArrayArgumentUtils.getArgument(args, 1, Object.class);
-        if (state == null) {
-            return null;
-        }
-
-        final String rawState = state.toString();
-        if (isReady(rawState) || isClosed(rawState)) {
-            return asyncContext;
-        }
-
-        return null;
     }
 
     @Override

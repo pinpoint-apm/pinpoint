@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
@@ -30,7 +30,7 @@ import io.vertx.core.http.impl.HttpClientResponseImpl;
 /**
  * @author jaehong.kim
  */
-public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
 
     private final boolean statusCode;
 

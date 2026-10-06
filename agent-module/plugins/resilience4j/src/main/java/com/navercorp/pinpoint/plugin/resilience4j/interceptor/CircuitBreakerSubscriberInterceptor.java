@@ -22,12 +22,12 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.resilience4j.Resilience4JConstants;
 import com.navercorp.pinpoint.plugin.resilience4j.Resilience4JPluginConfig;
 
-public class CircuitBreakerSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class CircuitBreakerSubscriberInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final boolean traceCircuitBreaker;
     private final boolean markErrorCircuitBreaker;
 
@@ -48,13 +48,6 @@ public class CircuitBreakerSubscriberInterceptor extends AsyncContextSpanEventSi
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         recorder.recordServiceType(Resilience4JConstants.RESILIENCE4J);
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (traceCircuitBreaker) {
-            return AsyncContextAccessorUtils.getAsyncContext(target);
-        }
-        return null;
     }
 
     @Override

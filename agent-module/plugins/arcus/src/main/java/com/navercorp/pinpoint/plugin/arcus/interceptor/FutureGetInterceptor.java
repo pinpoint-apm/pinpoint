@@ -18,7 +18,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
@@ -34,7 +34,7 @@ import java.net.SocketAddress;
  * @author emeroad
  * @author jaehong.kim
  */
-public class FutureGetInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class FutureGetInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     public FutureGetInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);

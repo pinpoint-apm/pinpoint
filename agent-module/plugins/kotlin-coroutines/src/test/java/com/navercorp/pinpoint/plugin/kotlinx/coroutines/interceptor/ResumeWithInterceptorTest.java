@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContextTraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
@@ -62,7 +63,7 @@ class ResumeWithInterceptorTest {
     @Mock
     private Trace trace;
     @Mock
-    private TraceBlock traceBlock;
+    private AsyncContextTraceBlock traceBlock;
     @Mock
     private TraceScope traceScope;
 
@@ -77,8 +78,9 @@ class ResumeWithInterceptorTest {
         when(((AsyncContextAccessor) coroutineContext)._$PINPOINT$_getAsyncContext()).thenReturn(asyncContext);
         when(asyncContext.continueAsyncTraceObject(true)).thenReturn(trace);
         when(trace.getScope(AsyncContext.ASYNC_TRACE_SCOPE)).thenReturn(traceScope);
-        when(trace.getTraceBlock()).thenReturn(traceBlock);
+        when(trace.getTraceBlock(asyncContext)).thenReturn(traceBlock);
         when(traceBlock.getTrace()).thenReturn(trace);
+        when(traceBlock.getAsyncContext()).thenReturn(asyncContext);
         when(traceBlock.isBegin()).thenReturn(true);
         when(traceScope.canLeave()).thenReturn(true);
     }
