@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
+import com.navercorp.pinpoint.profiler.context.DisableSpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
@@ -105,5 +106,30 @@ public class WrappedSpanEventRecorderTest {
         sut.recordApiId(API_ID);
 
         Assertions.assertEquals(spanEvent.getApiId(), API_ID, "API ID");
+    }
+
+    @Test
+    public void testRecordException_detailedExceptionGoesToTheExceptionRecorder() {
+        SpanEvent spanEvent = new SpanEvent();
+        sut.setWrapped(spanEvent);
+
+        final Exception exception = new Exception("recorded");
+        sut.recordException(false, exception);
+
+        verify(exceptionRecorder).recordException(spanEvent, exception);
+    }
+
+    @Test
+    public void testRecordException_disabledSpanEventSkipsTheDetailedException() {
+        // the disabled instance stands in for an overflowed or missing frame: it has no start time
+        // and is never sent, so the detailed exception must not be recorded against it
+        SpanEvent spanEvent = new DisableSpanEvent();
+        sut.setWrapped(spanEvent);
+
+        final Exception exception = new Exception("dropped frame");
+        sut.recordException(false, exception);
+
+        verify(exceptionRecorder, never()).recordException(any(), any());
+        Assertions.assertEquals("dropped frame", spanEvent.getExceptionInfo().getStringValue(), "the plain exception info is still set");
     }
 }

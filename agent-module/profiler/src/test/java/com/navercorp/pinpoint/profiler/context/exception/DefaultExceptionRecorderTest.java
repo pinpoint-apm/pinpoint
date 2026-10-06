@@ -34,6 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * @author intr3p1d
  */
@@ -185,4 +188,67 @@ public class DefaultExceptionRecorderTest {
         Assertions.assertEquals(expected, actual2);
     }
 
+    private static ExceptionChainSampler.SamplingState sampled(final long exceptionId) {
+        return new ExceptionChainSampler.SamplingState() {
+            @Override
+            public boolean isSampling() {
+                return true;
+            }
+
+            @Override
+            public long currentId() {
+                return exceptionId;
+            }
+        };
+    }
+
+    @Test
+    void testUnsampledChainIsNotStoredWhenTheNextChainIsSampled() {
+        ExceptionChainSampler sampler = mock(ExceptionChainSampler.class);
+        when(sampler.isNewSampled()).thenReturn(ExceptionChainSampler.DISABLED, sampled(7));
+        exceptionRecorder = new DefaultExceptionRecorder(sampler, exceptionWrapperFactory, context);
+
+        Throwable rejected = new RuntimeException("rejected by the sampler");
+        Throwable accepted = new RuntimeException("accepted by the sampler");
+
+        exceptionRecorder.recordThrowable(rejected, START_TIME);
+        exceptionRecorder.recordThrowable(accepted, START_TIME + 1);
+
+        // starting the sampled chain must not push the rejected one out with the DISABLED id
+        Assertions.assertTrue(exceptionStorage.getWrappers().isEmpty());
+
+        exceptionRecorder.close();
+
+        List<ExceptionWrapper> actual = exceptionStorage.getOutputStream();
+        Assertions.assertEquals(1, actual.size());
+        Assertions.assertEquals("accepted by the sampler", actual.get(0).getExceptionMessage());
+        Assertions.assertEquals(7, actual.get(0).getExceptionId());
+        Assertions.assertEquals(START_TIME + 1, actual.get(0).getStartTime());
+    }
+
+    @Test
+    void testSampledChainIsStoredWhenTheNextChainIsNotSampled() {
+        ExceptionChainSampler sampler = mock(ExceptionChainSampler.class);
+        when(sampler.isNewSampled()).thenReturn(sampled(7), ExceptionChainSampler.DISABLED);
+        exceptionRecorder = new DefaultExceptionRecorder(sampler, exceptionWrapperFactory, context);
+
+        Throwable accepted = new RuntimeException("accepted by the sampler");
+        Throwable rejected = new RuntimeException("rejected by the sampler");
+
+        exceptionRecorder.recordThrowable(accepted, START_TIME);
+        exceptionRecorder.recordThrowable(rejected, START_TIME + 1);
+
+        // starting the rejected chain must still push the sampled one out, with its own id
+        List<ExceptionWrapper> pushed = exceptionStorage.getWrappers();
+        Assertions.assertEquals(1, pushed.size());
+        Assertions.assertEquals("accepted by the sampler", pushed.get(0).getExceptionMessage());
+        Assertions.assertEquals(7, pushed.get(0).getExceptionId());
+
+        exceptionRecorder.close();
+
+        // the rejected chain is not stored at close either
+        List<ExceptionWrapper> actual = exceptionStorage.getOutputStream();
+        Assertions.assertEquals(1, actual.size());
+        Assertions.assertEquals(7, actual.get(0).getExceptionId());
+    }
 }

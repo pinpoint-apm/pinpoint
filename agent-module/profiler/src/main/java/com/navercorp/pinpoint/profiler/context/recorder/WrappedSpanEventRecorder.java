@@ -167,6 +167,13 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     void recordDetailedException(Throwable throwable) {
+        if (SpanEventFactory.isDisableSpanEvent(spanEvent)) {
+            // The disabled instance stands in for a frame the trace could not keep: depth or sequence
+            // overflow of the call stack, an empty call stack, or a block begun on a trace that is
+            // already closed. It is never sent and carries no start time, so an exception recorded
+            // against it would reach the collector with startTime 0.
+            return;
+        }
         this.exceptionRecorder.recordException(spanEvent, throwable);
     }
 
