@@ -43,6 +43,8 @@ class ApplicationMapBuilderTest {
     private static final ServiceType RPC_TYPE = ServiceTypeFactory.of(9055, "TEST_RPC_CLIENT",
             ServiceTypeProperty.TERMINAL, ServiceTypeProperty.RECORD_STATISTICS, ServiceTypeProperty.INCLUDE_DESTINATION_ID);
     private static final ServiceType INTERNAL_TYPE = ServiceTypeFactory.of(5011, "TEST_INTERNAL");
+    private static final ServiceType QUEUE_TYPE = ServiceTypeFactory.of(8990, "TEST_QUEUE",
+            ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
 
     private static final long ACCEPT_TIME = 1000L;
 
@@ -54,6 +56,7 @@ class ApplicationMapBuilderTest {
         when(registry.findServiceType(APP_TYPE.getCode())).thenReturn(APP_TYPE);
         when(registry.findServiceType(RPC_TYPE.getCode())).thenReturn(RPC_TYPE);
         when(registry.findServiceType(INTERNAL_TYPE.getCode())).thenReturn(INTERNAL_TYPE);
+        when(registry.findServiceType(QUEUE_TYPE.getCode())).thenReturn(QUEUE_TYPE);
         ServiceLookupService serviceLookupService = Mockito.mock(ServiceLookupService.class);
         when(serviceLookupService.getServiceUid(Mockito.any()))
                 .thenReturn(CompletableFuture.completedFuture(ServiceUid.DEFAULT));
@@ -199,5 +202,63 @@ class ApplicationMapBuilderTest {
 
         assertThat(model.hasRows()).isFalse();
         assertThat(model.getRequestTime()).isEqualTo(ACCEPT_TIME);
+    }
+
+    private SpanBo newRootQueueSpan() {
+        SpanBo span = newSpan();
+        span.setParentSpanId(-1);
+        span.setServiceType(QUEUE_TYPE.getCode());
+        return span;
+    }
+
+    @Test
+    void buildRootQueueSpanUsesTheAcceptorHostAsTheQueueNode() {
+        SpanBo span = newRootQueueSpan();
+        span.setAcceptorHost("broker:9092");
+        span.setRemoteAddr("broker:9092");
+
+        ApplicationMapModel model = builder.build(span);
+
+        final Vertex self = selfVertex(span);
+        final Vertex queue = Vertex.of(self.serviceUid(), "broker:9092", QUEUE_TYPE);
+        assertThat(model.getOutLinks()).containsExactly(new OutLinkRow(queue, self, "_", 100, false));
+        assertThat(model.getInLinks()).containsExactly(new InLinkRow(self, queue, "_", 100, false));
+        assertThat(model.getResponseTimes()).hasSize(1);
+    }
+
+    @Test
+    void buildRootQueueSpanWithoutAcceptorHostFallsBackToTheEndPoint() {
+        // a hand-written consumer span: the topic in endPoint, no broker in acceptorHost/remoteAddr
+        SpanBo span = newRootQueueSpan();
+        span.setEndPoint("ivs-snapshot");
+
+        ApplicationMapModel model = builder.build(span);
+
+        final Vertex self = selfVertex(span);
+        final Vertex queue = Vertex.of(self.serviceUid(), "ivs-snapshot", QUEUE_TYPE);
+        assertThat(model.getOutLinks()).containsExactly(new OutLinkRow(queue, self, "_", 100, false));
+        assertThat(model.getInLinks()).containsExactly(new InLinkRow(self, queue, "_", 100, false));
+        assertThat(model.getResponseTimes()).hasSize(1);
+    }
+
+    @Test
+    void buildRootQueueSpanWithoutAnyHostFallsBackToUnknown() {
+        SpanBo span = newRootQueueSpan();
+        span.setEndPoint(null);
+        span.addSpanEvent(newRpcEvent());
+
+        ApplicationMapModel model = builder.build(span);
+
+        final Vertex self = selfVertex(span);
+        final Vertex queue = Vertex.of(self.serviceUid(), "Unknown", QUEUE_TYPE);
+        final Vertex dest = Vertex.of(self.serviceUid(), "dest", RPC_TYPE);
+        // the queue link is kept under the Unknown node and the span events still contribute their links
+        assertThat(model.getOutLinks()).containsExactly(
+                new OutLinkRow(queue, self, "_", 100, false),
+                new OutLinkRow(self, dest, "dest:8080", 20, false));
+        assertThat(model.getInLinks()).containsExactly(
+                new InLinkRow(self, queue, "_", 100, false),
+                new InLinkRow(dest, self, null, 20, false));
+        assertThat(model.getResponseTimes()).hasSize(1);
     }
 }
