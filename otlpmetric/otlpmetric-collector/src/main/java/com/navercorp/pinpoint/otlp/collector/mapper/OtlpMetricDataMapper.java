@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricDataPoint;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.MetricName;
-import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Metric;
 
@@ -92,29 +91,8 @@ public abstract class OtlpMetricDataMapper {
         return StringUtils.isEmpty(name) ? defaultValue : name;
     }
 
-    protected String resolveTagValue(AnyValue value) {
-        if (value.hasStringValue()) {
-            return value.getStringValue();
-        } else if (value.hasIntValue()) {
-            return String.valueOf(value.getIntValue());
-        } else if (value.hasDoubleValue()) {
-            return String.valueOf(value.getDoubleValue());
-        } else if (value.hasBoolValue()) {
-            return String.valueOf(value.getBoolValue());
-        } else if (value.hasKvlistValue()) {
-            return String.valueOf(value.getKvlistValue());
-        } else {
-            return "Unsupported value type.";
-        }
-    }
-
     protected Map<String, String> getTags(List<KeyValue> attributes) {
-        Map<String, String> tags = new HashMap<>();
-        for(KeyValue keyValue : attributes) {
-            String key = keyValue.getKey();
-            tags.put(key, resolveTagValue(keyValue.getValue()));
-        }
-        return tags;
+        return AttributeValues.toMap(attributes);
     }
 
     protected void setAggreFunction(AggreFunc defaultAggreFunc, OtlpMetricDataPoint.Builder dataPointBuilder, Map<String, String> tags) {
