@@ -17,7 +17,7 @@ class DefaultMicrometerMonitorTest {
         when(config.getStep()).thenReturn("10s");
         when(config.getBatchSize()).thenReturn("100");
 
-        DefaultMicrometerMonitor monitor = new DefaultMicrometerMonitor("applicationName", "agentId", config);
+        DefaultMicrometerMonitor monitor = new DefaultMicrometerMonitor("serviceName", "applicationName", "agentId", config);
 
         monitor.stop();
     }

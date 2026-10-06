@@ -36,9 +36,11 @@ public class DefaultMicrometerMonitor implements MicrometerMonitor {
     private final AgentOtlpMeterRegistry registry;
 
     @Inject
-    public DefaultMicrometerMonitor(@Named("pinpoint.applicationName") String applicationName,
+    public DefaultMicrometerMonitor(@Named("pinpoint.serviceName") String serviceName,
+                                    @Named("pinpoint.applicationName") String applicationName,
                                     @Named("pinpoint.agentId") String agentId,
                                     MicrometerConfig config) {
+        Objects.requireNonNull(serviceName, "serviceName");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(config, "config");
@@ -51,7 +53,7 @@ public class DefaultMicrometerMonitor implements MicrometerMonitor {
                 config.getUrl(),
                 config.getStep(),
                 config.getBatchSize(),
-                "default",
+                serviceName,
                 applicationName,
                 agentId);
         this.registry = new AgentOtlpMeterRegistry(otlpConfig);
