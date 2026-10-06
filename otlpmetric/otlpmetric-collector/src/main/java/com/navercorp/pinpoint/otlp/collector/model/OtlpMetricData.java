@@ -20,12 +20,19 @@ import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import io.opentelemetry.proto.metrics.v1.AggregationTemporality;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class OtlpMetricData {
     private final String tenantId;
+
+    /**
+     * otel service.namespace: ${pinpoint.serviceName}, optional
+     */
+    @Nullable
+    private final String serviceNamespace;
 
     /**
      * otel service.name: ${pinpoint.applicationName}
@@ -48,6 +55,7 @@ public class OtlpMetricData {
 
     public OtlpMetricData(Builder builder) {
         this.tenantId = builder.tenantId;
+        this.serviceNamespace = builder.serviceNamespace;
         this.serviceName = StringPrecondition.requireHasLength(builder.serviceName, "serviceName");
         this.agentId = StringPrecondition.requireHasLength(builder.agentId, "agentId");
 
@@ -63,6 +71,11 @@ public class OtlpMetricData {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    @Nullable
+    public String getServiceNamespace() {
+        return serviceNamespace;
     }
 
     public String getServiceName() {
@@ -85,6 +98,10 @@ public class OtlpMetricData {
         return unit;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
     public int getMetricType() {
         return metricType.getNumber();
     }
@@ -104,6 +121,7 @@ public class OtlpMetricData {
     public static class Builder {
 
         private String tenantId;
+        private String serviceNamespace;
         private String serviceName;
         private String agentId;
 
@@ -126,6 +144,10 @@ public class OtlpMetricData {
 
         public void setTenantId(String tenantId) {
             this.tenantId = tenantId;
+        }
+
+        public void setServiceNamespace(@Nullable String serviceNamespace) {
+            this.serviceNamespace = serviceNamespace;
         }
 
         public void setServiceName(String serviceName) {
@@ -169,6 +191,7 @@ public class OtlpMetricData {
     public String toString() {
         return "OtlpMetricData{" +
                 "tenantId='" + tenantId + '\'' +
+                ", serviceNamespace='" + serviceNamespace + '\'' +
                 ", serviceName='" + serviceName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", metricGroupName='" + metricGroupName + '\'' +
