@@ -116,17 +116,22 @@ public enum ExceptionRecordingState {
             ExceptionChainSampler.SamplingState samplingState,
             ExceptionWrapperFactory factory
     ) {
-        this.push(context, samplingState, factory);
+        this.push(context, factory);
         this.cleanUp(context);
         this.update(context, current, currentStartTime, samplingState);
     }
 
     private void push(
             ExceptionContext context,
-            ExceptionChainSampler.SamplingState samplingState,
             ExceptionWrapperFactory factory
     ) {
-        if (samplingState.isSampling()) {
+        // The wrappers describe the chain that is already in the context, so whether to store them
+        // is the sampling decision made for that chain, not the one made for the chain about to
+        // replace it. Deciding by the new state sent an unsampled chain with exceptionId
+        // Long.MIN_VALUE whenever the next chain was sampled, and dropped a sampled chain whenever
+        // the next one was not.
+        final ExceptionChainSampler.SamplingState previousState = context.getSamplingState();
+        if (previousState != null && previousState.isSampling()) {
             final List<ExceptionWrapper> wrappers = this.toWrappers(
                     context, factory
             );
