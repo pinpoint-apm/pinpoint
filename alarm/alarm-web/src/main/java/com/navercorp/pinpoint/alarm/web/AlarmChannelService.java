@@ -181,10 +181,10 @@ public class AlarmChannelService {
     // ---- Rule-Channel mapping ----
 
     @Transactional(transactionManager = "transactionManager", rollbackFor = Exception.class)
-    public void linkRuleChannel(String serviceName, String applicationName, AlarmRuleChannel ruleChannel) {
-        AlarmOwnerships.verifyServiceName(serviceName);
+    public void linkRuleChannel(AlarmApplication application, AlarmRuleChannel ruleChannel) {
+        AlarmOwnerships.verifyServiceName(application.getServiceName());
         AlarmRuleV2 rule = locks.getRuleForUpdate(ruleChannel.getRuleId());
-        AlarmOwnerships.verifyRule(rule, serviceName, applicationName);
+        AlarmOwnerships.verifyRule(rule, application);
         if (rule.getTemplateItemId() != null) {
             throw new IllegalArgumentException("Template-linked rule channels cannot be customized: ruleId="
                     + ruleChannel.getRuleId());
@@ -200,12 +200,12 @@ public class AlarmChannelService {
     }
 
     @Transactional(transactionManager = "transactionManager", rollbackFor = Exception.class)
-    public void unlinkRuleChannel(String serviceName, String applicationName, Long ruleId, Long channelId) {
-        AlarmOwnerships.verifyServiceName(serviceName);
+    public void unlinkRuleChannel(AlarmApplication application, Long ruleId, Long channelId) {
+        AlarmOwnerships.verifyServiceName(application.getServiceName());
         AlarmRuleV2 rule = locks.getRuleForUpdate(ruleId);
-        AlarmOwnerships.verifyRule(rule, serviceName, applicationName);
+        AlarmOwnerships.verifyRule(rule, application);
         AlarmNotificationChannel channel = getChannelForUpdate(channelId);
-        AlarmOwnerships.verifyChannel(channel, serviceName);
+        AlarmOwnerships.verifyChannel(channel, application.getServiceName());
         if (rule.getTemplateItemId() != null) {
             throw new IllegalArgumentException("Template-linked rule channels cannot be customized: ruleId=" + ruleId);
         }
