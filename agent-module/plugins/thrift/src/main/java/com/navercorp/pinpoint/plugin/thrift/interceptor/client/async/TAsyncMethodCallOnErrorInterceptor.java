@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 /**
  * @author HyunGil Jeong
  */
-public class TAsyncMethodCallOnErrorInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class TAsyncMethodCallOnErrorInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     public TAsyncMethodCallOnErrorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
@@ -36,7 +36,7 @@ import reactor.netty.http.client.HttpClientRequest;
 /**
  * @author jaehong.kim
  */
-public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventBlockApiIdAwareAroundInterceptor {
+public class HttpClientOperationsSendInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
 
@@ -91,15 +91,6 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventBl
     }
 
     // AFTER
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (Boolean.FALSE == validate(target)) {
-            return null;
-        }
-
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
-
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         recorder.recordApiId(apiId);

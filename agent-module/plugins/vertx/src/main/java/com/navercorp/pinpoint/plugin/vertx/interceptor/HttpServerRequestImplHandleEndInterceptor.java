@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.plugin.vertx.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
 /**
  * @author jaehong.kim
  */
-public class HttpServerRequestImplHandleEndInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class HttpServerRequestImplHandleEndInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
 
     public HttpServerRequestImplHandleEndInterceptor(TraceContext traceContext) {
         super(traceContext);

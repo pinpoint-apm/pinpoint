@@ -37,4 +37,13 @@ public interface StackOperation {
     int getCallStackFrameId();
 
     TraceBlock getTraceBlock();
+
+    /**
+     * A block opened under {@code asyncContext}. Implementations that can carry the context return
+     * an {@link AsyncContextTraceBlock}; this default ignores the context and returns a plain block,
+     * in which case the async interceptor bases finish the trace without the context.
+     */
+    default TraceBlock getTraceBlock(AsyncContext asyncContext) {
+        return getTraceBlock();
+    }
 }

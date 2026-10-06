@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author HyunGil Jeong
  */
-public class MQExternalClientHandlerInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class MQExternalClientHandlerInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     public MQExternalClientHandlerInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -43,11 +43,6 @@ public class MQExternalClientHandlerInterceptor extends AsyncContextSpanEventSim
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         recorder.recordServiceType(ServiceType.INTERNAL_METHOD);
-    }
-
-    @Override
-    protected AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return getAsyncContext(args);
     }
 
     @Override

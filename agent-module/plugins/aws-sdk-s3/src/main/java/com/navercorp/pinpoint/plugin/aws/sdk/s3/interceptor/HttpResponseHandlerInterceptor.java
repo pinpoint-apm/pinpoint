@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.aws.sdk.s3.AwsSdkS3Constants;
 import com.navercorp.pinpoint.plugin.aws.sdk.s3.AwsSdkS3PluginConfig;
@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadResponse;
 import software.amazon.awssdk.services.s3.model.CopyObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
-public class HttpResponseHandlerInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class HttpResponseHandlerInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final boolean statusCode;
     private final boolean markError;
 

@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5Constants;
 import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5PluginConfig;
 
-public class AsyncClientConnectionManagerConnectInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class AsyncClientConnectionManagerConnectInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final boolean markError;
 
     public AsyncClientConnectionManagerConnectInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
@@ -40,10 +40,6 @@ public class AsyncClientConnectionManagerConnectInterceptor extends AsyncContext
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return AsyncContextAccessorUtils.getAsyncContext(args, 4);
     }
 
     @Override

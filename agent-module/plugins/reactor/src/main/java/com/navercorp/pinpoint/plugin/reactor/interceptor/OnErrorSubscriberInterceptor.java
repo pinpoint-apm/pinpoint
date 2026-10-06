@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
  * bound to the thread. Carrying the {@link com.navercorp.pinpoint.bootstrap.context.TraceBlock} from
  * {@code before()} to {@code after()} closes exactly what was opened, or nothing.
  */
-public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventBlockApiIdAwareAroundInterceptor {
+public class OnErrorSubscriberInterceptor extends AsyncContextTraceBlockApiIdAwareAroundInterceptor {
     private final boolean traceOnError;
     private final boolean markErrorOnError;
 
@@ -59,14 +59,6 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventBlockApiI
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
         recorder.recordServiceType(ReactorConstants.REACTOR);
-    }
-
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (traceOnError) {
-            return AsyncContextAccessorUtils.getAsyncContext(target);
-        }
-        return null;
     }
 
     @Override

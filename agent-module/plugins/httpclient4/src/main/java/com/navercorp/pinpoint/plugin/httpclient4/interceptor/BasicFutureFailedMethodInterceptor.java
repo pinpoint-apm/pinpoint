@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
  * @author netspider
  * @author jaehong.kim
  */
-public class BasicFutureFailedMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class BasicFutureFailedMethodInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final boolean markError;
     private final boolean traceFutureError;
 

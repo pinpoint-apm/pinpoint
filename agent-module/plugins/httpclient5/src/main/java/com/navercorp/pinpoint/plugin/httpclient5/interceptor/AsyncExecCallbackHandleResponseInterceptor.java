@@ -20,14 +20,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5Constants;
 import com.navercorp.pinpoint.plugin.httpclient5.HttpClient5PluginConfig;
 import org.apache.hc.core5.http.HttpResponse;
 
-public class AsyncExecCallbackHandleResponseInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class AsyncExecCallbackHandleResponseInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final boolean statusCode;
     private final boolean markError;
 

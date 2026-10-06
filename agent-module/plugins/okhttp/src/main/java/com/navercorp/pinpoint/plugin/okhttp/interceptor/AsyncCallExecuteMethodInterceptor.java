@@ -20,14 +20,14 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig;
 
 /**
  * @author jaehong.kim
  */
-public class AsyncCallExecuteMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class AsyncCallExecuteMethodInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final boolean markError;
 
     public AsyncCallExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {

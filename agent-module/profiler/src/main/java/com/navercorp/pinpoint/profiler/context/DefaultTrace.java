@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -331,6 +332,11 @@ public class DefaultTrace implements Trace {
     @Override
     public TraceBlock getTraceBlock() {
         return new DefaultTraceBlock(this);
+    }
+
+    @Override
+    public TraceBlock getTraceBlock(AsyncContext asyncContext) {
+        return new DefaultAsyncContextTraceBlock(this, asyncContext);
     }
 
     @Override

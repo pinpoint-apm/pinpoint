@@ -21,13 +21,13 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientConstants;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientPluginConfig;
 import com.navercorp.pinpoint.plugin.jdk.httpclient.ResponseCodeGetter;
 
-public class HttpResponseImplInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class HttpResponseImplInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private final boolean markError;
 
     public HttpResponseImplInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
@@ -43,11 +43,6 @@ public class HttpResponseImplInterceptor extends AsyncContextSpanEventSimpleArou
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
         recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT_INTERNAL);
-    }
-
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return AsyncContextAccessorUtils.getAsyncContext(args, 0);
     }
 
     @Override

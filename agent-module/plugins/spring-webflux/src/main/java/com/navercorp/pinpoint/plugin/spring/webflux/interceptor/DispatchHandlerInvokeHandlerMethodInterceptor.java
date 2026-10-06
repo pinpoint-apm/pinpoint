@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -35,7 +35,7 @@ import org.springframework.web.util.pattern.PathPattern;
 /**
  * @author jaehong.kim
  */
-public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
     private TraceContext traceContext;
     private final Boolean uriStatEnable;
     private final Boolean uriStatUseUserInput;
@@ -98,14 +98,6 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
     }
 
     // AFTER
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        if (validate(args)) {
-            return AsyncContextAccessorUtils.getAsyncContext(args, 0);
-        }
-        return null;
-    }
-
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);

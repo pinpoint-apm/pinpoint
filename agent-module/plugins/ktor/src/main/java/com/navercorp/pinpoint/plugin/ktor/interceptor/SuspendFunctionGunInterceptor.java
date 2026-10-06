@@ -22,21 +22,16 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.ktor.KtorConstants;
 import io.ktor.util.pipeline.PipelineContext;
 import kotlin.coroutines.CoroutineContext;
 import kotlinx.coroutines.CoroutineScope;
 
-public class SuspendFunctionGunInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class SuspendFunctionGunInterceptor extends AsyncContextTraceBlockSimpleAroundInterceptor {
 
     public SuspendFunctionGunInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
-    }
-
-    @Override
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return getAsyncContext(target);
     }
 
     @Override

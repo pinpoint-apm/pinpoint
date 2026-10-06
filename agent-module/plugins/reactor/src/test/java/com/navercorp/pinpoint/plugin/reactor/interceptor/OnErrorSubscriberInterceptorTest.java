@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.reactor.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContextTraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -57,7 +58,7 @@ class OnErrorSubscriberInterceptorTest {
     @Mock
     private Trace trace;
     @Mock
-    private TraceBlock traceBlock;
+    private AsyncContextTraceBlock traceBlock;
     @Mock
     private TraceScope traceScope;
 
@@ -108,10 +109,11 @@ class OnErrorSubscriberInterceptorTest {
         when(((AsyncContextAccessor) subscriber)._$PINPOINT$_getAsyncContext()).thenReturn(asyncContext);
         when(asyncContext.continueAsyncTraceObject(true)).thenReturn(trace);
         when(trace.getScope(AsyncContext.ASYNC_TRACE_SCOPE)).thenReturn(traceScope);
-        when(trace.getTraceBlock()).thenReturn(traceBlock);
+        when(trace.getTraceBlock(asyncContext)).thenReturn(traceBlock);
         when(trace.canSampled()).thenReturn(true);
         when(trace.isAsync()).thenReturn(true);
         when(traceBlock.getTrace()).thenReturn(trace);
+        when(traceBlock.getAsyncContext()).thenReturn(asyncContext);
         when(traceBlock.isBegin()).thenReturn(true);
         when(traceScope.canLeave()).thenReturn(true);
         when(traceScope.isActive()).thenReturn(true);
@@ -121,8 +123,9 @@ class OnErrorSubscriberInterceptorTest {
 
         interceptor.after(block, subscriber, API_ID, new Object[]{error}, null, null);
 
-        // the block, not a fresh lookup of the thread-bound trace, is what after() works on
+        // the block, not a fresh lookup, is what after() works on: the context is read once, in before()
         verify(asyncContext, never()).currentAsyncTraceObject();
+        verify((AsyncContextAccessor) subscriber, times(1))._$PINPOINT$_getAsyncContext();
         verify(traceBlock).recordApiId(API_ID);
         verify(traceBlock).recordException(false, error);
         InOrder inOrder = inOrder(traceScope, traceBlock);
