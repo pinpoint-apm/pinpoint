@@ -249,7 +249,7 @@ export function VirtualizedDataTable<TData, TValue>({
           }}
         >
           {rowVirtualizer.getVirtualItems().length ? (
-            rowVirtualizer.getVirtualItems().map((virtualRow, i) => {
+            rowVirtualizer.getVirtualItems().map((virtualRow) => {
               const row = rows[virtualRow.index];
               const rowClass =
                 typeof rowClassName === 'function' ? rowClassName(row) : rowClassName;
@@ -276,10 +276,12 @@ export function VirtualizedDataTable<TData, TValue>({
                       if (enableMultiRowSelection) {
                         setRowSelection((prev) => ({
                           ...prev,
-                          [i]: !prev[i],
+                          [virtualRow.index]: !prev[virtualRow.index],
                         }));
                       } else {
-                        setRowSelection((prev) => ({ [i]: !prev[i] }));
+                        setRowSelection((prev) => ({
+                          [virtualRow.index]: !prev[virtualRow.index],
+                        }));
                       }
                     }
 
