@@ -26,6 +26,13 @@ export interface VirtualizedDataTableProps<TData, TValue> {
   data: TData[];
   columns: ColumnDef<TData, TValue>[];
   focusRowIndex?: number;
+  /**
+   * Scrolls to `focusRowIndex` again whenever this changes, even if the index itself did not.
+   * The index alone cannot tell "the same row of a different list" apart from "nothing changed":
+   * two transactions of one endpoint usually focus the same row, so without this the table stays
+   * wherever the user left it.
+   */
+  focusRowScrollKey?: unknown;
   scrollToIndex?: (rows: Row<ExpandableTData<TData>>[]) => number;
   autoResize?: boolean;
   enableSorting?: boolean;
@@ -52,6 +59,7 @@ export function VirtualizedDataTable<TData, TValue>({
   data,
   columns,
   focusRowIndex,
+  focusRowScrollKey,
   scrollToIndex,
   enableSorting = false,
   columnSorting = [],
@@ -161,7 +169,7 @@ export function VirtualizedDataTable<TData, TValue>({
     if (typeof focusRowIndex === 'number' && !Number.isNaN(focusRowIndex) && focusRowIndex >= 0) {
       rowVirtualizer.scrollToIndex(focusRowIndex, { align: 'center' });
     }
-  }, [focusRowIndex]);
+  }, [focusRowIndex, focusRowScrollKey]);
 
   return (
     <div className="relative w-full h-full overflow-auto" ref={tableContainerRef}>

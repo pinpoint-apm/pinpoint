@@ -172,12 +172,17 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
   const focusIdFromTimeline = useAtomValue(transactionInfoCallTreeFocusId);
   const [timezone] = useTimezone();
 
+  // Bumped with every new mark so the table scrolls to it even when it sits on the same row as the
+  // previous one — two transactions of one endpoint usually focus the same `focusCallStackId`.
+  const [focusRowScrollKey, setFocusRowScrollKey] = React.useState(0);
+
   React.useEffect(() => {
     if (focusIdFromTimeline) {
       setFocusRowId(focusIdFromTimeline);
     } else {
       setFocusRowId(String(metaData?.focusCallStackId) || undefined);
     }
+    setFocusRowScrollKey((key) => key + 1);
   }, [data, focusIdFromTimeline]);
 
   useUpdateEffect(() => {
@@ -219,16 +224,38 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
       setFocusRowId(indexLists[0]);
     } else {
       setFilteredListIds(undefined);
-      setFocusRowId(undefined);
     }
     // Re-runs on a step in/out so the match list never points outside the visible rows.
   }, [filterInput, searchScope]);
+
+  // Cancelling the search clears its mark. Kept apart from the effect above because that one also
+  // re-runs whenever `searchScope` changes — including when another transaction is opened, where
+  // clearing would wipe the `focusCallStackId` mark just set for it. Opening a transaction whose
+  // mark lands on the same row as the previous one (same endpoint, same call stack shape) then
+  // left nothing highlighted, and going back to the previous transaction did the same.
+  useUpdateEffect(() => {
+    if (!filterInput) {
+      setFocusRowId(undefined);
+    }
+  }, [filterInput]);
 
   // Stepping into a span marks it, the same way loading the page marks `focusCallStackId`. From
   // then on the mark belongs to the search: it moves with the hits and clears when the search is
   // cancelled, exactly as it does with nothing stepped into. Declared after the search effect so
   // it wins on the render where both fire (a step in/out also re-runs the search).
+  //
+  // Opening another transaction steps out too, but that is not the user stepping out: the parent
+  // (`TransactionInfoFetcher`) clears the step one render after the new `data` arrived, by which
+  // time the new transaction's `focusCallStackId` is already marked. Clearing it here would leave
+  // the new transaction with nothing marked. `stepDataRef` remembers which call tree the last step
+  // belonged to, so a step out that arrives with a different one is recognised and skipped.
+  const stepDataRef = React.useRef(data);
   useUpdateEffect(() => {
+    const isTransactionChange = stepDataRef.current !== data;
+    stepDataRef.current = data;
+    if (!steppedInSpanId && isTransactionChange) {
+      return;
+    }
     setFocusRowId(steppedInSpanId || undefined);
   }, [steppedInSpanId]);
 
@@ -337,6 +364,7 @@ export const CallTree = ({ data, mapData, metaData, toolbarSlot }: CallTreeProps
           // Index within the rendered rows: the row ids no longer equal their position once the
           // tree is re-rooted (and Attribute/Scope rows consume ids without taking a row).
           focusRowIndex={scrollRowIndex}
+          focusRowScrollKey={focusRowScrollKey}
           highlightRowId={focusRowId}
           filteredRowIds={filteredListIds}
           onDoubleClickCell={(cell) => {
