@@ -33,11 +33,18 @@ import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
 import com.navercorp.pinpoint.common.server.bo.Application;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
+import com.navercorp.pinpoint.web.websocket.message.RequestMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -50,6 +57,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -85,6 +94,95 @@ public abstract class LinkSelectorTestBase {
     @AfterEach
     public void cleanUp() {
         MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
+    }
+
+    @Test
+    public void testServerMapDataFilter_filterApplicationsPerDepth() {
+        final Application APP_A = new Application("APP_A", ServiceType.TEST_STAND_ALONE);
+        final Application APP_B = new Application("APP_B", ServiceType.TEST_STAND_ALONE);
+        final Application APP_C = new Application("APP_C", ServiceType.TEST_STAND_ALONE);
+        final Application APP_D = new Application("APP_D", ServiceType.TEST_STAND_ALONE);
+        final Application APP_E = new Application("APP_E", ServiceType.TEST_STAND_ALONE);
+        final short slotTime = ServiceType.TEST_STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime();
+
+        LinkDataMap link_A = new LinkDataMap();
+        link_A.addLinkData(APP_A, "agentA", APP_B, "agentB", 1000, slotTime, 1);
+        link_A.addLinkData(APP_A, "agentA", APP_C, "agentC", 1000, slotTime, 1);
+        LinkDataMap link_B = new LinkDataMap();
+        link_B.addLinkData(APP_B, "agentB", APP_D, "agentD", 1000, slotTime, 1);
+        LinkDataMap link_C = new LinkDataMap();
+        link_C.addLinkData(APP_C, "agentC", APP_E, "agentE", 1000, slotTime, 1);
+
+        when(linkDataMapService.selectOutLinkDataMap(any(Application.class), any(TimeWindow.class))).thenReturn(newEmptyLinkDataMap());
+        when(linkDataMapService.selectOutLinkDataMap(eq(APP_A), any(TimeWindow.class))).thenReturn(link_A);
+        when(linkDataMapService.selectOutLinkDataMap(eq(APP_B), any(TimeWindow.class))).thenReturn(link_B);
+        when(linkDataMapService.selectOutLinkDataMap(eq(APP_C), any(TimeWindow.class))).thenReturn(link_C);
+        when(linkDataMapService.selectInLinkDataMap(any(Application.class), any(TimeWindow.class))).thenReturn(newEmptyLinkDataMap());
+        when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
+
+        RecordingServerMapDataFilter filter = new RecordingServerMapDataFilter(Set.of(APP_C));
+        LinkSelectorFactory factory = new LinkSelectorFactory(linkDataMapService, applicationsMapCreatorFactory, hostApplicationMapDao,
+                Optional.of(filter), () -> LinkDataMapProcessor.NO_OP);
+        LinkSelector linkSelector = factory.createLinkSelector(getLinkSelectorType());
+        LinkDataDuplexMap linkData = linkSelector.select(List.of(APP_A), timeWindow, 3, 0);
+
+        assertThat(filter.singleCallCount).isZero();
+        List<List<Application>> listCalls = filter.getListCalls();
+        assertThat(listCalls).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(listCalls.get(0)).containsExactly(APP_A);
+        assertThat(listCalls.get(1)).containsExactlyInAnyOrder(APP_B, APP_C);
+        assertThat(listCalls).noneMatch(applications -> applications.contains(APP_E));
+
+        verify(linkDataMapService, never()).selectOutLinkDataMap(eq(APP_C), any(TimeWindow.class));
+        assertThat(linkData.getSourceLinkData(new LinkKey(APP_B, APP_D))).isNotNull();
+        assertThat(linkData.getSourceLinkData(new LinkKey(APP_C, APP_E))).isNull();
+    }
+
+    private static class RecordingServerMapDataFilter implements ServerMapDataFilter {
+        private final Set<Application> rejected;
+        private final List<List<Application>> listCalls = Collections.synchronizedList(new ArrayList<>());
+        private volatile int singleCallCount;
+
+        RecordingServerMapDataFilter(Set<Application> rejected) {
+            this.rejected = rejected;
+        }
+
+        List<List<Application>> getListCalls() {
+            return listCalls;
+        }
+
+        @Override
+        public boolean filter(Application application) {
+            singleCallCount++;
+            return rejected.contains(application);
+        }
+
+        @Override
+        public List<Application> filterApplications(List<Application> applications) {
+            listCalls.add(List.copyOf(applications));
+            List<Application> passed = new ArrayList<>();
+            for (Application application : applications) {
+                if (!rejected.contains(application)) {
+                    passed.add(application);
+                }
+            }
+            return passed;
+        }
+
+        @Override
+        public boolean filter(WebSocketSession webSocketSession, RequestMessage requestMessage) {
+            return false;
+        }
+
+        @Override
+        public CloseStatus getCloseStatus(RequestMessage requestMessage) {
+            return CloseStatus.NORMAL;
+        }
+
+        @Override
+        public ApplicationMap dataFiltering(ApplicationMap map) {
+            return map;
+        }
     }
 
     final LinkDataMap newEmptyLinkDataMap() {
