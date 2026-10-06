@@ -42,7 +42,7 @@ export const UrlSummaryFetcher = ({ className, type }: UrlSummaryFetcherProps) =
 
   const getRowSelectionInfo = () => {
     const selectedRowIndex =
-      data?.findIndex(({ uri }) => uri === urlSelectedSummaryData?.uri) || -1;
+      data?.findIndex(({ uri }) => uri === urlSelectedSummaryData?.uri) ?? -1;
 
     return selectedRowIndex === -1 ? {} : { [selectedRowIndex]: true };
   };
