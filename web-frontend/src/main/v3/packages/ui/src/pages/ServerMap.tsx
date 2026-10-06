@@ -121,6 +121,16 @@ export const ServerMapPage = ({
     initPage();
   }, [pathname]);
 
+  // 다른 메뉴에 다녀오면 선택을 남기지 않는다. 아톰은 전역이라 화면을 떠나도 남고, 메뉴로 돌아오면
+  // 경로가 떠나기 전과 같아 도장이 다시 맞는다. 그러면 첫 렌더가 이전 선택을 읽고, 아래
+  // serverMapData effect가 (아직 남아 있는 이전 map에 그 노드가 있으므로) 위 initPage가 비운 직후
+  // 그 선택을 되살린다. 경로 비교로는 "같은 경로에 다시 들어온 것"을 가릴 수 없어 떠날 때 비운다.
+  React.useEffect(() => {
+    return () => {
+      setServerMapCurrentTarget(undefined);
+    };
+  }, []);
+
   React.useEffect(() => {
     setShowFilter(false);
 
