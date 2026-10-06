@@ -26,10 +26,7 @@ import com.navercorp.pinpoint.profiler.AgentContextOption;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
 import com.navercorp.pinpoint.profiler.context.config.DefaultContextConfig;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentName;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.BootstrapJarPaths;
 import com.navercorp.pinpoint.profiler.context.module.ClusterNamespace;
 import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
@@ -155,16 +152,11 @@ public class ConfigModule extends AbstractModule {
 
     private void bindAgentInformation(AgentContextOption agentOption) {
         final ObjectName objectName = agentOption.getObjectName();
-        bind(String.class).annotatedWith(AgentId.class).toInstance(objectName.getAgentId());
-        bind(String.class).annotatedWith(AgentName.class).toInstance(objectName.getAgentName());
-        bind(String.class).annotatedWith(ApplicationName.class).toInstance(objectName.getApplicationName());
         bind(ObjectName.class).toInstance(objectName);
-
-        bind(String.class).annotatedWith(Names.named("pinpoint.agentId")).toInstance(objectName.getAgentId());
-        bind(String.class).annotatedWith(Names.named("pinpoint.agentName")).toInstance(objectName.getAgentName());
-        bind(String.class).annotatedWith(Names.named("pinpoint.applicationName")).toInstance(objectName.getApplicationName());
-//        bind(Map.class).annotatedWith(Names.named("pinpoint.objectName")).toInstance(objectName.toMap());
-
+        // string keys for modules that cannot depend on ObjectName (profiler-micrometer)
+        bind(String.class).annotatedWith(Names.named(ObjectName.AGENT_ID)).toInstance(objectName.getAgentId());
+        bind(String.class).annotatedWith(Names.named(ObjectName.AGENT_NAME)).toInstance(objectName.getAgentName());
+        bind(String.class).annotatedWith(Names.named(ObjectName.APPLICATION_NAME)).toInstance(objectName.getApplicationName());
 
         final ContainerResolver containerResolver = new ContainerResolver();
         final boolean isContainer = containerResolver.isContainer();
