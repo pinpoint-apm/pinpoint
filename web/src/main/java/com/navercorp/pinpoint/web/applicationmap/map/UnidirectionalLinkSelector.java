@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -92,15 +91,9 @@ public class UnidirectionalLinkSelector implements LinkSelector {
     }
 
     private List<Application> filterApplications(List<Application> applications) {
-        if (serverMapDataFilter == null) {
+        if (serverMapDataFilter == null || applications.isEmpty()) {
             return applications;
         }
-        List<Application> filteredApplications = new ArrayList<>();
-        for (Application application : applications) {
-            if (!serverMapDataFilter.filter(application)) {
-                filteredApplications.add(application);
-            }
-        }
-        return filteredApplications;
+        return serverMapDataFilter.filterApplications(applications);
     }
 }
