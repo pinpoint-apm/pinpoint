@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.config;
 
+import com.navercorp.pinpoint.alarm.service.AlarmRuleDeleter;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.batch.job.AgentIdCleanupTasklet;
 import com.navercorp.pinpoint.batch.job.ApplicationCleanupTasklet;
@@ -44,6 +45,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Date;
 import java.util.Objects;
@@ -166,13 +169,19 @@ public class CleanupAgentAndApplicationJobConfig {
             ApplicationDao applicationDao,
             AgentIdDao agentIdDao,
             TraceIndexDao traceIndexDao,
-            MapAgentResponseDao mapAgentResponseDao
+            MapAgentResponseDao mapAgentResponseDao,
+            AlarmRuleDeleter alarmRuleDeleter
     ) {
+        // The step transaction lasts the whole run, so the rule deletes of each application commit on their own.
+        TransactionTemplate alarmRuleTransaction = new TransactionTemplate(transactionManager);
+        alarmRuleTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         return new ApplicationCleanupTasklet(
                 applicationDao,
                 agentIdDao,
                 traceIndexDao,
                 mapAgentResponseDao,
+                alarmRuleDeleter,
+                alarmRuleTransaction,
                 dryRun,
                 baseTimestamp,
                 batchProperties.getCleanupAgentAndApplicationThresholdDays(),

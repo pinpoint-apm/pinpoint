@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.alarm.web;
+package com.navercorp.pinpoint.alarm.service;
 
 import com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmHistoryV2Dao;
@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmChannelOwnerType;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,8 +35,7 @@ import java.util.Objects;
  * in the same order as the cleanup batch ({@code AlarmTemplateCleanupTasklet}), or the
  * two sides take locks on the same rows in opposite order.
  */
-@Component
-class AlarmRuleDeleter {
+public class AlarmRuleDeleter {
 
     private final AlarmRuleV2Dao ruleDao;
     private final AlarmRuleLocalConfigDao localConfigDao;
@@ -46,12 +44,12 @@ class AlarmRuleDeleter {
     private final AlarmNotificationOutboxDao outboxDao;
     private final AlarmStateDao stateDao;
 
-    AlarmRuleDeleter(AlarmRuleV2Dao ruleDao,
-                     AlarmRuleLocalConfigDao localConfigDao,
-                     AlarmChannelBindingDao channelBindingDao,
-                     AlarmHistoryV2Dao historyDao,
-                     AlarmNotificationOutboxDao outboxDao,
-                     AlarmStateDao stateDao) {
+    public AlarmRuleDeleter(AlarmRuleV2Dao ruleDao,
+                            AlarmRuleLocalConfigDao localConfigDao,
+                            AlarmChannelBindingDao channelBindingDao,
+                            AlarmHistoryV2Dao historyDao,
+                            AlarmNotificationOutboxDao outboxDao,
+                            AlarmStateDao stateDao) {
         this.ruleDao = Objects.requireNonNull(ruleDao, "ruleDao");
         this.localConfigDao = Objects.requireNonNull(localConfigDao, "localConfigDao");
         this.channelBindingDao = Objects.requireNonNull(channelBindingDao, "channelBindingDao");
@@ -60,7 +58,7 @@ class AlarmRuleDeleter {
         this.stateDao = Objects.requireNonNull(stateDao, "stateDao");
     }
 
-    void deleteRule(Long id) {
+    public void deleteRule(Long id) {
         outboxDao.deleteByRuleId(id);
         historyDao.deleteByRuleId(id);
         channelBindingDao.deleteByOwner(AlarmChannelOwnerType.RULE, id);
@@ -72,16 +70,14 @@ class AlarmRuleDeleter {
     /**
      * Deletes the rules of one application, by primary key.
      * <p>
-     * The application columns carry no index, so every delete driven by them would scan
-     * alarm_rule_v2 and hold a next-key lock on the whole table until commit -- blocking
-     * rule writes in unrelated services. Resolving the ids once without a lock keeps all
-     * six deletes on primary keys.
+     * Resolving the ids once without a lock keeps all six deletes on primary keys, so they
+     * take the rows in the same order as the other writers instead of locking ranges.
      */
-    void deleteRulesByApplication(AlarmApplication application) {
+    public int deleteRulesByApplication(AlarmApplication application) {
         List<Long> ruleIds = ruleDao.selectRuleIdsByApplication(application.getServiceName(),
                 application.getApplicationName(), application.getApplicationType());
         if (ruleIds.isEmpty()) {
-            return;
+            return 0;
         }
         outboxDao.deleteByRuleIds(ruleIds);
         historyDao.deleteByRuleIds(ruleIds);
@@ -89,5 +85,15 @@ class AlarmRuleDeleter {
         localConfigDao.deleteByRuleIds(ruleIds);
         stateDao.deleteByRuleIds(ruleIds);
         ruleDao.deleteByIds(ruleIds);
+        return ruleIds.size();
+    }
+
+    /**
+     * How many rules {@link #deleteRulesByApplication} would delete. The delete is permanent and
+     * nothing restores it, so a dry run reports the count before anyone runs the real one.
+     */
+    public int countRulesByApplication(AlarmApplication application) {
+        return ruleDao.selectRuleIdsByApplication(application.getServiceName(),
+                application.getApplicationName(), application.getApplicationType()).size();
     }
 }

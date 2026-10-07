@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.batch.job;
 
+import com.navercorp.pinpoint.alarm.service.AlarmRuleDeleter;
+import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
@@ -36,6 +38,7 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.transaction.support.TransactionOperations;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -55,6 +58,8 @@ public class ApplicationCleanupTasklet implements Tasklet {
     private final AgentIdDao agentIdDao;
     private final TraceIndexDao traceIndexDao;
     private final MapAgentResponseDao mapAgentResponseDao;
+    private final AlarmRuleDeleter alarmRuleDeleter;
+    private final TransactionOperations alarmRuleTransaction;
 
     private final boolean dryRun;
     private final long baseTimestamp;
@@ -72,6 +77,8 @@ public class ApplicationCleanupTasklet implements Tasklet {
             AgentIdDao agentIdDao,
             TraceIndexDao traceIndexDao,
             MapAgentResponseDao mapAgentResponseDao,
+            AlarmRuleDeleter alarmRuleDeleter,
+            TransactionOperations alarmRuleTransaction,
             Boolean dryRun,
             long baseTimestamp,
             int inactiveDays,
@@ -83,6 +90,8 @@ public class ApplicationCleanupTasklet implements Tasklet {
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
         this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
         this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
+        this.alarmRuleDeleter = Objects.requireNonNull(alarmRuleDeleter, "alarmRuleDeleter");
+        this.alarmRuleTransaction = Objects.requireNonNull(alarmRuleTransaction, "alarmRuleTransaction");
         this.dryRun = Objects.requireNonNullElse(dryRun, Boolean.TRUE);
         this.baseTimestamp = baseTimestamp;
         this.inactiveDays = inactiveDays;
@@ -260,11 +269,18 @@ public class ApplicationCleanupTasklet implements Tasklet {
     }
 
     private void deleteApplication(Application application, long baseTimestamp) {
+        AlarmApplication alarmApplication = new AlarmApplication(application.getService().getServiceName(),
+                application.getApplicationName(), application.getServiceType().getName());
         if (dryRun) {
-            logger.info("dryRun=true, skip delete application. application={}", application);
+            logger.info("dryRun=true, skip delete application and {} alarm rules. application={}",
+                    alarmRuleDeleter.countRulesByApplication(alarmApplication), application);
             return;
         }
         logger.info("delete application. application={}", application);
+        // The rules go first. Nothing visits a deleted application again, so rules left after it would stay forever.
+        Integer deletedRules = alarmRuleTransaction.execute(
+                status -> alarmRuleDeleter.deleteRulesByApplication(alarmApplication));
+        logger.info("deleted alarm rules. application={}, rules={}", application, deletedRules);
         applicationDao.deleteApplication(
                 application.getService().getServiceUid(),
                 application.getApplicationName(),
