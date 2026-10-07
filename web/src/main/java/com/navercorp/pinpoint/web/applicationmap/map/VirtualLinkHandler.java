@@ -128,9 +128,10 @@ public class VirtualLinkHandler {
             LinkKey findLinkKey = new LinkKey(emulationLinkData.getFromApplication(), emulationLinkData.getToApplication());
             LinkData targetLinkData = linkDataDuplexMap.getTargetLinkData(findLinkKey);
             if (targetLinkData == null) {
-                // There has been a case where targetLinkData was null, but exact event could not be captured for analysis.
-                // Logging the case for further analysis should it happen again in the future.
-                logger.error("targetLinkData not found findLinkKey:{}", findLinkKey);
+                // Expected when one rpc host is served by two or more applications: the virtual link is created for
+                // every accepting application, but only the ones the caller actually called have inbound data from it.
+                // Nothing to reverse for the others, so the virtual link stays empty and no reversed link is drawn.
+                logger.debug("targetLinkData not found findLinkKey:{}", findLinkKey);
                 continue;
             }
             // create reversed link data - convert data accepted by the target to target's call data
