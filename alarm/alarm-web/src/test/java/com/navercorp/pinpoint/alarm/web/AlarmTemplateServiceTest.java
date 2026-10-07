@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
+import com.navercorp.pinpoint.alarm.service.AlarmRuleDeleter;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;
 import com.navercorp.pinpoint.alarm.validation.ConditionValidator;

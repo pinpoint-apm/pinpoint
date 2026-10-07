@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.alarm.dao.mapper.AlarmRuleV2Mapper;
 import com.navercorp.pinpoint.alarm.dao.mapper.AlarmTemplateItemMapper;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceProvider;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
+import com.navercorp.pinpoint.alarm.service.AlarmRuleDeleter;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -51,13 +52,15 @@ import java.util.List;
 
 /**
  * The alarm DAO beans, shared by every deployable that talks to the alarm tables, plus
- * the data source registry every one of them resolves rules through.
+ * the data source registry every one of them resolves rules through and the deleter that
+ * walks the six tables in one order.
  *
- * <p>Subclasses are the {@code @Configuration} classes; each one only declares
- * {@link #alarmSqlSessionFactory} so it can name its own MyBatis customizer and
- * mapper location, and inherits the rest. Adding a DAO to the shared jar used to
- * mean editing every deployable's configuration by hand, and missing one showed up
- * as a startup failure in that deployable alone.
+ * <p>Subclasses are the {@code @Configuration} classes; each one declares
+ * {@link #alarmSqlSessionFactory} so it can name its own MyBatis customizer and mapper
+ * location, adds at least one {@link AlarmDataSourceProvider} for the registry, and
+ * inherits the rest. Adding a DAO to the shared jar used to mean editing every
+ * deployable's configuration by hand, and missing one showed up as a startup failure
+ * in that deployable alone.
  */
 public abstract class AlarmDaoConfigurationSupport {
 
@@ -183,6 +186,16 @@ public abstract class AlarmDaoConfigurationSupport {
         MapperFactoryBean<AlarmChannelBindingDao> factory = new MapperFactoryBean<>(AlarmChannelBindingDao.class);
         factory.setSqlSessionFactory(sessionFactory);
         return factory;
+    }
+
+    @Bean
+    public AlarmRuleDeleter alarmRuleDeleter(AlarmRuleV2Dao ruleDao,
+                                             AlarmRuleLocalConfigDao localConfigDao,
+                                             AlarmChannelBindingDao channelBindingDao,
+                                             AlarmHistoryV2Dao historyDao,
+                                             AlarmNotificationOutboxDao outboxDao,
+                                             AlarmStateDao stateDao) {
+        return new AlarmRuleDeleter(ruleDao, localConfigDao, channelBindingDao, historyDao, outboxDao, stateDao);
     }
 
     // The data sources this deployable has installed: each contributing module declares

@@ -27,10 +27,14 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-applicationmap</artifactId>
         </dependency>
-        <!-- The core alarm data sources. Goes away with the v1 alarm job that still reads them. -->
+        <!-- The core alarm data sources. The v1 alarm job reads them, and the inherited registry bean needs at least one provider. -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-alarm-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-alarm-common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
