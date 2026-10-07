@@ -24,7 +24,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@pinpoint-fe/ui/src/components/ui/tabs';
 import { Badge } from '@pinpoint-fe/ui/src/components/ui/badge';
 import { useReactToastifyToast } from '@pinpoint-fe/ui/src/components/Toast';
-import { useIsForbiddenPath } from '@pinpoint-fe/ui/src/hooks';
+import { useIsDefaultService, useIsForbiddenPath } from '@pinpoint-fe/ui/src/hooks';
 import { useLocalStorage } from 'usehooks-ts';
 import {
   useAlarmV2RuleMutation,
@@ -154,6 +154,10 @@ const AlarmV2PageBody = ({
   const serviceName = useRequestService() ?? DEFAULT_SERVICE;
   const applicationName = selectedApplication?.applicationName || '';
   const selectedApplicationServiceType = selectedApplication?.serviceType;
+  const isDefaultService = useIsDefaultService();
+  // The DEFAULT service has no user group of its own, so the server reads the manager of
+  // the application the picker names. Elsewhere a channel and a bundle need none.
+  const canEditServiceScoped = hasPermission && (!isDefaultService || !!applicationName);
   const selectedApplicationKey: AlarmV2Rule.Parameters = React.useMemo(
     () => ({
       applicationName: selectedApplication?.applicationName,
@@ -352,13 +356,13 @@ const AlarmV2PageBody = ({
     if (hasPermission && rule.id) navigate(`?view=rule-edit&ruleId=${rule.id}`);
   };
   const openChannelView = (channel: AlarmV2Channel.ChannelData) => {
-    if (hasPermission && applicationName && channel.id) {
+    if (canEditServiceScoped && channel.id) {
       navigate(`?view=channel-edit&channelId=${channel.id}`);
     }
   };
 
   const openTemplateEditForm = (template: AlarmV2Template.TemplateData) => {
-    if (!hasPermission || !template.id) {
+    if (!canEditServiceScoped || !template.id) {
       return;
     }
     navigate(`?view=template-edit&templateId=${template.id}`);
@@ -471,7 +475,7 @@ const AlarmV2PageBody = ({
         <TabsContent value="channels">
           <Separator className="mb-6" />
           <AlarmV2ChannelsTab
-            hasPermission={hasPermission}
+            hasPermission={canEditServiceScoped}
             onAddChannel={() => navigate('?view=channel-new')}
             onOpenChannel={openChannelView}
             onDeleteChannel={setCurrentDeletingChannel}
@@ -480,7 +484,7 @@ const AlarmV2PageBody = ({
         <TabsContent value="templates">
           <Separator className="mb-6" />
           <AlarmV2TemplatesTab
-            hasPermission={hasPermission}
+            hasPermission={canEditServiceScoped}
             onAddTemplate={() => navigate('?view=template-new')}
             onOpenTemplate={openTemplateEditForm}
             onDeleteTemplate={openTemplateDeleteDialog}

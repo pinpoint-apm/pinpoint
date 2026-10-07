@@ -41,6 +41,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A channel belongs to the service, and the header names that service.
+ * <p>
+ * The {@code applicationName} parameter of the write endpoints is not stored. The
+ * permission checker reads it only for the DEFAULT service, which has no user group of
+ * its own and falls back to the manager of that application. Every other service reads
+ * its own user group and ignores the parameter.
+ * <p>
+ * TODO: replace the permission checker and remove the parameter when the service feature
+ * is released!!
+ */
 @RestController
 @RequestMapping("/api/alarm/channel")
 @Validated
@@ -91,9 +102,7 @@ public class AlarmChannelController {
             @NotBlank
             @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
             String serviceName,
-            // Does not store app name in alarm channels, but only used form permission check.
-            // TODO: replace permission checker and remove these when service feature is released!!
-            @RequestParam @NotBlank String applicationName,
+            @RequestParam(required = false, defaultValue = "") String applicationName,
             @RequestBody @Valid AlarmNotificationChannelRequest request) {
         return channelApiMapper.toResponse(
                 channelService.createChannel(channelApiMapper.toModel(serviceName, request)));
@@ -118,9 +127,7 @@ public class AlarmChannelController {
             @NotBlank
             @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
             String serviceName,
-            // Does not store app name in alarm channels, but only used form permission check.
-            // TODO: replace permission checker and remove these when service feature is released!!
-            @RequestParam @NotBlank String applicationName,
+            @RequestParam(required = false, defaultValue = "") String applicationName,
             @RequestBody @Valid AlarmNotificationChannelRequest request) {
         var channel = channelApiMapper.toModel(serviceName, request);
         channel.setId(id);
@@ -136,9 +143,7 @@ public class AlarmChannelController {
             @NotBlank
             @Size(max = AlarmValidationConstants.MAX_APPLICATION_IDENTIFIER_LENGTH, message = "serviceName is too long")
             String serviceName,
-            // Does not store app name in alarm channels, but only used form permission check.
-            // TODO: replace permission checker and remove these when service feature is released!!
-            @RequestParam @NotBlank String applicationName) {
+            @RequestParam(required = false, defaultValue = "") String applicationName) {
         channelService.deleteChannel(serviceName, id);
     }
 

@@ -102,9 +102,11 @@ jest.mock('@tanstack/react-query', () => ({
 }));
 
 let mockIsForbidden = false;
+let mockIsDefaultService = false;
 jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
   useGetUserGroup: () => ({ data: [] }),
   useIsForbiddenPath: () => mockIsForbidden,
+  useIsDefaultService: () => mockIsDefaultService,
 }));
 
 jest.mock('@pinpoint-fe/ui/src/hooks/utility/useRequestService', () => ({
@@ -168,6 +170,7 @@ const storeSelection = () =>
 describe('AlarmV2Page', () => {
   beforeEach(() => {
     mockIsForbidden = false;
+    mockIsDefaultService = false;
     mockSubmitRuleForm = undefined;
     mockSubmitChannelForm = undefined;
     window.localStorage.clear();
@@ -233,6 +236,27 @@ describe('AlarmV2Page', () => {
       await userEvent.click(screen.getByText('CONFIGURATION.ALARM_V2.RULES'));
 
       expect(search().value).toBe('');
+    });
+
+    // The default service has no user group of its own, so the server reads the manager
+    // of the application instead. Without one it refuses the write.
+    test('asks the default service for an application first', async () => {
+      mockIsDefaultService = true;
+      renderPage();
+
+      await userEvent.click(screen.getByText('CONFIGURATION.ALARM_V2.CHANNELS'));
+
+      expect(buttonLabelled('CONFIGURATION.ALARM_V2.ADD_CHANNEL')?.disabled).toBe(true);
+    });
+
+    test('lets the default service through once an application is picked', async () => {
+      mockIsDefaultService = true;
+      storeSelection();
+      renderPage();
+
+      await userEvent.click(screen.getByText('CONFIGURATION.ALARM_V2.CHANNELS'));
+
+      expect(buttonLabelled('CONFIGURATION.ALARM_V2.ADD_CHANNEL')?.disabled).toBe(false);
     });
 
     test('keeps every tab read-only without the permission', async () => {
