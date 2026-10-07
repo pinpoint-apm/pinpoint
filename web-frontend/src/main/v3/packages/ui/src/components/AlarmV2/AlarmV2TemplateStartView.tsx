@@ -32,7 +32,8 @@ export interface AlarmV2TemplateStartViewProps {
   presets?: AlarmV2TemplatePreset.PresetData[];
   templates?: AlarmV2Template.TemplateData[];
   standaloneRules?: AlarmV2Rule.RuleData[];
-  onContinue: (items: AlarmV2Template.TemplateItemData[]) => void;
+  /** The items to start with, and the name of the source when only one was picked. */
+  onContinue: (items: AlarmV2Template.TemplateItemData[], suggestedName?: string) => void;
   onCancel: () => void;
 }
 
@@ -180,8 +181,11 @@ export const AlarmV2TemplateStartView = ({
 
   const handleContinue = () => {
     const selected = new Set(selectedKeys);
+    const chosen = allCandidates.filter((candidate) => selected.has(candidate.key));
+    // One source names the bundle it starts. Several have no one name between them.
     onContinue(
-      allCandidates.filter((candidate) => selected.has(candidate.key)).flatMap((c) => c.items),
+      chosen.flatMap((c) => c.items),
+      chosen.length === 1 ? chosen[0].title : undefined,
     );
   };
 

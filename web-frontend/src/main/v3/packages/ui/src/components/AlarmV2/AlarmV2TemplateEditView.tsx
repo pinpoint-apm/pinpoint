@@ -77,6 +77,8 @@ const emptyItem = (): AlarmV2Template.TemplateItemData => ({
 
 export interface AlarmV2TemplateEditViewProps {
   template?: AlarmV2Template.TemplateData;
+  /** What to save as the name when the viewer leaves the field empty. */
+  defaultName?: string;
   channels?: AlarmV2Channel.ChannelData[];
   linkedChannelIds?: number[];
   isChannelsLoading?: boolean;
@@ -91,6 +93,7 @@ export interface AlarmV2TemplateEditViewProps {
 
 export const AlarmV2TemplateEditView = ({
   template,
+  defaultName,
   channels,
   linkedChannelIds,
   isChannelsLoading,
@@ -192,7 +195,9 @@ export const AlarmV2TemplateEditView = ({
   }, [pendingScrollKey]);
 
   const handleSave = async () => {
-    const trimmedName = name.trim();
+    // The field is seeded from the source, so an empty one means the viewer cleared it.
+    // Saving the name they started with beats refusing to save at all.
+    const trimmedName = name.trim() || defaultName?.trim() || '';
     if (!trimmedName) {
       // Save sits at the bottom and the name at the top, so an error the user
       // cannot see reads as a dead button.
@@ -204,6 +209,9 @@ export const AlarmV2TemplateEditView = ({
       return;
     }
     setNameError(false);
+    if (trimmedName !== name) {
+      setName(trimmedName);
+    }
 
     const results = await Promise.all(
       drafts.map((draft) => handleRefs.current.get(draft.key)?.validate()),

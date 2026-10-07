@@ -10,6 +10,7 @@ module.exports = {
   collectCoverageFrom: ['./src/**/*.[jt]s?(x)'],
   moduleNameMapper: {
     '^@pinpoint-fe/ui/src/(.*)$': '<rootDir>/src/$1',
+    '\\.(css|scss)$': '<rootDir>/jest.styleMock.cjs',
   },
   modulePathIgnorePatterns: ['.*\\.e2e\\.test\\.ts'],
   // react-resizable-panels 는 ESM 전용(`type: module`, exports 에 require 조건 없음)이라

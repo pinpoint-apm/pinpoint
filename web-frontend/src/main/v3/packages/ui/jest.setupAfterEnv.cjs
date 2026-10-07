@@ -9,3 +9,9 @@ beforeEach(() => {
 
   registerAppRoutes(TEST_APP_ROUTES);
 });
+
+// jsdom에는 scrollIntoView가 없다. 저장 실패 시 어긋난 입력으로 스크롤하는 코드가 이것을
+// 부르므로, 아무것도 하지 않는 구현으로 채운다.
+if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = function scrollIntoView() {};
+}
