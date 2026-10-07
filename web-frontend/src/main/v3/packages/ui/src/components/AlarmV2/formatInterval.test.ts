@@ -53,9 +53,12 @@ describe('roundUpCheckIntervalSec', () => {
 
   // Above the last option the value is kept as is: the server rejects it rather than
   // shortening it, so shortening here would hide the error instead of surfacing it.
-  it.each([3601, 86400, Number.MAX_SAFE_INTEGER])('keeps %i, which is above the last option', (sec) => {
-    expect(roundUpCheckIntervalSec(sec)).toBe(sec);
-  });
+  it.each([3601, 86400, Number.MAX_SAFE_INTEGER])(
+    'keeps %i, which is above the last option',
+    (sec) => {
+      expect(roundUpCheckIntervalSec(sec)).toBe(sec);
+    },
+  );
 
   it('rounds a non-positive value up to the smallest option', () => {
     expect(roundUpCheckIntervalSec(0)).toBe(60);
