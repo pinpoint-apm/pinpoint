@@ -29,14 +29,19 @@ export const useAlarmV2DeepLink = ({
   const viewRuleId = Number(searchParams.get('ruleId')) || undefined;
   const viewChannelId = Number(searchParams.get('channelId')) || undefined;
   const applicationNameParam = searchParams.get('applicationName');
+  const applicationTypeParam = searchParams.get('applicationType');
 
   React.useEffect(() => {
     if (!applicationNameParam) return;
 
-    // The type is read off the list rather than assumed: which application types can carry
-    // a rule is up to the deployment, and a guess here would query for the wrong one until
-    // the effect below corrected it.
-    const linked = applications?.find((item) => item.applicationName === applicationNameParam);
+    // Two applications can share a name and differ in type, so a link names both. A link sent
+    // before the type was added names only the application, and the first one of that name is
+    // the best guess left.
+    const linked = applications?.find(
+      (item) =>
+        item.applicationName === applicationNameParam &&
+        (!applicationTypeParam || item.serviceType === applicationTypeParam),
+    );
     if (!linked) return;
 
     selectApplication((current) =>
@@ -45,7 +50,7 @@ export const useAlarmV2DeepLink = ({
         ? current
         : linked,
     );
-  }, [applicationNameParam, applications, selectApplication]);
+  }, [applicationNameParam, applicationTypeParam, applications, selectApplication]);
 
   React.useEffect(() => {
     const ruleIdParam = searchParams.get('ruleId');

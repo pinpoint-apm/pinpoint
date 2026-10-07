@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router';
+import { getPagePath } from '@pinpoint-fe/ui/src/utils';
 
 import { Separator } from '..';
 import { cn } from '../../lib';
@@ -28,6 +29,7 @@ export interface LayoutWithConfigurationProps {
 
 export const LayoutWithConfiguration = ({ children, configMenu }: LayoutWithConfigurationProps) => {
   const { pathname } = useLocation();
+  const pagePath = getPagePath(pathname);
   const navigate = useNavigate();
   const visibleMenus = configMenu?.menus.filter((menu) => !menu.hide) ?? [];
 
@@ -51,8 +53,8 @@ export const LayoutWithConfiguration = ({ children, configMenu }: LayoutWithConf
                       'cursor-pointer inline-flex items-center whitespace-nowrap rounded-md text-sm transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-9 px-4 py-2 hover:bg-muted justify-start',
                       {
                         'bg-muted font-semibold': Array.isArray(item.path)
-                          ? item.path.some((p) => pathname === p)
-                          : pathname === item.path,
+                          ? item.path.includes(pagePath)
+                          : pagePath === item.path,
                       },
                     )}
                     onClick={() => {

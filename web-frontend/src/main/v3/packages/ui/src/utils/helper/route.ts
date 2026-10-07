@@ -8,6 +8,7 @@ import {
   FilteredMapType as FilteredMap,
 } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '../string';
+import { getServiceNameSegmentPage, hasServiceNameInPath } from './application';
 
 /**
  * 끝에 붙은 '/'를 뗀다. 라우터는 `/config/alarm`과 `/config/alarm/`을 같은 화면으로 매칭하므로,
@@ -16,6 +17,19 @@ import { convertParamsToQueryString } from '../string';
  */
 export const withoutTrailingSlash = (pathname: string) =>
   pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+
+/**
+ * The page path: the path without the serviceName segment, what follows it and a trailing '/'.
+ * `/config/alarm/{serviceName}` is the `/config/alarm` page, so code that compares paths exactly
+ * compares this value. `/inspector/{serviceName}/{app}@{type}` becomes `/inspector`.
+ *
+ * The serviceName is resolved from the raw pathname. The query side uses the same key, so the two
+ * do not evict each other from the cache that keeps the last result.
+ */
+export const getPagePath = (pathname: string) =>
+  withoutTrailingSlash(
+    (hasServiceNameInPath(pathname) && getServiceNameSegmentPage(pathname)) || pathname,
+  );
 
 /**
  * `window.location.pathname`에는 라우터 basename(BASE_PATH)이 포함되므로, 라우터가 보는 경로

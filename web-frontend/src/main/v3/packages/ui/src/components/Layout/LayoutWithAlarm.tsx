@@ -1,6 +1,6 @@
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { useConfiguration } from '@pinpoint-fe/ui/src/hooks';
-import { withoutTrailingSlash } from '@pinpoint-fe/ui/src/utils';
+import { getPagePath } from '@pinpoint-fe/ui/src/utils';
 import { Separator } from '../../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { t } from 'i18next';
@@ -12,9 +12,9 @@ export interface LayoutWithAlarmProps {
 
 export const LayoutWithAlarm = ({ children }: LayoutWithAlarmProps) => {
   const configuration = useConfiguration();
-  // 라우터는 `/config/alarm/`도 이 화면으로 매칭한다. 탭 값과 정확히 비교되므로 끝의 '/'를
-  // 떼지 않으면 어느 탭과도 맞지 않아 내용이 통째로 비어 버린다.
-  const pathname = withoutTrailingSlash(useLocation().pathname);
+  // The router also matches `/config/alarm/` and `/config/alarm/{serviceName}` to this page.
+  // The tab values are compared exactly, so the raw path matches no tab and the content is empty.
+  const pathname = getPagePath(useLocation().pathname);
   const navigate = useNavigate();
 
   const alarmTabs = [

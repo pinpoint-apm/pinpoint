@@ -288,11 +288,12 @@ describe('Test application helper utils', () => {
       );
       expect(getServiceNameSegmentPage('/inspector/svc/appName@TOMCAT')).toBe('/inspector');
       expect(getServiceNameSegmentPage('/errorAnalysis/svc')).toBe('/errorAnalysis');
+      expect(getServiceNameSegmentPage('/config/alarm/svc')).toBe('/config/alarm');
     });
 
     test('Return undefined on a page that does not carry a service name segment', () => {
       expect(getServiceNameSegmentPage('/serverMap/appName@TOMCAT')).toBeUndefined();
-      expect(getServiceNameSegmentPage('/config/alarm')).toBeUndefined();
+      expect(getServiceNameSegmentPage('/config/general')).toBeUndefined();
     });
   });
 

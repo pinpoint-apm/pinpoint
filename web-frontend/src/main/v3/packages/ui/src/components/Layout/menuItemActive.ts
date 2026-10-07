@@ -1,4 +1,4 @@
-import { withoutTrailingSlash } from '@pinpoint-fe/ui/src/utils';
+import { getPagePath, withoutTrailingSlash } from '@pinpoint-fe/ui/src/utils';
 import type { ConfigMenu } from './LayoutWithConfiguration';
 import type { SideNavigationMenuItem } from './LayoutWithSideNavigation';
 
@@ -6,14 +6,16 @@ import type { SideNavigationMenuItem } from './LayoutWithSideNavigation';
  * 메뉴 항목의 경로가 지금 경로인지. 배열이면 그중 하나와 정확히 같아야 하고, 문자열이면
  * 하위 경로까지 맞다고 본다(`/inspector`가 `/inspector/myApp@TOMCAT`도 맡는다).
  *
+ * A list compares the page path without the serviceName segment (`getPagePath`).
+ *
  * 라우터는 `/config/alarm`과 `/config/alarm/`을 같은 화면으로 매칭하므로 끝의 '/'를 떼고
  * 비교한다. 안 떼면 '/'가 붙은 링크·북마크에서 어느 메뉴도 그 경로의 주인이 되지 못해
  * 제목도 메뉴도 없는 화면이 나온다.
  */
 const matchesPathname = (path: SideNavigationMenuItem['path'], rawPathname: string) => {
-  const pathname = withoutTrailingSlash(rawPathname);
-
-  return Array.isArray(path) ? path.includes(pathname) : pathname.startsWith(path);
+  return Array.isArray(path)
+    ? path.includes(getPagePath(rawPathname))
+    : withoutTrailingSlash(rawPathname).startsWith(path);
 };
 
 /**

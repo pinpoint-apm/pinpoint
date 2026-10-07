@@ -103,7 +103,8 @@ public class AlarmMessageFormatter {
         this.logoDataUri = Objects.requireNonNullElse(logoDataUri, "");
         this.pinpointBaseUrl = StringUtils.hasText(pinpointBaseUrl)
                 ? pinpointBaseUrl.stripTrailing().replaceAll("/+$", "") : null;
-        this.alarmPagePath = Objects.requireNonNull(alarmPagePath, "alarmPagePath");
+        // The service segment goes after it, and a trailing '/' would make that "//{service}".
+        this.alarmPagePath = Objects.requireNonNull(alarmPagePath, "alarmPagePath").replaceAll("/+$", "");
     }
 
     public String formatTitle(AlarmRuleV2 rule, String customTitle, MetricQueryResult metricResults) {
@@ -486,16 +487,32 @@ public class AlarmMessageFormatter {
         return UriUtils.encodePathSegment(segment, StandardCharsets.UTF_8);
     }
 
+    /**
+     * The web reads a service segment with decodeURIComponent, and takes a segment that keeps a raw
+     * '@' for an application. So '@' has to be encoded too, which {@link #encodePathSegment} does not do.
+     */
+    private static String encodeServiceSegment(String serviceName) {
+        return UriUtils.encode(serviceName, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * The service goes in the path, where the web reads the service of a page, so the link opens
+     * the rule's service whichever one the recipient has selected. Two applications can share a
+     * name and differ in type, so the link carries both.
+     */
     private String buildHistoryLink(AlarmRuleV2 rule) {
         if (pinpointBaseUrl == null || rule.getId() == null) {
             return null;
         }
-        return String.format("%s%s?ruleId=%d&serviceName=%s&applicationName=%s",
+        String serviceSegment = StringUtils.hasText(rule.getServiceName())
+                ? "/" + encodeServiceSegment(rule.getServiceName()) : "";
+        return String.format("%s%s%s?ruleId=%d&applicationName=%s&applicationType=%s",
                 pinpointBaseUrl,
                 alarmPagePath,
+                serviceSegment,
                 rule.getId(),
-                URLEncoder.encode(nullSafe(rule.getServiceName()), StandardCharsets.UTF_8),
-                URLEncoder.encode(nullSafe(rule.getApplicationName()), StandardCharsets.UTF_8));
+                URLEncoder.encode(nullSafe(rule.getApplicationName()), StandardCharsets.UTF_8),
+                URLEncoder.encode(nullSafe(rule.getApplicationType()), StandardCharsets.UTF_8));
     }
 
     private String replaceVariables(String template, AlarmRuleV2 rule, MetricQueryResult metricResults,

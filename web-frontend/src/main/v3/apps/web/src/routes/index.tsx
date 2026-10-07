@@ -17,6 +17,7 @@ import {
   openTelemetryRouteLoader,
   scatterOrHeatmapFullScreenLoader,
   scatterOrHeatmapFullScreenRealtimeLoader,
+  alarmRouteLoader,
 } from '@pinpoint-fe/ui/src/loader';
 import { BASE_PATH, APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { registerAppRoutes } from '@pinpoint-fe/ui/src/utils';
@@ -199,8 +200,9 @@ const routes: RouteObject[] = [
                 element: <ConfigurationOutlet />,
                 children: [
                   {
-                    path: `${APP_PATH.CONFIG_ALARM}`,
+                    path: `${APP_PATH.CONFIG_ALARM}/:serviceName?`,
                     element: <Alarm />,
+                    loader: alarmRouteLoader,
                   },
                   {
                     path: `${APP_PATH.CONFIG_WEBHOOK}`,
