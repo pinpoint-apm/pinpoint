@@ -1,3 +1,4 @@
+export * from './alarm';
 export * from './errorAnalysis';
 export * from './filteredMap';
 export * from './handleV2';

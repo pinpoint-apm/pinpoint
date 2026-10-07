@@ -24,7 +24,13 @@ describe('isMenuItemActive', () => {
 
       expect(isMenuItemActive(alarms, '/config/alarm')).toBe(true);
       expect(isMenuItemActive(alarms, '/config/webhook')).toBe(true);
-      expect(isMenuItemActive(alarms, '/config/alarm/detail')).toBe(false);
+      expect(isMenuItemActive(alarms, '/config/alarm/svc/detail')).toBe(false);
+    });
+
+    test('with a list of paths matches a page that carries the service', () => {
+      const alarms = item({ path: [APP_PATH.CONFIG_ALARM, APP_PATH.CONFIG_WEBHOOK] });
+
+      expect(isMenuItemActive(alarms, '/config/alarm/svc')).toBe(true);
     });
   });
 

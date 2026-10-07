@@ -302,6 +302,25 @@ describe('AlarmV2Page', () => {
       expect(screen.getByTestId('application-picker').textContent).toBe('Shopping-Web');
     });
 
+    test('takes the application of the type the link names when two share a name', () => {
+      const ApplicationList = ({
+        selectedApplication,
+      }: {
+        selectedApplication?: { serviceType?: string };
+      }) => <div data-testid="application-picker">{selectedApplication?.serviceType}</div>;
+      const applications = [
+        application,
+        { applicationName: 'Shopping-Web', serviceType: 'TOMCAT' },
+      ];
+
+      renderPage('?applicationName=Shopping-Web&applicationType=TOMCAT', {
+        ApplicationList,
+        applications,
+      });
+
+      expect(screen.getByTestId('application-picker').textContent).toBe('TOMCAT');
+    });
+
     test('leaves the tabs up when the rule the id names is not there', () => {
       renderPage('?ruleId=999');
 

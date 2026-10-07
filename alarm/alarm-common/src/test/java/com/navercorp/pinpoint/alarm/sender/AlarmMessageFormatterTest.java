@@ -434,6 +434,34 @@ class AlarmMessageFormatterTest {
     }
 
     @Test
+    void historyLink_putsTheServiceInThePathAndNamesTheApplicationType() {
+        AlarmRuleV2 rule = createRule();
+        rule.setId(7L);
+        rule.setServiceName("shop/front@kr");
+        rule.setApplicationName("my app");
+        rule.setApplicationType("SPRING_BOOT");
+
+        String link = linkFormatter.formatBody(rule, "${history_link}", MetricQueryResult.empty());
+
+        assertEquals("https://pinpoint.example.com/config/alarm/shop%2Ffront%40kr"
+                + "?ruleId=7&applicationName=my+app&applicationType=SPRING_BOOT", link);
+    }
+
+    @Test
+    void historyLink_dropsTheTrailingSlashOfTheConfiguredPath() {
+        AlarmMessageFormatter slashed = new AlarmMessageFormatter(templateEngine(), "",
+                "https://pinpoint.example.com", "/config/alarm/",
+                new AlarmDataSourceRegistry(List.of(new TestAlarmDataSource.Provider())));
+        AlarmRuleV2 rule = createRule();
+        rule.setId(7L);
+        rule.setServiceName("shop");
+
+        String link = slashed.formatBody(rule, "${history_link}", MetricQueryResult.empty());
+
+        assertTrue(link.startsWith("https://pinpoint.example.com/config/alarm/shop?"), link);
+    }
+
+    @Test
     void detailLink_capsTheRangeAtOneDay() {
         AlarmRuleV2 rule = createNewGroupRule();
         rule.setApplicationType(AlarmApplication.TYPE_JAVASCRIPT);

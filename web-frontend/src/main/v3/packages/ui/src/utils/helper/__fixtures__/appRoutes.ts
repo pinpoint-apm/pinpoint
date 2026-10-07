@@ -37,7 +37,12 @@ export const TEST_APP_ROUTES: RouteObject[] = [
           { path: `${APP_PATH.INSPECTOR}/:serviceName?/:application?` },
           { path: `${APP_PATH.THREAD_DUMP}/:serviceName?/:application?` },
           { path: `${APP_PATH.OPEN_TELEMETRY_METRIC}/:serviceName?/:application?` },
-          { children: [{ path: APP_PATH.CONFIG_ALARM }, { path: APP_PATH.CONFIG_GENERAL }] },
+          {
+            children: [
+              { path: `${APP_PATH.CONFIG_ALARM}/:serviceName?` },
+              { path: APP_PATH.CONFIG_GENERAL },
+            ],
+          },
           { path: '*' },
         ],
       },

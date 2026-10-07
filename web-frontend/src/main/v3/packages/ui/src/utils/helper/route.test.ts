@@ -1,4 +1,5 @@
 import {
+  getPagePath,
   getServerImagePath,
   getServerIconPath,
   getApplicationPath,
@@ -637,5 +638,18 @@ describe('Test route helper utils', () => {
     test('Return the page path only when neither host group nor service name is given', () => {
       expect(getSystemMetricPath()).toEqual('/systemMetric');
     });
+  });
+});
+
+describe('getPagePath', () => {
+  test('drops the service segment and the trailing slash', () => {
+    expect(getPagePath('/config/alarm/svc')).toBe('/config/alarm');
+    expect(getPagePath('/config/alarm/svc/')).toBe('/config/alarm');
+    expect(getPagePath('/config/alarm/')).toBe('/config/alarm');
+  });
+
+  test('keeps a path that carries no service', () => {
+    expect(getPagePath('/config/webhook')).toBe('/config/webhook');
+    expect(getPagePath('/inspector/app@TOMCAT')).toBe('/inspector/app@TOMCAT');
   });
 });
