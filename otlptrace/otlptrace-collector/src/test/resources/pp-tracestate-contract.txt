@@ -1,0 +1,21 @@
+# contract-version: 1
+#
+# Wire contract of the Pinpoint "pp" tracestate entry, shared with the Pinpoint OTLP trace
+# collector (PinpointTraceStateParser). Keep this file byte-identical on both sides: the
+# extension asserts that it produces these values, the collector asserts that it parses them.
+#
+# Columns are separated by '|'. A '-' means the value is absent (null). An empty column means
+# the value is present but empty. '<null>' in the last column means no pp entry is written.
+#
+# serviceName | applicationName | applicationType | pp value
+order-team|order-api|1010|svc:order-team;app:order-api;type:1010
+order-team|order-api|-|svc:order-team;app:order-api
+-|order-api|-|app:order-api
+-|order-api|1210|app:order-api;type:1210
+order-team|-|-|svc:order-team
+order-team|-|1010|svc:order-team;type:1010
+|order-api|1010|app:order-api;type:1010
+order-team||-|svc:order-team
+-|-|1010|<null>
+-|-|-|<null>
+||-|<null>
