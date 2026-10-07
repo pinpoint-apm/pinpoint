@@ -52,6 +52,9 @@ export const AlarmV2TemplateFullPage = ({
   const { t } = useTranslation();
   const [draftTemplateItems, setDraftTemplateItems] =
     React.useState<AlarmV2Template.TemplateItemData[]>();
+  // What the single source the viewer started from is called. The editor seeds its
+  // name field with it, and saves it when the viewer clears the field.
+  const [draftTemplateName, setDraftTemplateName] = React.useState<string>();
   const editingTemplate = React.useMemo(
     () => templatesData?.find((template) => template.id === viewTemplateId),
     [templatesData, viewTemplateId],
@@ -100,7 +103,10 @@ export const AlarmV2TemplateFullPage = ({
           templates={templatesData}
           standaloneRules={rulesData}
           onCancel={onClose}
-          onContinue={(items: AlarmV2Template.TemplateItemData[]) => setDraftTemplateItems(items)}
+          onContinue={(items: AlarmV2Template.TemplateItemData[], suggestedName?: string) => {
+            setDraftTemplateItems(items);
+            setDraftTemplateName(suggestedName);
+          }}
         />
       ) : (
         <AlarmV2TemplateEditView
@@ -110,10 +116,11 @@ export const AlarmV2TemplateFullPage = ({
               ? editingTemplate
               : {
                   serviceName,
-                  name: '',
+                  name: draftTemplateName ?? '',
                   items: draftTemplateItems ?? [],
                 }
           }
+          defaultName={isTemplateEditView ? undefined : draftTemplateName}
           channels={channelsData}
           linkedChannelIds={isTemplateEditView ? linkedTemplateChannelIds : NO_LINKED_CHANNEL_IDS}
           isChannelsLoading={isChannelsLoading || isLinkedTemplateChannelsLoading}
