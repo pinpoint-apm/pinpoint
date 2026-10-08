@@ -59,7 +59,8 @@ public class AlarmNotificationChannelApiMapper {
                 channel.getWebhookUrl(),
                 channel.getTemplateCount(),
                 channel.getAffectedRuleCount(),
-                channel.getEnabledAffectedRuleCount()
+                channel.getEnabledAffectedRuleCount(),
+                channel.getRecipientCount()
         );
     }
 

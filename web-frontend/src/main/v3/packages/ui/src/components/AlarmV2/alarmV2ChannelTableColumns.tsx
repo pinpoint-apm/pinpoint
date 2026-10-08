@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@pinpoint-fe/ui/src/components/ui';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 import { ChannelMethodIcon } from './ChannelMethodIcon';
+import { AlarmV2NoRecipientIcon } from './AlarmV2NoRecipientIcon';
 import { AlarmV2TableActions } from './AlarmV2TableActions';
 
 export interface AlarmV2ChannelTableColumnsProps {
@@ -48,8 +49,11 @@ export const alarmV2ChannelTableColumns = (
           ? (row.webhookAlias ?? row.webhookUrl ?? (props.getValue() as string))
           : (props.getValue() as string);
       return (
-        <span className="block truncate text-muted-foreground" title={destination}>
-          {destination}
+        <span className="flex items-center gap-1.5">
+          <span className="min-w-0 truncate text-muted-foreground" title={destination}>
+            {destination}
+          </span>
+          <AlarmV2NoRecipientIcon channel={row} />
         </span>
       );
     },

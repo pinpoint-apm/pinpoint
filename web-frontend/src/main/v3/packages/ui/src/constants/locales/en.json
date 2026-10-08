@@ -334,6 +334,8 @@
       "WEBHOOK_FORMAT_SLACK": "Slack",
       "USER_GROUP_LABEL": "User Group",
       "SELECT_APP_FIRST": "Select your application first.",
+      "NO_RECIPIENT": "No recipients",
+      "NO_RECIPIENT_DESCRIPTION": "This group has no recipients. The alarm fires but reaches nobody.",
       "NO_CHANNELS": "No channels configured.",
       "NO_TEMPLATES": "No alarm templates configured.",
       "ACTIONS": "Actions",

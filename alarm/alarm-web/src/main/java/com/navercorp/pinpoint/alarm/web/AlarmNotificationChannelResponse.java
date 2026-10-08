@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
@@ -34,6 +35,9 @@ public record AlarmNotificationChannelResponse(
         String webhookUrl,
         int templateCount,
         int affectedRuleCount,
-        int enabledAffectedRuleCount
+        int enabledAffectedRuleCount,
+        // Absent rather than 0 on the queries that do not compute it: 0 marks a channel that
+        // reaches nobody, and the client must not read that into a count it never got.
+        @JsonInclude(JsonInclude.Include.NON_NULL) Integer recipientCount
 ) {
 }
