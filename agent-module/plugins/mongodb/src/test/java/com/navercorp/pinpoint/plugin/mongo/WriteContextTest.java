@@ -41,6 +41,27 @@ public class WriteContextTest {
 
 
     @Test
+    void parse_binary_subtype() {
+        assertBinarySubtype((byte) 0x00, "00");
+        assertBinarySubtype((byte) 0x04, "04");
+        // user defined subtypes are negative as a byte
+        assertBinarySubtype((byte) 0x80, "80");
+        assertBinarySubtype((byte) 0xFF, "FF");
+    }
+
+    private static void assertBinarySubtype(byte subtype, String expected) {
+        List<String> parameter = new ArrayList<>();
+        WriteContext context = new WriteContext(parameter, true, true);
+        BsonDocument bson = new BsonDocument();
+        bson.append("bson", new BsonBinary(subtype, "1234".getBytes(StandardCharsets.UTF_8)));
+        context.parse(bson);
+
+        // the binary value is bound as the first parameter and the "$type" hex as the second
+        Assertions.assertEquals(2, parameter.size());
+        Assertions.assertEquals("\"" + expected + "\"", parameter.get(1));
+    }
+
+    @Test
     void parse_geometry() {
         List<String> parameter = new ArrayList<>();
         WriteContext context = new WriteContext(parameter, true, true);
