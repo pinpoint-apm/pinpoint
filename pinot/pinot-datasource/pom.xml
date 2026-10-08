@@ -126,12 +126,142 @@
                     <groupId>io.grpc</groupId>
                     <artifactId>grpc-stub</artifactId>
                 </exclusion>
+                <!-- pinot-common: gRPC transport protos, the grpc artifacts are excluded above -->
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
 
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
                 <!-- end pinot-common exclusions -->
+                <exclusion>
+                    <groupId>org.apache.pinot</groupId>
+                    <artifactId>pinot-segment-spi</artifactId>
+                </exclusion>
+                <!-- start pinot data format exclusions -->
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libthrift</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.arrow</groupId>
+                    <artifactId>arrow-vector</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.arrow</groupId>
+                    <artifactId>arrow-memory-netty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro</artifactId>
+                </exclusion>
+                <!-- end pinot data format exclusions -->
+
+                <!-- start calcite-core runtime exclusions -->
+                <!-- Without pinot-segment-spi, calcite-core resolves through calcite-babel
+                     and loses the exclusions Pinot declares in its own dependencyManagement. -->
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-dbcp2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.yahoo.datasketches</groupId>
+                    <artifactId>sketches-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.hydromatic</groupId>
+                    <artifactId>aggdesigner-algorithm</artifactId>
+                </exclusion>
+                <!-- end calcite-core runtime exclusions -->
+
+                <!-- pinot-spi: Groovy is only used by the ingestion job templates -->
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-all</artifactId>
+                </exclusion>
+
+                <!-- pinot-common: datablock compression and segment tar handling, server side only -->
+                <exclusion>
+                    <groupId>com.github.luben</groupId>
+                    <artifactId>zstd-jni</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.xerial.snappy</groupId>
+                    <artifactId>snappy-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.lz4</groupId>
+                    <artifactId>lz4-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-compress</artifactId>
+                </exclusion>
+
+                <!-- pinot-spi / pinot-common: scalar functions, segment names and auditing, server side only -->
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-math3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>joda-time</groupId>
+                    <artifactId>joda-time</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.seancfoley</groupId>
+                    <artifactId>ipaddress</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.nimbusds</groupId>
+                    <artifactId>nimbus-jose-jwt</artifactId>
+                </exclusion>
+
+                <!-- pinot-common: CLP query rewriter, broker side only -->
+                <exclusion>
+                    <groupId>com.yscope.clp</groupId>
+                    <artifactId>clp-ffi</artifactId>
+                </exclusion>
+
+                <!-- calcite-core: Janino code generation is only used by the planner, not the parser -->
+                <exclusion>
+                    <groupId>org.codehaus.janino</groupId>
+                    <artifactId>janino</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.janino</groupId>
+                    <artifactId>commons-compiler</artifactId>
+                </exclusion>
+
+                <!-- pinot-spi: classpath scanning for scalar functions and metric factories, server side only -->
+                <exclusion>
+                    <groupId>org.reflections</groupId>
+                    <artifactId>reflections</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+
+                <!-- pinot-common: JSON scalar functions, evaluated on the server -->
+                <exclusion>
+                    <groupId>com.jayway.jsonpath</groupId>
+                    <artifactId>json-path</artifactId>
+                </exclusion>
+
+                <!-- pinot-spi: null bitmaps of the DataTable and DataBlock wire formats between server and broker -->
+                <exclusion>
+                    <groupId>org.roaringbitmap</groupId>
+                    <artifactId>RoaringBitmap</artifactId>
+                </exclusion>
+
+                <!-- pinot-common: RE2 engine for REGEXP_LIKE, evaluated on the server -->
+                <exclusion>
+                    <groupId>com.google.re2j</groupId>
+                    <artifactId>re2j</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- end pinot dependency -->
