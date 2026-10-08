@@ -55,6 +55,33 @@ export interface DatetimePickerProps extends Omit<
   timeUnits?: string[];
 }
 
+/**
+ * 트리거에 띄운 라벨("5분 전" 같은 상대 범위 이름)과 **그 라벨을 붙인 범위**.
+ *
+ * 라벨은 고른 그 순간의 범위에만 맞는 이름이다. 범위가 picker 밖에서 바뀌면(브라우저 뒤로/앞으로
+ * 가기, 링크 이동) 라벨은 더 이상 그 범위를 가리키지 않으므로 버린다. 앞으로 가기로 그 범위에
+ * 돌아와도 다시 보여주지 않는다 — 범위는 고른 시각에 고정된 값이라, 그 사이 시간이 흘렀으면 더는
+ * "5분 전"이 아니다. 범위를 함께 적어 두는 것은 effect가 라벨을 버리기 전 한 렌더 동안에도 남의
+ * 범위에 라벨이 붙어 보이지 않게 하기 위해서다.
+ *
+ * `pending`은 "방금 골랐고 아직 `from`/`to`가 따라오지 않았다"는 뜻이다. 고른 뒤 URL이 바뀌기까지
+ * (라우트 로더를 거치므로) 한동안 이전 범위가 들어오는데, 그동안 라벨을 감추면 이전 라벨 → 날짜 →
+ * 새 라벨로 깜빡인다. `from`/`to`가 한 번이라도 바뀌면 기다림은 끝난다.
+ *
+ * 범위는 `SEARCH_PARAMETER_DATE_FORMAT` 문자열로 비교한다. 호출부들이 `formattedDates`를 그대로
+ * URL에 싣고 그 값을 `from`/`to`로 돌려주기 때문이다. 시각(timestamp)으로 비교하면 안 된다 —
+ * `getParsedDateRange`는 문자열을 브라우저 시간대로 읽어, 설정 시간대가 다른 사용자에게는 같은
+ * 범위가 늘 다르게 보인다.
+ */
+type RangeLabel = { text: string; from: string; to: string; pending: boolean };
+
+const toRangeKey = (date: Date | string | undefined, timezone: string) =>
+  typeof date === 'string'
+    ? date
+    : date
+      ? formatInTimeZone(date, timezone, SEARCH_PARAMETER_DATE_FORMAT)
+      : undefined;
+
 const genDateState = (from: number | Date, to: number | Date, timezone: string): DateState => {
   const newFrom = new Date(from);
   const newTo = new Date(to);
@@ -89,18 +116,31 @@ export const DatetimePicker = React.memo(
     const [language] = useLanguage();
     const [dateFormat] = useDateFormat();
     const [timezone] = useTimezone();
-    const [input, setInput] = React.useState('');
+    const [label, setLabel] = React.useState<RangeLabel>();
+    const fromKey = toRangeKey(from, timezone);
+    const toKey = toRangeKey(to, timezone);
+    const input =
+      label && (label.pending || (label.from === fromKey && label.to === toKey)) ? label.text : '';
     const parsedDate = getParsedDateRange({ from, to }, isValidDateRange(maxDateRangeDays));
     const parsedFromTimestamp = parsedDate.from.getTime();
     const parsedToTimestamp = parsedDate.to.getTime();
     const gap = parsedDate.to.getTime() - parsedDate.from.getTime();
 
     React.useEffect(() => {
-      setInput('');
+      setLabel(undefined);
     }, [application?.applicationName, application?.serviceType]);
 
+    React.useEffect(() => {
+      // 고른 범위가 도착한 첫 변경만 기다림을 끝내고, 그 뒤의 변경은 라벨을 버린다.
+      setLabel((prev) => (prev?.pending ? { ...prev, pending: false } : undefined));
+    }, [fromKey, toKey]);
+
     const handleChange = (dateState: DateState, text = '') => {
-      setInput(text);
+      setLabel(
+        text && dateState.formattedDates
+          ? { text, ...dateState.formattedDates, pending: true }
+          : undefined,
+      );
       onChange?.(dateState);
     };
 
@@ -162,7 +202,13 @@ export const DatetimePicker = React.memo(
                       from: prarsedPrevDate.from,
                       to: prarsedPrevDate.to,
                     });
-                    setInput(`${formattedDateRange.from} ~ ${formattedDateRange.to}`);
+                    // 범위는 그대로이므로 지금 범위에 붙인다.
+                    setLabel({
+                      text: `${formattedDateRange.from} ~ ${formattedDateRange.to}`,
+                      from: fromKey ?? '',
+                      to: toKey ?? '',
+                      pending: false,
+                    });
                   }
                 }
               }}
