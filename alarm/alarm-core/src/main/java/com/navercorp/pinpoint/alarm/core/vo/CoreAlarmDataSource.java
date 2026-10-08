@@ -141,10 +141,15 @@ public enum CoreAlarmDataSource implements AlarmDataSource {
         return metrics;
     }
 
+    /**
+     * The map link names the service map. For a service other than DEFAULT the web drops the
+     * application and draws the whole service, and with the service map off the web moves the
+     * link to the server map of the application.
+     */
     @Override
-    public String detailLink(String baseUrl, String application, long fromMs, long toMs) {
-        String page = this == AGENT_STAT || this == AGENT_EVENT ? "inspector" : "serverMap";
-        return String.format("%s/%s/%s?from=%s&to=%s", baseUrl, page, application,
+    public String detailLink(String baseUrl, String serviceName, String application, long fromMs, long toMs) {
+        String page = this == AGENT_STAT || this == AGENT_EVENT ? "inspector" : "serviceMap";
+        return String.format("%s/%s/%s/%s?from=%s&to=%s", baseUrl, page, serviceName, application,
                 AlarmDataSource.linkTime(fromMs), AlarmDataSource.linkTime(toMs));
     }
 }

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.lang.NonNull;
@@ -472,6 +473,7 @@ public class AlarmMessageFormatter {
                 : toMs - 1000L * (rule.getCheckIntervalSec() != null ? rule.getCheckIntervalSec() : 0);
         return dataSource.detailLink(
                 pinpointBaseUrl,
+                serviceSegment(rule),
                 encodePathSegment(nullSafe(rule.getApplicationName()))
                         + "@" + encodePathSegment(nullSafe(rule.getApplicationType())),
                 fromMs,
@@ -488,10 +490,16 @@ public class AlarmMessageFormatter {
     }
 
     /**
+     * The service of the rule as a path segment, for every link that opens a page of the web.
+     * A rule saved without a service belongs to DEFAULT, the service the web takes when a request
+     * names none.
+     * <p>
      * The web reads a service segment with decodeURIComponent, and takes a segment that keeps a raw
      * '@' for an application. So '@' has to be encoded too, which {@link #encodePathSegment} does not do.
      */
-    private static String encodeServiceSegment(String serviceName) {
+    private static String serviceSegment(AlarmRuleV2 rule) {
+        String serviceName = StringUtils.hasText(rule.getServiceName())
+                ? rule.getServiceName() : ServiceUid.DEFAULT_SERVICE_UID_NAME;
         return UriUtils.encode(serviceName, StandardCharsets.UTF_8);
     }
 
@@ -504,12 +512,10 @@ public class AlarmMessageFormatter {
         if (pinpointBaseUrl == null || rule.getId() == null) {
             return null;
         }
-        String serviceSegment = StringUtils.hasText(rule.getServiceName())
-                ? "/" + encodeServiceSegment(rule.getServiceName()) : "";
-        return String.format("%s%s%s?ruleId=%d&applicationName=%s&applicationType=%s",
+        return String.format("%s%s/%s?ruleId=%d&applicationName=%s&applicationType=%s",
                 pinpointBaseUrl,
                 alarmPagePath,
-                serviceSegment,
+                serviceSegment(rule),
                 rule.getId(),
                 URLEncoder.encode(nullSafe(rule.getApplicationName()), StandardCharsets.UTF_8),
                 URLEncoder.encode(nullSafe(rule.getApplicationType()), StandardCharsets.UTF_8));

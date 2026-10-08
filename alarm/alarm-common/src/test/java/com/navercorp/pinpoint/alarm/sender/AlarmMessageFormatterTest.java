@@ -412,7 +412,7 @@ class AlarmMessageFormatterTest {
 
         String link = linkFormatter.formatBody(rule, "${detail_link}", results);
 
-        assertEquals("https://pinpoint.example.com/detail/test-app@javascript"
+        assertEquals("https://pinpoint.example.com/detail/test-service/test-app@javascript"
                 + "?from=" + fromMs + "&to=" + toMs, link);
     }
 
@@ -429,7 +429,7 @@ class AlarmMessageFormatterTest {
 
         String link = linkFormatter.formatBody(rule, "${detail_link}", results);
 
-        assertTrue(link.startsWith("https://pinpoint.example.com/detail/my%20app%2Fv2%231@javascript?"),
+        assertTrue(link.startsWith("https://pinpoint.example.com/detail/test-service/my%20app%2Fv2%231@javascript?"),
                 "the name has to survive as one path segment, was " + link);
     }
 
@@ -461,6 +461,41 @@ class AlarmMessageFormatterTest {
         assertTrue(link.startsWith("https://pinpoint.example.com/config/alarm/shop?"), link);
     }
 
+    // The web reads the service of a page from its path, so the link carries the service of
+    // the rule, encoded the way the web decodes it.
+    @Test
+    void detailLink_carriesTheServiceOfTheRule() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setServiceName("shop/front@kr");
+        rule.setApplicationType(AlarmApplication.TYPE_JAVASCRIPT);
+        long toMs = 1789041600000L;
+        MetricQueryResult results = metricResultsWithRange(rule, 3.0,
+                new QueriedRange(toMs - Duration.ofHours(1).toMillis(), toMs));
+
+        String link = linkFormatter.formatBody(rule, "${detail_link}", results);
+
+        assertTrue(link.startsWith("https://pinpoint.example.com/detail/shop%2Ffront%40kr/test-app@javascript?"),
+                link);
+    }
+
+    // A rule saved without a service belongs to DEFAULT. An empty segment would leave the web
+    // reading no application from the link.
+    @Test
+    void links_takeDefaultForARuleWithoutAService() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setId(7L);
+        rule.setServiceName("");
+        rule.setApplicationType(AlarmApplication.TYPE_JAVASCRIPT);
+        long toMs = 1789041600000L;
+        MetricQueryResult results = metricResultsWithRange(rule, 3.0,
+                new QueriedRange(toMs - Duration.ofHours(1).toMillis(), toMs));
+
+        assertTrue(linkFormatter.formatBody(rule, "${detail_link}", results)
+                .startsWith("https://pinpoint.example.com/detail/DEFAULT/test-app@javascript?"));
+        assertTrue(linkFormatter.formatBody(rule, "${history_link}", results)
+                .startsWith("https://pinpoint.example.com/config/alarm/DEFAULT?ruleId=7&"));
+    }
+
     @Test
     void detailLink_capsTheRangeAtOneDay() {
         AlarmRuleV2 rule = createNewGroupRule();
@@ -472,7 +507,7 @@ class AlarmMessageFormatterTest {
 
         String link = linkFormatter.formatBody(rule, "${detail_link}", results);
 
-        assertEquals("https://pinpoint.example.com/detail/test-app@javascript"
+        assertEquals("https://pinpoint.example.com/detail/test-service/test-app@javascript"
                 + "?from=" + (toMs - Duration.ofDays(1).toMillis()) + "&to=" + toMs, link);
     }
 
@@ -561,7 +596,7 @@ class AlarmMessageFormatterTest {
 
         // the template escapes the query separator, so the two bounds are asserted apart
         assertThat(html)
-                .contains("/detail/test-app@javascript?from=" + fromMs)
+                .contains("/detail/test-service/test-app@javascript?from=" + fromMs)
                 .contains("to=" + toMs);
     }
 
