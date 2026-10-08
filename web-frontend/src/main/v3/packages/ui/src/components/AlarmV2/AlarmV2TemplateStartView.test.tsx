@@ -13,7 +13,12 @@ jest.mock('react-i18next', () => ({
 jest.mock('@pinpoint-fe/ui/src/lib/charts', () => ({}));
 
 jest.mock('@pinpoint-fe/ui/src/hooks/api', () => ({
-  useAlarmV2DataSourcesQuery: () => ({ data: [] }),
+  useAlarmV2DataSourcesQuery: () => ({
+    data: [
+      { value: 'APPLICATION_RESPONSE', category: 'APM' },
+      { value: 'RUM_ERROR', category: 'RUM' },
+    ],
+  }),
 }));
 jest.mock('@pinpoint-fe/ui/src/hooks/utility/useAlarmV2CatalogLabels', () => ({
   useAlarmV2CatalogLabels: () => ({
@@ -22,17 +27,17 @@ jest.mock('@pinpoint-fe/ui/src/hooks/utility/useAlarmV2CatalogLabels', () => ({
   }),
 }));
 
-const preset = (name: string, ruleName: string) =>
+const preset = (name: string, ruleName: string, dataSource = 'APPLICATION_RESPONSE') =>
   ({
     name: { en: name, ko: name },
     description: { en: 'a preset', ko: 'a preset' },
-    dataSource: 'APPLICATION_RESPONSE',
+    dataSource,
     rules: [
       {
         name: { en: ruleName, ko: ruleName },
         description: { en: '', ko: '' },
         severity: 'WARNING',
-        dataSource: 'APPLICATION_RESPONSE',
+        dataSource,
         checkIntervalSec: 180,
         actionIntervalSec: 1800,
         conditions: { type: 'LEAF', metric: 'error_rate', op: '>=', threshold: 10, windowSec: 300 },
@@ -83,6 +88,23 @@ describe('AlarmV2TemplateStartView', () => {
     await userEvent.click(continueButton());
 
     expect(onContinue).toHaveBeenCalledWith(expect.any(Array), undefined);
+  });
+
+  // One bundle measures one category. A row that cannot join looks it, not just refuses the click.
+  test('dims a source of another category once one is picked', async () => {
+    renderView([
+      preset('Response basics', 'High error rate'),
+      preset('Error basics', 'Error spike', 'RUM_ERROR'),
+    ]);
+
+    await userEvent.click(screen.getByText('Response basics'));
+    await userEvent.click(screen.getByText('Error basics'));
+
+    const rumRow = screen.getByText('Error basics').closest('label') as HTMLLabelElement;
+    const rumBox = rumRow.querySelector('button[role="checkbox"]') as HTMLButtonElement;
+    expect(rumRow.className).toContain('opacity-50');
+    expect(rumBox.disabled).toBe(true);
+    expect(rumBox.getAttribute('data-state')).toBe('unchecked');
   });
 
   test('hands over no name when nothing is picked', async () => {
