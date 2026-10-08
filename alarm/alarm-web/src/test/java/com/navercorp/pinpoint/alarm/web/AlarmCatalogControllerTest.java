@@ -44,29 +44,4 @@ class AlarmCatalogControllerTest {
                 values(controller.getDataSources("SPRING_BOOT")));
         assertEquals(3, controller.getDataSources(null).size());
     }
-
-    @Test
-    void anApplicationTypeLimitsThePresetsToItsCategory() {
-        AlarmApplicationResolver resolver = mock(AlarmApplicationResolver.class);
-        when(resolver.categoryOf("javascript")).thenReturn("OTHER");
-        when(resolver.categoryOf("SPRING_BOOT")).thenReturn(AlarmDataSource.APM_CATEGORY);
-        AlarmTemplatePreset apm = preset("apm", TestAlarmDataSource.AGENT_STAT, TestAlarmDataSource.APPLICATION_RESPONSE);
-        AlarmTemplatePreset other = preset("other", TestAlarmDataSource.OTHER_CATEGORY);
-        AlarmTemplatePresetLoader loader = mock(AlarmTemplatePresetLoader.class);
-        when(loader.getPresets()).thenReturn(List.of(apm, other));
-        AlarmCatalogController controller = new AlarmCatalogController(
-                loader, AlarmServiceTestSupport.DATA_SOURCE_REGISTRY, resolver);
-
-        assertEquals(List.of(other), controller.getTemplatePresets("javascript"));
-        assertEquals(List.of(apm), controller.getTemplatePresets("SPRING_BOOT"));
-        assertEquals(List.of(apm, other), controller.getTemplatePresets(null));
-    }
-
-    private static AlarmTemplatePreset preset(String name, TestAlarmDataSource... dataSources) {
-        List<AlarmTemplatePreset.Rule> rules = java.util.Arrays.stream(dataSources)
-                .map(dataSource -> new AlarmTemplatePreset.Rule(null, null, null, dataSource.name(),
-                        null, null, null, null))
-                .toList();
-        return new AlarmTemplatePreset(new AlarmTemplatePreset.LocalizedText(name, name), null, rules);
-    }
 }

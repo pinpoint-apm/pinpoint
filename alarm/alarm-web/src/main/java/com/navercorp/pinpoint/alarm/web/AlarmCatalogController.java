@@ -59,17 +59,8 @@ public class AlarmCatalogController {
                 .toList();
     }
 
-    /** With an application type, only the presets whose every rule reads a data source that type may use. */
     @GetMapping("/template-presets")
-    public List<AlarmTemplatePreset> getTemplatePresets(
-            @RequestParam(value = "applicationType", required = false) String applicationType) {
-        if (applicationType == null) {
-            return templatePresetLoader.getPresets();
-        }
-        String category = applicationResolver.categoryOf(applicationType);
-        return templatePresetLoader.getPresets().stream()
-                .filter(preset -> preset.rules().stream()
-                        .allMatch(rule -> category.equals(dataSourceRegistry.get(rule.dataSource()).category())))
-                .toList();
+    public List<AlarmTemplatePreset> getTemplatePresets() {
+        return templatePresetLoader.getPresets();
     }
 }

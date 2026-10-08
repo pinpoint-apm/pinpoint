@@ -23,8 +23,6 @@ export interface AlarmV2TemplateFullPageProps {
   onClose: () => void;
   serviceName: string;
   applicationName: string;
-  /** The type of the application in the picker; the presets are offered by its category. */
-  applicationType?: string;
   isTemplateNewView: boolean;
   isTemplateEditView: boolean;
   viewTemplateId?: number;
@@ -39,7 +37,6 @@ export const AlarmV2TemplateFullPage = ({
   onClose,
   serviceName,
   applicationName,
-  applicationType,
   isTemplateNewView,
   isTemplateEditView,
   viewTemplateId,
@@ -59,7 +56,7 @@ export const AlarmV2TemplateFullPage = ({
     () => templatesData?.find((template) => template.id === viewTemplateId),
     [templatesData, viewTemplateId],
   );
-  const { data: presetsData } = useAlarmV2TemplatePresetsQuery(isTemplateNewView, applicationType);
+  const { data: presetsData } = useAlarmV2TemplatePresetsQuery(isTemplateNewView);
   const { data: linkedTemplateChannelsData, isLoading: isLinkedTemplateChannelsLoading } =
     useAlarmV2ChannelsByTemplateQuery(viewTemplateId);
   const linkedTemplateChannelIds = React.useMemo(
