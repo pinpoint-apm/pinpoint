@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Link, useNavigate } from 'react-router';
 import {
   convertParamsToQueryString,
@@ -18,7 +18,6 @@ import {
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
-  scatterDataByApplicationKeyAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/src/atoms';
 import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
@@ -40,6 +39,7 @@ import {
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 import {
   useFilterWizardOnClickApply,
+  useServerMapCurrentTarget,
   useServerMapOnClickMenuItem,
 } from '@pinpoint-fe/ui/src/hooks/serverMap';
 import { FilteredMapChartsBoard } from '@pinpoint-fe/ui/src/components/FilterMap/FilteredMapChartsBoard';
@@ -74,19 +74,21 @@ export const FilteredMapPage = ({
   const parentMap = serviceName
     ? { title: 'Servicemap', path: getServiceMapPath(serviceName, application) }
     : { title: 'Servermap', path: getServerMapPath(application) };
-  const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
-  const [serverMapData, setServerMapData] = useAtom(serverMapDataAtom);
+  // 이전 경로에서 고른 것은 읽지 않는다(→ `useServerMapCurrentTarget`). 아래 effect가 새 map이 올
+  // 때마다 선택을 다시 써넣으므로, 아톰을 그대로 읽으면 이전 경로의 선택에 지금 경로로 도장을
+  // 다시 찍게 된다.
+  const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
+  const serverMapCurrentTarget = useServerMapCurrentTarget();
+  // 쌓기·비우기는 `useFilteredMapData`(FilteredMapFetcher)가 한다. 여기서는 읽기만 한다.
+  const serverMapData = useAtomValue(serverMapDataAtom);
   const [appliedFilters, setAppliedFilters] =
     React.useState<FilteredMap.FilterState[]>(parsedFilters);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();
   const [showFilterConfig, setShowFilterConfig] = React.useState(false);
-  const [, setScatterDataByApplicationKey] = useAtom(scatterDataByApplicationKeyAtom);
   const [pauseFilteredMapFetcher, setPauseFilteredMapFetcher] = React.useState(false);
   const { t } = useTranslation();
 
   useUpdateEffect(() => {
-    setServerMapData(undefined);
-    setScatterDataByApplicationKey(undefined);
     setPauseFilteredMapFetcher(false);
   }, [search]);
 
@@ -168,12 +170,6 @@ export const FilteredMapPage = ({
       setServerMapCurrentTarget(undefined);
     }
   }, [serverMapData]);
-
-  React.useEffect(() => {
-    return () => {
-      setScatterDataByApplicationKey(undefined);
-    };
-  }, []);
 
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates }) => {
