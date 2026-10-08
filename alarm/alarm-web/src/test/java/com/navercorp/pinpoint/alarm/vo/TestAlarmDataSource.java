@@ -96,8 +96,8 @@ public enum TestAlarmDataSource implements AlarmDataSource {
     }
 
     @Override
-    public String detailLink(String baseUrl, String application, long fromMs, long toMs) {
-        return String.format("%s/detail/%s?from=%d&to=%d", baseUrl, application, fromMs, toMs);
+    public String detailLink(String baseUrl, String serviceName, String application, long fromMs, long toMs) {
+        return String.format("%s/detail/%s/%s?from=%d&to=%d", baseUrl, serviceName, application, fromMs, toMs);
     }
 
     public static class Provider implements AlarmDataSourceProvider {

@@ -32,15 +32,15 @@ class CoreAlarmDataSourceTest {
     // The web parses only this date format; epoch millis make it open its default range.
     @Test
     void anAgentMetricLinksToTheApplicationInspector() {
-        assertEquals("https://p/inspector/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
-                CoreAlarmDataSource.AGENT_STAT.detailLink("https://p", "app@SPRING_BOOT", FROM, TO));
-        assertEquals("https://p/inspector/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
-                CoreAlarmDataSource.AGENT_EVENT.detailLink("https://p", "app@SPRING_BOOT", FROM, TO));
+        assertEquals("https://p/inspector/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
+                CoreAlarmDataSource.AGENT_STAT.detailLink("https://p", "svc", "app@SPRING_BOOT", FROM, TO));
+        assertEquals("https://p/inspector/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
+                CoreAlarmDataSource.AGENT_EVENT.detailLink("https://p", "svc", "app@SPRING_BOOT", FROM, TO));
     }
 
     @Test
-    void aMapStatisticLinksToTheServerMap() {
-        assertEquals("https://p/serverMap/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
-                CoreAlarmDataSource.APPLICATION_OUT_CALL.detailLink("https://p", "app@SPRING_BOOT", FROM, TO));
+    void aMapStatisticLinksToTheServiceMapOfTheRule() {
+        assertEquals("https://p/serviceMap/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
+                CoreAlarmDataSource.APPLICATION_OUT_CALL.detailLink("https://p", "svc", "app@SPRING_BOOT", FROM, TO));
     }
 }
