@@ -46,7 +46,7 @@ management:
     threaddump:
       access: read_only
     heapdump:
-      access: read_only
+      access: none
     metrics:
       access: read_only
     httptrace:
@@ -58,7 +58,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,beans,conditions,configprops,env,logfile,loggers,mappings,info,threaddump,heapdump,metrics,pause
+        include: health,beans,conditions,configprops,env,logfile,loggers,mappings,info,threaddump,metrics,pause
       base-path: /monitor
       path-mapping:
         health: l7check
