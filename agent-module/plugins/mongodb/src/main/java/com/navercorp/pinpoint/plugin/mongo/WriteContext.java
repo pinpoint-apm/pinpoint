@@ -469,21 +469,22 @@ class WriteContext {
                 break;
             }
             case BINARY: {
-                BsonBinary bsonBinary = (BsonBinary) arg;
-                String abbreviatedBinary = binaryAbbreviationForMongo(bsonBinary);
                 bsonWriter.writeStartDocument();
                 bsonWriter.writeName("$binary");
-                writeString(abbreviatedBinary);
+
+                BsonBinary bsonBinary = (BsonBinary) arg;
+                String abbreviatedBinary = binaryAbbreviationForMongo(bsonBinary);
+                writeStringToken(abbreviatedBinary);
 
                 bsonWriter.writeName("$type");
-                writeString(String.format("%02X", bsonBinary.getType()));
+                writeStringToken(HexUtils.toHex(bsonBinary.getType()));
                 bsonWriter.writeEndDocument();
                 break;
             }
             case OBJECT_ID: {
                 bsonWriter.writeStartDocument();
                 bsonWriter.writeName("$oid");
-                writeString(String.valueOf(arg.asObjectId().getValue()));
+                writeStringToken(String.valueOf(arg.asObjectId().getValue()));
                 bsonWriter.writeEndDocument();
                 break;
             }
@@ -507,7 +508,7 @@ class WriteContext {
                 bsonWriter.writeName("$regex");
                 writeString(bsonRegularExpression.getPattern());
                 bsonWriter.writeName("$options");
-                writeString(bsonRegularExpression.getOptions());
+                writeStringToken(bsonRegularExpression.getOptions());
                 bsonWriter.writeEndDocument();
                 break;
             }
@@ -521,7 +522,7 @@ class WriteContext {
 
                 bsonWriter.writeStartDocument();
                 bsonWriter.writeName("$oid");
-                writeString(String.valueOf(bsonDbPointer.getId()));
+                writeStringToken(String.valueOf(bsonDbPointer.getId()));
                 bsonWriter.writeEndDocument();
 
                 bsonWriter.writeEndDocument();
@@ -599,7 +600,7 @@ class WriteContext {
                     //since Mongo Java Driver 3.4
                     bsonWriter.writeStartDocument();
                     bsonWriter.writeName("$numberDecimal");
-                    writeString(String.valueOf(arg.asDecimal128().getValue()));
+                    writeStringToken(String.valueOf(arg.asDecimal128().getValue()));
                     bsonWriter.writeEndDocument();
                 }
                 break;
@@ -716,11 +717,30 @@ class WriteContext {
         }
     }
 
+    /**
+     * Binds a user supplied string: quotes are escaped and the value is abbreviated.
+     */
     private void writeString(String string) {
         bsonWriter.writeString("?");
         if (traceBsonBindValue) {
-            jsonParameter.add("\"" + StringUtils.abbreviate(StringUtils.replace(string, "\"", "\"\"")) + "\"");
+            jsonParameter.add(quote(StringUtils.abbreviate(StringUtils.replace(string, "\"", "\"\""))));
         }
+    }
+
+    /**
+     * Binds a token: a string that cannot contain a quote and has a bounded length, such as a hex digit
+     * string, an ObjectId, a Decimal128 or regular expression options. Quotes are not escaped and the value
+     * is not abbreviated, so never pass user supplied data here, use {@link #writeString(String)}.
+     */
+    private void writeStringToken(String token) {
+        bsonWriter.writeString("?");
+        if (traceBsonBindValue) {
+            jsonParameter.add(quote(token));
+        }
+    }
+
+    private static String quote(String value) {
+        return new StringBuilder(value.length() + 2).append('"').append(value).append('"').toString();
     }
 
     private void writeInt32(int int32) {
