@@ -164,6 +164,9 @@ class AlarmJobIntegrationTest {
         jdbc.execute("DELETE FROM pinpoint.alarm_rule_v2");
         jdbc.execute("DELETE FROM pinpoint.alarm_template_item");
         jdbc.execute("DELETE FROM pinpoint.alarm_template");
+        jdbc.execute("DELETE FROM pinpoint.user_group_member");
+        jdbc.execute("DELETE FROM pinpoint.puser");
+        jdbc.execute("DELETE FROM pinpoint.user_group");
         reset(mockNotificationService);
         reset(mockMetricQueryService);
         when(mockNotificationService.prepareNotifications(any(), any()))
@@ -214,6 +217,9 @@ class AlarmJobIntegrationTest {
         bindChannel(AlarmChannelOwnerType.RULE, standaloneRule.getId(), channel.getId());
 
         assertChannelUsage(alarmNotificationChannelDao.selectById(channel.getId()), 2, 4, 3);
+        // The lock query drops the recipient subquery, so it needs its own shape checked.
+        assertChannelUsage(alarmNotificationChannelDao.selectByIdForUpdate(channel.getId()), 2, 4, 3);
+        assertNull(alarmNotificationChannelDao.selectByIdForUpdate(channel.getId()).getRecipientCount());
 
         assertEquals(1, alarmTemplateDao.markDeleted(deletedTemplate.getTemplateId()));
 
@@ -226,6 +232,36 @@ class AlarmJobIntegrationTest {
                         alarmNotificationChannelDao.selectByIdsWithUsage(List.of(channel.getId())),
                         channel.getId()),
                 1, 3, 2);
+    }
+
+    @Test
+    void channelRecipientCount_countsOnlyMembersTheSendersCanReach() {
+        insertUserGroup("ops-team");
+        insertUserGroup("empty-group");
+        insertUser("reachable", "reachable@example.com", "01000000001");
+        insertUser("mail-only", "mail-only@example.com", "");
+        insertUser("sms-only", null, "01000000002");
+        insertMember("ops-team", "reachable");
+        insertMember("ops-team", "mail-only");
+        insertMember("ops-team", "sms-only");
+        // Left the group but not the directory: user_group_member keeps a row no puser matches.
+        insertMember("ops-team", "retired");
+        insertMember("empty-group", "retired");
+
+        AlarmNotificationChannel email = insertUserGroupChannel(AlarmMethodType.EMAIL, "ops-team");
+        AlarmNotificationChannel sms = insertUserGroupChannel(AlarmMethodType.SMS, "ops-team");
+        AlarmNotificationChannel orphaned = insertUserGroupChannel(AlarmMethodType.EMAIL, "empty-group");
+        AlarmNotificationChannel webhook = insertWebhookChannel();
+
+        assertEquals(2, alarmNotificationChannelDao.selectById(email.getId()).getRecipientCount());
+        assertEquals(2, alarmNotificationChannelDao.selectById(sms.getId()).getRecipientCount());
+        assertEquals(0, alarmNotificationChannelDao.selectById(orphaned.getId()).getRecipientCount());
+        assertEquals(1, alarmNotificationChannelDao.selectById(webhook.getId()).getRecipientCount());
+
+        List<AlarmNotificationChannel> listed =
+                alarmNotificationChannelDao.selectByServiceName(SERVICE_NAME);
+        assertEquals(2, findChannel(listed, email.getId()).getRecipientCount());
+        assertEquals(0, findChannel(listed, orphaned.getId()).getRecipientCount());
     }
 
     @Test
@@ -775,6 +811,31 @@ class AlarmJobIntegrationTest {
         channel.setConfig("{}");
         alarmNotificationChannelDao.insert(channel);
         return channel;
+    }
+
+    private AlarmNotificationChannel insertUserGroupChannel(AlarmMethodType methodType, String userGroupId) {
+        AlarmNotificationChannel channel = new AlarmNotificationChannel();
+        channel.setServiceName(SERVICE_NAME);
+        channel.setChannelName(methodType + " " + userGroupId);
+        channel.setMethodType(methodType);
+        channel.setDestination(userGroupId);
+        channel.setConfig("{}");
+        alarmNotificationChannelDao.insert(channel);
+        return channel;
+    }
+
+    private void insertUserGroup(String userGroupId) {
+        jdbc.update("INSERT INTO pinpoint.user_group (id) VALUES (?)", userGroupId);
+    }
+
+    private void insertUser(String userId, String email, String phoneNumber) {
+        jdbc.update("INSERT INTO pinpoint.puser (user_id, name, department, phonenumber, email)"
+                + " VALUES (?, ?, ?, ?, ?)", userId, userId, "test", phoneNumber, email);
+    }
+
+    private void insertMember(String userGroupId, String memberId) {
+        jdbc.update("INSERT INTO pinpoint.user_group_member (user_group_id, member_id) VALUES (?, ?)",
+                userGroupId, memberId);
     }
 
     private void bindChannel(AlarmChannelOwnerType ownerType, Long ownerId, Long channelId) {

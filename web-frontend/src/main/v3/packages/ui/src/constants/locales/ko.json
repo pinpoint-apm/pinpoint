@@ -331,6 +331,8 @@
       "WEBHOOK_FORMAT_SLACK": "Slack",
       "USER_GROUP_LABEL": "사용자 그룹",
       "SELECT_APP_FIRST": "애플리케이션을 먼저 선택하세요.",
+      "NO_RECIPIENT": "수신처 0명",
+      "NO_RECIPIENT_DESCRIPTION": "이 그룹에 받는 사람이 0명입니다. 알람이 울려도 아무도 받지 못합니다.",
       "NO_CHANNELS": "설정된 채널이 없습니다.",
       "NO_TEMPLATES": "설정된 알람 템플릿이 없습니다.",
       "ACTIONS": "작업",

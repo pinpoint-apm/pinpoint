@@ -43,6 +43,7 @@ import {
   roundUpCheckIntervalSec,
 } from './formatInterval';
 import { ChannelMethodIcon } from './ChannelMethodIcon';
+import { AlarmV2NoRecipientIcon } from './AlarmV2NoRecipientIcon';
 import { conditionMetrics } from './formatCondition';
 import { useReactToastifyToast } from '@pinpoint-fe/ui/src/components/Toast';
 import { useAlarmV2DataSourcesQuery, useAlarmV2MetricsQuery } from '@pinpoint-fe/ui/src/hooks/api';
@@ -374,6 +375,7 @@ const LinkedChannels = ({
               <ChannelMethodIcon type={ch.methodType} />
               <span className="font-medium">{ch.channelName}</span>
               <span className="text-muted-foreground">({ch.methodType})</span>
+              <AlarmV2NoRecipientIcon channel={ch} />
             </span>
           </label>
         ))}

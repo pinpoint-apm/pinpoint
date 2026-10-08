@@ -47,6 +47,8 @@ public class AlarmNotificationChannel {
     private int templateCount;
     private int affectedRuleCount;
     private int enabledAffectedRuleCount;
+    // Null on the queries that do not compute it, so 0 only ever means "nobody".
+    private Integer recipientCount;
 
     public AlarmNotificationChannel() {
     }
@@ -145,6 +147,14 @@ public class AlarmNotificationChannel {
 
     public void setEnabledAffectedRuleCount(int enabledAffectedRuleCount) {
         this.enabledAffectedRuleCount = enabledAffectedRuleCount;
+    }
+
+    public Integer getRecipientCount() {
+        return recipientCount;
+    }
+
+    public void setRecipientCount(Integer recipientCount) {
+        this.recipientCount = recipientCount;
     }
 
     @Override

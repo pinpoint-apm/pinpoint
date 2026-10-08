@@ -9,6 +9,7 @@ import { ConfigUserGroup } from '@pinpoint-fe/ui/src/constants';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +24,8 @@ import {
 } from '@pinpoint-fe/ui/src/components/ui';
 import { LoadingButton } from '@pinpoint-fe/ui';
 import { cn } from '@pinpoint-fe/ui/src/lib/utils';
+import { MdOutlineWarningAmber } from 'react-icons/md';
+import { hasNoRecipient } from './hasNoRecipient';
 
 type WebhookFormat = 'DEFAULT' | 'SLACK';
 
@@ -116,6 +119,12 @@ export const AlarmV2ChannelForm = ({
 
   const watchMethodType = form.watch('methodType');
   const formControlsDisabled = !!controlsDisabled || !!pending;
+  // The count the server sent describes the group the channel was saved with. Once the user
+  // picks another group it says nothing about the one on screen, so it goes away until saved.
+  const showNoRecipient =
+    hasNoRecipient(data) &&
+    form.watch('destination') === data?.destination &&
+    form.watch('methodType') === data?.methodType;
 
   React.useEffect(() => {
     form.reset(defaultValues);
@@ -246,6 +255,12 @@ export const AlarmV2ChannelForm = ({
                     ))}
                   </SelectContent>
                 </Select>
+              )}
+              {showNoRecipient && (
+                <FormDescription className="flex items-start gap-1.5 text-sm text-orange-700">
+                  <MdOutlineWarningAmber className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                  {t('CONFIGURATION.ALARM_V2.NO_RECIPIENT_DESCRIPTION')}
+                </FormDescription>
               )}
               <FormMessage />
             </FormItem>

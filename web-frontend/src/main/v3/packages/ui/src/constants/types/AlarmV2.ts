@@ -143,6 +143,8 @@ export namespace AlarmV2Channel {
     templateCount?: number;
     affectedRuleCount?: number;
     enabledAffectedRuleCount?: number;
+    /** Absent on the queries that do not compute it; see hasNoRecipient. */
+    recipientCount?: number;
   }
 
   export type ChannelWriteData = Omit<
@@ -153,6 +155,7 @@ export namespace AlarmV2Channel {
     | 'templateCount'
     | 'affectedRuleCount'
     | 'enabledAffectedRuleCount'
+    | 'recipientCount'
   >;
 
   export type Response = ChannelData[];

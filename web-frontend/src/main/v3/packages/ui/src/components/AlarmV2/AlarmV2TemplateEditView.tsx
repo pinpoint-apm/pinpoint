@@ -22,6 +22,7 @@ import { AlarmV2RuleForm, type FormValues, type AlarmV2RuleFormHandle } from './
 import { AlarmV2SeverityBadge } from './AlarmV2StateBadge';
 import { DEFAULT_ACTION_INTERVAL_SEC, DEFAULT_CHECK_INTERVAL_SEC } from './formatInterval';
 import { ChannelMethodIcon } from './ChannelMethodIcon';
+import { AlarmV2NoRecipientIcon } from './AlarmV2NoRecipientIcon';
 
 /** A bundle item being edited; `key` keeps React identity stable across reorders. */
 interface ItemDraft {
@@ -259,6 +260,7 @@ export const AlarmV2TemplateEditView = ({
             </span>
             <span className="font-medium">{channel.channelName}</span>
             <span className="text-muted-foreground">({channel.methodType})</span>
+            <AlarmV2NoRecipientIcon channel={channel} />
           </span>
         </label>
       ))}

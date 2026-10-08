@@ -17,10 +17,12 @@ package com.navercorp.pinpoint.alarm.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -54,6 +56,36 @@ class AlarmNotificationChannelApiMapperTest {
 
         assertEquals("SLACK", response.config().get("format").textValue());
         assertTrue(response.config().get("futureField").booleanValue());
+    }
+
+    @Test
+    void mapsEachCountToItsOwnField() {
+        AlarmNotificationChannel channel = new AlarmNotificationChannel();
+        channel.setTemplateCount(1);
+        channel.setAffectedRuleCount(2);
+        channel.setEnabledAffectedRuleCount(3);
+        channel.setRecipientCount(4);
+
+        AlarmNotificationChannelResponse response = mapper.toResponse(channel);
+
+        // Four int components in a row: distinct values catch a swapped constructor argument,
+        // which otherwise compiles and leaves recipientCount carrying someone else's number.
+        assertEquals(1, response.templateCount());
+        assertEquals(2, response.affectedRuleCount());
+        assertEquals(3, response.enabledAffectedRuleCount());
+        assertEquals(4, response.recipientCount());
+    }
+
+    @Test
+    void omitsRecipientCountWhenTheQueryDidNotComputeIt() throws Exception {
+        AlarmNotificationChannel channel = new AlarmNotificationChannel();
+        channel.setMethodType(AlarmMethodType.EMAIL);
+
+        String json = objectMapper.writeValueAsString(mapper.toResponse(channel));
+
+        // 0 marks a channel that reaches nobody, so a count that was never read must not
+        // serialize as one.
+        assertFalse(json.contains("recipientCount"));
     }
 
     @Test
