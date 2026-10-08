@@ -81,7 +81,7 @@ LogsService/Export (gRPC)            POST /v1/logs (HTTP, protobuf, gzip)
   worker pool                          servlet thread
         └──────────────► OtlpLogExportService.export ◄──────────────┘
              for each ResourceLogs
-               resolve (application, agent) like the trace path      -> invalid_resource*
+               resolve (service, application, agent) like the trace  -> invalid_resource*, service_not_found*
                for each LogRecord
                  any `exception.*` attribute key?                    -> no_exception
                  scope / application blacklist                       -> blacklisted
@@ -114,7 +114,7 @@ precision and recall 100%, ~1% pass rate. Severity-based selection let infrastru
 | **spanId** | **the record's own `span_id`** | The trace path stores the transaction *root* span id here so the web can link to the stored root span. A LogRecord carries no parent/root information, the ingest path must not read HBase to find it, and a span cache would rarely hit (logs are batched every 1s, spans every 5s). The detail view keys on the stored `(transactionId, spanId, exceptionId)`, so it works; only the call-tree link differs. |
 | exceptionId | `span_id` | Same rule as the trace path (exception-bearing span id) |
 | serviceType | `OPENTELEMETRY_SERVER` | |
-| service / application / agent | resource attributes | Same resolver and `application-name-fallback` flag as the trace path |
+| service / application / agent | resource attributes | Same resolver (`OtlpResourceIdResolver`) as the trace path: same `application-name-fallback` flag, same service lookup, same `service_not_found` policy for an unregistered `pinpoint.serviceName` |
 | uriTemplate | `http.route` on the record, else `""` | Never a raw path and never null (Pinot would store its `"null"` sentinel and the UI would show it literally); sanitized like the trace path (query string / fragment dropped, control characters removed, capped at `uri-template-max-bytes`); neither appender records nor the semantic-convention exception events carry `http.route`, so this is empty in practice |
 | exceptionClassName | `exception.type`, else `error.type` | Neither → `no_exception_type`; capped at `type-max-bytes` (deterministic, so equal types stay equal) |
 | exceptionMessage | `exception.message` → string body → `""` | Capped at `exception.message-max-bytes` |
@@ -185,7 +185,7 @@ the 64MB HTTP in-flight budget admits about 16 concurrent compressed requests. W
 |---|---|---|
 | `record.received` | transport | LogRecords in admitted requests, before selection |
 | `record.stored` | transport | Records handed to Error Analysis storage |
-| `record.dropped` | transport, `reason` | `no_exception`, `blacklisted`, `invalid_resource`, `no_trace_context`, `unsampled_context`, `duplicate`, `no_exception_type`, `mapping_error`, `storage_unavailable` |
+| `record.dropped` | transport, `reason` | `no_exception`, `blacklisted`, `invalid_resource`, `service_not_found`, `no_trace_context`, `unsampled_context`, `duplicate`, `no_exception_type`, `mapping_error`, `storage_unavailable` |
 | `record.unsampled_context` | transport | Stored records of unsampled traces (only with `store-unsampled=true`) |
 | `request.rejected` | transport, `reason` | `inflight_bytes`, `executor_rejected` (gRPC); `inflight_bytes`, `concurrency`, `payload_too_large`, `unsupported_encoding`, `parse_error` (HTTP) |
 | `request.bytes` | transport | Size of admitted requests — HTTP: wire bytes (`Content-Length`, or the bytes read for a chunked body; the compressed size when gzip); gRPC: serialized size after decompression |

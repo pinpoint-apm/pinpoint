@@ -126,9 +126,20 @@ Resolution:
 
 Pinpoint's multi-tenant service grouping (the level above `applicationName`).
 
-1. `pinpoint.serviceName`
-2. `service.namespace`
-3. Defaults to Pinpoint's built-in default service when neither is set.
+1. `pinpoint.serviceName` — explicit only. The name is resolved to its serviceUid
+   through the collector's service lookup (`pinpoint.collector.service.lookup.enabled`,
+   default `true`), and the span, its agent/application registration and the
+   statistics keyed by `serviceName` (heatmap, URI stat, Error Analysis) all land
+   under that service. **The service must already be registered on the Pinpoint
+   side** (`POST /api/v2/services`); otherwise every span of the `ResourceSpans` is
+   rejected with `reason=service_not_found` (see *Validation failures* below).
+2. Defaults to Pinpoint's built-in default service when not set.
+
+`service.namespace` is deliberately **not** a fallback: OTel-native deployments set
+it for their own grouping, and promoting it would turn an unregistered namespace
+into a reject. The same rule applies to the `pp=svc:...` tracestate entry written
+by `pinpoint-otel-extension`, so a sender's own service and the parent service its
+callees record are always the same name.
 
 ### `agentId` — internal derivation
 
@@ -185,8 +196,8 @@ Recommended per Spring profile (collector profile, set in
 | Setup | Result |
 |---|---|
 | `service.name` only | Works. `applicationName` = `service.name`, `agentId` derived from `host.name` / `service.instance.id` / `applicationName`, `serviceName` defaults. |
-| `service.name` + `service.namespace` + `service.instance.id` | Pure OTel semconv. All identifiers resolve through the fallback chain. Good fit for OTel-native deployments. |
-| `pinpoint.applicationName` + `pinpoint.serviceName` + `pinpoint.agentName` + `service.instance.id` | **Recommended.** Three explicit Pinpoint attributes plus a per-instance identifier (`uuidgen` on a VM, auto-populated by OTel SDK in K8s). |
+| `service.name` + `service.instance.id` | Pure OTel semconv. `applicationName` and `agentId` resolve through the fallback chain; `serviceName` defaults (`service.namespace` is ignored). Good fit for OTel-native deployments. |
+| `pinpoint.applicationName` + `pinpoint.agentName` + `service.instance.id` | **Recommended.** Two explicit Pinpoint attributes plus a per-instance identifier (`uuidgen` on a VM, auto-populated by OTel SDK in K8s). Add `pinpoint.serviceName` only when that service is registered on the Pinpoint side. |
 
 Mixing is fine — set `pinpoint.*` only for the identifiers you want to pin and
 let the rest fall through to the OTel semconv keys.
@@ -214,6 +225,7 @@ following — the offending value is appended after `=`:
 | Neither `pinpoint.applicationName` nor `service.name` present | `not found applicationName` |
 | No per-instance identifier and `applicationName` fallback disabled | `no per-instance identifier — set service.instance.id ...` |
 | `serviceName` length/pattern | `invalid serviceName=<value>` |
+| `pinpoint.serviceName` not registered on the Pinpoint side (`reason=service_not_found`) | `service not found. serviceName=<value>` |
 
 All of these share the same root cause: the value exceeds the **length cap**
 or violates the **`[a-zA-Z0-9._-]+` pattern** in the limits table above. Fix

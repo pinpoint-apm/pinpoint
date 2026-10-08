@@ -109,6 +109,7 @@ class OtlpLogIngestMetricsTest {
         assertThat(OtlpLogRejectReason.NO_EXCEPTION.tagValue()).isEqualTo("no_exception");
         assertThat(OtlpLogRejectReason.BLACKLISTED.tagValue()).isEqualTo("blacklisted");
         assertThat(OtlpLogRejectReason.INVALID_RESOURCE.tagValue()).isEqualTo("invalid_resource");
+        assertThat(OtlpLogRejectReason.SERVICE_NOT_FOUND.tagValue()).isEqualTo("service_not_found");
         assertThat(OtlpLogRejectReason.NO_TRACE_CONTEXT.tagValue()).isEqualTo("no_trace_context");
         assertThat(OtlpLogRejectReason.UNSAMPLED_CONTEXT.tagValue()).isEqualTo("unsampled_context");
         assertThat(OtlpLogRejectReason.DUPLICATE.tagValue()).isEqualTo("duplicate");
@@ -120,7 +121,7 @@ class OtlpLogIngestMetricsTest {
     @Test
     void clientVisibility_splitsClientFaultsFromReceiverSideDrops() {
         assertThat(OtlpLogRejectReason.values()).filteredOn(OtlpLogRejectReason::isClientVisible)
-                .containsExactlyInAnyOrder(OtlpLogRejectReason.INVALID_RESOURCE, OtlpLogRejectReason.NO_TRACE_CONTEXT,
-                        OtlpLogRejectReason.NO_EXCEPTION_TYPE, OtlpLogRejectReason.MAPPING_ERROR);
+                .containsExactlyInAnyOrder(OtlpLogRejectReason.INVALID_RESOURCE, OtlpLogRejectReason.SERVICE_NOT_FOUND,
+                        OtlpLogRejectReason.NO_TRACE_CONTEXT, OtlpLogRejectReason.NO_EXCEPTION_TYPE, OtlpLogRejectReason.MAPPING_ERROR);
     }
 }

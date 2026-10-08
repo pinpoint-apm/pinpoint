@@ -30,6 +30,8 @@ public enum OtlpTraceRejectReason {
     INVALID_ID("invalid_id", "invalid id"),
     /** The ResourceSpans carries no usable application/agent identifier (validation failure). */
     INVALID_RESOURCE("invalid_resource", "invalid resource"),
+    /** {@code pinpoint.serviceName} names a service that is not registered on the Pinpoint side. */
+    SERVICE_NOT_FOUND("service_not_found", "service not found"),
     /** A non-root span whose parent is not in the request, so it could not be linked into a trace. */
     ORPHAN("orphan", "orphan span"),
     /** The mapper threw while converting a root span or a span chunk (collector-side fault candidate). */

@@ -5,6 +5,7 @@ import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValueType;
@@ -551,12 +552,8 @@ class OtlpTraceMapperUtilsTest {
         assertThat(result.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
     }
 
-    // TEMPORARY: serviceName is forced to DEFAULT for OTLP spans (see OtlpTraceMapperUtils.getServiceName).
-    // The pinpoint.serviceName / service.namespace attributes are currently ignored. Restore the
-    // attribute-derived assertions (my-service / otel-ns / pinpoint-over-namespace priority) once the
-    // OTLP serviceUid policy is decided and getServiceName's attribute resolution is re-enabled.
     @Test
-    void getId_serviceName_pinpointServiceName_ignored_returnsDefault() {
+    void getId_serviceName_pinpointServiceName_isHonored() {
         Map<String, AttributeValue> attrs = Map.of(
                 "pinpoint.agentId", AttributeValue.of("agent1"),
                 "pinpoint.applicationName", AttributeValue.of("app"),
@@ -565,11 +562,16 @@ class OtlpTraceMapperUtilsTest {
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
 
-        assertThat(result.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+        assertThat(result.serviceName()).isEqualTo("my-service");
+        // The uid is attached later by OtlpResourceIdResolver; the static resolver only names.
+        assertThat(result.serviceUid()).isSameAs(ServiceUidSupplier.DEFAULT);
     }
 
     @Test
-    void getId_serviceName_serviceNamespace_ignored_returnsDefault() {
+    void getId_serviceName_serviceNamespace_isNotAFallback() {
+        // OTel-native deployments set service.namespace for their own grouping; promoting it would
+        // turn an unregistered namespace into a service_not_found reject. Same rule as the
+        // pinpoint-otel-extension's tracestate svc.
         Map<String, AttributeValue> attrs = Map.of(
                 "pinpoint.agentId", AttributeValue.of("agent1"),
                 "pinpoint.applicationName", AttributeValue.of("app"),
@@ -582,7 +584,7 @@ class OtlpTraceMapperUtilsTest {
     }
 
     @Test
-    void getId_serviceName_attributes_ignored_returnsDefault() {
+    void getId_serviceName_pinpointServiceName_winsOverServiceNamespace() {
         Map<String, AttributeValue> attrs = Map.of(
                 "pinpoint.agentId", AttributeValue.of("agent1"),
                 "pinpoint.applicationName", AttributeValue.of("app"),
@@ -592,7 +594,20 @@ class OtlpTraceMapperUtilsTest {
 
         IdAndName result = OtlpTraceMapperUtils.getId(attrs);
 
-        assertThat(result.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+        assertThat(result.serviceName()).isEqualTo("pinpoint-service");
+    }
+
+    @Test
+    void getId_serviceName_invalid_throws() {
+        Map<String, AttributeValue> attrs = Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.applicationName", AttributeValue.of("app"),
+                "pinpoint.serviceName", AttributeValue.of("bad service!")
+        );
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid serviceName=");
     }
 
     @Test

@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.otlp.log.collector.service;
 
+import com.navercorp.pinpoint.collector.uid.service.ServiceLookupService;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpResourceIdResolver;
 import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.otlp.log.collector.OtlpLogRejectReason;
@@ -32,6 +35,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static com.navercorp.pinpoint.otlp.log.collector.LogRecordFixtures.OTHER_SPAN_ID;
 import static com.navercorp.pinpoint.otlp.log.collector.LogRecordFixtures.SPAN_ID;
@@ -64,7 +68,13 @@ class OtlpLogExportServiceTest {
 
     private OtlpLogExportService service(boolean storeUnsampled) {
         return new OtlpLogExportService(new ExceptionLogSelector(List.of(), List.of()), realMapper,
-                Optional.of(store), metrics, false, storeUnsampled);
+                Optional.of(store), metrics, resolver(false), storeUnsampled);
+    }
+
+    /** Same resolver type as production, with a lookup that knows no service: DEFAULT only. */
+    private static OtlpResourceIdResolver resolver(boolean allowApplicationNameFallback) {
+        return new OtlpResourceIdResolver(
+                serviceName -> CompletableFuture.completedFuture(ServiceUid.DEFAULT), allowApplicationNameFallback);
     }
 
     private double dropped(OtlpLogRejectReason reason) {
@@ -199,9 +209,9 @@ class OtlpLogExportServiceTest {
                 exceptionRecord(SPAN_ID, TYPE, "boom", STACK).build());
 
         OtlpLogExportService strict = new OtlpLogExportService(new ExceptionLogSelector(List.of(), List.of()), realMapper,
-                Optional.of(store), metrics, false, false);
+                Optional.of(store), metrics, resolver(false), false);
         OtlpLogExportService lenient = new OtlpLogExportService(new ExceptionLogSelector(List.of(), List.of()), realMapper,
-                Optional.of(store), metrics, true, false);
+                Optional.of(store), metrics, resolver(true), false);
 
         assertThat(strict.export(List.of(logs), OtlpTransport.GRPC).rejected().count(OtlpLogRejectReason.INVALID_RESOURCE)).isEqualTo(1);
         assertThat(lenient.export(List.of(logs), OtlpTransport.GRPC).stored()).isEqualTo(1);
@@ -211,7 +221,7 @@ class OtlpLogExportServiceTest {
     void blacklistedScope_isDroppedSilently() {
         OtlpLogExportService service = new OtlpLogExportService(
                 new ExceptionLogSelector(List.of("io.opentelemetry.exporter"), List.of()), realMapper,
-                Optional.of(store), metrics, false, false);
+                Optional.of(store), metrics, resolver(false), false);
         ResourceLogs logs = resourceLogs(validResource(), "io.opentelemetry.exporter.internal.grpc",
                 exceptionRecord(SPAN_ID, TYPE, "boom", STACK).build());
 
@@ -273,7 +283,7 @@ class OtlpLogExportServiceTest {
         OtlpLogExceptionMapper failing = mock(OtlpLogExceptionMapper.class);
         when(failing.map(any(ExceptionLogCandidate.class))).thenThrow(new IllegalStateException("bad record"));
         OtlpLogExportService service = new OtlpLogExportService(new ExceptionLogSelector(List.of(), List.of()), failing,
-                Optional.of(store), metrics, false, false);
+                Optional.of(store), metrics, resolver(false), false);
 
         OtlpLogExportResult result = service.export(List.of(resourceLogs(exceptionRecord(SPAN_ID, TYPE, "boom", STACK).build())), OtlpTransport.GRPC);
 
@@ -296,7 +306,7 @@ class OtlpLogExportServiceTest {
     @Test
     void noStorageModule_dropsAsStorageUnavailable_silently() {
         OtlpLogExportService service = new OtlpLogExportService(new ExceptionLogSelector(List.of(), List.of()), realMapper,
-                Optional.empty(), metrics, false, false);
+                Optional.empty(), metrics, resolver(false), false);
 
         OtlpLogExportResult result = service.export(List.of(resourceLogs(exceptionRecord(SPAN_ID, TYPE, "boom", STACK).build())), OtlpTransport.GRPC);
 
@@ -312,5 +322,30 @@ class OtlpLogExportServiceTest {
 
         assertThat(result.stored()).isZero();
         assertThat(result.rejected().countByReason()).isEmpty();
+    }
+
+    @Test
+    void unregisteredServiceName_isRejectedAsServiceNotFound_perResource() {
+        // Same policy as the trace path: an explicit pinpoint.serviceName must be registered, otherwise
+        // the records would land in Pinot under a service the web never queries (orphan data).
+        ServiceLookupService lookup = serviceName ->
+                CompletableFuture.completedFuture("order-team".equals(serviceName) ? ServiceUid.of(100001) : null);
+        OtlpLogExportService service = new OtlpLogExportService(new ExceptionLogSelector(List.of(), List.of()), realMapper,
+                Optional.of(store), metrics, new OtlpResourceIdResolver(lookup, false), false);
+        ResourceLogs unknown = resourceLogs(
+                resource(kv("pinpoint.applicationName", "app-1"), kv("pinpoint.agentId", "agent-1"), kv("pinpoint.serviceName", "unknown-team")),
+                "scope", exceptionRecord(SPAN_ID, TYPE, "boom", STACK).build());
+        ResourceLogs registered = resourceLogs(
+                resource(kv("pinpoint.applicationName", "app-1"), kv("pinpoint.agentId", "agent-1"), kv("pinpoint.serviceName", "order-team")),
+                "scope", exceptionRecord(SPAN_ID, TYPE, "boom", STACK).build());
+
+        OtlpLogExportResult result = service.export(List.of(unknown, registered), OtlpTransport.GRPC);
+
+        assertThat(result.rejected().count(OtlpLogRejectReason.SERVICE_NOT_FOUND)).isEqualTo(1);
+        assertThat(result.rejected().count(OtlpLogRejectReason.INVALID_RESOURCE)).isZero();
+        assertThat(result.stored()).isEqualTo(1);
+        assertThat(dropped(OtlpLogRejectReason.SERVICE_NOT_FOUND)).isEqualTo(1);
+        // client-visible, like invalid_resource
+        assertThat(result.rejected().clientVisibleCount()).isEqualTo(1);
     }
 }

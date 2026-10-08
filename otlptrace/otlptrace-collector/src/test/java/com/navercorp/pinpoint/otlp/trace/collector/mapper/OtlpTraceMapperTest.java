@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.collector.uid.service.ServiceLookupService;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceRejectReason;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
@@ -45,6 +47,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.kv;
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAnyValueFactory.strVal;
@@ -85,6 +88,11 @@ class OtlpTraceMapperTest {
     }
 
     static OtlpTraceMapper newMapper() {
+        // No pinpoint.serviceName in the default fixtures, so the lookup is never consulted.
+        return newMapper(serviceName -> CompletableFuture.completedFuture(ServiceUid.DEFAULT));
+    }
+
+    static OtlpTraceMapper newMapper(ServiceLookupService serviceLookupService) {
         ObjectMapper json = new ObjectMapper();
         OtlpTraceEventMapper eventMapper = new OtlpTraceEventMapper(json, 8192);
         OtlpExceptionInfoResolver exceptionInfoResolver = new OtlpExceptionInfoResolver();
@@ -115,7 +123,8 @@ class OtlpTraceMapperTest {
         OtlpTraceSpanChunkMapper spanChunkMapper = new OtlpTraceSpanChunkMapper(spanEventMapper);
         return new OtlpTraceMapper(spanMapper, spanEventMapper, spanChunkMapper,
                 new OtlpAgentInfoMapper(), new OtlpExceptionMapper(2048, 256, 2048, new SimpleMeterRegistry()),
-                exceptionInfoResolver, new OtlpAgentStartTimeResolver(new SimpleMeterRegistry()), false);
+                exceptionInfoResolver, new OtlpAgentStartTimeResolver(new SimpleMeterRegistry()),
+                new OtlpResourceIdResolver(serviceLookupService, false));
     }
 
     private static Span.Event exceptionEvent(String type) {
@@ -961,5 +970,74 @@ class OtlpTraceMapperTest {
         assertThat(data.getRejectedSpan().count(OtlpTraceRejectReason.ORPHAN)).isEqualTo(2);
         assertThat(data.getRejectedSpan().countByReason()).containsOnlyKeys(OtlpTraceRejectReason.ORPHAN);
         assertThat(data.getRejectedSpan().getMessage()).contains(OtlpTraceRejectReason.ORPHAN.message() + " (2)");
+    }
+
+    // =======================================================================
+    // serviceName — pinpoint.serviceName resolved through the service lookup
+    // =======================================================================
+
+    private static List<ResourceSpans> resourceSpansWithService(String serviceName, Span... spans) {
+        Resource resource = Resource.newBuilder()
+                .addAttributes(kv("pinpoint.applicationName", strVal("app-1")))
+                .addAttributes(kv("pinpoint.agentId", strVal("agent-1")))
+                .addAttributes(kv("pinpoint.serviceName", strVal(serviceName)))
+                .build();
+        ScopeSpans.Builder scope = ScopeSpans.newBuilder();
+        for (Span span : spans) {
+            scope.addSpans(span);
+        }
+        return List.of(ResourceSpans.newBuilder()
+                .setResource(resource)
+                .addScopeSpans(scope)
+                .build());
+    }
+
+    @Test
+    void serviceName_registered_isAppliedToSpanOwnerAndAgentRegistration() {
+        ServiceUid orderTeam = ServiceUid.of(100001);
+        OtlpTraceMapper mapper = newMapper(serviceName -> CompletableFuture.completedFuture(
+                "order-team".equals(serviceName) ? orderTeam : null));
+
+        OtlpTraceMapperData data = mapper.map(
+                resourceSpansWithService("order-team", serverRoot(ROOT_A, "/api/orders", false)));
+
+        assertThat(data.getRejectedSpan().count()).isZero();
+        assertThat(data.getSpanBoList()).hasSize(1);
+        SpanBo spanBo = data.getSpanBoList().get(0);
+        // The three places that used to disagree (serviceName string, SpanOwner uid, registration uid)
+        // now carry the same service.
+        assertThat(spanBo.getServiceName()).isEqualTo("order-team");
+        assertThat(spanBo.getServiceUid()).isEqualTo(orderTeam);
+        assertThat(data.getAgentInfoList()).hasSize(1);
+        assertThat(data.getAgentInfoList().get(0).serviceUid().get()).isEqualTo(orderTeam);
+        assertThat(data.getAgentInfoList().get(0).agentInfoBo().getAgentId()).isEqualTo("agent-1");
+    }
+
+    @Test
+    void serviceName_unregistered_rejectsEverySpanOfTheResource_asServiceNotFound() {
+        OtlpTraceMapper mapper = newMapper(serviceName -> CompletableFuture.completedFuture(null));
+
+        OtlpTraceMapperData data = mapper.map(resourceSpansWithService("unknown-team",
+                serverRoot(ROOT_A, "/api/orders", false), serverRoot(ROOT_B, "/api/items", false)));
+
+        assertThat(data.getSpanBoList()).isEmpty();
+        assertThat(data.getAgentInfoList()).isEmpty();
+        assertThat(data.getRejectedSpan().count(OtlpTraceRejectReason.SERVICE_NOT_FOUND)).isEqualTo(2);
+        assertThat(data.getRejectedSpan().count(OtlpTraceRejectReason.INVALID_RESOURCE)).isZero();
+        assertThat(data.getRejectedSpan().getMessage()).contains("service not found. serviceName=unknown-team");
+    }
+
+    @Test
+    void serviceName_absent_staysDefault_withoutLookup() {
+        OtlpTraceMapper mapper = newMapper(serviceName -> {
+            throw new AssertionError("lookup must not be called for DEFAULT");
+        });
+
+        OtlpTraceMapperData data = mapper.map(resourceSpans(serverRoot(ROOT_A, "/api/orders", false)));
+
+        assertThat(data.getSpanBoList()).hasSize(1);
+        assertThat(data.getSpanBoList().get(0).getServiceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+        assertThat(data.getSpanBoList().get(0).getServiceUid()).isEqualTo(ServiceUid.DEFAULT);
+        assertThat(data.getAgentInfoList().get(0).serviceUid().get()).isEqualTo(ServiceUid.DEFAULT);
     }
 }

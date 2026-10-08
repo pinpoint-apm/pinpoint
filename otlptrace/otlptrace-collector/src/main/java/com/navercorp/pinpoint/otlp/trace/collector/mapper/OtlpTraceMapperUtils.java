@@ -73,7 +73,6 @@ public class OtlpTraceMapperUtils {
     private static final String KEY_HOST_NAME = "host.name";
     private static final String KEY_SERVICE_NAME = "service.name";
     private static final String KEY_PINPOINT_SERVICE_NAME = "pinpoint.serviceName";
-    private static final String KEY_SERVICE_NAMESPACE = "service.namespace";
 
     private static final int CONTAINER_ID_FULL_HEX_LEN = 64;
     private static final int AGENT_ID_HASH_PREFIX_BYTES = 16;
@@ -220,29 +219,24 @@ public class OtlpTraceMapperUtils {
         return new AgentAuth(containerId, resolveAgentName(agentNameOverride, containerId));
     }
 
+    /**
+     * Pinpoint service of the Resource: the explicit {@code pinpoint.serviceName} attribute, or
+     * Pinpoint's built-in DEFAULT service when absent. {@code service.namespace} is deliberately
+     * not a fallback — OTel-native deployments set it for their own grouping, and promoting it here
+     * would turn an unregistered namespace into a {@code service_not_found} reject. The
+     * pinpoint-otel-extension applies the same rule when it writes the {@code pp=svc:...}
+     * tracestate entry, so a sender's own service and the parent service its callees record stay
+     * identical. The serviceUid for the returned name is resolved by {@link OtlpResourceIdResolver}.
+     */
     public static String getServiceName(Map<String, AttributeValue> attributes) {
-        // TEMPORARY: OTLP spans are always assigned the DEFAULT serviceName, matching the native
-        // agent's effective default (SpanOwner.serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME).
-        // Rationale: OTLP applications are registered under DEFAULT_SERVICE_UID (see
-        // OtlpTraceExportService), and the web queries service-keyed stores (e.g. the Pinot heatmap
-        // sortKey = serviceName#applicationName) with DEFAULT. Deriving serviceName from
-        // pinpoint.serviceName / service.namespace here produced a key that never matched the web
-        // query, so OTLP transactions were missing from those views.
-        // Revisit once the serviceUid policy for OTLP is decided; the attribute-based resolution
-        // below should be restored (and validated against DEFAULT_SERVICE_UID registration) then.
-        //
-        //   String serviceName = AttributeUtils.getAttributeStringValue(attributes, KEY_PINPOINT_SERVICE_NAME, null);
-        //   if (serviceName == null) {
-        //       serviceName = AttributeUtils.getAttributeStringValue(attributes, KEY_SERVICE_NAMESPACE, null);
-        //   }
-        //   if (serviceName == null) {
-        //       return ServiceUid.DEFAULT_SERVICE_UID_NAME;
-        //   }
-        //   if (!IdValidateUtils.validateId(serviceName, PinpointConstants.SERVICE_NAME_MAX_LEN)) {
-        //       throw new IllegalArgumentException("invalid serviceName=" + serviceName);
-        //   }
-        //   return serviceName;
-        return ServiceUid.DEFAULT_SERVICE_UID_NAME;
+        final String serviceName = AttributeUtils.getAttributeStringValue(attributes, KEY_PINPOINT_SERVICE_NAME, null);
+        if (serviceName == null) {
+            return ServiceUid.DEFAULT_SERVICE_UID_NAME;
+        }
+        if (!IdValidateUtils.validateId(serviceName, PinpointConstants.SERVICE_NAME_MAX_LEN)) {
+            throw new IllegalArgumentException("invalid serviceName=" + LogSafe.value(serviceName));
+        }
+        return serviceName;
     }
 
     public static long getSpanId(ByteString bytes) {

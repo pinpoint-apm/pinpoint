@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
-import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceRejectReason;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAgentInfo;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils;
@@ -57,8 +57,6 @@ import java.util.Optional;
 @Service
 public class OtlpTraceExportService {
 
-    public static final ServiceUidSupplier DEFAULT_SERVICE_UID = ServiceUidSupplier.DEFAULT;
-
     private static final String INSERT_ERROR_METRIC = "collector.otlptrace.insert.error";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -74,8 +72,9 @@ public class OtlpTraceExportService {
     @NotNull
     private final OtlpTraceMapper otlpTraceMapper;
     private final ExceptionMetaDataService exceptionMetaDataService;
-    // Thread-safe, bounded dedup of already-persisted agentIds. Shared across transports so an
-    // agentId first seen on gRPC is not re-inserted when it later arrives over HTTP (and vice versa).
+    // Thread-safe, bounded dedup of already-persisted (serviceUid, agentId) pairs. Shared across
+    // transports so an agent first seen on gRPC is not re-inserted when it later arrives over HTTP
+    // (and vice versa). Keyed per service: the same agentId under two services is two registrations.
     private final Cache<String, Boolean> agentIdCache;
     // Null unless both uristat flags are enabled (the bean is conditional).
     private final OtlpUriStatService uriStatService;
@@ -112,6 +111,11 @@ public class OtlpTraceExportService {
         this.agentInfoInsertErrorCounter = insertErrorCounter(meterRegistry, "agentInfo");
         this.exceptionInsertErrorCounter = insertErrorCounter(meterRegistry, "exception");
         this.uriStatInsertErrorCounter = insertErrorCounter(meterRegistry, "uriStat");
+    }
+
+    static String agentCacheKey(OtlpAgentInfo agentInfo) {
+        // The supplier is already resolved (FixedServiceUid) by OtlpResourceIdResolver; get() is a field read.
+        return agentInfo.serviceUid().get().getUid() + "/" + agentInfo.agentInfoBo().getAgentId();
     }
 
     private static Counter insertErrorCounter(MeterRegistry meterRegistry, String op) {
@@ -165,12 +169,14 @@ public class OtlpTraceExportService {
         }
 
         int agentInfoErrorCount = 0;
-        for (AgentInfoBo agentInfoBo : otlpTraceMapperData.getAgentInfoBoList()) {
-            if (agentIdCache.getIfPresent(agentInfoBo.getAgentId()) == null) {
+        for (OtlpAgentInfo agentInfo : otlpTraceMapperData.getAgentInfoList()) {
+            final AgentInfoBo agentInfoBo = agentInfo.agentInfoBo();
+            final String cacheKey = agentCacheKey(agentInfo);
+            if (agentIdCache.getIfPresent(cacheKey) == null) {
                 try {
                     agentInfoService.insert(agentInfoBo);
-                    applicationIndexV2Service.insert(DEFAULT_SERVICE_UID, agentInfoBo);
-                    agentIdCache.put(agentInfoBo.getAgentId(), Boolean.TRUE);
+                    applicationIndexV2Service.insert(agentInfo.serviceUid(), agentInfoBo);
+                    agentIdCache.put(cacheKey, Boolean.TRUE);
                 } catch (Exception e) {
                     agentInfoErrorCount++;
                     agentInfoInsertErrorCounter.increment();

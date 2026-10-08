@@ -89,6 +89,7 @@ public class OtlpTraceSpanMapper {
         }
         owner.setApplicationName(idAndName.applicationName());
         owner.setServiceName(idAndName.serviceName());
+        owner.setServiceUid(idAndName.serviceUid());
         // process.creation.time (resource) when provided — the actual process session start,
         // matching the native agent's RuntimeMXBean.getStartTime(). Otherwise the span start
         // time remains the per-span approximation for exporters that don't report it.

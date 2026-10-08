@@ -67,6 +67,7 @@ public class OtlpTraceSpanChunkMapper {
         final SpanOwner owner = new SpanOwner();
 
         owner.setServiceName(idAndName.serviceName());
+        owner.setServiceUid(idAndName.serviceUid());
         owner.setApplicationName(idAndName.applicationName());
         owner.setAgentId(idAndName.agentId());
         if (idAndName.agentName() != null) {
