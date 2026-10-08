@@ -476,7 +476,7 @@ class WriteContext {
                 writeString(abbreviatedBinary);
 
                 bsonWriter.writeName("$type");
-                writeString(String.format("%02X", bsonBinary.getType()));
+                writeString(HexUtils.toHex(bsonBinary.getType()));
                 bsonWriter.writeEndDocument();
                 break;
             }
