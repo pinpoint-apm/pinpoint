@@ -71,7 +71,6 @@ const baseProps = {
   onClose: jest.fn(),
   serviceName: 'my-service',
   applicationName: 'Shopping-Web',
-  applicationType: 'SPRING_BOOT',
   isTemplateNewView: false,
   isTemplateEditView: false,
   viewTemplateId: undefined as number | undefined,

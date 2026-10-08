@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web;
 
+import com.navercorp.pinpoint.alarm.core.service.CoreAlarmDataSourceProvider;
+import com.navercorp.pinpoint.alarm.web.AlarmWebModule;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
 import com.navercorp.pinpoint.common.server.profile.StandardEnvironmentLogger;
@@ -83,6 +85,9 @@ import org.springframework.core.env.StandardEnvironment;
         WebUidConfiguration.class,
         HeatmapWebModule.class,
         ScatterWebConfiguration.class,
+
+        AlarmWebModule.class,
+        CoreAlarmDataSourceProvider.class,
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.web.mapper",

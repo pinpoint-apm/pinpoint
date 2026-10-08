@@ -422,7 +422,6 @@ const AlarmV2PageBody = ({
         onClose={closeView}
         serviceName={serviceName}
         applicationName={applicationName}
-        applicationType={selectedApplication?.serviceType}
         isTemplateNewView={isTemplateNewView}
         isTemplateEditView={isTemplateEditView}
         viewTemplateId={viewTemplateId}
