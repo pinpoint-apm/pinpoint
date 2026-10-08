@@ -8,6 +8,7 @@ import {
 import { Button } from '@pinpoint-fe/ui/src/components/ui/button';
 import { Badge } from '@pinpoint-fe/ui/src/components/ui/badge';
 import { Checkbox } from '@pinpoint-fe/ui/src/components/ui/checkbox';
+import { cn } from '@pinpoint-fe/ui/src/lib/utils';
 import { conditionMetrics } from './formatCondition';
 import { useAlarmV2CatalogLabels } from '@pinpoint-fe/ui/src/hooks/utility/useAlarmV2CatalogLabels';
 import { useAlarmV2DataSourcesQuery } from '@pinpoint-fe/ui/src/hooks/api';
@@ -192,35 +193,43 @@ export const AlarmV2TemplateStartView = ({
   const renderCandidates = (candidates: StartCandidate[], emptyText: string) =>
     candidates.length ? (
       <div className="space-y-4">
-        {candidates.map((candidate) => (
-          <label key={candidate.key} className="flex cursor-pointer items-start gap-3">
-            <Checkbox
-              className="mt-0.5"
-              checked={selectedKeys.includes(candidate.key)}
-              disabled={
-                !selectedKeys.includes(candidate.key) &&
-                !!selectedCategory &&
-                categoryOf(candidate) !== selectedCategory
-              }
-              onCheckedChange={() => toggle(candidate.key)}
-            />
-            <span className="min-w-0 flex-1 space-y-2">
-              <span className="flex items-center gap-2">
-                <span className="truncate text-sm font-medium">{candidate.title}</span>
-                {/* A single rule is already obvious from the lone chip below. */}
-                {candidate.items.length > 1 && (
-                  <Badge variant="outline" className="whitespace-nowrap font-normal">
-                    {t('CONFIGURATION.ALARM_V2.RULE_COUNT', { count: candidate.items.length })}
-                  </Badge>
-                )}
-              </span>
-              {candidate.subtitle && (
-                <span className="block text-xs text-muted-foreground">{candidate.subtitle}</span>
+        {candidates.map((candidate) => {
+          const disabled =
+            !selectedKeys.includes(candidate.key) &&
+            !!selectedCategory &&
+            categoryOf(candidate) !== selectedCategory;
+          return (
+            <label
+              key={candidate.key}
+              className={cn(
+                'flex items-start gap-3',
+                disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
               )}
-              <ItemPreview items={candidate.items} />
-            </span>
-          </label>
-        ))}
+            >
+              <Checkbox
+                className="mt-0.5"
+                checked={selectedKeys.includes(candidate.key)}
+                disabled={disabled}
+                onCheckedChange={() => toggle(candidate.key)}
+              />
+              <span className="min-w-0 flex-1 space-y-2">
+                <span className="flex items-center gap-2">
+                  <span className="truncate text-sm font-medium">{candidate.title}</span>
+                  {/* A single rule is already obvious from the lone chip below. */}
+                  {candidate.items.length > 1 && (
+                    <Badge variant="outline" className="whitespace-nowrap font-normal">
+                      {t('CONFIGURATION.ALARM_V2.RULE_COUNT', { count: candidate.items.length })}
+                    </Badge>
+                  )}
+                </span>
+                {candidate.subtitle && (
+                  <span className="block text-xs text-muted-foreground">{candidate.subtitle}</span>
+                )}
+                <ItemPreview items={candidate.items} />
+              </span>
+            </label>
+          );
+        })}
       </div>
     ) : (
       <p className="text-xs text-muted-foreground">{emptyText}</p>
