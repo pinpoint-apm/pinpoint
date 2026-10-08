@@ -97,8 +97,8 @@ describe('useFilteredMapData', () => {
 
     arrive(first, rerender);
 
-    expect(accumulated()).toBe(first);
-    expect(result.current.serverMapData).toBe(first);
+    expect(accumulated()).toEqual(first);
+    expect(result.current.serverMapData).toEqual(first);
     expect(store.get(scatterDataByApplicationKeyAtom)).toHaveProperty(['application^UNAUTHORIZED']);
   });
 
@@ -117,6 +117,42 @@ describe('useFilteredMapData', () => {
     expect(timestamp).toEqual([...new Set([...prevTimestamp, ...nextTimestamp])]);
     expect(nodeDataArray).toEqual([resultNode, otherNode]);
     expect(linkDataArray).toEqual([resultLink]);
+  });
+
+  // 응답은 React Query 캐시에 있는 객체다. merge 함수들은 누적값을 제자리에서 고치므로, 응답을
+  // 그대로 누적값으로 쓰면 캐시의 응답까지 부푼다.
+  test('leaves the responses it was given untouched', () => {
+    const { rerender } = renderHook(() => useFilteredMapData(false));
+    const first = response({ timestamp: prevTimestamp, nodes: [prevNode], links: [prevLink] });
+    const second = response({ timestamp: nextTimestamp, nodes: [newNode], links: [newLink] });
+    const firstBefore = clone(first);
+    const secondBefore = clone(second);
+
+    arrive(first, rerender);
+    arrive(second, rerender);
+
+    expect(first).toEqual(firstBefore);
+    expect(second).toEqual(secondBefore);
+  });
+
+  // 기간을 바꿨다가 뒤로가기로 돌아오면 캐시가 같은 응답 객체를 다시 준다. 처음과 같은 수치여야 한다.
+  test('gathers the same numbers when the cache hands back the same responses', () => {
+    const { rerender } = renderHook(() => useFilteredMapData(false));
+    const first = response({ timestamp: prevTimestamp, nodes: [prevNode], links: [prevLink] });
+    const second = response({ timestamp: nextTimestamp, nodes: [newNode], links: [newLink] });
+
+    arrive(first, rerender);
+    arrive(second, rerender);
+    const firstVisit = clone(accumulated());
+
+    search = '?from=c&to=d&filter=f';
+    arrive(response({ timestamp: nextTimestamp }), rerender);
+    search = '?from=a&to=b&filter=f';
+    rerender();
+    arrive(first, rerender);
+    arrive(second, rerender);
+
+    expect(accumulated()).toEqual(firstVisit);
   });
 
   test('asks for the earlier slice until the start of the range is reached', () => {
@@ -157,7 +193,7 @@ describe('useFilteredMapData', () => {
     const fresh = response({ timestamp: nextTimestamp, nodes: [newNode] });
     arrive(fresh, rerender);
 
-    expect(accumulated()).toBe(fresh);
+    expect(accumulated()).toEqual(fresh);
   });
 
   // 아톰은 remount로 지워지지 않는다. 같은 탭에서 servermap으로 갔다가 뒤로가기로 돌아오면
@@ -177,7 +213,7 @@ describe('useFilteredMapData', () => {
 
     renderHook(() => useFilteredMapData(false));
 
-    expect(accumulated()).toBe(first);
+    expect(accumulated()).toEqual(first);
   });
 
   test('clears the scatter it gathered when the screen goes away', () => {
