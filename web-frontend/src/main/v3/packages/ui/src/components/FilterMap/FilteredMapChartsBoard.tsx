@@ -21,13 +21,12 @@ import {
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
-  serverMapCurrentTargetDataAtom,
   currentServerAtom,
   scatterDataByApplicationKeyAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/src/atoms';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   getApplicationKey,
   getServerImagePath,
@@ -36,6 +35,10 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { useFilteredMapParameters, useRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
+import {
+  useServerMapCurrentTarget,
+  useServerMapCurrentTargetData,
+} from '@pinpoint-fe/ui/src/hooks/serverMap/useServerMapCurrentTarget';
 import { MdArrowForwardIos, MdArrowBackIosNew } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
 
@@ -68,9 +71,12 @@ export const FilteredMapChartsBoard = ({
   // /api/servermap/filterServerMap 로 가져온 data
   const serverMapData = useAtomValue(serverMapDataAtom);
   // serverMap에서 클릭 된 target (node 또는 link)
-  const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
+  // 이전 경로에서 고른 것은 읽지 않는다(→ `useServerMapCurrentTarget`). target과 data는 같은 규칙으로
+  // 읽어야 한다 — 한쪽만 아톰을 그대로 읽으면 경로가 바뀐 직후 한 렌더 동안 둘이 어긋난다.
+  const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
+  const serverMapCurrentTarget = useServerMapCurrentTarget();
   // 클릭 된 serverMap target의 data (serverMapCurrentTarget, serverMapData를 이용해 나온 값) serverMap이 클릭되었을 때 주는 node/link의 데이터가 충분치 않아서 사용하는 값
-  const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom);
+  const currentTargetData = useServerMapCurrentTargetData();
   // VIEW SERVERS로 열었을 때 왼쪽에 클릭된 서버
   const currentServer = useAtomValue(currentServerAtom);
 
