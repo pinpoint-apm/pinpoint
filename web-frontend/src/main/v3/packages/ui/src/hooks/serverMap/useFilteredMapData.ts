@@ -92,6 +92,7 @@ const mergeServerMapData = (
  * - **조회 조건(query string)이 바뀌면 비운다.** 기간·필터가 바뀌면 처음부터 다시 쌓는다.
  *   (`useGetFilteredServerMapData`도 같은 시점에 조회 파라미터를 처음으로 되돌린다.)
  * - **화면을 떠날 때 스캐터를 비운다.** 스캐터 아톰도 쓸 때마다 합치는 누적기다.
+ * - **응답의 복사본을 쌓는다.** 캐시의 응답을 누적값으로 쓰면 합칠 때 캐시가 함께 고쳐진다.
  *
  * 반환하는 `data`는 **방금 도착한 응답 한 조각**이고, `serverMapData`가 지금까지 쌓은 값이다.
  */
@@ -121,8 +122,13 @@ export const useFilteredMapData = (isPaused: boolean) => {
 
   React.useEffect(() => {
     if (!isLoading && data) {
+      // 복사본을 쌓는다. merge 함수들은 누적값의 노드·링크를 제자리에서 고치는데, 응답을 그대로
+      // 누적값에 넣으면 그 객체가 React Query 캐시의 응답이라 캐시까지 고쳐진다. 그러면 같은 조회
+      // 조건으로 돌아왔을 때(기간을 바꿨다가 뒤로가기) 이미 부푼 캐시 위에 다시 쌓여 수치가 커진다.
+      // 고쳐지는 것은 map뿐이므로 그것만 복사한다(스캐터 점 목록은 크고, 읽기만 한다).
+      const incoming = { ...data, applicationMapData: structuredClone(data.applicationMapData) };
       setServerMapData((prev) =>
-        prev ? mergeServerMapData(prev as FilteredMap.Response, data) : data,
+        prev ? mergeServerMapData(prev as FilteredMap.Response, incoming) : incoming,
       );
 
       setScatterDataByApplicationKey(data.applicationScatterData);
