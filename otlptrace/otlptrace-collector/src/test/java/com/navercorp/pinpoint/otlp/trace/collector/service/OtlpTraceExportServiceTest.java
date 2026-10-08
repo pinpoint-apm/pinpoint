@@ -32,12 +32,21 @@ import java.util.ArrayList;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.uid.FixedServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAgentInfo;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -59,12 +68,17 @@ class OtlpTraceExportServiceTest {
     }
 
     private OtlpTraceExportService newService(OtlpTraceMapperData mapperData, OtlpUriStatService uriStatService) {
+        return newService(mapperData, uriStatService, mock(HbaseOtlpApplicationIndexV2Service.class));
+    }
+
+    private OtlpTraceExportService newService(OtlpTraceMapperData mapperData, OtlpUriStatService uriStatService,
+                                              HbaseOtlpApplicationIndexV2Service applicationIndexV2Service) {
         OtlpTraceMapper mapper = mock(OtlpTraceMapper.class);
         when(mapper.map(anyList())).thenReturn(mapperData);
         return new OtlpTraceExportService(
                 new TraceService[0],
                 mock(HbaseOtlpAgentInfoService.class),
-                mock(HbaseOtlpApplicationIndexV2Service.class),
+                applicationIndexV2Service,
                 mapper,
                 Optional.empty(),
                 Optional.ofNullable(uriStatService),
@@ -165,5 +179,44 @@ class OtlpTraceExportServiceTest {
 
         assertThat(result.serverErrorCount()).isZero();
         assertThat(uriStatErrorCount(meterRegistry)).isZero();
+    }
+
+    private static AgentInfoBo agentInfo(String agentId) {
+        AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
+        builder.setAgentId(agentId);
+        builder.setApplicationName("app");
+        builder.setServiceTypeCode(1300);
+        builder.setStartTime(1_000L);
+        return builder.build();
+    }
+
+    @Test
+    void agentRegistration_usesTheResourceServiceUid_andDedupsPerService() {
+        HbaseOtlpApplicationIndexV2Service applicationIndex = mock(HbaseOtlpApplicationIndexV2Service.class);
+        ServiceUidSupplier orderTeam = new FixedServiceUid(ServiceUid.of(100001));
+        AgentInfoBo agent = agentInfo("agent-1");
+        OtlpTraceMapperData mapperData = new OtlpTraceMapperData();
+        mapperData.addAgentInfo(new OtlpAgentInfo(orderTeam, agent));
+        // same (service, agent) again → deduplicated
+        mapperData.addAgentInfo(new OtlpAgentInfo(orderTeam, agent));
+        // same agentId under another service → a separate registration
+        mapperData.addAgentInfo(new OtlpAgentInfo(ServiceUidSupplier.DEFAULT, agent));
+
+        newService(mapperData, null, applicationIndex).export(List.of(resourceSpansWithSpans(1)), OtlpTransport.GRPC);
+
+        verify(applicationIndex).insert(eq(orderTeam), eq(agent));
+        verify(applicationIndex).insert(eq(ServiceUidSupplier.DEFAULT), eq(agent));
+        verify(applicationIndex, times(2)).insert(any(), eq(agent));
+    }
+
+    @Test
+    void agentCacheKey_isPerServiceAndAgent() {
+        AgentInfoBo agent = agentInfo("agent-1");
+        String defaultKey = OtlpTraceExportService.agentCacheKey(new OtlpAgentInfo(ServiceUidSupplier.DEFAULT, agent));
+        String teamKey = OtlpTraceExportService.agentCacheKey(new OtlpAgentInfo(new FixedServiceUid(ServiceUid.of(100001)), agent));
+
+        assertThat(defaultKey).isNotEqualTo(teamKey);
+        assertThat(defaultKey).endsWith("/agent-1");
+        assertThat(teamKey).isEqualTo("100001/agent-1");
     }
 }

@@ -40,7 +40,8 @@ public class HbaseOtlpApplicationIndexV2Service {
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
     }
 
-    // TODO get serviceUid from agentInfoBo
+    // The serviceUid is the one OtlpResourceIdResolver looked up for the Resource's pinpoint.serviceName
+    // (DEFAULT when unset); it is carried next to the AgentInfoBo in OtlpAgentInfo.
     public void insert(ServiceUidSupplier serviceUidSupplier, AgentInfoBo agentInfoBo) {
         try {
             ServiceUid serviceUid = serviceUidSupplier.get();

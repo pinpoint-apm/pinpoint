@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.otlp.log.collector.mapper.ExceptionLogSelector;
 import com.navercorp.pinpoint.otlp.log.collector.mapper.OtlpLogExceptionMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.IdAndName;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpIdValidator;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpResourceIdResolver;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpServiceNotFoundException;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTransport;
@@ -71,9 +73,9 @@ public class OtlpLogExportService {
     // Null when the exceptiontrace storage module is not enabled in this process.
     private final ExceptionMetaDataService exceptionMetaDataService;
     private final OtlpLogIngestMetrics ingestMetrics;
-    // Same resource resolution flag as the trace path, so an application resolves to the same
-    // (applicationName, agentId) on both signals.
-    private final boolean allowApplicationNameFallback;
+    // Same resolver as the trace path, so a Resource resolves to the same (serviceName, serviceUid,
+    // applicationName, agentId) on both signals — including the service-not-found policy.
+    private final OtlpResourceIdResolver idResolver;
     // Whether to store records whose trace flags say the trace was not sampled. Off by default: no
     // span will ever exist for them, so the transaction link is dead; on, they still feed the
     // Error Analysis aggregates.
@@ -83,13 +85,13 @@ public class OtlpLogExportService {
                                 OtlpLogExceptionMapper exceptionMapper,
                                 Optional<ExceptionMetaDataService> exceptionMetaDataService,
                                 OtlpLogIngestMetrics ingestMetrics,
-                                @Value("${pinpoint.collector.otlptrace.application-name-fallback.enabled:false}") boolean allowApplicationNameFallback,
+                                OtlpResourceIdResolver idResolver,
                                 @Value("${pinpoint.collector.otlplog.exception.store-unsampled:false}") boolean storeUnsampled) {
         this.selector = Objects.requireNonNull(selector, "selector");
         this.exceptionMapper = Objects.requireNonNull(exceptionMapper, "exceptionMapper");
         this.exceptionMetaDataService = exceptionMetaDataService.orElse(null);
         this.ingestMetrics = Objects.requireNonNull(ingestMetrics, "ingestMetrics");
-        this.allowApplicationNameFallback = allowApplicationNameFallback;
+        this.idResolver = Objects.requireNonNull(idResolver, "idResolver");
         this.storeUnsampled = storeUnsampled;
         if (this.exceptionMetaDataService == null) {
             logger.warn("No ExceptionMetaDataService in this context (pinpoint.modules.collector.exceptiontrace.enabled=false?). "
@@ -107,8 +109,16 @@ public class OtlpLogExportService {
 
             final Map<String, AttributeValue> resourceAttributes =
                     OtlpTraceMapperUtils.getAttributeValueMap(resourceLogs.getResource().getAttributesList());
-            final IdAndName idAndName = resolveId(resourceAttributes);
-            if (idAndName == null) {
+            final IdAndName idAndName;
+            try {
+                idAndName = idResolver.resolve(resourceAttributes);
+            } catch (OtlpServiceNotFoundException e) {
+                throttledLogger.warn("Service not found. serviceName={}, applicationName={}",
+                        e.getServiceName(), OtlpTraceMapperUtils.getApplicationName(resourceAttributes));
+                rejected.add(OtlpLogRejectReason.SERVICE_NOT_FOUND, recordCount);
+                continue;
+            } catch (Exception e) {
+                throttledLogger.warn("Failed to resolve application/agent from ResourceLogs: {}", e.getMessage());
                 rejected.add(OtlpLogRejectReason.INVALID_RESOURCE, recordCount);
                 continue;
             }
@@ -199,15 +209,6 @@ public class OtlpLogExportService {
      */
     static boolean isUnsampled(LogRecord record) {
         return (record.getFlags() & TRACE_FLAGS_SAMPLED) == 0;
-    }
-
-    private IdAndName resolveId(Map<String, AttributeValue> resourceAttributes) {
-        try {
-            return OtlpTraceMapperUtils.getId(resourceAttributes, allowApplicationNameFallback);
-        } catch (Exception e) {
-            throttledLogger.warn("Failed to resolve application/agent from ResourceLogs: {}", e.getMessage());
-            return null;
-        }
     }
 
     static int countRecords(ResourceLogs resourceLogs) {

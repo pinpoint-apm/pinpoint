@@ -29,7 +29,7 @@ public class OtlpTraceMapperData {
 
     private final List<SpanBo> spanBoList = new ArrayList<>();
     private final List<SpanChunkBo> spanChunkBoList = new ArrayList<>();
-    private final List<AgentInfoBo> agentInfoBoList = new ArrayList<>();
+    private final List<OtlpAgentInfo> agentInfoList = new ArrayList<>();
     private final List<ExceptionMetaDataBo> exceptionMetaDataBoList = new ArrayList<>();
     private final List<OtlpUriStatSpan> uriStatSpanList = new ArrayList<>();
     private final OtlpTraceCollectorRejectedSpan rejectedSpan = new OtlpTraceCollectorRejectedSpan();
@@ -50,12 +50,21 @@ public class OtlpTraceMapperData {
         spanChunkBoList.add(spanChunkBo);
     }
 
-    public List<AgentInfoBo> getAgentInfoBoList() {
-        return agentInfoBoList;
+    /** Agents to register, each paired with the serviceUid of its Resource. */
+    public List<OtlpAgentInfo> getAgentInfoList() {
+        return agentInfoList;
     }
 
-    public void addAgentInfoBo(AgentInfoBo agentInfoBo) {
-        agentInfoBoList.add(agentInfoBo);
+    public List<AgentInfoBo> getAgentInfoBoList() {
+        final List<AgentInfoBo> result = new ArrayList<>(agentInfoList.size());
+        for (OtlpAgentInfo agentInfo : agentInfoList) {
+            result.add(agentInfo.agentInfoBo());
+        }
+        return result;
+    }
+
+    public void addAgentInfo(OtlpAgentInfo agentInfo) {
+        agentInfoList.add(agentInfo);
     }
 
     public List<ExceptionMetaDataBo> getExceptionMetaDataBoList() {

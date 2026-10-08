@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.google.protobuf.ByteString;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -34,7 +35,6 @@ import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.SpanFlags;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -68,12 +68,15 @@ public class OtlpTraceMapper {
     private final OtlpExceptionMapper exceptionMapper;
     private final OtlpExceptionInfoResolver exceptionInfoResolver;
     private final OtlpAgentStartTimeResolver agentStartTimeResolver;
-    private final boolean allowApplicationNameFallback;
+    private final OtlpResourceIdResolver idResolver;
+    // An unregistered pinpoint.serviceName rejects every span of the Resource until the service is
+    // registered (or the missing-entry cache expires), so the operator must see it — once per interval.
+    private final ThrottledLogger serviceNotFoundLogger;
 
     public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanEventMapper spanEventMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper, OtlpExceptionMapper exceptionMapper,
                            OtlpExceptionInfoResolver exceptionInfoResolver,
                            OtlpAgentStartTimeResolver agentStartTimeResolver,
-                           @Value("${pinpoint.collector.otlptrace.application-name-fallback.enabled:false}") boolean allowApplicationNameFallback) {
+                           OtlpResourceIdResolver idResolver) {
         this.spanMapper = spanMapper;
         this.spanEventMapper = spanEventMapper;
         this.spanChunkMapper = spanChunkMapper;
@@ -81,7 +84,8 @@ public class OtlpTraceMapper {
         this.exceptionMapper = exceptionMapper;
         this.exceptionInfoResolver = Objects.requireNonNull(exceptionInfoResolver, "exceptionInfoResolver");
         this.agentStartTimeResolver = Objects.requireNonNull(agentStartTimeResolver, "agentStartTimeResolver");
-        this.allowApplicationNameFallback = allowApplicationNameFallback;
+        this.idResolver = Objects.requireNonNull(idResolver, "idResolver");
+        this.serviceNotFoundLogger = ThrottledLogger.getUncountedIntervalLogger(logger);
     }
 
     // sort by traceId
@@ -143,7 +147,7 @@ public class OtlpTraceMapper {
                         spanBo.addSpanEventBoList(spanEventList);
                         mapperData.addSpanBo(spanBo);
                         final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, resourceAttributeMap);
-                        mapperData.addAgentInfoBo(agentInfoBo);
+                        mapperData.addAgentInfo(new OtlpAgentInfo(idAndName.serviceUid(), agentInfoBo));
 
                         // URI stat source: entry-point spans keyed by their route template (http.route,
                         // next.route, micrometer uri — the same template the rpc and the exception
@@ -203,16 +207,23 @@ public class OtlpTraceMapper {
 
     IdAndName getId(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, Map<String, AttributeValue> resourceAttributeMap) {
         try {
-            return OtlpTraceMapperUtils.getId(resourceAttributeMap, allowApplicationNameFallback);
+            return idResolver.resolve(resourceAttributeMap);
+        } catch (OtlpServiceNotFoundException e) {
+            // Client-side configuration fault, but one the client cannot fix alone: the service has
+            // to be registered on the Pinpoint side. Reported back to the client and logged (throttled).
+            serviceNotFoundLogger.warn("Service not found. serviceName={}, applicationName={}",
+                    e.getServiceName(), OtlpTraceMapperUtils.getApplicationName(resourceAttributeMap));
+            reject(mapperData, resourceSpan, e.getMessage(), OtlpTraceRejectReason.SERVICE_NOT_FOUND);
+            return null;
         } catch (IllegalArgumentException e) {
             // Client-side fault (invalid/missing identifier). The reason is reported back to the
             // client via the INVALID_ARGUMENT response, so an operator-facing log adds only noise.
-            reject(mapperData, resourceSpan, e.getMessage());
+            reject(mapperData, resourceSpan, e.getMessage(), OtlpTraceRejectReason.INVALID_RESOURCE);
             return null;
         } catch (Exception e) {
-            // Unexpected server-side failure: keep visibility for the operator.
+            // Unexpected server-side failure (e.g. service lookup timeout): keep visibility for the operator.
             logger.warn("Unexpected error resolving agent id", e);
-            reject(mapperData, resourceSpan, e.getMessage());
+            reject(mapperData, resourceSpan, e.getMessage(), OtlpTraceRejectReason.INVALID_RESOURCE);
             return null;
         }
     }
@@ -240,13 +251,13 @@ public class OtlpTraceMapper {
         logger.warn(message, e);
     }
 
-    private void reject(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, String message) {
+    private void reject(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan, String message, OtlpTraceRejectReason reason) {
         OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
         // Every span of the ResourceSpans is dropped with it. (This used to add getScopeSpansCount(),
         // the number of scope blocks, which under-reported rejected_spans to the client.)
         int spansCount = OtlpTraceMapperUtils.countSpans(resourceSpan);
         rejectedSpan.putMessage(message + " (" + spansCount + ")");
-        rejectedSpan.addCount(OtlpTraceRejectReason.INVALID_RESOURCE, spansCount);
+        rejectedSpan.addCount(reason, spansCount);
     }
 
     Map<ByteString, List<ScopedSpan>> getSpanMap(List<ScopeSpans> scopeSpanList, OtlpTraceCollectorRejectedSpan rejectedSpan) {

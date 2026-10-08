@@ -16,5 +16,29 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-public record IdAndName(String agentId, String agentName, String applicationName, String serviceName) {
+import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
+
+import java.util.Objects;
+
+/**
+ * Pinpoint identity of one OTLP {@code Resource}: the four names plus the serviceUid the
+ * serviceName resolved to. {@link OtlpTraceMapperUtils#getId} produces the names with the
+ * serviceUid still at {@link ServiceUidSupplier#DEFAULT}; {@link OtlpResourceIdResolver} attaches
+ * the looked-up uid.
+ */
+public record IdAndName(String agentId, String agentName, String applicationName, String serviceName,
+                        ServiceUidSupplier serviceUid) {
+
+    public IdAndName {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+    }
+
+    /** Names only — the serviceUid stays DEFAULT until the resolver attaches the looked-up one. */
+    public IdAndName(String agentId, String agentName, String applicationName, String serviceName) {
+        this(agentId, agentName, applicationName, serviceName, ServiceUidSupplier.DEFAULT);
+    }
+
+    public IdAndName withServiceUid(ServiceUidSupplier serviceUid) {
+        return new IdAndName(agentId, agentName, applicationName, serviceName, serviceUid);
+    }
 }

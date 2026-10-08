@@ -34,6 +34,8 @@ public enum OtlpLogRejectReason {
     BLACKLISTED("blacklisted", "blacklisted", false),
     /** The ResourceLogs carries no usable application/agent identifier (validation failure). */
     INVALID_RESOURCE("invalid_resource", "invalid resource", true),
+    /** {@code pinpoint.serviceName} names a service that is not registered on the Pinpoint side. */
+    SERVICE_NOT_FOUND("service_not_found", "service not found", true),
     /** Missing or malformed {@code trace_id}/{@code span_id}: logged outside any span, nothing to correlate. */
     NO_TRACE_CONTEXT("no_trace_context", "no trace context", true),
     /** Trace flags say the trace was not sampled and storing such records is disabled. */
