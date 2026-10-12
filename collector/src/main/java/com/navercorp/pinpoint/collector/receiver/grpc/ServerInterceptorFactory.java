@@ -20,33 +20,46 @@ import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor;
-import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderFactory;
+import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderAdaptor;
+import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderV1;
+import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderV4;
+import io.grpc.Metadata;
 import io.grpc.ServerInterceptor;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 public class ServerInterceptorFactory {
 
     private final String name;
-    private boolean v3;
+    private final boolean v3;
 
-    public ServerInterceptorFactory(String name) {
+    public static Map<String, Object> emptyProperties(Metadata headers) {
+        return Collections.emptyMap();
+    }
+
+    public ServerInterceptorFactory(String name, ObjectNameVersion version) {
         this.name = Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(version, "version");
+        this.v3 = resolveVersion(version);
     }
 
-    public void applyVersion(ObjectNameVersion version) {
-        if (ObjectNameVersion.v3 == version || ObjectNameVersion.v4 == version) {
-            enableV3();
-        }
-    }
-
-    public void enableV3() {
-        this.v3 = true;
+    private static boolean resolveVersion(ObjectNameVersion version) {
+        return version.getVersion() >= ObjectNameVersion.v3.getVersion();
     }
 
     public ServerInterceptor build() {
-        ServerHeaderReaderFactory serverHeaderReaderFactory = new ServerHeaderReaderFactory(name, ServerHeaderReaderFactory::emptyProperties, v3);
-        HeaderReader<Header> headerReader = serverHeaderReaderFactory.build();
+        HeaderReader<Header> headerReaderV1 = buildHeaderReaderV1(v3);
+        HeaderReader<Header> headerReaderV4 = new ServerHeaderReaderV4(name, ServerInterceptorFactory::emptyProperties);
+        HeaderReader<Header> headerReader = new ServerHeaderReaderAdaptor(name, headerReaderV1, headerReaderV4);
         return new HeaderPropagationInterceptor(headerReader);
+    }
+
+    private HeaderReader<Header> buildHeaderReaderV1(boolean v3) {
+        if (v3) {
+            return ServerHeaderReaderV1.v3(name, ServerInterceptorFactory::emptyProperties);
+        }
+        return new ServerHeaderReaderV1(name, ServerInterceptorFactory::emptyProperties);
     }
 }

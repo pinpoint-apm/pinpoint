@@ -198,8 +198,7 @@ public class GrpcAgentConfiguration {
     @Bean
     @Qualifier("agentInterceptor")
     public ServerInterceptor agentInterceptorList(ObjectNameVersion version) {
-        ServerInterceptorFactory serverInterceptorFactory = new ServerInterceptorFactory("agent");
-        serverInterceptorFactory.applyVersion(version);
+        ServerInterceptorFactory serverInterceptorFactory = new ServerInterceptorFactory("agent", version);
         return serverInterceptorFactory.build();
     }
 }

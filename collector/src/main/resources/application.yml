@@ -72,6 +72,8 @@ pinpoint:
     realtime:
       enabled: false
     uid:
-      version: v3
+      # v3: 254-character ApplicationName
+      # v4: ServiceName required, UUID-based agentId
+      version: v4
     service-header:
       enabled: true

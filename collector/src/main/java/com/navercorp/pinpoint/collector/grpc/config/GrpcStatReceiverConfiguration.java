@@ -119,8 +119,7 @@ public class GrpcStatReceiverConfiguration {
     @Bean
     @Qualifier("statInterceptor")
     public ServerInterceptor statInterceptorList(ObjectNameVersion version) {
-        ServerInterceptorFactory serverInterceptorFactory = new ServerInterceptorFactory("stat");
-        serverInterceptorFactory.applyVersion(version);
+        ServerInterceptorFactory serverInterceptorFactory = new ServerInterceptorFactory("stat", version);
         return serverInterceptorFactory.build();
     }
 }
