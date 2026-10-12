@@ -27,7 +27,7 @@ import {
 } from '../components';
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
-import { capitalize } from 'lodash';
+import capitalize from 'lodash/capitalize';
 import { Heatmap } from '@pinpoint-fe/ui/src/components/Heatmap/Heatmap';
 
 export const ScatterOrHeatmapFullScreenPage = () => {

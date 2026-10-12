@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
-import { DefaultValue } from '@pinpoint-fe/ui/src/components/Heatmap/core/HeatmapSetting';
+import { DefaultValue } from '@pinpoint-fe/ui/src/components/Heatmap/core/heatmapSettingDefault';
 
 export type HeatmapSettingType = {
   yMin: number;

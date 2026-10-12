@@ -25,12 +25,9 @@ export interface HeatmapSettingProps {
   defaultValues?: HeatmapSettingType;
 }
 
-export const DefaultValue = {
-  yMin: 0,
-  yMax: 10000,
-  visualMapSuccessMax: 5000,
-  visualMapFailMax: 100,
-};
+import { DefaultValue } from './heatmapSettingDefault';
+
+export { DefaultValue };
 
 const FormSchema = z.object({
   yMin: numberFromInput(z.number().min(0)),

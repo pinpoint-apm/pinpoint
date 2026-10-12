@@ -1,5 +1,5 @@
 import cytoscape from 'cytoscape';
-import { merge } from 'lodash';
+import merge from 'lodash/merge';
 import { ServerMapProps } from '../../ui';
 import { defaultTheme, GraphStyle, ServerMapTheme } from './theme';
 

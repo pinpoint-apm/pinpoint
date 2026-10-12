@@ -18,7 +18,7 @@ import {
   useServerMapCurrentTargetData,
 } from '@pinpoint-fe/ui/src/hooks/serverMap/useServerMapCurrentTarget';
 import { ServerList as SL, ServerListProps, Button, ServerListSkeleton } from '@pinpoint-fe/ui';
-import { upperCase } from 'lodash';
+import upperCase from 'lodash/upperCase';
 
 export interface ServerListFetcherProps extends ServerListProps {
   nodeStatistics?: GetHistogramStatistics.Response;
