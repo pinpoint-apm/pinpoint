@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
  * @author minwoo-jung
  */
 public class HeatmapSearchKey {
+    private final String tableName;
     private final String sortKey;
 
     private final Range range;
@@ -40,8 +41,9 @@ public class HeatmapSearchKey {
     private final int elapsedTimeInterval;
     private final int largestMultiple;
 
-    public HeatmapSearchKey(String sortKey, TimeWindow timeWindow, int elapsedTimeInterval, int minYAxis, int maxYAxis,
+    public HeatmapSearchKey(String tableName, String sortKey, TimeWindow timeWindow, int elapsedTimeInterval, int minYAxis, int maxYAxis,
                             int largestMultiple, int yAxisCellCount) {
+        this.tableName = StringPrecondition.requireHasLength(tableName, "tableName");
         this.sortKey = StringPrecondition.requireHasLength(sortKey, "sortKey");
         Objects.requireNonNull(timeWindow, "timeWindow");
         this.range = timeWindow.getWindowRange();
@@ -52,6 +54,10 @@ public class HeatmapSearchKey {
         this.minYAsix = minYAxis;
         this.maxYAsix = maxYAxis;
         this.largestMultiple = largestMultiple;
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 
     public String getSortKey() {
