@@ -14,7 +14,7 @@ import {
 } from '../core/anchor';
 import { getServerMapStyle, getTheme } from '../constants/style/theme-helper';
 import { GraphStyle, ServerMapTheme } from '../constants/style/theme';
-import { keyBy } from 'lodash';
+import keyBy from 'lodash/keyBy';
 
 cytoscape.use(dagre);
 

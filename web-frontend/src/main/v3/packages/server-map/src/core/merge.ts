@@ -1,4 +1,4 @@
-import { partition } from 'lodash';
+import partition from 'lodash/partition';
 import { Node, Edge, MergedNode, MergedEdge } from '../types';
 import { getNodeSVGString } from '../ui/template/node';
 import { ServerMapProps } from '../ui';

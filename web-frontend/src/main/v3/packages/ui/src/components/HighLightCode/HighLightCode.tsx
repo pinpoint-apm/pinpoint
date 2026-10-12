@@ -1,23 +1,15 @@
 import 'highlight.js/styles/atom-one-light.min.css';
 import React from 'react';
-import hljs from 'highlight.js/lib/core';
-import typescript from 'highlight.js/lib/languages/typescript';
-import sql from 'highlight.js/lib/languages/sql';
-import java from 'highlight.js/lib/languages/java';
-import json from 'highlight.js/lib/languages/json';
-import text from 'highlight.js/lib/languages/plaintext';
 import { cn } from '../../lib';
 
-// 추가 언어 필요시 등록
+// 추가 언어는 ./hljs 에 등록한다
 type LanguageType = 'typescript' | 'sql' | 'java' | 'json' | 'text';
-hljs.registerLanguage('typescript', typescript);
-hljs.registerLanguage('sql', sql);
-hljs.registerLanguage('java', java);
-hljs.registerLanguage('json', json);
-hljs.registerLanguage('text', text);
+
+const loadHljs = () => import('./hljs').then((module) => module.hljs);
 
 // The highlighted output is rendered via dangerouslySetInnerHTML. hljs.highlight() escapes
 // its output, but the fallback path uses the raw code, so it must be escaped to avoid XSS.
+// The initial state is rendered before highlight.js finishes loading, so it is escaped too.
 const escapeHtml = (value: string) =>
   value
     .replace(/&/g, '&amp;')
@@ -41,19 +33,38 @@ export const HighLightCode = ({
   className,
   wrap = false,
 }: HighLightCodeProps) => {
-  const [highLightedCode, setHighLightedCode] = React.useState(code);
+  const [highLightedCode, setHighLightedCode] = React.useState(() => escapeHtml(code || ''));
   React.useEffect(() => {
-    hljs.highlightAll();
+    loadHljs()
+      .then((hljs) => hljs.highlightAll())
+      .catch((e) => console.error('Highlight Error', e));
   }, []);
 
   React.useEffect(() => {
-    try {
-      const value = hljs.highlight(code, { language }).value;
-      setHighLightedCode(value);
-    } catch (e) {
-      console.error('Highlight Error', e);
-      setHighLightedCode(escapeHtml(code || ''));
-    }
+    let cancelled = false;
+    loadHljs()
+      .then((hljs) => {
+        if (cancelled) {
+          return;
+        }
+        try {
+          const value = hljs.highlight(code, { language }).value;
+          setHighLightedCode(value);
+        } catch (e) {
+          console.error('Highlight Error', e);
+          setHighLightedCode(escapeHtml(code || ''));
+        }
+      })
+      .catch((e) => {
+        // highlight.js 를 불러오지 못하면 하이라이트 없이 escape 된 원문을 보여준다.
+        console.error('Highlight Error', e);
+        if (!cancelled) {
+          setHighLightedCode(escapeHtml(code || ''));
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [code, language]);
 
   if (wrap) {

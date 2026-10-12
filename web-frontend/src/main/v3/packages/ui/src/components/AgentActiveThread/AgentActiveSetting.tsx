@@ -24,7 +24,9 @@ export interface AgentActiveSettingProps {
   defaultValues?: AgentActiveSettingType;
 }
 
-export const DefaultValue = { yMax: 100, isSplit: true, inactivityThreshold: 5 };
+import { DefaultValue } from './agentActiveSettingDefault';
+
+export { DefaultValue };
 
 const FormSchema = z.object({
   yMax: numberFromInput(z.number().min(1)),

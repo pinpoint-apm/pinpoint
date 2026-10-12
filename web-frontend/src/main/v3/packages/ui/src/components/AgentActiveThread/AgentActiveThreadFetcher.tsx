@@ -1,4 +1,5 @@
 import React from 'react';
+import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
@@ -17,13 +18,22 @@ import { Button } from '../../components/ui/button';
 import { RxDrawingPinFilled, RxDrawingPin } from 'react-icons/rx';
 import { formatInTimeZone } from 'date-fns-tz';
 import { BsGearFill } from 'react-icons/bs';
-import { AgentActiveSetting, AgentActiveSettingType, DefaultValue } from './AgentActiveSetting';
+import type { AgentActiveSettingType } from './AgentActiveSetting';
+import { DefaultValue } from './agentActiveSettingDefault';
+
 import { HelpPopover } from '@pinpoint-fe/ui/src/components/HelpPopover';
 import {
   useServerMapCurrentTarget,
   useServerMapCurrentTargetData,
   useTimezone,
 } from '@pinpoint-fe/ui/src/hooks';
+
+// 설정 팝업은 눌러야 열리므로 zod·react-hook-form 과 함께 필요할 때 불러온다.
+// 배포로 청크 이름이 바뀐 뒤 예전 탭에서 열면 불러오기가 실패하므로, 렌더하는 곳에서 ErrorBoundary 로
+// 팝업만 닫는다(페이지 전체가 에러 화면이 되지 않도록).
+const AgentActiveSetting = React.lazy(() =>
+  import('./AgentActiveSetting').then((module) => ({ default: module.AgentActiveSetting })),
+);
 
 export interface ActiveRequestProps {}
 
@@ -157,14 +167,18 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
                 <div
                   className={`flex absolute z-10 justify-center items-center w-[-webkit-fill-available] h-[-webkit-fill-available]`}
                 >
-                  <AgentActiveSetting
-                    className="z-10"
-                    defaultValues={setting}
-                    onClose={() => setShowSetting(false)}
-                    onApply={(newSetting) => {
-                      setSetting(newSetting);
-                    }}
-                  />
+                  <ReactErrorBoundary fallback={null} onError={() => setShowSetting(false)}>
+                    <React.Suspense fallback={null}>
+                      <AgentActiveSetting
+                        className="z-10"
+                        defaultValues={setting}
+                        onClose={() => setShowSetting(false)}
+                        onApply={(newSetting) => {
+                          setSetting(newSetting);
+                        }}
+                      />
+                    </React.Suspense>
+                  </ReactErrorBoundary>
                   <div className="absolute w-full h-full opacity-80 bg-background"></div>
                 </div>
               )}

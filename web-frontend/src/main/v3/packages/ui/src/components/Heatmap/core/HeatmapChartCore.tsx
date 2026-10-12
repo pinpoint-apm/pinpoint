@@ -1,4 +1,5 @@
 import React from 'react';
+import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 import { toPng } from 'html-to-image';
 import {
   APP_SETTING_KEYS,
@@ -23,8 +24,15 @@ import {
 import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
 import { BsGearFill } from 'react-icons/bs';
 import { CgSpinner } from 'react-icons/cg';
-import { HeatmapSetting, HeatmapSettingType } from './HeatmapSetting';
+import type { HeatmapSettingType } from './HeatmapSetting';
 import { HeatmapSkeleton } from '../HeatmapSkeleton';
+
+// 설정 팝업은 눌러야 열리므로 zod·react-hook-form 과 함께 필요할 때 불러온다.
+// 배포로 청크 이름이 바뀐 뒤 예전 탭에서 열면 불러오기가 실패하므로, 렌더하는 곳에서 ErrorBoundary 로
+// 팝업만 닫는다(페이지 전체가 에러 화면이 되지 않도록).
+const HeatmapSetting = React.lazy(() =>
+  import('./HeatmapSetting').then((module) => ({ default: module.HeatmapSetting })),
+);
 
 export type HeatmapChartCoreProps = {
   isRealtime?: boolean;
@@ -165,15 +173,19 @@ const HeatmapChartCore = ({
         <div className="absolute inset-0 z-1000 flex items-center justify-center">
           <div className="absolute inset-0 opacity-50 bg-background"></div>
           {showSetting && (
-            <HeatmapSetting
-              className="z-10"
-              isRealtime={isRealtime}
-              defaultValues={setting}
-              onClose={() => setShowSetting(false)}
-              onApply={(newSetting) => {
-                handleSettingApply(newSetting);
-              }}
-            />
+            <ReactErrorBoundary fallback={null} onError={() => setShowSetting(false)}>
+              <React.Suspense fallback={null}>
+                <HeatmapSetting
+                  className="z-10"
+                  isRealtime={isRealtime}
+                  defaultValues={setting}
+                  onClose={() => setShowSetting(false)}
+                  onApply={(newSetting) => {
+                    handleSettingApply(newSetting);
+                  }}
+                />
+              </React.Suspense>
+            </ReactErrorBoundary>
           )}
           {isCapturingImage && (
             <>

@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "license": "Apache-2.0",
   "type": "module",
+  "sideEffects": [
+    "**/*.css",
+    "./src/index.ts"
+  ],
   "main": "./src/index.ts",
   "scripts": {
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx}\"",

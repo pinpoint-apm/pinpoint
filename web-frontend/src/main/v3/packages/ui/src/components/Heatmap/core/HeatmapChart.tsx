@@ -2,7 +2,7 @@
 import React from 'react';
 import { colors, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
 import { defaultTickFormatter } from '@pinpoint-fe/ui/src/lib/charts';
-import { capitalize } from 'lodash';
+import capitalize from 'lodash/capitalize';
 import { HeatmapSettingType } from './HeatmapSetting';
 import { formatInTimeZone } from 'date-fns-tz';
 import { useTimezone } from '@pinpoint-fe/ui/src/hooks';

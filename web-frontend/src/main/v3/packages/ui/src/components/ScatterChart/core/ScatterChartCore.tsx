@@ -1,6 +1,7 @@
 // import '@pinpoint-fe/scatter-chart/src/style/index.css';
 
 import React from 'react';
+import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 import {
   ScatterChart as SC,
   ScatterDataType,
@@ -13,7 +14,14 @@ import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
 import { useReactToastifyToast, HelpPopover } from '../..';
 import { cn } from '../../../lib';
-import { ScatterSetting, ScatterSettingProps } from './ScatterSetting';
+import type { ScatterSettingProps } from './ScatterSetting';
+
+// 설정 팝업은 눌러야 열리므로 react-hook-form 과 함께 필요할 때 불러온다.
+// 배포로 청크 이름이 바뀐 뒤 예전 탭에서 열면 불러오기가 실패하므로, 렌더하는 곳에서 ErrorBoundary 로
+// 팝업만 닫는다(페이지 전체가 에러 화면이 되지 않도록).
+const ScatterSetting = React.lazy(() =>
+  import('./ScatterSetting').then((module) => ({ default: module.ScatterSetting })),
+);
 
 export type ScatterToolbarOption = {
   axisSetting?: {
@@ -358,13 +366,15 @@ export const ScatterChartCore = ({
               </>
             )}
             {isSettingAxis && (
-              <>
-                <ScatterSetting
-                  defaultValues={{ yMin: y[0], yMax: y[1] }}
-                  onClose={() => setIsSettingAxis(false)}
-                  onApply={handleApplySetting}
-                />
-              </>
+              <ReactErrorBoundary fallback={null} onError={() => setIsSettingAxis(false)}>
+                <React.Suspense fallback={null}>
+                  <ScatterSetting
+                    defaultValues={{ yMin: y[0], yMax: y[1] }}
+                    onClose={() => setIsSettingAxis(false)}
+                    onApply={handleApplySetting}
+                  />
+                </React.Suspense>
+              </ReactErrorBoundary>
             )}
           </div>
         </>

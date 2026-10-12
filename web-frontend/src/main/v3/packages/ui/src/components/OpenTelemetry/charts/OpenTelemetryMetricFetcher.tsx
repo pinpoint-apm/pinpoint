@@ -3,7 +3,7 @@ import { colors, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/src/constants'
 import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/src/hooks';
 import { toBasicISOString } from '@pinpoint-fe/ui/src/utils';
 import React from 'react';
-import { assign } from 'lodash';
+import assign from 'lodash/assign';
 import { OpenTelemetryMetricChart } from './OpenTelemetryMetricChart';
 import { useInView } from 'react-intersection-observer';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { throttle } from 'lodash';
+import throttle from 'lodash/throttle';
 import cloneDeep from 'lodash.clonedeep';
 import { FlameNode, FlameNodeType, FlameNodeProps } from './FlameNode';
 import { FlameAxis } from './FlameAxis';
