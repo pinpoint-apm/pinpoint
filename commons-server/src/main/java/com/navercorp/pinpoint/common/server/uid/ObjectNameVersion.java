@@ -36,14 +36,12 @@ public enum ObjectNameVersion {
     public static final String VALUE_KEY = "${" + KEY + ":v4}";
 
     public static ObjectNameVersion getVersion(String version) {
-        if ("v1".equalsIgnoreCase(version)) {
-            return v1;
-        } else if ("v3".equalsIgnoreCase(version)) {
-            return v3;
-        } else if ("v4".equalsIgnoreCase(version)) {
-            return v4;
+        for (ObjectNameVersion value : values()) {
+            if (value.name().equalsIgnoreCase(version)) {
+                return value;
+            }
         }
-        return v1;
+        return v4;
     }
 
 }
