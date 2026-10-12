@@ -112,6 +112,7 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/google-libphonenumber": "^7.4.30",
     "@types/jest": "^30.0.0",
+    "@types/lodash": "^4.17.25",
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.omit": "^4.5.9",
     "@types/react": "^19.0.0",
