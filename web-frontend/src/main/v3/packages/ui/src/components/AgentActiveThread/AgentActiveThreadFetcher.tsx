@@ -1,5 +1,6 @@
 import React from 'react';
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
+import { lazyWithPreload } from '@pinpoint-fe/ui/src/utils/lazyWithPreload';
 import { useTranslation } from 'react-i18next';
 import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
@@ -31,9 +32,14 @@ import {
 // 설정 팝업은 눌러야 열리므로 zod·react-hook-form 과 함께 필요할 때 불러온다.
 // 배포로 청크 이름이 바뀐 뒤 예전 탭에서 열면 불러오기가 실패하므로, 렌더하는 곳에서 ErrorBoundary 로
 // 팝업만 닫는다(페이지 전체가 에러 화면이 되지 않도록).
-const AgentActiveSetting = React.lazy(() =>
-  import('./AgentActiveSetting').then((module) => ({ default: module.AgentActiveSetting })),
+const { Component: AgentActiveSetting, preload: preloadAgentActiveSetting } = lazyWithPreload(() =>
+  import('./AgentActiveSetting').then((module) => module.AgentActiveSetting),
 );
+// 톱니바퀴에 마우스를 올리면 미리 받아 두어, 처음 열 때 팝업이 비는 순간을 없앤다.
+// 미리 받기의 실패는 여기서 무시한다 — 실제로 열 때 다시 불러오고, 그때의 실패는 ErrorBoundary 가 처리한다.
+const prefetchAgentActiveSetting = () => {
+  preloadAgentActiveSetting().catch(() => {});
+};
 
 export interface ActiveRequestProps {}
 
@@ -152,6 +158,7 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
                 <BsGearFill
                   className="text-base cursor-pointer"
                   onClick={() => setShowSetting(true)}
+                  onMouseEnter={prefetchAgentActiveSetting}
                 />
               </div>
             </div>
