@@ -57,6 +57,7 @@ class HeatmapChartServiceImplTest {
 
     private HeatmapChartServiceImpl heatmapChartService;
 
+    private static final String APPLICATION_TABLE_NAME = "heatmapStatApp";
     private static final String TABLE_NAME = "heatmapStat";
     private static final String SERVICE_NAME = "DEFAULT";
     private static final String APPLICATION_NAME = "testApp";
@@ -64,7 +65,7 @@ class HeatmapChartServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        heatmapChartService = new HeatmapChartServiceImpl(heatmapChartDao, TABLE_NAME);
+        heatmapChartService = new HeatmapChartServiceImpl(heatmapChartDao, APPLICATION_TABLE_NAME, TABLE_NAME);
     }
 
     private TimeWindow newTimeWindow() {

@@ -29,7 +29,7 @@
                 ELSE (ROUND(elapsedTime - #{minYAsix} + #{elapsedTimeInterval} - 1, #{elapsedTimeInterval}) + #{minYAsix})
             END AS bucketElapsedTime,
             SUM(countValue) AS count
-        FROM heatmapStatApp
+        FROM ${tableName}
         WHERE
             sortKey = #{sortKey}
             AND roundedEventTime BETWEEN #{range.from} AND #{range.to}

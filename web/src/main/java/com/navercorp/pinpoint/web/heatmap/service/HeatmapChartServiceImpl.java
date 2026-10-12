@@ -53,11 +53,14 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     private static final int MIN_INTERVAL_FOR_ELAPSED_TIME = 200;
 
     private final HeatmapChartDao heatmapChartDao;
+    private final String applicationTableName;
     private final String agentTableName;
 
     public HeatmapChartServiceImpl(HeatmapChartDao heatmapChartDao,
+                                   @Value("${pinpoint.web.heatmap.application.table.name:heatmapStatApp}") String applicationTableName,
                                    @Value("${pinpoint.web.heatmap.agent.table.name:heatmapStat}") String agentTableName) {
         this.heatmapChartDao = Objects.requireNonNull(heatmapChartDao,"heatmapChartDao");
+        this.applicationTableName = StringPrecondition.requireHasLength(applicationTableName, "applicationTableName");
         this.agentTableName = StringPrecondition.requireHasLength(agentTableName, "agentTableName");
     }
 
@@ -65,7 +68,8 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     public HeatMapData getHeatmapAppData(String serviceName, String applicationName, TimeWindow timeWindow, int minElapsedTime, int maxElapsedTime) {
         ElapsedTimeBucketInfo elapsedTimeBucketInfo = createElapsedTimeBucketInfo(minElapsedTime, maxElapsedTime);
         String sortKeyPrefix = serviceName + "#" +applicationName;
-        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(sortKeyPrefix + POSTFIX_SORT_KEY_SUCCESS,
+        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationTableName,
+                                                                 sortKeyPrefix + POSTFIX_SORT_KEY_SUCCESS,
                                                                  timeWindow,
                                                                  elapsedTimeBucketInfo.timeInterval(),
                                                                  elapsedTimeBucketInfo.min(),
@@ -74,7 +78,8 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
                                                                  elapsedTimeBucketInfo.bucketList().size());
         List<HeatmapCell> successHeatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
 
-        heatmapSearchKey = new HeatmapSearchKey(sortKeyPrefix + POSTFIX_SORT_KEY_FAIL,
+        heatmapSearchKey = new HeatmapSearchKey(applicationTableName,
+                                                sortKeyPrefix + POSTFIX_SORT_KEY_FAIL,
                                                 timeWindow,
                                                 elapsedTimeBucketInfo.timeInterval(),
                                                 elapsedTimeBucketInfo.min(),
