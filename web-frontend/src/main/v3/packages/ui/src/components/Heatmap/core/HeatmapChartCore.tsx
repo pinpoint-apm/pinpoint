@@ -1,5 +1,6 @@
 import React from 'react';
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
+import { lazyWithPreload } from '@pinpoint-fe/ui/src/utils/lazyWithPreload';
 import { toPng } from 'html-to-image';
 import {
   APP_SETTING_KEYS,
@@ -30,9 +31,14 @@ import { HeatmapSkeleton } from '../HeatmapSkeleton';
 // 설정 팝업은 눌러야 열리므로 zod·react-hook-form 과 함께 필요할 때 불러온다.
 // 배포로 청크 이름이 바뀐 뒤 예전 탭에서 열면 불러오기가 실패하므로, 렌더하는 곳에서 ErrorBoundary 로
 // 팝업만 닫는다(페이지 전체가 에러 화면이 되지 않도록).
-const HeatmapSetting = React.lazy(() =>
-  import('./HeatmapSetting').then((module) => ({ default: module.HeatmapSetting })),
+const { Component: HeatmapSetting, preload: preloadHeatmapSetting } = lazyWithPreload(() =>
+  import('./HeatmapSetting').then((module) => module.HeatmapSetting),
 );
+// 톱니바퀴에 마우스를 올리면 미리 받아 두어, 처음 열 때 팝업이 비는 순간을 없앤다.
+// 미리 받기의 실패는 여기서 무시한다 — 실제로 열 때 다시 불러오고, 그때의 실패는 ErrorBoundary 가 처리한다.
+const prefetchHeatmapSetting = () => {
+  preloadHeatmapSetting().catch(() => {});
+};
 
 export type HeatmapChartCoreProps = {
   isRealtime?: boolean;
@@ -155,7 +161,11 @@ const HeatmapChartCore = ({
   return (
     <div className="relative flex flex-col w-full h-full gap-2">
       <div className="absolute flex flex-row items-center justify-end gap-2 px-4 font-normal text-gray-400 -top-5 right-3">
-        <BsGearFill className="text-base cursor-pointer" onClick={() => setShowSetting(true)} />
+        <BsGearFill
+          className="text-base cursor-pointer"
+          onClick={() => setShowSetting(true)}
+          onMouseEnter={prefetchHeatmapSetting}
+        />
         <FaDownload className="text-base cursor-pointer" onClick={handleCaptureImage} />
         {!toolbarOption?.expand?.hide && (
           <FaExpandArrowsAlt className="text-base cursor-pointer" onClick={handleExpand} />

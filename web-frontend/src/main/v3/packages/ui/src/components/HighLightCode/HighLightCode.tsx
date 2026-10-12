@@ -1,6 +1,6 @@
 import 'highlight.js/styles/atom-one-light.min.css';
 import React from 'react';
-import { cn } from '../../lib';
+import { cn } from '../../lib/utils';
 
 // 추가 언어는 ./hljs 에 등록한다
 type LanguageType = 'typescript' | 'sql' | 'java' | 'json' | 'text';
