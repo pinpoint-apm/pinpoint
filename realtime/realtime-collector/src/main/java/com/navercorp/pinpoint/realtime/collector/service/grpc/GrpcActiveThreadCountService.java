@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.realtime.collector.service.grpc;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.channel.service.server.IgnoreDemandException;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
@@ -30,13 +30,10 @@ import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import com.navercorp.pinpoint.realtime.dto.ATCDemand;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import com.navercorp.pinpoint.realtime.dto.CommandType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 import static com.navercorp.pinpoint.realtime.collector.RealtimeUtils.COLLECTOR_ID;
 
@@ -45,13 +42,11 @@ import static com.navercorp.pinpoint.realtime.collector.RealtimeUtils.COLLECTOR_
  */
 class GrpcActiveThreadCountService implements ActiveThreadCountService {
 
-    private final Logger logger = LogManager.getLogger(GrpcActiveThreadCountService.class);
-
     private final GrpcAgentConnectionRepository connectionRepository;
     private final SinkRepository<ActiveThreadCountPublisher> sinkRepository;
     private final Duration demandDuration;
 
-    private final Cache<ClusterKey, Flux<ATCSupply>> fluxCache = CacheBuilder.newBuilder()
+    private final Cache<ClusterKey, Flux<ATCSupply>> fluxCache = Caffeine.newBuilder()
             .initialCapacity(32)
             .maximumSize(1024)
             .expireAfterAccess(Duration.ofMinutes(5))
@@ -69,18 +64,14 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
 
     @Override
     public Flux<ATCSupply> requestAsync(ATCDemand demand) {
-        try {
-            ClusterKey clusterKey = new ClusterKey(
-                    demand.getServiceName(),
-                    demand.getApplicationName(),
-                    demand.getAgentId(),
-                    demand.getStartTimestamp());
+        ClusterKey clusterKey = new ClusterKey(
+                demand.getServiceName(),
+                demand.getApplicationName(),
+                demand.getAgentId(),
+                demand.getStartTimestamp());
 
-            return this.fluxCache.get(clusterKey, () -> this.buildFlux(clusterKey)).take(this.demandDuration);
-        } catch (ExecutionException e) {
-            logger.error("Failed to request atc", e);
-            throw new RuntimeException(e);
-        }
+        Flux<ATCSupply> atcSupplyFlux = this.fluxCache.get(clusterKey, this::buildFlux);
+        return atcSupplyFlux.take(this.demandDuration);
     }
 
     private Flux<ATCSupply> buildFlux(ClusterKey clusterKey) {
