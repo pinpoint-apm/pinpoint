@@ -25,10 +25,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
-import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.HeaderReader;
-import com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor;
-import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderFactory;
+import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -36,6 +33,7 @@ import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.ServerInterceptors;
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,7 +78,7 @@ public class SpanServerTestMain {
         grpcReceiver.setEnable(true);
         grpcReceiver.setServerOption(ServerOption.newBuilder().build());
 
-        HeaderPropagationInterceptor interceptor = getHeaderPropagationInterceptor();
+        ServerInterceptor interceptor = getHeaderPropagationInterceptor();
         grpcReceiver.setServerInterceptorList(List.of(interceptor));
 
 //        for(int i = 0; i < 9999; i++) {
@@ -96,10 +94,9 @@ public class SpanServerTestMain {
 
     }
 
-    private HeaderPropagationInterceptor getHeaderPropagationInterceptor() {
-        ServerHeaderReaderFactory factory = new ServerHeaderReaderFactory("test", ServerHeaderReaderFactory::emptyProperties, false);
-        HeaderReader<Header> headerHeaderReader = factory.build();
-        return new HeaderPropagationInterceptor(headerHeaderReader);
+    private ServerInterceptor getHeaderPropagationInterceptor() {
+        ServerInterceptorFactory factory = new ServerInterceptorFactory("test", ObjectNameVersion.v4);
+        return factory.build();
     }
 
     private ServerServiceDefinition newSpanBindableService(Executor executor) {

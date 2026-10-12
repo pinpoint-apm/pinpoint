@@ -40,10 +40,6 @@ public class ObjectNameResolverBuilder {
         this.agentProperties.add(agentProperties);
     }
 
-    public ObjectNameResolver build() {
-        return buildV1();
-    }
-
     public ObjectNameResolver build(NameVersion version) {
         Objects.requireNonNull(version, "version");
 
@@ -55,7 +51,7 @@ public class ObjectNameResolverBuilder {
             case v4:
                 return buildV4();
             default:
-                return buildV1();
+                throw new IllegalArgumentException("unsupported NameVersion: " + version);
         }
     }
 

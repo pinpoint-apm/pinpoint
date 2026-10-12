@@ -15,6 +15,6 @@ class NameVersionTest {
 
     @Test
     void getVersion_default() {
-        Assertions.assertEquals(NameVersion.v3, NameVersion.getVersion("unknown"));
+        Assertions.assertEquals(NameVersion.v4, NameVersion.getVersion("unknown"));
     }
 }

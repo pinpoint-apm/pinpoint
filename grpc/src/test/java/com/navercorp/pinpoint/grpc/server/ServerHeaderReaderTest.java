@@ -23,6 +23,8 @@ import io.grpc.Metadata;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -35,7 +37,7 @@ public class ServerHeaderReaderTest {
     private static final long SOCKET_ID = 1001;
     private static final int SERVICE_TYPE = ServiceType.STAND_ALONE.getCode();
 
-    private final HeaderReader<Header> reader = new ServerHeaderReaderV1("test", ServerHeaderReaderFactory::emptyProperties);
+    private final HeaderReader<Header> reader = new ServerHeaderReaderV1("test", headers -> Collections.emptyMap());
 
     @Test
     public void extract() {

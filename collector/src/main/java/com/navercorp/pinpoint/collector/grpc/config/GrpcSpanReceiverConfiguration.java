@@ -134,8 +134,7 @@ public class GrpcSpanReceiverConfiguration {
     @Bean
     @Qualifier("spanInterceptor")
     public ServerInterceptor spanInterceptorList(ObjectNameVersion version) {
-        ServerInterceptorFactory serverInterceptorFactory = new ServerInterceptorFactory("span");
-        serverInterceptorFactory.applyVersion(version);
+        ServerInterceptorFactory serverInterceptorFactory = new ServerInterceptorFactory("span", version);
         return serverInterceptorFactory.build();
     }
 

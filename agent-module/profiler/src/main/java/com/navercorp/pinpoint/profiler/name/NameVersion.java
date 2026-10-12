@@ -29,7 +29,7 @@ public enum NameVersion {
                 return value;
             }
         }
-        return v3;
+        return v4;
     }
 
 }
