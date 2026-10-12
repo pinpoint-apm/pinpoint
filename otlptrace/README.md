@@ -12,7 +12,6 @@ spans produced by the native Pinpoint agent.
 | Module | Role |
 |---|---|
 | `otlptrace-collector` | Spring Boot collector. Listens for OTLP trace exports over gRPC (`:9998`) and HTTP (`POST /v1/traces`, `application/x-protobuf` or OTLP/JSON `application/json`), maps `ResourceSpans` into Pinpoint `SpanBo` / `SpanChunkBo` / `AgentInfoBo`, and inserts them into HBase. |
-| `otlptrace-otel-extension` | OTel Java SDK extension that emits a `pp=...` entry into the W3C `tracestate` header so the collector can identify the upstream Pinpoint service / application on cross-process spans. See [its README](otlptrace-otel-extension/README.md). |
 
 The collector is enabled by setting `pinpoint.modules.collector.otlptrace.enabled=true`.
 
@@ -265,27 +264,27 @@ exceptions are silently dropped (traces and URI stat are unaffected).
 | `pinpoint.modules.collector.exceptiontrace.enabled` | `false` | **Prerequisite.** Provides the exception-trace storage beans (`ExceptionTraceCollectorConfig`: Pinot + Kafka). The BASIC collector reads the same flag for agent exceptions. The `local` profile turns it on. |
 | `pinpoint.modules.web.exceptiontrace.enabled` | `false` | Web side: shows the Error Analysis menu that reads the store. |
 
-## otlptrace-otel-extension
+## Sender side: the `pp` tracestate entry
 
-A small **sender-side** OTel SDK extension that adds a `pp=...` entry to the
-W3C `tracestate` header on every outgoing span:
+The caller → callee edge on the server map comes from a `pp=...` entry the **sender** writes
+into the W3C `tracestate` header of its outgoing spans:
 
 ```
 tracestate: pp=svc:order-team;app:order-api;type:1010
 ```
 
-When the next service in the call chain exports its spans to the Pinpoint OTLP
-collector, the collector parses that entry and stamps the receiving span with
-`parentApplicationName` / `parentServiceName` / `parentApplicationServiceType`,
-which is what lets ApplicationMap render the upstream node and the edge
-between the two services.
-
-The extension and the collector share the same Resource-attribute lookup chain
-(`pinpoint.applicationName` → `service.name`, etc.), so a single
-`OTEL_RESOURCE_ATTRIBUTES` configuration drives both ends.
-
-See [`otlptrace-otel-extension/README.md`](otlptrace-otel-extension/README.md)
-for installation, format details, and the `-Dpinpoint.X` override caveat.
+When the next service exports its spans to this collector, `PinpointTraceStateParser` reads
+that entry off the receiving span and stamps `parentApplicationName` /
+`parentServiceName` / `parentApplicationServiceType`, which is what lets ApplicationMap render
+the upstream node and the edge. The sender side lives in its own repository,
+[pinpoint-apm/pinpoint-otel-extension](https://github.com/pinpoint-apm/pinpoint-otel-extension):
+the OpenTelemetry Java agent extension, the wire contract
+([`docs/contract.md`](https://github.com/pinpoint-apm/pinpoint-otel-extension/blob/main/docs/contract.md)),
+and the guides and reference samplers for applications without the agent (Java SDK, Python,
+Go, Node.js). The collector asserts the parsing direction of the same contract file,
+`src/test/resources/pp-tracestate-contract.txt` of `otlptrace-collector`
+(`TraceStateSpecConsistencyTest`); a change to the format updates the file in both
+repositories and bumps its `contract-version`.
 
 ## Build
 
