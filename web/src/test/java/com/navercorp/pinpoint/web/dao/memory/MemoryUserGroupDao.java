@@ -148,6 +148,11 @@ public class MemoryUserGroupDao implements UserGroupDao {
     }
     
     @Override
+    public void deleteMemberByMemberId(String memberId) {
+        userGroupMembers.values().removeIf(member -> member.getMemberId().equals(memberId));
+    }
+
+    @Override
     public void deleteMemberByUserGroupId(String userGroupId) {
         for (UserGroupMember member : userGroupMembers.values()) {
             if (member.getUserGroupId().equals(userGroupId)) {

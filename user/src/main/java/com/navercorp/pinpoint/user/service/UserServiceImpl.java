@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.user.service;
 
 import com.navercorp.pinpoint.user.dao.UserDao;
+import com.navercorp.pinpoint.user.dao.UserGroupDao;
 import com.navercorp.pinpoint.user.util.DefaultUserInfoDecoder;
 import com.navercorp.pinpoint.user.util.DefaultUserInfoEncoder;
 import com.navercorp.pinpoint.user.util.SecurityContextUtils;
@@ -41,12 +42,14 @@ public class UserServiceImpl implements UserService {
     private static final String EMPTY = "";
 
     private final UserDao userDao;
+    private final UserGroupDao userGroupDao;
 
     private final UserInfoDecoder userInfoDecoder;
     private final UserInfoEncoder userInfoEncoder;
 
-    public UserServiceImpl(UserDao userDao, Optional<UserInfoDecoder> userInfoDecoder, Optional<UserInfoEncoder> userInfoEncoder) {
+    public UserServiceImpl(UserDao userDao, UserGroupDao userGroupDao, Optional<UserInfoDecoder> userInfoDecoder, Optional<UserInfoEncoder> userInfoEncoder) {
         this.userDao = Objects.requireNonNull(userDao, "userDao");
+        this.userGroupDao = Objects.requireNonNull(userGroupDao, "userGroupDao");
         this.userInfoDecoder = Objects.requireNonNull(userInfoDecoder, "userInfoDecoder").orElse(DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER);
         this.userInfoEncoder = Objects.requireNonNull(userInfoEncoder, "userInfoEncoder").orElse(DefaultUserInfoEncoder.EMPTY_USER_INFO_ENCODER);
     }
@@ -60,6 +63,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(String userId) {
         userDao.deleteUser(userId);
+        userGroupDao.deleteMemberByMemberId(userId);
     }
 
 

@@ -17,6 +17,7 @@ CREATE TABLE `user_group_member` (
   PRIMARY KEY (`number`)
 );
 ALTER TABLE user_group_member ADD UNIQUE KEY user_group_id_member_id_idx (`user_group_id`,`member_id`);
+ALTER TABLE user_group_member ADD INDEX member_id_idx (member_id);
 
 CREATE TABLE `puser` (
   `number` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 

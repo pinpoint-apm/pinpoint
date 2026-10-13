@@ -73,6 +73,12 @@
         FROM user_group_member
         WHERE user_group_id = #{userGroupId}
     </delete>
+
+    <delete id="deleteMemberByMemberId">
+        DELETE
+        FROM user_group_member
+        WHERE member_id = #{memberId}
+    </delete>
     
     <select id="selectMemberList" resultType="UserGroupMember">
         SELECT a.user_group_id, a.member_id, b.name, b.department 

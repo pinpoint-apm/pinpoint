@@ -114,6 +114,11 @@ public class MysqlUserGroupDao implements UserGroupDao {
     }
 
     @Override
+    public void deleteMemberByMemberId(String memberId) {
+        sqlSessionTemplate.delete(NAMESPACE + "deleteMemberByMemberId", memberId);
+    }
+
+    @Override
     public List<String> selectPhoneNumberOfMember(String userGroupId) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectPhoneNumberOfMember", userGroupId);
     }
