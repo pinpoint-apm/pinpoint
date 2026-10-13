@@ -47,7 +47,7 @@ jobs:
           echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
 
       - name: Build Project
-        run: mvn install -DskipTests=true
+        run: ./mvnw --batch-mode install -DskipTests=true
         
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -63,13 +63,13 @@ jobs:
           
       - name: Build Docker Images
         run: |
-          mvn docker:build -pl agent-module/agent
-          mvn docker:build -pl hbase
-          mvn jib:build -pl collector-starter
-          mvn jib:build -pl web-starter
-          mvn jib:build -pl batch
-          mvn jib:build -pl collector
-          mvn jib:build -pl web
+          ./mvnw --batch-mode docker:build -pl agent-module/agent
+          ./mvnw --batch-mode docker:build -pl hbase
+          ./mvnw --batch-mode jib:build -pl collector-starter
+          ./mvnw --batch-mode jib:build -pl web-starter
+          ./mvnw --batch-mode jib:build -pl batch
+          ./mvnw --batch-mode jib:build -pl collector
+          ./mvnw --batch-mode jib:build -pl web
           docker images
 
       - name: Push to Docker Hub
