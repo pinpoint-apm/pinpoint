@@ -123,13 +123,10 @@ export const ErrorAnalysisPage = ({
           (이슈 #10744) */}
       {isForbidden && <Forbidden403 />}
       {!isForbidden && application && (
-        <LayoutWithContentSidebar
-          autoSaveId={APP_SETTING_KEYS.ERROR_ANALYSIS_RESIZABLE}
-          contentWrapperClassName="h-fit"
-        >
+        <LayoutWithContentSidebar autoSaveId={APP_SETTING_KEYS.ERROR_ANALYSIS_RESIZABLE}>
           <ErrorAnalysisSidebar />
           <>
-            <div className="px-6 py-2 bg-white border rounded h-72">
+            <div className="px-6 py-2 bg-white border rounded h-72 shrink-0">
               <ErrorAnalysisChart emptyMessage={t('COMMON.NO_DATA')} />
             </div>
             {groupBy ? (
