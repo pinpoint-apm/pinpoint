@@ -39,7 +39,9 @@ export const ErrorAnalysisGroupedTableFetcher = ({
   });
 
   return (
-    <div className={cn('max-h-[calc(100%-20rem)] rounded-md border bg-white', className)}>
+    <div
+      className={cn('max-h-[max(calc(100%-23rem),20rem)] rounded-md border bg-white', className)}
+    >
       <VirtualizedDataTable
         tableClassName="[&>tbody]:text-xs"
         columns={columns}
