@@ -50,11 +50,15 @@ export const UrlSummaryFetcher = ({ className, type }: UrlSummaryFetcherProps) =
   return (
     <>
       <DataTableCountOfRows
-        triggerClassName="mt-10 mb-2"
+        triggerClassName="mt-10 mb-2 shrink-0"
         selectedCount={count}
         onChange={(c) => setCount(c)}
       />
-      <div className={cn('max-h-[calc(100%-26rem)] rounded-md border bg-white', className)}>
+      {/* 테이블이 자기 안에서 스크롤돼야 가상화와 sticky 헤더가 동작한다(스크롤 요소가 테이블 컨테이너다).
+          남은 높이가 너무 작은 창에서는 20rem 아래로 줄이지 않고 페이지 스크롤로 넘긴다. */}
+      <div
+        className={cn('max-h-[max(calc(100%-26rem),20rem)] rounded-md border bg-white', className)}
+      >
         <VirtualizedDataTable
           tableClassName="text-xs"
           columns={columns}
