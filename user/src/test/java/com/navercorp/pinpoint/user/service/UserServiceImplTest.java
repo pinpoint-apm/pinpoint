@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,13 +61,24 @@ public class UserServiceImplTest {
 
     @BeforeEach
     public void before() throws Exception {
-        userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
+        userService = new UserServiceImpl(userDao, mock(UserGroupDao.class), Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
+    }
+
+    @Test
+    public void deleteUserTest() {
+        UserGroupDao userGroupDao = mock(UserGroupDao.class);
+        UserService userService = new UserServiceImpl(userDao, userGroupDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
+
+        userService.deleteUser("userId01");
+
+        verify(userDao).deleteUser("userId01");
+        verify(userGroupDao).deleteMemberByMemberId("userId01");
     }
 
     @Test
     public void insertUserTest() {
         UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
-        UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
+        UserService userService = new UserServiceImpl(userDao, mock(UserGroupDao.class), Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
         String userId = "userId01";
         User user = new User("0", userId, "name01", "departmentName", 82, "01012341234", "name01@pinpoint.com");
@@ -86,7 +98,7 @@ public class UserServiceImplTest {
     @Test
     public void insertUserList() {
         UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
-        UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
+        UserService userService = new UserServiceImpl(userDao, mock(UserGroupDao.class), Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
         List<User> userList = List.of(
                 new User("1", "userId01", "name01", "departmentName01", 82, "01012341234", "name01@pinpoint.com"),
@@ -113,7 +125,7 @@ public class UserServiceImplTest {
     @Test
     public void updateUserTest() {
         UserDao userDao = new MemoryUserDao(mock(UserGroupDao.class));
-        UserService userService = new UserServiceImpl(userDao, Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
+        UserService userService = new UserServiceImpl(userDao, mock(UserGroupDao.class), Optional.of(userInfoDecoder), Optional.of(userInfoEncoder));
 
         String userId = "userId01";
         User user = new User("0", userId, "name01", "departmentName", 82, "01012341234", "name01@pinpoint.com");

@@ -52,6 +52,8 @@ public interface UserGroupDao {
 
     void deleteMemberByUserGroupId(String userGroupId);
 
+    void deleteMemberByMemberId(String memberId);
+
     void updateUserGroupIdOfMember(UserGroup userGroup);
 
     boolean isExistUserGroup(String userGroupId);
