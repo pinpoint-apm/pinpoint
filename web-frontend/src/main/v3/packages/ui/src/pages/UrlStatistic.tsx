@@ -99,10 +99,7 @@ export const UrlStatisticPage = ({
           (이슈 #10744) */}
       {isForbidden && <Forbidden403 />}
       {!isForbidden && application && (
-        <LayoutWithContentSidebar
-          autoSaveId={APP_SETTING_KEYS.URL_STATISTIC_RESIZABLE}
-          contentWrapperClassName="h-fit"
-        >
+        <LayoutWithContentSidebar autoSaveId={APP_SETTING_KEYS.URL_STATISTIC_RESIZABLE}>
           <UrlSidebar />
           <>
             <Tabs
