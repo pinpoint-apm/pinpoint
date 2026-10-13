@@ -113,7 +113,9 @@
         <foreach collection="tags" item="tag" separator=" ">
         AND tags = #{tag}
         </foreach>
-        AND version = #{version}
+        <if test="version != null and !version.isEmpty()">
+            AND version = #{version}
+        </if>
         AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY fieldName
         LIMIT #{limit}
@@ -147,7 +149,10 @@
         AND fieldName = #{fieldName}
         <foreach collection="tags" item="tag" separator=" ">
         AND tags = #{tag}
-        </foreach>        AND version = #{version}
+        </foreach>
+        <if test="version != null and !version.isEmpty()">
+            AND version = #{version}
+        </if>
         AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY fieldName
         LIMIT #{limit}
@@ -184,7 +189,9 @@
         <foreach collection="tags" item="tag" separator=" ">
         AND tags = #{tag}
         </foreach>
-        AND version = #{version}
+        <if test="version != null and !version.isEmpty()">
+            AND version = #{version}
+        </if>
         AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
@@ -222,7 +229,9 @@
             <foreach collection="tags" item="tag" separator=" ">
             AND tags = #{tag}
             </foreach>
-            AND version = #{version}
+            <if test="version != null and !version.isEmpty()">
+                AND version = #{version}
+            </if>
             AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
@@ -256,7 +265,9 @@
         <foreach collection="tags" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
-        AND version = #{version}
+        <if test="version != null and !version.isEmpty()">
+            AND version = #{version}
+        </if>
         AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
@@ -279,7 +290,9 @@
         <foreach collection="tags" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
-        AND version = #{version}
+        <if test="version != null and !version.isEmpty()">
+            AND version = #{version}
+        </if>
         AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
@@ -316,7 +329,9 @@
         <foreach collection="tags" item="tag" separator=" ">
             AND tags = #{tag}
         </foreach>
-        AND version = #{version}
+        <if test="version != null and !version.isEmpty()">
+            AND version = #{version}
+        </if>
         AND eventTime BETWEEN #{range.from} AND #{range.to}
         GROUP BY eventTime, version
         ORDER BY eventTime asc
