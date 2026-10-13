@@ -50,6 +50,10 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
         return DataType.forNumber(dataType);
     }
 
+    public AggregationFunction getAggregationFunction() {
+        return aggregationFunction;
+    }
+
     public String getVersion() {
         return version;
     }

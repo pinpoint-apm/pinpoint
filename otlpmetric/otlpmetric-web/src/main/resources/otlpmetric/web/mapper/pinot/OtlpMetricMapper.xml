@@ -229,7 +229,7 @@
         LIMIT #{limit}
     </select>
 
-    <select id="getLongMetricData" parameterType="OtlpMetricDataQueryParameter" resultMap="longMetricPointResultMap" >
+    <select id="getLongMetricData" parameterType="OtlpMetricDataQueryParameter" resultMap="doubleMetricPointResultMap" >
         SELECT
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
         <if test="aggregationFunction.getCode() == 0">
@@ -244,9 +244,29 @@
         <if test="aggregationFunction.getCode() == 3">
             MAX(value) as value
         </if>
-        <if test="aggregationFunction.getCode() == 4">
-            LASTWITHTIME(value, eventTime, 'long') as value
+        FROM ${tableName}
+        WHERE
+        applicationName = #{applicationName}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
         </if>
+        AND metricGroupName = #{metricGroupName}
+        AND metricName = #{metricName}
+        AND fieldName = #{fieldName}
+        <foreach collection="tags" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        AND version = #{version}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY eventTime, version
+        ORDER BY eventTime asc
+        LIMIT #{limit}
+    </select>
+
+    <select id="getLongLatestMetricData" parameterType="OtlpMetricDataQueryParameter" resultMap="longMetricPointResultMap" >
+        SELECT
+        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as eventTime,
+        LASTWITHTIME(value, eventTime, 'long') as value
         FROM ${tableName}
         WHERE
         applicationName = #{applicationName}

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.web.dao.OtlpMetricDao;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartView;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartViewBuilder;
@@ -110,6 +111,9 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     @Override
     public CompletableFuture<List<DataPoint>> getChartPoints(OtlpMetricDataQueryParameter chartQueryParameter) {
         if (chartQueryParameter.getDataType() == DataType.LONG) {
+            if (chartQueryParameter.getAggregationFunction() == AggregationFunction.LATEST) {
+                return asyncTemplate.selectList(NAMESPACE + "getLongLatestMetricData", chartQueryParameter);
+            }
             return asyncTemplate.selectList(NAMESPACE + "getLongMetricData", chartQueryParameter);
         } else {
             return asyncTemplate.selectList(NAMESPACE + "getDoubleMetricData", chartQueryParameter);
