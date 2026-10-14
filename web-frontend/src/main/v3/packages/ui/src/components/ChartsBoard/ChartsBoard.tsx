@@ -27,26 +27,6 @@ export const ChartsBoard = ({
   emptyMessage,
   disabledBreak,
 }: ChartsBoardProps) => {
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
-  const [gridMode, setGridMode] = React.useState(false);
-
-  React.useEffect(() => {
-    const wrapperElement = wrapperRef.current;
-    if (!wrapperElement) return;
-    const resizeObserver = new ResizeObserver(() => {
-      if (wrapperElement.clientWidth > 650) {
-        setGridMode(true);
-      } else {
-        setGridMode(false);
-      }
-    });
-    resizeObserver.observe(wrapperElement);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
-
   const categories = React.useMemo(() => {
     return Object.keys(nodeData?.histogram || {});
   }, [nodeData]);
@@ -71,12 +51,8 @@ export const ChartsBoard = ({
         <div className={cn('w-full h-full overflow-y-auto', chartsContainerClassName)}>
           {children}
           {nodeData && (
-            <div
-              ref={wrapperRef}
-              className={cn('grid grid-cols-[100%]', {
-                'grid-cols-[50%_50%]': gridMode,
-              })}
-            >
+            // 보드가 넓어도 차트는 한 줄에 하나씩 쌓는다.
+            <div className="grid grid-cols-[100%]">
               <div className="px-4 py-2.5">
                 <ResponseSummaryChart
                   className="h-40"
@@ -89,7 +65,7 @@ export const ChartsBoard = ({
                   disabledBreak={disabledBreak}
                 />
               </div>
-              {!gridMode && <Separator />}
+              <Separator />
               <div className="px-4 py-2.5">
                 <ResponseAvgMaxChart
                   className="h-40"
@@ -110,7 +86,7 @@ export const ChartsBoard = ({
                   emptyMessage={emptyMessage}
                 />
               </div>
-              {!gridMode && <Separator />}
+              <Separator />
               <div className="px-4 py-2.5">
                 <LoadChart
                   className="h-40"
@@ -142,7 +118,7 @@ export const ChartsBoard = ({
                   emptyMessage={emptyMessage}
                 />
               </div>
-              {!gridMode && <Separator />}
+              <Separator />
               <div className="px-4 py-2.5">
                 <LoadChart
                   className="h-40"
