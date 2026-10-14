@@ -426,7 +426,7 @@ export const MetricDefinitionFormFetcher = ({
                         <SelectValue placeholder="Select metric group" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="z-5001">
+                    <SelectContent>
                       {defPropertyData?.metricGroupList?.map((metricGroup, i) => {
                         return (
                           <SelectItem key={i} value={metricGroup.metricGroupName}>
@@ -469,7 +469,7 @@ export const MetricDefinitionFormFetcher = ({
                         <SelectValue placeholder="Select metric name" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="z-5001">
+                    <SelectContent>
                       {selectedMetricGroupItem?.metricList?.map((metric, i) => {
                         return (
                           <SelectItem value={metric.metricName} key={i}>
@@ -509,7 +509,7 @@ export const MetricDefinitionFormFetcher = ({
                         >
                           <SelectValue placeholder="Select property" />
                         </SelectTrigger>
-                        <SelectContent className="z-5001 max-w-[calc(100vw-2rem)] max-sm:max-w-(--radix-select-trigger-width)">
+                        <SelectContent className="max-w-[calc(100vw-2rem)] max-sm:max-w-(--radix-select-trigger-width)">
                           <SelectItem value="tag">Tag</SelectItem>
                           <SelectItem value="field">Field</SelectItem>
                         </SelectContent>
@@ -546,7 +546,7 @@ export const MetricDefinitionFormFetcher = ({
                           <SelectValue placeholder={`Select ${primaryForFieldAndTagRelation}`} />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="z-5001 max-w-[calc(100vw-2rem)] max-sm:max-w-(--radix-select-trigger-width)">
+                      <SelectContent className="max-w-[calc(100vw-2rem)] max-sm:max-w-(--radix-select-trigger-width)">
                         {propertyList?.map((propertyItem, i) => {
                           return (
                             <SelectItem
@@ -685,7 +685,7 @@ export const MetricDefinitionFormFetcher = ({
                         <SelectValue placeholder="Select aggregation function" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="z-5001">
+                    <SelectContent>
                       {defPropertyData?.aggregationFunctionList.map((func) => {
                         return (
                           <SelectItem key={func} value={func}>

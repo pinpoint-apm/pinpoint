@@ -33,3 +33,9 @@
 - `eslint.config.js`의 flat config, TypeScript-ESLint + Prettier 통합
 - React Hooks 규칙 적용 (exhaustive deps)
 - 주석에 명확한 이유 없이 ESLint 규칙 비활성화 금지
+
+## 층(z-index)
+- 층은 `packages/ui/src/constants/zIndexLayers.ts`의 이름으로 쓴다: `z-chart-overlay` < `z-map-menu` < `z-drawer` < `z-chart-board` < `z-resize-handle` < `z-header` < `z-popup` < `z-toast`
+- 큰 숫자(`z-1000` 등)와 임의값(`z-[…]`)은 쓰지 않는다. 컴포넌트 안에서만 순서를 정하는 작은 숫자(20 이하)만 허용 — `src/lib/tailwindZIndexScale.test.ts`가 막는다
+- Radix 팝업(popover·select·tooltip·sheet·dialog 등)은 모두 `z-popup` 한 층이다. 열린 순서대로 나중 것이 위에 그려지므로 호출부에서 z-index를 덮어쓰지 않는다
+- 라이브러리 CSS를 인라인 스타일로 덮어야 할 때는 `constants/theme.ts`의 `zIndex`를 읽는다

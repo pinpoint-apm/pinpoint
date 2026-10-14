@@ -1,5 +1,5 @@
-import fs from 'fs';
 import path from 'path';
+import { collectSourceFiles, readSourceLines } from './__fixtures__/sourceFiles';
 
 /**
  * Tailwind 4 는 간격 스케일이 **동적**이다. 3 까지는 스케일에 없는 값(`h-100`, `pt-25`)이 그냥
@@ -100,35 +100,13 @@ const PATTERN = new RegExp(
 
 const SOURCE_ROOT = path.resolve(__dirname, '..');
 
-const collectFiles = (dir: string): string[] =>
-  fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const full = path.join(dir, entry.name);
-
-    if (entry.isDirectory()) {
-      return collectFiles(full);
-    }
-    // 이 테스트 자신은 뺀다 — 주석에 위반 예시(`h-100`, `pt-25`)를 적어 두었다.
-    if (full === __filename) {
-      return [];
-    }
-    return /\.(tsx?|css|scss)$/.test(entry.name) ? [full] : [];
-  });
-
-/**
- * 주석은 사용이 아니다. 이 규칙의 유래를 설명하는 주석에 위반 예시를 적어 둘 수 있어야 한다.
- * 줄 수를 유지하기 위해 주석 내용만 지우고 줄바꿈은 남긴다.
- */
-const stripComments = (source: string) =>
-  source
-    .replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/[^\n]/g, ' '))
-    .replace(/(^|[^:])\/\/[^\n]*/g, (_match, prefix) => prefix);
-
 describe('간격 유틸리티는 스케일에 있는 값만 쓴다', () => {
   it('스케일에 없는 숫자를 쓰지 않는다', () => {
     const offenders: string[] = [];
 
-    for (const file of collectFiles(SOURCE_ROOT)) {
-      const lines = stripComments(fs.readFileSync(file, 'utf8')).split('\n');
+    // 이 테스트 자신은 뺀다 — 주석에 위반 예시(`h-100`, `pt-25`)를 적어 두었다.
+    for (const file of collectSourceFiles(SOURCE_ROOT, [__filename])) {
+      const lines = readSourceLines(file);
 
       lines.forEach((line, index) => {
         for (const match of line.matchAll(PATTERN)) {

@@ -3,6 +3,7 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore -- 설정과 공유하는 색 정의(JS)
 import { themeColors } from '../../tailwind.colors.js';
+import { zIndexLayers, type ZIndexLayer } from './zIndexLayers';
 import { oklchToHex } from '../lib/oklch';
 
 /**
@@ -51,6 +52,14 @@ export const colors = toHexDeep({
   ...defaultColors,
   ...themeColors,
 }) as typeof defaultColors & PinpointColors;
+
+/**
+ * 층(z-index) 표. 유틸리티 클래스(`z-toast`)를 쓸 수 없는 곳 — 라이브러리 CSS 를 인라인 스타일로
+ * 덮어야 하는 곳 — 에서 읽는다. 값의 뜻은 `zIndexLayers.ts` 에 적혀 있다.
+ */
+export const zIndex = Object.fromEntries(
+  Object.entries(zIndexLayers).map(([key, value]) => [key, Number(value)]),
+) as Record<ZIndexLayer, number>;
 
 /** Tailwind 의 브레이크포인트 원문 값. 미디어 쿼리 문자열에 그대로 쓴다. */
 export const screens = defaultTheme.screens;

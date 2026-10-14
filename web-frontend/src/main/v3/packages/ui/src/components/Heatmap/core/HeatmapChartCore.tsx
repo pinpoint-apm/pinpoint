@@ -180,7 +180,7 @@ const HeatmapChartCore = ({
         onDragEnd={onDragEnd}
       />
       {(showSetting || isCapturingImage) && (
-        <div className="absolute inset-0 z-1000 flex items-center justify-center">
+        <div className="absolute inset-0 z-chart-overlay flex items-center justify-center">
           <div className="absolute inset-0 opacity-50 bg-background"></div>
           {showSetting && (
             <ReactErrorBoundary fallback={null} onError={() => setShowSetting(false)}>

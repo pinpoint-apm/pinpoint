@@ -57,7 +57,9 @@ export class Guide extends Layer {
   constructor(wrapper: HTMLElement, props: GuideOptions) {
     super({ width: props.width, height: props.height });
     this.canvas.style.position = 'absolute';
-    this.canvas.style.zIndex = '999';
+    // 차트 캔버스 위에 겹쳐 마우스를 받으면 되므로 한 단계면 충분하다. 크게 두면 이 차트를 쓰는 쪽이
+    // 차트를 덮는 덮개(로딩·설정)를 그보다 더 큰 숫자로 올려야 한다.
+    this.canvas.style.zIndex = '1';
     this.canvas.style.top = '0px';
     this.canvas.style.left = '0px';
     this.canvas.style.background = 'transparent';
