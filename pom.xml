@@ -164,10 +164,13 @@
         <build.frontend.skip>false</build.frontend.skip>
 
         <!-- hbase -->
-        <hbase.shaded.client.version>2.5.15-hadoop3</hbase.shaded.client.version>
+        <hbase.shaded.client.version>2.5.16-hadoop3</hbase.shaded.client.version>
+        <!-- HBASE-30452: 2.5.16 hbase-shaded-testing-util bundles unshaded JUnit 5 classes that
+             break surefire test discovery. Keep the testing util on 2.5.15 until the fix is released. -->
+        <hbase.shaded.testing.util.version>2.5.15-hadoop3</hbase.shaded.testing.util.version>
         <!-- for shaded hbase client 1.5.0+ version -->
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
-        <hbase2.client.version>2.5.15-hadoop3</hbase2.client.version>
+        <hbase2.client.version>2.5.16-hadoop3</hbase2.client.version>
 
         <pinot.client.version>1.5.1</pinot.client.version>
 
@@ -1067,7 +1070,7 @@
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-shaded-testing-util</artifactId>
-                <version>${hbase.shaded.client.version}</version>
+                <version>${hbase.shaded.testing.util.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
