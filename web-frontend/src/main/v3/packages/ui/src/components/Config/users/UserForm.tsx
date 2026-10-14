@@ -9,7 +9,7 @@ import { ConfigUsers } from '@pinpoint-fe/ui/src/constants';
 import { PhoneInput } from 'react-international-phone';
 
 import 'react-international-phone/style.css';
-import { PhoneNumberUtil } from 'google-libphonenumber';
+import { isValidPhoneNumber } from 'libphonenumber-js/max';
 import { extractStringAfterSubstring } from '@pinpoint-fe/ui/src/utils';
 import {
   FormField,
@@ -97,13 +97,12 @@ export const UserForm = ({
   }, [userInfo]);
   const { t } = useTranslation();
   const userCountryDialCode = React.useRef<string>('');
-  const phoneUtil = React.useMemo(() => PhoneNumberUtil.getInstance(), []);
   const isPhoneValid = React.useCallback((phone: string) => {
     if (extractStringAfterSubstring(phone, userCountryDialCode?.current) === '') {
       return true;
     }
     try {
-      return phoneUtil.isValidNumber(phoneUtil.parseAndKeepRawInput(phone));
+      return isValidPhoneNumber(phone);
     } catch (e) {
       return false;
     }
