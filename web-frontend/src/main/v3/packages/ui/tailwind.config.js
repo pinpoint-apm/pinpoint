@@ -1,4 +1,5 @@
 import { themeColors } from './tailwind.colors.js';
+import { zIndexLayers } from './src/constants/zIndexLayers.ts';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import tailwindScrollbarHide from 'tailwind-scrollbar-hide';
 //
@@ -30,6 +31,7 @@ export default {
         160: '40rem',
       },
       colors: themeColors,
+      zIndex: zIndexLayers,
       borderWidth: {
         1: '1px',
       },

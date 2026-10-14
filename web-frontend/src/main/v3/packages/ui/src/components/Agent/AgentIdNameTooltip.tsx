@@ -20,16 +20,7 @@ export const AgentIdNameTooltip = ({
   side?: React.ComponentProps<typeof TooltipContent>['side'];
 }) => {
   const content = (
-    <TooltipContent
-      side={side}
-      /*
-       * 이 툴팁은 목록 옆 차트 영역 위에 뜬다. 그런데 이 저장소는 차트를 덮는 안내/로딩
-       * 오버레이에 z-[1000]을 쓰고(ScatterChartCore, HeatmapChartCore, ServerMapChartBoard),
-       * TooltipContent의 기본값은 z-50이라 그 반투명 오버레이 뒤로 깔려 뿌옇게 비친다.
-       * 오버레이보다 한 단계 위로 올린다.
-       */
-      className="z-1001"
-    >
+    <TooltipContent side={side}>
       <div>
         <span className="text-gray-500">Agent ID:</span> {agentId}
       </div>

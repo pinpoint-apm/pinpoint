@@ -424,7 +424,6 @@ const SidebarMenuButtonWithDropdownMenu = ({
         className={cn(
           'rounded-md border-none shadow-lg bg-(--blue-900) text-(--white-default)',
           hasLeftSection ? 'min-w-[440px]' : 'w-full min-w-[220px]',
-          'z-1110', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
         )}
       >
         {hasLeftSection ? (
@@ -451,13 +450,7 @@ const WithTooltip = ({ trigger, content, hidden }: TooltipProps) => {
     <Tooltip>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
       <TooltipPrimitive.Portal>
-        <TooltipContent
-          side="right"
-          className={cn(
-            'z-1110', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
-            { hidden: !!hidden },
-          )}
-        >
+        <TooltipContent side="right" className={cn({ hidden: !!hidden })}>
           {content}
         </TooltipContent>
       </TooltipPrimitive.Portal>

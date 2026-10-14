@@ -172,7 +172,7 @@ export const AgentActiveThreadFetcher = ({ serviceName }: AgentActiveThreadFetch
               />
               {showSetting && (
                 <div
-                  className={`flex absolute z-10 justify-center items-center w-[-webkit-fill-available] h-[-webkit-fill-available]`}
+                  className={`flex absolute z-chart-overlay justify-center items-center w-[-webkit-fill-available] h-[-webkit-fill-available]`}
                 >
                   <ReactErrorBoundary fallback={null} onError={() => setShowSetting(false)}>
                     <React.Suspense fallback={null}>

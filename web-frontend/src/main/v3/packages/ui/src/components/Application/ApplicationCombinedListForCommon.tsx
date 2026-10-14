@@ -322,7 +322,7 @@ export const ApplicationCombinedListForCommon = ({
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className={cn('w-80 p-0 text-sm z-2001!', contentClassName)}
+        className={cn('w-80 p-0 text-sm', contentClassName)}
         onKeyDown={handleKeyDown}
         onMouseMove={() => {
           setIsMouseMove(true);

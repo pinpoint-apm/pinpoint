@@ -355,7 +355,7 @@ export const ScatterChartCore = ({
           {/* overlay */}
           <div
             className={cn(
-              'w-full h-[calc(100%+24px)] absolute -top-6 z-1000 pointer-events-[stroke] hidden justify-center items-center bg-background opacity-80',
+              'w-full h-[calc(100%+24px)] absolute -top-6 z-chart-overlay pointer-events-[stroke] hidden justify-center items-center bg-background opacity-80',
               {
                 flex: isCapturingImage || isSettingAxis,
               },
@@ -363,7 +363,7 @@ export const ScatterChartCore = ({
           />
           <div
             className={cn(
-              'hidden justify-center items-center w-full h-full absolute top-0 z-1000',
+              'hidden justify-center items-center w-full h-full absolute top-0 z-chart-overlay',
               { flex: isCapturingImage || isSettingAxis },
             )}
           >
@@ -397,54 +397,3 @@ export const ScatterChartCore = ({
     </div>
   );
 };
-
-// const StyledContainer = styled.div`
-//   position: relative;
-//   height: 100%;
-
-//   .__scatter_chart__legend_container {
-//     margin-top: 16px;
-//     padding-bottom: 4px;
-//   }
-
-//   .__scatter_chart__legend_count {
-//     font-weight: bold;
-//     font-size: 1.25rem;
-//     margin-left: 12px;
-//   }
-
-//   .__scatter_chart__legend_mark {
-//     align-self: center;
-//   }
-// `;
-
-// const StyledToolbarButton = styled.button<{ hide?: boolean }>`
-//   display: ${({ hide }) => (hide ? 'none' : 'block')};
-//   color: var(--icon-default);
-//   font-size: 1.2rem;
-// `;
-
-// const StyledOverlay = styled.div<{ show?: boolean }>`
-//   width: 100%;
-//   height: calc(100% + 24px);
-//   position: absolute;
-//   top: -24px;
-//   z-index: 9999;
-//   pointer-events: stroke;
-//   display: ${({ show }) => (show ? 'flex' : 'none')};
-//   justify-content: center;
-//   align-items: center;
-//   background-color: var(--background-default);
-//   opacity: 0.8;
-// `;
-
-// const StyledOverlayContentContainer = styled.div<{ show?: boolean }>`
-//   display: ${({ show }) => (show ? 'flex' : 'none')};
-//   justify-content: center;
-//   align-items: center;
-//   width: 100%;
-//   height: 100%;
-//   position: absolute;
-//   top: 0px;
-//   z-index: 99999;
-// `;

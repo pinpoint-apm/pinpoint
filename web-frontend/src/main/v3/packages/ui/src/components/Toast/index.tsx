@@ -11,6 +11,7 @@ import { toastCountAtom } from '@pinpoint-fe/ui/src/atoms';
 import { useAtom } from 'jotai';
 import { Button } from '../../components';
 import { cn } from '../../lib/utils';
+import { zIndex } from '../../constants/theme';
 
 const defaultToastContainerProps: ToastContainerProps = {
   className: 'text-sm',
@@ -31,12 +32,21 @@ const ReactToastContainer = () => {
 
   return (
     <div onMouseEnter={() => toastCount > 1 && setShow(true)} onMouseLeave={() => setShow(false)}>
+      {/* 라이브러리 CSS(`--toastify-z-index`)를 덮어야 해서 클래스가 아니라 인라인 스타일로 싣는다. */}
+      <ToastContainer
+        {...defaultToastContainerProps}
+        style={{
+          position: 'absolute',
+          zIndex: zIndex.toast,
+        }}
+      />
+      {/* 목록과 같은 층이다. 목록보다 뒤에 두어 겹치는 자리에서 버튼이 위에 그려지게 한다. */}
       <div
         style={{
           position: 'absolute',
           top: 3,
           right: 275,
-          zIndex: 9999,
+          zIndex: zIndex.toast,
           // Radix modal(Sheet/Dialog)이 열리면 body에 pointer-events:none이 걸리므로,
           // 그 위에서도 "Clear All" 버튼을 클릭할 수 있도록 명시적으로 auto로 복원한다.
           pointerEvents: 'auto',
@@ -53,13 +63,6 @@ const ReactToastContainer = () => {
           </Button>
         )}
       </div>
-      <ToastContainer
-        {...defaultToastContainerProps}
-        style={{
-          position: 'absolute',
-          zIndex: 9998,
-        }}
-      />
     </div>
   );
 };
