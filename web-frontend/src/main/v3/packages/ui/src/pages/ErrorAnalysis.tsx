@@ -123,7 +123,12 @@ export const ErrorAnalysisPage = ({
           (이슈 #10744) */}
       {isForbidden && <Forbidden403 />}
       {!isForbidden && application && (
-        <LayoutWithContentSidebar autoSaveId={APP_SETTING_KEYS.ERROR_ANALYSIS_RESIZABLE}>
+        <LayoutWithContentSidebar
+          autoSaveId={APP_SETTING_KEYS.ERROR_ANALYSIS_RESIZABLE}
+          // 창이 작아 테이블이 최소 높이(20rem)에 걸리면 내용이 h-full 상자보다 길어진다. 넘친 내용에는
+          // 바깥 스크롤 영역의 아래 padding이 붙지 않아 테이블이 화면 끝에 붙으므로 상자를 내용만큼 늘린다.
+          contentWrapperClassName="min-h-fit"
+        >
           <ErrorAnalysisSidebar />
           <>
             <div className="px-6 py-2 bg-white border rounded h-72 shrink-0">
