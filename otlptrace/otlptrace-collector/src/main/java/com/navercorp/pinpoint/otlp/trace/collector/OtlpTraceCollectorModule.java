@@ -65,6 +65,14 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @Import({
+        // First, as PinpointCollectorModule does with CollectorAppPropertySources: the
+        // @ConditionalOnProperty configurations imported below are evaluated when they are parsed
+        // and again when their beans are registered. A key known only from these files would be
+        // absent at the first evaluation and present at the second, so a pair such as
+        // ServiceLookupConfiguration (enabled=true) / StaticServiceLookupConfiguration (false or
+        // missing) would both drop out and leave no ServiceLookupService.
+        OtlpTraceCollectorPropertySources.class,
+
         ApplicationMapModule.class,
         TypeLoaderConfiguration.class,
 
@@ -86,7 +94,6 @@ import java.util.concurrent.Executor;
         // are silently not stored. The BASIC app gets the same config from PinpointCollectorStarter.
         ExceptionTraceCollectorConfig.class,
 
-        OtlpTraceCollectorPropertySources.class,
         OtlpTraceCollectorHbaseModule.class,
         OtlpTraceCollectorGrpcModule.class,
         OtlpTraceCollectorGrpcSslModule.class,
