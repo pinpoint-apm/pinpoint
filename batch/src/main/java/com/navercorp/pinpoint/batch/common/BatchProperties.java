@@ -55,6 +55,12 @@ public class BatchProperties {
     @Value("${job.agent.count.cron}")
     private String agentCountJobCron;
 
+    @Value("${job.agent.count.all-services.enable:true}")
+    private boolean agentCountAllServicesEnable;
+
+    @Value("${job.agent.count.service-list.limit:20000}")
+    private int agentCountServiceListLimit;
+
     @Value("${job.alarm.uristat.enable:true}")
     private boolean uriStatAlarmJobEnable;
 
@@ -131,6 +137,14 @@ public class BatchProperties {
         return agentCountJobCron;
     }
 
+    public boolean isAgentCountAllServicesEnable() {
+        return agentCountAllServicesEnable;
+    }
+
+    public int getAgentCountServiceListLimit() {
+        return agentCountServiceListLimit;
+    }
+
     public String getUriStatAlarmJobCron() {
         return uriStatAlarmJobCron;
     }
@@ -186,6 +200,8 @@ public class BatchProperties {
                 ", agentInspectorStatTablePaddingLength=" + agentInspectorStatTablePaddingLength +
                 ", agentCountJobEnable=" + agentCountJobEnable +
                 ", agentCountJobCron='" + agentCountJobCron + '\'' +
+                ", agentCountAllServicesEnable=" + agentCountAllServicesEnable +
+                ", agentCountServiceListLimit=" + agentCountServiceListLimit +
                 ", uriStatAlarmJobEnable=" + uriStatAlarmJobEnable +
                 ", uriStatAlarmJobCron='" + uriStatAlarmJobCron + '\'' +
                 ", cleanupInactiveAgentsDurationDays=" + cleanupInactiveAgentsDurationDays +

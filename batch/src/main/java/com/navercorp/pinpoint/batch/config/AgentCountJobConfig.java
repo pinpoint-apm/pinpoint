@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.batch.job.AgentCountReader;
 import com.navercorp.pinpoint.batch.job.AgentCountWriter;
 import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
+import com.navercorp.pinpoint.common.server.bo.Application;
+import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.web.dao.AgentStatisticsDao;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionListener;
@@ -87,7 +89,7 @@ public class AgentCountJobConfig {
             @Qualifier("agentCountWriter") AgentCountWriter agentCountWriter) {
 
         return new StepBuilder("agentCountStep", jobRepository)
-                .<String, Integer>chunk(1, transactionManager)
+                .<Application, Integer>chunk(1, transactionManager)
                 .reader(agentCountReader)
                 .processor(agentCountProcessor)
                 .writer(agentCountWriter)
@@ -104,16 +106,20 @@ public class AgentCountJobConfig {
 
     @Bean
     @StepScope
-    public AgentCountReader agentCountReader(BatchApplicationIndexService batchApplicationIndexService) {
-        return new AgentCountReader(batchApplicationIndexService);
+    public AgentCountReader agentCountReader(BatchApplicationIndexService batchApplicationIndexService,
+                                             ServiceRegistryService serviceRegistryService,
+                                             BatchProperties batchProperties) {
+        return new AgentCountReader(batchApplicationIndexService, serviceRegistryService,
+                batchProperties.isAgentCountAllServicesEnable(), batchProperties.getAgentCountServiceListLimit());
     }
 
     @Bean
     @StepScope
     public AgentCountProcessor agentCountProcessor(
+            BatchApplicationIndexService batchApplicationIndexService,
             BatchAgentService batchAgentService,
             BatchProperties batchProperties) {
-        return new AgentCountProcessor(batchAgentService, batchProperties);
+        return new AgentCountProcessor(batchApplicationIndexService, batchAgentService, batchProperties);
     }
 
     @Bean
