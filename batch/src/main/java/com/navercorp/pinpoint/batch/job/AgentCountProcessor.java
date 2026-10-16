@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.batch.service.BatchAgentService;
+import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
@@ -29,15 +31,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author youngjin.kim2
  */
-public class AgentCountProcessor implements ItemProcessor<String, Integer> {
+public class AgentCountProcessor implements ItemProcessor<Application, Integer> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final BatchApplicationIndexService batchApplicationIndexService;
     private final BatchAgentService batchAgentService;
 
     private final long duration;
 
-    public AgentCountProcessor(BatchAgentService batchAgentService, BatchProperties batchProperties) {
+    public AgentCountProcessor(BatchApplicationIndexService batchApplicationIndexService,
+                               BatchAgentService batchAgentService,
+                               BatchProperties batchProperties) {
+        this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "batchApplicationIndexService");
         this.batchAgentService = Objects.requireNonNull(batchAgentService, "batchAgentService");
 
         long durationDays = batchProperties.getCleanupInactiveAgentsDurationDays();
@@ -45,12 +51,13 @@ public class AgentCountProcessor implements ItemProcessor<String, Integer> {
     }
 
     @Override
-    public Integer process(@Nonnull String applicationName) {
-        long localCount = batchAgentService.getIds(applicationName)
+    public Integer process(@Nonnull Application application) {
+        // Per-agent event lookup. Could switch to AgentIdDao.getAgentIdEntryByMinStateTimestamp (one filtered scan).
+        long localCount = batchApplicationIndexService.selectAgentIds(application)
                 .stream()
                 .filter(this::isActive)
                 .count();
-        logger.info("Application {} has {} agents", applicationName, localCount);
+        logger.info("Application {} has {} agents", application, localCount);
         return Math.toIntExact(localCount);
     }
 
