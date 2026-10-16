@@ -35,8 +35,8 @@ import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.batch.dao.mysql.MysqlAlarmDao;
 import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.batch.service.AlarmServiceImpl;
-import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
+import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.aopalliance.aop.Advice;
@@ -158,8 +158,9 @@ public class AlarmJobConfig {
     public ItemProcessor<Application, AppAlarmChecker> alarmProcessor(DataCollectorFactory dataCollectorFactory,
                                                         com.navercorp.pinpoint.web.service.AlarmService alarmService,
                                                         CheckerRegistry checkerRegistry,
-                                                        BatchAgentService batchAgentService) {
-        return new AlarmProcessor(dataCollectorFactory, alarmService, checkerRegistry, batchAgentService);
+                                                        BatchApplicationIndexService batchApplicationIndexService,
+                                                        ActiveAgentValidator activeAgentValidator) {
+        return new AlarmProcessor(dataCollectorFactory, alarmService, checkerRegistry, batchApplicationIndexService, activeAgentValidator);
     }
 
     @Bean(name = "writer")

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.common.server.bo.Application;
@@ -57,7 +58,7 @@ public class AlarmReaderTest {
 
     @Test
     public void pollingTest() {
-        when(batchApplicationIndexService.selectAllApplications()).thenReturn(mockApplications);
+        when(batchApplicationIndexService.selectApplications(Service.DEFAULT)).thenReturn(mockApplications);
         when(alarmService.selectApplicationName()).thenReturn(applicationIds);
 
         AlarmReader reader = new AlarmReader(batchApplicationIndexService, alarmService);
@@ -70,7 +71,7 @@ public class AlarmReaderTest {
 
     @Test
     public void pollingFromEmptyTest() {
-        when(batchApplicationIndexService.selectAllApplications()).thenReturn(List.of());
+        when(batchApplicationIndexService.selectApplications(Service.DEFAULT)).thenReturn(List.of());
 
         AlarmReader reader = new AlarmReader(batchApplicationIndexService, alarmService);
         reader.beforeStep(stepExecution);

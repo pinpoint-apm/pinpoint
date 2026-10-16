@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.common.server.bo.Application;
+import com.navercorp.pinpoint.common.server.uid.Service;
 
 import java.util.List;
 
@@ -25,12 +26,7 @@ import java.util.List;
  */
 public interface BatchApplicationIndexService {
 
-    List<Application> selectAllApplications();
+    List<Application> selectApplications(Service service);
 
-    @Deprecated
-    List<String> selectAllApplicationNames();
-
-    List<String> selectAgentIds(String applicationName);
-
-    List<String> selectAgentIds(String applicationName, int serviceTypeCode);
+    List<String> selectAgentIds(Application application);
 }

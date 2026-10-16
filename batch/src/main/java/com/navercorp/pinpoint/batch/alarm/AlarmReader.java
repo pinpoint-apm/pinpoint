@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import jakarta.annotation.Nonnull;
@@ -56,7 +57,7 @@ public class AlarmReader implements ItemReader<Application>, StepExecutionListen
     }
 
     private List<Application> fetchApplications() {
-        List<Application> applications = batchApplicationIndexService.selectAllApplications();
+        List<Application> applications = batchApplicationIndexService.selectApplications(Service.DEFAULT);
         List<String> validApplicationNames = alarmService.selectApplicationName();
 
         List<Application> validApplications = new ArrayList<>(applications.size());

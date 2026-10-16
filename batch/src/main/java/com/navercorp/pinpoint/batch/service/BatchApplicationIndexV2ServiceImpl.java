@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.batch.service;
 
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
+import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.dao.AgentIdDao;
 import com.navercorp.pinpoint.common.server.dao.ApplicationDao;
-import com.navercorp.pinpoint.common.server.bo.Application;
-import com.navercorp.pinpoint.common.server.bo.AgentIdEntry;
-import org.springframework.stereotype.Service;
+import com.navercorp.pinpoint.common.server.uid.Service;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +28,6 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-@Service
 public class BatchApplicationIndexV2ServiceImpl implements BatchApplicationIndexService {
 
     private final ApplicationDao applicationDao;
@@ -41,29 +39,14 @@ public class BatchApplicationIndexV2ServiceImpl implements BatchApplicationIndex
     }
 
     @Override
-    public List<Application> selectAllApplications() {
-        return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE);
+    public List<Application> selectApplications(Service service) {
+        return this.applicationDao.getApplications(service.getServiceUid());
     }
 
     @Override
-    @Deprecated
-    public List<String> selectAllApplicationNames() {
-        return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE).stream()
-                .map(Application::getApplicationName)
-                .toList();
-    }
-
-    @Override
-    public List<String> selectAgentIds(String applicationName) {
-        return this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName).stream()
-                .map(AgentIdEntry::getAgentId)
-                .distinct()
-                .toList();
-    }
-
-    @Override
-    public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
-        return this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode).stream()
+    public List<String> selectAgentIds(Application application) {
+        return this.agentIdDao.getAgentIdEntry(application.getService().getServiceUid(),
+                        application.getApplicationName(), application.getServiceTypeCode()).stream()
                 .map(AgentIdEntry::getAgentId)
                 .distinct()
                 .toList();
