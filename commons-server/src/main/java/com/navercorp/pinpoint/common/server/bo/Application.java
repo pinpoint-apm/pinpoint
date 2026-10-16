@@ -43,7 +43,7 @@ public final class Application {
 
     public Application(Service service, String applicationName, ServiceType serviceType) {
         this.service = Objects.requireNonNull(service, "service");
-        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        this.applicationName = StringPrecondition.requireHasText(applicationName, "applicationName");
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 

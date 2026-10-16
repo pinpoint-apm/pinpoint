@@ -36,6 +36,12 @@ public final class IdValidateUtils {
      */
     public static final String ID_PATTERN_VALUE = "[a-zA-Z0-9._\\-]+";
 
+    /**
+     * Kept for error messages. {@link #checkUrlPattern(String)} checks the same character set without a regex.
+     * The set is the RFC 3986 URI characters: unreserved, gen-delims, sub-delims and {@code %} for percent-encoding.
+     */
+    public static final String URL_PATTERN_VALUE = "[a-zA-Z0-9._\\-~:/?#\\[\\]@!$&'()*+,;=%]+";
+
     private IdValidateUtils() {
     }
 
@@ -102,6 +108,59 @@ public final class IdValidateUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * @return true when {@code url} is non-empty and every char matches {@link #URL_PATTERN_VALUE}
+     */
+    public static boolean checkUrlPattern(String url) {
+        Objects.requireNonNull(url, "url");
+
+        final int length = url.length();
+        if (length == 0) {
+            return false;
+        }
+        for (int i = 0; i < length; i++) {
+            if (!isUrlChar(url.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isUrlChar(char c) {
+        if (isIdChar(c)) {
+            return true;
+        }
+        switch (c) {
+            // unreserved
+            case '~':
+            // gen-delims
+            case ':':
+            case '/':
+            case '?':
+            case '#':
+            case '[':
+            case ']':
+            case '@':
+            // sub-delims
+            case '!':
+            case '$':
+            case '&':
+            case '\'':
+            case '(':
+            case ')':
+            case '*':
+            case '+':
+            case ',':
+            case ';':
+            case '=':
+            // percent-encoding
+            case '%':
+                return true;
+            default:
+                return false;
+        }
     }
 
     private static boolean isIdChar(char c) {

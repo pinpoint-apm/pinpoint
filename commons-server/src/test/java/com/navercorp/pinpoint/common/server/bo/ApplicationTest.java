@@ -34,4 +34,14 @@ public class ApplicationTest {
 
         Assertions.assertNotEquals(one, three);
     }
+
+    @Test
+    public void testBlankApplicationName() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new Application(null, ServiceType.STAND_ALONE));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new Application("", ServiceType.STAND_ALONE));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new Application(" ", ServiceType.STAND_ALONE));
+    }
 }

@@ -63,6 +63,29 @@ public class IdValidateUtilsTest {
     }
 
     @Test
+    public void testCheckUrlPattern() {
+        Assertions.assertTrue(IdValidateUtils.checkUrlPattern("abcd"));
+        Assertions.assertTrue(IdValidateUtils.checkUrlPattern("host.example.com:8080"));
+        Assertions.assertTrue(IdValidateUtils.checkUrlPattern("http://user:pw@host.example.com:8080/path/to/resource?query=1&x=y#frag"));
+        Assertions.assertTrue(IdValidateUtils.checkUrlPattern("http://[::1]:8080/a%20b"));
+        Assertions.assertTrue(IdValidateUtils.checkUrlPattern("~!$&'()*+,;="));
+
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern(""));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern(" "));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a b"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a\tb"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a\"b"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a<b>"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a\\b"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a{b}"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a|b"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a^b"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a`b"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("한글"));
+        Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a\u0000b"));
+    }
+
+    @Test
     public void testValidateId_offset() {
         String postFix = "agent^";
         Assertions.assertTrue(IdValidateUtils.checkId(postFix, 0, postFix.length() - 1));
