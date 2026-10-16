@@ -134,6 +134,22 @@
         </foreach>
     </delete>
 
+    <delete id="deleteTerminalOlderThan">
+        <![CDATA[
+        DELETE outbox
+        FROM alarm_notification_outbox outbox
+        JOIN (
+            SELECT terminal.id
+            FROM alarm_notification_outbox terminal
+            INNER JOIN alarm_history_v2 history ON history.id = terminal.history_id
+            WHERE terminal.status IN ('SENT', 'DEAD')
+              AND history.created_at < #{threshold}
+            ORDER BY terminal.id
+            LIMIT #{limit}
+        ) terminal_outbox ON terminal_outbox.id = outbox.id
+        ]]>
+    </delete>
+
     <select id="selectCountsByHistoryId" parameterType="Long" resultMap="outboxCountsResultMap">
         SELECT COUNT(*) AS total,
                COUNT(CASE WHEN status = 'SENT' THEN 1 END) AS sent,

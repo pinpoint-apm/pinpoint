@@ -60,9 +60,20 @@
 
     <delete id="deleteOlderThan">
         <![CDATA[
-        DELETE FROM alarm_history_v2
-        WHERE created_at < #{threshold}
-        LIMIT #{limit}
+        DELETE history
+        FROM alarm_history_v2 history
+        JOIN (
+            SELECT expired.id
+            FROM alarm_history_v2 expired
+            WHERE expired.created_at < #{threshold}
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM alarm_notification_outbox outbox
+                  WHERE outbox.history_id = expired.id
+              )
+            ORDER BY expired.id
+            LIMIT #{limit}
+        ) expired_history ON expired_history.id = history.id
         ]]>
     </delete>
 

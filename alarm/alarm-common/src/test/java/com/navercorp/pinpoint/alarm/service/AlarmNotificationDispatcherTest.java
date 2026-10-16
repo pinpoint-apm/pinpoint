@@ -466,6 +466,7 @@ class AlarmNotificationDispatcherTest {
 
         @Override public int deleteByRuleId(Long ruleId) { return 0; }
         @Override public int deleteByRuleIds(java.util.List<Long> ruleIds) { return 0; }
+        @Override public int deleteTerminalOlderThan(LocalDateTime threshold, int limit) { return 0; }
 
         private AlarmNotificationOutbox claimed(Long id, String token) {
             return deliveries.stream()

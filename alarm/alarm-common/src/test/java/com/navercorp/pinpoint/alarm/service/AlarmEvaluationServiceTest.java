@@ -630,6 +630,7 @@ class AlarmEvaluationServiceTest {
         @Override public int markDead(Long id, String token) { return 0; }
         @Override public int deleteByRuleId(Long ruleId) { return 0; }
         @Override public int deleteByRuleIds(java.util.List<Long> ruleIds) { return 0; }
+        @Override public int deleteTerminalOlderThan(LocalDateTime threshold, int limit) { return 0; }
         @Override
         public AlarmNotificationOutboxCounts selectCountsByHistoryId(Long historyId) {
             return new AlarmNotificationOutboxCounts(0, 0, 0);

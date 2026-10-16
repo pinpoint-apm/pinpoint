@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
 import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
+import com.navercorp.pinpoint.batch.config.AlarmHistoryCleanupJobConfig;
 import com.navercorp.pinpoint.batch.config.BatchAlarmDaoConfiguration;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
 import com.navercorp.pinpoint.batch.config.BatchMetaCleanupJobConfig;
@@ -70,6 +71,7 @@ import java.util.List;
         CleanupAgentAndApplicationJobConfig.class,
         OtlpLinkJoinJobConfig.class,
         BatchMetaCleanupJobConfig.class,
+        AlarmHistoryCleanupJobConfig.class,
         BatchAlarmDaoConfiguration.class,
 
         WebServiceConfig.CommonConfig.class,
