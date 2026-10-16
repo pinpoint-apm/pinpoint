@@ -104,6 +104,14 @@ public class BatchScheduleConfig implements SchedulingConfigurer {
                     return new CronTrigger(cron).nextExecution(triggerContext);
                 }
         );
+
+        taskRegistrar.addTriggerTask(
+                batchJobLauncher::alarmHistoryCleanupJob,
+                triggerContext -> {
+                    String cron = batchProperties.getAlarmHistoryCleanupJobCron();
+                    return new CronTrigger(cron).nextExecution(triggerContext);
+                }
+        );
     }
 
     @Bean

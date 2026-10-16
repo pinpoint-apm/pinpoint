@@ -30,7 +30,7 @@ import org.springframework.core.io.Resource;
 import javax.sql.DataSource;
 
 /**
- * The alarm DAOs, for the application cleanup that deletes the alarm rules of a deleted application.
+ * The alarm DAOs of the batch jobs that clean up alarm data.
  */
 @Configuration
 public class BatchAlarmDaoConfiguration extends AlarmDaoConfigurationSupport {

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.common;
 
+import com.navercorp.pinpoint.batch.config.AlarmHistoryCleanupJobConfig;
 import com.navercorp.pinpoint.batch.config.BatchMetaCleanupJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.batch.util.JobParametersUtils;
@@ -100,6 +101,14 @@ public class BatchJobLauncher extends JobLaunchSupport {
             run(BatchMetaCleanupJobConfig.JOB_NAME, createTimeParameter(metaCleanupProperties.isDryRun()));
         } else {
             logger.debug("Skip {}, because '{}.enable' is disabled.", BatchMetaCleanupJobConfig.JOB_NAME, BatchMetaCleanupProperties.PREFIX);
+        }
+    }
+
+    public void alarmHistoryCleanupJob() {
+        if (batchProperties.isAlarmHistoryCleanupJobEnable()) {
+            run(AlarmHistoryCleanupJobConfig.JOB_NAME, createTimeParameter());
+        } else {
+            logger.debug("Skip {}, because 'job.cleanup.alarm.history.enable' is disabled.", AlarmHistoryCleanupJobConfig.JOB_NAME);
         }
     }
 

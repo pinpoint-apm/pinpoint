@@ -38,5 +38,8 @@ public interface AlarmHistoryV2Dao {
 
     void deleteByRuleIds(@Param("ruleIds") List<Long> ruleIds);
 
+    /**
+     * Deletes the history older than the threshold that no outbox row points at.
+     */
     int deleteOlderThan(@Param("threshold") LocalDateTime threshold, @Param("limit") int limit);
 }

@@ -52,5 +52,7 @@ public interface AlarmNotificationOutboxDao {
 
     int deleteByRuleIds(@Param("ruleIds") List<Long> ruleIds);
 
+    int deleteTerminalOlderThan(@Param("threshold") LocalDateTime threshold, @Param("limit") int limit);
+
     AlarmNotificationOutboxCounts selectCountsByHistoryId(Long historyId);
 }

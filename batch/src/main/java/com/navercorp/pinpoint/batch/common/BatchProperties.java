@@ -88,6 +88,18 @@ public class BatchProperties {
     @Value("${job.cleanup.inactive.agent-application.grace-days:7}")
     private int cleanupAgentAndApplicationGraceDays;
 
+    @Value("${job.cleanup.alarm.history.enable:false}")
+    private boolean alarmHistoryCleanupJobEnable;
+
+    @Value("${job.cleanup.alarm.history.cron:0 30 3 * * *}")
+    private String alarmHistoryCleanupJobCron;
+
+    @Value("${job.cleanup.alarm.history.expiration-days:14}")
+    private int alarmHistoryCleanupExpirationDays;
+
+    @Value("${job.cleanup.alarm.history.chunk-size:5000}")
+    private int alarmHistoryCleanupChunkSize;
+
     private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
 
     @PostConstruct
@@ -187,6 +199,22 @@ public class BatchProperties {
 
     public int getCleanupAgentAndApplicationGraceDays() {
         return cleanupAgentAndApplicationGraceDays;
+    }
+
+    public boolean isAlarmHistoryCleanupJobEnable() {
+        return alarmHistoryCleanupJobEnable;
+    }
+
+    public String getAlarmHistoryCleanupJobCron() {
+        return alarmHistoryCleanupJobCron;
+    }
+
+    public int getAlarmHistoryCleanupExpirationDays() {
+        return alarmHistoryCleanupExpirationDays;
+    }
+
+    public int getAlarmHistoryCleanupChunkSize() {
+        return alarmHistoryCleanupChunkSize;
     }
 
     @Override
