@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorConfig;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import com.navercorp.pinpoint.otlp.trace.collector.linkindex.OtlpLinkIndexModule;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceIngestMetrics;
@@ -97,7 +98,10 @@ import java.util.concurrent.Executor;
         OtlpTraceCollectorHbaseModule.class,
         OtlpTraceCollectorGrpcModule.class,
         OtlpTraceCollectorGrpcSslModule.class,
-        OtlpTraceCollectorHttpModule.class
+        OtlpTraceCollectorHttpModule.class,
+
+        // Link index writer for the join job (pinpoint.collector.otlptrace.link-index.enabled, default off).
+        OtlpLinkIndexModule.class
 })
 @ComponentScan({
         "com.navercorp.pinpoint.otlp.trace.collector.mapper",

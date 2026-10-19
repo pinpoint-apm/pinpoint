@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
+package com.navercorp.pinpoint.otlp.trace.linkindex;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-
-public interface HostLinkFactory {
-    byte[] rowkey(Vertex parent, long timestamp);
-
-    byte[] columnName(Vertex self, String host);
+/**
+ * One call matched by the join.
+ *
+ * @param server the callee's SERVER entry (B)
+ * @param client the caller's CLIENT entry (A)
+ * @param slot   minute slot the link is recorded in: always the SERVER entry's slot
+ * @param source subLink of the InLink row
+ */
+public record MatchedPair(LinkEntry server, LinkEntry client, long slot, LinkSource source) {
 }

@@ -13,6 +13,7 @@
     <name>pinpoint-otlptrace</name>
     <packaging>pom</packaging>
     <modules>
+        <module>otlptrace-linkindex</module>
         <module>otlptrace-collector</module>
     </modules>
 </project>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
 public interface HostRowKeyEncoder {
 
