@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
+package com.navercorp.pinpoint.otlp.trace.linkindex;
 
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 
-public interface InLinkFactory {
-
-    InLink newLink(Vertex inVertex, Vertex selfVertex, String selfSubLink);
-
-    interface InLink {
-        RowKey rowkey(long requestTime);
-
-        ColumnName histogram(int elapsed, boolean isError);
-
-        ColumnName sum();
-
-        ColumnName max();
-    }
+/**
+ * Aggregation key of the InLink row {@code callee <- caller} of one minute and subLink.
+ *
+ * @param callee        B, the InLink row owner
+ * @param caller        A
+ * @param destinationId what A called. Used as the MapAppHost host so that the web replaces
+ *                      the {@code A -> destinationId} link with {@code A -> B}
+ * @param slot          minute slot
+ * @param source        subLink
+ */
+public record LinkKey(Vertex callee, Vertex caller, String destinationId, long slot, LinkSource source) {
 }

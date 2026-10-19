@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics.v3;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostRowKeyEncoder;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.HostRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
 
 import java.util.Objects;

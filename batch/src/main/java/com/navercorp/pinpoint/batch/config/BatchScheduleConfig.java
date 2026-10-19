@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.batch.config;
 
 import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
+import com.navercorp.pinpoint.batch.otlp.OtlpLinkJoinLauncher;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
@@ -33,10 +36,16 @@ public class BatchScheduleConfig implements SchedulingConfigurer {
 
     private final BatchJobLauncher batchJobLauncher;
     private final BatchProperties batchProperties;
+    private final ObjectProvider<OtlpLinkJoinLauncher> otlpLinkJoinLauncher;
+    private final String otlpLinkJoinCron;
 
-    public BatchScheduleConfig(BatchJobLauncher batchJobLauncher, BatchProperties batchProperties) {
+    public BatchScheduleConfig(BatchJobLauncher batchJobLauncher, BatchProperties batchProperties,
+                               ObjectProvider<OtlpLinkJoinLauncher> otlpLinkJoinLauncher,
+                               @Value("${job.otlp.link-join.cron:30 * * * * *}") String otlpLinkJoinCron) {
         this.batchJobLauncher = batchJobLauncher;
         this.batchProperties = batchProperties;
+        this.otlpLinkJoinLauncher = otlpLinkJoinLauncher;
+        this.otlpLinkJoinCron = otlpLinkJoinCron;
     }
 
 
@@ -76,6 +85,12 @@ public class BatchScheduleConfig implements SchedulingConfigurer {
                     return new CronTrigger(cron).nextExecution(triggerContext);
                 }
         );
+
+        // OTLP link join: registered only when job.otlp.link-join.enable=true creates the launcher
+        final OtlpLinkJoinLauncher linkJoinLauncher = otlpLinkJoinLauncher.getIfAvailable();
+        if (linkJoinLauncher != null) {
+            taskRegistrar.addTriggerTask(linkJoinLauncher::run, new CronTrigger(otlpLinkJoinCron));
+        }
     }
 
     @Bean

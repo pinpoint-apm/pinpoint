@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.HostLinkFactory;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;

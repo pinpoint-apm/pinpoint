@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
 import com.navercorp.pinpoint.batch.config.BatchAlarmDaoConfiguration;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
+import com.navercorp.pinpoint.batch.otlp.OtlpLinkJoinJobConfig;
 import com.navercorp.pinpoint.batch.service.BatchServiceConfig;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
 import com.navercorp.pinpoint.common.server.config.AgentProperties;
@@ -66,6 +67,7 @@ import java.util.List;
 
         AgentCountJobConfig.class,
         CleanupAgentAndApplicationJobConfig.class,
+        OtlpLinkJoinJobConfig.class,
         BatchAlarmDaoConfiguration.class,
 
         WebServiceConfig.CommonConfig.class,
