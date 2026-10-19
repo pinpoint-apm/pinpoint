@@ -5,7 +5,7 @@ import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/cons
 import { CallTreeTableColumnId } from './callTreeTableColumns';
 import { BsGearFill } from 'react-icons/bs';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
-import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
+import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks/utility/useLocalStorage';
 
 export interface CallTreeTableColumnsSettingProps {
   defaultColumns: ColumnDef<TransactionInfo.CallStackKeyValueMap>[];

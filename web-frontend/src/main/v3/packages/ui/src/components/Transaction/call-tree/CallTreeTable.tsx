@@ -1,5 +1,8 @@
 import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
-import { VirtualizedDataTable, VirtualizedDataTableProps } from '../../DataTable';
+import {
+  VirtualizedDataTable,
+  VirtualizedDataTableProps,
+} from '../../DataTable/VirtualizedDataTable';
 import { getCallTreeRowClasses } from './rowClasses';
 
 export interface CallTreeTableProps extends VirtualizedDataTableProps<
