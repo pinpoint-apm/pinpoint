@@ -74,8 +74,8 @@ public class CachingServiceModelResolver extends ServiceModelResolver implements
     }
 
     @Scheduled(
-            initialDelayString = "#{@webServiceModelLoadProperties.refreshInterval}",
-            fixedRateString = "#{@webServiceModelLoadProperties.refreshInterval}")
+            initialDelayString = "#{@webServiceModelLoadProperties.refreshInterval.toMillis()}",
+            fixedRateString = "#{@webServiceModelLoadProperties.refreshInterval.toMillis()}")
     public void refresh() {
         if (!loadProperties.isRefreshEnabled()) {
             logger.debug("Skip service model cache scheduled refresh.");

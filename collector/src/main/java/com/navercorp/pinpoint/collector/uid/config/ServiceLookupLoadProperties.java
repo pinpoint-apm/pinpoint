@@ -2,14 +2,16 @@ package com.navercorp.pinpoint.collector.uid.config;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.Duration;
+
 public class ServiceLookupLoadProperties {
 
     @Value("${collector.service.lookup.cache.load.warmup.enabled:false}")
     private boolean warmupEnabled;
     @Value("${collector.service.lookup.cache.load.refresh.enabled:false}")
     private boolean refreshEnabled;
-    @Value("${collector.service.lookup.cache.load.refresh.interval:60000}")
-    private long refreshInterval = 60000;
+    @Value("${collector.service.lookup.cache.load.refresh.interval:60s}")
+    private Duration refreshInterval = Duration.ofSeconds(60);
     @Value("${collector.service.lookup.cache.load.limit:-1}")
     private long limit = -1;
 
@@ -29,11 +31,11 @@ public class ServiceLookupLoadProperties {
         this.refreshEnabled = refreshEnabled;
     }
 
-    public long getRefreshInterval() {
+    public Duration getRefreshInterval() {
         return refreshInterval;
     }
 
-    public void setRefreshInterval(long refreshInterval) {
+    public void setRefreshInterval(Duration refreshInterval) {
         this.refreshInterval = refreshInterval;
     }
 
