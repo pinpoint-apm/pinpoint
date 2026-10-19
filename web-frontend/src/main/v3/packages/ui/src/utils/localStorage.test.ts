@@ -1,4 +1,8 @@
-import { getLocalStorageValue } from './localStorage';
+import {
+  getLocalStorageValue,
+  removeLocalStorageValue,
+  setLocalStorageValue,
+} from './localStorage';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 
 describe('Test localStorage utils', () => {
@@ -84,6 +88,33 @@ describe('Test localStorage utils', () => {
 
       const result = getLocalStorageValue(key);
       expect(result).toBe('custom-value');
+    });
+  });
+
+  // sandbox iframe(MCP Apps 등)은 저장소 접근 자체를 막아 window.localStorage 가 throw 한다.
+  describe('Test blocked storage', () => {
+    let localStorageSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      localStorageSpy = jest.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+        throw new DOMException('Access is denied', 'SecurityError');
+      });
+    });
+
+    afterEach(() => {
+      localStorageSpy.mockRestore();
+    });
+
+    test('getLocalStorageValue returns undefined', () => {
+      expect(getLocalStorageValue(APP_SETTING_KEYS.TIMEZONE)).toBeUndefined();
+    });
+
+    test('setLocalStorageValue does not throw', () => {
+      expect(() => setLocalStorageValue(APP_SETTING_KEYS.TIMEZONE, 'Asia/Seoul')).not.toThrow();
+    });
+
+    test('removeLocalStorageValue does not throw', () => {
+      expect(() => removeLocalStorageValue(APP_SETTING_KEYS.TIMEZONE)).not.toThrow();
     });
   });
 });
