@@ -3,10 +3,9 @@ package com.navercorp.pinpoint.batch;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.common.server.util.RandomServiceUidGenerator;
+import com.navercorp.pinpoint.service.config.ServiceModelCacheConfiguration;
 import com.navercorp.pinpoint.service.config.ServiceMysqlConfiguration;
-import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.service.service.ServiceRegistryServiceImpl;
-import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,6 +14,7 @@ import org.springframework.context.annotation.Import;
 
 @Import({
         ServiceMysqlConfiguration.class,
+        ServiceModelCacheConfiguration.class,
 })
 @ComponentScan(
         basePackages = {
@@ -31,10 +31,5 @@ public class BatchServiceModule {
     @ConditionalOnMissingBean(name = "serviceUidGenerator")
     public IdGenerator<ServiceUid> serviceUidGenerator() {
         return new RandomServiceUidGenerator();
-    }
-
-    @Bean
-    public ServiceModelResolver serviceModelResolver(ServiceRegistryService serviceRegistryService) {
-        return new ServiceModelResolver(serviceRegistryService);
     }
 }
