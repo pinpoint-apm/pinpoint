@@ -1,6 +1,10 @@
 import React from 'react';
 import { useLocalStorage as useLocalStorageTS } from 'usehooks-ts';
 import { APP_SETTING_KEYS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
+import {
+  removeLocalStorageValue,
+  setLocalStorageValue,
+} from '@pinpoint-fe/ui/src/utils/localStorage';
 
 type LocalStorageKeyTypes = APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_KEYS | string;
 
@@ -25,7 +29,7 @@ export const useLocalStorage = <T, K extends LocalStorageKeyTypes = LocalStorage
 
   React.useEffect(() => {
     if (data !== undefined && data !== null && data !== 'undefined') {
-      window.localStorage.setItem(key, JSON.stringify(data));
+      setLocalStorageValue(key, data);
     }
   }, [data]);
 
@@ -48,7 +52,7 @@ export const useExpiredLocalStorage = <
     const now = new Date().getTime();
 
     if (data?.expire && data?.expire < now) {
-      window.localStorage.removeItem(key);
+      removeLocalStorageValue(key);
     }
   }, [data]);
 
