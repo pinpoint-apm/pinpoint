@@ -34,3 +34,13 @@ Use /config directory [External Application Properties](https://docs.spring.io/s
 - Create property file in `/resources/config/`
   web/src/main/resources/config/MyConfig.properties
 
+
+## Admin API
+The admin API (`/api/admin/**`) removes applications and agents.
+It is disabled until you set a password:
+```
+admin.password=<your password>
+```
+Callers send the password in the `password` parameter.
+
+If another module authorizes `/api/admin/**`, set `admin.password.enabled=false` to skip the password check.

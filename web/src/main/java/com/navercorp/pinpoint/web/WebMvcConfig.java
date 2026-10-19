@@ -57,6 +57,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${pinpoint.web.cache-resources:false}")
     private boolean cacheResource;
 
+    @Value("${admin.password.enabled:true}")
+    private boolean passwordEnabled;
+
     @Value("${admin.password:}")
     private String password;
 
@@ -76,6 +79,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        if (!passwordEnabled) {
+            return;
+        }
         registry.addInterceptor(new AdminAuthInterceptor(password))
                 .addPathPatterns("/api/admin/**");
     }
