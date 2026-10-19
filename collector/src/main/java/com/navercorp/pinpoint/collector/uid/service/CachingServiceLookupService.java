@@ -102,7 +102,7 @@ public class CachingServiceLookupService implements ServiceLookupService, Applic
         logger.debug(stopWatch.prettyPrint());
     }
 
-    @Scheduled(fixedRateString = "#{@collectorServiceLookupLoadProperties.refreshInterval}")
+    @Scheduled(fixedRateString = "#{@collectorServiceLookupLoadProperties.refreshInterval.toMillis()}")
     public void refresh() {
         if (!loadProperties.isRefreshEnabled()) {
             logger.debug("Skip {} scheduled refresh.", ServiceLookupCacheConfiguration.SERVICE_LOOKUP_CACHE_NAME);
