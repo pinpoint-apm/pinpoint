@@ -47,7 +47,8 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
         String requestIp = request.getRemoteAddr();
         logger.info("{} called from {}", requestUri, requestIp);
         if (StringUtils.isEmpty(password)) {
-            return true;
+            handleDisabled();
+            return false;
         }
         return checkAuthorization(request);
     }
@@ -64,6 +65,10 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
             handleInvalidPassword();
             return false;
         }
+    }
+
+    private void handleDisabled() {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin API is disabled. Set admin.password to enable it");
     }
 
     private void handleMissingPassword() {
