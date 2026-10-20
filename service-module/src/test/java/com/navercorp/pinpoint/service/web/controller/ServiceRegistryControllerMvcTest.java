@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.service.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.service.component.ReservedServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
 import com.navercorp.pinpoint.common.server.uid.Service;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -101,6 +103,54 @@ class ServiceRegistryControllerMvcTest {
 
         mockMvc.perform(delete("/api/v2/services/service").param("serviceName", "DEFAULT"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void insertService_nameWithSpace_400() throws Exception {
+        ServiceNameRequest request = new ServiceNameRequest("my service");
+
+        mockMvc.perform(post("/api/v2/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(serviceRegistryService);
+    }
+
+    @Test
+    void insertService_nonAsciiName_400() throws Exception {
+        ServiceNameRequest request = new ServiceNameRequest("\uc11c\ube44\uc2a4");
+
+        mockMvc.perform(post("/api/v2/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(serviceRegistryService);
+    }
+
+    @Test
+    void insertService_tooLongName_400() throws Exception {
+        ServiceNameRequest request = new ServiceNameRequest("a".repeat(PinpointConstants.SERVICE_NAME_MAX_LEN + 1));
+
+        mockMvc.perform(post("/api/v2/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(serviceRegistryService);
+    }
+
+    @Test
+    void insertService_blankName_400() throws Exception {
+        ServiceNameRequest request = new ServiceNameRequest(" ");
+
+        mockMvc.perform(post("/api/v2/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(serviceRegistryService);
     }
 
 }
