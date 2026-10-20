@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { LuCheck, LuPlus } from 'react-icons/lu';
@@ -153,7 +153,23 @@ export const ServiceSettingTable = () => {
             }
             popupTitle={t('CONFIGURATION.SERVICE_SETTING.DELETE_TITLE')}
             popupDesc={t('CONFIGURATION.SERVICE_SETTING.DELETE_DESC')}
-            popupContents={<div className="text-sm font-semibold">{service.name}</div>}
+            popupContents={
+              <div className="flex flex-col gap-3">
+                <div className="text-sm font-semibold">{service.name}</div>
+                <div className="p-3 text-sm border rounded-md border-status-fail/40 bg-status-fail/5 text-status-fail">
+                  {t('CONFIGURATION.SERVICE_SETTING.DELETE_WARNING')}
+                </div>
+              </div>
+            }
+            confirmText={service.name}
+            confirmLabel={
+              <Trans
+                i18nKey="CONFIGURATION.SERVICE_SETTING.DELETE_CONFIRM_LABEL"
+                values={{ name: service.name }}
+                components={{ b: <span className="font-semibold" /> }}
+              />
+            }
+            removeButtonLabel={t('CONFIGURATION.SERVICE_SETTING.DELETE_CONFIRM_BUTTON')}
             onClickRemove={() => deleteService({ serviceName: service.name })}
           />
         );
