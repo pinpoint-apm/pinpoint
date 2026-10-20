@@ -19,7 +19,7 @@ import { DataTable } from '../../DataTable/DataTable';
 import { RemovePopup } from '../../Popup';
 import { ServiceAddSheet } from '../../Service/ServiceAddSheet';
 import { useReactToastifyToast } from '../../Toast';
-import { Button, Input, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui';
+import { Button, Input } from '../../ui';
 
 type ServiceRow = { name: string };
 
@@ -94,7 +94,8 @@ export const ServiceSettingTable = () => {
         const isCurrent = service.name === selectedService;
         if (isCurrent) {
           return (
-            <span className="inline-flex items-center px-2 text-sm font-medium text-muted-foreground">
+            // h-9 matches the Switch To button so the row keeps its height even without a delete button.
+            <span className="inline-flex items-center px-2 text-sm font-medium h-9 text-muted-foreground">
               {t('CONFIGURATION.SERVICE_SETTING.CURRENT') || 'Current'}
             </span>
           );
@@ -122,27 +123,9 @@ export const ServiceSettingTable = () => {
       },
       cell: ({ row }) => {
         const service = row.original;
-        const isReserved = isReservedServiceName(service.name);
-        if (isReserved) {
-          return (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-block">
-                  <Button
-                    variant="ghost"
-                    className="px-3 pointer-events-none"
-                    disabled
-                    tabIndex={-1}
-                  >
-                    <FaRegTrashCan />
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                {t('CONFIGURATION.SERVICE_SETTING.DELETE_RESERVED_DISABLED')}
-              </TooltipContent>
-            </Tooltip>
-          );
+        // Reserved services (DEFAULT included) cannot be deleted, so the button is not offered.
+        if (isReservedServiceName(service.name)) {
+          return null;
         }
         return (
           <RemovePopup
@@ -178,38 +161,36 @@ export const ServiceSettingTable = () => {
   ];
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-xs h-9">
-            <Input
-              value={searchKeyword}
-              className="h-full px-0 py-3 border-none focus-visible:ring-0"
-              placeholder={t('CONFIGURATION.SERVICE_SETTING.SEARCH_PLACEHOLDER')}
-              onChange={({ currentTarget }) => setSearchKeyword(currentTarget.value)}
-              onKeyDown={({ key }) => {
-                if (key === 'Escape') {
-                  setSearchKeyword('');
-                }
-              }}
-            />
-            <RxMagnifyingGlass className="opacity-50 shrink-0" />
-          </div>
-          <Button onClick={() => setAddSheetOpen(true)}>
-            <LuPlus className="mr-0.5" />
-            {t('CONFIGURATION.SERVICE_SETTING.NEW_SERVICE') || 'New Service'}
-          </Button>
-        </div>
-        <div className="overflow-hidden border rounded-md">
-          <DataTable
-            autoResize={true}
-            columns={columns}
-            data={rows}
-            emptyMessage={t('COMMON.NO_DATA')}
+    <div className="space-y-2">
+      <div className="flex justify-between">
+        <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-xs h-9">
+          <Input
+            value={searchKeyword}
+            className="h-full px-0 py-3 border-none focus-visible:ring-0"
+            placeholder={t('CONFIGURATION.SERVICE_SETTING.SEARCH_PLACEHOLDER')}
+            onChange={({ currentTarget }) => setSearchKeyword(currentTarget.value)}
+            onKeyDown={({ key }) => {
+              if (key === 'Escape') {
+                setSearchKeyword('');
+              }
+            }}
           />
+          <RxMagnifyingGlass className="opacity-50 shrink-0" />
         </div>
-        <ServiceAddSheet open={isAddSheetOpen} onOpenChange={setAddSheetOpen} />
+        <Button onClick={() => setAddSheetOpen(true)}>
+          <LuPlus className="mr-0.5" />
+          {t('CONFIGURATION.SERVICE_SETTING.NEW_SERVICE') || 'New Service'}
+        </Button>
       </div>
-    </TooltipProvider>
+      <div className="overflow-hidden border rounded-md">
+        <DataTable
+          autoResize={true}
+          columns={columns}
+          data={rows}
+          emptyMessage={t('COMMON.NO_DATA')}
+        />
+      </div>
+      <ServiceAddSheet open={isAddSheetOpen} onOpenChange={setAddSheetOpen} />
+    </div>
   );
 };

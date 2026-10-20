@@ -405,7 +405,6 @@
       "DELETE_TITLE": "Delete service",
       "DELETE_DESC": "Delete the following service.",
       "DELETE_SUCCESS": "Service \"{{name}}\" deleted.",
-      "DELETE_RESERVED_DISABLED": "Reserved service names cannot be deleted.",
       "DELETE_WARNING": "This action cannot be undone. A service is a key that groups applications and agents, so deleting it may affect everything that uses it.",
       "DELETE_CONFIRM_LABEL": "To confirm, type <b>{{name}}</b> in the box below.",
       "DELETE_CONFIRM_BUTTON": "I understand the consequences, delete this service",
