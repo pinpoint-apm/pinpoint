@@ -22,7 +22,14 @@ import {
   selectedServiceAtom,
   servicesAtom,
 } from '@pinpoint-fe/ui/src/atoms';
-import { END_POINTS, GetServices } from '@pinpoint-fe/ui/src/constants';
+import {
+  END_POINTS,
+  GetServices,
+  SERVICE_NAME_MAX_LENGTH,
+  SERVICE_NAME_MIN_LENGTH,
+  isValidServiceNameLength,
+  isValidServiceNamePattern,
+} from '@pinpoint-fe/ui/src/constants';
 
 export interface ServiceAddSheetProps {
   open: boolean;
@@ -56,17 +63,31 @@ export const ServiceAddSheet = ({ open, onOpenChange }: ServiceAddSheetProps) =>
   }, [open]);
 
   const trimmed = name.trim();
-  const isReserved = !!trimmed && isReservedServiceName(trimmed);
+  const isInvalidPattern = !!trimmed && !isValidServiceNamePattern(trimmed);
+  const isInvalidLength = !!trimmed && !isInvalidPattern && !isValidServiceNameLength(trimmed);
+  const isInvalidFormat = isInvalidPattern || isInvalidLength;
+  const isReserved = !!trimmed && !isInvalidFormat && isReservedServiceName(trimmed);
   const isDuplicate =
-    !!trimmed && !isReserved && !!services?.some((s) => s.toLowerCase() === trimmed.toLowerCase());
-  const errorMessage = isReserved
-    ? t('CONFIGURATION.SERVICE_SETTING.RESERVED_NAME', { name: trimmed })
-    : isDuplicate
-      ? t('CONFIGURATION.SERVICE_SETTING.DUPLICATE_NAME', { name: trimmed })
-      : '';
+    !!trimmed &&
+    !isInvalidFormat &&
+    !isReserved &&
+    !!services?.some((s) => s.toLowerCase() === trimmed.toLowerCase());
+  const hasError = isInvalidFormat || isReserved || isDuplicate;
+  const errorMessage = isInvalidPattern
+    ? t('CONFIGURATION.SERVICE_SETTING.INVALID_NAME_PATTERN')
+    : isInvalidLength
+      ? t('CONFIGURATION.SERVICE_SETTING.INVALID_NAME_LENGTH', {
+          min: SERVICE_NAME_MIN_LENGTH,
+          max: SERVICE_NAME_MAX_LENGTH,
+        })
+      : isReserved
+        ? t('CONFIGURATION.SERVICE_SETTING.RESERVED_NAME', { name: trimmed })
+        : isDuplicate
+          ? t('CONFIGURATION.SERVICE_SETTING.DUPLICATE_NAME', { name: trimmed })
+          : '';
 
   const handleSave = () => {
-    if (!trimmed || isReserved || isDuplicate) return;
+    if (!trimmed || hasError) return;
     mutate({ serviceName: trimmed });
   };
 
@@ -104,10 +125,7 @@ export const ServiceAddSheet = ({ open, onOpenChange }: ServiceAddSheetProps) =>
               <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
                 {t('COMMON.CANCEL')}
               </Button>
-              <Button
-                onClick={handleSave}
-                disabled={!trimmed || isReserved || isDuplicate || isPending}
-              >
+              <Button onClick={handleSave} disabled={!trimmed || hasError || isPending}>
                 {t('COMMON.SAVE')}
               </Button>
             </div>
