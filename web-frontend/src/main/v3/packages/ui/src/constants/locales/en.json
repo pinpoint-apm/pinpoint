@@ -411,6 +411,8 @@
       "ADD_SUCCESS": "Service added.",
       "DUPLICATE_NAME": "Service name \"{{name}}\" already exists.",
       "RESERVED_NAME": "\"{{name}}\" is a reserved name and cannot be used.",
+      "INVALID_NAME_PATTERN": "Only letters, numbers, '.', '_' and '-' are allowed.",
+      "INVALID_NAME_LENGTH": "Service name must be {{min}} to {{max}} characters long.",
       "SEARCH_PLACEHOLDER": "Search service",
       "LABEL": {
         "NAME": "Name",
