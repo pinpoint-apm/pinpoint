@@ -29,6 +29,7 @@ import java.util.Objects;
  */
 public class AgentInfo {
 
+    private String serviceName;
     private String applicationName;
     private String agentId;
     private String agentName;
@@ -43,6 +44,14 @@ public class AgentInfo {
     private boolean container;
 
     public AgentInfo() {
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getApplicationName() {
@@ -178,7 +187,8 @@ public class AgentInfo {
     @Override
     public String toString() {
         return "AgentInfo{" +
-                "applicationName='" + applicationName + '\'' +
+                "serviceName='" + serviceName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", startTimestamp=" + startTimestamp +

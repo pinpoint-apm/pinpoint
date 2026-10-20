@@ -186,6 +186,7 @@ class OtlpTraceExportServiceTest {
         builder.setAgentId(agentId);
         builder.setApplicationName("app");
         builder.setServiceTypeCode(1300);
+        builder.setServiceUid(ServiceUid.DEFAULT);
         builder.setStartTime(1_000L);
         return builder.build();
     }

@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoQuery;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -76,6 +77,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                              TableNameProvider tableNameProvider,
                              AgentIdRowKeyEncoder rowKeyEncoder,
                              ServiceTypeRegistryService registryService,
+                             ServiceModelResolver serviceModelResolver,
                              RowMapper<AgentInfoBo> agentInfoBoMapper,
                              ResultsExtractor<AgentInfo> agentInfoResultsExtractor,
                              ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor
@@ -83,7 +85,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
-        this.agentInfoFactory = new AgentInfoFactory(registryService);
+        this.agentInfoFactory = new AgentInfoFactory(registryService, serviceModelResolver);
         this.agentInfoBoMapper = Objects.requireNonNull(agentInfoBoMapper, "agentInfoBoMapper");
         this.agentInfoResultsExtractor = Objects.requireNonNull(agentInfoResultsExtractor, "agentInfoResultsExtractor");
         this.detailedAgentInfoResultsExtractor = Objects.requireNonNull(detailedAgentInfoResultsExtractor, "detailedAgentInfoResultsExtractor");

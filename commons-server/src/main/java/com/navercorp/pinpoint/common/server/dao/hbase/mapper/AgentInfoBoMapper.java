@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.client.Result;
@@ -90,6 +91,12 @@ public class AgentInfoBoMapper implements RowMapper<AgentInfoBo> {
         // 2021.03.24 added agent name
         if (buffer.hasRemaining()) {
             builder.setAgentName(buffer.readPrefixedString());
+        }
+        // v4.0.0 added serviceUid (check for compatibility)
+        if (buffer.hasRemaining()) {
+            builder.setServiceUid(ServiceUid.of(buffer.readInt()));
+        } else {
+            builder.setServiceUid(ServiceUid.DEFAULT);
         }
         return builder;
     }
