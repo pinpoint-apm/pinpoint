@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.module.config;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
@@ -36,11 +37,13 @@ import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultMonitorConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
+import com.navercorp.pinpoint.profiler.context.provider.ApplicationTypeProviderV4;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceDataFormatVersionProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvider;
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
+import com.navercorp.pinpoint.profiler.instrument.config.ApplicationServerTypeMode;
 import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentConfig;
 import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
@@ -102,6 +105,7 @@ public class ConfigModule extends AbstractModule {
         configurationLoader.load(instrumentConfig);
         logger.info("{}", instrumentConfig);
         bind(InstrumentConfig.class).toInstance(instrumentConfig);
+        bindConfiguredApplicationType(instrumentConfig.getApplicationServerTypeMode());
 
         InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new DefaultInstrumentMatcherCacheConfig();
         configurationLoader.load(instrumentMatcherCacheConfig);
@@ -129,6 +133,23 @@ public class ConfigModule extends AbstractModule {
         bindAgentInformation(agentOption);
 
         bindShutdownHook(contextConfig);
+    }
+
+    private void bindConfiguredApplicationType(ApplicationServerTypeMode mode) {
+        bind(ServiceType.class).annotatedWith(ConfiguredApplicationType.class)
+                .toProvider(applicationTypeProvider(mode))
+                .in(Scopes.SINGLETON);
+    }
+
+    private static Class<? extends Provider<ServiceType>> applicationTypeProvider(ApplicationServerTypeMode mode) {
+        switch (mode) {
+            case V1:
+                return ConfiguredApplicationTypeProvider.class;
+            case V4:
+                return ApplicationTypeProviderV4.class;
+            default:
+                throw new IllegalArgumentException("Unknown ApplicationServerTypeMode " + mode);
+        }
     }
 
     private void bindBootstrapCoreInformation(AgentContextOption agentOption) {
@@ -164,8 +185,6 @@ public class ConfigModule extends AbstractModule {
         bind(Boolean.class).annotatedWith(Container.class).toInstance(isContainer);
 
         bind(Long.class).annotatedWith(AgentStartTime.class).toProvider(AgentStartTimeProvider.class).in(Scopes.SINGLETON);
-        bind(ServiceType.class).annotatedWith(ConfiguredApplicationType.class).toProvider(ConfiguredApplicationTypeProvider.class).in(Scopes.SINGLETON);
-
         bind(String.class).annotatedWith(ClusterNamespace.class).toProvider(ClusterNamespaceProvider.class).in(Scopes.SINGLETON);
     }
 

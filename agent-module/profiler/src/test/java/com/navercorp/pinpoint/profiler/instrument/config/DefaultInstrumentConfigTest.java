@@ -34,6 +34,21 @@ public class DefaultInstrumentConfigTest {
     }
 
     @Test
+    public void applicationServerTypeMode() {
+        // unset: v4
+        InstrumentConfig instrumentConfig = new DefaultInstrumentConfig();
+        valueAnnotationProcessor.process(instrumentConfig, new Properties()::getProperty);
+        Assertions.assertEquals(ApplicationServerTypeMode.V4, instrumentConfig.getApplicationServerTypeMode());
+
+        // v1, case-insensitive
+        Properties properties = new Properties();
+        properties.setProperty("profiler.applicationservertype.mode", "v1");
+        instrumentConfig = new DefaultInstrumentConfig();
+        valueAnnotationProcessor.process(instrumentConfig, properties::getProperty);
+        Assertions.assertEquals(ApplicationServerTypeMode.V1, instrumentConfig.getApplicationServerTypeMode());
+    }
+
+    @Test
     public void getCallStackMaxDepth() {
         Properties properties = new Properties();
         properties.setProperty("profiler.callstack.max.depth", "64");

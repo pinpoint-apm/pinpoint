@@ -10,6 +10,9 @@ public interface ObjectName {
     String APPLICATION_NAME = "pinpoint.applicationName";
     String SERVICE_NAME = "pinpoint.serviceName";
 
+    // service name of the pre-service (legacy) namespace, resolved to ServiceUid.DEFAULT by the collector
+    String DEFAULT_SERVICE_NAME = "DEFAULT";
+
     int getVersion();
 
     String getAgentId();

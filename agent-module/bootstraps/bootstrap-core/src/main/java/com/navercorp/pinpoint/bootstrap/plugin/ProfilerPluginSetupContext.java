@@ -38,6 +38,9 @@ public interface ProfilerPluginSetupContext {
     /**
      * Returns the {@link ServiceType} configured by <tt>profiler.applicationservertype</tt>
      * in <i>pinpoint.config</i> file.
+     * When the property is not set, <tt>profiler.applicationservertype.mode</tt> decides:
+     * <tt>v4</tt> returns {@link ServiceType#JAVA} for a named service, <tt>v1</tt>
+     * (and the DEFAULT service) returns {@link ServiceType#UNDEFINED} so that plugins may detect the type.
      *
      * @return the configured {@link ServiceType}
      */

@@ -30,6 +30,7 @@ public interface InstrumentConfig {
 
     Filter<String> getProfilableClassFilter();
     String getApplicationServerType();
+    ApplicationServerTypeMode getApplicationServerTypeMode();
 
     int getCallStackMaxDepth();
     int getCallStackMaxSequence();
