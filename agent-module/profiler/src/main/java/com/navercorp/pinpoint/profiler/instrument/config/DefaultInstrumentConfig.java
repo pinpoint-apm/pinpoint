@@ -52,6 +52,7 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
     // service type
     @Value("${profiler.applicationservertype}")
     private String applicationServerType = null;
+    private ApplicationServerTypeMode applicationServerTypeMode = ApplicationServerTypeMode.DEFAULT;
 
     @Value("${" + PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE + "}")
     private boolean propagateInterceptorException = false;
@@ -104,6 +105,16 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
 
     public void setApplicationServerType(String applicationServerType) {
         this.applicationServerType = applicationServerType;
+    }
+
+    @Override
+    public ApplicationServerTypeMode getApplicationServerTypeMode() {
+        return applicationServerTypeMode;
+    }
+
+    @Value("${profiler.applicationservertype.mode}")
+    void setApplicationServerTypeMode(String applicationServerTypeMode) {
+        this.applicationServerTypeMode = ApplicationServerTypeMode.parse(applicationServerTypeMode);
     }
 
     @Override
@@ -178,6 +189,7 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
                 ", callStackOverflowLogIntervalMillis=" + callStackOverflowLogIntervalMillis +
                 ", profilableClassFilter=" + profilableClassFilter +
                 ", applicationServerType='" + applicationServerType + '\'' +
+                ", applicationServerTypeMode=" + applicationServerTypeMode +
                 ", propagateInterceptorException=" + propagateInterceptorException +
                 ", supportLambdaExpressions=" + supportLambdaExpressions +
                 '}';

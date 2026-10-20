@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.profiler.instrument.config.ApplicationServerTypeMode;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +28,12 @@ import org.apache.logging.log4j.Logger;
 import java.util.Objects;
 
 /**
+ * Resolves the application type configured by {@code profiler.applicationservertype}.
+ * Returns the configured type when it is a valid WAS type, otherwise {@link ServiceType#UNDEFINED}
+ * so that agent plugins detect the type.
+ * <p>
+ * Application type for {@link ApplicationServerTypeMode#V1}.
+ *
  * @author HyunGil Jeong
  */
 public class ConfiguredApplicationTypeProvider implements Provider<ServiceType> {
@@ -45,7 +52,7 @@ public class ConfiguredApplicationTypeProvider implements Provider<ServiceType> 
 
     @Override
     public ServiceType get() {
-        ServiceType applicationType = serviceTypeRegistryService.findServiceTypeByName(applicationTypeString);
+        final ServiceType applicationType = serviceTypeRegistryService.findServiceTypeByName(applicationTypeString);
         if (applicationType == null) {
             return ServiceType.UNDEFINED;
         }
