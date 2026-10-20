@@ -22,7 +22,7 @@ class ServiceNameRequestTest {
                 "my_service",
                 "my.service",
                 "MyService01",
-                "a",
+                "a".repeat(PinpointConstants.SERVICE_NAME_MIN_LEN),
                 "a".repeat(PinpointConstants.SERVICE_NAME_MAX_LEN)
         );
 
@@ -45,6 +45,13 @@ class ServiceNameRequestTest {
         for (String name : names) {
             assertThat(validate(name)).as(name).isNotEmpty();
         }
+    }
+
+    @Test
+    void tooShortName_fails() {
+        String name = "a".repeat(PinpointConstants.SERVICE_NAME_MIN_LEN - 1);
+
+        assertThat(validate(name)).isNotEmpty();
     }
 
     @Test

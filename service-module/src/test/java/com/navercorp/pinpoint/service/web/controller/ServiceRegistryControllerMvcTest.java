@@ -130,6 +130,18 @@ class ServiceRegistryControllerMvcTest {
     }
 
     @Test
+    void insertService_tooShortName_400() throws Exception {
+        ServiceNameRequest request = new ServiceNameRequest("a".repeat(PinpointConstants.SERVICE_NAME_MIN_LEN - 1));
+
+        mockMvc.perform(post("/api/v2/services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(serviceRegistryService);
+    }
+
+    @Test
     void insertService_tooLongName_400() throws Exception {
         ServiceNameRequest request = new ServiceNameRequest("a".repeat(PinpointConstants.SERVICE_NAME_MAX_LEN + 1));
 
