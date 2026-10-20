@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 public class ServiceNameRequest {
 
     @NotBlank
-    @Size(max = PinpointConstants.SERVICE_NAME_MAX_LEN)
+    @Size(min = PinpointConstants.SERVICE_NAME_MIN_LEN, max = PinpointConstants.SERVICE_NAME_MAX_LEN)
     @Pattern(regexp = IdValidateUtils.ID_PATTERN_VALUE)
     private String serviceName;
 
