@@ -16,7 +16,6 @@
  */
 package com.navercorp.pinpoint.featureflag.config;
 
-import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.featureflag.dao.vo.FeatureFlagParameter;
 import com.navercorp.pinpoint.featureflag.dao.vo.FeatureFlagResult;
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
@@ -45,7 +44,6 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan(basePackages = {"com.navercorp.pinpoint.featureflag.service.database", "com.navercorp.pinpoint.featureflag.dao"})
 @Import({
-        MainDataSourceConfiguration.class,
         MyBatisConfiguration.class
 })
 @EnableScheduling
