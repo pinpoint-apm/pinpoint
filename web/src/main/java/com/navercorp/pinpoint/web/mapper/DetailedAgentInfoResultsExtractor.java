@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFactory;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
@@ -39,10 +40,9 @@ public class DetailedAgentInfoResultsExtractor implements ResultsExtractor<Detai
     private final RowMapper<AgentInfoBo> agentInfoMapper;
 
     public DetailedAgentInfoResultsExtractor(ServiceTypeRegistryService registryService,
+                                             ServiceModelResolver serviceModelResolver,
                                              RowMapper<AgentInfoBo> agentInfoMapper) {
-        Objects.requireNonNull(registryService, "registryService");
-
-        this.factory = new AgentInfoFactory(registryService);
+        this.factory = new AgentInfoFactory(registryService, serviceModelResolver);
         this.agentInfoMapper = Objects.requireNonNull(agentInfoMapper, "agentInfoMapper");
     }
 

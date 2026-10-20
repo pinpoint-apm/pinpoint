@@ -17,8 +17,11 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.uid.Service;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
@@ -64,11 +67,14 @@ public class ServerGroupListTest {
 
         ServiceType serviceType = ServiceType.TEST_STAND_ALONE;
         agentInfoBuilder.setServiceTypeCode(serviceType.getCode());
+        agentInfoBuilder.setServiceUid(ServiceUid.DEFAULT);
         agentInfoBuilder.setHostName(hostName);
 
         ServiceTypeRegistryService registry = mock(ServiceTypeRegistryService.class);
         when(registry.findServiceType(serviceType.getCode())).thenReturn(serviceType);
-        AgentInfoFactory factory = new AgentInfoFactory(registry);
+        ServiceModelResolver serviceModelResolver = mock(ServiceModelResolver.class);
+        when(serviceModelResolver.getService(ServiceUid.DEFAULT_SERVICE_UID_CODE)).thenReturn(Service.DEFAULT);
+        AgentInfoFactory factory = new AgentInfoFactory(registry, serviceModelResolver);
 
         return new AgentAndStatus(factory.build(agentInfoBuilder.build()));
     }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.grpc;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.io.ServerHeader;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PJvmInfo;
 import com.navercorp.pinpoint.grpc.trace.PServerMetaData;
@@ -43,6 +44,7 @@ public class GrpcAgentInfoBoMapper {
         final String agentId = header.getAgentId();
         final String agentName = header.getAgentName();
         final String applicationName = header.getApplicationName();
+        final ServiceUid serviceUid = header.getServiceUid().get();
         final long startTime = header.getAgentStartTime();
 
         final String hostName = agentInfo.getHostname();
@@ -64,6 +66,7 @@ public class GrpcAgentInfoBoMapper {
         builder.setAgentName(agentName);
         builder.setApplicationName(applicationName);
         builder.setServiceTypeCode(serviceType);
+        builder.setServiceUid(serviceUid);
         builder.setPid(pid);
         builder.setVmVersion(vmVersion);
         builder.setAgentVersion(agentVersion);

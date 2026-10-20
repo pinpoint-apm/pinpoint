@@ -82,21 +82,17 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, 
         }
 
         try {
-            final ServiceUid serviceUid;
-            try {
-                serviceUid = header.getServiceUid().get();
-            } catch (UidNotFoundException e) {
-                uidLogger.warn("Service not found. serviceName={}, applicationName={}, agentId={}",
-                        header.getServiceName(), header.getApplicationName(), header.getAgentId());
-                return PResults.serviceNotFound(header.getServiceName());
-            }
-
-            // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo, header);
+            final ServiceUid serviceUid = agentInfoBo.getServiceUid();
+
             this.agentInfoService.insert(agentInfoBo);
             this.applicationIndexV2Service.insert(serviceUid, header.getServiceType(), agentInfoBo);
             this.agentInfoStatisticsService.insert(serviceUid, header.getApplicationName(), agentInfoBo);
             return PResults.SUCCESS;
+        } catch (UidNotFoundException e) {
+            uidLogger.warn("Service not found. serviceName={}, applicationName={}, agentId={}",
+                    header.getServiceName(), header.getApplicationName(), header.getAgentId());
+            return PResults.serviceNotFound(header.getServiceName());
         } catch (Exception e) {
             logger.warn("Failed to handle. agentInfo={}", MessageFormatUtils.debugLog(agentInfo), e);
             // Avoid detailed error messages.

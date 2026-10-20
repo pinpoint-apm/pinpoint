@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.collector.handler.grpc;
 
 import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
+import com.navercorp.pinpoint.collector.mapper.grpc.GrpcJvmInfoBoMapper;
+import com.navercorp.pinpoint.collector.mapper.grpc.GrpcServerMetaDataBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.collector.service.AgentInfoStatisticsService;
 import com.navercorp.pinpoint.collector.service.ApplicationIndexV2Service;
@@ -31,7 +33,7 @@ public class GrpcAgentInfoHandlerTest {
         AgentInfoService agentInfoService = mock(AgentInfoService.class);
         ApplicationIndexV2Service applicationIndexV2Service = mock(ApplicationIndexV2Service.class);
         AgentInfoStatisticsService agentInfoStatisticsService = mock(AgentInfoStatisticsService.class);
-        GrpcAgentInfoBoMapper mapper = mock(GrpcAgentInfoBoMapper.class);
+        GrpcAgentInfoBoMapper mapper = new GrpcAgentInfoBoMapper(mock(GrpcServerMetaDataBoMapper.class), mock(GrpcJvmInfoBoMapper.class));
         GrpcAgentInfoHandler handler = new GrpcAgentInfoHandler(agentInfoService, applicationIndexV2Service, agentInfoStatisticsService, mapper);
 
         Header header = HeaderV1.simple("name", "agentId", "agentName", "applicationName", 0, 1668495162817L);

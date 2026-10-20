@@ -18,8 +18,11 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -36,6 +39,8 @@ public class AgentInfoBo {
     private final String agentName;
     private final String applicationName;
     private final int serviceTypeCode;
+    @NonNull
+    private final ServiceUid serviceUid;
     private final int pid;
     private final String vmVersion;
     private final String agentVersion;
@@ -59,6 +64,7 @@ public class AgentInfoBo {
         this.agentName = builder.agentName;
         this.applicationName = StringPrecondition.requireHasLength(builder.applicationName, "applicationName");
         this.serviceTypeCode = builder.serviceTypeCode;
+        this.serviceUid = builder.serviceUid;
         this.pid = builder.pid;
         this.vmVersion = builder.vmVersion;
         this.agentVersion = builder.agentVersion;
@@ -114,6 +120,10 @@ public class AgentInfoBo {
         return serviceTypeCode;
     }
 
+    public ServiceUid getServiceUid() {
+        return serviceUid;
+    }
+
     public String getVmVersion() {
         return vmVersion;
     }
@@ -152,6 +162,7 @@ public class AgentInfoBo {
 
         buffer.putBoolean(this.isContainer());
         buffer.putPrefixedString(this.getAgentName());
+        buffer.putInt(this.getServiceUid().getUid());
 
         return buffer.getBuffer();
     }
@@ -191,6 +202,7 @@ public class AgentInfoBo {
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", serviceTypeCode=" + serviceTypeCode +
+                ", serviceUid=" + serviceUid +
                 ", pid=" + pid +
                 ", vmVersion='" + vmVersion + '\'' +
                 ", agentVersion='" + agentVersion + '\'' +
@@ -211,6 +223,7 @@ public class AgentInfoBo {
         private String agentName;
         private String applicationName;
         private int serviceTypeCode;
+        private ServiceUid serviceUid;
         private int pid;
         private String vmVersion;
         private String agentVersion;
@@ -258,6 +271,10 @@ public class AgentInfoBo {
 
         public short getServiceTypeCode() {
             return (short) serviceTypeCode;
+        }
+
+        public void setServiceUid(ServiceUid serviceUid) {
+            this.serviceUid = serviceUid;
         }
 
         public void setPid(int pid) {
@@ -309,6 +326,7 @@ public class AgentInfoBo {
                 this.agentName = "";
             }
             StringPrecondition.requireHasLength(this.applicationName, "applicationName");
+            Objects.requireNonNull(this.serviceUid, "serviceUid");
 
             if (this.vmVersion == null)
                 this.vmVersion = "";
