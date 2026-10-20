@@ -45,6 +45,19 @@ class ObjectNameResolverV4Test {
 
 
     @Test
+    void resolve_shortServiceName_fail() {
+        Map<String, String> map = new HashMap<>();
+        map.put("pinpoint.applicationName", "applicationName");
+        map.put("pinpoint.serviceName", "ab");
+
+        List<AgentProperties> list = new ArrayList<>();
+        list.add(new AgentProperties(IdSourceType.SYSTEM, map::get));
+
+        ObjectNameResolver resolver = new ObjectNameResolverV4(list);
+        Assertions.assertThrows(ObjectNameValidationFailedException.class, resolver::resolve);
+    }
+
+    @Test
     void resolve_fail() {
 
         Map<String, String> map = new HashMap<>();

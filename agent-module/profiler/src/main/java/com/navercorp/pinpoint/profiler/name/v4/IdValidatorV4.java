@@ -33,6 +33,7 @@ public class IdValidatorV4 implements IdValidator {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int MAX_NAME_LENGTH = PinpointConstants.AGENT_NAME_MAX_LEN_V4;
+    private static final int SERVICE_NAME_MIN_LENGTH = PinpointConstants.SERVICE_NAME_MIN_LEN;
 
     private final int maxSize;
 
@@ -70,7 +71,19 @@ public class IdValidatorV4 implements IdValidator {
         if (!ObjectNameProperty.hasLengthValue(serviceName)) {
             return false;
         }
+        if (!validateMinLength(serviceName, SERVICE_NAME_MIN_LENGTH)) {
+            return false;
+        }
         return validateKey(serviceName, maxSize);
+    }
+
+    private boolean validateMinLength(ObjectNameProperty keyValue, int minLength) {
+        final String value = keyValue.getValue();
+        if (value.length() >= minLength) {
+            return true;
+        }
+        logger.info("invalid Id. {} {} must be at least {} characters. value:{}", keyValue.getSourceType().getDesc(), keyValue.getKey(), minLength, value);
+        return false;
     }
 
     private boolean validateKey(ObjectNameProperty keyValue, int maxSize) {
