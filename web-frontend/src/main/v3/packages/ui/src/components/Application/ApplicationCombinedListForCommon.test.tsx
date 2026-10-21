@@ -4,6 +4,9 @@ import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
 
 const mockIsDefaultService = jest.fn();
 const mockOnClickApplication = jest.fn();
+let mockToastCount = 0;
+const mockToast = jest.fn((_props: unknown) => ({ id: `toast-${++mockToastCount}` }));
+const mockDismiss = jest.fn();
 
 type ChildrenProps = { children?: React.ReactNode };
 type ListMockProps = {
@@ -18,7 +21,7 @@ jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
 }));
 
 jest.mock('@pinpoint-fe/ui/src/lib', () => ({
-  useToast: () => ({ toast: jest.fn() }),
+  useToast: () => ({ toast: mockToast, dismiss: mockDismiss }),
 }));
 
 jest.mock('i18next', () => ({
@@ -41,8 +44,17 @@ jest.mock('../ui/toaster', () => ({
 
 // 팝오버는 열림 상태를 관리할 뿐이라 이 테스트의 관심사가 아니다. 내용은 항상 그린다.
 // 키보드 이벤트는 팝오버 본문에서 받으므로 그 핸들러만 그대로 잇는다.
+// 닫힘은 바깥 클릭 대신 버튼 하나로 흉내 낸다.
 jest.mock('../ui', () => ({
-  Popover: ({ children }: ChildrenProps) => <div>{children}</div>,
+  Popover: ({
+    children,
+    onOpenChange,
+  }: ChildrenProps & { onOpenChange?: (open: boolean) => void }) => (
+    <div>
+      <button data-testid="close-popover" onClick={() => onOpenChange?.(false)} />
+      {children}
+    </div>
+  ),
   PopoverTrigger: ({ children }: ChildrenProps) => <div>{children}</div>,
   PopoverContent: ({
     children,
@@ -234,5 +246,28 @@ describe('ApplicationCombinedListForCommon favorite list', () => {
     expect(screen.queryByText('Favorite List')).not.toBeNull();
     expect(screen.queryByText('favorite-app')).not.toBeNull();
     expect(screen.getAllByTestId('star')).toHaveLength(3);
+  });
+
+  // 안내 toast의 자동 닫힘 타이머는 팝오버 안의 Toaster가 돌린다. 시간이 다 되기 전에 팝오버를
+  // 닫으면 toast가 전역 저장소에 열린 채로 남아, 다시 열 때 그대로 보였다.
+  test('dismisses the favorite toast when the list closes', async () => {
+    mockIsDefaultService.mockReturnValue(true);
+    render(
+      <ApplicationCombinedListForCommon
+        open
+        favoriteList={FAVORITE_LIST}
+        selectedApplication={selectedApplication}
+      />,
+    );
+
+    const applicationItem = screen.getByTestId('application-item');
+    fireEvent.click(applicationItem.querySelector('[data-testid="star"]')!.parentElement!);
+    await screen.findByTestId('application-item');
+    expect(mockToast).toHaveBeenCalledTimes(1);
+    expect(mockDismiss).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId('close-popover'));
+
+    expect(mockDismiss).toHaveBeenCalledWith('toast-1');
   });
 });

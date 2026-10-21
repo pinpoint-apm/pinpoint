@@ -101,7 +101,10 @@ export const ApplicationCombinedListForCommon = ({
     index: 0,
   });
 
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
+  // 안내 toast의 자동 닫힘 타이머는 팝오버 안의 Toaster가 돌린다. 시간이 다 되기 전에 팝오버를 닫으면
+  // 타이머가 함께 사라져 전역 저장소에 열린 채로 남고, 다시 열 때 그대로 보인다. 그래서 닫힐 때 직접 닫는다.
+  const favoriteToastIdsRef = React.useRef<string[]>([]);
   const isFavoriteApplication = (application: ApplicationType) => {
     return favoriteList?.some((favoriteApp: ApplicationType) => {
       return (
@@ -142,7 +145,7 @@ export const ApplicationCombinedListForCommon = ({
       await onClickFavorite?.(newFavoriteList || []);
 
       if (!option?.disableToast) {
-        toast({
+        const { id } = toast({
           description: (
             <div className="flex items-center gap-1 text-xs">
               {isExist ? <LuStarOff /> : <LuStar className="fill-emerald-400 stroke-emerald-400" />}
@@ -151,19 +154,28 @@ export const ApplicationCombinedListForCommon = ({
           ),
           variant: 'small',
         });
+        favoriteToastIdsRef.current.push(id);
       }
     } catch (error) {
       if (!option?.disableToast) {
-        toast({
+        const { id } = toast({
           title: (error as Error).message || 'Failed to update favorites',
           description: 'Please try again',
           variant: 'destructive',
         });
+        favoriteToastIdsRef.current.push(id);
       }
     } finally {
       popoverContentRef.current?.focus();
     }
   };
+
+  React.useEffect(() => {
+    if (isOpen) return;
+    favoriteToastIdsRef.current.forEach((id) => dismiss(id));
+    favoriteToastIdsRef.current = [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dismiss는 렌더마다 새로 만들어지지만 동작은 같다
+  }, [isOpen]);
 
   // isOpen이 변경되면 focusInfo를 초기화
   React.useEffect(() => {
