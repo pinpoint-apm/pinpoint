@@ -1,14 +1,21 @@
 import React from 'react';
-import HeatmapChartCore, { HeatmapChartCoreProps } from './core/HeatmapChartCore';
-import { useStoragedSetting, useGetHeatmapAppData } from '@pinpoint-fe/ui/src/hooks';
+import { HeatmapChartCore, HeatmapChartCoreProps } from './core/HeatmapChartCore';
+import type { HeatmapFetcherProps } from './HeatmapFetcher';
 import {
-  APP_SETTING_KEYS,
-  ApplicationType,
-  GetHeatmapAppData,
-  GetServerMap,
-} from '@pinpoint-fe/ui/src/constants';
+  useServerMapSearchParameters,
+  useStoragedSetting,
+  useGetHeatmapAppData,
+  useRequestService,
+} from '@pinpoint-fe/ui/src/hooks';
+import { APP_SETTING_KEYS, BASE_PATH, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
 import { subMinutes, subSeconds, addSeconds } from 'date-fns';
-import { toBasicISOString } from '@pinpoint-fe/ui/src/utils';
+import {
+  getFormattedDateRange,
+  getHeatmapFullScreenRealtimePath,
+  getTransactionListPath,
+  getTransactionListQueryString,
+  toBasicISOString,
+} from '@pinpoint-fe/ui/src/utils';
 
 const DefaultAxisY = [0, 10000];
 
@@ -26,16 +33,14 @@ function ceilTo10SecAndSubtract30(date: Date): Date {
   return result;
 }
 
-export type HeatmapRealtimeFetcherProps = {
-  nodeData: GetServerMap.NodeData | ApplicationType;
-  agentId?: string;
-} & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'serviceName'>;
+export interface HeatmapRealtimeFetcherProps extends HeatmapFetcherProps {}
 
+// 실시간으로 조회한 데이터를 HeatmapChartCore 로 그린다. 설정은 저장소에, 확대·드래그는 URL로 새 창을 연다.
 export const HeatmapRealtimeFetcher = ({
   nodeData,
   agentId,
+  toolbarOption,
   serviceName,
-  ...props
 }: HeatmapRealtimeFetcherProps) => {
   const now = new Date();
   const lastToTimestamp = React.useRef<number | undefined>(undefined); // 마지막 호출 시간을 기억해서 from~to 보다 전이면 "lastToDate ~ new Date()" 로 호출
@@ -67,7 +72,12 @@ export const HeatmapRealtimeFetcher = ({
     });
   }, [nodeData?.applicationName]);
 
-  const [setting] = useStoragedSetting(APP_SETTING_KEYS.HEATMAP_SETTING);
+  const [setting, setSetting] = useStoragedSetting(APP_SETTING_KEYS.HEATMAP_SETTING);
+  const { dateRange } = useServerMapSearchParameters();
+  // 넘어온 값이 없으면 화면의 service로 링크를 만든다(map 밖에서 쓰이는 경우).
+  // 링크는 요청이 아니므로 request 에 담지 않고 최신 prop을 그대로 쓴다.
+  const screenServiceName = useRequestService();
+  const linkServiceName = serviceName ?? screenServiceName;
 
   const [request, setRequest] = React.useState<{
     parameters: GetHeatmapAppData.Parameters;
@@ -169,14 +179,36 @@ export const HeatmapRealtimeFetcher = ({
     });
   }, [data]);
 
+  const handleExpand = () => {
+    window.open(
+      `${BASE_PATH}${getHeatmapFullScreenRealtimePath(nodeData, undefined, linkServiceName)}`,
+      '_blank',
+    );
+  };
+
+  const handleDragEnd: HeatmapChartCoreProps['onDragEnd'] = (area, checkedLegends) => {
+    window.open(
+      `${BASE_PATH}${getTransactionListPath(
+        nodeData,
+        getFormattedDateRange(dateRange),
+        linkServiceName,
+      )}&${getTransactionListQueryString({
+        ...area,
+        checkedLegends,
+      })}`,
+    );
+  };
+
   return (
     <HeatmapChartCore
       isRealtime={true}
       isLoading={isLoading && !realtimeData}
-      nodeData={nodeData}
       data={realtimeData}
-      serviceName={serviceName}
-      {...props}
+      setting={setting}
+      onSettingChange={setSetting}
+      onDragEnd={handleDragEnd}
+      onExpand={toolbarOption?.expand?.hide ? undefined : handleExpand}
+      captureFileName={`Pinpoint_Heatmap_Chart__${nodeData?.applicationName}^${nodeData?.serviceType}.png`}
     />
   );
 };

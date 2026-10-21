@@ -317,7 +317,7 @@ React Query가 곧바로 요청을 날린다 — 그 service에 없는 applicati
 **파라미터를 그 자리에서 계산하는 훅은 이 처리가 필요 없다** — 애초에 어긋날 렌더가 없으므로
 serviceName도 prop을 그대로 쓴다(`useGetAgentOverview`, `useGetApdexScore`,
 `useGetHistogramStatistics`, `HeatmapFetcher`).
-링크 생성에 쓰는 값은 요청이 아니므로 최신 prop을 그대로 쓴다(`HeatmapChartCore`).
+링크 생성에 쓰는 값은 요청이 아니므로 최신 prop을 그대로 쓴다(`HeatmapFetcher`, `HeatmapRealtimeFetcher`).
 
 ### state를 없앨 수 있는지는 그 state가 무엇을 담고 있는지로 갈린다
 
