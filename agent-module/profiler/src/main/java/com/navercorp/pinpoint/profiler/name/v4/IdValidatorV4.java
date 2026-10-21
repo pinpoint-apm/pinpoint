@@ -33,6 +33,7 @@ public class IdValidatorV4 implements IdValidator {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int MAX_NAME_LENGTH = PinpointConstants.AGENT_NAME_MAX_LEN_V4;
+    private static final int MIN_LENGTH = 1;
     private static final int SERVICE_NAME_MIN_LENGTH = PinpointConstants.SERVICE_NAME_MIN_LEN;
 
     private final int maxSize;
@@ -71,30 +72,22 @@ public class IdValidatorV4 implements IdValidator {
         if (!ObjectNameProperty.hasLengthValue(serviceName)) {
             return false;
         }
-        if (!validateMinLength(serviceName, SERVICE_NAME_MIN_LENGTH)) {
-            return false;
-        }
-        return validateKey(serviceName, maxSize);
-    }
-
-    private boolean validateMinLength(ObjectNameProperty keyValue, int minLength) {
-        final String value = keyValue.getValue();
-        if (value.length() >= minLength) {
-            return true;
-        }
-        logger.info("invalid Id. {} {} must be at least {} characters. value:{}", keyValue.getSourceType().getDesc(), keyValue.getKey(), minLength, value);
-        return false;
+        return validateKey(serviceName, SERVICE_NAME_MIN_LENGTH, maxSize);
     }
 
     private boolean validateKey(ObjectNameProperty keyValue, int maxSize) {
+        return validateKey(keyValue, MIN_LENGTH, maxSize);
+    }
+
+    private boolean validateKey(ObjectNameProperty keyValue, int minSize, int maxSize) {
         Objects.requireNonNull(keyValue, "keyValue");
 
         final String key = keyValue.getKey();
         String value = keyValue.getValue();
         String desc = keyValue.getSourceType().getDesc();
         logger.info("check {} = {}", desc, value);
-        if (!IdValidateUtils.validateId(value, maxSize)) {
-            logger.info("invalid Id. {} {} can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:{} value:{}", desc, key, maxSize, value);
+        if (!IdValidateUtils.validateId(value, minSize, maxSize)) {
+            logger.info("invalid Id. {} {} can only contain [a-zA-Z0-9], '.', '-', '_'. length:{}~{} value:{}", desc, key, minSize, maxSize, value);
             return false;
         }
         return true;
