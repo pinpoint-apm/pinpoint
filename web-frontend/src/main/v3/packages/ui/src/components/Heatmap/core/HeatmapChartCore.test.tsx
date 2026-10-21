@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
 import { DefaultValue } from './heatmapSettingDefault';
 import type { HeatmapChartProps } from './HeatmapChart';
@@ -20,11 +20,6 @@ jest.mock('./HeatmapChart', () => ({
       />
     </div>
   ),
-}));
-
-// jsdom cannot draw the chart to an image; the capture stands in as a fixed PNG data URL.
-jest.mock('html-to-image', () => ({
-  toPng: jest.fn(() => Promise.resolve('data:image/png;base64,AAAA')),
 }));
 
 import { HeatmapChartCore } from './HeatmapChartCore';
@@ -80,22 +75,34 @@ describe('HeatmapChartCore', () => {
     expect(onExpand).toHaveBeenCalled();
   });
 
-  test('hands the captured image to onDownloadImage when it is given', async () => {
-    const onDownloadImage = jest.fn();
-    render(
+  test('hides each toolbar button that toolbarOption hides', () => {
+    const { rerender } = render(
       <HeatmapChartCore
         data={data}
         setting={DefaultValue}
         onSettingChange={jest.fn()}
+        onExpand={jest.fn()}
         captureFileName="heatmap.png"
-        onDownloadImage={onDownloadImage}
+        toolbarOption={{ captureImage: { hide: true }, expand: { hide: true } }}
       />,
     );
+    expect(screen.getByLabelText('Heatmap settings')).toBeTruthy();
+    expect(screen.queryByLabelText('Download heatmap image')).toBeNull();
+    expect(screen.queryByLabelText('Expand heatmap')).toBeNull();
 
-    fireEvent.click(screen.getByLabelText('Download heatmap image'));
-    await waitFor(() =>
-      expect(onDownloadImage).toHaveBeenCalledWith('data:image/png;base64,AAAA', 'heatmap.png'),
+    rerender(
+      <HeatmapChartCore
+        data={data}
+        setting={DefaultValue}
+        onSettingChange={jest.fn()}
+        onExpand={jest.fn()}
+        captureFileName="heatmap.png"
+        toolbarOption={{ hide: true }}
+      />,
     );
+    expect(screen.queryByLabelText('Heatmap settings')).toBeNull();
+    expect(screen.queryByLabelText('Download heatmap image')).toBeNull();
+    expect(screen.queryByLabelText('Expand heatmap')).toBeNull();
   });
 
   test('shows the skeleton instead of the chart while loading', () => {
