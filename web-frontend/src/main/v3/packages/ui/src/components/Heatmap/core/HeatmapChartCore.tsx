@@ -23,6 +23,15 @@ const prefetchHeatmapSetting = () => {
   preloadHeatmapSetting().catch(() => {});
 };
 
+// ScatterChartCore 의 ScatterToolbarOption 과 같은 모양. 버튼마다 숨길 수 있고, hide 는 툴바 전체를 숨긴다.
+export type HeatmapToolbarOption = {
+  axisSetting?: { hide?: boolean };
+  captureImage?: { hide?: boolean };
+  expand?: { hide?: boolean };
+  help?: { hide?: boolean };
+  hide?: boolean;
+};
+
 export interface HeatmapChartCoreProps {
   isRealtime?: boolean;
   isLoading?: boolean;
@@ -35,11 +44,7 @@ export interface HeatmapChartCoreProps {
    */
   onExpand?: () => void;
   captureFileName: string;
-  /**
-   * 캡처한 PNG(data URL)를 내려받는 방법. 넘기지 않으면 링크를 눌러 내려받는다.
-   * 다운로드가 막힌 sandbox iframe(MCP Apps 뷰)에서는 호스트에 맡긴다.
-   */
-  onDownloadImage?: (image: string, fileName: string) => void;
+  toolbarOption?: HeatmapToolbarOption;
 }
 
 // 툴바(설정·다운로드·확대)와 차트를 받은 값과 콜백만으로 그린다. 조회·URL·저장소를 모르므로
@@ -53,7 +58,7 @@ export const HeatmapChartCore = ({
   onDragEnd,
   onExpand,
   captureFileName,
-  onDownloadImage,
+  toolbarOption,
 }: HeatmapChartCoreProps) => {
   const chartContainerRef = React.useRef<HTMLDivElement>(null);
   const [showSetting, setShowSetting] = React.useState(false);
@@ -71,16 +76,12 @@ export const HeatmapChartCore = ({
       cacheBust: true,
     });
 
-    if (onDownloadImage) {
-      onDownloadImage(image, captureFileName);
-    } else {
-      const link = document.createElement('a');
-      link.href = image;
-      link.download = captureFileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = captureFileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     await setIsCapturingImage(false);
   };
 
@@ -94,27 +95,33 @@ export const HeatmapChartCore = ({
 
   return (
     <div className="relative flex flex-col w-full h-full gap-2">
-      <div className="absolute flex flex-row items-center justify-end gap-2 px-4 font-normal text-gray-400 -top-5 right-3">
-        <BsGearFill
-          aria-label="Heatmap settings"
-          className="text-base cursor-pointer"
-          onClick={() => setShowSetting(true)}
-          onMouseEnter={prefetchHeatmapSetting}
-        />
-        <FaDownload
-          aria-label="Download heatmap image"
-          className="text-base cursor-pointer"
-          onClick={handleCaptureImage}
-        />
-        {onExpand && (
-          <FaExpandArrowsAlt
-            aria-label="Expand heatmap"
-            className="text-base cursor-pointer"
-            onClick={onExpand}
-          />
-        )}
-        <HelpPopover helpKey="HELP_VIEWER.HEATMAP" />
-      </div>
+      {!toolbarOption?.hide && (
+        <div className="absolute flex flex-row items-center justify-end gap-2 px-4 font-normal text-gray-400 -top-5 right-3">
+          {!toolbarOption?.axisSetting?.hide && (
+            <BsGearFill
+              aria-label="Heatmap settings"
+              className="text-base cursor-pointer"
+              onClick={() => setShowSetting(true)}
+              onMouseEnter={prefetchHeatmapSetting}
+            />
+          )}
+          {!toolbarOption?.captureImage?.hide && (
+            <FaDownload
+              aria-label="Download heatmap image"
+              className="text-base cursor-pointer"
+              onClick={handleCaptureImage}
+            />
+          )}
+          {onExpand && !toolbarOption?.expand?.hide && (
+            <FaExpandArrowsAlt
+              aria-label="Expand heatmap"
+              className="text-base cursor-pointer"
+              onClick={onExpand}
+            />
+          )}
+          {!toolbarOption?.help?.hide && <HelpPopover helpKey="HELP_VIEWER.HEATMAP" />}
+        </div>
+      )}
       <HeatmapChart
         ref={chartContainerRef}
         data={data}

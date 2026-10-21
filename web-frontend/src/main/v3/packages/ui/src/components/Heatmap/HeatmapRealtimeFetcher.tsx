@@ -207,8 +207,9 @@ export const HeatmapRealtimeFetcher = ({
       setting={setting}
       onSettingChange={setSetting}
       onDragEnd={handleDragEnd}
-      onExpand={toolbarOption?.expand?.hide ? undefined : handleExpand}
+      onExpand={handleExpand}
       captureFileName={`Pinpoint_Heatmap_Chart__${nodeData?.applicationName}^${nodeData?.serviceType}.png`}
+      toolbarOption={toolbarOption}
     />
   );
 };

@@ -1,4 +1,8 @@
-import { HeatmapChartCore, HeatmapChartCoreProps } from './core/HeatmapChartCore';
+import {
+  HeatmapChartCore,
+  HeatmapChartCoreProps,
+  HeatmapToolbarOption,
+} from './core/HeatmapChartCore';
 import {
   useServerMapSearchParameters,
   useStoragedSetting,
@@ -26,11 +30,7 @@ const DefaultAxisY = [0, 10000];
 export interface HeatmapFetcherProps {
   nodeData: GetServerMap.NodeData | ApplicationType;
   agentId?: string;
-  toolbarOption?: {
-    expand?: {
-      hide?: boolean;
-    };
-  };
+  toolbarOption?: HeatmapToolbarOption;
   /**
    * 조회 대상이 소속된 service. 화면의 service와 다를 때만 넘긴다(map에서 다른 service의 노드를
    * 고른 경우). 넘기지 않으면 화면의 service로 조회한다.
@@ -110,8 +110,9 @@ export const HeatmapFetcher = ({
         setting={setting}
         onSettingChange={setSetting}
         onDragEnd={handleDragEnd}
-        onExpand={toolbarOption?.expand?.hide ? undefined : handleExpand}
+        onExpand={handleExpand}
         captureFileName={`Pinpoint_Heatmap_Chart__${nodeData?.applicationName}^${nodeData?.serviceType}.png`}
+        toolbarOption={toolbarOption}
       />
     </div>
   );
