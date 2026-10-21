@@ -28,7 +28,7 @@ echarts.use([
 
 type DataValue = [string, string, number];
 
-type HeatmapChartProps = {
+export type HeatmapChartProps = {
   isRealtime?: boolean;
   data?: GetHeatmapAppData.Response;
   setting: HeatmapSettingType;
