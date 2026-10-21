@@ -81,7 +81,7 @@ public class ApplicationValidator {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName " + applicationName);
         }
         if (serviceType.isWas()) {
-            if (!IdValidateUtils.checkPattern(applicationName)) {
+            if (!IdValidateUtils.checkIdPattern(applicationName)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName(node) " + applicationName);
             }
         } else {

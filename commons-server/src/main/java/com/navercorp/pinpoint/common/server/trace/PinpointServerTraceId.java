@@ -37,7 +37,7 @@ public class PinpointServerTraceId implements ServerTraceId {
         if (agentIdIndex == -1) {
             throw new IllegalArgumentException("agentIndex not found:" + transactionId);
         }
-        if (!IdValidateUtils.checkId(transactionId, 0, agentIdIndex)) {
+        if (!IdValidateUtils.checkIdPattern(transactionId, 0, agentIdIndex)) {
             throw new IllegalArgumentException("invalid transactionId:" + transactionId);
         }
         final String agentId = transactionId.substring(0, agentIdIndex);

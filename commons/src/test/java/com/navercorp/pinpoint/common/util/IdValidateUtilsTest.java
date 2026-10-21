@@ -86,18 +86,41 @@ public class IdValidateUtilsTest {
     }
 
     @Test
+    public void testCheckId_min_length() {
+        Assertions.assertEquals(IdValidateUtils.CheckResult.FAIL_LENGTH, IdValidateUtils.checkId("ab", 3, 10));
+        Assertions.assertEquals(IdValidateUtils.CheckResult.SUCCESS, IdValidateUtils.checkId("abc", 3, 10));
+        Assertions.assertEquals(IdValidateUtils.CheckResult.SUCCESS, IdValidateUtils.checkId("abcdefghij", 3, 10));
+        Assertions.assertEquals(IdValidateUtils.CheckResult.FAIL_LENGTH, IdValidateUtils.checkId("abcdefghijk", 3, 10));
+        Assertions.assertEquals(IdValidateUtils.CheckResult.FAIL_PATTERN, IdValidateUtils.checkId("a b", 3, 10));
+
+        Assertions.assertTrue(IdValidateUtils.validateId("abc", 3, 10));
+        Assertions.assertFalse(IdValidateUtils.validateId("ab", 3, 10));
+
+        // the 2-arg form keeps rejecting the empty string
+        Assertions.assertEquals(IdValidateUtils.CheckResult.FAIL_LENGTH, IdValidateUtils.checkId("", 10));
+        Assertions.assertTrue(IdValidateUtils.checkLength("a", 10));
+        Assertions.assertFalse(IdValidateUtils.checkLength("", 10));
+    }
+
+    @Test
+    public void testCheckId_invalid_bounds() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> IdValidateUtils.checkId("abc", 0, 10));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> IdValidateUtils.checkId("abc", 5, 4));
+    }
+
+    @Test
     public void testValidateId_offset() {
         String postFix = "agent^";
-        Assertions.assertTrue(IdValidateUtils.checkId(postFix, 0, postFix.length() - 1));
+        Assertions.assertTrue(IdValidateUtils.checkIdPattern(postFix, 0, postFix.length() - 1));
 
         String preFix = "^agent";
-        Assertions.assertTrue(IdValidateUtils.checkId(preFix, 1, preFix.length()));
+        Assertions.assertTrue(IdValidateUtils.checkIdPattern(preFix, 1, preFix.length()));
 
         String all = "^agent^";
-        Assertions.assertTrue(IdValidateUtils.checkId(all, 1, all.length() - 1));
+        Assertions.assertTrue(IdValidateUtils.checkIdPattern(all, 1, all.length() - 1));
 
         String error = "^age&nt&";
-        Assertions.assertFalse(IdValidateUtils.checkId(error, 1, error.length()));
+        Assertions.assertFalse(IdValidateUtils.checkIdPattern(error, 1, error.length()));
 
     }
 

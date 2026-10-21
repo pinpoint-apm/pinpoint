@@ -26,12 +26,13 @@ import java.util.Objects;
 public final class IdValidateUtils {
 
     private static final int DEFAULT_MAX_LENGTH = PinpointConstants.AGENT_ID_MAX_LEN;
+    private static final int MIN_LENGTH = 1;
 
     @Deprecated
     public static String STABLE_VERSION_PATTERN_VALUE = AgentVersionPostfix.STABLE_VERSION_PATTERN_STRING;
 
     /**
-     * Kept for error messages. {@link #checkPattern(String)} checks the same character set without a regex,
+     * Kept for error messages. {@link #checkIdPattern(String)} checks the same character set without a regex,
      * because it runs on the collector for every span and header.
      */
     public static final String ID_PATTERN_VALUE = "[a-zA-Z0-9._\\-]+";
@@ -54,6 +55,11 @@ public final class IdValidateUtils {
         return result == CheckResult.SUCCESS;
     }
 
+    public static boolean validateId(String id, int minLength, int maxLength) {
+        final CheckResult result = checkId(id, minLength, maxLength);
+        return result == CheckResult.SUCCESS;
+    }
+
     public enum CheckResult {
         SUCCESS,
         FAIL_LENGTH,
@@ -61,30 +67,45 @@ public final class IdValidateUtils {
     }
 
     public static CheckResult checkId(String id, int maxLength) {
+        return checkId(id, MIN_LENGTH, maxLength);
+    }
+
+    /**
+     * @param minLength inclusive minimum length, at least 1
+     * @param maxLength inclusive maximum length
+     */
+    public static CheckResult checkId(String id, int minLength, int maxLength) {
         Objects.requireNonNull(id, "id");
 
-        if (maxLength <= 0) {
-            throw new IllegalArgumentException("negative maxLength:" + maxLength);
+        if (minLength < MIN_LENGTH) {
+            throw new IllegalArgumentException("negative minLength:" + minLength);
+        }
+        if (maxLength < minLength) {
+            throw new IllegalArgumentException("maxLength:" + maxLength + " < minLength:" + minLength);
         }
 
-        if (!checkLength(id, maxLength)) {
+        if (!checkLength(id, minLength, maxLength)) {
             return CheckResult.FAIL_LENGTH;
         }
-        if (!checkPattern(id)) {
+        if (!checkIdPattern(id)) {
             return CheckResult.FAIL_PATTERN;
         }
         return CheckResult.SUCCESS;
     }
 
-    public static boolean checkPattern(String id) {
-        return checkId(id, 0, id.length());
+    public static boolean checkIdPattern(String id) {
+        return checkIdPattern(id, 0, id.length());
     }
 
     public static boolean checkLength(String id, int maxLength) {
+        return checkLength(id, MIN_LENGTH, maxLength);
+    }
+
+    public static boolean checkLength(String id, int minLength, int maxLength) {
         Objects.requireNonNull(id, "id");
 
         final int idLength = id.length();
-        if (idLength <= 0) {
+        if (idLength < minLength) {
             return false;
         }
         return idLength <= maxLength;
@@ -95,7 +116,7 @@ public final class IdValidateUtils {
      * @param end   exclusive end index
      * @return true when {@code id[start, end)} is non-empty and every char matches {@link #ID_PATTERN_VALUE}
      */
-    public static boolean checkId(String id, int start, int end) {
+    public static boolean checkIdPattern(String id, int start, int end) {
         if (start < 0 || end > id.length() || start > end) {
             throw new IndexOutOfBoundsException("start:" + start + " end:" + end + " length:" + id.length());
         }
