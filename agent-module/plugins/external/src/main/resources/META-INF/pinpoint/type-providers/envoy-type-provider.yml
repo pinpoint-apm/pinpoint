@@ -1,19 +1,30 @@
 serviceTypes:
-    # Envoy ServiceTypes are emitted by the native pinpoint-cpp Envoy tracer.
+    # Envoy ServiceTypes are emitted by the native pinpoint-cpp Envoy tracer. A span (ENVOY) has a
+    # root span event (ENVOY_OPERATION) that holds Envoy's tags, status and error, and under it one
+    # span event per upstream attempt (ENVOY_INGRESS / ENVOY_EGRESS) whose destination is the
+    # upstream authority. The root span event has no destination and records no statistics.
     # The OTLP trace mapping does NOT re-type Envoy spans (they keep OPENTELEMETRY_SERVER /
-    # OPENTELEMETRY_HTTP_CLIENT) and uses only the annotation keys below for identification.
+    # OPENTELEMETRY_HTTP_CLIENT) and uses only envoy.operation and upstream.cluster for identification.
     - code: 1550
       name: 'ENVOY'
       property:
           recordStatistics: true
+    - code: 1551
+      name: 'ENVOY_OPERATION'
     - code: 9301
       name: 'ENVOY_INGRESS'
       property:
         recordStatistics: true
+      matcher:
+        type: 'exact'
+        code: 40
     - code: 9302
       name: 'ENVOY_EGRESS'
       property:
         recordStatistics: true
+      matcher:
+        type: 'exact'
+        code: 40
 
 annotationKeys:
   - code: 9441
@@ -22,5 +33,23 @@ annotationKeys:
       viewInRecordSet: true
   - code: 9442
     name: upstream.cluster
+    property:
+      viewInRecordSet: true
+  # An Envoy tag (name, value) with no key of its own, e.g. HCM tracing.custom_tags, retry.count.
+  - code: 9443
+    name: envoy.tag
+    property:
+      viewInRecordSet: true
+  - code: 9444
+    name: envoy.response_flags
+    property:
+      viewInRecordSet: true
+  - code: 9445
+    name: envoy.x_request_id
+    property:
+      viewInRecordSet: true
+  # A timing event of HCM tracing.verbose (event, time from the start of the span).
+  - code: 9446
+    name: envoy.event
     property:
       viewInRecordSet: true
