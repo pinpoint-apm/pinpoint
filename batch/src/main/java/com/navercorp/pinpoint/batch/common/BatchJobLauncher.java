@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.common;
 
+import com.navercorp.pinpoint.batch.config.BatchMetaCleanupJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.batch.util.JobParametersUtils;
 import org.apache.logging.log4j.LogManager;
@@ -36,14 +37,25 @@ public class BatchJobLauncher extends JobLaunchSupport {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final BatchProperties batchProperties;
+    private final BatchMetaCleanupProperties metaCleanupProperties;
 
     public BatchJobLauncher(
             @Qualifier("jobRegistry") JobLocator locator,
             @Qualifier("jobLauncher") JobLauncher launcher,
             BatchProperties batchProperties
     ) {
+        this(locator, launcher, batchProperties, new BatchMetaCleanupProperties());
+    }
+
+    public BatchJobLauncher(
+            @Qualifier("jobRegistry") JobLocator locator,
+            @Qualifier("jobLauncher") JobLauncher launcher,
+            BatchProperties batchProperties,
+            BatchMetaCleanupProperties metaCleanupProperties
+    ) {
         super(locator, launcher);
         this.batchProperties = Objects.requireNonNull(batchProperties, "batchProperties");
+        this.metaCleanupProperties = Objects.requireNonNull(metaCleanupProperties, "metaCleanupProperties");
     }
 
     public void alarmJob() {
@@ -80,6 +92,14 @@ public class BatchJobLauncher extends JobLaunchSupport {
             run(CleanupAgentAndApplicationJobConfig.JOB_NAME, createTimeParameter(batchProperties.isCleanupAgentAndApplicationJobDryRun()));
         } else {
             logger.debug("Skip {}, because 'agentIdCleanJobEnable' is disabled.", CleanupAgentAndApplicationJobConfig.JOB_NAME);
+        }
+    }
+
+    public void batchMetaCleanupJob() {
+        if (metaCleanupProperties.isEnable()) {
+            run(BatchMetaCleanupJobConfig.JOB_NAME, createTimeParameter(metaCleanupProperties.isDryRun()));
+        } else {
+            logger.debug("Skip {}, because '{}.enable' is disabled.", BatchMetaCleanupJobConfig.JOB_NAME, BatchMetaCleanupProperties.PREFIX);
         }
     }
 

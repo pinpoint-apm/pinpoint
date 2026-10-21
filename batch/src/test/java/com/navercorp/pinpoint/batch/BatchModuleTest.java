@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.batch.config.BatchMetaCleanupJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.common.hbase.HbaseVersionCheckBean;
 import com.navercorp.pinpoint.pinot.datasource.PinotDataSource;
@@ -61,7 +62,7 @@ public class BatchModuleTest {
     // BatchJobLauncher looks these up by name at cron time, so a mismatch would not fail at startup
     @Test
     public void launchedJobsAreRegistered() throws Exception {
-        List<String> jobNames = List.of("alarmJob", "uriAlarmJob", "agentCountJob", CleanupAgentAndApplicationJobConfig.JOB_NAME);
+        List<String> jobNames = List.of("alarmJob", "uriAlarmJob", "agentCountJob", CleanupAgentAndApplicationJobConfig.JOB_NAME, BatchMetaCleanupJobConfig.JOB_NAME);
         for (String jobName : jobNames) {
             assertThat(jobRegistry.getJob(jobName).getName()).isEqualTo(jobName);
         }
