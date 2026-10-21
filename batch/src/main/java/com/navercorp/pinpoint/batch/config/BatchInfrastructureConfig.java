@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.batch.alarm.sender.MailSender;
 import com.navercorp.pinpoint.batch.alarm.sender.SmsSender;
 import com.navercorp.pinpoint.batch.alarm.sender.WebhookSender;
 import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
+import com.navercorp.pinpoint.batch.common.BatchMetaCleanupProperties;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.batch.common.JobFailListener;
 import com.navercorp.pinpoint.batch.common.JobFailMessageSender;
@@ -86,8 +87,9 @@ public class BatchInfrastructureConfig {
     @Bean
     public BatchJobLauncher batchJobLauncher(JobRegistry jobRegistry,
                                              JobLauncher jobLauncher,
-                                             BatchProperties batchProperties) {
-        return new BatchJobLauncher(jobRegistry, jobLauncher, batchProperties);
+                                             BatchProperties batchProperties,
+                                             BatchMetaCleanupProperties batchMetaCleanupProperties) {
+        return new BatchJobLauncher(jobRegistry, jobLauncher, batchProperties, batchMetaCleanupProperties);
     }
 
     @Bean

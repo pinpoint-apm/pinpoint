@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.config;
 
 import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
+import com.navercorp.pinpoint.batch.common.BatchMetaCleanupProperties;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
 import com.navercorp.pinpoint.batch.otlp.OtlpLinkJoinLauncher;
 import org.springframework.beans.factory.ObjectProvider;
@@ -38,14 +39,17 @@ public class BatchScheduleConfig implements SchedulingConfigurer {
     private final BatchProperties batchProperties;
     private final ObjectProvider<OtlpLinkJoinLauncher> otlpLinkJoinLauncher;
     private final String otlpLinkJoinCron;
+    private final BatchMetaCleanupProperties batchMetaCleanupProperties;
 
     public BatchScheduleConfig(BatchJobLauncher batchJobLauncher, BatchProperties batchProperties,
                                ObjectProvider<OtlpLinkJoinLauncher> otlpLinkJoinLauncher,
-                               @Value("${job.otlp.link-join.cron:30 * * * * *}") String otlpLinkJoinCron) {
+                               @Value("${job.otlp.link-join.cron:30 * * * * *}") String otlpLinkJoinCron,
+                               BatchMetaCleanupProperties batchMetaCleanupProperties) {
         this.batchJobLauncher = batchJobLauncher;
         this.batchProperties = batchProperties;
         this.otlpLinkJoinLauncher = otlpLinkJoinLauncher;
         this.otlpLinkJoinCron = otlpLinkJoinCron;
+        this.batchMetaCleanupProperties = batchMetaCleanupProperties;
     }
 
 
@@ -91,6 +95,15 @@ public class BatchScheduleConfig implements SchedulingConfigurer {
         if (linkJoinLauncher != null) {
             taskRegistrar.addTriggerTask(linkJoinLauncher::run, new CronTrigger(otlpLinkJoinCron));
         }
+
+        // Spring Batch meta data cleanup (job.cleanup.batch-meta.enable, default off)
+        taskRegistrar.addTriggerTask(
+                batchJobLauncher::batchMetaCleanupJob,
+                triggerContext -> {
+                    String cron = batchMetaCleanupProperties.getCron();
+                    return new CronTrigger(cron).nextExecution(triggerContext);
+                }
+        );
     }
 
     @Bean
