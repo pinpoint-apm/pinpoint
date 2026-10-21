@@ -84,7 +84,8 @@ public class MapControllerConfiguration {
                                                        TraceIndexService traceIndexService,
                                                        FilterBuilder<List<SpanBo>> filterBuilder,
                                                        HyperLinkFactory hyperLinkFactory,
-                                                       ServiceTypeRegistryService serviceTypeRegistryService) {
-        return new FilteredMapController(mapProperties, filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService);
+                                                       ServiceTypeRegistryService serviceTypeRegistryService,
+                                                       ServiceModelResolver serviceModelResolver) {
+        return new FilteredMapController(mapProperties, filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService, serviceModelResolver);
     }
 }

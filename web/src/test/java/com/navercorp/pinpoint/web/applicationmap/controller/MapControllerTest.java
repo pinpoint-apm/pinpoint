@@ -67,7 +67,7 @@ class MapControllerTest {
         MapProperties mapProperties = new MapProperties();
         Duration duration = Duration.ofMinutes(1);
         MapController controller = new MapController(mapProperties, mapService, applicationValidator, serviceModelResolver, commonService, duration);
-        when(applicationValidator.newApplication(any(), anyInt(), any()))
+        when(applicationValidator.newApplication(any(), any(), anyInt(), any()))
                 .thenReturn(new Application("test", ServiceType.STAND_ALONE));
 
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller).build();

@@ -80,6 +80,7 @@ public class FilteredMapBuilder {
     // @Nullable
     private ServerMapDataFilter serverMapDataFilter;
 
+    // alias cache keyed by endpoint only; not service-aware (ALIAS is deprecated)
     private final Map<String, Application> applicationHashMap = new HashMap<>();
 
     public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, TimeWindow timeWindow) {
@@ -200,9 +201,9 @@ public class FilteredMapBuilder {
 
     private void addOtelLinkData(SpanBo upstream, SpanBo downstream) {
         final Application src = applicationFactory.createApplication(
-                upstream.getApplicationName(), upstream.getApplicationServiceType());
+                getSpanService(upstream), upstream.getApplicationName(), upstream.getApplicationServiceType());
         final Application dst = applicationFactory.createApplication(
-                downstream.getApplicationName(), downstream.getApplicationServiceType());
+                getSpanService(downstream), downstream.getApplicationName(), downstream.getApplicationServiceType());
         final long timestamp = timeWindow.refineTimestamp(downstream.getCollectorAcceptTime());
         final short slotTime = getHistogramSlotTime(downstream, dst.getServiceType());
 
@@ -270,7 +271,11 @@ public class FilteredMapBuilder {
     private Application getSpanApplication(SpanBo span) {
         String applicationName = span.getApplicationName();
         int applicationServiceType = span.getApplicationServiceType();
-        return this.applicationFactory.createApplication(applicationName, applicationServiceType);
+        return this.applicationFactory.createApplication(getSpanService(span), applicationName, applicationServiceType);
+    }
+
+    private Service getSpanService(SpanBo span) {
+        return new Service(span.getServiceName(), span.getServiceUid());
     }
 
     private void addLinkData(LinkDataMap linkDataMap, SpanBo span, Application parentApplication, Application spanApplication) {
@@ -340,6 +345,7 @@ public class FilteredMapBuilder {
 
     private Application createParentApplication(SpanBo span, MultiValueMap<Long, SpanBo> transactionSpanMap) {
         final SpanBo parentSpan = getParentsSpan(span, transactionSpanMap);
+        final Service spanService = getSpanService(span);
 
         if (span.isRoot() || parentSpan == null) {
             ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
@@ -351,12 +357,10 @@ public class FilteredMapBuilder {
                 if (applicationName == null) {
                     applicationName = span.getApplicationName();
                 }
-                return this.applicationFactory.createApplication(applicationName, spanServiceType);
+                return this.applicationFactory.createApplication(spanService, applicationName, spanServiceType);
             } else {
                 String applicationName = newUserNodeName(span);
-//                String serviceName = span.getServiceName();
-                Service service = Service.DEFAULT;
-                return this.applicationFactory.createApplication(service, applicationName, ServiceType.USER.getCode());
+                return this.applicationFactory.createApplication(spanService, applicationName, ServiceType.USER.getCode());
             }
         } else {
             // create virtual queue node if current' span's service type is a queue AND :
@@ -372,12 +376,12 @@ public class FilteredMapBuilder {
                         parentApplicationName = span.getRemoteAddr();
                     }
                     int parentServiceType = span.getServiceType();
-                    return this.applicationFactory.createApplication(Service.DEFAULT, parentApplicationName, parentServiceType);
+                    return this.applicationFactory.createApplication(spanService, parentApplicationName, parentServiceType);
                 }
             }
             String parentApplicationName = parentSpan.getApplicationName();
             int parentServiceType = parentSpan.getApplicationServiceType();
-            return this.applicationFactory.createApplication(Service.DEFAULT, parentApplicationName, parentServiceType);
+            return this.applicationFactory.createApplication(getSpanService(parentSpan), parentApplicationName, parentServiceType);
         }
     }
 
@@ -438,9 +442,10 @@ public class FilteredMapBuilder {
 
     private void addNode(SpanBo span, MultiValueMap<Long, SpanBo> transactionSpanMap, Application srcApplication, LinkDataMap sourceLinkDataMap, SpanEventBo spanEvent) {
         ServiceType destServiceType = registry.findServiceType(spanEvent.getServiceType());
+        final Service service = srcApplication.getService();
 
         if (destServiceType.isAlias()) {
-            final Application destApplication = this.applicationFactory.createApplication(spanEvent.getDestinationId(), destServiceType);
+            final Application destApplication = this.applicationFactory.createApplication(service, spanEvent.getDestinationId(), destServiceType);
             applicationHashMap.putIfAbsent(spanEvent.getEndPoint(), destApplication);
         }
 
@@ -470,7 +475,7 @@ public class FilteredMapBuilder {
         }
 
 
-        final Application destApplication = this.applicationFactory.createApplication(dest, destServiceType);
+        final Application destApplication = this.applicationFactory.createApplication(service, dest, destServiceType);
 
         final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 

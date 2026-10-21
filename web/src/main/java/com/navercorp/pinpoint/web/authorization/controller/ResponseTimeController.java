@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import com.navercorp.pinpoint.common.server.uid.Service;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
@@ -72,16 +73,19 @@ public class ResponseTimeController {
     private final RangeValidator rangeValidator;
     private final ApplicationFactory applicationFactory;
     private final HyperLinkFactory hyperLinkFactory;
+    private final ServiceModelResolver serviceModelResolver;
 
     public ResponseTimeController(ResponseTimeHistogramService responseTimeHistogramService,
                                   ConfigProperties configProperties,
                                   ApplicationFactory applicationFactory,
-                                  HyperLinkFactory hyperLinkFactory) {
+                                  HyperLinkFactory hyperLinkFactory,
+                                  ServiceModelResolver serviceModelResolver) {
         this.responseTimeHistogramService = Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         Objects.requireNonNull(configProperties, "configProperties");
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getServerMapPeriodMax()));
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
     }
 
     @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #applicationName)")
@@ -98,7 +102,8 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
@@ -121,7 +126,8 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(true)
@@ -159,7 +165,8 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
@@ -184,7 +191,8 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(true)
@@ -215,9 +223,10 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
 
-        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(service, application, timeWindow, applicationPairs)
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -239,9 +248,10 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
 
-        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(service, application, timeWindow, applicationPairs)
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -265,10 +275,11 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application application = createApplication(service, applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
-        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(service, application, timeWindow, applicationPairs)
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -300,8 +311,9 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         final TimeWindow timeWindow = new TimeWindow(range);
 
-        Application fromApplication = createApplication(Service.DEFAULT, fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
-        Application toApplication = createApplication(Service.DEFAULT, toApplicationName, toServiceTypeCode, toServiceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application fromApplication = createApplication(service, fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
+        Application toApplication = createApplication(service, toApplicationName, toServiceTypeCode, toServiceTypeName);
 
         LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
@@ -334,8 +346,9 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         final TimeWindow timeWindow = new TimeWindow(range);
 
-        Application fromApplication = createApplication(Service.DEFAULT, fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
-        Application toApplication = createApplication(Service.DEFAULT, toApplicationName, toServiceTypeCode, toServiceTypeName);
+        final Service service = serviceModelResolver.getService(serviceName.getName());
+        Application fromApplication = createApplication(service, fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
+        Application toApplication = createApplication(service, toApplicationName, toServiceTypeCode, toServiceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
         LinkHistogramSummary linkHistogramSummary =
@@ -346,14 +359,16 @@ public class ResponseTimeController {
         return chartView(histogram, timeHistogramType);
     }
 
-    private ResponseTimeHistogramServiceOption.Builder createOptionBuilder(Application application, TimeWindow timeWindow,
+    private ResponseTimeHistogramServiceOption.Builder createOptionBuilder(Service service, Application application, TimeWindow timeWindow,
                                                                            ApplicationPairs applicationPairs) {
-        List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
-        List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
+        // applicationPairs is used only for non-WAS nodes, which link to the selected service only for now,
+        // so every pair is bound to the request service. Change this once non-WAS nodes link across services.
+        List<Application> fromApplications = mapApplicationPairsToApplications(service, applicationPairs.getFromApplications());
+        List<Application> toApplications = mapApplicationPairsToApplications(service, applicationPairs.getToApplications());
         return new ResponseTimeHistogramServiceOption.Builder(application, timeWindow, fromApplications, toApplications);
     }
 
-    private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {
+    private List<Application> mapApplicationPairsToApplications(Service service, List<ApplicationPair> applicationPairs) {
         if (CollectionUtils.isEmpty(applicationPairs)) {
             return Collections.emptyList();
         }
@@ -361,7 +376,7 @@ public class ResponseTimeController {
         for (ApplicationPair applicationPair : applicationPairs) {
             String applicationName = applicationPair.getApplicationName();
             short serviceTypeCode = applicationPair.getServiceTypeCode();
-            Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
+            Application application = applicationFactory.createApplication(service, applicationName, serviceTypeCode);
             applications.add(application);
         }
         return applications;
