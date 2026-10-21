@@ -28,6 +28,7 @@ import java.util.List;
 
 public class HeaderExtractor {
     private static final int UNSPECIFIED_LENGTH = -1;
+    private static final int MIN_NAME_LENGTH = 1;
 
     private final int idMaxLength;
     private final int nameMaxLength;
@@ -67,17 +68,37 @@ public class HeaderExtractor {
     }
 
     public String getName(Metadata headers, Metadata.Key<String> idKey, int maxNameLength) {
+        return getName(headers, idKey, MIN_NAME_LENGTH, maxNameLength);
+    }
+
+    /**
+     * A missing or empty name passes as is. Otherwise the length is bounded by
+     * {@code [minNameLength, maxNameLength]} and the id character set is required.
+     */
+    public String getName(Metadata headers, Metadata.Key<String> idKey, int minNameLength, int maxNameLength) {
         final String name = headers.get(idKey);
-        if (!StringUtils.isEmpty(name)) {
-            final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(name, defaultLength(maxNameLength, this.nameMaxLength));
-            if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
-                throw new InvalidGrpcHeaderException(idKey, "Invalid " + idKey.name());
-            }
-            if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
-                throw new InvalidGrpcHeaderException(idKey, "Invalid " + idKey.name() + ".length");
-            }
+        if (StringUtils.isEmpty(name)) {
+            return name;
+        }
+
+        final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(name, minNameLength, defaultLength(maxNameLength, this.nameMaxLength));
+        if (result != IdValidateUtils.CheckResult.SUCCESS) {
+            throw new InvalidGrpcHeaderException(idKey, "Invalid " + idKey.name() + " " + result);
         }
         return name;
+    }
+
+    /**
+     * The service name header is required. An empty value passes, the collector maps it to the DEFAULT service.
+     * Otherwise the length is bounded by {@link PinpointConstants#SERVICE_NAME_MIN_LEN} and
+     * {@link PinpointConstants#SERVICE_NAME_MAX_LEN}, the same rule as the agent.
+     */
+    public String getServiceName(Metadata headers) {
+        final Metadata.Key<String> key = Header.SERVICE_NAME_KEY;
+        if (headers.get(key) == null) {
+            throw new InvalidGrpcHeaderException(key, key.name() + " header is missing");
+        }
+        return getName(headers, key, PinpointConstants.SERVICE_NAME_MIN_LEN, PinpointConstants.SERVICE_NAME_MAX_LEN);
     }
 
     private int defaultLength(int length, int defaultValue) {

@@ -49,7 +49,7 @@ public class ServerHeaderReaderV4 implements HeaderReader<Header> {
         final String agentId = headerExtractor.getId(headers, Header.AGENT_ID_KEY);
         final String agentName = headerExtractor.getName(headers, Header.AGENT_NAME_KEY);
         final String applicationName = headerExtractor.getName(headers, Header.APPLICATION_NAME_KEY);
-        final String serviceName = headerExtractor.getName(headers, Header.SERVICE_NAME_KEY);
+        final String serviceName = headerExtractor.getServiceName(headers);
 
         final String apikey = headers.get(Header.API_KEY);
 
