@@ -18,13 +18,16 @@ package com.navercorp.pinpoint.web.applicationmap.controller;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
@@ -77,6 +80,7 @@ public class FilteredMapController {
     private final FilterBuilder<List<SpanBo>> filterBuilder;
     private final HyperLinkFactory hyperLinkFactory;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
+    private final ServiceModelResolver serviceModelResolver;
 
     public FilteredMapController(
             MapProperties mapProperties,
@@ -84,17 +88,20 @@ public class FilteredMapController {
             TraceIndexService traceIndexService,
             FilterBuilder<List<SpanBo>> filterBuilder,
             HyperLinkFactory hyperLinkFactory,
-            ServiceTypeRegistryService serviceTypeRegistryService) {
+            ServiceTypeRegistryService serviceTypeRegistryService,
+            ServiceModelResolver serviceModelResolver) {
         this.mapProperties = Objects.requireNonNull(mapProperties, "mapProperties");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.traceIndexService = Objects.requireNonNull(traceIndexService, "traceIndexService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
     }
 
     @GetMapping(value = "/filterServerMap")
     public FilterMapViewV3 getFilterServer(
+            @ServiceParam ServiceName serviceName,
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -108,7 +115,7 @@ public class FilteredMapController {
             @PositiveOrZero int limitParam,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
             boolean useStatisticsAgentState) {
-        final String serviceName = appForm.getServiceName();
+        final Service service = serviceModelResolver.getService(serviceName.getName());
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
@@ -116,7 +123,7 @@ public class FilteredMapController {
         final Range range = toRange(rangeForm);
 
         final ServiceType serviceType = findServiceType(appForm.getServiceTypeCode(), appForm.getServiceTypeName());
-        final LimitedScanResult<List<ServerTraceId>> limitedScanResult = traceIndexService.getTraceIndexV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, limit);
+        final LimitedScanResult<List<ServerTraceId>> limitedScanResult = traceIndexService.getTraceIndexV2(service.getServiceUid(), applicationName, serviceType.getCode(), range, limit);
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling

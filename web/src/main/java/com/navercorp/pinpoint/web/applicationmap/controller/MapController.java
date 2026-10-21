@@ -123,7 +123,8 @@ public class MapController {
         final SearchOption searchOption = searchOptionBuilder()
                 .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
 
-        final Application application = getApplication(appForm);
+        // use Service.DEFAULT for servermap api
+        final Application application = getApplication(Service.DEFAULT, appForm);
 
         final MapServiceOption option = new MapServiceOption
                 .Builder(application, timeWindow, searchOption)
@@ -180,14 +181,14 @@ public class MapController {
 
     private List<Application> getSourceApplications(Service service, ApplicationForm appForm) {
         if (Service.DEFAULT.equals(service)) {
-            Application application = applicationValidator.newApplication(service, appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+            Application application = getApplication(service, appForm);
             return List.of(application);
         }
         return commonService.selectAllApplicationNames(service);
     }
 
-    private Application getApplication(ApplicationForm appForm) {
-        return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+    private Application getApplication(Service service, ApplicationForm appForm) {
+        return applicationValidator.newApplication(service, appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
     }
 
     private TimeWindow newTimeWindow(RangeForm rangeForm) {

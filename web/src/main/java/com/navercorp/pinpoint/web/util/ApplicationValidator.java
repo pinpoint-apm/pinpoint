@@ -49,10 +49,6 @@ public class ApplicationValidator {
         return new Application(applicationName, serviceType);
     }
 
-    public Application newApplication(String applicationName, int serviceTypeCode, String serviceTypeName) {
-        return newApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
-    }
-
     public Application newApplication(Service service, String applicationName, int serviceTypeCode, String serviceTypeName) {
         Objects.requireNonNull(service, "service");
         if (!StringUtils.hasText(applicationName)) {

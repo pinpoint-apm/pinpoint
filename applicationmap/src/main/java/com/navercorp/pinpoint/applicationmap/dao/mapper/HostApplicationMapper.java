@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -84,7 +85,8 @@ public class HostApplicationMapper implements ResultsExtractor<Set<AcceptApplica
         String bindApplicationName = reader.readPrefixedString();
         short bindServiceTypeCode = reader.readShort();
 
-        final Application bindApplication = applicationFactory.createApplication(bindApplicationName, bindServiceTypeCode);
+        // legacy qualifier has no service uid; HostApplicationMapperV3 handles service
+        final Application bindApplication = applicationFactory.createApplication(Service.DEFAULT, bindApplicationName, bindServiceTypeCode);
         return new AcceptApplication(host, bindApplication);
     }
 }

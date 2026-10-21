@@ -170,6 +170,8 @@ public class AgentsController {
         final Service service = serviceModelResolver.getService(serviceName.getName());
         final Application application = applicationFactory.createApplication(service, applicationName, serviceType.getCode());
 
+        // applicationPairs is used only for non-WAS nodes, which link to the selected service only for now,
+        // so every pair is bound to the request service. Change this once non-WAS nodes link across services.
         final List<Application> fromApplications =
                 pairsToList(service, applicationPairs.getFromApplications());
         final List<Application> toApplications =

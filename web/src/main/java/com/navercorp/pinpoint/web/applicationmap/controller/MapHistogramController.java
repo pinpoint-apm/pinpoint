@@ -253,6 +253,6 @@ public class MapHistogramController {
     }
 
     private Application getApplication(ApplicationForm appForm) {
-        return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+        return applicationValidator.newApplication(Service.DEFAULT, appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
     }
 }
