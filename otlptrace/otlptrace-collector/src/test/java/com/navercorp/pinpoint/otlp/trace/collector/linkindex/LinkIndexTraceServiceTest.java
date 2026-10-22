@@ -189,4 +189,15 @@ class LinkIndexTraceServiceTest {
         assertThat(entries).extracting(LinkEntry::destinationId).containsExactly("checkout:5050", "currency:7001");
         assertThat(entries).extracting(LinkEntry::applicationName).containsOnly("p.cart", "p.frontend");
     }
+
+    @Test
+    void everyRpcClientEventIsOfferedTheWriterDecidesSuppression() {
+        SpanBo span = serverSpan();
+        span.addSpanEvent(clientEvent(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode(), 300, "checkout:5050"));
+        span.addSpanEvent(clientEvent(ServiceType.OPENTELEMETRY_HTTP_CLIENT.getCode(), 301, "checkout:5050"));
+
+        service.insertSpan(span);
+
+        assertThat(offered(3)).extracting(LinkEntry::spanId).containsExactly(100L, 300L, 301L);
+    }
 }

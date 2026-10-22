@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.linkindex;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexWriter;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkIndexSuppression;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexConnection;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexRedisConnector;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexRedisConnectorFactory;
@@ -89,6 +90,29 @@ class OtlpLinkIndexModuleTest {
             MeterRegistry registry = context.getBean(MeterRegistry.class);
             assertThat(registry.find("collector.otlptrace.linkindex.written").functionCounter()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.dropped").tag("reason", "slot_limit").functionCounter()).isNotNull();
+            // suppression on by default: list read from the store, counters registered
+            assertThat(context.getBean(LinkIndexSuppression.class).toString()).contains("store=true").contains("probePerSlot=100");
+            assertThat(registry.find("collector.otlptrace.linkindex.suppressed").functionCounter()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.probed").functionCounter()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.suppress.active").gauge()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.suppress.refresh.errors").functionCounter()).isNotNull();
+        }
+    }
+
+    @Test
+    void suppressionDisabledKeepsOnlyTheStaticRules() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("pinpoint.collector.otlptrace.link-index.enabled", "true");
+        properties.put("pinpoint.collector.otlptrace.link-index.suppress.enabled", "false");
+        properties.put("pinpoint.collector.otlptrace.link-index.suppress.probe-per-slot", "1");
+        properties.put("pinpoint.collector.otlptrace.link-index.suppress.force", "mapmatch-bg|navi:12000");
+        properties.put("pinpoint.collector.otlptrace.link-index.suppress.pin", "p.frontend");
+        try (AnnotationConfigApplicationContext context = context(properties, true)) {
+            LinkIndexSuppression suppression = context.getBean(LinkIndexSuppression.class);
+            assertThat(suppression.toString()).contains("store=false").contains("probePerSlot=1")
+                    .contains("mapmatch-bg|navi:12000").contains("p.frontend");
+            assertThat(suppression.allow("mapmatch-bg", "navi:12000", 1)).isTrue();    // probe
+            assertThat(suppression.allow("mapmatch-bg", "navi:12000", 1)).isFalse();
         }
     }
 }

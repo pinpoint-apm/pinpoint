@@ -34,6 +34,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexKeys;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressManager;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressPolicy;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressStore;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -135,6 +140,71 @@ public class OtlpLinkJoinJobConfig {
     }
 
     /**
+     * Suppression list: CLIENT identifiers that stay unmatched for a day are marked ACTIVE in the store, and the
+     * collectors stop indexing them (apart from a probe). Any match releases an identifier at once.
+     * {@code suppress.enabled=false} leaves the job with its join and cleanup steps only.
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(name = PREFIX + "suppress.enabled", havingValue = "true", matchIfMissing = true)
+    public static class SuppressConfig {
+
+        @Bean
+        public SuppressManager otlpLinkSuppressManager(LinkIndexRedisConnector connector,
+                                                       LinkIndexRedisProperties properties,
+                                                       @Value("${" + PREFIX + "suppress.activate-after:24h}") Duration activateAfter,
+                                                       @Value("${" + PREFIX + "suppress.activate-slots:1440}") long activateSlots,
+                                                       @Value("${" + PREFIX + "suppress.min-unmatched-per-slot:100}") int minUnmatchedPerSlot,
+                                                       @Value("${" + PREFIX + "suppress.idle-ttl:7d}") Duration idleTtl,
+                                                       @Value("${" + PREFIX + "suppress.max-keys:1000}") int maxKeys) {
+            final SuppressPolicy policy = new SuppressPolicy(activateAfter.toMillis() / LinkIndexKeys.SLOT_MILLIS, activateSlots,
+                    minUnmatchedPerSlot, idleTtl.toMillis() / LinkIndexKeys.SLOT_MILLIS, maxKeys);
+            logger.info("{} suppression {}", OtlpLinkJoinLauncher.JOB_NAME, policy);
+            return new SuppressManager(new SuppressStore(connector.connect(), properties.commandTimeout()), policy);
+        }
+
+        @Bean
+        public Step otlpLinkSuppressStep(JobRepository jobRepository,
+                                         LinkJoinService service,
+                                         SuppressManager manager,
+                                         @Qualifier("otlpLinkJoinStepCustomListener") Optional<StepExecutionListener> customListener) {
+            final TaskletStepBuilder builder = new StepBuilder("otlpLinkSuppressStep", jobRepository)
+                    .tasklet(new OtlpLinkJoinTasklets.Suppress(service, manager), stepTransactionManager());
+            customListener.ifPresent(builder::listener);
+            return builder.build();
+        }
+
+        @Bean
+        public OtlpLinkSuppressMetrics otlpLinkSuppressMetrics(SuppressManager manager, ObjectProvider<MeterRegistry> meterRegistry) {
+            final MeterRegistry registry = meterRegistry.getIfAvailable();
+            if (registry == null) {
+                return new OtlpLinkSuppressMetrics();
+            }
+            return new OtlpLinkSuppressMetrics(manager, registry);
+        }
+    }
+
+    /**
+     * Registers the suppression list totals under {@value OtlpLinkJoinMetrics#METRIC_PREFIX}{@code suppress.}:
+     * {@code activated}, {@code released}, {@code expired}, {@code errors} counters and {@code candidates},
+     * {@code active} gauges of the last run.
+     */
+    public static class OtlpLinkSuppressMetrics {
+        static final String METRIC_PREFIX = OtlpLinkJoinMetrics.METRIC_PREFIX + "suppress.";
+
+        OtlpLinkSuppressMetrics() {
+        }
+
+        public OtlpLinkSuppressMetrics(SuppressManager manager, MeterRegistry registry) {
+            FunctionCounter.builder(METRIC_PREFIX + "activated", manager, m -> (double) m.getActivated()).register(registry);
+            FunctionCounter.builder(METRIC_PREFIX + "released", manager, m -> (double) m.getReleased()).register(registry);
+            FunctionCounter.builder(METRIC_PREFIX + "expired", manager, m -> (double) m.getExpired()).register(registry);
+            FunctionCounter.builder(METRIC_PREFIX + "errors", manager, m -> (double) m.getErrors()).register(registry);
+            Gauge.builder(METRIC_PREFIX + "candidates", manager, SuppressManager::getLastCandidates).register(registry);
+            Gauge.builder(METRIC_PREFIX + "active", manager, SuppressManager::getLastActive).register(registry);
+        }
+    }
+
+    /**
      * The steps touch only the link index store and HBase, never a JDBC DataSource, so they run
      * without a resource transaction (as the alarm batch does). Binding them to the main
      * {@code transactionManager} would open a JDBC connection per step for nothing, and would
@@ -174,11 +244,15 @@ public class OtlpLinkJoinJobConfig {
     @Bean
     public Job otlpLinkJoinJob(JobRepository jobRepository,
                                @Qualifier("otlpLinkJoinStep") Step joinStep,
+                               @Qualifier("otlpLinkSuppressStep") Optional<Step> suppressStep,
                                @Qualifier("otlpLinkCleanupStep") Step cleanupStep) {
-        return new JobBuilder(OtlpLinkJoinLauncher.JOB_NAME, jobRepository)
+        // join -> cleanup -> suppress: the cleanup step completes only once the job of slot k-1 has, which also
+        // orders the suppression list updates of consecutive slots across batch instances (no lock on the list)
+        final SimpleJobBuilder builder = new JobBuilder(OtlpLinkJoinLauncher.JOB_NAME, jobRepository)
                 .start(joinStep)
-                .next(cleanupStep)
-                .build();
+                .next(cleanupStep);
+        suppressStep.ifPresent(builder::next);
+        return builder.build();
     }
 
     @Bean
