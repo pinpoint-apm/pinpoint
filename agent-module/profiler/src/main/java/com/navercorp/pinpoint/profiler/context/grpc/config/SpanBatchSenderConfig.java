@@ -36,6 +36,9 @@ public class SpanBatchSenderConfig {
     private long collectDeadlineTimeMillis = DEFAULT_COLLECT_DEADLINE_TIME_MILLIS;
     @Value("${profiler.transport.grpc.span.batch-sender.max-concurrent-requests}")
     private int maxConcurrentRequests = DEFAULT_MAX_CONCURRENT_REQUESTS;
+    @Value("${profiler.transport.grpc.span.batch-sender.compression}")
+    private String compression;
+    private GrpcSenderCompression resolvedCompression;
 
     public int getSize() {
         return size;
@@ -53,6 +56,16 @@ public class SpanBatchSenderConfig {
         return maxConcurrentRequests;
     }
 
+    public GrpcSenderCompression getCompression() {
+        // parsed once: an unknown value is reported a single time
+        GrpcSenderCompression resolved = this.resolvedCompression;
+        if (resolved == null) {
+            resolved = GrpcSenderCompression.fromValue(compression);
+            this.resolvedCompression = resolved;
+        }
+        return resolved;
+    }
+
     @Override
     public String toString() {
         return "SpanBatchSenderConfig{" +
@@ -60,6 +73,7 @@ public class SpanBatchSenderConfig {
                 ", flushIntervalMillis=" + flushIntervalMillis +
                 ", collectDeadlineTimeMillis=" + collectDeadlineTimeMillis +
                 ", maxConcurrentRequests=" + maxConcurrentRequests +
+                ", compression=" + getCompression() +
                 '}';
     }
 }

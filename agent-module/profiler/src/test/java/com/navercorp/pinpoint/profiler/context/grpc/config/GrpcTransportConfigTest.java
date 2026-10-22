@@ -84,4 +84,50 @@ public class GrpcTransportConfigTest {
         assertEquals(3145728, config.getSpanClientOption().getWriteBufferHighWaterMark());
         assertEquals(3145728, config.getSpanClientOption().getWriteBufferLowWaterMark());
     }
+
+    @Test
+    public void spanBatchCompression_missingKeyDefaultsToGzip() throws Exception {
+        Properties properties = PropertyUtils.loadProperty(getClass().getResourceAsStream("/pinpoint.config"));
+        properties.remove("profiler.transport.grpc.span.batch-sender.compression");
+
+        GrpcTransportConfig config = new GrpcTransportConfig();
+        config.read(properties::getProperty);
+
+        assertEquals(GrpcSenderCompression.GZIP, config.getSpanBatchSenderConfig().getCompression());
+    }
+
+    @Test
+    public void spanBatchCompression_gzip() throws Exception {
+        Properties properties = PropertyUtils.loadProperty(getClass().getResourceAsStream("/pinpoint.config"));
+        properties.setProperty("profiler.transport.grpc.span.batch-sender.compression", "gzip");
+
+        GrpcTransportConfig config = new GrpcTransportConfig();
+        config.read(properties::getProperty);
+
+        assertEquals(GrpcSenderCompression.GZIP, config.getSpanBatchSenderConfig().getCompression());
+    }
+
+    @Test
+    public void statCompression_missingKeyDefaultsToGzip() throws Exception {
+        Properties properties = PropertyUtils.loadProperty(getClass().getResourceAsStream("/pinpoint.config"));
+        properties.remove("profiler.transport.grpc.stat.sender.compression");
+
+        GrpcTransportConfig config = new GrpcTransportConfig();
+        config.read(properties::getProperty);
+
+        assertEquals(GrpcSenderCompression.GZIP, config.getStatCompression());
+    }
+
+    @Test
+    public void statCompression_gzip_independentOfSpan() throws Exception {
+        Properties properties = PropertyUtils.loadProperty(getClass().getResourceAsStream("/pinpoint.config"));
+        properties.setProperty("profiler.transport.grpc.stat.sender.compression", "GZIP");
+        properties.setProperty("profiler.transport.grpc.span.batch-sender.compression", "none");
+
+        GrpcTransportConfig config = new GrpcTransportConfig();
+        config.read(properties::getProperty);
+
+        assertEquals(GrpcSenderCompression.GZIP, config.getStatCompression());
+        assertEquals(GrpcSenderCompression.NONE, config.getSpanBatchSenderConfig().getCompression());
+    }
 }

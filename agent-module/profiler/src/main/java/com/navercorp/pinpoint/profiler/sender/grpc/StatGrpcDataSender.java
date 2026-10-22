@@ -28,14 +28,18 @@ import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
+import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcSenderCompression;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.ClientStreamingProvider;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.DefaultStreamTask;
 import com.navercorp.pinpoint.profiler.sender.grpc.stream.StreamExecutorFactory;
 import com.navercorp.pinpoint.profiler.util.NamedRunnable;
+import io.grpc.Status;
 import io.grpc.stub.ClientCallStreamObserver;
+import io.grpc.stub.ClientResponseObserver;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
@@ -44,8 +48,18 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  */
 public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
     private static final String ID = "StatStream";
+    /**
+     * With {@link GrpcSenderCompression#GZIP}, a message is compressed only from this serialized size on:
+     * a single PAgentStat is a few hundred bytes and gzip would make it larger, while a PAgentStatBatch
+     * or a PAgentUriStat with many URIs shrinks to a third or a half.
+     */
+    static final int COMPRESSION_MIN_BYTES = 512;
 
-    private final StatGrpc.StatStub statStub;
+    private final StatGrpc.StatStub uncompressedStub;
+    // the compressed stub until a collector rejects the compression, then uncompressedStub
+    private volatile StatGrpc.StatStub statStub;
+    private final GrpcSenderCompression compression;
+    private final AtomicBoolean compressionFallback = new AtomicBoolean(false);
     private final ReconnectExecutor reconnectExecutor;
 
     private final Reconnector reconnector;
@@ -68,14 +82,14 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
             if (message instanceof PAgentStatBatch) {
                 final PAgentStatBatch agentStatBatch = (PAgentStatBatch) message;
                 final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStatBatch(agentStatBatch).build();
-                stream.onNext(statMessage);
+                send(stream, statMessage);
                 return;
             }
 
             if (message instanceof PAgentStat) {
                 final PAgentStat agentStat = (PAgentStat) message;
                 final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStat(agentStat).build();
-                stream.onNext(statMessage);
+                send(stream, statMessage);
                 return;
             }
             if (message instanceof PCustomMetricMessage) {
@@ -89,7 +103,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
                 final PStatMessage statMessage = PStatMessage.newBuilder().setAgentUriStat(agentUriStat).build();
 
                 // TODO remove comment
-                stream.onNext(statMessage);
+                send(stream, statMessage);
                 return;
             }
             throw new IllegalStateException("unsupported message " + message);
@@ -101,8 +115,26 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
                               MessageConverter<MetricType, GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
                               ChannelFactory channelFactory) {
+        this(host, port, executorQueueSize, messageConverter, reconnectExecutor, channelFactory, GrpcSenderCompression.defaultCompression());
+    }
+
+    /**
+     * @param compression with {@link GrpcSenderCompression#GZIP} the stat stream is opened with gzip and messages of
+     *                    {@link #COMPRESSION_MIN_BYTES} or more are compressed. A collector that cannot decompress
+     *                    gzip fails the stream with UNIMPLEMENTED "Can't find decompressor"; the next stream is then
+     *                    opened uncompressed for the rest of this sender's life, logged once.
+     */
+    public StatGrpcDataSender(String host, int port,
+                              int executorQueueSize,
+                              MessageConverter<MetricType, GeneratedMessageV3> messageConverter,
+                              ReconnectExecutor reconnectExecutor,
+                              ChannelFactory channelFactory,
+                              GrpcSenderCompression compression) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
-        this.statStub = StatGrpc.newStub(managedChannel);
+        this.compression = compression == null ? GrpcSenderCompression.defaultCompression() : compression;
+        this.uncompressedStub = StatGrpc.newStub(managedChannel);
+        final String grpcName = this.compression.getGrpcName();
+        this.statStub = grpcName == null ? this.uncompressedStub : this.uncompressedStub.withCompression(grpcName);
 
         this.reconnectExecutor = Objects.requireNonNull(reconnectExecutor, "reconnectExecutor");
         final Runnable reconnectJob = new NamedRunnable(ID) {
@@ -118,8 +150,8 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
         ClientStreamingProvider<PStatMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PStatMessage, Empty>() {
             @Override
             public ClientCallStateStreamObserver<PStatMessage> newStream(ResponseStreamObserver<PStatMessage, Empty> response) {
-                logger.info("newStream {}", ID);
-                statStub.sendAgentStat(response);
+                logger.info("newStream {} compression={}{}", ID, compression, compressionFallback.get() ? " (fallback: uncompressed)" : "");
+                statStub.sendAgentStat(watchCompression(response));
                 return response.getRequestStream();
             }
         };
@@ -162,12 +194,91 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
         release();
     }
 
+    /**
+     * Sends one message, compressed only when the stream is compressed and the message is large enough
+     * ({@link #COMPRESSION_MIN_BYTES}): per message, gzip of a few hundred bytes grows rather than shrinks.
+     */
+    private void send(ClientCallStreamObserver<PStatMessage> stream, PStatMessage statMessage) {
+        if (compression != GrpcSenderCompression.NONE && !compressionFallback.get()) {
+            stream.setMessageCompression(shouldCompress(statMessage));
+        }
+        stream.onNext(statMessage);
+    }
+
+    static boolean shouldCompress(PStatMessage statMessage) {
+        return statMessage.getSerializedSize() >= COMPRESSION_MIN_BYTES;
+    }
+
+    /**
+     * Wraps the response observer to notice a collector that cannot read the compression, so that the
+     * reconnect opens the next stream uncompressed. Everything else is delegated untouched.
+     */
+    private ClientResponseObserver<PStatMessage, Empty> watchCompression(final ResponseStreamObserver<PStatMessage, Empty> response) {
+        if (compression == GrpcSenderCompression.NONE) {
+            return response;
+        }
+        return new ClientResponseObserver<PStatMessage, Empty>() {
+            @Override
+            public void beforeStart(ClientCallStreamObserver<PStatMessage> requestStream) {
+                response.beforeStart(requestStream);
+            }
+
+            @Override
+            public void onNext(Empty value) {
+                response.onNext(value);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                if (isDecompressorUnavailable(t)) {
+                    fallbackToUncompressed(t);
+                }
+                response.onError(t);
+            }
+
+            @Override
+            public void onCompleted() {
+                response.onCompleted();
+            }
+        };
+    }
+
+    /**
+     * The collector answered UNIMPLEMENTED "Can't find decompressor for gzip": it cannot read this
+     * compression, so every further compressed stream would fail too.
+     */
+    boolean isDecompressorUnavailable(Throwable t) {
+        if (compression == GrpcSenderCompression.NONE) {
+            return false;
+        }
+        final Status status = Status.fromThrowable(t);
+        if (status.getCode() != Status.Code.UNIMPLEMENTED) {
+            return false;
+        }
+        final String description = status.getDescription();
+        return description != null && description.contains("decompressor");
+    }
+
+    private void fallbackToUncompressed(Throwable t) {
+        this.statStub = this.uncompressedStub;
+        if (compressionFallback.compareAndSet(false, true)) {
+            logger.warn("Collector {}:{} does not accept {} stat streams ({}); sending them uncompressed from now on",
+                    host, port, compression, Status.fromThrowable(t).getDescription());
+        }
+    }
+
+    boolean isCompressionFallback() {
+        return compressionFallback.get();
+    }
+
     @Override
     public String toString() {
         return "StatGrpcDataSender{" +
                 "name='" + name + '\'' +
                 ", host='" + host + '\'' +
                 ", port=" + port +
+                ", compression=" + compression +
+                (compressionFallback.get() ? " (fallback: uncompressed)" : "") +
                 "} " + super.toString();
     }
 
