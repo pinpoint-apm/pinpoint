@@ -106,7 +106,7 @@ public final class LinkJoiner {
             }
         }
 
-        return new JoinResult(pairs, unmatched, previousServer.size(), previousClient.size());
+        return new JoinResult(pairs, unmatched, new ArrayList<>(previousServer.values()), new ArrayList<>(previousClient.values()));
     }
 
     private static void split(Collection<LinkEntry> entries, Map<PairKey, LinkEntry> server, Map<PairKey, LinkEntry> client) {

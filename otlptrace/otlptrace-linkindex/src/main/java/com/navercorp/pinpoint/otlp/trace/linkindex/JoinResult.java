@@ -26,5 +26,20 @@ import java.util.List;
  * @param droppedServer   SERVER entries of k-1 that matched nothing in k-1 nor in k
  * @param droppedClient   CLIENT entries of k-1 that matched nothing in k-1 nor in k
  */
-public record JoinResult(List<MatchedPair> pairs, List<LinkEntry> unmatched, int droppedServer, int droppedClient) {
+/**
+ * @param pairs          calls counted by the job of slot k
+ * @param unmatched      entries of k without a partner yet (read again by the job of k+1)
+ * @param droppedServers SERVER entries of k-1 that never matched (final)
+ * @param droppedClients CLIENT entries of k-1 that never matched (final)
+ */
+public record JoinResult(List<MatchedPair> pairs, List<LinkEntry> unmatched,
+                         List<LinkEntry> droppedServers, List<LinkEntry> droppedClients) {
+
+    public int droppedServer() {
+        return droppedServers.size();
+    }
+
+    public int droppedClient() {
+        return droppedClients.size();
+    }
 }

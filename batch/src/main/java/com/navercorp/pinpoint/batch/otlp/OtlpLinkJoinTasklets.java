@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.batch.otlp;
 
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkJoinService;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkCounts;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.BatchStatus;
@@ -62,6 +64,41 @@ public final class OtlpLinkJoinTasklets {
             final LinkJoinService.JoinSummary summary = service.join(slot(chunkContext));
             contribution.incrementReadCount();
             contribution.incrementWriteCount(summary.rows());
+            return RepeatStatus.FINISHED;
+        }
+    }
+
+    /**
+     * Updates the suppression list from the outcome of the join step of this run. Runs after the cleanup step, whose
+     * "previous slot completed" check thereby orders the list updates of consecutive slots, also across batch
+     * instances: the list is read, recomputed and written without a lock. The counts live in the
+     * {@link LinkJoinService} of this instance: if the join step of this slot completed in an earlier run (the job
+     * was restarted after a later step failed), there is nothing to apply and the step completes without a change.
+     * {@link SuppressManager#apply} never throws, so a store failure never fails the job: the next slot recomputes
+     * the same transitions.
+     */
+    public static class Suppress implements Tasklet {
+        private final Logger logger = LogManager.getLogger(this.getClass());
+
+        private final LinkJoinService service;
+        private final SuppressManager manager;
+
+        public Suppress(LinkJoinService service, SuppressManager manager) {
+            this.service = Objects.requireNonNull(service, "service");
+            this.manager = Objects.requireNonNull(manager, "manager");
+        }
+
+        @Override
+        public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+            final long slot = slot(chunkContext);
+            final Map<String, LinkCounts> counts = service.getClientCounts(slot);
+            if (counts == null) {
+                logger.warn("No join outcome of slot {} in this instance: suppression list not updated", slot);
+                return RepeatStatus.FINISHED;
+            }
+            final SuppressManager.SuppressSummary summary = manager.apply(slot, counts);
+            contribution.incrementReadCount();
+            contribution.incrementWriteCount(summary.activated() + summary.released() + summary.expired());
             return RepeatStatus.FINISHED;
         }
     }

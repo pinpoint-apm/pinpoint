@@ -1,0 +1,148 @@
+/*
+ * Copyright 2026 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.otlp.trace.linkindex.suppress;
+
+import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class LinkIndexSuppressionTest {
+
+    private static final String MAPMATCH = SuppressKey.of("mapmatch-bg", "navi:12000");
+    private final SuppressStore store = mock(SuppressStore.class);
+
+    private LinkIndexSuppression suppression(int probe, String force, String pin) {
+        return new LinkIndexSuppression(store, Duration.ofSeconds(60), probe, SuppressKey.parseRules(force), SuppressKey.parseRules(pin));
+    }
+
+    @Test
+    void nothingSuppressedBeforeTheFirstSnapshot() {
+        LinkIndexSuppression suppression = suppression(2, "", "");
+
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+        assertThat(suppression.getActiveCount()).isZero();
+        assertThat(suppression.getSuppressed()).isZero();
+    }
+
+    @Test
+    void activeIdentifierWritesTheProbeThenSuppresses() {
+        when(store.readActive()).thenReturn(Set.of(MAPMATCH));
+        LinkIndexSuppression suppression = suppression(2, "", "");
+        suppression.refresh();
+
+        assertThat(suppression.getActiveCount()).isEqualTo(1);
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isFalse();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isFalse();
+        // other destinations of the same application are not affected
+        assertThat(suppression.allow("mapmatch-bg", "other:1", 10)).isTrue();
+        assertThat(suppression.getProbed()).isEqualTo(2);
+        assertThat(suppression.getSuppressed()).isEqualTo(2);
+
+        // a new slot gets a new probe allowance
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 11)).isTrue();
+        assertThat(suppression.getProbed()).isEqualTo(3);
+    }
+
+    @Test
+    void releasedIdentifierIsWrittenAgainAfterTheNextRefresh() {
+        when(store.readActive()).thenReturn(Set.of(MAPMATCH)).thenReturn(Set.of());
+        LinkIndexSuppression suppression = suppression(1, "", "");
+        suppression.refresh();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isFalse();
+
+        suppression.refresh();
+
+        assertThat(suppression.getActiveCount()).isZero();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+        assertThat(suppression.getRefreshes()).isEqualTo(2);
+    }
+
+    @Test
+    void failedRefreshKeepsThePreviousSnapshot() {
+        when(store.readActive()).thenReturn(Set.of(MAPMATCH)).thenThrow(new IllegalStateException("store down"));
+        LinkIndexSuppression suppression = suppression(1, "", "");
+        suppression.refresh();
+        suppression.refresh();
+
+        assertThat(suppression.getRefreshErrors()).isEqualTo(1);
+        assertThat(suppression.getActiveCount()).isEqualTo(1);
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isFalse();
+    }
+
+    @Test
+    void forcedRulesApplyWithoutTheStore() {
+        LinkIndexSuppression suppression = new LinkIndexSuppression(null, Duration.ofSeconds(60), 1,
+                SuppressKey.parseRules("mapmatch-bg|navi:12000,sec.gateway.internal"), SuppressKey.Rules.EMPTY);
+        suppression.start();   // no store: nothing scheduled
+        suppression.refresh();
+
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();    // probe
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isFalse();
+        assertThat(suppression.allow("mapmatch-bg", "other:1", 10)).isTrue();
+        // an application rule covers every destination; the probe allowance is still per identifier
+        assertThat(suppression.allow("sec.gateway.internal", "coin-api-dev", 10)).isTrue();   // probe
+        assertThat(suppression.allow("sec.gateway.internal", "coin-api-dev", 10)).isFalse();
+        assertThat(suppression.allow("sec.gateway.internal", "anything", 10)).isTrue();       // probe
+        assertThat(suppression.allow("sec.gateway.internal", "anything", 10)).isFalse();
+        assertThat(suppression.allow("p.frontend", "cart:7070", 10)).isTrue();
+        assertThat(suppression.getRefreshes()).isZero();
+        suppression.close();
+    }
+
+    @Test
+    void pinnedRulesWinOverActiveAndForced() {
+        when(store.readActive()).thenReturn(Set.of(MAPMATCH));
+        LinkIndexSuppression suppression = suppression(1, "p.frontend", "mapmatch-bg|navi:12000,p.frontend|cart:7070");
+        suppression.refresh();
+
+        for (int i = 0; i < 5; i++) {
+            assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+            assertThat(suppression.allow("p.frontend", "cart:7070", 10)).isTrue();
+        }
+        assertThat(suppression.allow("p.frontend", "checkout:5050", 10)).isTrue();    // probe of the forced application
+        assertThat(suppression.allow("p.frontend", "checkout:5050", 10)).isFalse();
+        assertThat(suppression.getSuppressed()).isEqualTo(1);
+    }
+
+    @Test
+    void noneAllowsEverything() {
+        for (int i = 0; i < 3; i++) {
+            assertThat(LinkIndexSuppression.NONE.allow("mapmatch-bg", "navi:12000", i)).isTrue();
+        }
+        LinkIndexSuppression.NONE.start();
+        LinkIndexSuppression.NONE.refresh();
+        assertThat(LinkIndexSuppression.NONE.getSuppressed()).isZero();
+    }
+
+    @Test
+    void invalidSettingsAreRejected() {
+        assertThatThrownBy(() -> new LinkIndexSuppression(store, Duration.ofSeconds(60), 0, SuppressKey.Rules.EMPTY, SuppressKey.Rules.EMPTY))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new LinkIndexSuppression(store, Duration.ZERO, 1, SuppressKey.Rules.EMPTY, SuppressKey.Rules.EMPTY))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+}

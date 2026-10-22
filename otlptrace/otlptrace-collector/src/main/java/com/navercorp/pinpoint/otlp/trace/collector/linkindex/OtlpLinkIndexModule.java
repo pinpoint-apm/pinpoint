@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.otlp.trace.collector.linkindex;
 
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexWriter;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkIndexSuppression;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressKey;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressStore;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexRedisConnector;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexRedisConnectorFactory;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexRedisProperties;
@@ -87,16 +90,56 @@ public class OtlpLinkIndexModule {
                                                @Value("${" + PREFIX + "queue-size:100000}") int queueSize,
                                                @Value("${" + PREFIX + "max-entries-per-slot:1000000}") int maxEntriesPerSlot,
                                                @Value("${" + PREFIX + "sample-modulo:1}") int sampleModulo,
-                                               @Value("${" + PREFIX + "redis.command-timeout:2s}") Duration timeout) {
+                                               @Value("${" + PREFIX + "redis.command-timeout:2s}") Duration timeout,
+                                               LinkIndexSuppression suppression) {
         logger.info("Link index writer buckets:{} ttl:{} queueSize:{} maxEntriesPerSlot:{} sampleModulo:{}",
                 buckets, ttl, queueSize, maxEntriesPerSlot, sampleModulo);
         return new LinkIndexWriter(connector.connect(), buckets, ttl.toMillis(), queueSize,
-                maxEntriesPerSlot, sampleModulo, timeout, System::currentTimeMillis);
+                maxEntriesPerSlot, sampleModulo, timeout, System::currentTimeMillis, suppression);
+    }
+
+    /**
+     * The suppression list ({@link LinkIndexSuppression}): CLIENT identifiers the join job found unmatched for a day
+     * are not indexed, apart from a probe per slot. {@code suppress.enabled=false} applies only the static
+     * {@code suppress.force} rules.
+     */
+    @Bean(initMethod = "start", destroyMethod = "close")
+    public LinkIndexSuppression otlpLinkIndexSuppression(LinkIndexRedisConnector connector,
+                                                         @Value("${" + PREFIX + "suppress.enabled:true}") boolean enabled,
+                                                         @Value("${" + PREFIX + "suppress.refresh:60s}") Duration refresh,
+                                                         @Value("${" + PREFIX + "suppress.probe-per-slot:100}") int probePerSlot,
+                                                         @Value("${" + PREFIX + "suppress.force:}") String force,
+                                                         @Value("${" + PREFIX + "suppress.pin:}") String pin,
+                                                         @Value("${" + PREFIX + "redis.command-timeout:2s}") Duration timeout) {
+        final SuppressStore store = enabled ? new SuppressStore(connector.connect(), timeout) : null;
+        final LinkIndexSuppression suppression = new LinkIndexSuppression(store, refresh, probePerSlot,
+                SuppressKey.parseRules(force), SuppressKey.parseRules(pin));
+        logger.info("Link index suppression {}", suppression);
+        return suppression;
     }
 
     @Bean
     public LinkIndexTraceService otlpLinkIndexTraceService(LinkIndexWriter writer, ServiceTypeRegistryService registry) {
         return new LinkIndexTraceService(writer, registry);
+    }
+
+    @Bean
+    public LinkIndexSuppressionMetrics otlpLinkIndexSuppressionMetrics(LinkIndexSuppression suppression, MeterRegistry meterRegistry) {
+        return new LinkIndexSuppressionMetrics(suppression, meterRegistry);
+    }
+
+    /**
+     * Registers the suppression counters under {@value #METRIC_PREFIX}: {@code suppressed} (entries not written),
+     * {@code probed} (entries of suppressed identifiers still written), {@code suppress.active} (identifiers of the
+     * last snapshot) and {@code suppress.refresh.errors}. Kept apart from {@code dropped}: suppression is not a loss.
+     */
+    public static class LinkIndexSuppressionMetrics {
+        public LinkIndexSuppressionMetrics(LinkIndexSuppression suppression, MeterRegistry registry) {
+            FunctionCounter.builder(METRIC_PREFIX + "suppressed", suppression, s -> (double) s.getSuppressed()).register(registry);
+            FunctionCounter.builder(METRIC_PREFIX + "probed", suppression, s -> (double) s.getProbed()).register(registry);
+            FunctionCounter.builder(METRIC_PREFIX + "suppress.refresh.errors", suppression, s -> (double) s.getRefreshErrors()).register(registry);
+            Gauge.builder(METRIC_PREFIX + "suppress.active", suppression, LinkIndexSuppression::getActiveCount).register(registry);
+        }
     }
 
     @Bean

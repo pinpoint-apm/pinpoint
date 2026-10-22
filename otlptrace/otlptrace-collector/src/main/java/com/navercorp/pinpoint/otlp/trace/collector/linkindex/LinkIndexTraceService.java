@@ -43,7 +43,9 @@ import java.util.Objects;
  *     <li>CLIENT entry: an RPC client span event (HTTP, gRPC, other RPC) with a next span id and a
  *     destination. Database, cache and messaging clients are skipped: no SERVER span answers them.
  *     The caller cannot know whether its callee received the parent application, so a CLIENT entry
- *     is written for every RPC call; those whose callee did have it simply never match.</li>
+ *     is written for every RPC call; those whose callee did have it simply never match. CLIENT identifiers
+ *     (application + destination) the join job has found unmatched for a day are suppressed by the writer, apart
+ *     from a probe per slot ({@code LinkIndexSuppression}).</li>
  * </ul>
  * Native Pinpoint spans never reach this service.
  */

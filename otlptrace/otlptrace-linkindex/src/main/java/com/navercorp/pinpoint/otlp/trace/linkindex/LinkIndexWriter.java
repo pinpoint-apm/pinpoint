@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.otlp.trace.linkindex;
 
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexConnection;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkIndexSuppression;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
@@ -66,6 +67,7 @@ public class LinkIndexWriter implements AutoCloseable {
     private final int sampleModulo;
     private final Duration timeout;
     private final LongSupplier clock;
+    private final LinkIndexSuppression suppression;
     private final BlockingQueue<Pending> queue;
     private final Thread thread;
 
@@ -98,7 +100,24 @@ public class LinkIndexWriter implements AutoCloseable {
                            int sampleModulo,
                            Duration timeout,
                            LongSupplier clock) {
+        this(connection, buckets, ttlMillis, queueSize, maxEntriesPerSlot, sampleModulo, timeout, clock, LinkIndexSuppression.NONE);
+    }
+
+    /**
+     * @param suppression CLIENT identifiers not to index, applied after the trace sampling so that the probe
+     *                    allowance is spent only on entries that would be written (see {@link LinkIndexSuppression})
+     */
+    public LinkIndexWriter(LinkIndexConnection connection,
+                           int buckets,
+                           long ttlMillis,
+                           int queueSize,
+                           int maxEntriesPerSlot,
+                           int sampleModulo,
+                           Duration timeout,
+                           LongSupplier clock,
+                           LinkIndexSuppression suppression) {
         this.connection = Objects.requireNonNull(connection, "connection");
+        this.suppression = Objects.requireNonNull(suppression, "suppression");
         if (buckets < 1 || ttlMillis < 1 || queueSize < 1 || maxEntriesPerSlot < 1 || sampleModulo < 1) {
             throw new IllegalArgumentException("buckets, ttl, queueSize, maxEntriesPerSlot and sampleModulo must be positive");
         }
@@ -128,6 +147,9 @@ public class LinkIndexWriter implements AutoCloseable {
             return false;
         }
         final long slot = LinkIndexKeys.slotOf(clock.getAsLong());
+        if (entry.kind() == LinkKind.CLIENT && !suppression.allow(entry.applicationName(), entry.destinationId(), slot)) {
+            return false;
+        }
         if (!acquireSlotQuota(slot)) {
             droppedSlotLimit.incrementAndGet();
             return false;

@@ -32,6 +32,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.ConcurrentHashMap;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkCounts;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressKey;
 import java.util.function.IntFunction;
 
 /**
@@ -73,6 +76,9 @@ public class LinkJoinService implements AutoCloseable {
     private final LongAdder totalDeletedKeys = new LongAdder();
     private volatile long lastMaxBucketEntries;
     private volatile long lastOversizedBuckets;
+    // per CLIENT identifier outcome of the last joined slot, for the suppression list
+    private volatile long lastJoinedSlot = Long.MIN_VALUE;
+    private volatile Map<String, LinkCounts> lastClientCounts = Map.of();
 
     public LinkJoinService(LinkIndexStore store,
                            LinkMapWriter writer,
@@ -126,6 +132,7 @@ public class LinkJoinService implements AutoCloseable {
         final LongAdder unmatched = new LongAdder();
         final LongAdder droppedServer = new LongAdder();
         final LongAdder droppedClient = new LongAdder();
+        final ConcurrentHashMap<String, LinkCounts> clientCounts = new ConcurrentHashMap<>();
 
         final List<Future<LinkAggregator>> futures = new ArrayList<>(threads);
         for (int worker = 0; worker < threads; worker++) {
@@ -133,7 +140,7 @@ public class LinkJoinService implements AutoCloseable {
             final int to = rangeStart(worker + 1);
             futures.add(executor.submit(() -> {
                 final LinkAggregator aggregator = new LinkAggregator(serviceTypeLookup, sampleModulo);
-                final JoinCounters counters = new JoinCounters(entries, maxBucketEntries, oversizedBuckets, unmatched, droppedServer, droppedClient);
+                final JoinCounters counters = new JoinCounters(entries, maxBucketEntries, oversizedBuckets, unmatched, droppedServer, droppedClient, clientCounts);
                 for (int chunkStart = from; chunkStart < to; chunkStart += chunkBuckets) {
                     final int chunkEnd = Math.min(chunkStart + chunkBuckets, to);
                     joinChunk(slot, chunkStart, chunkEnd, aggregator, counters);
@@ -154,6 +161,8 @@ public class LinkJoinService implements AutoCloseable {
         final int rows = writer.write(stats);
         final JoinSummary summary = new JoinSummary(slot, entries.sum(), pairs, stats.size(), rows,
                 unmatched.sum(), droppedServer.sum(), droppedClient.sum(), maxBucketEntries.get(), oversizedBuckets.sum());
+        lastClientCounts = Map.copyOf(clientCounts);
+        lastJoinedSlot = slot;
         record(summary);
         logger.info("Joined {}", summary);
         if (summary.oversizedBuckets() > 0) {
@@ -184,6 +193,12 @@ public class LinkJoinService implements AutoCloseable {
             final JoinResult result = LinkJoiner.join(slot, current, previous);
             for (MatchedPair pair : result.pairs()) {
                 aggregator.add(pair);
+                counters.clientCounts().merge(SuppressKey.of(pair.client().applicationName(), pair.client().destinationId()),
+                        new LinkCounts(1, 0), (a, b) -> a.plus(b.matched(), b.unmatched()));
+            }
+            for (LinkEntry dropped : result.droppedClients()) {
+                counters.clientCounts().merge(SuppressKey.of(dropped.applicationName(), dropped.destinationId()),
+                        new LinkCounts(0, 1), (a, b) -> a.plus(b.matched(), b.unmatched()));
             }
             counters.unmatched().add(result.unmatched().size());
             counters.droppedServer().add(result.droppedServer());
@@ -284,6 +299,17 @@ public class LinkJoinService implements AutoCloseable {
         return lastOversizedBuckets;
     }
 
+    /**
+     * @return the per CLIENT identifier outcome of slot {@code slot} if it is the last joined slot of this
+     * instance, {@code null} otherwise (another run joined it, or nothing was joined yet)
+     */
+    public Map<String, LinkCounts> getClientCounts(long slot) {
+        if (slot != lastJoinedSlot) {
+            return null;
+        }
+        return lastClientCounts;
+    }
+
     private int rangeStart(int worker) {
         return (int) ((long) buckets * worker / threads);
     }
@@ -325,7 +351,8 @@ public class LinkJoinService implements AutoCloseable {
     }
 
     private record JoinCounters(LongAdder entries, LongAccumulator maxBucketEntries, LongAdder oversizedBuckets,
-                                LongAdder unmatched, LongAdder droppedServer, LongAdder droppedClient) {
+                                LongAdder unmatched, LongAdder droppedServer, LongAdder droppedClient,
+                                ConcurrentHashMap<String, LinkCounts> clientCounts) {
     }
 
     public record CleanupSummary(long slot, long deletedKeys) {
