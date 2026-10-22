@@ -101,7 +101,7 @@ public class SpanBatchGrpcDataSenderProvider implements Provider<DataSender<Span
                 collectorIp, collectorPort,
                 senderExecutorQueueSize, messageConverter,
                 channelFactory, batchSize, flushIntervalMillis, batchCollectDeadLineTimeMillis,
-                maxConcurrentRequests);
+                maxConcurrentRequests, batchConfig.getCompression());
 
         logger.info("SpanBatchGrpcDataSender={}", spanListGrpcDataSender);
 

@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverter
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
+import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcSenderCompression;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanSenderType;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetterProvider;
@@ -219,6 +220,9 @@ public class GrpcModule extends PrivateModule {
                 bind(spanDataSender).toProvider(SpanBatchGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
                 break;
             case STREAM:
+                if (grpcTransportConfig.getSpanBatchSenderConfig().getCompression() != GrpcSenderCompression.NONE) {
+                    logger.info("profiler.transport.grpc.span.batch-sender.compression applies to the BATCH span sender only; STREAM sends uncompressed");
+                }
                 bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
                 break;
             default:
