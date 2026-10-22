@@ -89,7 +89,8 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<MetricTyp
 
         // not singleton
         ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
-        return new StatGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory);
+        return new StatGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory,
+                grpcTransportConfig.getStatCompression());
     }
 
     private ChannelFactoryBuilder newChannelFactoryBuilder(boolean sslEnable) {

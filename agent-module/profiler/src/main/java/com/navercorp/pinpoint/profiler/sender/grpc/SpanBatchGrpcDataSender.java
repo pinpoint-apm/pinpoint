@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.grpc.trace.PSpanMessageBatch;
 import com.navercorp.pinpoint.grpc.trace.PSpanResultBatch;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.SpanType;
+import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcSenderCompression;
+import io.grpc.Status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +39,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Sends spans in batches via a unary RPC (SendSpanBatch), replacing the long-lived streaming approach.
@@ -47,12 +50,20 @@ import java.util.concurrent.TimeUnit;
  *   <li>A single invalid span does not terminate the entire connection</li>
  *   <li>No sequence overflow concerns; each batch is an independent request</li>
  * </ul>
+ * <p>
+ * With {@link GrpcSenderCompression#GZIP} each batch is sent gzip-compressed. If the collector cannot
+ * decompress it (UNIMPLEMENTED "Can't find decompressor"), the sender falls back to uncompressed
+ * batches for the rest of its life and logs it once.
  *
  * @author emeroad
  */
 public class SpanBatchGrpcDataSender extends AbstractGrpcDataSender<SpanType> {
 
-    private final SpanGrpc.SpanFutureStub spanFutureStub;
+    private final SpanGrpc.SpanFutureStub uncompressedStub;
+    // the compressed stub until a collector rejects the compression, then uncompressedStub
+    private volatile SpanGrpc.SpanFutureStub spanFutureStub;
+    private final GrpcSenderCompression compression;
+    private final AtomicBoolean compressionFallback = new AtomicBoolean(false);
     private final BlockingQueue<SpanType> queue;
     private final Thread sendThread;
     private final int batchSize;
@@ -75,8 +86,24 @@ public class SpanBatchGrpcDataSender extends AbstractGrpcDataSender<SpanType> {
                                   long flushTimeoutMillis,
                                   long batchCollectDeadLineTimeMillis,
                                   int maxConcurrentRequests) {
+        this(host, port, executorQueueSize, messageConverter, channelFactory, batchSize, flushTimeoutMillis,
+                batchCollectDeadLineTimeMillis, maxConcurrentRequests, GrpcSenderCompression.defaultCompression());
+    }
+
+    public SpanBatchGrpcDataSender(String host, int port,
+                                  int executorQueueSize,
+                                  MessageConverter<SpanType, GeneratedMessageV3> messageConverter,
+                                  ChannelFactory channelFactory,
+                                  int batchSize,
+                                  long flushTimeoutMillis,
+                                  long batchCollectDeadLineTimeMillis,
+                                  int maxConcurrentRequests,
+                                  GrpcSenderCompression compression) {
         super(host, port, messageConverter, channelFactory);
-        this.spanFutureStub = SpanGrpc.newFutureStub(managedChannel);
+        this.compression = compression == null ? GrpcSenderCompression.defaultCompression() : compression;
+        this.uncompressedStub = SpanGrpc.newFutureStub(managedChannel);
+        final String grpcName = this.compression.getGrpcName();
+        this.spanFutureStub = grpcName == null ? this.uncompressedStub : this.uncompressedStub.withCompression(grpcName);
         this.queue = new LinkedBlockingQueue<>(executorQueueSize);
         this.batchSize = batchSize;
         this.flushTimeoutMillis = flushTimeoutMillis;
@@ -217,9 +244,41 @@ public class SpanBatchGrpcDataSender extends AbstractGrpcDataSender<SpanType> {
             @Override
             public void onFailure(Throwable t) {
                 concurrentRequestPermit.release();
+                if (isDecompressorUnavailable(t)) {
+                    fallbackToUncompressed(t);
+                    return;
+                }
                 tLogger.info("SendSpanBatch failed", t);
             }
         };
+    }
+
+    /**
+     * The collector answered UNIMPLEMENTED "Can't find decompressor for gzip": it cannot read this
+     * compression, so every further compressed batch would be lost too.
+     */
+    boolean isDecompressorUnavailable(Throwable t) {
+        if (compression == GrpcSenderCompression.NONE) {
+            return false;
+        }
+        final Status status = Status.fromThrowable(t);
+        if (status.getCode() != Status.Code.UNIMPLEMENTED) {
+            return false;
+        }
+        final String description = status.getDescription();
+        return description != null && description.contains("decompressor");
+    }
+
+    private void fallbackToUncompressed(Throwable t) {
+        this.spanFutureStub = this.uncompressedStub;
+        if (compressionFallback.compareAndSet(false, true)) {
+            logger.warn("Collector {}:{} does not accept {} span batches ({}); sending them uncompressed from now on",
+                    host, port, compression, Status.fromThrowable(t).getDescription());
+        }
+    }
+
+    boolean isCompressionFallback() {
+        return compressionFallback.get();
     }
 
     private void handleResponse(PSpanResultBatch response) {
@@ -262,6 +321,8 @@ public class SpanBatchGrpcDataSender extends AbstractGrpcDataSender<SpanType> {
                 ", flushTimeoutMillis=" + flushTimeoutMillis +
                 ", batchCollectDeadLineTimeMillis=" + batchCollectDeadLineTimeMillis +
                 ", maxConcurrentRequests=" + maxConcurrentRequests +
+                ", compression=" + compression +
+                (compressionFallback.get() ? " (fallback: uncompressed)" : "") +
                 '}';
     }
 }

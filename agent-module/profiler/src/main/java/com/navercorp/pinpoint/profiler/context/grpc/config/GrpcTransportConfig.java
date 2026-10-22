@@ -139,6 +139,9 @@ public class GrpcTransportConfig {
     private int statSenderExecutorQueueSize = DEFAULT_STAT_SENDER_EXECUTOR_QUEUE_SIZE;
     @Value("${profiler.transport.grpc.stat.sender.channel.executor.queue.size}")
     private int statChannelExecutorQueueSize = DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE;
+    @Value("${profiler.transport.grpc.stat.sender.compression}")
+    private String statCompression;
+    private GrpcSenderCompression resolvedStatCompression;
 
     @Value("${profiler.transport.grpc.span.collector.ip}")
     private String spanCollectorIp = DEFAULT_IP;
@@ -366,6 +369,19 @@ public class GrpcTransportConfig {
 
     public ClientOption getMetadataClientOption() {
         return metadataClientOption;
+    }
+
+    /**
+     * Compression of the stat stream ({@code profiler.transport.grpc.stat.sender.compression}), parsed once so
+     * that an unknown value is reported a single time.
+     */
+    public GrpcSenderCompression getStatCompression() {
+        GrpcSenderCompression resolved = this.resolvedStatCompression;
+        if (resolved == null) {
+            resolved = GrpcSenderCompression.fromValue(statCompression);
+            this.resolvedStatCompression = resolved;
+        }
+        return resolved;
     }
 
     public ClientOption getStatClientOption() {
