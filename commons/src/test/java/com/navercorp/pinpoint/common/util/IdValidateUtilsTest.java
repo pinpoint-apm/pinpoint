@@ -69,6 +69,9 @@ public class IdValidateUtilsTest {
         Assertions.assertTrue(IdValidateUtils.checkUrlPattern("http://user:pw@host.example.com:8080/path/to/resource?query=1&x=y#frag"));
         Assertions.assertTrue(IdValidateUtils.checkUrlPattern("http://[::1]:8080/a%20b"));
         Assertions.assertTrue(IdValidateUtils.checkUrlPattern("~!$&'()*+,;="));
+        // an IPv6 address without brackets
+        Assertions.assertTrue(IdValidateUtils.checkUrlPattern("::1"));
+        Assertions.assertTrue(IdValidateUtils.checkUrlPattern("::1:8080"));
 
         Assertions.assertFalse(IdValidateUtils.checkUrlPattern(""));
         Assertions.assertFalse(IdValidateUtils.checkUrlPattern(" "));
@@ -83,6 +86,47 @@ public class IdValidateUtilsTest {
         Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a`b"));
         Assertions.assertFalse(IdValidateUtils.checkUrlPattern("한글"));
         Assertions.assertFalse(IdValidateUtils.checkUrlPattern("a\u0000b"));
+    }
+
+    @Test
+    public void testIsBracketed() {
+        Assertions.assertTrue(IdValidateUtils.isBracketed("[]"));
+        Assertions.assertTrue(IdValidateUtils.isBracketed("[::1]"));
+        Assertions.assertTrue(IdValidateUtils.isBracketed("[host1:9093, host2:9093]"));
+
+        Assertions.assertFalse(IdValidateUtils.isBracketed(""));
+        Assertions.assertFalse(IdValidateUtils.isBracketed("["));
+        Assertions.assertFalse(IdValidateUtils.isBracketed("[::1]:8080"));
+        Assertions.assertFalse(IdValidateUtils.isBracketed("host1:9093, host2:9093]"));
+    }
+
+    @Test
+    public void testCheckListPattern() {
+        Assertions.assertTrue(IdValidateUtils.checkListPattern("[host1.example.com:9093]"));
+        Assertions.assertTrue(IdValidateUtils.checkListPattern("[host1.example.com:9093, host2.example.com:9093, host3.example.com:9093]"));
+        Assertions.assertTrue(IdValidateUtils.checkListPattern("[a,b, c]"));
+
+        // a bracketed IPv6 literal passes as a single element list
+        Assertions.assertTrue(IdValidateUtils.checkListPattern("[::1]"));
+        Assertions.assertTrue(IdValidateUtils.checkListPattern("[2001:db8::1]"));
+        Assertions.assertTrue(IdValidateUtils.checkListPattern("[[::1]:9093, [2001:db8::1]:9093]"));
+        // with a port it is not bracketed, and passes as a url
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[::1]:8080"));
+        Assertions.assertTrue(IdValidateUtils.checkUrlPattern("[::1]:8080"));
+
+        Assertions.assertFalse(IdValidateUtils.checkListPattern(""));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("["));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[]"));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[host1:9093, host<2>]"));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("host1:9093, host2:9093"));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[host1:9093, host2:9093"));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("host1:9093, host2:9093]"));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[host1:9093, ]"));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[, host1:9093]"));
+        // looks like a list, but the delimiter is not the exact ", " of List.toString()
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[host1:9093,  host2:9093]"));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[host1:9093 host2:9093]"));
+        Assertions.assertFalse(IdValidateUtils.checkListPattern("[host1:9093,\thost2:9093]"));
     }
 
     @Test

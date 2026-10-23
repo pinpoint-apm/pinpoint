@@ -15,6 +15,11 @@ import java.util.Objects;
 public class ApplicationValidator {
     static final int UNDEFINED = ServiceType.UNDEFINED.getCode();
     static final int MAX_LENGTH = PinpointConstants.AGENT_NAME_MAX_LEN;
+    // a USER node is named by UserNodeUtils.newUserNodeName: <applicationName>_<serviceTypeName>
+    // serviceType names are unbounded constants; 64 is double the longest one in the repo (32 chars)
+    static final int USER_NODE_MAX_LENGTH = MAX_LENGTH + 1 + 64;
+    // an address list such as kafka bootstrap servers grows with the number of brokers
+    static final int LIST_MAX_LENGTH = 4096;
 
     private final ServiceTypeRegistryService registry;
     private final int undefined;
@@ -70,24 +75,54 @@ public class ApplicationValidator {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceTypeCode or serviceTypeName");
     }
 
-    /**
-     * A WAS applicationName is registered by an agent, which already enforces the id character pattern,
-     * so the same pattern is required here. Any other node is named by a remote call address such as
-     * a host:port or URL, so it is checked against the URL character set instead.
-     */
     public void validateName(String applicationName, ServiceType serviceType) {
         Objects.requireNonNull(serviceType, "serviceType");
-        if (!StringUtils.hasText(applicationName) || !IdValidateUtils.checkLength(applicationName, MAX_LENGTH)) {
+        if (!StringUtils.hasText(applicationName)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName " + applicationName);
         }
-        if (serviceType.isWas()) {
-            if (!IdValidateUtils.checkIdPattern(applicationName)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName(node) " + applicationName);
+        if (serviceType.isUser()) {
+            validateUserName(applicationName);
+        } else if (serviceType.isWas()) {
+            validateWasName(applicationName);
+        } else {
+            validateRemoteName(applicationName);
+        }
+    }
+
+    // generated name: <applicationName>_<serviceTypeName>
+    private void validateUserName(String applicationName) {
+        validateLength(applicationName, USER_NODE_MAX_LENGTH);
+        if (!IdValidateUtils.checkUrlPattern(applicationName)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName(user) " + applicationName);
+        }
+    }
+
+    // registered by an agent, which already enforces the id pattern
+    private void validateWasName(String applicationName) {
+        validateLength(applicationName, MAX_LENGTH);
+        if (!IdValidateUtils.checkIdPattern(applicationName)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName(node) " + applicationName);
+        }
+    }
+
+    // named by a remote call address: host:port, URL, or a list such as kafka bootstrap servers [host1:9092, host2:9092]
+    private void validateRemoteName(String applicationName) {
+        if (IdValidateUtils.isBracketed(applicationName)) {
+            validateLength(applicationName, LIST_MAX_LENGTH);
+            if (!IdValidateUtils.checkListPattern(applicationName)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName(list) " + applicationName);
             }
         } else {
+            validateLength(applicationName, MAX_LENGTH);
             if (!IdValidateUtils.checkUrlPattern(applicationName)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName(url) " + applicationName);
             }
+        }
+    }
+
+    private void validateLength(String applicationName, int maxLength) {
+        if (!IdValidateUtils.checkLength(applicationName, maxLength)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid applicationName " + applicationName);
         }
     }
 }

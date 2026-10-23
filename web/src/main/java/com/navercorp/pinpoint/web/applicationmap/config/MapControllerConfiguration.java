@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.CommonService;
 import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
@@ -39,6 +40,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
 public class MapControllerConfiguration {
@@ -59,10 +61,12 @@ public class MapControllerConfiguration {
                                                          HistogramService histogramService,
                                                          ApplicationFactory applicationFactory,
                                                          ApplicationValidator applicationValidator,
+                                                         ServiceModelResolver serviceModelResolver,
                                                          HyperLinkFactory hyperLinkFactory,
+                                                         Optional<ServerMapDataFilter> serverMapDataFilter,
                                                          ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
+        return new MapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, serviceModelResolver, hyperLinkFactory, serverMapDataFilter.orElse(null), maxPeriod);
     }
 
     @Bean

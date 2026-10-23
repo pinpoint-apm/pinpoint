@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.navercorp.pinpoint.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
@@ -261,5 +262,53 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         Node toNode = new Node(toApplication);
         Link emptyLink = new Link(direction, fromNode, toNode, range);
         return new LinkHistogramSummary(emptyLink);
+    }
+
+    /**
+     * Link histogram for a link the server map drew: out search of the from node first, in search of the to node as fallback.
+     */
+    @Override
+    public LinkHistogramSummary selectLinkHistogram(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
+        Objects.requireNonNull(fromApplication, "fromApplication");
+        Objects.requireNonNull(toApplication, "toApplication");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
+        if (fromApplication.getServiceType().isUser()) {
+            return new LinkHistogramSummary(selectInLink(fromApplication, toApplication, timeWindow));
+        }
+        Link outLink = selectOutLink(fromApplication, toApplication, timeWindow);
+        if (outLink.getOutLink().size() > 0) {
+            return new LinkHistogramSummary(outLink);
+        }
+        // a link shown on the map cannot be empty, so search backward once more. e.g. the caller agent belongs to another cluster
+        return new LinkHistogramSummary(selectInLink(fromApplication, toApplication, timeWindow));
+    }
+
+    // out search rows are stored in the source half of LinkDataDuplexMap. LinkListFactory still tags them IN_LINK
+    private Link selectOutLink(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
+        LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(toApplication);
+        LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(fromApplication), timeWindow, 1, 0);
+
+        Link link = new Link(LinkDirection.OUT_LINK, new Node(fromApplication), new Node(toApplication), timeWindow.getWindowRange());
+        LinkData linkData = linkDataDuplexMap.getSourceLinkData(link.getLinkKey());
+        if (linkData != null) {
+            link.addOutLink(linkData.getLinkCallDataMap());
+        }
+        return link;
+    }
+
+    // in search rows are stored in the target half of LinkDataDuplexMap
+    private Link selectInLink(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
+        LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(fromApplication);
+        LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(toApplication), timeWindow, 0, 1);
+
+        Link link = new Link(LinkDirection.IN_LINK, new Node(fromApplication), new Node(toApplication), timeWindow.getWindowRange());
+        LinkData linkData = linkDataDuplexMap.getTargetLinkData(link.getLinkKey());
+        if (linkData != null) {
+            link.addInLink(linkData.getLinkCallDataMap());
+        }
+        return link;
     }
 }

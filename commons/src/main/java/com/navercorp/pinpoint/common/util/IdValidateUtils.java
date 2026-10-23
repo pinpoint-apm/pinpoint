@@ -43,6 +43,8 @@ public final class IdValidateUtils {
      */
     public static final String URL_PATTERN_VALUE = "[a-zA-Z0-9._\\-~:/?#\\[\\]@!$&'()*+,;=%]+";
 
+    private static final String LIST_DELIMITER = ", ";
+
     private IdValidateUtils() {
     }
 
@@ -143,6 +145,35 @@ public final class IdValidateUtils {
         }
         for (int i = 0; i < length; i++) {
             if (!isUrlChar(url.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @return true when {@code value} is wrapped in {@code [} and {@code ]}:
+     * the form of {@code List.toString()}, or an IPv6 literal without a port such as {@code [::1]}
+     */
+    public static boolean isBracketed(String value) {
+        Objects.requireNonNull(value, "value");
+
+        final int length = value.length();
+        return length >= 2 && value.charAt(0) == '[' && value.charAt(length - 1) == ']';
+    }
+
+    /**
+     * @return true when {@code list} has the {@code [a, b]} form of {@code List.toString()}
+     * and every element matches {@link #URL_PATTERN_VALUE}
+     */
+    public static boolean checkListPattern(String list) {
+        if (!isBracketed(list)) {
+            return false;
+        }
+        final String elements = list.substring(1, list.length() - 1);
+        // limit -1 keeps a trailing empty element so that "[a, ]" is rejected
+        for (String element : elements.split(LIST_DELIMITER, -1)) {
+            if (!checkUrlPattern(element)) {
                 return false;
             }
         }
