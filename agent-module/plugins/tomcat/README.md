@@ -1,7 +1,7 @@
 ## Tomcat Web Server
 * Since: Pinpoint 1.5.0
 * See: https://tomcat.apache.org/
-* Range: [8, 10]
+* Range: [9, 11]
 
 ### Pinpoint Configuration
 pinpoint.config

@@ -44,6 +44,8 @@
 
         <undertow.version>2.2.17.Final</undertow.version>
         <cxf.version>3.0.16</cxf.version>
+
+        <plugin-bom.tomcat.version>9.0.123</plugin-bom.tomcat.version>
     </properties>
 
     <dependencyManagement>
@@ -300,18 +302,18 @@
 
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
-                <artifactId>catalina</artifactId>
-                <version>6.0.43</version>
+                <artifactId>tomcat-catalina</artifactId>
+                <version>${plugin-bom.tomcat.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
-                <artifactId>coyote</artifactId>
-                <version>6.0.43</version>
+                <artifactId>tomcat-coyote</artifactId>
+                <version>${plugin-bom.tomcat.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>6.0.35</version>
+                <artifactId>tomcat-servlet-api</artifactId>
+                <version>${plugin-bom.tomcat.version}</version>
             </dependency>
 
             <dependency>
