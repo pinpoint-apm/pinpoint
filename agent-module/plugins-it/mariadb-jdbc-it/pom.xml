@@ -37,6 +37,7 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
+            <version>${plugins-bom.mariadb.version}</version>
         </dependency>
         <!-- testcontainers -->
         <dependency>

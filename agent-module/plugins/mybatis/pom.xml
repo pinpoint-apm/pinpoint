@@ -27,7 +27,7 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <!-- 3.5.x java8 -->
-            <version>${mybatis.version}</version>
+            <version>${plugins-bom.mybatis.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

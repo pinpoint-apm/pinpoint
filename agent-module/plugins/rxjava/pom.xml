@@ -23,6 +23,7 @@
         <dependency>
             <groupId>io.reactivex</groupId>
             <artifactId>rxjava</artifactId>
+            <version>${plugins-bom.rxjava.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

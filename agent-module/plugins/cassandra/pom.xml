@@ -21,6 +21,7 @@
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
+            <version>${plugins-bom.cassandra.driver.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- Logging dependencies -->

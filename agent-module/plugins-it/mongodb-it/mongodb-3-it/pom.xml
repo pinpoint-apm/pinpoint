@@ -57,6 +57,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
+            <version>${plugins-bom.mongo.driver.3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

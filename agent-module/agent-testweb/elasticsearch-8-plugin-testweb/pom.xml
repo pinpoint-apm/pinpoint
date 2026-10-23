@@ -32,7 +32,7 @@
         <dependency>
             <groupId>co.elastic.clients</groupId>
             <artifactId>elasticsearch-java</artifactId>
-            <version>8.1.2</version>
+            <version>${plugins-bom.elasticsearch8.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

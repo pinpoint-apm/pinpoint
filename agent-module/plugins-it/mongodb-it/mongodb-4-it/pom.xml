@@ -57,10 +57,12 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
+            <version>${plugins-bom.mongo.driver.4.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-reactivestreams</artifactId>
+            <version>${plugins-bom.mongo.driver.4.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

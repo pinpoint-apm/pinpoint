@@ -41,6 +41,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
+            <version>${plugins-bom.druid.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

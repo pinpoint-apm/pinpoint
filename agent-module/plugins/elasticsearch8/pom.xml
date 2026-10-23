@@ -27,6 +27,7 @@
         <dependency>
             <groupId>co.elastic.clients</groupId>
             <artifactId>elasticsearch-java</artifactId>
+            <version>${plugins-bom.elasticsearch8.version}</version>
             <scope>provided</scope>
         </dependency>
 

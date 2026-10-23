@@ -21,6 +21,7 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
+            <version>${plugins-bom.jedis.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

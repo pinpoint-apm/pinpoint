@@ -22,11 +22,13 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
+            <version>${plugins-bom.mongo.driver.4.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-reactivestreams</artifactId>
+            <version>${plugins-bom.mongo.driver.4.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -50,7 +52,7 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
-            <version>${fastxml.jackson.version}</version>
+            <version>${plugins-bom.jackson.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.apache.pulsar</groupId>
             <artifactId>pulsar-client</artifactId>
-            <version>4.0.0</version>
+            <version>${plugins-bom.pulsar.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

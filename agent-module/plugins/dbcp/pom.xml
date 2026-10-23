@@ -21,6 +21,7 @@
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
+            <version>${plugins-bom.dbcp.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
