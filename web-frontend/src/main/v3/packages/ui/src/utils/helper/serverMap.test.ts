@@ -9,6 +9,7 @@ import {
   isMergedMapTarget,
   parseNodeApplication,
   parseNodeKeyApplication,
+  parseNodeServiceName,
 } from './serverMap';
 import {
   ApplicationType,
@@ -349,6 +350,28 @@ describe('Test serverMap helper utils', () => {
       expect(parseNodeApplication()).toBeNull();
       expect(parseNodeApplication('ACL-PORTAL-DEV^')).toBeNull();
       expect(parseNodeApplication('^SPRING_BOOT')).toBeNull();
+    });
+  });
+
+  describe('Test "parseNodeServiceName"', () => {
+    // servicemap 응답(그리고 설정이 켜진 filteredMap)의 3단 id. 필터의 fs/ts/s에 실린다.
+    test('Read the service name of a 3-part id', () => {
+      expect(parseNodeServiceName('DEFAULT^ACL-PORTAL-DEV^SPRING_BOOT')).toBe('DEFAULT');
+      expect(parseNodeServiceName('blogService^ACL-PORTAL-DEV^SPRING_BOOT')).toBe('blogService');
+    });
+
+    // escape된 '^'는 application 이름의 일부다. 첫 번째 escape되지 않은 '^'까지가 service다.
+    test('Do not cut the service name at an escaped delimiter in the application name', () => {
+      expect(parseNodeServiceName('blogService^a\\^b^TOMCAT')).toBe('blogService');
+    });
+
+    // 2단 id에는 serviceName이 없다. 필터에서 빠져야 백엔드가 DEFAULT로 읽는다.
+    test('Return undefined when the id carries no service name', () => {
+      expect(parseNodeServiceName('ACL-PORTAL-DEV^SPRING_BOOT')).toBeUndefined();
+      expect(parseNodeServiceName('blogService')).toBeUndefined();
+      expect(parseNodeServiceName('')).toBeUndefined();
+      expect(parseNodeServiceName()).toBeUndefined();
+      expect(parseNodeServiceName('^ACL-PORTAL-DEV^SPRING_BOOT')).toBeUndefined();
     });
   });
 

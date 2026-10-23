@@ -9,24 +9,10 @@ import {
   getFilteredMapQueryString,
   getFilteredMapPath,
   getFilterTargetApplication,
+  withServiceGroupChildren,
 } from '@pinpoint-fe/ui/src/utils';
 import { getDefaultFilters, SERVERMAP_MENU_FUNCTION_TYPE } from '@pinpoint-fe/ui/src/components';
 import { Edge, Node } from '@pinpoint-fe/server-map';
-
-/**
- * 응답의 노드·링크에 service group의 자식(`subNodes`/`subLinks`)까지 펼쳐 담는다.
- *
- * servicemap에서 group을 펼치면 자식 노드·링크가 그래프에 직접 그려지고 필터 메뉴도 열린다.
- * 그런데 응답에서 자식은 group 안에만 있어서, 최상위 배열만 찾으면 agent 목록과 sourceInfo를
- * 못 찾는다(그러면 WAS→WAS 링크도 출발지가 아닌 도착지를 기준으로 열린다).
- * `serverMapCurrentTargetDataAtom`과 같은 방식이다.
- */
-const withGroupChildren = <E>(entries: E[] | undefined): E[] =>
-  (entries ?? []).flatMap((entry) => {
-    // filteredMap 응답 타입에는 이 필드가 없다(servicemap 응답에만 실린다).
-    const { subNodes, subLinks } = entry as { subNodes?: E[]; subLinks?: E[] };
-    return [entry, ...(subNodes ?? subLinks ?? [])];
-  });
 
 export function useServerMapOnClickMenuItem<
   T extends GetServerMap.NodeData | FilteredMap.NodeData,
@@ -61,17 +47,17 @@ export function useServerMapOnClickMenuItem<
       let serverInfos: Parameters<typeof getDefaultFilters>[1];
       if ('type' in data) {
         const nodeData = data as Node;
-        const node = withGroupChildren(serverMapData?.applicationMapData.nodeDataArray as T[]).find(
-          (n) => n.key === nodeData.id,
-        );
+        const node = withServiceGroupChildren(
+          serverMapData?.applicationMapData.nodeDataArray as T[],
+        ).find((n) => n.key === nodeData.id);
         serverInfos = {
           agents: node?.agents?.map((agent) => agent.id),
         };
       } else if ('source' in data) {
         const edgeData = data as Edge;
-        const link = withGroupChildren(serverMapData?.applicationMapData.linkDataArray as R[]).find(
-          (l) => l.key === edgeData.id,
-        );
+        const link = withServiceGroupChildren(
+          serverMapData?.applicationMapData.linkDataArray as R[],
+        ).find((l) => l.key === edgeData.id);
         serverInfos = {
           fromAgents: link?.fromAgents?.map((agent) => agent.id),
           toAgents: link?.toAgents?.map((agent) => agent.id),
@@ -83,9 +69,9 @@ export function useServerMapOnClickMenuItem<
       setShowFilterConfig?.(true);
     } else if (type === SERVERMAP_MENU_FUNCTION_TYPE.FILTER_TRANSACTION) {
       const defaultFilterState = getDefaultFilters(data);
-      const link = withGroupChildren(serverMapData?.applicationMapData?.linkDataArray as R[]).find(
-        (l) => l?.key === data?.id,
-      );
+      const link = withServiceGroupChildren(
+        serverMapData?.applicationMapData?.linkDataArray as R[],
+      ).find((l) => l?.key === data?.id);
       const sourceIsWas = link?.sourceInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER;
 
       // 기준 application이 없으면 filteredMap은 조회 자체를 못 한다. 빈 화면을 새 탭으로

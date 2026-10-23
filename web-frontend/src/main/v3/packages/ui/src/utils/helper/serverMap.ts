@@ -94,6 +94,34 @@ export const parseNodeApplication = (nodeId = ''): ApplicationType | null => {
   return { applicationName, serviceType };
 };
 
+/**
+ * map에서 클릭한 노드/링크의 id에서 serviceName을 읽는다. 3단 id가 아니면 undefined다.
+ *
+ * `parseNodeApplication`과 같은 규칙으로 자른다 — 마지막 '^' 앞부분에서 첫 번째 escape되지 않은
+ * '^'의 앞이 serviceName이다(백엔드 `ServiceNodeNameParser`).
+ *
+ * 2단 id(servermap, 설정이 꺼진 filteredMap)에는 serviceName이 없다. 그때 필터에 빈 값을
+ * 싣지 않도록 undefined를 돌려준다 — 필터에 없으면 백엔드가 DEFAULT로 읽는다(`FilterDescriptor`).
+ * service group(접힌 service) id는 serviceName 하나뿐이지만 application이 없어 기준이 될 수
+ * 없으므로 역시 undefined다.
+ */
+export const parseNodeServiceName = (nodeId = ''): string | undefined => {
+  const lastDelimiter = nodeId.lastIndexOf('^');
+
+  if (lastDelimiter === -1) {
+    return undefined;
+  }
+
+  const serviceNameAndApplication = nodeId.slice(0, lastDelimiter);
+  const serviceDelimiter = findServiceDelimiter(serviceNameAndApplication);
+
+  if (serviceDelimiter === -1) {
+    return undefined;
+  }
+
+  return serviceNameAndApplication.slice(0, serviceDelimiter) || undefined;
+};
+
 const isSameApplication = (a?: ApplicationType | null, b?: ApplicationType | null) =>
   !!a && !!b && a.applicationName === b.applicationName && a.serviceType === b.serviceType;
 

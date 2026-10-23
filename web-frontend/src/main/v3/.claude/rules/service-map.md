@@ -144,8 +144,18 @@ servicemap에서 필터를 걸면 `/filteredMap/{serviceName}/{application}@{ser
   `serviceName`은 전역 선택값으로 **폴백하지 않는다**(`useRequestService`와 다른 점).
   폴백하면 servermap에서 온 화면도 servicemap에서 온 것처럼 보인다.
 - 같은 이유로 **로더는 빠진 serviceName 세그먼트를 채워 넣지 않는다.** servicemap 로더와 반대다.
-- 경로에 실을 serviceName은 `ServerMapPage`의 `serviceName` prop에서 온다(servicemap 계열에서만
-  주어진다). filteredMap 안에서 필터를 더 걸 때는 지금 경로의 serviceName을 그대로 잇는다.
+- 경로에 serviceName을 실을지는 `ServerMapPage`의 `serviceName` prop으로 정한다(servicemap
+  계열에서만 주어진다). filteredMap 안에서 필터를 더 걸 때는 지금 경로의 serviceName이 그 역할이다.
+- **실리는 값은 기준 application이 속한 service다**(보고 있던 service가 아니다 →
+  `getFilterTargetServiceName`). 다른 service의 WAS → 보고 있는 service의 application 링크는
+  출발지가 기준이 되어 정방향으로 탐색하므로 헤더(pServiceName)도 출발지 service여야 한다.
+  필터에 service가 없으면(2단 id) 주어진 serviceName을 그대로 쓴다.
+- **필터에도 service를 싣는다.** 링크는 `fs`/`ts`, 노드는 `s`(백엔드 `FilterDescriptor`).
+  값은 클릭한 id에서 `parseNodeServiceName`으로 읽는다. 2단 id에는 없으므로 키가 빠지고
+  백엔드가 DEFAULT로 읽는다 — servermap에서 건 필터는 예전과 같다.
+- 펼친 service group 안의 링크는 응답에서 group의 `subLinks`에만 있다. 링크를 찾아
+  `sourceIsWas`를 정하는 곳(우클릭 메뉴, 필터 위저드)은 `withServiceGroupChildren`으로 찾는다.
+  못 찾으면 출발지가 WAS여도 도착지가 기준이 된다.
 - 날짜 정규화는 `loader/mapDateRange.ts`를 servicemap 로더와 공유한다. 둘 다 servermap이 빠진
   뒤에도 남는 화면이라 규칙이 바뀔 때 고칠 곳이 하나여야 한다.
   (예전에는 filteredMap이 servermap 로더를 그대로 써서, 날짜를 고치는 리다이렉트가 화면을
@@ -153,7 +163,7 @@ servicemap에서 필터를 걸면 `/filteredMap/{serviceName}/{application}@{ser
 
 ### TODO: DEFAULT가 아닌 service
 
-**아직 논의 중이다.** 지금은 DEFAULT와 똑같이 필터 대상 application을 싣는다
+**service 단위 필터(Service→Application 등)는 아직 논의 중이다.** 지금은 DEFAULT와 똑같이 필터 대상 application을 싣는다
 (`/filteredMap/myService/{application}@{serviceType}`). map은 service 전체를 그리지만
 filteredMap은 기준 application 없이는 조회가 성립하지 않기 때문이다
 (`useGetFilteredServerMapData`가 `applicationName`을 필수로 요구한다).
