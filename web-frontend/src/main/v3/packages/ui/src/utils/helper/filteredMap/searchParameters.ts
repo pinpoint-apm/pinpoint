@@ -12,12 +12,15 @@ export const parseFilterStateFromQueryString = (queryString: string): FilteredMa
   })();
 
   return parsedFilters?.map((filter) => ({
+    fromServiceName: filter.fs,
     fromApplication: filter.fa,
     fromServiceType: filter.fst,
+    toServiceName: filter.ts,
     toApplication: filter.ta,
     toServiceType: filter.tst,
     transactionResult: filter.ie,
     // if single node
+    serviceName: filter.s,
     applicationName: filter.a,
     serviceType: filter.st,
     agentName: filter.an,
@@ -45,12 +48,15 @@ export const getFilteredMapQueryString = ({
 
 export const getFilterQueryParameter = (filterStates: FilteredMap.FilterState[]) => {
   const queryParameters = filterStates.map((filter) => ({
+    fs: filter.fromServiceName,
     fa: filter.fromApplication,
     fst: filter.fromServiceType,
+    ts: filter.toServiceName,
     ta: filter.toApplication,
     tst: filter.toServiceType,
     ie: filter.transactionResult,
     // if single node
+    s: filter.serviceName,
     a: filter.applicationName,
     st: filter.serviceType,
     an: filter.agentName,

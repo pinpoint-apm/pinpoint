@@ -163,4 +163,65 @@ describe('useFilterWizardOnClickApply', () => {
       expect(serviceMapUrl.replace('/filteredMap/DEFAULT/', '/filteredMap/')).toBe(serverMapUrl);
     });
   });
+
+  /**
+   * servicemap에서 다른 service의 group을 펼쳐 그 안의 WAS → 보고 있는 service의 application
+   * 링크에 필터를 건 경우. 펼친 링크는 응답에서 group 링크의 `subLinks` 안에만 있다.
+   *
+   * 출발지가 기준이 되어 정방향으로 탐색해야 하므로 경로의 application도, service 세그먼트
+   * (pServiceName 헤더)도 출발지 쪽이어야 한다.
+   */
+  test('picks the source of an expanded service group link with its own service', () => {
+    const subLinkKey =
+      'demo-shop-front^Shopping-Api^SPRING_BOOT~demo-shop-commerce^Shopping-Order^SPRING_BOOT';
+    const data = {
+      applicationMapData: {
+        nodeDataArray: [],
+        linkDataArray: [
+          {
+            key: 'demo-shop-front~demo-shop-commerce^Shopping-Order^SPRING_BOOT',
+            subLinks: [
+              {
+                key: subLinkKey,
+                sourceInfo: {
+                  applicationName: 'Shopping-Api',
+                  nodeCategory: GetServerMap.NodeCategory.SERVER,
+                },
+                targetInfo: {
+                  applicationName: 'Shopping-Order',
+                  nodeCategory: GetServerMap.NodeCategory.SERVER,
+                },
+                filter: { outRpcList: [] },
+              },
+            ],
+          },
+        ],
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    act(() => getDefaultStore().set(serverMapDataAtom, data));
+
+    const { result } = renderHook(() =>
+      useFilterWizardOnClickApply({ from: FROM, to: TO, serviceName: 'demo-shop-commerce' }),
+    );
+
+    result.current([
+      {
+        ...nodeFilterState,
+        fromServiceName: 'demo-shop-front',
+        fromApplication: 'Shopping-Api',
+        fromServiceType: 'SPRING_BOOT',
+        toServiceName: 'demo-shop-commerce',
+        toApplication: 'Shopping-Order',
+        toServiceType: 'SPRING_BOOT',
+        applicationName: '',
+        serviceType: '',
+      },
+    ]);
+
+    const url = (window.open as jest.Mock).mock.calls[0][0] as string;
+    expect(url.startsWith('/filteredMap/demo-shop-front/Shopping-Api@SPRING_BOOT?')).toBe(true);
+    expect(url).toContain('%22fs%22:%22demo-shop-front%22');
+    expect(url).toContain('%22ts%22:%22demo-shop-commerce%22');
+  });
 });

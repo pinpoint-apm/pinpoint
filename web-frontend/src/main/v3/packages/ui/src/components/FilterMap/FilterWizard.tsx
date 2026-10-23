@@ -20,7 +20,12 @@ import { GoDot } from 'react-icons/go';
 import { FilterStatus } from './FilterStatus';
 import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 import { addCommas } from '@pinpoint-fe/ui/src/utils';
-import { Edge, Node, parseNodeApplication } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
+import {
+  Edge,
+  Node,
+  parseNodeApplication,
+  parseNodeServiceName,
+} from '@pinpoint-fe/ui/src/utils/helper/serverMap';
 import { PopoverArrow } from '@radix-ui/react-popover';
 
 export interface FilterWizardProps {
@@ -62,6 +67,9 @@ export const getDefaultFilters = (
     const from = parseNodeApplication(edgeData.source);
     const to = parseNodeApplication(edgeData.target);
     return {
+      // 3단 id일 때만 실린다. 2단이면 undefined라 필터에서 빠지고 백엔드가 DEFAULT로 읽는다.
+      fromServiceName: parseNodeServiceName(edgeData.source),
+      toServiceName: parseNodeServiceName(edgeData.target),
       fromApplication: from?.applicationName,
       fromServiceType: from?.serviceType,
       toApplication: to?.applicationName,
@@ -90,6 +98,7 @@ export const getDefaultFilters = (
       toApplication: '',
       toServiceType: '',
       transactionResult: null,
+      serviceName: parseNodeServiceName(nodeData.id),
       applicationName: app?.applicationName,
       serviceType: app?.serviceType,
       agentName: '',

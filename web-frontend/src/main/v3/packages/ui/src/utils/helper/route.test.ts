@@ -7,6 +7,7 @@ import {
   getFilteredMapPath,
   getFilteredMapPathOfApplication,
   getFilterTargetApplication,
+  getFilterTargetServiceName,
   getTransactionListPath,
   getTransactionDetailPath,
   getServiceMapPath,
@@ -249,6 +250,43 @@ describe('Test route helper utils', () => {
           '/filteredMap/ACL-PORTAL-DEV@SPRING_BOOT',
         );
       });
+
+      // 헤더(pServiceName)는 기준 application의 service여야 조회가 성립한다.
+      test('Use the service of the picked node instead of the viewed service', () => {
+        expect(
+          getFilteredMapPath({ ...filterState, serviceName: 'otherService' }, false, 'myService'),
+        ).toEqual('/filteredMap/otherService/ACL-PORTAL-DEV@SPRING_BOOT');
+      });
+
+      // 다른 service의 WAS → 보고 있는 service의 application. 출발지가 기준이라 service도 출발지 것.
+      test('Use the service of the link side picked by sourceIsWas', () => {
+        const linkFilter = {
+          ...filterState,
+          fromServiceName: 'demo-shop-front',
+          fromApplication: 'Shopping-Api',
+          fromServiceType: 'SPRING_BOOT',
+          toServiceName: 'demo-shop-commerce',
+          toApplication: 'Shopping-Order',
+          toServiceType: 'SPRING_BOOT',
+          applicationName: '',
+          serviceType: '',
+        };
+
+        expect(getFilteredMapPath(linkFilter, true, 'demo-shop-commerce')).toEqual(
+          '/filteredMap/demo-shop-front/Shopping-Api@SPRING_BOOT',
+        );
+        expect(getFilteredMapPath(linkFilter, false, 'demo-shop-front')).toEqual(
+          '/filteredMap/demo-shop-commerce/Shopping-Order@SPRING_BOOT',
+        );
+      });
+
+      // servermap에서 온 filteredMap도 설정이 켜져 있으면 id가 3단이라 필터에 service가 실린다.
+      // 그래도 세그먼트를 만들면 servicemap에서 온 화면처럼 보이므로 붙이지 않는다.
+      test('Keep the path without a service segment even when the filter carries a service', () => {
+        expect(getFilteredMapPath({ ...filterState, serviceName: 'DEFAULT' }, false)).toEqual(
+          '/filteredMap/ACL-PORTAL-DEV@SPRING_BOOT',
+        );
+      });
     });
 
     // servicemap의 service group(접힌 service)처럼 기준 application을 고를 수 없는 필터.
@@ -400,6 +438,43 @@ describe('Test route helper utils', () => {
       const fromServiceGroup = { ...base, fromApplication: '', fromServiceType: '' };
       expect(getFilterTargetApplication(fromServiceGroup, true)).toBeNull();
       expect(getFilterTargetApplication(fromServiceGroup, false)).toBeNull();
+    });
+  });
+
+  describe('Test "getFilterTargetServiceName"', () => {
+    const base = {
+      fromServiceName: 'fromService',
+      fromApplication: 'FRONT',
+      fromServiceType: 'TOMCAT',
+      toServiceName: 'toService',
+      toApplication: 'ACL-PORTAL-DEV',
+      toServiceType: 'SPRING_BOOT',
+      transactionResult: null,
+    };
+
+    test('Pick the node service when the filter is on a node', () => {
+      expect(
+        getFilterTargetServiceName({
+          ...base,
+          serviceName: 'nodeService',
+          applicationName: 'ACL-PORTAL-DEV',
+          serviceType: 'SPRING_BOOT',
+        }),
+      ).toBe('nodeService');
+    });
+
+    test('Pick the link side by sourceIsWas', () => {
+      expect(getFilterTargetServiceName(base, true)).toBe('fromService');
+      expect(getFilterTargetServiceName(base, false)).toBe('toService');
+    });
+
+    test('Return undefined when the filter carries no service', () => {
+      expect(
+        getFilterTargetServiceName(
+          { ...base, fromServiceName: undefined, toServiceName: undefined },
+          true,
+        ),
+      ).toBeUndefined();
     });
   });
 

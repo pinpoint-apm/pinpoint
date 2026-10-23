@@ -245,10 +245,12 @@ export const getFilterTargetApplication = (
  * serviceName은 백엔드에서 형식이 검증되지 않으므로 인코딩한다. 이유는 `getServiceScopedMapPath`와
  * 같다. (applicationName/serviceType은 백엔드가 검증하므로 그대로 둔다.)
  *
- * TODO: DEFAULT가 아닌 service에서 어떤 형태여야 하는지는 아직 논의 중이다. 지금은 DEFAULT와
- * 똑같이 필터 대상 application을 싣는다(map은 service 전체를 그리지만, filteredMap은 기준
- * application 없이는 조회할 수 없다 — `useGetFilteredServerMapData`가 applicationName을 필수로
- * 요구한다). service 전체를 대상으로 필터를 걸 수 있게 할지 정해지면 그때 형태를 맞춘다.
+ * **service 세그먼트는 기준 application이 속한 service다.** 보고 있던 service가 아니다.
+ * 다른 service의 WAS에서 들어오는 링크(`other^A^SPRING_BOOT~mine^B^SPRING_BOOT`)는 출발지 A가
+ * 기준이 되어 정방향으로 탐색하므로, 헤더(pServiceName)도 A의 service여야 조회가 성립한다.
+ * 필터에 serviceName이 없으면(2단 id) 주어진 serviceName을 그대로 쓴다.
+ *
+ * service 단위 링크(Service→Application 등)는 기준 application이 없어 여기까지 오지 않는다.
  */
 export const getFilteredMapPath = (
   filterState: FilteredMap.FilterState,
@@ -257,8 +259,26 @@ export const getFilteredMapPath = (
 ) =>
   getFilteredMapPathOfApplication(
     getFilterTargetApplication(filterState, sourceIsWas),
-    serviceName,
+    // servermap에서 왔을 때는 세그먼트를 붙이지 않는다. filteredMap의 id는 설정에 따라 3단이라
+    // 필터에 serviceName이 실려 있을 수 있지만, 그것으로 세그먼트를 만들면 servicemap에서 온
+    // 화면처럼 보인다(→ `useFilteredMapParameters`).
+    serviceName && (getFilterTargetServiceName(filterState, sourceIsWas) || serviceName),
   );
+
+/**
+ * 필터 대상에서 기준 application이 속한 service를 고른다. 필터에 실려 있지 않으면 undefined다.
+ * 어느 쪽이 기준인지는 `getFilterTargetApplication`과 같은 규칙이다.
+ */
+export const getFilterTargetServiceName = (
+  filterState: FilteredMap.FilterState,
+  sourceIsWas?: boolean,
+): string | undefined => {
+  if (filterState?.applicationName) {
+    return filterState.serviceName;
+  }
+
+  return sourceIsWas ? filterState?.fromServiceName : filterState?.toServiceName;
+};
 
 /**
  * /filteredMap/{serviceName}?/{applicationName}@{serviceType}

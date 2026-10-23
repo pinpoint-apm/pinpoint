@@ -152,6 +152,21 @@ export const findServiceGroupLink = <T extends GetServerMap.LinkData>(
     (link) => link.key === key && Array.isArray(link.subLinks) && link.subLinks.length > 0,
   );
 
+/**
+ * 응답의 노드·링크에 service group의 자식(`subNodes`/`subLinks`)까지 펼쳐 담는다.
+ *
+ * servicemap에서 group을 펼치면 자식 노드·링크가 그래프에 직접 그려지고 필터 메뉴도 열린다.
+ * 그런데 응답에서 자식은 group 안에만 있어서, 최상위 배열만 찾으면 agent 목록과 sourceInfo를
+ * 못 찾는다(그러면 WAS→WAS 링크도 출발지가 아닌 도착지를 기준으로 열린다).
+ * `serverMapCurrentTargetDataAtom`과 같은 방식이다.
+ */
+export const withServiceGroupChildren = <E>(entries: E[] | undefined): E[] =>
+  (entries ?? []).flatMap((entry) => {
+    // filteredMap 응답 타입에는 이 필드가 없다(servicemap 응답에만 실린다).
+    const { subNodes, subLinks } = entry as { subNodes?: E[]; subLinks?: E[] };
+    return [entry, ...(subNodes ?? subLinks ?? [])];
+  });
+
 /** 펼친 service group을 감싸는 부모(compound) 노드의 id. 응답의 어떤 key와도 겹치지 않게 접두사를 붙인다. */
 export const getExpandedServiceGroupId = (groupKey: string) => `service-group-expanded:${groupKey}`;
 

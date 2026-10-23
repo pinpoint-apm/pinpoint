@@ -10,6 +10,7 @@ import {
   getFilteredMapPath,
   getFilterTargetApplication,
   findLinkOfApplications,
+  withServiceGroupChildren,
 } from '@pinpoint-fe/ui/src/utils';
 
 export function useFilterWizardOnClickApply<
@@ -43,9 +44,10 @@ export function useFilterWizardOnClickApply<
     // 링크를 못 찾으면 sourceIsWas가 undefined로 남아 **도착지**가 기준이 되고 hint도 비어,
     // 같은 링크인데 servermap과 servicemap의 URL이 달라진다. link key는 형식이 map API마다
     // 다르므로(servermap 2단, servicemap 3단) 형식에 무관한 매처로 찾는다.
+    // servicemap에서 펼친 group의 링크는 group 안(`subLinks`)에만 있으므로 자식까지 펼쳐 찾는다.
     if (!filterState?.applicationName) {
       const link = findLinkOfApplications(
-        serverMapData?.applicationMapData?.linkDataArray as T[],
+        withServiceGroupChildren(serverMapData?.applicationMapData?.linkDataArray as T[]),
         {
           applicationName: filterState?.fromApplication,
           serviceType: filterState?.fromServiceType,
