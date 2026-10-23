@@ -28,12 +28,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- pinpoint-plugins-bom pins okhttp 3.8.1 (plugin target); the OTel OTLP sender needs okhttp 4.x -->
-            <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>4.12.0</version>
-            </dependency>
             <!-- the OTel instrumentation BOM must come before spring-boot-dependencies -->
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
