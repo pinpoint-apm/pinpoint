@@ -278,7 +278,8 @@ public class OtlpTraceSpanMapper {
      * present, otherwise falls back to {@link ServiceType#OPENTELEMETRY_SERVER} on the
      * assumption that the upstream is another OTel-instrumented service. Invalid
      * applicationName (length / pattern) is silently dropped to avoid corrupting
-     * ApplicationMap row keys.
+     * ApplicationMap row keys. A parentServiceName no service can have is recorded as
+     * UNKNOWN ({@link OtlpTraceMapperUtils#getParentServiceName}).
      */
     private @Nullable ParentApplication parseTraceState(String traceState) {
         final PinpointTraceStateParser.PinpointHeader header = PinpointTraceStateParser.parse(traceState);
@@ -294,7 +295,7 @@ public class OtlpTraceSpanMapper {
         final int parentServiceType = parentApplicationType != null
                 ? parentApplicationType
                 : ServiceType.OPENTELEMETRY_SERVER.getCode();
-        final String parentServiceName = header.parentServiceName();
+        final String parentServiceName = OtlpTraceMapperUtils.getParentServiceName(header.parentServiceName());
         return ParentApplication.of(parentServiceName, parentApplicationName, parentServiceType);
     }
 
