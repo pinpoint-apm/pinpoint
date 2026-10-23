@@ -16,7 +16,6 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <kotlin.version>1.8.22</kotlin.version>
     </properties>
 
     <dependencies>
@@ -33,7 +32,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
-            <version>1.5.2</version>
+            <version>${plugins-bom.kotlinx-coroutines.version}</version>
         </dependency>
     </dependencies>
 
@@ -56,7 +55,7 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
+                <version>${plugins-bom.kotlin.version}</version>
                 <executions>
                     <execution>
                         <id>compile</id>
