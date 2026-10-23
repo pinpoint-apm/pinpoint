@@ -59,6 +59,25 @@
         <plugins-org-asynchttpclient.version>2.0.40</plugins-org-asynchttpclient.version>
 
         <!-- END : plugins-it, agent-testweb dependency -->
+
+        <!-- START : pinpoint-plugins-bom versions -->
+        <plugins-bom.jedis.version>2.4.2</plugins-bom.jedis.version>
+
+        <plugins-bom.cassandra.driver.version>2.1.7.1</plugins-bom.cassandra.driver.version>
+        <plugins-bom.cassandra4.driver.version>4.15.0</plugins-bom.cassandra4.driver.version>
+
+        <plugins-bom.mongo.driver.3.version>3.12.11</plugins-bom.mongo.driver.3.version>
+        <plugins-bom.mongo.driver.4.version>4.6.1</plugins-bom.mongo.driver.4.version>
+
+        <plugins-bom.httpcomponents3.version>3.1</plugins-bom.httpcomponents3.version>
+
+        <plugins-bom.apache.dubbo.version>2.7.18</plugins-bom.apache.dubbo.version>
+
+        <plugins-bom.undertow.version>2.2.17.Final</plugins-bom.undertow.version>
+        <plugins-bom.cxf.version>3.0.16</plugins-bom.cxf.version>
+
+        <plugins-bom.tomcat.version>9.0.123</plugins-bom.tomcat.version>
+        <!-- END : pinpoint-plugins-bom versions -->
     </properties>
 
 

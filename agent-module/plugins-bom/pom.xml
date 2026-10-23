@@ -28,25 +28,6 @@
     <artifactId>pinpoint-plugins-bom</artifactId>
     <name>pinpoint-plugins-bom</name>
 
-    <properties>
-        <jedis.version>2.4.2</jedis.version>
-
-        <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
-        <cassandra4.driver.version>4.15.0</cassandra4.driver.version>
-
-        <mongo.driver.3.version>3.12.11</mongo.driver.3.version>
-        <mongo.driver.4.version>4.6.1</mongo.driver.4.version>
-
-        <httpcomponents3.version>3.1</httpcomponents3.version>
-
-        <apache.dubbo.version>2.7.18</apache.dubbo.version>
-
-        <undertow.version>2.2.17.Final</undertow.version>
-        <cxf.version>3.0.16</cxf.version>
-
-        <plugin-bom.tomcat.version>9.0.123</plugin-bom.tomcat.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -68,27 +49,27 @@
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
-                <version>${cassandra.driver.version}</version>
+                <version>${plugins-bom.cassandra.driver.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-core</artifactId>
-                <version>${cassandra4.driver.version}</version>
+                <version>${plugins-bom.cassandra4.driver.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver</artifactId>
-                <version>${mongo.driver.3.version}</version>
+                <version>${plugins-bom.mongo.driver.3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-sync</artifactId>
-                <version>${mongo.driver.4.version}</version>
+                <version>${plugins-bom.mongo.driver.4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-reactivestreams</artifactId>
-                <version>${mongo.driver.4.version}</version>
+                <version>${plugins-bom.mongo.driver.4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
@@ -130,7 +111,7 @@
             <dependency>
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
-                <version>${httpcomponents3.version}</version>
+                <version>${plugins-bom.httpcomponents3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
@@ -158,7 +139,7 @@
             <dependency>
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
-                <version>${jedis.version}</version>
+                <version>${plugins-bom.jedis.version}</version>
             </dependency>
 
 
@@ -171,22 +152,22 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                <version>${cxf.version}</version>
+                <version>${plugins-bom.cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>${cxf.version}</version>
+                <version>${plugins-bom.cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${cxf.version}</version>
+                <version>${plugins-bom.cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-client</artifactId>
-                <version>${cxf.version}</version>
+                <version>${plugins-bom.cxf.version}</version>
             </dependency>
 
             <dependency>
@@ -285,23 +266,23 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tomcat-catalina</artifactId>
-                <version>${plugin-bom.tomcat.version}</version>
+                <version>${plugins-bom.tomcat.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tomcat-coyote</artifactId>
-                <version>${plugin-bom.tomcat.version}</version>
+                <version>${plugins-bom.tomcat.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tomcat-servlet-api</artifactId>
-                <version>${plugin-bom.tomcat.version}</version>
+                <version>${plugins-bom.tomcat.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.undertow</groupId>
                 <artifactId>undertow-core</artifactId>
-                <version>${undertow.version}</version>
+                <version>${plugins-bom.undertow.version}</version>
             </dependency>
 
             <dependency>
@@ -347,7 +328,7 @@
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo</artifactId>
-                <version>${apache.dubbo.version}</version>
+                <version>${plugins-bom.apache.dubbo.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>
