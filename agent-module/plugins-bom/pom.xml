@@ -40,7 +40,6 @@
         <httpcomponents3.version>3.1</httpcomponents3.version>
 
         <apache.dubbo.version>2.7.18</apache.dubbo.version>
-        <ehcache.version>2.10.6</ehcache.version>
 
         <undertow.version>2.2.17.Final</undertow.version>
         <cxf.version>3.0.16</cxf.version>
@@ -67,11 +66,6 @@
                 <version>1.8.1</version>
             </dependency>
             <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>${ehcache.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
                 <version>${cassandra.driver.version}</version>
@@ -80,12 +74,6 @@
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-core</artifactId>
                 <version>${cassandra4.driver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cassandra</groupId>
-                <artifactId>cassandra-all</artifactId>
-                <version>2.1.13</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
@@ -178,12 +166,6 @@
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-client</artifactId>
                 <version>5.13.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-all</artifactId>
-                <version>5.13.2</version>
-                <scope>test</scope>
             </dependency>
 
             <dependency>
