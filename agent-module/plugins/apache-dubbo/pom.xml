@@ -39,6 +39,7 @@
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
+            <version>${plugins-bom.apache.dubbo.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

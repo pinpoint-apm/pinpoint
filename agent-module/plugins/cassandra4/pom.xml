@@ -21,6 +21,7 @@
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
+            <version>${plugins-bom.cassandra4.driver.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

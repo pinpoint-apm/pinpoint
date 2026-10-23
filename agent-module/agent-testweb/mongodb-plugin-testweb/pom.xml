@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
-            <version>3.12.11</version>
+            <version>${plugins-bom.mongo.driver.3.version}</version>
         </dependency>
 
         <dependency>

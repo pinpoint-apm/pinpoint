@@ -26,11 +26,13 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
+            <version>${plugins-bom.kafka3.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
+            <version>${plugins-bom.kafka3.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

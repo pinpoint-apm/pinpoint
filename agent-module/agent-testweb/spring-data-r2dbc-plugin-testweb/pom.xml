@@ -35,12 +35,12 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-r2dbc</artifactId>
-            <version>1.5.1</version>
+            <version>${plugins-bom.spring-data-r2dbc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>r2dbc-postgresql</artifactId>
-            <version>0.9.1.RELEASE</version>
+            <version>${plugins-bom.r2dbc-postgresql.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.projectreactor.netty.incubator</groupId>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql-jdbc-version}</version>
+            <version>${plugins-bom.postgresql.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-h2</artifactId>
-            <version>0.9.1.RELEASE</version>
+            <version>${plugins-bom.r2dbc-h2.version}</version>
         </dependency>
 
         <dependency>
@@ -77,13 +77,13 @@
         <dependency>
             <groupId>com.github.jasync-sql</groupId>
             <artifactId>jasync-r2dbc-mysql</artifactId>
-            <version>2.0.8</version>
+            <version>${plugins-bom.jasync-r2dbc-mysql.version}</version>
         </dependency>
 
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql-connector-java.verison}</version>
+            <version>${plugins-bom.mysql.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>org.mariadb</groupId>
             <artifactId>r2dbc-mariadb</artifactId>
-            <version>1.1.2</version>
+            <version>${plugins-bom.r2dbc-mariadb.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client -->
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.oracle.database.r2dbc</groupId>
             <artifactId>oracle-r2dbc</artifactId>
-            <version>1.0.0</version>
+            <version>${plugins-bom.oracle-r2dbc.version}</version>
         </dependency>
 
         <dependency>
@@ -120,7 +120,7 @@
         <dependency>
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-mssql</artifactId>
-            <version>0.9.0.RELEASE</version>
+            <version>${plugins-bom.r2dbc-mssql.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->

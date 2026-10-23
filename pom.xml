@@ -182,7 +182,6 @@
         <micrometer-tracing.version>1.7.1</micrometer-tracing.version>
         <opentelemetry-metrics.version>1.53.0</opentelemetry-metrics.version>
 
-        <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
         <mysql-connector-j.verison>8.4.0</mysql-connector-j.verison>
 
         <fastxml.jackson.version>2.21.4</fastxml.jackson.version>

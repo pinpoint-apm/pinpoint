@@ -52,7 +52,6 @@
 
     <properties>
         <jetty9-version>9.4.57.v20241219</jetty9-version>
-        <postgresql-jdbc-version>42.3.10</postgresql-jdbc-version>
 
         <!-- START : plugins-it, agent-testweb dependency -->
         <plugins-ning-asynchttpclient.version>1.8.17</plugins-ning-asynchttpclient.version>
@@ -77,6 +76,53 @@
         <plugins-bom.cxf.version>3.0.16</plugins-bom.cxf.version>
 
         <plugins-bom.tomcat.version>9.0.123</plugins-bom.tomcat.version>
+
+        <plugins-bom.dbcp.version>1.4</plugins-bom.dbcp.version>
+        <plugins-bom.dbcp2.version>2.1.1</plugins-bom.dbcp2.version>
+        <plugins-bom.druid.version>1.1.10</plugins-bom.druid.version>
+        <plugins-bom.fastjson.version>1.2.83</plugins-bom.fastjson.version>
+        <plugins-bom.gson.version>2.13.2</plugins-bom.gson.version>
+        <plugins-bom.json-lib.version>2.3</plugins-bom.json-lib.version>
+        <plugins-bom.okhttp.version>2.5.0</plugins-bom.okhttp.version>
+        <plugins-bom.okhttp3.version>3.8.1</plugins-bom.okhttp3.version>
+        <plugins-bom.mybatis.version>3.5.19</plugins-bom.mybatis.version>
+        <plugins-bom.rxjava.version>1.2.0</plugins-bom.rxjava.version>
+        <plugins-bom.jackson.version>2.21.4</plugins-bom.jackson.version>
+        <plugins-bom.jackson-annotations.version>2.21</plugins-bom.jackson-annotations.version>
+        <plugins-bom.redisson.version>3.10.4</plugins-bom.redisson.version>
+        <plugins-bom.lettuce.version>6.5.2.RELEASE</plugins-bom.lettuce.version>
+        <plugins-bom.pulsar.version>4.0.0</plugins-bom.pulsar.version>
+        <plugins-bom.rocketmq.version>4.7.1</plugins-bom.rocketmq.version>
+        <plugins-bom.google-http-client.version>1.20.0</plugins-bom.google-http-client.version>
+        <plugins-bom.httpasyncclient.version>4.1.4</plugins-bom.httpasyncclient.version>
+        <plugins-bom.httpcomponents4.version>4.5.14</plugins-bom.httpcomponents4.version>
+        <plugins-bom.httpcomponents4-core.version>4.4.16</plugins-bom.httpcomponents4-core.version>
+        <plugins-bom.httpcomponents5.version>5.4.4</plugins-bom.httpcomponents5.version>
+        <plugins-bom.hystrix.version>1.5.12</plugins-bom.hystrix.version>
+        <plugins-bom.hbase.version>1.7.2</plugins-bom.hbase.version>
+        <plugins-bom.elasticsearch.version>7.16.0</plugins-bom.elasticsearch.version>
+        <plugins-bom.elasticsearch8.version>8.1.2</plugins-bom.elasticsearch8.version>
+        <plugins-bom.paho-mqtt.version>1.2.5</plugins-bom.paho-mqtt.version>
+        <plugins-bom.dameng.version>8.1.1.193</plugins-bom.dameng.version>
+        <plugins-bom.arcus.version>1.8.1</plugins-bom.arcus.version>
+        <plugins-bom.mysql.version>8.0.28</plugins-bom.mysql.version>
+        <plugins-bom.postgresql.version>42.3.10</plugins-bom.postgresql.version>
+        <plugins-bom.mssql.version>7.0.0.jre8</plugins-bom.mssql.version>
+        <plugins-bom.activemq.version>5.13.2</plugins-bom.activemq.version>
+        <plugins-bom.jtds.version>1.2.8</plugins-bom.jtds.version>
+        <plugins-bom.mariadb.version>1.3.4</plugins-bom.mariadb.version>
+
+        <!-- Spring Data R2DBC -->
+        <plugins-bom.spring-data-r2dbc.version>1.5.1</plugins-bom.spring-data-r2dbc.version>
+        <plugins-bom.r2dbc-h2.version>0.9.1.RELEASE</plugins-bom.r2dbc-h2.version>
+        <plugins-bom.r2dbc-mysql.version>0.8.2.RELEASE</plugins-bom.r2dbc-mysql.version>
+        <plugins-bom.jasync-r2dbc-mysql.version>2.0.8</plugins-bom.jasync-r2dbc-mysql.version>
+        <plugins-bom.r2dbc-mariadb.version>1.1.2</plugins-bom.r2dbc-mariadb.version>
+        <plugins-bom.r2dbc-postgresql.version>0.9.1.RELEASE</plugins-bom.r2dbc-postgresql.version>
+        <plugins-bom.oracle-r2dbc.version>1.0.0</plugins-bom.oracle-r2dbc.version>
+        <plugins-bom.r2dbc-mssql.version>0.9.0.RELEASE</plugins-bom.r2dbc-mssql.version>
+        <plugins-bom.kafka3.version>3.8.1</plugins-bom.kafka3.version>
+        <plugins-bom.kafka2.version>2.8.2</plugins-bom.kafka2.version>
         <!-- END : pinpoint-plugins-bom versions -->
     </properties>
 

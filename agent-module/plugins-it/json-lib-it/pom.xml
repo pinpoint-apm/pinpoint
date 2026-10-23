@@ -37,6 +37,7 @@
         <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
+            <version>${plugins-bom.json-lib.version}</version>
             <classifier>jdk15</classifier>
         </dependency>
         <dependency>

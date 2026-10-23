@@ -37,6 +37,7 @@
         <dependency>
             <groupId>com.dameng</groupId>
             <artifactId>DmJdbcDriver18</artifactId>
+            <version>${plugins-bom.dameng.version}</version>
         </dependency>
         <!-- testcontainers -->
         <dependency>

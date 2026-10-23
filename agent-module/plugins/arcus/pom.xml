@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.navercorp.arcus</groupId>
             <artifactId>arcus-java-client</artifactId>
-            <version>1.8.1</version>
+            <version>${plugins-bom.arcus.version}</version>
             <scope>provided</scope>
         </dependency>
 

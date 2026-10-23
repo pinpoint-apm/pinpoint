@@ -33,10 +33,12 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
+            <version>${plugins-bom.kafka3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
+            <version>${plugins-bom.kafka3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

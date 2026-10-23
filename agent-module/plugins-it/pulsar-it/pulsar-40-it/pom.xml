@@ -21,6 +21,7 @@
         <dependency>
             <groupId>org.apache.pulsar</groupId>
             <artifactId>pulsar-client</artifactId>
+            <version>${plugins-bom.pulsar.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

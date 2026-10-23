@@ -27,6 +27,7 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
+            <version>${plugins-bom.lettuce.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

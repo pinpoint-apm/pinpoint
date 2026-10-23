@@ -41,6 +41,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>${plugins-bom.cxf.version}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -52,6 +53,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${plugins-bom.cxf.version}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -67,11 +69,13 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${plugins-bom.cxf.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-client</artifactId>
+            <version>${plugins-bom.cxf.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

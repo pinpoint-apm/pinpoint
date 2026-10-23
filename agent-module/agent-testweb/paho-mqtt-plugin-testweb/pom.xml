@@ -56,13 +56,13 @@
         <dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-            <version>1.2.5</version>
+            <version>${plugins-bom.paho-mqtt.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
-            <version>1.2.5</version>
+            <version>${plugins-bom.paho-mqtt.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
