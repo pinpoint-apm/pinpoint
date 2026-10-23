@@ -120,13 +120,6 @@
         <dependencies>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugins-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-agent-testweb-commons</artifactId>
                 <version>${project.version}</version>
             </dependency>

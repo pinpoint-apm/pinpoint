@@ -27,12 +27,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- pinpoint-plugins-bom pins okhttp 3.8.1 (plugin target); the OTel OTLP sender needs okhttp 4.x -->
-            <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>4.12.0</version>
-            </dependency>
             <!-- imported before spring-boot-dependencies so the repo-wide micrometer version wins over Boot's pin -->
             <dependency>
                 <groupId>io.micrometer</groupId>

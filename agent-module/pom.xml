@@ -35,7 +35,6 @@
 
         <module>bootstraps</module>
 
-        <module>plugins-bom</module>
         <module>plugins</module>
         <module>plugins-loader</module>
         <module>plugins-test-module</module>
@@ -59,7 +58,7 @@
 
         <!-- END : plugins-it, agent-testweb dependency -->
 
-        <!-- START : pinpoint-plugins-bom versions -->
+        <!-- START : plugin library versions (plugins-bom.*), declared explicitly by plugins, plugins-it and agent-testweb -->
         <plugins-bom.jedis.version>2.4.2</plugins-bom.jedis.version>
 
         <plugins-bom.cassandra.driver.version>2.1.7.1</plugins-bom.cassandra.driver.version>
@@ -125,7 +124,7 @@
         <plugins-bom.r2dbc-mssql.version>0.9.0.RELEASE</plugins-bom.r2dbc-mssql.version>
         <plugins-bom.kafka3.version>3.8.1</plugins-bom.kafka3.version>
         <plugins-bom.kafka2.version>2.8.2</plugins-bom.kafka2.version>
-        <!-- END : pinpoint-plugins-bom versions -->
+        <!-- END : plugin library versions -->
     </properties>
 
 
