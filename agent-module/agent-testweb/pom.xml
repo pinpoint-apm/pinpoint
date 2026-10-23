@@ -47,6 +47,10 @@
         <spring-boot.version>${spring-boot2.version}</spring-boot.version>
         <spring.version>${spring5.version}</spring.version>
         <spring-cloud.version>${spring-cloud3.version}</spring-cloud.version>
+
+        <testweb.springdoc.version>1.8.0</testweb.springdoc.version>
+        <!-- raise the swagger-core pulled in by springdoc -->
+        <testweb.swagger-core.version>2.2.49</testweb.swagger-core.version>
     </properties>
 
     <modules>
@@ -123,6 +127,16 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-agent-testweb-commons</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${testweb.springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>${testweb.swagger-core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
