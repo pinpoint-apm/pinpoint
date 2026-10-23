@@ -48,9 +48,11 @@
         <spring.version>${spring5.version}</spring.version>
         <spring-cloud.version>${spring-cloud3.version}</spring-cloud.version>
 
+        <!-- springdoc 1.x is the last line for Spring Boot 2 / Java 8; 2.x targets Spring Boot 3 -->
         <testweb.springdoc.version>1.8.0</testweb.springdoc.version>
-        <!-- raise the swagger-core pulled in by springdoc -->
-        <testweb.swagger-core.version>2.2.49</testweb.swagger-core.version>
+        <testweb.springdoc3.version>2.9.1</testweb.springdoc3.version>
+        <!-- raise the swagger-core pulled in by springdoc 1.x to the version used by springdoc 2.9.x -->
+        <testweb.swagger-core.version>2.2.55</testweb.swagger-core.version>
     </properties>
 
     <modules>
@@ -132,6 +134,16 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${testweb.springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${testweb.springdoc3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+                <version>${testweb.springdoc3.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
