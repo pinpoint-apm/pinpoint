@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.name.ObjectNameValidationFailedException;
 import com.navercorp.pinpoint.profiler.name.v4.ObjectNameV4;
+import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.util.MaskUtils;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import org.apache.logging.log4j.LogManager;
@@ -218,7 +219,35 @@ public class DefaultAgent implements Agent {
 
         logger.info("Starting pinpoint Agent.");
         this.applicationContext.start();
+        //startup summary
+        logStartupSummary();
         printBanner();
+    }
+
+    private void logStartupSummary() {
+        if(!(this.applicationContext instanceof DefaultApplicationContext)) {
+            return;
+        }
+
+        try {
+            DefaultApplicationContext context = (DefaultApplicationContext) this.applicationContext;
+            PluginContextLoadResult loadResult = context.getInjector().getInstance(PluginContextLoadResult.class);
+
+            int transformerCount = loadResult.getClassFileTransformer().size();
+            int jdbcParserCount = loadResult.getJdbcUrlParserList().size();
+
+            logger.info(
+                    "Pinpoint startup summary - applicationType={}, pluginContexts={}, transformers={}, jdbcUrlParsers={}",
+                    loadResult.getApplicationType(),
+                    transformerCount > 0 ? "loaded" : "none",
+                    transformerCount,
+                    jdbcParserCount
+            );
+        }
+            catch(Exception e){
+                logger.warn("Failed to log pinpoint startup summary",e);
+            }
+        }
     }
 
     private void printBanner() {
