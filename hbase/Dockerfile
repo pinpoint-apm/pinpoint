@@ -1,18 +1,20 @@
-FROM openjdk:8u342-slim AS builder
+# HBase 2.2.6 runs on Java 8 only (hbase-env.sh also sets Java 8 GC options), so the base stays a Java 8 JRE.
+# The official openjdk images are deprecated and openjdk:8u342-slim has not been updated since 2022;
+# Eclipse Temurin is maintained (Java 8 until at least 2030) and is what Jib uses for the other images.
+# The tag is pinned to a patch release on Ubuntu 24.04 LTS (noble); move it on purpose when updating.
+FROM eclipse-temurin:8u504-b01-jre-noble AS builder
 
 ARG HBASE_VERSION=2.2.6
 ENV HBASE_REPOSITORY=https://archive.apache.org/dist/hbase
 ENV BASE_DIR=/opt/hbase
 
 WORKDIR ${BASE_DIR}
-# Fetch the tarball with ADD instead of installing curl: the Debian 11 (bullseye) security
-# pool behind openjdk:8u342-slim no longer serves the packages its index lists, so
-# `apt-get install curl` fails and the image build with it.
+# Fetch the tarball with ADD: no package needs to be installed to build the image.
 ADD ${HBASE_REPOSITORY}/${HBASE_VERSION}/hbase-${HBASE_VERSION}-bin.tar.gz hbase.tar.gz
 RUN tar xfz hbase.tar.gz -C ${BASE_DIR} \
     && rm hbase.tar.gz
 
-FROM openjdk:8u342-slim
+FROM eclipse-temurin:8u504-b01-jre-noble
 
 ARG HBASE_VERSION=2.2.6
 ENV BASE_DIR=/opt/hbase
