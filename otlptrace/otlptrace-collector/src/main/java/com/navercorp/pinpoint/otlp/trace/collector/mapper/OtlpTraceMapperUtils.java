@@ -20,12 +20,14 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
+import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.server.util.Utf8;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
+import com.navercorp.pinpoint.common.trace.attribute.AttributeValueString;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.util.LogSafe;
@@ -73,6 +75,8 @@ public class OtlpTraceMapperUtils {
     private static final String KEY_HOST_NAME = "host.name";
     private static final String KEY_SERVICE_NAME = "service.name";
     private static final String KEY_PINPOINT_SERVICE_NAME = "pinpoint.serviceName";
+    // reserved by the service registry next to the well-known services (ServiceUid.NULL is a cache sentinel)
+    private static final String NULL_SERVICE_NAME = "NULL";
 
     private static final int CONTAINER_ID_FULL_HEX_LEN = 64;
     private static final int AGENT_ID_HASH_PREFIX_BYTES = 16;
@@ -227,16 +231,70 @@ public class OtlpTraceMapperUtils {
      * pinpoint-otel-extension applies the same rule when it writes the {@code pp=svc:...}
      * tracestate entry, so a sender's own service and the parent service its callees record stay
      * identical. The serviceUid for the returned name is resolved by {@link OtlpResourceIdResolver}.
+     * <p>
+     * The rules are those of the service registry and the native collector header:
+     * <ul>
+     *     <li>an empty value is the DEFAULT service, as in the native gRPC header (an unset
+     *     environment variable in {@code OTEL_RESOURCE_ATTRIBUTES} must not drop the application)</li>
+     *     <li>otherwise {@link PinpointConstants#SERVICE_NAME_MIN_LEN} to
+     *     {@link PinpointConstants#SERVICE_NAME_MAX_LEN} characters of {@link IdValidateUtils#ID_PATTERN_VALUE}</li>
+     *     <li>the reserved names (DEFAULT, ERROR, UNKNOWN, NULL, any case) cannot be registered, so
+     *     they are rejected here as invalid instead of being looked up; {@code DEFAULT} itself is the
+     *     DEFAULT service</li>
+     *     <li>a value that is not a string is rejected instead of silently becoming DEFAULT</li>
+     * </ul>
+     *
+     * @throws IllegalArgumentException when the value breaks one of the rules (reported as invalid_resource)
      */
     public static String getServiceName(Map<String, AttributeValue> attributes) {
-        final String serviceName = AttributeUtils.getAttributeStringValue(attributes, KEY_PINPOINT_SERVICE_NAME, null);
-        if (serviceName == null) {
+        final AttributeValue value = attributes.get(KEY_PINPOINT_SERVICE_NAME);
+        if (value == null) {
             return ServiceUid.DEFAULT_SERVICE_UID_NAME;
         }
-        if (!IdValidateUtils.validateId(serviceName, PinpointConstants.SERVICE_NAME_MAX_LEN)) {
+        if (!(value instanceof AttributeValueString stringValue)) {
+            throw new IllegalArgumentException("invalid " + KEY_PINPOINT_SERVICE_NAME + " type=" + value.getType());
+        }
+        final String serviceName = stringValue.getStringValue();
+        if (serviceName.isEmpty() || ServiceUid.DEFAULT_SERVICE_UID_NAME.equals(serviceName)) {
+            return ServiceUid.DEFAULT_SERVICE_UID_NAME;
+        }
+        if (!IdValidateUtils.validateId(serviceName, PinpointConstants.SERVICE_NAME_MIN_LEN, PinpointConstants.SERVICE_NAME_MAX_LEN)) {
             throw new IllegalArgumentException("invalid serviceName=" + LogSafe.value(serviceName));
         }
+        if (isReservedServiceName(serviceName)) {
+            throw new IllegalArgumentException("reserved serviceName=" + LogSafe.value(serviceName));
+        }
         return serviceName;
+    }
+
+    /**
+     * Same set as the web registry ({@code ReservedServiceRegistry}): the well-known services and NULL,
+     * compared ignoring case.
+     */
+    static boolean isReservedServiceName(String serviceName) {
+        for (Service service : Service.wellKnownServices()) {
+            if (service.getServiceName().equalsIgnoreCase(serviceName)) {
+                return true;
+            }
+        }
+        return NULL_SERVICE_NAME.equalsIgnoreCase(serviceName);
+    }
+
+    /**
+     * Name of a parent service taken from the {@code pp} tracestate entry of an upstream caller.
+     * Empty stays empty ({@code ParentApplication} maps it to DEFAULT). A name that no service can
+     * have (length or character set) becomes UNKNOWN, the value an unregistered parent service gets
+     * anyway, so an arbitrary string from a foreign caller does not reach the service lookup and its
+     * cache as a key of its own.
+     */
+    public static @Nullable String getParentServiceName(@Nullable String parentServiceName) {
+        if (parentServiceName == null || parentServiceName.isEmpty()) {
+            return parentServiceName;
+        }
+        if (!IdValidateUtils.validateId(parentServiceName, PinpointConstants.SERVICE_NAME_MIN_LEN, PinpointConstants.SERVICE_NAME_MAX_LEN)) {
+            return ServiceUid.UNKNOWN_SERVICE_UID_NAME;
+        }
+        return parentServiceName;
     }
 
     public static long getSpanId(ByteString bytes) {

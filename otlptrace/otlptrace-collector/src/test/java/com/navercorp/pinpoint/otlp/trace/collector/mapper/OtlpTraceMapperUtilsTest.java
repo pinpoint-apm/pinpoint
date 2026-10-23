@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
@@ -608,6 +609,71 @@ class OtlpTraceMapperUtilsTest {
         assertThatThrownBy(() -> OtlpTraceMapperUtils.getId(attrs))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("invalid serviceName=");
+    }
+
+    private static Map<String, AttributeValue> withServiceName(AttributeValue serviceName) {
+        return Map.of(
+                "pinpoint.agentId", AttributeValue.of("agent1"),
+                "pinpoint.applicationName", AttributeValue.of("app"),
+                "pinpoint.serviceName", serviceName
+        );
+    }
+
+    @Test
+    void getServiceName_empty_isDefault() {
+        // same as the native gRPC header: an unset variable in OTEL_RESOURCE_ATTRIBUTES must not drop the application
+        assertThat(OtlpTraceMapperUtils.getServiceName(withServiceName(AttributeValue.of(""))))
+                .isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+    }
+
+    @Test
+    void getServiceName_default_isDefault() {
+        assertThat(OtlpTraceMapperUtils.getServiceName(withServiceName(AttributeValue.of("DEFAULT"))))
+                .isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+    }
+
+    @Test
+    void getServiceName_length_minAndMaxOfTheRegistry() {
+        assertThat(OtlpTraceMapperUtils.getServiceName(withServiceName(AttributeValue.of("abc")))).isEqualTo("abc");
+        final String max = "s".repeat(PinpointConstants.SERVICE_NAME_MAX_LEN);
+        assertThat(OtlpTraceMapperUtils.getServiceName(withServiceName(AttributeValue.of(max)))).isEqualTo(max);
+
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getServiceName(withServiceName(AttributeValue.of("ab"))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid serviceName=");
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getServiceName(withServiceName(AttributeValue.of(max + "s"))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid serviceName=");
+    }
+
+    @Test
+    void getServiceName_reservedNames_rejectedIgnoringCase() {
+        for (String reserved : List.of("ERROR", "UNKNOWN", "NULL", "default", "Error", "unknown", "null")) {
+            assertThatThrownBy(() -> OtlpTraceMapperUtils.getServiceName(withServiceName(AttributeValue.of(reserved))))
+                    .as(reserved)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("reserved serviceName=");
+        }
+    }
+
+    @Test
+    void getServiceName_notAString_rejected() {
+        assertThatThrownBy(() -> OtlpTraceMapperUtils.getServiceName(withServiceName(AttributeValue.of(1234L))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid pinpoint.serviceName type=");
+    }
+
+    @Test
+    void getParentServiceName_invalidBecomesUnknown() {
+        assertThat(OtlpTraceMapperUtils.getParentServiceName(null)).isNull();
+        assertThat(OtlpTraceMapperUtils.getParentServiceName("")).isEmpty();
+        assertThat(OtlpTraceMapperUtils.getParentServiceName("order-team")).isEqualTo("order-team");
+        assertThat(OtlpTraceMapperUtils.getParentServiceName("DEFAULT")).isEqualTo("DEFAULT");
+
+        assertThat(OtlpTraceMapperUtils.getParentServiceName("ab")).isEqualTo(ServiceUid.UNKNOWN_SERVICE_UID_NAME);
+        assertThat(OtlpTraceMapperUtils.getParentServiceName("bad service!")).isEqualTo(ServiceUid.UNKNOWN_SERVICE_UID_NAME);
+        assertThat(OtlpTraceMapperUtils.getParentServiceName("s".repeat(PinpointConstants.SERVICE_NAME_MAX_LEN + 1)))
+                .isEqualTo(ServiceUid.UNKNOWN_SERVICE_UID_NAME);
     }
 
     @Test

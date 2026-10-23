@@ -1898,6 +1898,22 @@ class OtlpTraceSpanMapperTest {
     }
 
     @Test
+    void map_tracestate_invalidServiceName_recordedAsUnknown() {
+        // A parent service name no service can have (length / character set) would only reach the
+        // service lookup as a key of its own and come back unregistered; record UNKNOWN directly.
+        for (String svc : new String[]{"ab", "한글서비스", "s".repeat(255)}) {
+            Span span = serverSpanBuilder()
+                    .setTraceState("pp=svc:" + svc + ";app:upstream-app")
+                    .build();
+            SpanBo bo = newMapper().map(id(), span, NO_SCOPE);
+            assertThat(bo.getParentApplication())
+                    .as(svc)
+                    .isEqualTo(new ParentApplication(ServiceUid.UNKNOWN_SERVICE_UID_NAME, "upstream-app",
+                            (short) ServiceType.OPENTELEMETRY_SERVER.getCode()));
+        }
+    }
+
+    @Test
     void map_tracestate_invalidApplicationName_silentlyDropped() {
         // IdValidateUtils rejects non-ASCII; we silently drop rather than throw,
         // to avoid corrupting ApplicationMap row keys.

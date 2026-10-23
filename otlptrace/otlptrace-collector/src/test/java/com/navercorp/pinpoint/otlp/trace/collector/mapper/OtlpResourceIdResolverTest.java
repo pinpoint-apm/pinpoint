@@ -69,6 +69,29 @@ class OtlpResourceIdResolverTest {
     }
 
     @Test
+    void emptyOrReservedServiceName_neverReachesTheLookup() {
+        final AtomicInteger lookups = new AtomicInteger();
+        final ServiceLookupService counting = serviceName -> {
+            lookups.incrementAndGet();
+            return CompletableFuture.completedFuture(null);
+        };
+        OtlpResourceIdResolver resolver = new OtlpResourceIdResolver(counting, false);
+
+        IdAndName id = resolver.resolve(resource(""));
+        assertThat(id.serviceName()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+        assertThat(id.serviceUid()).isSameAs(ServiceUidSupplier.DEFAULT);
+
+        // reserved and too short: invalid_resource (IllegalArgumentException), not service_not_found
+        assertThatThrownBy(() -> resolver.resolve(resource("unknown")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .isNotInstanceOf(OtlpServiceNotFoundException.class);
+        assertThatThrownBy(() -> resolver.resolve(resource("ab")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .isNotInstanceOf(OtlpServiceNotFoundException.class);
+        assertThat(lookups).hasValue(0);
+    }
+
+    @Test
     void explicitUnregisteredServiceName_throwsServiceNotFound() {
         OtlpResourceIdResolver resolver = new OtlpResourceIdResolver(REGISTRY, false);
 
