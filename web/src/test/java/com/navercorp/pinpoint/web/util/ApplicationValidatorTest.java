@@ -1,9 +1,11 @@
 package com.navercorp.pinpoint.web.util;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;
+import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
@@ -58,6 +60,46 @@ class ApplicationValidatorTest {
     }
 
     @Test
+    void newApplication_addressListName() {
+        // kafka bootstrap servers are recorded as List.toString()
+        ServiceType serviceType = ServiceType.UNKNOWN_DB;
+        String addressList = "[broker-002.example.com:9093, broker-003.example.com:9093, broker-004.example.com:9093]";
+
+        ServiceTypeRegistryService registry = mock(ServiceTypeRegistryService.class);
+        when(registry.findServiceType(serviceType.getCode())).thenReturn(serviceType);
+
+        ApplicationValidator validator = new ApplicationValidator(registry);
+
+        Assertions.assertEquals(new Application(addressList, serviceType),
+                newApplication(validator, addressList, serviceType.getCode(), null));
+
+        // a list may exceed MAX_LENGTH, up to LIST_MAX_LENGTH
+        String element = "a".repeat(ApplicationValidator.MAX_LENGTH);
+        String longList = "[" + element + ", " + element + "]";
+        Assertions.assertEquals(new Application(longList, serviceType),
+                newApplication(validator, longList, serviceType.getCode(), null));
+        String tooLongList = "[" + "a".repeat(ApplicationValidator.LIST_MAX_LENGTH) + "]";
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> newApplication(validator, tooLongList, serviceType.getCode(), null));
+        // a non-list name keeps MAX_LENGTH
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> newApplication(validator, "a".repeat(ApplicationValidator.MAX_LENGTH + 1), serviceType.getCode(), null));
+
+        // a bracketed ipv6 literal is a single element list
+        Assertions.assertEquals(new Application("[::1]", serviceType),
+                newApplication(validator, "[::1]", serviceType.getCode(), null));
+        Assertions.assertEquals(new Application("[::1]:8080", serviceType),
+                newApplication(validator, "[::1]:8080", serviceType.getCode(), null));
+
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> newApplication(validator, "[]", serviceType.getCode(), null));
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> newApplication(validator, "[broker-002.example.com:9093, broker 003]", serviceType.getCode(), null));
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> newApplication(validator, "broker-002.example.com:9093, broker-003.example.com:9093", serviceType.getCode(), null));
+    }
+
+    @Test
     void newApplication_was_rejectsAddressName() {
         // a WAS applicationName is an agent-registered id and must match the id pattern
         ServiceType serviceType = ServiceType.STAND_ALONE;
@@ -73,6 +115,8 @@ class ApplicationValidatorTest {
                 () -> newApplication(validator, "host.example.com:8080", serviceType.getCode(), null));
         Assertions.assertThrows(ResponseStatusException.class,
                 () -> newApplication(validator, "app name", serviceType.getCode(), null));
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> newApplication(validator, "[app1, app2]", serviceType.getCode(), null));
     }
 
     @Test
@@ -150,5 +194,33 @@ class ApplicationValidatorTest {
         // without a serviceTypeCode a blank serviceTypeName is rejected
         Assertions.assertThrows(ResponseStatusException.class,
                 () -> newApplication(validator, "appName", -1, " "));
+    }
+
+    @Test
+    void newApplication_userNode_allowsGeneratedSuffix() {
+        ServiceType was = ServiceType.STAND_ALONE;
+        ServiceType user = ServiceType.USER;
+
+        ServiceTypeRegistryService registry = mock(ServiceTypeRegistryService.class);
+        when(registry.findServiceType(was.getCode())).thenReturn(was);
+        when(registry.findServiceType(user.getCode())).thenReturn(user);
+        ApplicationValidator validator = new ApplicationValidator(registry);
+
+        // a WAS name at the V3 limit, and the USER node the server map derives from it
+        String maxWasName = "a".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
+        String userNodeName = UserNodeUtils.newUserNodeName(maxWasName, was);
+        Assertions.assertTrue(userNodeName.length() > ApplicationValidator.MAX_LENGTH);
+
+        Assertions.assertEquals(new Application(maxWasName, was),
+                newApplication(validator, maxWasName, was.getCode(), null));
+        Assertions.assertEquals(new Application(userNodeName, user),
+                newApplication(validator, userNodeName, user.getCode(), null));
+
+        // the allowance is for USER nodes only
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> newApplication(validator, userNodeName, was.getCode(), null));
+        String tooLong = "a".repeat(ApplicationValidator.USER_NODE_MAX_LENGTH + 1);
+        Assertions.assertThrows(ResponseStatusException.class,
+                () -> newApplication(validator, tooLong, user.getCode(), null));
     }
 }

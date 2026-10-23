@@ -21,6 +21,10 @@ import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.service.service.ServiceModelResolver;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceConstants;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
@@ -35,6 +39,7 @@ import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
 import com.navercorp.pinpoint.web.applicationmap.view.ServerGroupListView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
@@ -43,8 +48,11 @@ import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,6 +62,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.jspecify.annotations.Nullable;
 import java.time.Duration;
@@ -80,14 +89,19 @@ public class MapHistogramController {
     private final RangeValidator rangeValidator;
     private final ApplicationFactory applicationFactory;
     private final ApplicationValidator applicationValidator;
+    private final ServiceModelResolver serviceModelResolver;
     private final HyperLinkFactory hyperLinkFactory;
+    @Nullable
+    private final ServerMapDataFilter serverMapDataFilter;
 
     public MapHistogramController(
             ResponseTimeHistogramService responseTimeHistogramService,
             HistogramService histogramService,
             ApplicationFactory applicationFactory,
             ApplicationValidator applicationValidator,
+            ServiceModelResolver serviceModelResolver,
             HyperLinkFactory hyperLinkFactory,
+            @Nullable ServerMapDataFilter serverMapDataFilter,
             Duration limitDay
     ) {
         this.responseTimeHistogramService =
@@ -95,12 +109,16 @@ public class MapHistogramController {
         this.histogramService = Objects.requireNonNull(histogramService, "histogramService");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationValidator");
+        this.serviceModelResolver = Objects.requireNonNull(serviceModelResolver, "serviceModelResolver");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+        this.serverMapDataFilter = serverMapDataFilter;
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #appForm.applicationName)")
     @GetMapping(value = "/getResponseTimeHistogramData")
     public ApplicationTimeHistogramViewModel getResponseTimeHistogramData(
+            @ServiceParam ServiceName serviceName,
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -108,7 +126,8 @@ public class MapHistogramController {
         final Range range = toRange(rangeForm);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        final Application application = getApplication(appForm);
+        final Service service = getService(serviceName);
+        final Application application = getApplication(service, appForm);
 
         AgentHistogramList responseTimes = responseTimeHistogramService.selectResponseTimeHistogramData(application, timeWindow);
         return new ApplicationTimeHistogramViewModel(TimeHistogramView.ResponseTime, application, responseTimes);
@@ -120,8 +139,10 @@ public class MapHistogramController {
         return between;
     }
 
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #appForm.applicationName)")
     @PostMapping(value = "/getResponseTimeHistogramDataV2")
     public NodeHistogramSummaryView postResponseTimeHistogramDataV2(
+            @ServiceParam ServiceName serviceName,
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -133,12 +154,13 @@ public class MapHistogramController {
         final Range range = toRange(rangeForm);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        final Application application = getApplication(appForm);
+        final Service service = getService(serviceName);
+        final Application application = getApplication(service, appForm);
 
         final List<Application> fromApplications =
-                mapApplicationPairsToApplications(applicationPairs.getFromApplications());
+                mapApplicationPairsToApplications(service, applicationPairs.getFromApplications());
         final List<Application> toApplications =
-                mapApplicationPairsToApplications(applicationPairs.getToApplications());
+                mapApplicationPairsToApplications(service, applicationPairs.getToApplications());
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
                 .Builder(application, timeWindow, fromApplications, toApplications)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
@@ -151,8 +173,10 @@ public class MapHistogramController {
     }
 
 
+    @PreAuthorize("@naverPermissionEvaluator.hasInspectorPermission(#serviceName.getName(), #appForm.applicationName)")
     @GetMapping(value = "/getResponseTimeHistogramDataV2")
     public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
+            @ServiceParam ServiceName serviceName,
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -180,10 +204,11 @@ public class MapHistogramController {
                     "toApplicationNames and toServiceTypeCodes must have the same number of elements");
         }
 
-        final Application application = getApplication(appForm);
+        final Service service = getService(serviceName);
+        final Application application = getApplication(service, appForm);
 
-        final List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
-        final List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
+        final List<Application> fromApplications = toApplications(service, fromApplicationNames, fromServiceTypeCodes);
+        final List<Application> toApplications = toApplications(service, toApplicationNames, toServiceTypeCodes);
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
                 .Builder(application, timeWindow, fromApplications, toApplications)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
@@ -196,20 +221,20 @@ public class MapHistogramController {
         return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, TimeHistogramView.ResponseTime);
     }
 
-    private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
+    private List<Application> toApplications(Service service, List<String> applicationNames, List<Short> serviceTypeCodes) {
         final List<Application> result = new ArrayList<>(applicationNames.size());
         for (int i = 0; i < applicationNames.size(); i++) {
             String applicationName = applicationNames.get(i);
             int serviceTypeCode = serviceTypeCodes.get(i);
 
             final Application application =
-                    this.applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
+                    this.applicationFactory.createApplication(service, applicationName, serviceTypeCode);
             result.add(application);
         }
         return result;
     }
 
-    private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {
+    private List<Application> mapApplicationPairsToApplications(Service service, List<ApplicationPair> applicationPairs) {
         if (CollectionUtils.isEmpty(applicationPairs)) {
             return Collections.emptyList();
         }
@@ -217,7 +242,7 @@ public class MapHistogramController {
         for (ApplicationPair applicationPair : applicationPairs) {
             final String applicationName = applicationPair.getApplicationName();
             final int serviceTypeCode = applicationPair.getServiceTypeCode();
-            final Application application = this.applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
+            final Application application = this.applicationFactory.createApplication(service, applicationName, serviceTypeCode);
             applications.add(application);
         }
         return applications;
@@ -225,6 +250,7 @@ public class MapHistogramController {
 
     @GetMapping(value = "/getLinkTimeHistogramData")
     public LinkHistogramSummaryView getLinkTimeHistogramData(
+            @ServiceParam ServiceName serviceName,
             @RequestParam(value = "fromApplicationName", required = false) @NullOrNotBlank String fromApplicationName,
             @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
             @RequestParam(value = "toApplicationName", required = false) @NullOrNotBlank String toApplicationName,
@@ -236,8 +262,9 @@ public class MapHistogramController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        final Application fromApplication = this.createApplication(Service.DEFAULT, fromApplicationName, fromServiceTypeCode);
-        final Application toApplication = this.createApplication(Service.DEFAULT,toApplicationName, toServiceTypeCode);
+        final Service service = getService(serviceName);
+        final Application fromApplication = this.createApplication(service, fromApplicationName, fromServiceTypeCode);
+        final Application toApplication = this.createApplication(service, toApplicationName, toServiceTypeCode);
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
@@ -245,14 +272,80 @@ public class MapHistogramController {
     }
 
     @Nullable
-    private Application createApplication(Service serviceUid, @Nullable String name, Short serviceTypeCode) {
+    private Application createApplication(Service service, @Nullable String name, Short serviceTypeCode) {
         if (name == null) {
             return null;
         }
-        return this.applicationFactory.createApplication(serviceUid, name, serviceTypeCode);
+        return this.applicationFactory.createApplication(service, name, serviceTypeCode);
     }
 
-    private Application getApplication(ApplicationForm appForm) {
-        return applicationValidator.newApplication(Service.DEFAULT, appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+    @GetMapping(value = "/linkHistogram")
+    public LinkHistogramSummaryView getLinkHistogram(
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
+            @RequestParam("fromServiceName") @NotBlank String fromServiceName,
+            @RequestParam("fromApplicationName") @NotBlank String fromApplicationName,
+            @RequestParam("fromServiceTypeCode") int fromServiceTypeCode,
+            @RequestParam("toServiceName") @NotBlank String toServiceName,
+            @RequestParam("toApplicationName") @NotBlank String toApplicationName,
+            @RequestParam("toServiceTypeCode") int toServiceTypeCode
+    ) {
+        final Range range = toRange(rangeForm);
+        TimeWindow timeWindow = new TimeWindow(range);
+
+        final Application fromApplication = newApplication(fromServiceName, fromApplicationName, fromServiceTypeCode);
+        final Application toApplication = newApplication(toServiceName, toApplicationName, toServiceTypeCode);
+        checkAuthorized(fromApplication, toApplication);
+
+        final LinkHistogramSummary linkHistogramSummary =
+                responseTimeHistogramService.selectLinkHistogram(fromApplication, toApplication, timeWindow);
+        return new LinkHistogramSummaryView(linkHistogramSummary, timeWindow, TimeHistogramView.TimeseriesHistogram);
+    }
+
+    private Application newApplication(String serviceName, String applicationName, int serviceTypeCode) {
+        final Service service = serviceModelResolver.getService(serviceName);
+        return applicationValidator.newApplication(service, applicationName, serviceTypeCode, null);
+    }
+
+    // authorization check for a link
+    private void checkAuthorized(Application fromApplication, Application toApplication) {
+        if (serverMapDataFilter == null) {
+            return;
+        }
+        final boolean fromDefault = isDefaultService(fromApplication);
+        final boolean toDefault = isDefaultService(toApplication);
+        // 1. non-DEFAULT: pass if the service is authorized. only the service name is checked
+        if (!fromDefault && !serverMapDataFilter.filter(fromApplication)) {
+            return;
+        }
+        if (!toDefault && !serverMapDataFilter.filter(toApplication)) {
+            return;
+        }
+        // 2-1. DEFAULT WAS: pass if the WAS is authorized
+        final boolean fromWas = fromDefault && fromApplication.getServiceType().isWas();
+        final boolean toWas = toDefault && toApplication.getServiceType().isWas();
+        if (fromWas && !serverMapDataFilter.filter(fromApplication)) {
+            return;
+        }
+        if (toWas && !serverMapDataFilter.filter(toApplication)) {
+            return;
+        }
+        // 2-2. both DEFAULT non-WAS: nothing to authorize
+        if (fromDefault && toDefault && !fromWas && !toWas) {
+            return;
+        }
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized link");
+    }
+
+    private boolean isDefaultService(Application application) {
+        return ServiceConstants.DEFAULT.equals(application.getService().getServiceName());
+    }
+
+    private Service getService(ServiceName serviceName) {
+        return serviceModelResolver.getService(serviceName.getName());
+    }
+
+    private Application getApplication(Service service, ApplicationForm appForm) {
+        return applicationValidator.newApplication(service, appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
     }
 }
