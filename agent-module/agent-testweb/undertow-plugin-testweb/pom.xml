@@ -12,25 +12,21 @@
     <artifactId>pinpoint-undertow-plugin-testweb</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <undertow.version>2.2.17.Final</undertow.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-core</artifactId>
-            <version>${undertow.version}</version>
+            <version>${plugins-bom.undertow.version}</version>
         </dependency>
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-servlet</artifactId>
-            <version>${undertow.version}</version>
+            <version>${plugins-bom.undertow.version}</version>
         </dependency>
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-websockets-jsr</artifactId>
-            <version>${undertow.version}</version>
+            <version>${plugins-bom.undertow.version}</version>
         </dependency>
     </dependencies>
 </project>
