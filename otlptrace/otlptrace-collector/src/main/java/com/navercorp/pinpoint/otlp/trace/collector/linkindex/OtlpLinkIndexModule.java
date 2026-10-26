@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.otlp.trace.collector.linkindex;
 
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexWriter;
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
+import com.navercorp.pinpoint.otlp.trace.linkindex.SlotQuota;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkIndexSuppression;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressKey;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressStore;
@@ -36,6 +38,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
+import java.util.Locale;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 
@@ -88,14 +91,31 @@ public class OtlpLinkIndexModule {
                                                @Value("${" + PREFIX + "buckets:65536}") int buckets,
                                                @Value("${" + PREFIX + "ttl:5m}") Duration ttl,
                                                @Value("${" + PREFIX + "queue-size:100000}") int queueSize,
-                                               @Value("${" + PREFIX + "max-entries-per-slot:1000000}") int maxEntriesPerSlot,
                                                @Value("${" + PREFIX + "sample-modulo:1}") int sampleModulo,
                                                @Value("${" + PREFIX + "redis.command-timeout:2s}") Duration timeout,
-                                               LinkIndexSuppression suppression) {
-        logger.info("Link index writer buckets:{} ttl:{} queueSize:{} maxEntriesPerSlot:{} sampleModulo:{}",
-                buckets, ttl, queueSize, maxEntriesPerSlot, sampleModulo);
+                                               LinkIndexSuppression suppression,
+                                               SlotQuota quota) {
+        logger.info("Link index writer buckets:{} ttl:{} queueSize:{} sampleModulo:{} {}",
+                buckets, ttl, queueSize, sampleModulo, quota);
+        if (quota.getClientLimit() < suppression.getProbePerSlot()) {
+            // the probes of a suppressed identifier go through the quota: fewer than probe-per-slot would be written
+            logger.warn("Link index {}max-entries-per-identifier-percent gives {} entries per identifier and slot, "
+                            + "less than {}suppress.probe-per-slot={}: the probes of a suppressed identifier are cut by the quota",
+                    PREFIX, quota.getClientLimit(), PREFIX, suppression.getProbePerSlot());
+        }
         return new LinkIndexWriter(connector.connect(), buckets, ttl.toMillis(), queueSize,
-                maxEntriesPerSlot, sampleModulo, timeout, System::currentTimeMillis, suppression);
+                sampleModulo, timeout, System::currentTimeMillis, suppression, quota);
+    }
+
+    /**
+     * Entries per slot and collector ({@code max-entries-per-slot}) and the share of them one CLIENT identifier
+     * (application + destination) or the SERVER entries of one application may use.
+     */
+    @Bean
+    public SlotQuota otlpLinkIndexSlotQuota(@Value("${" + PREFIX + "max-entries-per-slot:1000000}") int maxEntriesPerSlot,
+                                            @Value("${" + PREFIX + "max-entries-per-identifier-percent:20}") int clientPercent,
+                                            @Value("${" + PREFIX + "max-server-entries-per-application-percent:100}") int serverPercent) {
+        return new SlotQuota(maxEntriesPerSlot, clientPercent, serverPercent);
     }
 
     /**
@@ -143,26 +163,35 @@ public class OtlpLinkIndexModule {
     }
 
     @Bean
-    public LinkIndexWriterMetrics otlpLinkIndexWriterMetrics(LinkIndexWriter writer, MeterRegistry meterRegistry) {
-        return new LinkIndexWriterMetrics(writer, meterRegistry);
+    public LinkIndexWriterMetrics otlpLinkIndexWriterMetrics(LinkIndexWriter writer, SlotQuota quota, MeterRegistry meterRegistry) {
+        return new LinkIndexWriterMetrics(writer, quota, meterRegistry);
     }
 
     /**
-     * Registers the writer counters under {@value #METRIC_PREFIX}.
+     * Registers the writer counters under {@value #METRIC_PREFIX}: {@code dropped} is tagged with the reason
+     * ({@link LinkIndexWriter.DropReason}) and the kind ({@code client} / {@code server}). The quota gauges describe
+     * the last ended slot: {@code slot.entries}, {@code slot.limit.reached.second} (60 when the slot quota was not
+     * reached) and {@code quota.limited.identifiers}.
      */
     public static class LinkIndexWriterMetrics {
-        public LinkIndexWriterMetrics(LinkIndexWriter writer, MeterRegistry registry) {
+        public LinkIndexWriterMetrics(LinkIndexWriter writer, SlotQuota quota, MeterRegistry registry) {
             counter(registry, "written", writer, LinkIndexWriter::getWritten);
             counter(registry, "expireat.sent", writer, LinkIndexWriter::getExpireAtSent);
             counter(registry, "not.sampled", writer, LinkIndexWriter::getNotSampled);
             counter(registry, "write.errors", writer, LinkIndexWriter::getWriteErrors);
-            FunctionCounter.builder(METRIC_PREFIX + "dropped", writer, w -> (double) w.getDroppedQueueFull())
-                    .tag("reason", "queue_full").register(registry);
-            FunctionCounter.builder(METRIC_PREFIX + "dropped", writer, w -> (double) w.getDroppedSlotLimit())
-                    .tag("reason", "slot_limit").register(registry);
-            FunctionCounter.builder(METRIC_PREFIX + "dropped", writer, w -> (double) w.getDroppedLate())
-                    .tag("reason", "late").register(registry);
+            for (LinkIndexWriter.DropReason reason : LinkIndexWriter.DropReason.values()) {
+                for (LinkKind kind : LinkKind.values()) {
+                    FunctionCounter.builder(METRIC_PREFIX + "dropped", writer, w -> (double) w.getDropped(reason, kind))
+                            .tag("reason", reason.tag())
+                            .tag("kind", kind.name().toLowerCase(Locale.ROOT))
+                            .register(registry);
+                }
+            }
             Gauge.builder(METRIC_PREFIX + "queue.depth", writer, LinkIndexWriter::getQueueSize).register(registry);
+            Gauge.builder(METRIC_PREFIX + "slot.entries", quota, SlotQuota::getSlotEntries).register(registry);
+            Gauge.builder(METRIC_PREFIX + "slot.limit.reached.second", quota, SlotQuota::getSlotLimitReachedSecond).register(registry);
+            Gauge.builder(METRIC_PREFIX + "quota.limited.identifiers", quota, SlotQuota::getLimitedIdentifiers).register(registry);
+            FunctionCounter.builder(METRIC_PREFIX + "quota.untracked", quota, q -> (double) q.getUntracked()).register(registry);
         }
 
         private static void counter(MeterRegistry registry, String name, LinkIndexWriter writer,

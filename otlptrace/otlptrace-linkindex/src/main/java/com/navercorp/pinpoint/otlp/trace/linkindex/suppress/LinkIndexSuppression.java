@@ -140,10 +140,20 @@ public class LinkIndexSuppression implements AutoCloseable {
      * @return {@code true} if the CLIENT entry is to be written
      */
     public boolean allow(String applicationName, String destinationId, long slot) {
+        return allowIdentifier(applicationName, SuppressKey.of(applicationName, destinationId), slot);
+    }
+
+    /**
+     * {@link #allow} for a caller that already built the identifier
+     *
+     * @param key  {@link SuppressKey#of} of the entry
+     * @param slot the current slot, for the probe allowance
+     * @return {@code true} if the CLIENT entry is to be written
+     */
+    public boolean allowIdentifier(String applicationName, String key, long slot) {
         if (active.isEmpty() && forced.isEmpty()) {
             return true;
         }
-        final String key = SuppressKey.of(applicationName, destinationId);
         if (pinned.matches(applicationName, key)) {
             return true;
         }
@@ -174,6 +184,11 @@ public class LinkIndexSuppression implements AutoCloseable {
 
     Set<String> getActive() {
         return active;
+    }
+
+    /** entries of a suppressed identifier still written per slot by this collector */
+    public int getProbePerSlot() {
+        return probePerSlot;
     }
 
     /** CLIENT entries not written */

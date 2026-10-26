@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.linkindex;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexWriter;
+import com.navercorp.pinpoint.otlp.trace.linkindex.SlotQuota;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkIndexSuppression;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexConnection;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexRedisConnector;
@@ -96,7 +97,41 @@ class OtlpLinkIndexModuleTest {
             assertThat(registry.find("collector.otlptrace.linkindex.probed").functionCounter()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.suppress.active").gauge()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.suppress.refresh.errors").functionCounter()).isNotNull();
+            // quota: 20 % per CLIENT identifier by default, SERVER limit off; drops tagged by reason and kind
+            assertThat(context.getBean(SlotQuota.class).toString())
+                    .contains("maxEntriesPerSlot=1000000").contains("clientPercent=20").contains("serverPercent=100");
+            assertThat(registry.find("collector.otlptrace.linkindex.dropped").functionCounters()).hasSize(8);
+            assertThat(registry.find("collector.otlptrace.linkindex.dropped")
+                    .tag("reason", "identifier_limit").tag("kind", "client").functionCounter()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.slot.entries").gauge()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.slot.limit.reached.second").gauge()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.quota.limited.identifiers").gauge()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.quota.untracked").functionCounter()).isNotNull();
         }
+    }
+
+    @Test
+    void quotaSettings() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("pinpoint.collector.otlptrace.link-index.enabled", "true");
+        properties.put("pinpoint.collector.otlptrace.link-index.max-entries-per-slot", "5000");
+        properties.put("pinpoint.collector.otlptrace.link-index.max-entries-per-identifier-percent", "10");
+        properties.put("pinpoint.collector.otlptrace.link-index.max-server-entries-per-application-percent", "50");
+        try (AnnotationConfigApplicationContext context = context(properties, true)) {
+            assertThat(context.getBean(SlotQuota.class).toString())
+                    .contains("maxEntriesPerSlot=5000").contains("clientPercent=10").contains("serverPercent=50");
+        }
+    }
+
+    @Test
+    void quotaPercentOutOfRangeFailsToStart() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("pinpoint.collector.otlptrace.link-index.enabled", "true");
+        properties.put("pinpoint.collector.otlptrace.link-index.max-entries-per-identifier-percent", "0");
+        assertThatThrownBy(() -> context(properties, true))
+                .isInstanceOf(BeanCreationException.class)
+                .rootCause()
+                .hasMessageContaining("1..100");
     }
 
     @Test
