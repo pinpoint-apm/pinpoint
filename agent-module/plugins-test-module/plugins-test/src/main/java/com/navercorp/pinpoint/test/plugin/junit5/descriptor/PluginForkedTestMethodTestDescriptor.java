@@ -70,7 +70,7 @@ public class PluginForkedTestMethodTestDescriptor extends TestMethodTestDescript
                 }
             }
 
-            final TestExecutionResult result = testReport.getResult();
+            final TestExecutionResult result = testReport.getResultOrFailed();
             if (result.getStatus() != TestExecutionResult.Status.SUCCESSFUL) {
                 throwableCollector.execute(() -> {
                     Throwable throwable = result.getThrowable().orElse(new IllegalStateException("unknown"));
