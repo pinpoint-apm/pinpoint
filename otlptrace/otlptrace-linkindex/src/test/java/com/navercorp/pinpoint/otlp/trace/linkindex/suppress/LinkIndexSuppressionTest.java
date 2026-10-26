@@ -66,6 +66,19 @@ class LinkIndexSuppressionTest {
     }
 
     @Test
+    void allowIdentifierTakesTheBuiltKey() {
+        when(store.readActive()).thenReturn(Set.of(MAPMATCH));
+        LinkIndexSuppression suppression = suppression(1, "", "mapmatch-bg|other:1");
+        suppression.refresh();
+
+        assertThat(suppression.allowIdentifier("mapmatch-bg", MAPMATCH, 10)).isTrue();     // probe
+        assertThat(suppression.allowIdentifier("mapmatch-bg", MAPMATCH, 10)).isFalse();
+        // the probe allowance is shared with allow()
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isFalse();
+        assertThat(suppression.allowIdentifier("mapmatch-bg", SuppressKey.of("mapmatch-bg", "other:1"), 10)).isTrue();
+    }
+
+    @Test
     void releasedIdentifierIsWrittenAgainAfterTheNextRefresh() {
         when(store.readActive()).thenReturn(Set.of(MAPMATCH)).thenReturn(Set.of());
         LinkIndexSuppression suppression = suppression(1, "", "");

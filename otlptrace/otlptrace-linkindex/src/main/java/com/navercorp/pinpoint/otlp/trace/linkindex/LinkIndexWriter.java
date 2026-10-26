@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.linkindex;
 
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexConnection;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkIndexSuppression;
+import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressKey;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
@@ -33,6 +34,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.function.LongSupplier;
 
 /**
@@ -52,6 +54,9 @@ import java.util.function.LongSupplier;
  * sent it for that bucket, and no later cleanup deletes k again. So an entry whose slot is older than the
  * previous slot at write time is dropped and counted ({@link #getDroppedLate}); it would not have been
  * joined anyway.
+ * <p>
+ * Quota: {@link SlotQuota} bounds the entries per slot and the share of them one identifier may use. Dropped entries
+ * are counted per {@link DropReason} and {@link LinkKind}.
  */
 public class LinkIndexWriter implements AutoCloseable {
 
@@ -59,15 +64,16 @@ public class LinkIndexWriter implements AutoCloseable {
 
     static final int BATCH_SIZE = 1000;
     private static final long POLL_MILLIS = 100;
+    private static final int KINDS = LinkKind.values().length;
 
     private final LinkIndexConnection connection;
     private final int buckets;
     private final long ttlMillis;
-    private final int maxEntriesPerSlot;
     private final int sampleModulo;
     private final Duration timeout;
     private final LongSupplier clock;
     private final LinkIndexSuppression suppression;
+    private final SlotQuota quota;
     private final BlockingQueue<Pending> queue;
     private final Thread thread;
 
@@ -78,16 +84,9 @@ public class LinkIndexWriter implements AutoCloseable {
     private BitSet expireSent;
     private BitSet previousExpireSent;
 
-    // ingest threads
-    private final Object slotLock = new Object();
-    private long countSlot = Long.MIN_VALUE;
-    private int countInSlot;
-
     private final AtomicLong offered = new AtomicLong();
     private final AtomicLong notSampled = new AtomicLong();
-    private final AtomicLong droppedQueueFull = new AtomicLong();
-    private final AtomicLong droppedSlotLimit = new AtomicLong();
-    private final AtomicLong droppedLate = new AtomicLong();
+    private final AtomicLongArray dropped = new AtomicLongArray(DropReason.values().length * KINDS);
     private final AtomicLong written = new AtomicLong();
     private final AtomicLong expireAtSent = new AtomicLong();
     private final AtomicLong writeErrors = new AtomicLong();
@@ -116,14 +115,29 @@ public class LinkIndexWriter implements AutoCloseable {
                            Duration timeout,
                            LongSupplier clock,
                            LinkIndexSuppression suppression) {
+        this(connection, buckets, ttlMillis, queueSize, sampleModulo, timeout, clock, suppression, SlotQuota.of(maxEntriesPerSlot));
+    }
+
+    /**
+     * @param quota entries per slot and identifier, applied after the suppression: suppressed entries use no quota
+     */
+    public LinkIndexWriter(LinkIndexConnection connection,
+                           int buckets,
+                           long ttlMillis,
+                           int queueSize,
+                           int sampleModulo,
+                           Duration timeout,
+                           LongSupplier clock,
+                           LinkIndexSuppression suppression,
+                           SlotQuota quota) {
         this.connection = Objects.requireNonNull(connection, "connection");
         this.suppression = Objects.requireNonNull(suppression, "suppression");
-        if (buckets < 1 || ttlMillis < 1 || queueSize < 1 || maxEntriesPerSlot < 1 || sampleModulo < 1) {
-            throw new IllegalArgumentException("buckets, ttl, queueSize, maxEntriesPerSlot and sampleModulo must be positive");
+        this.quota = Objects.requireNonNull(quota, "quota");
+        if (buckets < 1 || ttlMillis < 1 || queueSize < 1 || sampleModulo < 1) {
+            throw new IllegalArgumentException("buckets, ttl, queueSize and sampleModulo must be positive");
         }
         this.buckets = buckets;
         this.ttlMillis = ttlMillis;
-        this.maxEntriesPerSlot = maxEntriesPerSlot;
         this.sampleModulo = sampleModulo;
         this.timeout = Objects.requireNonNull(timeout, "timeout");
         this.clock = Objects.requireNonNull(clock, "clock");
@@ -146,33 +160,39 @@ public class LinkIndexWriter implements AutoCloseable {
             notSampled.incrementAndGet();
             return false;
         }
-        final long slot = LinkIndexKeys.slotOf(clock.getAsLong());
-        if (entry.kind() == LinkKind.CLIENT && !suppression.allow(entry.applicationName(), entry.destinationId(), slot)) {
+        final long now = clock.getAsLong();
+        final long slot = LinkIndexKeys.slotOf(now);
+        final String identifier;
+        if (entry.kind() == LinkKind.CLIENT) {
+            identifier = SuppressKey.of(entry.applicationName(), entry.destinationId());
+            if (!suppression.allowIdentifier(entry.applicationName(), identifier, slot)) {
+                return false;
+            }
+        } else {
+            identifier = entry.applicationName();
+        }
+        final SlotQuota.Result result = quota.acquire(entry.kind(), identifier, now);
+        if (result == SlotQuota.Result.IDENTIFIER_LIMIT) {
+            drop(DropReason.IDENTIFIER_LIMIT, entry.kind());
             return false;
         }
-        if (!acquireSlotQuota(slot)) {
-            droppedSlotLimit.incrementAndGet();
+        if (result == SlotQuota.Result.SLOT_LIMIT) {
+            drop(DropReason.SLOT_LIMIT, entry.kind());
             return false;
         }
         if (!queue.offer(new Pending(entry, slot))) {
-            droppedQueueFull.incrementAndGet();
+            drop(DropReason.QUEUE_FULL, entry.kind());
             return false;
         }
         return true;
     }
 
-    private boolean acquireSlotQuota(long slot) {
-        synchronized (slotLock) {
-            if (slot != countSlot) {
-                countSlot = slot;
-                countInSlot = 0;
-            }
-            if (countInSlot >= maxEntriesPerSlot) {
-                return false;
-            }
-            countInSlot++;
-            return true;
-        }
+    private void drop(DropReason reason, LinkKind kind) {
+        dropped.incrementAndGet(index(reason, kind));
+    }
+
+    private static int index(DropReason reason, LinkKind kind) {
+        return reason.ordinal() * KINDS + kind.ordinal();
     }
 
     private void run() {
@@ -214,7 +234,7 @@ public class LinkIndexWriter implements AutoCloseable {
         int sent = 0;
         for (Pending pending : batch) {
             if (isLate(pending.slot(), currentSlot)) {
-                droppedLate.incrementAndGet();
+                drop(DropReason.LATE, pending.entry().kind());
                 continue;
             }
             sent++;
@@ -317,17 +337,33 @@ public class LinkIndexWriter implements AutoCloseable {
         return notSampled.get();
     }
 
+    public long getDropped(DropReason reason, LinkKind kind) {
+        return dropped.get(index(reason, kind));
+    }
+
+    private long getDropped(DropReason reason) {
+        long sum = 0;
+        for (LinkKind kind : LinkKind.values()) {
+            sum += getDropped(reason, kind);
+        }
+        return sum;
+    }
+
     public long getDroppedQueueFull() {
-        return droppedQueueFull.get();
+        return getDropped(DropReason.QUEUE_FULL);
     }
 
     public long getDroppedSlotLimit() {
-        return droppedSlotLimit.get();
+        return getDropped(DropReason.SLOT_LIMIT);
+    }
+
+    public long getDroppedIdentifierLimit() {
+        return getDropped(DropReason.IDENTIFIER_LIMIT);
     }
 
     /** entries dropped at write time because their slot was older than the previous slot ({@link #isLate}) */
     public long getDroppedLate() {
-        return droppedLate.get();
+        return getDropped(DropReason.LATE);
     }
 
     public long getWritten() {
@@ -359,5 +395,29 @@ public class LinkIndexWriter implements AutoCloseable {
     }
 
     record Pending(LinkEntry entry, long slot) {
+    }
+
+    /**
+     * Why an entry was not written; {@link #tag} is the {@code reason} metric tag.
+     */
+    public enum DropReason {
+        /** the write queue was full */
+        QUEUE_FULL("queue_full"),
+        /** the slot quota of this collector was used up */
+        SLOT_LIMIT("slot_limit"),
+        /** the identifier used up its share of the slot quota */
+        IDENTIFIER_LIMIT("identifier_limit"),
+        /** its slot was older than the previous slot at write time */
+        LATE("late");
+
+        private final String tag;
+
+        DropReason(String tag) {
+            this.tag = tag;
+        }
+
+        public String tag() {
+            return tag;
+        }
     }
 }
