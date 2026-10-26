@@ -23,7 +23,7 @@
   },
   "engines": {
     "npm": ">=7.0.0",
-    "node": ">=22.13.1"
+    "node": ">=22.23.4"
   },
   "packageManager": "yarn@1.22.22",
   "dependencies": {}
