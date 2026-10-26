@@ -238,7 +238,14 @@ export const ServerMapPage = ({
             onClickApplication={(application) => navigate(getPagePath(application))}
           />
         ) : (
-          <div className="text-sm font-medium truncate">{serviceName}</div>
+          // 기준 application 선택 박스가 없는 자리라 이 이름이 곧 화면이 무엇을 보여주는지를
+          // 알려 주는 유일한 단서다. 제목보다 한 단계 작고 가늘게 두어 제목과 겨루지 않게 한다.
+          // ('/'로 잇지 않는다. 그 표기는 `Servermap / Filtered`처럼 하위 화면을 뜻한다.)
+          // 앞의 점은 '지금 보고 있는 service'임을 드러내는 표시다.
+          <div className="flex items-center min-w-0 gap-2" title={serviceName}>
+            <span className="flex-none w-2 h-2 rounded-full bg-primary" />
+            <span className="text-lg font-medium truncate">{serviceName}</span>
+          </div>
         )}
         {showMap && (
           <div className="flex gap-1 ml-auto">
