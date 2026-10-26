@@ -64,6 +64,19 @@ public class PluginTestReport {
         this.result = result;
     }
 
+    /**
+     * @return the reported result, or a failed result when the forked process never delivered
+     * an {@code executionFinished} event for a started test (process death, timeout, or a
+     * corrupted event line).
+     */
+    public TestExecutionResult getResultOrFailed() {
+        TestExecutionResult result = this.result;
+        if (result != null) {
+            return result;
+        }
+        return TestExecutionResult.failed(new IllegalStateException("executionFinished event not received from the forked test process. report=" + id));
+    }
+
     public String[] getOutput() {
         return output;
     }

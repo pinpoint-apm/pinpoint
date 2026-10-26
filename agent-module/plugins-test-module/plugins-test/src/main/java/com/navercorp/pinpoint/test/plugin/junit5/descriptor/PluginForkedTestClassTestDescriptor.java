@@ -56,9 +56,10 @@ public class PluginForkedTestClassTestDescriptor extends DelegatingClassTestDesc
                     System.out.println(line);
                 }
             }
-            if (testReport.getResult().getStatus() != TestExecutionResult.Status.SUCCESSFUL) {
+            final TestExecutionResult result = testReport.getResultOrFailed();
+            if (result.getStatus() != TestExecutionResult.Status.SUCCESSFUL) {
                 throwableCollector.execute(() -> {
-                    Throwable throwable = testReport.getResult().getThrowable().orElse(new IllegalStateException("unknown"));
+                    Throwable throwable = result.getThrowable().orElse(new IllegalStateException("unknown"));
                     throwable.printStackTrace();
                     throw throwable;
                 });
