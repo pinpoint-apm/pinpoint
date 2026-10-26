@@ -19,41 +19,53 @@ package com.navercorp.pinpoint.test.plugin.junit5.engine.support;
 import org.junit.platform.engine.TestExecutionResult;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class PluginTestReport {
-    private String id;
-    private boolean started;
-    private boolean skipped;
-    private String skipReason;
+
+    public enum Status {
+        STARTED,
+        SKIPPED
+    }
+
+    private final String id;
+    private final Status status;
+    private final String skipReason;
     private TestExecutionResult result;
     private String[] output;
 
-    public PluginTestReport(String id) {
-        this.id = id;
+    public static PluginTestReport started(String id) {
+        return new PluginTestReport(id, Status.STARTED, null);
+    }
+
+    public static PluginTestReport skipped(String id, String skipReason) {
+        return new PluginTestReport(id, Status.SKIPPED, skipReason);
+    }
+
+    private PluginTestReport(String id, Status status, String skipReason) {
+        this.id = Objects.requireNonNull(id, "id");
+        this.status = Objects.requireNonNull(status, "status");
+        this.skipReason = skipReason;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public Status getStatus() {
+        return status;
     }
 
     public boolean isStarted() {
-        return started;
-    }
-
-    public void setStarted(boolean started) {
-        this.started = started;
+        return status == Status.STARTED;
     }
 
     public boolean isSkipped() {
-        return skipped;
+        return status == Status.SKIPPED;
     }
 
-    public void setSkipped(boolean skipped) {
-        this.skipped = skipped;
+    public String getSkipReason() {
+        return skipReason;
     }
 
     public TestExecutionResult getResult() {
@@ -85,20 +97,11 @@ public class PluginTestReport {
         this.output = output;
     }
 
-    public String getSkipReason() {
-        return skipReason;
-    }
-
-    public void setSkipReason(String skipReason) {
-        this.skipReason = skipReason;
-    }
-
     @Override
     public String toString() {
         return "PluginTestReport{" +
                 "id='" + id + '\'' +
-                ", started=" + started +
-                ", skipped=" + skipped +
+                ", status=" + status +
                 ", skipReason='" + skipReason + '\'' +
                 ", result=" + result +
                 ", output=" + Arrays.toString(output) +

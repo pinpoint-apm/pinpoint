@@ -111,19 +111,15 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
 
                     if ("executionStarted".equals(event)) {
                         final String reportId = rootUniqueId + "/" + tokens[2];
-                        final PluginTestReport report = new PluginTestReport(reportId);
-                        report.setStarted(true);
+                        final PluginTestReport report = PluginTestReport.started(reportId);
                         store.put(report.getId(), report);
 
                         isAgentOutput = false;
                         pluginTestOutputList.clear();
                     } else if ("executionSkipped".equals(event)) {
                         final String reportId = rootUniqueId + "/" + tokens[2];
-                        final PluginTestReport report = new PluginTestReport(reportId);
-                        report.setSkipped(true);
-                        if (tokens.length >= 4) {
-                            report.setSkipReason(tokens[3]);
-                        }
+                        final String skipReason = tokens.length >= 4 ? tokens[3] : null;
+                        final PluginTestReport report = PluginTestReport.skipped(reportId, skipReason);
                         store.put(report.getId(), report);
                     } else if ("executionFinished".equals(event)) {
                         final String reportId = rootUniqueId + "/" + tokens[2];
