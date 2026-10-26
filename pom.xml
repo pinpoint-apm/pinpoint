@@ -257,6 +257,7 @@
 
         <netty3.version>3.10.6.Final</netty3.version>
         <netty4.version>4.1.133.Final</netty4.version>
+        <brotli4j.version>1.24.0</brotli4j.version>
 
         <grpc.version>1.82.4</grpc.version>
         <grpc-bom.version>1.82.4</grpc-bom.version>
@@ -1239,6 +1240,14 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
                 <version>${netty4.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- brotli4j is pulled in transitively (quarkus-vertx-http, armeria) at differing versions; pin core, service and natives together -->
+            <dependency>
+                <groupId>com.aayushatharva.brotli4j</groupId>
+                <artifactId>brotli4j-bom</artifactId>
+                <version>${brotli4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
