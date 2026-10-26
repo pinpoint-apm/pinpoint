@@ -64,7 +64,7 @@ yarn workspace @pinpoint-fe/web test:e2e
 yarn clean
 ```
 
-Requires Node >=22.13.1 and Yarn 1.22.22.
+Requires Node >=22.23.4 and Yarn 1.22.22.
 
 ## Monorepo Structure
 
