@@ -146,13 +146,82 @@ class SlotQuotaTest {
         for (int i = 0; i < max; i++) {
             assertThat(client(quota, SuppressKey.of("app", "10.0.0." + i), now)).isEqualTo(Result.ACCEPTED);
         }
-        // a new identifier is not tracked: no identifier limit, only the slot quota; counted as untracked
+        // a new identifier is not tracked: all untracked identifiers share one pooled share per kind, so a late
+        // flooder cannot take the rest of the slot quota alone
         String untracked = SuppressKey.of("app", "new");
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 105; i++) {
             assertThat(client(quota, untracked, now)).isEqualTo(Result.ACCEPTED);
         }
-        assertThat(client(quota, untracked, now)).isEqualTo(Result.SLOT_LIMIT);
-        assertThat(quota.getUntracked()).isEqualTo(501);
+        assertThat(client(quota, untracked, now)).isEqualTo(Result.IDENTIFIER_LIMIT);
+        assertThat(client(quota, SuppressKey.of("app", "another"), now)).isEqualTo(Result.IDENTIFIER_LIMIT);   // same pool
+        assertThat(quota.getUntracked()).isEqualTo(107);
+        // SERVER applications have their own pool (no SERVER limit here: only the slot quota applies to them)
+        assertThat(server(quota, "callee", now)).isEqualTo(Result.ACCEPTED);
+        assertThat(quota.getUntracked()).isEqualTo(108);
+
+        client(quota, MAPMATCH, at(SLOT + 1, 0));
+        assertThat(quota.getTrackedIdentifiers()).isEqualTo(max);
+        assertThat(quota.getSlotEntries()).isEqualTo(max + 105 + 1);
+    }
+
+    @Test
+    void releaseGivesTheQuotaBackWithinTheSlotOnly() {
+        SlotQuota quota = new SlotQuota(4, 50, 100);    // 2 per CLIENT identifier
+        assertThat(client(quota, MAPMATCH, at(SLOT, 1))).isEqualTo(Result.ACCEPTED);
+        assertThat(client(quota, MAPMATCH, at(SLOT, 1))).isEqualTo(Result.ACCEPTED);
+        assertThat(client(quota, MAPMATCH, at(SLOT, 2))).isEqualTo(Result.IDENTIFIER_LIMIT);
+
+        // one entry was not queued after all: the identifier and the slot get it back
+        quota.release(LinkKind.CLIENT, MAPMATCH, at(SLOT, 2));
+        assertThat(client(quota, MAPMATCH, at(SLOT, 3))).isEqualTo(Result.ACCEPTED);
+        assertThat(client(quota, MAPMATCH, at(SLOT, 3))).isEqualTo(Result.IDENTIFIER_LIMIT);
+        client(quota, CHECKOUT, at(SLOT, 4));
+        client(quota, SuppressKey.of("c", "x"), at(SLOT, 4));       // slot full: 4 accepted
+        assertThat(client(quota, SuppressKey.of("d", "x"), at(SLOT, 5))).isEqualTo(Result.SLOT_LIMIT);
+        quota.release(LinkKind.CLIENT, CHECKOUT, at(SLOT, 5));
+        assertThat(client(quota, SuppressKey.of("d", "x"), at(SLOT, 6))).isEqualTo(Result.ACCEPTED);
+
+        // a release for an entry of the ended slot must not touch the next slot's counters
+        client(quota, CHECKOUT, at(SLOT + 1, 0));
+        quota.release(LinkKind.CLIENT, CHECKOUT, at(SLOT, 59));
+        assertThat(client(quota, CHECKOUT, at(SLOT + 1, 1))).isEqualTo(Result.ACCEPTED);
+        assertThat(client(quota, CHECKOUT, at(SLOT + 1, 1))).isEqualTo(Result.IDENTIFIER_LIMIT);
+        assertThat(quota.getSlotEntries()).isEqualTo(4);
+        // an unknown identifier releases nothing but does not fail
+        quota.release(LinkKind.SERVER, "never-seen", at(SLOT + 1, 1));
+    }
+
+    @Test
+    void releaseOfAnUntrackedIdentifierGivesThePooledShareBack() {
+        int max = SlotQuota.MAX_TRACKED_IDENTIFIERS;
+        SlotQuota quota = new SlotQuota(max + 500, 1, 100);     // 105 per CLIENT identifier and per pool
+        long now = at(SLOT, 1);
+        for (int i = 0; i < max; i++) {
+            client(quota, SuppressKey.of("app", "10.0.0." + i), now);
+        }
+        String untracked = SuppressKey.of("app", "new");
+        for (int i = 0; i < 105; i++) {
+            client(quota, untracked, now);
+        }
+        assertThat(client(quota, untracked, now)).isEqualTo(Result.IDENTIFIER_LIMIT);
+        quota.release(LinkKind.CLIENT, untracked, now);
+        assertThat(client(quota, untracked, now)).isEqualTo(Result.ACCEPTED);
+    }
+
+    @Test
+    void theSummaryIsPublishedByTheGivenExecutor() {
+        List<Runnable> pending = new ArrayList<>();
+        SlotQuota quota = new SlotQuota(4, 50, 100, pending::add);
+        client(quota, MAPMATCH, at(SLOT, 1));
+        client(quota, CHECKOUT, at(SLOT + 1, 0));     // ends SLOT: the summary is handed to the executor
+
+        assertThat(pending).hasSize(1);
+        assertThat(quota.getSlotEntries()).isZero();
+        assertThat(quota.getSummarySlot()).isEqualTo(-1);
+        pending.get(0).run();
+        assertThat(quota.getSlotEntries()).isEqualTo(1);
+        assertThat(quota.getSummarySlot()).isEqualTo(SLOT);
+        quota.close();     // not an ExecutorService: nothing to stop
     }
 
     @Test
@@ -197,12 +266,13 @@ class SlotQuotaTest {
     @Test
     void aStaleSummaryDoesNotOverwriteANewerOne() {
         SlotQuota quota = SlotQuota.of(4);
-        quota.publish(new SlotQuota.Ended(SLOT + 1, 3, 0, -1, Map.of()));
+        quota.publish(new SlotQuota.Ended(SLOT + 1, 3, 0, -1, 2, Map.of()));
         assertThat(quota.getSlotEntries()).isEqualTo(3);
+        assertThat(quota.getTrackedIdentifiers()).isEqualTo(2);
         assertThat(quota.getSlotLimitReachedSecond()).isEqualTo(SlotQuota.NOT_REACHED_SECOND);
 
         // a thread that ended SLOT but published after SLOT + 1
-        quota.publish(new SlotQuota.Ended(SLOT, 4, 2, LinkIndexKeys.slotStartMillis(SLOT) + 5_000, Map.of()));
+        quota.publish(new SlotQuota.Ended(SLOT, 4, 2, LinkIndexKeys.slotStartMillis(SLOT) + 5_000, 4, Map.of()));
 
         assertThat(quota.getSlotEntries()).isEqualTo(3);
         assertThat(quota.getSlotLimitReachedSecond()).isEqualTo(SlotQuota.NOT_REACHED_SECOND);
