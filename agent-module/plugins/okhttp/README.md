@@ -2,7 +2,8 @@
 * Since: Pinpoint 1.5.0
 * See: https://square.github.io/okhttp/
 * Range: com.squareup.okhttp/okhttp [2.0, 2.7]
-* Range: com.squareup.okhttp3/okhttp [3.0, 3.14]
+* Range: com.squareup.okhttp3/okhttp [3.0, 4.12]
+* Range: com.squareup.okhttp3/okhttp-jvm [5.0, 5.5]
 
 ### Pinpoint Configuration
 pinpoint.config

@@ -3,7 +3,7 @@
 This document lists the plugins bundled with the Pinpoint agent and the range of
 library/framework versions each one supports.
 
-_Last updated: 2026-07-13_
+_Last updated: 2026-10-27_
 
 > **Note:** Version compatibility for the plugins below is still being reviewed.
 > Some ranges may be outdated or incomplete and are subject to change.
@@ -23,7 +23,7 @@ _Last updated: 2026-07-13_
 
 | Plugin | Library | Supported Version | Since |
 | --- | --- | --- | --- |
-| [tomcat](tomcat) | Apache Tomcat | `[8, 10]` | 1.5.0 |
+| [tomcat](tomcat) | Apache Tomcat | `[9, 11]` | 1.5.0 |
 | [jetty](jetty) | Eclipse Jetty | `[9, 11]` | 1.5.0 |
 | [jboss](jboss) | JBoss / WildFly | `[6, 7]` | 1.6.0 |
 | [weblogic](weblogic) | Oracle WebLogic | `[10, 12]` | 1.8.0 |
@@ -32,7 +32,7 @@ _Last updated: 2026-07-13_
 | [undertow-servlet](undertow-servlet) | `io.undertow:undertow-servlet` | `[2.0.0.Final, 2.0.16.Final]` | 1.8.0 |
 | [vertx](vertx) | Eclipse Vert.x | `[3.3, 4.max]` | 1.6.0 |
 | [akka-http](akka-http) | `com.typesafe.akka:akka-http-core_2.12` | `[10.1.0, 10.4]` | 1.8.0 |
-| [pekko-http](pekko-http) | `org.apache.pekko:pekko-http-core_2.13` | `[1.0.0, )` | — |
+| [pekko-http](pekko-http) | `org.apache.pekko:pekko-http-core_2.13` | `[1.0.0, )` | 4.0.0 |
 
 ## HTTP Client
 
@@ -44,6 +44,7 @@ _Last updated: 2026-07-13_
 | [okhttp](okhttp) | `com.squareup.okhttp:okhttp` | `[2.0, 2.7]` | 1.5.0 |
 | [okhttp](okhttp) | `com.squareup.okhttp3:okhttp` | `[3.0, 4.12]` | 1.5.0 |
 | [okhttp](okhttp) | `com.squareup.okhttp3:okhttp-jvm` | `[5.0, 5.5]` | 1.5.0 |
+| [ktor](ktor) | `io.ktor:ktor-client-core-jvm` (client) | `[2.3, 3.5]` | 4.0.0 |
 | [ning-asynchttpclient](ning-asynchttpclient) | `com.ning:async-http-client` | `[1.7, 1.9]` | 1.5.0 |
 | [ning-asynchttpclient](ning-asynchttpclient) | `org.asynchttpclient:async-http-client` | `[2.0, 2.12]` | 1.5.0 |
 | [google-httpclient](google-httpclient) | `com.google.http-client:google-http-client` | `[1.40, 1.42]` | 1.5.0 |
@@ -127,7 +128,7 @@ _Last updated: 2026-07-13_
 | [resilience4j](resilience4j) | `io.github.resilience4j:resilience4j-reactor` | `1.7.1.RELEASE` | 2.6.0 |
 | [hystrix](hystrix) | `com.netflix.hystrix:hystrix-core` | `[1.4, 1.5]` | 1.6.0 |
 | [rxjava](rxjava) | RxJava (1.x, beta) | (all) | — |
-| [ktor](ktor) | JetBrains Ktor server | (all) | 3.0.1 |
+| [ktor](ktor) | JetBrains Ktor server (server type detection) | (all) | 3.0.1 |
 
 ## Logging
 
@@ -150,9 +151,10 @@ _Last updated: 2026-07-13_
 
 | Plugin | Library | Supported Version | Since |
 | --- | --- | --- | --- |
-| [spring](spring) | `org.springframework:spring-context` | `[3.0, 7.0.max]` | 1.5.0 |
+| [spring](spring) | `org.springframework:spring-context` | `[5.0, 7.0.max]` | 1.5.0 |
 | [spring-boot](spring-boot) | `org.springframework.boot:spring-boot` | `[1.2, 4.1.max]` | 1.5.0 |
 | [spring-webflux](spring-webflux) | `org.springframework:spring-webflux` | `[5.0.0.RELEASE, 7.0.max]` | 2.0.0 |
+| [spring-webflux](spring-webflux) | `org.springframework.boot:spring-boot-starter` | `[2.0.0.RELEASE, 4.1.max]` | 2.0.0 |
 | [spring-tx](spring-tx) | `org.springframework:spring-tx` | (all) | 2.5.1 |
 | [spring-cloud-sleuth](spring-cloud-sleuth) | Spring Cloud Sleuth | (all) | 2.0.0 |
 
