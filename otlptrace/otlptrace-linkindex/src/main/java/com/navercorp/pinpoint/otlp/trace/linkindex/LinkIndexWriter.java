@@ -165,13 +165,13 @@ public class LinkIndexWriter implements AutoCloseable {
         final String identifier;
         if (entry.kind() == LinkKind.CLIENT) {
             identifier = SuppressKey.of(entry.applicationName(), entry.destinationId());
-            if (!suppression.allowIdentifier(entry.applicationName(), identifier, slot)) {
+            if (!suppression.allowIdentifier(entry.applicationName(), identifier, slot, entry.traceId())) {
                 return false;
             }
         } else {
             // the suppression identifier of a SERVER entry carries the parent span class, the quota identifier is
             // the application alone (one callee is one quota share, however its callers are classified)
-            if (!suppression.allowIdentifier(entry.applicationName(), SuppressKey.of(entry), slot)) {
+            if (!suppression.allowIdentifier(entry.applicationName(), SuppressKey.of(entry), slot, entry.traceId())) {
                 return false;
             }
             identifier = entry.applicationName();

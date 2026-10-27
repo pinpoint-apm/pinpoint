@@ -270,6 +270,33 @@ class SuppressManagerTest {
     }
 
     @Test
+    void serverDisabledRemovesTheServerIdentifiersAndIgnoresTheirCounts() {
+        SuppressStore store = mock(SuppressStore.class);
+        String gatewayRoot = SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_ROOT);
+        SuppressState activeServer = SuppressState.candidate(1, 10_000).seen(2, 10_000, true).seen(3, 10_000, true).activated(4);
+        when(store.readAll()).thenReturn(Map.of(gatewayRoot, activeServer, MAPMATCH, SuppressState.candidate(4, 7_000)));
+        SuppressManager manager = new SuppressManager(store, POLICY);
+
+        // the SERVER counts (an ACTIVE one and a new one) are ignored, the CLIENT count is applied
+        SuppressManager.SuppressSummary summary = manager.apply(5,
+                counts(gatewayRoot, 0, 10_000, SuppressKey.ofServer("p.cart", SuppressKey.PARENT_OTHER), 0, 500, MAPMATCH, 0, 7_000), false);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Map<String, SuppressState>> upserts = ArgumentCaptor.forClass(Map.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> deletes = ArgumentCaptor.forClass(Collection.class);
+        verify(store).write(upserts.capture(), deletes.capture());
+        assertThat(deletes.getValue()).containsExactly(gatewayRoot);
+        assertThat(upserts.getValue()).containsOnlyKeys(MAPMATCH);
+        assertThat(summary.expired()).isEqualTo(1);
+        assertThat(summary.candidates()).isEqualTo(1);
+        assertThat(summary.active()).isZero();
+        assertThat(manager.getExpired(LinkKind.SERVER)).isEqualTo(1);
+        assertThat(manager.getLastActiveServer()).isZero();
+        assertThat(manager.getLastCandidatesServer()).isZero();
+    }
+
+    @Test
     void applyWithoutChangesDoesNotWrite() {
         SuppressStore store = mock(SuppressStore.class);
         when(store.readAll()).thenReturn(Map.of());

@@ -130,11 +130,12 @@ public class OtlpLinkIndexModule {
                                                          @Value("${" + PREFIX + "suppress.server.enabled:true}") boolean serverEnabled,
                                                          @Value("${" + PREFIX + "suppress.refresh:60s}") Duration refresh,
                                                          @Value("${" + PREFIX + "suppress.probe-per-slot:100}") int probePerSlot,
+                                                         @Value("${" + PREFIX + "suppress.probe-modulo:1000}") int probeModulo,
                                                          @Value("${" + PREFIX + "suppress.force:}") String force,
                                                          @Value("${" + PREFIX + "suppress.pin:}") String pin,
                                                          @Value("${" + PREFIX + "redis.command-timeout:2s}") Duration timeout) {
         final SuppressStore store = enabled ? new SuppressStore(connector.connect(), timeout) : null;
-        final LinkIndexSuppression suppression = new LinkIndexSuppression(store, refresh, probePerSlot, serverEnabled,
+        final LinkIndexSuppression suppression = new LinkIndexSuppression(store, refresh, probePerSlot, probeModulo, serverEnabled,
                 SuppressKey.parseRules(force), SuppressKey.parseRules(pin));
         logger.info("Link index suppression {}", suppression);
         return suppression;

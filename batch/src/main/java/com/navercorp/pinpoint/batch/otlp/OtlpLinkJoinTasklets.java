@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.batch.otlp;
 
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkJoinService;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkCounts;
-import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressKey;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +29,6 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.LongSupplier;
@@ -92,7 +90,8 @@ public final class OtlpLinkJoinTasklets {
         }
 
         /**
-         * @param serverEnabled {@code false} to leave the SERVER identifiers of the join outcome out of the list
+         * @param serverEnabled {@code false} to keep SERVER identifiers out of the list: their join outcome is ignored
+         *                      and the SERVER identifiers already in the list are removed
          */
         public Suppress(LinkJoinService service, SuppressManager manager, boolean serverEnabled) {
             this.service = Objects.requireNonNull(service, "service");
@@ -103,28 +102,15 @@ public final class OtlpLinkJoinTasklets {
         @Override
         public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
             final long slot = slot(chunkContext);
-            Map<String, LinkCounts> counts = service.getIdentifierCounts(slot);
+            final Map<String, LinkCounts> counts = service.getIdentifierCounts(slot);
             if (counts == null) {
                 logger.warn("No join outcome of slot {} in this instance: suppression list not updated", slot);
                 return RepeatStatus.FINISHED;
             }
-            if (!serverEnabled) {
-                counts = clientsOnly(counts);
-            }
-            final SuppressManager.SuppressSummary summary = manager.apply(slot, counts);
+            final SuppressManager.SuppressSummary summary = manager.apply(slot, counts, serverEnabled);
             contribution.incrementReadCount();
             contribution.incrementWriteCount(summary.activated() + summary.released() + summary.expired());
             return RepeatStatus.FINISHED;
-        }
-
-        static Map<String, LinkCounts> clientsOnly(Map<String, LinkCounts> counts) {
-            final Map<String, LinkCounts> clients = new HashMap<>(counts.size());
-            for (Map.Entry<String, LinkCounts> entry : counts.entrySet()) {
-                if (!SuppressKey.isServer(entry.getKey())) {
-                    clients.put(entry.getKey(), entry.getValue());
-                }
-            }
-            return clients;
         }
     }
 

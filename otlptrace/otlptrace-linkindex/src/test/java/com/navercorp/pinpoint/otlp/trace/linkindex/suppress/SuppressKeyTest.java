@@ -81,13 +81,26 @@ class SuppressKeyTest {
         assertThat(SuppressKey.applicationName(key)).isEqualTo("sec.gateway.internal");
         assertThat(SuppressKey.destinationId(key)).isNull();
         assertThat(SuppressKey.parentClass(key)).isEqualTo("root");
-        assertThat(SuppressKey.display(key)).isEqualTo("S|sec.gateway.internal|root");
+        assertThat(SuppressKey.display(key)).isEqualTo("server:sec.gateway.internal|root");
 
         String client = SuppressKey.of("S", "sec.gateway.internal");    // an application literally named S
         assertThat(SuppressKey.isServer(client)).isFalse();
         assertThat(SuppressKey.kind(client)).isEqualTo(LinkKind.CLIENT);
         assertThat(SuppressKey.parentClass(client)).isNull();
         assertThat(client).isNotEqualTo(key);
+        assertThat(SuppressKey.display(client)).isEqualTo("S|sec.gateway.internal");
+    }
+
+    @Test
+    void clientRulesOfAnApplicationNamedSAreUnchanged() {
+        // "S|cart:7070" is the CLIENT identifier of application S, not a SERVER rule: SERVER rules start with "server:"
+        SuppressKey.Rules rules = SuppressKey.parseRules("S|cart:7070, S");
+
+        assertThat(rules.keys()).containsExactly(SuppressKey.of("S", "cart:7070"));
+        assertThat(rules.applications()).containsExactly("S");
+        assertThat(rules.serverApplications()).isEmpty();
+        assertThat(rules.matches("S", SuppressKey.of("S", "cart:7070"))).isTrue();
+        assertThat(rules.matches("cart:7070", SuppressKey.ofServer("cart:7070", "root"))).isFalse();
     }
 
     @Test
@@ -113,7 +126,7 @@ class SuppressKeyTest {
 
     @Test
     void parseServerRules() {
-        SuppressKey.Rules rules = SuppressKey.parseRules("S|sec.gateway.internal|root, S| p.cart , mapmatch-bg|navi:12000, p.frontend");
+        SuppressKey.Rules rules = SuppressKey.parseRules("server:sec.gateway.internal|root, server: p.cart , mapmatch-bg|navi:12000, p.frontend");
 
         assertThat(rules.keys()).containsExactlyInAnyOrder(
                 SuppressKey.ofServer("sec.gateway.internal", "root"), SuppressKey.of("mapmatch-bg", "navi:12000"));
@@ -129,15 +142,15 @@ class SuppressKeyTest {
         // an application rule covers both kinds
         assertThat(rules.matches("p.frontend", SuppressKey.ofServer("p.frontend", "root"))).isTrue();
         assertThat(rules.matches("p.frontend", SuppressKey.of("p.frontend", "cart:7070"))).isTrue();
-        assertThat(rules.toString()).contains("S|sec.gateway.internal|root").contains("S|p.cart");
+        assertThat(rules.toString()).contains("server:sec.gateway.internal|root").contains("server:p.cart");
         assertThat(new SuppressKey.Rules(Set.of("a"), Set.of()).serverApplications()).isEmpty();
     }
 
     @Test
     void invalidServerRuleIsRejected() {
-        assertThatThrownBy(() -> SuppressKey.parseRules("S|"))
+        assertThatThrownBy(() -> SuppressKey.parseRules("server:"))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> SuppressKey.parseRules("S|app|client"))
+        assertThatThrownBy(() -> SuppressKey.parseRules("server:app|client"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("root");
     }
