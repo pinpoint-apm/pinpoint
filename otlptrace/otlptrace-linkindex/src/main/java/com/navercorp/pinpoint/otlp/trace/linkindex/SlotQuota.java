@@ -87,9 +87,11 @@ public class SlotQuota {
 
     // summary publishing and log throttling, guarded by publishLock
     private final Object publishLock = new Object();
+    private long publishedSlot = Long.MIN_VALUE;
     private Set<String> loggedLimited = Set.of();
     private long loggedLimitedSlot = Long.MIN_VALUE;
     private boolean previousSlotLimitReached;
+    private Set<String> loggedLargest = Set.of();
     private long loggedSlotLimitSlot = Long.MIN_VALUE;
 
     /**
@@ -177,19 +179,25 @@ public class SlotQuota {
         }
         if (accepted >= maxEntriesPerSlot) {
             slotDropped++;
-            if (slotLimitReachedMillis < 0) {
-                slotLimitReachedMillis = nowMillis;
-            }
             return Result.SLOT_LIMIT;
         }
         accepted++;
+        if (accepted == maxEntriesPerSlot) {
+            // the entry that fills the slot quota, whether or not a rejection follows
+            slotLimitReachedMillis = nowMillis;
+        }
         if (counter != null) {
             counter.accepted++;
         }
         return Result.ACCEPTED;
     }
 
-    private void publish(Ended ended) {
+    /**
+     * Publishes the summary of an ended slot to the gauges and the log. Package-private for tests.
+     * A summary older than the last published one is ignored: a thread delayed between ending its slot and
+     * publishing it must not roll the gauges and the log throttling back behind a newer slot.
+     */
+    void publish(Ended ended) {
         final List<Map.Entry<String, Usage>> limited = new ArrayList<>();
         for (Map.Entry<String, Usage> entry : ended.usage().entrySet()) {
             if (entry.getValue().limited > 0) {
@@ -201,6 +209,10 @@ public class SlotQuota {
                 ? (int) Math.min(NOT_REACHED_SECOND - 1, Math.max(0, (ended.slotLimitReachedMillis() - LinkIndexKeys.slotStartMillis(ended.slot())) / 1000))
                 : NOT_REACHED_SECOND;
         synchronized (publishLock) {
+            if (ended.slot() <= publishedSlot) {
+                return;
+            }
+            publishedSlot = ended.slot();
             slotEntries = ended.accepted();
             slotLimitReachedSecond = second;
             limitedIdentifiers = limited.size();
@@ -232,16 +244,36 @@ public class SlotQuota {
         final boolean continued = previousSlotLimitReached;
         previousSlotLimitReached = reached;
         if (!reached) {
+            loggedLargest = Set.of();
             return;
         }
-        if (continued && ended.slot() - loggedSlotLimitSlot < LOG_REPEAT_SLOTS) {
-            return;
-        }
-        loggedSlotLimitSlot = ended.slot();
         final List<Map.Entry<String, Usage>> largest = new ArrayList<>(ended.usage().entrySet());
         largest.sort(byOffered());
+        final Set<String> largestKeys = topKeys(largest, LOG_TOP_OFFERED);
+        // repeated only when the largest identifiers change (a new flooder) or every LOG_REPEAT_SLOTS slots
+        if (continued && largestKeys.equals(loggedLargest) && ended.slot() - loggedSlotLimitSlot < LOG_REPEAT_SLOTS) {
+            return;
+        }
+        loggedLargest = largestKeys;
+        loggedSlotLimitSlot = ended.slot();
         logger.info("Link index slot {}: slot limit {} reached at second {}, dropped {}, largest identifiers: {}",
                 ended.slot(), maxEntriesPerSlot, second, ended.slotDropped(), describe(largest, LOG_TOP_OFFERED));
+    }
+
+    private static Set<String> topKeys(List<Map.Entry<String, Usage>> sorted, int top) {
+        final Set<String> keys = new HashSet<>();
+        final int size = Math.min(top, sorted.size());
+        for (int i = 0; i < size; i++) {
+            keys.add(sorted.get(i).getKey());
+        }
+        return keys;
+    }
+
+    /** the slot whose slot-limit line was logged last, {@link Long#MIN_VALUE} when none; for tests */
+    long getLoggedSlotLimitSlot() {
+        synchronized (publishLock) {
+            return loggedSlotLimitSlot;
+        }
     }
 
     private static Comparator<Map.Entry<String, Usage>> byOffered() {
@@ -302,7 +334,7 @@ public class SlotQuota {
                 + ", serverPercent=" + serverPercent + '}';
     }
 
-    private static final class Usage {
+    static final class Usage {
         private final LinkKind kind;
         private int offered;
         private int accepted;
@@ -313,6 +345,7 @@ public class SlotQuota {
         }
     }
 
-    private record Ended(long slot, int accepted, int slotDropped, long slotLimitReachedMillis, Map<String, Usage> usage) {
+    /** the counters of a slot that ended; package-private for tests */
+    record Ended(long slot, int accepted, int slotDropped, long slotLimitReachedMillis, Map<String, Usage> usage) {
     }
 }
