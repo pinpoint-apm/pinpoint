@@ -161,7 +161,8 @@ public class OtlpLinkIndexModule {
 
     /**
      * Registers the suppression counters under {@value #METRIC_PREFIX}: {@code suppressed} (entries not written) and
-     * {@code probed} (entries of suppressed identifiers still written), both tagged with the kind
+     * {@code probed} (entries of suppressed identifiers let through as probes, before the quota and the queue, which
+     * may still drop them under {@code dropped}), both tagged with the kind
      * ({@code client} / {@code server}), {@code suppress.active} (identifiers of the last snapshot, both kinds),
      * {@code suppress.active.server} and {@code suppress.refresh.errors}. Kept apart from {@code dropped}:
      * suppression is not a loss.

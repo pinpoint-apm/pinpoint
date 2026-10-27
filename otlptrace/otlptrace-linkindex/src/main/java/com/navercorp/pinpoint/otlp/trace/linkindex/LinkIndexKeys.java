@@ -97,6 +97,30 @@ public final class LinkIndexKeys {
         return Math.floorMod(fmix64(low), (long) modulo) == 0;
     }
 
+    /** salt of {@link #isProbe}: keeps its hash independent of {@link #isSampled} and {@link #bucketOf} */
+    private static final long PROBE_SALT = 0x9e3779b97f4a7c15L;
+
+    /**
+     * Whether a suppressed entry of this trace is still written as a probe: 1 trace in {@code modulo}, decided
+     * by the trace id alone so that both sides of a call take the same decision on any collector.
+     * <p>
+     * The hash is independent of the one of {@link #isSampled}: the writer samples the traces first, so a probe
+     * decision taken by the same hash would select {@code gcd(sampleModulo, probeModulo) / probeModulo} of the
+     * sampled traces instead of {@code 1 / probeModulo} (every one of them when the two moduli are equal), and the
+     * suppression would stop suppressing exactly when the sampling is tightened against a flood. Both halves of
+     * the trace id go into this hash with a salt.
+     *
+     * @return {@code false} when {@code modulo <= 1} (probes by trace off)
+     */
+    public static boolean isProbe(byte[] traceId, int modulo) {
+        if (modulo <= 1) {
+            return false;
+        }
+        final long high = BytesUtils.bytesToLong(traceId, 0);
+        final long low = BytesUtils.bytesToLong(traceId, 8);
+        return Math.floorMod(fmix64(high ^ fmix64(low ^ PROBE_SALT)), (long) modulo) == 0;
+    }
+
     static int fmix32(int h) {
         h ^= h >>> 16;
         h *= 0x85ebca6b;
