@@ -79,13 +79,26 @@ public class SuppressManager {
     }
 
     /**
+     * SERVER identifiers included.
+     *
      * @param slot   the joined slot k
      * @param counts outcome of slot k per identifier ({@link SuppressKey}, CLIENT and SERVER)
      */
     public SuppressSummary apply(long slot, Map<String, LinkCounts> counts) {
+        return apply(slot, counts, true);
+    }
+
+    /**
+     * @param slot          the joined slot k
+     * @param counts        outcome of slot k per identifier ({@link SuppressKey}, CLIENT and SERVER)
+     * @param serverEnabled {@code false} to keep SERVER identifiers out of the list: their counts are ignored and the
+     *                      SERVER identifiers already in the list are removed, so that collectors still applying them
+     *                      stop at their next refresh instead of at the idle expiry
+     */
+    public SuppressSummary apply(long slot, Map<String, LinkCounts> counts, boolean serverEnabled) {
         Objects.requireNonNull(counts, "counts");
         try {
-            return doApply(slot, counts);
+            return doApply(slot, counts, serverEnabled);
         } catch (RuntimeException e) {
             errors.increment();
             logger.warn("Suppression list update failed for slot {}: {}", slot, e.toString());
@@ -93,9 +106,9 @@ public class SuppressManager {
         }
     }
 
-    private SuppressSummary doApply(long slot, Map<String, LinkCounts> counts) {
+    private SuppressSummary doApply(long slot, Map<String, LinkCounts> counts, boolean serverEnabled) {
         final Map<String, SuppressState> current = store.readAll();
-        final Transition transition = transition(slot, current, counts, policy);
+        final Transition transition = transition(slot, current, counts, policy, serverEnabled);
         if (!transition.upserts().isEmpty() || !transition.deletes().isEmpty()) {
             store.write(transition.upserts(), transition.deletes());
         }
@@ -105,6 +118,9 @@ public class SuppressManager {
         }
         for (String key : transition.released()) {
             logger.info("Suppression released {} (matched in slot {})", SuppressKey.display(key), slot);
+        }
+        if (!transition.removed().isEmpty()) {
+            logger.info("Suppression removed {} SERVER identifiers: SERVER suppression is off", transition.removed().size());
         }
         if (!transition.expired().isEmpty()) {
             logger.info("Suppression forgot {} idle identifiers", transition.expired().size());
@@ -126,26 +142,48 @@ public class SuppressManager {
         add(activated, transition.activated());
         add(released, transition.released());
         add(expired, transition.expired());
+        add(expired, transition.removed());
         lastCandidates = candidates;
         lastActive = active;
         lastCandidatesServer = candidatesServer;
         lastActiveServer = activeServer;
         final SuppressSummary summary = new SuppressSummary(slot, candidates, active,
-                transition.activated().size(), transition.released().size(), transition.expired().size(), false);
+                transition.activated().size(), transition.released().size(), transition.expired().size() + transition.removed().size(), false);
         logger.info("Suppressed {}", summary);
         return summary;
     }
 
     /**
-     * Pure transition of the list for slot {@code slot}: no store access.
+     * Pure transition of the list for slot {@code slot}, SERVER identifiers included: no store access.
      */
     static Transition transition(long slot, Map<String, SuppressState> current, Map<String, LinkCounts> counts, SuppressPolicy policy) {
+        return transition(slot, current, counts, policy, true);
+    }
+
+    /**
+     * Pure transition of the list for slot {@code slot}: no store access.
+     *
+     * @param serverEnabled {@code false} removes the SERVER identifiers of the list and ignores the SERVER counts
+     */
+    static Transition transition(long slot, Map<String, SuppressState> current, Map<String, LinkCounts> counts, SuppressPolicy policy, boolean serverEnabled) {
         final Map<String, SuppressState> result = new HashMap<>(current);
         final Map<String, SuppressState> upserts = new HashMap<>();
         final Set<String> deletes = new HashSet<>();
         final List<String> activated = new ArrayList<>();
         final List<String> released = new ArrayList<>();
         final List<String> expired = new ArrayList<>();
+        final List<String> removed = new ArrayList<>();
+
+        if (!serverEnabled) {
+            for (String key : current.keySet()) {
+                if (SuppressKey.isServer(key)) {
+                    deletes.add(key);
+                    removed.add(key);
+                    result.remove(key);
+                }
+            }
+            counts = clientsOnly(counts);
+        }
 
         for (Map.Entry<String, LinkCounts> entry : counts.entrySet()) {
             final String key = entry.getKey();
@@ -214,7 +252,17 @@ public class SuppressManager {
                 expired.add(key);
             }
         }
-        return new Transition(upserts, deletes, activated, released, expired, result);
+        return new Transition(upserts, deletes, activated, released, expired, removed, result);
+    }
+
+    static Map<String, LinkCounts> clientsOnly(Map<String, LinkCounts> counts) {
+        final Map<String, LinkCounts> clients = new HashMap<>(counts.size());
+        for (Map.Entry<String, LinkCounts> entry : counts.entrySet()) {
+            if (!SuppressKey.isServer(entry.getKey())) {
+                clients.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return clients;
     }
 
     private static void add(LongAdder[] totals, List<String> keys) {
@@ -287,10 +335,12 @@ public class SuppressManager {
     /**
      * @param upserts fields to write
      * @param deletes fields to remove (disjoint from {@code upserts})
+     * @param expired identifiers forgotten because they were idle or over the cap
+     * @param removed SERVER identifiers removed because SERVER suppression is off
      * @param result  the list after the transition
      */
     record Transition(Map<String, SuppressState> upserts, Set<String> deletes,
-                      List<String> activated, List<String> released, List<String> expired,
+                      List<String> activated, List<String> released, List<String> expired, List<String> removed,
                       Map<String, SuppressState> result) {
     }
 

@@ -89,7 +89,7 @@ class LinkIndexWriterTest {
     void suppressedServerEntriesUseNoQuotaAndAreSplitByParentClass() {
         // every SERVER entry of gateway whose parent is a B3 root span is forced; probe 1 per slot
         LinkIndexSuppression suppression = new LinkIndexSuppression(null, Duration.ofSeconds(60), 1,
-                SuppressKey.parseRules("S|sec.gateway.internal|root"), SuppressKey.Rules.EMPTY);
+                SuppressKey.parseRules("server:sec.gateway.internal|root"), SuppressKey.Rules.EMPTY);
         LinkIndexWriter writer = writer(suppression, new SlotQuota(3, 100, 100), 100);
 
         assertThat(writer.offer(rootParentServer(1, "sec.gateway.internal"))).isTrue();     // probe

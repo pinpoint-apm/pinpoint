@@ -45,8 +45,12 @@ public final class SuppressKey {
     static final String SERVER_PREFIX = SERVER_MARKER + "S" + SEPARATOR;
     /** separator of the human readable form used in logs and in the force / pin settings */
     static final char DISPLAY_SEPARATOR = '|';
-    /** display prefix of a SERVER identifier or SERVER application rule: {@code S|application|class}, {@code S|application} */
-    static final String SERVER_DISPLAY_PREFIX = "S" + DISPLAY_SEPARATOR;
+    /**
+     * display prefix of a SERVER identifier or SERVER application rule: {@code server:application|class},
+     * {@code server:application}. An application name cannot contain {@code :} ({@code [a-zA-Z0-9._-]}), so no
+     * CLIENT rule ({@code application|destination} or {@code application}) can start with it.
+     */
+    static final String SERVER_DISPLAY_PREFIX = "server:";
 
     /** parent span id = low 8 bytes of the trace id: the parent is a B3 / Jaeger root span */
     public static final String PARENT_ROOT = "root";
@@ -127,10 +131,10 @@ public final class SuppressKey {
         return index < 0 ? null : key.substring(index + 1);
     }
 
-    /** {@code application|destination} or {@code S|application|class}, for logs */
+    /** {@code application|destination} or {@code server:application|class}, for logs and the rule syntax */
     public static String display(String key) {
         if (isServer(key)) {
-            return key.substring(1).replace(SEPARATOR, DISPLAY_SEPARATOR);
+            return SERVER_DISPLAY_PREFIX + key.substring(SERVER_PREFIX.length()).replace(SEPARATOR, DISPLAY_SEPARATOR);
         }
         return key.replace(SEPARATOR, DISPLAY_SEPARATOR);
     }
@@ -140,8 +144,8 @@ public final class SuppressKey {
      * <ul>
      *     <li>{@code application|destination}: one CLIENT identifier</li>
      *     <li>{@code application}: every CLIENT and SERVER entry of that application</li>
-     *     <li>{@code S|application|class}: one SERVER identifier ({@value #PARENT_ROOT} or {@value #PARENT_OTHER})</li>
-     *     <li>{@code S|application}: every SERVER entry of that application</li>
+     *     <li>{@code server:application|class}: one SERVER identifier ({@value #PARENT_ROOT} or {@value #PARENT_OTHER})</li>
+     *     <li>{@code server:application}: every SERVER entry of that application</li>
      * </ul>
      */
     public static Rules parseRules(String text) {
@@ -180,7 +184,7 @@ public final class SuppressKey {
         final int index = body.indexOf(DISPLAY_SEPARATOR);
         final String application = (index < 0 ? body : body.substring(0, index)).trim();
         if (application.isEmpty()) {
-            throw new IllegalArgumentException("Invalid suppression rule: '" + rule + "' (S|application or S|application|class)");
+            throw new IllegalArgumentException("Invalid suppression rule: '" + rule + "' (server:application or server:application|class)");
         }
         if (index < 0) {
             serverApplications.add(application);

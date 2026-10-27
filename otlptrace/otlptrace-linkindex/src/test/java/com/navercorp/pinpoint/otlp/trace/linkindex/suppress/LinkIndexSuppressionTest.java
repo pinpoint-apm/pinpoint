@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex.suppress;
 
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexKeys;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -182,7 +184,7 @@ class LinkIndexSuppressionTest {
     void serverDisabledIgnoresTheServerIdentifiersOfTheListAndOfTheForcedRules() {
         when(store.readActive()).thenReturn(Set.of(GATEWAY_ROOT, MAPMATCH));
         LinkIndexSuppression suppression = new LinkIndexSuppression(store, Duration.ofSeconds(60), 1, false,
-                SuppressKey.parseRules("S|p.cart"), SuppressKey.Rules.EMPTY);
+                SuppressKey.parseRules("server:p.cart"), SuppressKey.Rules.EMPTY);
         suppression.refresh();
 
         assertThat(suppression.isServerEnabled()).isFalse();
@@ -202,7 +204,7 @@ class LinkIndexSuppressionTest {
     @Test
     void applicationPinCoversTheServerEntriesAndForcedServerRulesApply() {
         when(store.readActive()).thenReturn(Set.of(GATEWAY_ROOT));
-        LinkIndexSuppression suppression = suppression(1, "S|p.cart|other", "sec.gateway.internal");
+        LinkIndexSuppression suppression = suppression(1, "server:p.cart|other", "sec.gateway.internal");
         suppression.refresh();
 
         for (int i = 0; i < 3; i++) {
@@ -215,10 +217,79 @@ class LinkIndexSuppressionTest {
     }
 
     @Test
+    void traceSampledProbesPairUpWhenBothSidesAreSuppressed() {
+        // caller -> callee: the CLIENT identifier and the SERVER identifier are both ACTIVE; probe 1 per slot, 1 trace in 2 sampled
+        String client = SuppressKey.of("caller", "callee:8080");
+        when(store.readActive()).thenReturn(Set.of(client, GATEWAY_ROOT));
+        LinkIndexSuppression suppression = new LinkIndexSuppression(store, Duration.ofSeconds(60), 1, 2, true,
+                SuppressKey.Rules.EMPTY, SuppressKey.Rules.EMPTY);
+        suppression.refresh();
+
+        // the two collectors see the calls of the slot in different orders, so the first-of-slot probes are different calls
+        Set<Integer> clientWritten = new HashSet<>();
+        for (int trace = 1; trace <= 40; trace++) {
+            if (suppression.allowIdentifier("caller", client, 10, traceId(trace))) {
+                clientWritten.add(trace);
+            }
+        }
+        Set<Integer> serverWritten = new HashSet<>();
+        for (int trace = 40; trace >= 1; trace--) {
+            if (suppression.allowIdentifier("sec.gateway.internal", GATEWAY_ROOT, 10, traceId(trace))) {
+                serverWritten.add(trace);
+            }
+        }
+        Set<Integer> sampled = new HashSet<>();
+        for (int trace = 1; trace <= 40; trace++) {
+            if (LinkIndexKeys.isSampled(traceId(trace), 2)) {
+                sampled.add(trace);
+            }
+        }
+
+        assertThat(sampled).isNotEmpty().hasSizeLessThan(40);
+        // the sampled traces are written on both sides, whatever the order: these pairs can match and release both identifiers
+        assertThat(clientWritten).containsAll(sampled);
+        assertThat(serverWritten).containsAll(sampled);
+        // plus one first-of-slot probe per side (the first unsampled call each side saw)
+        assertThat(clientWritten).hasSize(sampled.size() + 1);
+        assertThat(serverWritten).hasSize(sampled.size() + 1);
+        assertThat(suppression.getProbed(LinkKind.CLIENT)).isEqualTo(sampled.size() + 1);
+        assertThat(suppression.getProbed(LinkKind.SERVER)).isEqualTo(sampled.size() + 1);
+        assertThat(suppression.getSuppressed()).isEqualTo(80 - 2 * (sampled.size() + 1));
+        assertThat(suppression.getProbeModulo()).isEqualTo(2);
+        assertThat(suppression.toString()).contains("probeModulo=2");
+    }
+
+    @Test
+    void withoutTraceSampledProbesOnlyTheFirstOfSlotProbeIsWritten() {
+        when(store.readActive()).thenReturn(Set.of(MAPMATCH));
+        LinkIndexSuppression suppression = suppression(1, "", "");
+        suppression.refresh();
+
+        int written = 0;
+        for (int trace = 1; trace <= 40; trace++) {
+            if (suppression.allowIdentifier("mapmatch-bg", MAPMATCH, 10, traceId(trace))) {
+                written++;
+            }
+        }
+        assertThat(written).isEqualTo(1);
+        assertThat(suppression.getProbeModulo()).isZero();
+    }
+
+    private static byte[] traceId(int seed) {
+        byte[] id = new byte[16];
+        id[7] = (byte) (seed * 31);
+        id[15] = (byte) seed;
+        id[14] = (byte) (seed * 7);
+        return id;
+    }
+
+    @Test
     void invalidSettingsAreRejected() {
         assertThatThrownBy(() -> new LinkIndexSuppression(store, Duration.ofSeconds(60), 0, SuppressKey.Rules.EMPTY, SuppressKey.Rules.EMPTY))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new LinkIndexSuppression(store, Duration.ZERO, 1, SuppressKey.Rules.EMPTY, SuppressKey.Rules.EMPTY))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new LinkIndexSuppression(store, Duration.ofSeconds(60), 1, -1, true, SuppressKey.Rules.EMPTY, SuppressKey.Rules.EMPTY))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }

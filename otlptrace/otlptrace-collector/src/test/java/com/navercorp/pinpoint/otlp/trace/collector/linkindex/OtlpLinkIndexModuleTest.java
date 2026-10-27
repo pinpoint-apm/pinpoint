@@ -93,7 +93,7 @@ class OtlpLinkIndexModuleTest {
             assertThat(registry.find("collector.otlptrace.linkindex.dropped").tag("reason", "slot_limit").functionCounter()).isNotNull();
             // suppression on by default for both kinds: list read from the store, counters registered per kind
             assertThat(context.getBean(LinkIndexSuppression.class).toString())
-                    .contains("store=true").contains("probePerSlot=100").contains("serverEnabled=true");
+                    .contains("store=true").contains("probePerSlot=100").contains("probeModulo=1000").contains("serverEnabled=true");
             assertThat(registry.find("collector.otlptrace.linkindex.suppressed").functionCounters()).hasSize(2);
             assertThat(registry.find("collector.otlptrace.linkindex.suppressed").tag("kind", "server").functionCounter()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.probed").tag("kind", "client").functionCounter()).isNotNull();

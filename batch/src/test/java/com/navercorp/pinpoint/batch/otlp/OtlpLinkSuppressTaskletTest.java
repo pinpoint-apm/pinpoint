@@ -31,6 +31,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.mock;
@@ -57,28 +58,28 @@ class OtlpLinkSuppressTaskletTest {
                 SuppressKey.of("mapmatch-bg", "navi:12000"), new LinkCounts(0, 7_000),
                 SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_ROOT), new LinkCounts(0, 2_000));
         when(service.getIdentifierCounts(SLOT)).thenReturn(counts);
-        when(manager.apply(SLOT, counts)).thenReturn(new SuppressManager.SuppressSummary(SLOT, 1, 0, 1, 0, 2, false));
+        when(manager.apply(SLOT, counts, true)).thenReturn(new SuppressManager.SuppressSummary(SLOT, 1, 0, 1, 0, 2, false));
         StepContribution contribution = mock(StepContribution.class);
 
         assertThat(tasklet.execute(contribution, chunkContext(SLOT))).isEqualTo(RepeatStatus.FINISHED);
 
-        verify(manager).apply(SLOT, counts);
+        verify(manager).apply(SLOT, counts, true);
         verify(contribution).incrementWriteCount(3);
     }
 
     @Test
-    void serverDisabledLeavesTheServerIdentifiersOut() {
-        String mapmatch = SuppressKey.of("mapmatch-bg", "navi:12000");
+    void serverDisabledIsPassedToTheManager() {
         Map<String, LinkCounts> counts = Map.of(
-                mapmatch, new LinkCounts(0, 7_000),
+                SuppressKey.of("mapmatch-bg", "navi:12000"), new LinkCounts(0, 7_000),
                 SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_ROOT), new LinkCounts(0, 2_000));
         when(service.getIdentifierCounts(SLOT)).thenReturn(counts);
-        when(manager.apply(anyLong(), anyMap())).thenReturn(new SuppressManager.SuppressSummary(SLOT, 1, 0, 0, 0, 0, false));
+        when(manager.apply(anyLong(), anyMap(), anyBoolean())).thenReturn(new SuppressManager.SuppressSummary(SLOT, 1, 0, 0, 0, 1, false));
         OtlpLinkJoinTasklets.Suppress clientsOnly = new OtlpLinkJoinTasklets.Suppress(service, manager, false);
 
         assertThat(clientsOnly.execute(mock(StepContribution.class), chunkContext(SLOT))).isEqualTo(RepeatStatus.FINISHED);
 
-        verify(manager).apply(SLOT, Map.of(mapmatch, new LinkCounts(0, 7_000)));
+        // the manager gets the whole outcome and the flag: it ignores the SERVER counts and removes the stored SERVER identifiers
+        verify(manager).apply(SLOT, counts, false);
     }
 
     @Test
@@ -87,6 +88,6 @@ class OtlpLinkSuppressTaskletTest {
 
         assertThat(tasklet.execute(mock(StepContribution.class), chunkContext(SLOT))).isEqualTo(RepeatStatus.FINISHED);
 
-        verify(manager, never()).apply(anyLong(), anyMap());
+        verify(manager, never()).apply(anyLong(), anyMap(), anyBoolean());
     }
 }
