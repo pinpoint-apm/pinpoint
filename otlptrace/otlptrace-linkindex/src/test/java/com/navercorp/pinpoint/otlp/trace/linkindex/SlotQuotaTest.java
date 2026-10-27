@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,6 +39,10 @@ class SlotQuotaTest {
 
     private static long at(long slot, int second) {
         return LinkIndexKeys.slotStartMillis(slot) + second * 1000L;
+    }
+
+    private static Result server(SlotQuota quota, String application, long now) {
+        return quota.acquire(LinkKind.SERVER, application, now);
     }
 
     private static Result client(SlotQuota quota, String identifier, long now) {
@@ -159,8 +164,8 @@ class SlotQuotaTest {
         client(quota, MAPMATCH, at(SLOT, 1));
         client(quota, MAPMATCH, at(SLOT, 2));            // identifier limit
         client(quota, CHECKOUT, at(SLOT, 3));
-        client(quota, SuppressKey.of("c", "x"), at(SLOT, 4));
-        client(quota, SuppressKey.of("d", "x"), at(SLOT, 17));   // slot limit at second 17
+        client(quota, SuppressKey.of("c", "x"), at(SLOT, 4));    // fills the slot quota at second 4
+        client(quota, SuppressKey.of("d", "x"), at(SLOT, 17));   // first rejection
         client(quota, SuppressKey.of("e", "x"), at(SLOT, 30));
         // the gauges change only when the slot ends
         assertThat(quota.getSlotEntries()).isZero();
@@ -168,7 +173,7 @@ class SlotQuotaTest {
         client(quota, CHECKOUT, at(SLOT + 1, 0));
 
         assertThat(quota.getSlotEntries()).isEqualTo(4);
-        assertThat(quota.getSlotLimitReachedSecond()).isEqualTo(17);
+        assertThat(quota.getSlotLimitReachedSecond()).isEqualTo(4);     // the second the quota filled, not the first rejection
         assertThat(quota.getLimitedIdentifiers()).isEqualTo(1);
 
         client(quota, CHECKOUT, at(SLOT + 2, 0));
@@ -176,6 +181,51 @@ class SlotQuotaTest {
         assertThat(quota.getSlotEntries()).isEqualTo(1);
         assertThat(quota.getSlotLimitReachedSecond()).isEqualTo(SlotQuota.NOT_REACHED_SECOND);
         assertThat(quota.getLimitedIdentifiers()).isZero();
+    }
+
+    @Test
+    void aSlotFilledWithoutARejectionStillReportsTheSecondItFilled() {
+        SlotQuota quota = SlotQuota.of(2);
+        server(quota, "a", at(SLOT, 3));
+        server(quota, "a", at(SLOT, 9));     // fills the quota, nothing rejected afterwards
+        server(quota, "a", at(SLOT + 1, 0));
+
+        assertThat(quota.getSlotEntries()).isEqualTo(2);
+        assertThat(quota.getSlotLimitReachedSecond()).isEqualTo(9);
+    }
+
+    @Test
+    void aStaleSummaryDoesNotOverwriteANewerOne() {
+        SlotQuota quota = SlotQuota.of(4);
+        quota.publish(new SlotQuota.Ended(SLOT + 1, 3, 0, -1, Map.of()));
+        assertThat(quota.getSlotEntries()).isEqualTo(3);
+        assertThat(quota.getSlotLimitReachedSecond()).isEqualTo(SlotQuota.NOT_REACHED_SECOND);
+
+        // a thread that ended SLOT but published after SLOT + 1
+        quota.publish(new SlotQuota.Ended(SLOT, 4, 2, LinkIndexKeys.slotStartMillis(SLOT) + 5_000, Map.of()));
+
+        assertThat(quota.getSlotEntries()).isEqualTo(3);
+        assertThat(quota.getSlotLimitReachedSecond()).isEqualTo(SlotQuota.NOT_REACHED_SECOND);
+        assertThat(quota.getLoggedSlotLimitSlot()).isEqualTo(Long.MIN_VALUE);
+    }
+
+    @Test
+    void slotLimitLineRepeatsWhenTheLargestIdentifiersChange() {
+        SlotQuota quota = SlotQuota.of(4);     // SERVER limit off: only the slot-limit line can name the flooder
+        for (int i = 0; i < 6; i++) {
+            server(quota, "a", at(SLOT, 10 + i));
+        }
+        for (int i = 0; i < 6; i++) {          // SLOT ends: logged, largest = a
+            server(quota, "a", at(SLOT + 1, 10 + i));
+        }
+        assertThat(quota.getLoggedSlotLimitSlot()).isEqualTo(SLOT);
+        for (int i = 0; i < 6; i++) {          // SLOT + 1 ends: same flooder within the repeat window, not logged
+            server(quota, "b", at(SLOT + 2, 10 + i));
+        }
+        assertThat(quota.getLoggedSlotLimitSlot()).isEqualTo(SLOT);
+        server(quota, "a", at(SLOT + 3, 0));   // SLOT + 2 ends: the flooder changed to b, logged at once
+
+        assertThat(quota.getLoggedSlotLimitSlot()).isEqualTo(SLOT + 2);
     }
 
     @Test
