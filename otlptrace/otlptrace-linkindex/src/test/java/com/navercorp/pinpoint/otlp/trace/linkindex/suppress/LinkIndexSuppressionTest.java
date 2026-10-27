@@ -240,7 +240,7 @@ class LinkIndexSuppressionTest {
         }
         Set<Integer> sampled = new HashSet<>();
         for (int trace = 1; trace <= 40; trace++) {
-            if (LinkIndexKeys.isSampled(traceId(trace), 2)) {
+            if (LinkIndexKeys.isProbe(traceId(trace), 2)) {
                 sampled.add(trace);
             }
         }

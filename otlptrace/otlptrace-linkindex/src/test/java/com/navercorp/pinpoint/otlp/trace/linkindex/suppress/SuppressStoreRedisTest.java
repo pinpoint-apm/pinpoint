@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LettuceLinkIndexRedisCo
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexConnection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import com.navercorp.pinpoint.otlp.trace.linkindex.SlotQuota;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -245,5 +246,94 @@ class SuppressStoreRedisTest {
         id[15] = (byte) trace;
         id[0] = (byte) (trace * 31);
         return id;
+    }
+
+    /**
+     * The whole recovery path when both identifiers of a call relation are ACTIVE: two writers (the collector of the
+     * caller and the one of the callee) see the calls in opposite orders, so the first-of-slot probes are different
+     * calls; the probes by trace id are the same traces on both sides, go through the quota and the queue, are
+     * joined and release both identifiers.
+     */
+    @Test
+    void bothSidesSuppressedRecoverThroughTheTraceProbes() throws Exception {
+        String clientKey = SuppressKey.of("caller", "callee:8080");
+        String serverKey = SuppressKey.ofServer("callee", SuppressKey.serverClass(traceId(1), 1));   // parent = spanId = trace
+        SuppressManager manager = new SuppressManager(newStore(), new SuppressPolicy(1, 1, 1, 100, 10));
+        manager.apply(slot - 3, Map.of(clientKey, new LinkCounts(0, 50), serverKey, new LinkCounts(0, 50)));
+        manager.apply(slot - 2, Map.of(clientKey, new LinkCounts(0, 50), serverKey, new LinkCounts(0, 50)));
+        LinkIndexSuppression callerSide = new LinkIndexSuppression(newStore(), Duration.ofSeconds(60), 1, 4, true,
+                SuppressKey.Rules.EMPTY, SuppressKey.Rules.EMPTY);
+        LinkIndexSuppression calleeSide = new LinkIndexSuppression(newStore(), Duration.ofSeconds(60), 1, 4, true,
+                SuppressKey.Rules.EMPTY, SuppressKey.Rules.EMPTY);
+        callerSide.refresh();
+        calleeSide.refresh();
+        assertThat(callerSide.getActive()).containsExactlyInAnyOrder(clientKey, serverKey);
+
+        int traces = 200;
+        int probeTraces = 0;
+        for (int trace = 1; trace <= traces; trace++) {
+            if (LinkIndexKeys.isProbe(traceId(trace), 4)) {
+                probeTraces++;
+            }
+        }
+        assertThat(probeTraces).isBetween(20, 80);
+
+        // slot quota 100 per writer with other traffic competing for it
+        LinkIndexWriter caller = new LinkIndexWriter(connector.connect(), BUCKETS, 300_000, 10_000, 1,
+                Duration.ofSeconds(5), now::get, callerSide, SlotQuota.of(100));
+        LinkIndexWriter callee = new LinkIndexWriter(connector.connect(), BUCKETS, 300_000, 10_000, 1,
+                Duration.ofSeconds(5), now::get, calleeSide, SlotQuota.of(100));
+        caller.start();
+        callee.start();
+        try {
+            now.set(LinkIndexKeys.slotStartMillis(slot) + 1_000);
+            int queued = 0;
+            for (int trace = 1; trace <= traces; trace++) {                  // the caller's collector: ascending
+                queued += caller.offer(client(trace, "caller", "callee:8080")) ? 1 : 0;
+            }
+            for (int i = 0; i < 20; i++) {                                     // other traffic on the same collector
+                queued += caller.offer(client(1000 + i, "other", "elsewhere:1")) ? 1 : 0;
+            }
+            for (int trace = traces; trace >= 1; trace--) {                   // the callee's collector: descending
+                queued += callee.offer(LinkEntry.server(traceId(trace), trace, 3, "callee", OTEL_SERVER, 1, false)) ? 1 : 0;
+            }
+            // first-of-slot probe + the trace probes on each side, plus the other traffic
+            assertThat(queued).isEqualTo(2 * (probeTraces + 1) + 20);
+            assertThat(callerSide.getProbed()).isEqualTo(probeTraces + 1);
+            assertThat(calleeSide.getProbed()).isEqualTo(probeTraces + 1);
+            long deadline = System.currentTimeMillis() + 10_000;
+            while (caller.getWritten() + callee.getWritten() < queued) {
+                assertThat(System.currentTimeMillis()).as("writer flush").isLessThan(deadline);
+                Thread.yield();
+            }
+
+            LinkMapWriter mapWriter = mock(LinkMapWriter.class);
+            when(mapWriter.write(anyMap())).thenReturn(1);
+            LinkIndexStore store = new LinkIndexStore(connector.connect(), Duration.ofSeconds(5));
+            try (LinkJoinService service = new LinkJoinService(store, mapWriter, code -> ServiceType.OPENTELEMETRY_SERVER, BUCKETS, 3, 1)) {
+                LinkJoinService.JoinSummary summary = service.join(slot);
+                // exactly the trace probes pair up: the first-of-slot probes (trace 1 and trace 200) are different calls
+                assertThat(summary.pairs()).isEqualTo(probeTraces);
+                Map<String, LinkCounts> counts = service.getIdentifierCounts(slot);
+                assertThat(counts.get(clientKey).matched()).isEqualTo(probeTraces);
+                assertThat(counts.get(serverKey).matched()).isEqualTo(probeTraces);
+
+                SuppressManager.SuppressSummary suppressed = manager.apply(slot, counts);
+                assertThat(suppressed.released()).isEqualTo(2);
+            }
+            callerSide.refresh();
+            calleeSide.refresh();
+            assertThat(callerSide.getActiveCount()).isZero();
+            assertThat(calleeSide.getActiveCount()).isZero();
+            // the next slot is indexed in full again
+            now.set(LinkIndexKeys.slotStartMillis(slot + 1) + 1_000);
+            assertThat(caller.offer(client(5, "caller", "callee:8080"))).isTrue();
+            assertThat(caller.offer(client(6, "caller", "callee:8080"))).isTrue();
+        } finally {
+            caller.close();
+            callee.close();
+            callerSide.close();
+            calleeSide.close();
+        }
     }
 }

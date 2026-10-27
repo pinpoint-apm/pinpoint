@@ -102,12 +102,13 @@ public class LinkIndexSuppression implements AutoCloseable {
      * @param refresh       snapshot interval
      * @param probePerSlot  entries of a suppressed identifier still written per slot by this collector: the first
      *                      ones of the slot
-     * @param probeModulo   in addition, every entry whose trace id is sampled by this modulo
-     *                      ({@link LinkIndexKeys#isSampled}) is written whatever its identifier. The decision depends
-     *                      on the trace id alone, so the CLIENT and the SERVER side of one call take it alike on
-     *                      any collector: when both identifiers of a call relation are suppressed, these probes are
-     *                      the pairs that can still match and release them, where the first-of-slot probes of the two
-     *                      sides may never be the same calls. {@code 0} or {@code 1} turns them off.
+     * @param probeModulo   in addition, every entry whose trace id is selected by {@link LinkIndexKeys#isProbe}
+     *                      (1 in this many, by a hash independent of the writer's trace sampling) is written whatever
+     *                      its identifier. The decision depends on the trace id alone, so the CLIENT and the SERVER
+     *                      side of one call take it alike on any collector: when both identifiers of a call relation
+     *                      are suppressed, these probes are the pairs that can still match and release them, where
+     *                      the first-of-slot probes of the two sides may never be the same calls. {@code 0} or
+     *                      {@code 1} turns them off.
      * @param serverEnabled {@code false} to ignore the SERVER identifiers of the list and of the force rules
      */
     public LinkIndexSuppression(SuppressStore store, Duration refresh, int probePerSlot, int probeModulo, boolean serverEnabled,
@@ -242,7 +243,7 @@ public class LinkIndexSuppression implements AutoCloseable {
         if (!active.contains(key) && !forced.matches(applicationName, key)) {
             return true;
         }
-        if (traceId != null && probeModulo > 1 && LinkIndexKeys.isSampled(traceId, probeModulo)) {
+        if (traceId != null && LinkIndexKeys.isProbe(traceId, probeModulo)) {
             // the same decision on both sides of the call: these probes still pair up when both identifiers are
             // suppressed and the first-of-slot probes of the two sides are different calls
             (server ? probedServer : probedClient).incrementAndGet();
@@ -303,12 +304,16 @@ public class LinkIndexSuppression implements AutoCloseable {
         return kind == LinkKind.SERVER ? suppressedServer.get() : suppressedClient.get();
     }
 
-    /** entries of suppressed identifiers written as probes, both kinds */
+    /**
+     * entries of suppressed identifiers let through as probes, both kinds. Counted when the suppression lets the
+     * entry through: the quota and the queue may still drop it ({@code dropped} by reason and kind), so this is not
+     * the number of probes stored.
+     */
     public long getProbed() {
         return probedClient.get() + probedServer.get();
     }
 
-    /** entries of {@code kind} of suppressed identifiers written as probes */
+    /** entries of {@code kind} of suppressed identifiers let through as probes (before the quota and the queue) */
     public long getProbed(LinkKind kind) {
         return kind == LinkKind.SERVER ? probedServer.get() : probedClient.get();
     }

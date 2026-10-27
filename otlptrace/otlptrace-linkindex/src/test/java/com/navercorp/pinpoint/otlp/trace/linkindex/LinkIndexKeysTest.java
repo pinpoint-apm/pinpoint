@@ -98,4 +98,48 @@ class LinkIndexKeysTest {
         assertThat(LinkIndexKeys.isSampled(new byte[16], 1)).isTrue();
         assertThat(LinkIndexKeys.isSampled(new byte[16], 0)).isTrue();
     }
+
+    @Test
+    void probeSelectionIsIndependentOfTheTraceSampling() {
+        // the writer samples the traces first; the probes must still be 1 in probeModulo of the sampled traces,
+        // not gcd(sample, probe) / probe as with a shared hash (all of them when the two moduli are equal)
+        Random random = new Random(7);
+        int[][] combos = {{1, 1000}, {10, 1000}, {1000, 1000}};
+        for (int[] combo : combos) {
+            int sample = combo[0];
+            int probe = combo[1];
+            int sampled = 0;
+            int probed = 0;
+            for (int i = 0; i < 2_000_000; i++) {
+                byte[] traceId = new byte[16];
+                random.nextBytes(traceId);
+                if (!LinkIndexKeys.isSampled(traceId, sample)) {
+                    continue;
+                }
+                sampled++;
+                if (LinkIndexKeys.isProbe(traceId, probe)) {
+                    probed++;
+                }
+            }
+            double ratio = (double) probed / sampled;
+            // 2,000 expected probes at 1/1000 for sample 1; fewer samples at 10 and 1000, so only the shared-hash
+            // outcomes (0.01 and 1.0) are excluded there
+            double upper = sample == 1 ? 0.0015 : (sample == 10 ? 0.004 : 0.1);
+            assertThat(ratio).as("sample %d probe %d: %d of %d", sample, probe, probed, sampled)
+                    .isGreaterThan(0.0).isLessThan(upper);
+            if (sample == 1) {
+                assertThat(ratio).isGreaterThan(0.0005);
+            }
+        }
+    }
+
+    @Test
+    void probeIsOffBelowTwo() {
+        byte[] traceId = new byte[16];
+        new Random(1).nextBytes(traceId);
+        assertThat(LinkIndexKeys.isProbe(traceId, 0)).isFalse();
+        assertThat(LinkIndexKeys.isProbe(traceId, 1)).isFalse();
+        // and stable for a given trace id
+        assertThat(LinkIndexKeys.isProbe(traceId, 3)).isEqualTo(LinkIndexKeys.isProbe(traceId.clone(), 3));
+    }
 }
