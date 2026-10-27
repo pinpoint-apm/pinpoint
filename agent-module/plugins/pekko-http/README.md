@@ -1,4 +1,5 @@
 ## Apache Pekko HTTP
+* Since: Pinpoint 4.0.0
 * See: https://pekko.apache.org/docs/pekko-http/current/
 * Range: org.apache.pekko/pekko-http-core_2.13 [1.0.0, )
 
