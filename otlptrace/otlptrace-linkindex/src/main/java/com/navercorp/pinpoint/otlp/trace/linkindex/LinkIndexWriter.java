@@ -186,6 +186,9 @@ public class LinkIndexWriter implements AutoCloseable {
             return false;
         }
         if (!queue.offer(new Pending(entry, slot))) {
+            // the entry is not written: give its share back so a moment of back-pressure does not use up the
+            // identifier's (and the slot's) quota for the rest of the slot
+            quota.release(entry.kind(), identifier, now);
             drop(DropReason.QUEUE_FULL, entry.kind());
             return false;
         }

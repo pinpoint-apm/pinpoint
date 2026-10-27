@@ -286,6 +286,21 @@ Go, Node.js). The collector asserts the parsing direction of the same contract f
 (`TraceStateSpecConsistencyTest`); a change to the format updates the file in both
 repositories and bumps its `contract-version`.
 
+## Link index: slot quota
+
+When the link index is on (`pinpoint.collector.otlptrace.link-index.enabled`), each collector writes at most
+`max-entries-per-slot` entries per one-minute slot, and one CLIENT identifier (application + destination) at most
+`max-entries-per-identifier-percent` of that (default 20 %; 100 = no per-identifier limit). The SERVER entries of one
+application can be capped the same way (`max-server-entries-per-application-percent`, off by default).
+
+Both limits are first come first served within the minute, not a uniform sample: once a limit is reached, the rest
+of the minute is not indexed, so the server-map counts of that slot under-represent its later part. The identifier
+share applies even while the slot quota has room, so a single legitimate identifier above the share (200,000 calls per
+minute and collector with the defaults) is cut. Operators can tell when a slot's counts are incomplete from
+`collector.otlptrace.linkindex.dropped{reason=identifier_limit|slot_limit}`, the `quota.limited.identifiers`,
+`slot.limit.reached.second` and `quota.summary.slot` gauges, and the INFO summary the collector logs when a slot ends
+(the identifiers that reached their share, and the largest identifiers when the slot quota was reached).
+
 ## Build
 
 ```sh

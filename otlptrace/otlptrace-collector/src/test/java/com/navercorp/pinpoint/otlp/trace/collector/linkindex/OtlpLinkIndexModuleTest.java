@@ -109,6 +109,8 @@ class OtlpLinkIndexModuleTest {
             assertThat(registry.find("collector.otlptrace.linkindex.slot.entries").gauge()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.slot.limit.reached.second").gauge()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.quota.limited.identifiers").gauge()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.quota.tracked.identifiers").gauge()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.quota.summary.slot").gauge()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.quota.untracked").functionCounter()).isNotNull();
         }
     }

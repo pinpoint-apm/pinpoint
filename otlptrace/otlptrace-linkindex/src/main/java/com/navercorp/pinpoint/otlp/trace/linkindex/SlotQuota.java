@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -40,15 +42,16 @@ import java.util.concurrent.atomic.AtomicLong;
  *     100 = no per-identifier limit.</li>
  * </ul>
  * The identifier limit is checked first, so the entries it rejects do not use the slot quota. At most
- * {@value #MAX_TRACKED_IDENTIFIERS} identifiers are tracked per slot; the entries of further identifiers get only the
- * slot quota (fail-open, counted by {@link #getUntracked}).
+ * {@value #MAX_TRACKED_IDENTIFIERS} identifiers are tracked per slot; the further identifiers of a slot share one
+ * pooled identifier share per kind (counted by {@link #getUntracked}). An acquisition whose entry is not queued after
+ * all is given back with {@link #release}.
  * <p>
  * When a slot ends (at the first entry of a later slot), its summary goes to the gauges ({@link #getSlotEntries},
  * {@link #getSlotLimitReachedSecond}, {@link #getLimitedIdentifiers}) and to the log: the identifiers that reached
  * their limit and, when the slot quota was reached, the second it was reached and the largest identifiers. A line is
  * repeated only when the identifiers change or every {@value #LOG_REPEAT_SLOTS} slots.
  */
-public class SlotQuota {
+public class SlotQuota implements AutoCloseable {
 
     public enum Result {
         ACCEPTED,
@@ -61,6 +64,14 @@ public class SlotQuota {
     static final int NOT_REACHED_SECOND = 60;
     private static final int LOG_TOP_LIMITED = 5;
     private static final int LOG_TOP_OFFERED = 3;
+    /**
+     * Pooled counters of the identifiers that arrive once {@value #MAX_TRACKED_IDENTIFIERS} are tracked: all of them
+     * together get one identifier share per kind, so a flooder that shows up late cannot take the rest of the slot
+     * quota alone. The keys start with the separator so they cannot equal a CLIENT key, and a SERVER identifier is an
+     * application name, which cannot contain it.
+     */
+    static final String UNTRACKED_CLIENT = "\u001f(untracked CLIENT identifiers)";
+    static final String UNTRACKED_SERVER = "\u001f(untracked SERVER applications)";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -69,6 +80,7 @@ public class SlotQuota {
     private final int serverPercent;
     private final int clientLimit;
     private final int serverLimit;
+    private final Executor publisher;
 
     // ingest threads, guarded by lock
     private final Object lock = new Object();
@@ -77,6 +89,7 @@ public class SlotQuota {
     private int slotDropped;
     private long slotLimitReachedMillis = -1;
     private Map<String, Usage> usage = new HashMap<>();
+    private int tracked;
 
     private final AtomicLong untracked = new AtomicLong();
 
@@ -84,6 +97,8 @@ public class SlotQuota {
     private volatile int slotEntries;
     private volatile int slotLimitReachedSecond = NOT_REACHED_SECOND;
     private volatile int limitedIdentifiers;
+    private volatile int trackedIdentifiers;
+    private volatile long summarySlot = -1;
 
     // summary publishing and log throttling, guarded by publishLock
     private final Object publishLock = new Object();
@@ -95,11 +110,23 @@ public class SlotQuota {
     private long loggedSlotLimitSlot = Long.MIN_VALUE;
 
     /**
+     * Summaries are published on the ingest thread that ends the slot.
+     *
      * @param maxEntriesPerSlot entries per slot and collector
      * @param clientPercent     share of {@code maxEntriesPerSlot} one CLIENT identifier may use, 1..100
      * @param serverPercent     share of {@code maxEntriesPerSlot} the SERVER entries of one application may use, 1..100
      */
     public SlotQuota(int maxEntriesPerSlot, int clientPercent, int serverPercent) {
+        this(maxEntriesPerSlot, clientPercent, serverPercent, Runnable::run);
+    }
+
+    /**
+     * @param publisher runs the summary of an ended slot (sorting the identifiers and logging), so that it does not
+     *                  delay the ingest thread that ends the slot. A single-thread executor keeps the slots in order;
+     *                  an older summary is ignored anyway. Closed with {@link #close()} when it is an
+     *                  {@link ExecutorService}.
+     */
+    public SlotQuota(int maxEntriesPerSlot, int clientPercent, int serverPercent, Executor publisher) {
         if (maxEntriesPerSlot < 1) {
             throw new IllegalArgumentException("maxEntriesPerSlot must be positive");
         }
@@ -111,6 +138,7 @@ public class SlotQuota {
         this.serverPercent = serverPercent;
         this.clientLimit = limit(maxEntriesPerSlot, clientPercent);
         this.serverLimit = limit(maxEntriesPerSlot, serverPercent);
+        this.publisher = Objects.requireNonNull(publisher, "publisher");
     }
 
     /** only the slot quota */
@@ -145,37 +173,75 @@ public class SlotQuota {
             result = acquireLocked(kind, identifier, nowMillis);
         }
         if (ended != null) {
-            publish(ended);
+            final Ended summary = ended;
+            publisher.execute(() -> publish(summary));
         }
         return result;
     }
 
+    /**
+     * Gives back an acquisition whose entry was not queued after all (the queue was full), so that a moment of
+     * back-pressure does not use up the identifier's share for the rest of the slot. Ignored when the slot of
+     * {@code nowMillis} has already ended: the counters of the next slot must not be decremented for it.
+     *
+     * @param nowMillis the time passed to the matching {@link #acquire}
+     */
+    public void release(LinkKind kind, String identifier, long nowMillis) {
+        Objects.requireNonNull(kind, "kind");
+        Objects.requireNonNull(identifier, "identifier");
+        synchronized (lock) {
+            if (LinkIndexKeys.slotOf(nowMillis) != slot) {
+                return;
+            }
+            if (accepted > 0) {
+                accepted--;
+            }
+            final Usage counter = counterOf(kind, identifier);
+            if (counter != null && counter.accepted > 0) {
+                counter.accepted--;
+            }
+        }
+    }
+
     private Ended endSlot(long next) {
-        final Ended ended = slot == Long.MIN_VALUE ? null : new Ended(slot, accepted, slotDropped, slotLimitReachedMillis, usage);
+        final Ended ended = slot == Long.MIN_VALUE ? null : new Ended(slot, accepted, slotDropped, slotLimitReachedMillis, tracked, usage);
         slot = next;
         accepted = 0;
         slotDropped = 0;
         slotLimitReachedMillis = -1;
         usage = new HashMap<>();
+        tracked = 0;
         return ended;
+    }
+
+    /**
+     * @return the counter of the identifier, the pooled counter of its kind once {@value #MAX_TRACKED_IDENTIFIERS}
+     * identifiers are tracked, or {@code null} for an identifier never seen in this slot
+     */
+    private Usage counterOf(LinkKind kind, String identifier) {
+        final Usage counter = usage.get(identifier);
+        if (counter != null || tracked < MAX_TRACKED_IDENTIFIERS) {
+            return counter;
+        }
+        return usage.get(kind == LinkKind.CLIENT ? UNTRACKED_CLIENT : UNTRACKED_SERVER);
     }
 
     private Result acquireLocked(LinkKind kind, String identifier, long nowMillis) {
         Usage counter = usage.get(identifier);
         if (counter == null) {
-            if (usage.size() < MAX_TRACKED_IDENTIFIERS) {
+            if (tracked < MAX_TRACKED_IDENTIFIERS) {
                 counter = new Usage(kind);
                 usage.put(identifier, counter);
+                tracked++;
             } else {
                 untracked.incrementAndGet();
+                counter = usage.computeIfAbsent(kind == LinkKind.CLIENT ? UNTRACKED_CLIENT : UNTRACKED_SERVER, k -> new Usage(kind));
             }
         }
-        if (counter != null) {
-            counter.offered++;
-            if (counter.accepted >= (kind == LinkKind.CLIENT ? clientLimit : serverLimit)) {
-                counter.limited++;
-                return Result.IDENTIFIER_LIMIT;
-            }
+        counter.offered++;
+        if (counter.accepted >= (kind == LinkKind.CLIENT ? clientLimit : serverLimit)) {
+            counter.limited++;
+            return Result.IDENTIFIER_LIMIT;
         }
         if (accepted >= maxEntriesPerSlot) {
             slotDropped++;
@@ -186,9 +252,7 @@ public class SlotQuota {
             // the entry that fills the slot quota, whether or not a rejection follows
             slotLimitReachedMillis = nowMillis;
         }
-        if (counter != null) {
-            counter.accepted++;
-        }
+        counter.accepted++;
         return Result.ACCEPTED;
     }
 
@@ -216,6 +280,8 @@ public class SlotQuota {
             slotEntries = ended.accepted();
             slotLimitReachedSecond = second;
             limitedIdentifiers = limited.size();
+            trackedIdentifiers = ended.tracked();
+            summarySlot = ended.slot();
             logLimited(ended.slot(), limited);
             logSlotLimit(ended, slotLimitReached, second);
         }
@@ -289,7 +355,7 @@ public class SlotQuota {
             if (i > 0) {
                 builder.append(", ");
             }
-            builder.append(counter.kind == LinkKind.CLIENT ? SuppressKey.display(entry.getKey()) : entry.getKey() + " (SERVER)")
+            builder.append(describeKey(entry.getKey(), counter.kind))
                     .append(" offered=").append(counter.offered)
                     .append(" written=").append(counter.accepted);
         }
@@ -297,6 +363,13 @@ public class SlotQuota {
             builder.append(", ...");
         }
         return builder.toString();
+    }
+
+    private static String describeKey(String key, LinkKind kind) {
+        if (UNTRACKED_CLIENT.equals(key) || UNTRACKED_SERVER.equals(key)) {
+            return key.substring(1);
+        }
+        return kind == LinkKind.CLIENT ? SuppressKey.display(key) : key + " (SERVER)";
     }
 
     private static String display(int limit) {
@@ -323,9 +396,27 @@ public class SlotQuota {
         return clientLimit;
     }
 
-    /** entries that got only the slot quota because {@value #MAX_TRACKED_IDENTIFIERS} identifiers were tracked */
+    /** entries counted into the pooled share because {@value #MAX_TRACKED_IDENTIFIERS} identifiers were tracked */
     public long getUntracked() {
         return untracked.get();
+    }
+
+    /** identifiers tracked in the last ended slot, at most {@value #MAX_TRACKED_IDENTIFIERS} */
+    public int getTrackedIdentifiers() {
+        return trackedIdentifiers;
+    }
+
+    /** the slot of the last published summary, {@code -1} before the first; stays put when no entry arrives */
+    public long getSummarySlot() {
+        return summarySlot;
+    }
+
+    /** stops the summary publisher when this quota owns an {@link ExecutorService} */
+    @Override
+    public void close() {
+        if (publisher instanceof ExecutorService executorService) {
+            executorService.shutdownNow();
+        }
     }
 
     @Override
@@ -346,6 +437,6 @@ public class SlotQuota {
     }
 
     /** the counters of a slot that ended; package-private for tests */
-    record Ended(long slot, int accepted, int slotDropped, long slotLimitReachedMillis, Map<String, Usage> usage) {
+    record Ended(long slot, int accepted, int slotDropped, long slotLimitReachedMillis, int tracked, Map<String, Usage> usage) {
     }
 }

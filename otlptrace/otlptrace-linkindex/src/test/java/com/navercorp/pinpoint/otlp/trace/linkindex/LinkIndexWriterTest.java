@@ -125,4 +125,22 @@ class LinkIndexWriterTest {
         assertThat(writer.getDropped(DropReason.QUEUE_FULL, LinkKind.SERVER)).isZero();
         assertThat(writer.getDroppedQueueFull()).isEqualTo(1);
     }
+
+    @Test
+    void queueFullGivesTheQuotaBack() {
+        // slot quota 10, 2 per CLIENT identifier, queue of 1: the first entry fills the queue
+        SlotQuota quota = new SlotQuota(10, 20, 100);
+        LinkIndexWriter writer = writer(LinkIndexSuppression.NONE, quota, 1);
+        assertThat(writer.offer(server(1, "p.cart"))).isTrue();
+
+        // both entries of A are refused by the full queue: neither takes A's share nor the slot quota
+        assertThat(writer.offer(client(2, "a", "cart:7070"))).isFalse();
+        assertThat(writer.offer(client(3, "a", "cart:7070"))).isFalse();
+        assertThat(writer.getDroppedQueueFull()).isEqualTo(2);
+        assertThat(writer.getDroppedIdentifierLimit()).isZero();
+
+        // the slot ends with the one queued entry counted, not three
+        quota.acquire(LinkKind.SERVER, "p.cart", NOW + 60_000);     // first entry of the next slot ends it
+        assertThat(quota.getSlotEntries()).isEqualTo(1);
+    }
 }

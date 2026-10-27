@@ -39,6 +39,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 
@@ -111,11 +113,17 @@ public class OtlpLinkIndexModule {
      * Entries per slot and collector ({@code max-entries-per-slot}) and the share of them one CLIENT identifier
      * (application + destination) or the SERVER entries of one application may use.
      */
-    @Bean
+    @Bean(destroyMethod = "close")
     public SlotQuota otlpLinkIndexSlotQuota(@Value("${" + PREFIX + "max-entries-per-slot:1000000}") int maxEntriesPerSlot,
                                             @Value("${" + PREFIX + "max-entries-per-identifier-percent:20}") int clientPercent,
                                             @Value("${" + PREFIX + "max-server-entries-per-application-percent:100}") int serverPercent) {
-        return new SlotQuota(maxEntriesPerSlot, clientPercent, serverPercent);
+        // the slot summary (sorting the identifiers, logging) runs off the ingest thread that ends the slot
+        final ExecutorService publisher = Executors.newSingleThreadExecutor(r -> {
+            final Thread thread = new Thread(r, "otlp-link-index-quota-summary");
+            thread.setDaemon(true);
+            return thread;
+        });
+        return new SlotQuota(maxEntriesPerSlot, clientPercent, serverPercent, publisher);
     }
 
     /**
@@ -202,6 +210,8 @@ public class OtlpLinkIndexModule {
             Gauge.builder(METRIC_PREFIX + "slot.entries", quota, SlotQuota::getSlotEntries).register(registry);
             Gauge.builder(METRIC_PREFIX + "slot.limit.reached.second", quota, SlotQuota::getSlotLimitReachedSecond).register(registry);
             Gauge.builder(METRIC_PREFIX + "quota.limited.identifiers", quota, SlotQuota::getLimitedIdentifiers).register(registry);
+            Gauge.builder(METRIC_PREFIX + "quota.tracked.identifiers", quota, SlotQuota::getTrackedIdentifiers).register(registry);
+            Gauge.builder(METRIC_PREFIX + "quota.summary.slot", quota, SlotQuota::getSummarySlot).register(registry);
             FunctionCounter.builder(METRIC_PREFIX + "quota.untracked", quota, q -> (double) q.getUntracked()).register(registry);
         }
 
