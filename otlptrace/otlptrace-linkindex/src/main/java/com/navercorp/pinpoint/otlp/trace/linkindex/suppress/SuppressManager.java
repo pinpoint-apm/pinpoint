@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex.suppress;
 
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,12 +51,23 @@ public class SuppressManager {
     private final SuppressStore store;
     private final SuppressPolicy policy;
 
-    private final LongAdder activated = new LongAdder();
-    private final LongAdder released = new LongAdder();
-    private final LongAdder expired = new LongAdder();
+    // totals per kind: index LinkKind.ordinal()
+    private final LongAdder[] activated = adders();
+    private final LongAdder[] released = adders();
+    private final LongAdder[] expired = adders();
     private final LongAdder errors = new LongAdder();
     private volatile long lastCandidates;
     private volatile long lastActive;
+    private volatile long lastCandidatesServer;
+    private volatile long lastActiveServer;
+
+    private static LongAdder[] adders() {
+        final LongAdder[] adders = new LongAdder[LinkKind.values().length];
+        for (int i = 0; i < adders.length; i++) {
+            adders[i] = new LongAdder();
+        }
+        return adders;
+    }
 
     public SuppressManager(SuppressStore store, SuppressPolicy policy) {
         this.store = Objects.requireNonNull(store, "store");
@@ -68,7 +80,7 @@ public class SuppressManager {
 
     /**
      * @param slot   the joined slot k
-     * @param counts outcome of slot k per CLIENT identifier
+     * @param counts outcome of slot k per identifier ({@link SuppressKey}, CLIENT and SERVER)
      */
     public SuppressSummary apply(long slot, Map<String, LinkCounts> counts) {
         Objects.requireNonNull(counts, "counts");
@@ -99,18 +111,25 @@ public class SuppressManager {
         }
         int candidates = 0;
         int active = 0;
-        for (SuppressState state : transition.result().values()) {
-            if (state.isActive()) {
+        int candidatesServer = 0;
+        int activeServer = 0;
+        for (Map.Entry<String, SuppressState> entry : transition.result().entrySet()) {
+            final boolean server = SuppressKey.isServer(entry.getKey());
+            if (entry.getValue().isActive()) {
                 active++;
+                activeServer += server ? 1 : 0;
             } else {
                 candidates++;
+                candidatesServer += server ? 1 : 0;
             }
         }
-        activated.add(transition.activated().size());
-        released.add(transition.released().size());
-        expired.add(transition.expired().size());
+        add(activated, transition.activated());
+        add(released, transition.released());
+        add(expired, transition.expired());
         lastCandidates = candidates;
         lastActive = active;
+        lastCandidatesServer = candidatesServer;
+        lastActiveServer = activeServer;
         final SuppressSummary summary = new SuppressSummary(slot, candidates, active,
                 transition.activated().size(), transition.released().size(), transition.expired().size(), false);
         logger.info("Suppressed {}", summary);
@@ -198,19 +217,46 @@ public class SuppressManager {
         return new Transition(upserts, deletes, activated, released, expired, result);
     }
 
-    /** ACTIVE transitions, summed over every run */
+    private static void add(LongAdder[] totals, List<String> keys) {
+        for (String key : keys) {
+            totals[SuppressKey.kind(key).ordinal()].increment();
+        }
+    }
+
+    private static long sum(LongAdder[] totals) {
+        long sum = 0;
+        for (LongAdder total : totals) {
+            sum += total.sum();
+        }
+        return sum;
+    }
+
+    /** ACTIVE transitions, summed over every run, both kinds */
     public long getActivated() {
-        return activated.sum();
+        return sum(activated);
     }
 
-    /** identifiers removed because they matched, summed over every run */
+    /** ACTIVE transitions of {@code kind}, summed over every run */
+    public long getActivated(LinkKind kind) {
+        return activated[kind.ordinal()].sum();
+    }
+
+    /** identifiers removed because they matched, summed over every run, both kinds */
     public long getReleased() {
-        return released.sum();
+        return sum(released);
     }
 
-    /** identifiers forgotten (idle or cap), summed over every run */
+    public long getReleased(LinkKind kind) {
+        return released[kind.ordinal()].sum();
+    }
+
+    /** identifiers forgotten (idle or cap), summed over every run, both kinds */
     public long getExpired() {
-        return expired.sum();
+        return sum(expired);
+    }
+
+    public long getExpired(LinkKind kind) {
+        return expired[kind.ordinal()].sum();
     }
 
     /** failed runs, summed */
@@ -218,14 +264,24 @@ public class SuppressManager {
         return errors.sum();
     }
 
-    /** CANDIDATE identifiers after the last run */
+    /** CANDIDATE identifiers after the last run, both kinds */
     public long getLastCandidates() {
         return lastCandidates;
     }
 
-    /** ACTIVE identifiers after the last run */
+    /** ACTIVE identifiers after the last run, both kinds */
     public long getLastActive() {
         return lastActive;
+    }
+
+    /** CANDIDATE SERVER identifiers after the last run */
+    public long getLastCandidatesServer() {
+        return lastCandidatesServer;
+    }
+
+    /** ACTIVE SERVER identifiers after the last run */
+    public long getLastActiveServer() {
+        return lastActiveServer;
     }
 
     /**

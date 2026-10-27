@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.otlp;
 
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressManager;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
@@ -30,23 +31,30 @@ class OtlpLinkSuppressMetricsTest {
     @Test
     void registersTotalsAndGauges() {
         SuppressManager manager = mock(SuppressManager.class);
-        when(manager.getActivated()).thenReturn(3L);
-        when(manager.getReleased()).thenReturn(2L);
-        when(manager.getExpired()).thenReturn(5L);
+        when(manager.getActivated(LinkKind.CLIENT)).thenReturn(3L);
+        when(manager.getActivated(LinkKind.SERVER)).thenReturn(1L);
+        when(manager.getReleased(LinkKind.CLIENT)).thenReturn(2L);
+        when(manager.getExpired(LinkKind.CLIENT)).thenReturn(5L);
         when(manager.getErrors()).thenReturn(1L);
         when(manager.getLastCandidates()).thenReturn(4L);
-        when(manager.getLastActive()).thenReturn(1L);
+        when(manager.getLastActive()).thenReturn(2L);
+        when(manager.getLastCandidatesServer()).thenReturn(3L);
+        when(manager.getLastActiveServer()).thenReturn(1L);
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
 
         new OtlpLinkJoinJobConfig.OtlpLinkSuppressMetrics(manager, registry);
 
         assertThat(PREFIX).isEqualTo("batch.otlp.linkjoin.suppress.");
-        assertThat(registry.get(PREFIX + "activated").functionCounter().count()).isEqualTo(3);
-        assertThat(registry.get(PREFIX + "released").functionCounter().count()).isEqualTo(2);
-        assertThat(registry.get(PREFIX + "expired").functionCounter().count()).isEqualTo(5);
+        assertThat(registry.get(PREFIX + "activated").tag("kind", "client").functionCounter().count()).isEqualTo(3);
+        assertThat(registry.get(PREFIX + "activated").tag("kind", "server").functionCounter().count()).isEqualTo(1);
+        assertThat(registry.get(PREFIX + "released").tag("kind", "client").functionCounter().count()).isEqualTo(2);
+        assertThat(registry.get(PREFIX + "expired").tag("kind", "client").functionCounter().count()).isEqualTo(5);
+        assertThat(registry.get(PREFIX + "expired").tag("kind", "server").functionCounter().count()).isZero();
         assertThat(registry.get(PREFIX + "errors").functionCounter().count()).isEqualTo(1);
         assertThat(registry.get(PREFIX + "candidates").gauge().value()).isEqualTo(4);
-        assertThat(registry.get(PREFIX + "active").gauge().value()).isEqualTo(1);
-        assertThat(registry.getMeters()).hasSize(6);
+        assertThat(registry.get(PREFIX + "active").gauge().value()).isEqualTo(2);
+        assertThat(registry.get(PREFIX + "candidates.server").gauge().value()).isEqualTo(3);
+        assertThat(registry.get(PREFIX + "active.server").gauge().value()).isEqualTo(1);
+        assertThat(registry.getMeters()).hasSize(11);
     }
 }

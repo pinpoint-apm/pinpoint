@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex.suppress;
 
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.when;
 class LinkIndexSuppressionTest {
 
     private static final String MAPMATCH = SuppressKey.of("mapmatch-bg", "navi:12000");
+    private static final String GATEWAY_ROOT = SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_ROOT);
     private final SuppressStore store = mock(SuppressStore.class);
 
     private LinkIndexSuppression suppression(int probe, String force, String pin) {
@@ -149,6 +151,67 @@ class LinkIndexSuppressionTest {
         LinkIndexSuppression.NONE.start();
         LinkIndexSuppression.NONE.refresh();
         assertThat(LinkIndexSuppression.NONE.getSuppressed()).isZero();
+    }
+
+    @Test
+    void activeServerIdentifierWritesTheProbeThenSuppresses() {
+        when(store.readActive()).thenReturn(Set.of(GATEWAY_ROOT, MAPMATCH));
+        LinkIndexSuppression suppression = suppression(1, "", "");
+        suppression.refresh();
+
+        assertThat(suppression.getActiveCount()).isEqualTo(2);
+        assertThat(suppression.getActiveServerCount()).isEqualTo(1);
+        assertThat(suppression.allowServer("sec.gateway.internal", SuppressKey.PARENT_ROOT, 10)).isTrue();     // probe
+        assertThat(suppression.allowServer("sec.gateway.internal", SuppressKey.PARENT_ROOT, 10)).isFalse();
+        // the other class of the same application and the CLIENT entries of the application are not affected
+        assertThat(suppression.allowServer("sec.gateway.internal", SuppressKey.PARENT_OTHER, 10)).isTrue();
+        assertThat(suppression.allow("sec.gateway.internal", "coin-api-dev", 10)).isTrue();
+        assertThat(suppression.getProbed(LinkKind.SERVER)).isEqualTo(1);
+        assertThat(suppression.getSuppressed(LinkKind.SERVER)).isEqualTo(1);
+        assertThat(suppression.getProbed(LinkKind.CLIENT)).isZero();
+        assertThat(suppression.getSuppressed(LinkKind.CLIENT)).isZero();
+        assertThat(suppression.getSuppressed()).isEqualTo(1);
+        assertThat(suppression.getProbed()).isEqualTo(1);
+        // the probe allowance is per identifier: the CLIENT identifier still has its own
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isFalse();
+        assertThat(suppression.getSuppressed(LinkKind.CLIENT)).isEqualTo(1);
+    }
+
+    @Test
+    void serverDisabledIgnoresTheServerIdentifiersOfTheListAndOfTheForcedRules() {
+        when(store.readActive()).thenReturn(Set.of(GATEWAY_ROOT, MAPMATCH));
+        LinkIndexSuppression suppression = new LinkIndexSuppression(store, Duration.ofSeconds(60), 1, false,
+                SuppressKey.parseRules("S|p.cart"), SuppressKey.Rules.EMPTY);
+        suppression.refresh();
+
+        assertThat(suppression.isServerEnabled()).isFalse();
+        assertThat(suppression.getActiveCount()).isEqualTo(1);
+        assertThat(suppression.getActiveServerCount()).isZero();
+        for (int i = 0; i < 3; i++) {
+            assertThat(suppression.allowServer("sec.gateway.internal", SuppressKey.PARENT_ROOT, 10)).isTrue();
+            assertThat(suppression.allowIdentifier("p.cart", SuppressKey.ofServer("p.cart", SuppressKey.PARENT_OTHER), 10)).isTrue();
+        }
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isTrue();
+        assertThat(suppression.allow("mapmatch-bg", "navi:12000", 10)).isFalse();
+        assertThat(suppression.getSuppressed(LinkKind.SERVER)).isZero();
+        assertThat(suppression.getProbed(LinkKind.SERVER)).isZero();
+        assertThat(suppression.toString()).contains("serverEnabled=false");
+    }
+
+    @Test
+    void applicationPinCoversTheServerEntriesAndForcedServerRulesApply() {
+        when(store.readActive()).thenReturn(Set.of(GATEWAY_ROOT));
+        LinkIndexSuppression suppression = suppression(1, "S|p.cart|other", "sec.gateway.internal");
+        suppression.refresh();
+
+        for (int i = 0; i < 3; i++) {
+            assertThat(suppression.allowServer("sec.gateway.internal", SuppressKey.PARENT_ROOT, 10)).isTrue();    // pinned
+        }
+        assertThat(suppression.allowServer("p.cart", SuppressKey.PARENT_OTHER, 10)).isTrue();    // probe of the forced identifier
+        assertThat(suppression.allowServer("p.cart", SuppressKey.PARENT_OTHER, 10)).isFalse();
+        assertThat(suppression.allowServer("p.cart", SuppressKey.PARENT_ROOT, 10)).isTrue();
+        assertThat(suppression.getSuppressed(LinkKind.SERVER)).isEqualTo(1);
     }
 
     @Test

@@ -53,8 +53,10 @@ class OtlpLinkSuppressTaskletTest {
 
     @Test
     void appliesTheJoinOutcomeOfTheSlot() {
-        Map<String, LinkCounts> counts = Map.of(SuppressKey.of("mapmatch-bg", "navi:12000"), new LinkCounts(0, 7_000));
-        when(service.getClientCounts(SLOT)).thenReturn(counts);
+        Map<String, LinkCounts> counts = Map.of(
+                SuppressKey.of("mapmatch-bg", "navi:12000"), new LinkCounts(0, 7_000),
+                SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_ROOT), new LinkCounts(0, 2_000));
+        when(service.getIdentifierCounts(SLOT)).thenReturn(counts);
         when(manager.apply(SLOT, counts)).thenReturn(new SuppressManager.SuppressSummary(SLOT, 1, 0, 1, 0, 2, false));
         StepContribution contribution = mock(StepContribution.class);
 
@@ -65,8 +67,23 @@ class OtlpLinkSuppressTaskletTest {
     }
 
     @Test
+    void serverDisabledLeavesTheServerIdentifiersOut() {
+        String mapmatch = SuppressKey.of("mapmatch-bg", "navi:12000");
+        Map<String, LinkCounts> counts = Map.of(
+                mapmatch, new LinkCounts(0, 7_000),
+                SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_ROOT), new LinkCounts(0, 2_000));
+        when(service.getIdentifierCounts(SLOT)).thenReturn(counts);
+        when(manager.apply(anyLong(), anyMap())).thenReturn(new SuppressManager.SuppressSummary(SLOT, 1, 0, 0, 0, 0, false));
+        OtlpLinkJoinTasklets.Suppress clientsOnly = new OtlpLinkJoinTasklets.Suppress(service, manager, false);
+
+        assertThat(clientsOnly.execute(mock(StepContribution.class), chunkContext(SLOT))).isEqualTo(RepeatStatus.FINISHED);
+
+        verify(manager).apply(SLOT, Map.of(mapmatch, new LinkCounts(0, 7_000)));
+    }
+
+    @Test
     void completesWithoutAChangeWhenThisInstanceDidNotJoinTheSlot() {
-        when(service.getClientCounts(SLOT)).thenReturn(null);
+        when(service.getIdentifierCounts(SLOT)).thenReturn(null);
 
         assertThat(tasklet.execute(mock(StepContribution.class), chunkContext(SLOT))).isEqualTo(RepeatStatus.FINISHED);
 

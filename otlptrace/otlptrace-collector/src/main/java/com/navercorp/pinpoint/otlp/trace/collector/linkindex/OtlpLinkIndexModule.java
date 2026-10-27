@@ -119,20 +119,22 @@ public class OtlpLinkIndexModule {
     }
 
     /**
-     * The suppression list ({@link LinkIndexSuppression}): CLIENT identifiers the join job found unmatched for a day
-     * are not indexed, apart from a probe per slot. {@code suppress.enabled=false} applies only the static
-     * {@code suppress.force} rules.
+     * The suppression list ({@link LinkIndexSuppression}): identifiers the join job found unmatched for a day
+     * (CLIENT: application + destination; SERVER: application + parent span class) are not indexed, apart from a
+     * probe per slot. {@code suppress.enabled=false} applies only the static {@code suppress.force} rules;
+     * {@code suppress.server.enabled=false} leaves every SERVER entry indexed.
      */
     @Bean(initMethod = "start", destroyMethod = "close")
     public LinkIndexSuppression otlpLinkIndexSuppression(LinkIndexRedisConnector connector,
                                                          @Value("${" + PREFIX + "suppress.enabled:true}") boolean enabled,
+                                                         @Value("${" + PREFIX + "suppress.server.enabled:true}") boolean serverEnabled,
                                                          @Value("${" + PREFIX + "suppress.refresh:60s}") Duration refresh,
                                                          @Value("${" + PREFIX + "suppress.probe-per-slot:100}") int probePerSlot,
                                                          @Value("${" + PREFIX + "suppress.force:}") String force,
                                                          @Value("${" + PREFIX + "suppress.pin:}") String pin,
                                                          @Value("${" + PREFIX + "redis.command-timeout:2s}") Duration timeout) {
         final SuppressStore store = enabled ? new SuppressStore(connector.connect(), timeout) : null;
-        final LinkIndexSuppression suppression = new LinkIndexSuppression(store, refresh, probePerSlot,
+        final LinkIndexSuppression suppression = new LinkIndexSuppression(store, refresh, probePerSlot, serverEnabled,
                 SuppressKey.parseRules(force), SuppressKey.parseRules(pin));
         logger.info("Link index suppression {}", suppression);
         return suppression;
@@ -149,16 +151,24 @@ public class OtlpLinkIndexModule {
     }
 
     /**
-     * Registers the suppression counters under {@value #METRIC_PREFIX}: {@code suppressed} (entries not written),
-     * {@code probed} (entries of suppressed identifiers still written), {@code suppress.active} (identifiers of the
-     * last snapshot) and {@code suppress.refresh.errors}. Kept apart from {@code dropped}: suppression is not a loss.
+     * Registers the suppression counters under {@value #METRIC_PREFIX}: {@code suppressed} (entries not written) and
+     * {@code probed} (entries of suppressed identifiers still written), both tagged with the kind
+     * ({@code client} / {@code server}), {@code suppress.active} (identifiers of the last snapshot, both kinds),
+     * {@code suppress.active.server} and {@code suppress.refresh.errors}. Kept apart from {@code dropped}:
+     * suppression is not a loss.
      */
     public static class LinkIndexSuppressionMetrics {
         public LinkIndexSuppressionMetrics(LinkIndexSuppression suppression, MeterRegistry registry) {
-            FunctionCounter.builder(METRIC_PREFIX + "suppressed", suppression, s -> (double) s.getSuppressed()).register(registry);
-            FunctionCounter.builder(METRIC_PREFIX + "probed", suppression, s -> (double) s.getProbed()).register(registry);
+            for (LinkKind kind : LinkKind.values()) {
+                final String tag = kind.name().toLowerCase(Locale.ROOT);
+                FunctionCounter.builder(METRIC_PREFIX + "suppressed", suppression, s -> (double) s.getSuppressed(kind))
+                        .tag("kind", tag).register(registry);
+                FunctionCounter.builder(METRIC_PREFIX + "probed", suppression, s -> (double) s.getProbed(kind))
+                        .tag("kind", tag).register(registry);
+            }
             FunctionCounter.builder(METRIC_PREFIX + "suppress.refresh.errors", suppression, s -> (double) s.getRefreshErrors()).register(registry);
             Gauge.builder(METRIC_PREFIX + "suppress.active", suppression, LinkIndexSuppression::getActiveCount).register(registry);
+            Gauge.builder(METRIC_PREFIX + "suppress.active.server", suppression, LinkIndexSuppression::getActiveServerCount).register(registry);
         }
     }
 

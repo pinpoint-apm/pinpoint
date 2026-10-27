@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex.suppress;
 
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -239,6 +240,33 @@ class SuppressManagerTest {
         assertThat(manager.getReleased()).isEqualTo(1);
         assertThat(manager.getLastCandidates()).isEqualTo(1);
         assertThat(manager.getLastActive()).isZero();
+    }
+
+    @Test
+    void serverIdentifiersFollowTheSameRulesAndAreCountedApart() {
+        SuppressStore store = mock(SuppressStore.class);
+        String gatewayRoot = SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_ROOT);
+        String gatewayOther = SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_OTHER);
+        SuppressState readyRoot = SuppressState.candidate(1, 10_000).seen(2, 10_000, true).seen(3, 10_000, true);
+        SuppressState readyOther = SuppressState.candidate(1, 500).seen(2, 500, true).seen(3, 500, true);
+        when(store.readAll()).thenReturn(Map.of(gatewayRoot, readyRoot, gatewayOther, readyOther, MAPMATCH, readyRoot));
+        SuppressManager manager = new SuppressManager(store, POLICY);
+
+        // slot 4: the root class never matched -> ACTIVE; the other class matched once -> released; the CLIENT one -> ACTIVE
+        SuppressManager.SuppressSummary summary = manager.apply(4, counts(gatewayRoot, 0, 10_000, gatewayOther, 1, 400, MAPMATCH, 0, 7_000));
+
+        assertThat(summary.activated()).isEqualTo(2);
+        assertThat(summary.released()).isEqualTo(1);
+        assertThat(manager.getActivated()).isEqualTo(2);
+        assertThat(manager.getActivated(LinkKind.SERVER)).isEqualTo(1);
+        assertThat(manager.getActivated(LinkKind.CLIENT)).isEqualTo(1);
+        assertThat(manager.getReleased(LinkKind.SERVER)).isEqualTo(1);
+        assertThat(manager.getReleased(LinkKind.CLIENT)).isZero();
+        assertThat(manager.getExpired(LinkKind.SERVER)).isZero();
+        assertThat(manager.getLastActive()).isEqualTo(2);
+        assertThat(manager.getLastActiveServer()).isEqualTo(1);
+        assertThat(manager.getLastCandidates()).isZero();
+        assertThat(manager.getLastCandidatesServer()).isZero();
     }
 
     @Test

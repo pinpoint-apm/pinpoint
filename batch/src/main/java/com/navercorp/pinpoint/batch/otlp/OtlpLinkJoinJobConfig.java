@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexStore;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkJoinService;
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkMapWriter;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexRedisConnector;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexRedisConnectorFactory;
@@ -55,6 +56,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.Duration;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
@@ -140,9 +142,10 @@ public class OtlpLinkJoinJobConfig {
     }
 
     /**
-     * Suppression list: CLIENT identifiers that stay unmatched for a day are marked ACTIVE in the store, and the
-     * collectors stop indexing them (apart from a probe). Any match releases an identifier at once.
-     * {@code suppress.enabled=false} leaves the job with its join and cleanup steps only.
+     * Suppression list: identifiers that stay unmatched for a day (CLIENT: application + destination; SERVER:
+     * application + parent span class) are marked ACTIVE in the store, and the collectors stop indexing them (apart
+     * from a probe). Any match releases an identifier at once. {@code suppress.enabled=false} leaves the job with its
+     * join and cleanup steps only; {@code suppress.server.enabled=false} keeps SERVER identifiers out of the list.
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnProperty(name = PREFIX + "suppress.enabled", havingValue = "true", matchIfMissing = true)
@@ -166,9 +169,11 @@ public class OtlpLinkJoinJobConfig {
         public Step otlpLinkSuppressStep(JobRepository jobRepository,
                                          LinkJoinService service,
                                          SuppressManager manager,
+                                         @Value("${" + PREFIX + "suppress.server.enabled:true}") boolean serverEnabled,
                                          @Qualifier("otlpLinkJoinStepCustomListener") Optional<StepExecutionListener> customListener) {
+            logger.info("{} suppression of SERVER identifiers {}", OtlpLinkJoinLauncher.JOB_NAME, serverEnabled ? "on" : "off");
             final TaskletStepBuilder builder = new StepBuilder("otlpLinkSuppressStep", jobRepository)
-                    .tasklet(new OtlpLinkJoinTasklets.Suppress(service, manager), stepTransactionManager());
+                    .tasklet(new OtlpLinkJoinTasklets.Suppress(service, manager, serverEnabled), stepTransactionManager());
             customListener.ifPresent(builder::listener);
             return builder.build();
         }
@@ -185,8 +190,9 @@ public class OtlpLinkJoinJobConfig {
 
     /**
      * Registers the suppression list totals under {@value OtlpLinkJoinMetrics#METRIC_PREFIX}{@code suppress.}:
-     * {@code activated}, {@code released}, {@code expired}, {@code errors} counters and {@code candidates},
-     * {@code active} gauges of the last run.
+     * {@code activated}, {@code released}, {@code expired} counters tagged with the kind ({@code client} /
+     * {@code server}), the {@code errors} counter, and the {@code candidates}, {@code active} (both kinds),
+     * {@code candidates.server}, {@code active.server} gauges of the last run.
      */
     public static class OtlpLinkSuppressMetrics {
         static final String METRIC_PREFIX = OtlpLinkJoinMetrics.METRIC_PREFIX + "suppress.";
@@ -195,12 +201,17 @@ public class OtlpLinkJoinJobConfig {
         }
 
         public OtlpLinkSuppressMetrics(SuppressManager manager, MeterRegistry registry) {
-            FunctionCounter.builder(METRIC_PREFIX + "activated", manager, m -> (double) m.getActivated()).register(registry);
-            FunctionCounter.builder(METRIC_PREFIX + "released", manager, m -> (double) m.getReleased()).register(registry);
-            FunctionCounter.builder(METRIC_PREFIX + "expired", manager, m -> (double) m.getExpired()).register(registry);
+            for (LinkKind kind : LinkKind.values()) {
+                final String tag = kind.name().toLowerCase(Locale.ROOT);
+                FunctionCounter.builder(METRIC_PREFIX + "activated", manager, m -> (double) m.getActivated(kind)).tag("kind", tag).register(registry);
+                FunctionCounter.builder(METRIC_PREFIX + "released", manager, m -> (double) m.getReleased(kind)).tag("kind", tag).register(registry);
+                FunctionCounter.builder(METRIC_PREFIX + "expired", manager, m -> (double) m.getExpired(kind)).tag("kind", tag).register(registry);
+            }
             FunctionCounter.builder(METRIC_PREFIX + "errors", manager, m -> (double) m.getErrors()).register(registry);
             Gauge.builder(METRIC_PREFIX + "candidates", manager, SuppressManager::getLastCandidates).register(registry);
             Gauge.builder(METRIC_PREFIX + "active", manager, SuppressManager::getLastActive).register(registry);
+            Gauge.builder(METRIC_PREFIX + "candidates.server", manager, SuppressManager::getLastCandidatesServer).register(registry);
+            Gauge.builder(METRIC_PREFIX + "active.server", manager, SuppressManager::getLastActiveServer).register(registry);
         }
     }
 

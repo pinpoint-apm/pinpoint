@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex;
 
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexWriter.DropReason;
 import com.navercorp.pinpoint.otlp.trace.linkindex.redis.LinkIndexConnection;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkIndexSuppression;
@@ -82,6 +83,35 @@ class LinkIndexWriterTest {
         assertThat(writer.offer(client(10, "p.checkout", "cart:7070"))).isTrue();
         assertThat(writer.getDroppedSlotLimit()).isZero();
         assertThat(writer.getDroppedIdentifierLimit()).isZero();
+    }
+
+    @Test
+    void suppressedServerEntriesUseNoQuotaAndAreSplitByParentClass() {
+        // every SERVER entry of gateway whose parent is a B3 root span is forced; probe 1 per slot
+        LinkIndexSuppression suppression = new LinkIndexSuppression(null, Duration.ofSeconds(60), 1,
+                SuppressKey.parseRules("S|sec.gateway.internal|root"), SuppressKey.Rules.EMPTY);
+        LinkIndexWriter writer = writer(suppression, new SlotQuota(3, 100, 100), 100);
+
+        assertThat(writer.offer(rootParentServer(1, "sec.gateway.internal"))).isTrue();     // probe
+        for (int i = 2; i < 8; i++) {
+            assertThat(writer.offer(rootParentServer(i, "sec.gateway.internal"))).isFalse();
+        }
+        assertThat(suppression.getSuppressed(LinkKind.SERVER)).isEqualTo(6);
+        assertThat(suppression.getSuppressed(LinkKind.CLIENT)).isZero();
+        // a SERVER entry of the same application with another parent is not suppressed
+        assertThat(writer.offer(server(8, "sec.gateway.internal"))).isTrue();
+        // the suppressed entries did not take the slot quota: one entry left for the others
+        assertThat(writer.offer(client(9, "p.checkout", "cart:7070"))).isTrue();
+        assertThat(writer.offer(client(10, "p.checkout", "cart:7070"))).isFalse();
+        assertThat(writer.getDroppedSlotLimit()).isEqualTo(1);
+        assertThat(writer.getQueueSize()).isEqualTo(3);
+    }
+
+    /** a SERVER entry whose parent span id is the low 8 bytes of its trace id (B3 / Jaeger root span) */
+    private static LinkEntry rootParentServer(int trace, String application) {
+        byte[] traceId = traceId(trace);
+        long low = BytesUtils.bytesToLong(traceId, 8);
+        return LinkEntry.server(traceId, low, 3, application, 1220, 10, false);
     }
 
     @Test

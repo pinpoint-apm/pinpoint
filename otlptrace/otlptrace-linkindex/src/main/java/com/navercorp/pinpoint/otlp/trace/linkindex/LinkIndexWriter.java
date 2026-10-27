@@ -169,6 +169,11 @@ public class LinkIndexWriter implements AutoCloseable {
                 return false;
             }
         } else {
+            // the suppression identifier of a SERVER entry carries the parent span class, the quota identifier is
+            // the application alone (one callee is one quota share, however its callers are classified)
+            if (!suppression.allowIdentifier(entry.applicationName(), SuppressKey.of(entry), slot)) {
+                return false;
+            }
             identifier = entry.applicationName();
         }
         final SlotQuota.Result result = quota.acquire(entry.kind(), identifier, now);
