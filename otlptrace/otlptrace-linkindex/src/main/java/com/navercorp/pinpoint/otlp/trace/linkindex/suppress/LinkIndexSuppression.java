@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex.suppress;
 
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,13 +32,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Collector side of the suppression list: decides whether a CLIENT entry is written.
+ * Collector side of the suppression list: decides whether an entry is written.
  * <ul>
  *     <li>The ACTIVE identifiers are refreshed from the store every {@code refresh}; a failed refresh keeps the
  *     previous snapshot, and nothing is suppressed until the first snapshot arrives (fail-open).</li>
  *     <li>{@code force} rules suppress at once without the store; {@code pin} rules are never suppressed.</li>
  *     <li>A suppressed identifier still writes the first {@code probePerSlot} entries of every slot (per collector),
  *     so the join job sees a match as soon as the callee starts reporting and releases it.</li>
+ *     <li>CLIENT identifiers ({@link SuppressKey#of}) and SERVER identifiers ({@link SuppressKey#ofServer}) are
+ *     handled alike; {@code serverEnabled=false} ignores the SERVER identifiers of the list and of the force rules.</li>
  * </ul>
  */
 public class LinkIndexSuppression implements AutoCloseable {
@@ -51,27 +54,44 @@ public class LinkIndexSuppression implements AutoCloseable {
     private final SuppressStore store;
     private final Duration refresh;
     private final int probePerSlot;
+    private final boolean serverEnabled;
     private final SuppressKey.Rules forced;
     private final SuppressKey.Rules pinned;
 
     private volatile Set<String> active = Set.of();
+    private volatile int activeServer;
     private volatile long probeSlot = Long.MIN_VALUE;
     private final Object probeLock = new Object();
     private final ConcurrentHashMap<String, AtomicInteger> probeCount = new ConcurrentHashMap<>();
 
-    private final AtomicLong suppressed = new AtomicLong();
-    private final AtomicLong probed = new AtomicLong();
+    private final AtomicLong suppressedClient = new AtomicLong();
+    private final AtomicLong suppressedServer = new AtomicLong();
+    private final AtomicLong probedClient = new AtomicLong();
+    private final AtomicLong probedServer = new AtomicLong();
     private final AtomicLong refreshes = new AtomicLong();
     private final AtomicLong refreshErrors = new AtomicLong();
 
     private ScheduledExecutorService scheduler;
 
     /**
+     * SERVER identifiers enabled.
+     *
      * @param store        the suppression list, {@code null} to apply only the static rules
      * @param refresh      snapshot interval
      * @param probePerSlot entries of a suppressed identifier still written per slot by this collector
      */
     public LinkIndexSuppression(SuppressStore store, Duration refresh, int probePerSlot,
+                                SuppressKey.Rules forced, SuppressKey.Rules pinned) {
+        this(store, refresh, probePerSlot, true, forced, pinned);
+    }
+
+    /**
+     * @param store         the suppression list, {@code null} to apply only the static rules
+     * @param refresh       snapshot interval
+     * @param probePerSlot  entries of a suppressed identifier still written per slot by this collector
+     * @param serverEnabled {@code false} to ignore the SERVER identifiers of the list and of the force rules
+     */
+    public LinkIndexSuppression(SuppressStore store, Duration refresh, int probePerSlot, boolean serverEnabled,
                                 SuppressKey.Rules forced, SuppressKey.Rules pinned) {
         this.store = store;
         this.refresh = Objects.requireNonNull(refresh, "refresh");
@@ -79,6 +99,7 @@ public class LinkIndexSuppression implements AutoCloseable {
             throw new IllegalArgumentException("probePerSlot and refresh must be positive");
         }
         this.probePerSlot = probePerSlot;
+        this.serverEnabled = serverEnabled;
         this.forced = Objects.requireNonNull(forced, "forced");
         this.pinned = Objects.requireNonNull(pinned, "pinned");
     }
@@ -103,12 +124,24 @@ public class LinkIndexSuppression implements AutoCloseable {
             return;
         }
         try {
-            final Set<String> next = Set.copyOf(store.readActive());
+            final Set<String> read = store.readActive();
+            final Set<String> next = new HashSet<>(read.size());
+            int servers = 0;
+            for (String key : read) {
+                if (SuppressKey.isServer(key)) {
+                    if (!serverEnabled) {
+                        continue;
+                    }
+                    servers++;
+                }
+                next.add(key);
+            }
             final Set<String> previous = active;
             if (!next.equals(previous)) {
                 logChange(previous, next);
             }
-            active = next;
+            active = Set.copyOf(next);
+            activeServer = servers;
             refreshes.incrementAndGet();
         } catch (RuntimeException e) {
             final long count = refreshErrors.incrementAndGet();
@@ -144,14 +177,30 @@ public class LinkIndexSuppression implements AutoCloseable {
     }
 
     /**
-     * {@link #allow} for a caller that already built the identifier
+     * @param parentClass {@link SuppressKey#serverClass} of the entry
+     * @param slot        the current slot, for the probe allowance
+     * @return {@code true} if the SERVER entry is to be written
+     */
+    public boolean allowServer(String applicationName, String parentClass, long slot) {
+        if (!serverEnabled) {
+            return true;
+        }
+        return allowIdentifier(applicationName, SuppressKey.ofServer(applicationName, parentClass), slot);
+    }
+
+    /**
+     * {@link #allow} / {@link #allowServer} for a caller that already built the identifier
      *
-     * @param key  {@link SuppressKey#of} of the entry
+     * @param key  {@link SuppressKey#of} or {@link SuppressKey#ofServer} of the entry
      * @param slot the current slot, for the probe allowance
-     * @return {@code true} if the CLIENT entry is to be written
+     * @return {@code true} if the entry is to be written
      */
     public boolean allowIdentifier(String applicationName, String key, long slot) {
         if (active.isEmpty() && forced.isEmpty()) {
+            return true;
+        }
+        final boolean server = SuppressKey.isServer(key);
+        if (server && !serverEnabled) {
             return true;
         }
         if (pinned.matches(applicationName, key)) {
@@ -170,16 +219,21 @@ public class LinkIndexSuppression implements AutoCloseable {
         }
         final int count = probeCount.computeIfAbsent(key, k -> new AtomicInteger()).incrementAndGet();
         if (count <= probePerSlot) {
-            probed.incrementAndGet();
+            (server ? probedServer : probedClient).incrementAndGet();
             return true;
         }
-        suppressed.incrementAndGet();
+        (server ? suppressedServer : suppressedClient).incrementAndGet();
         return false;
     }
 
-    /** ACTIVE identifiers of the last snapshot (static rules not included) */
+    /** ACTIVE identifiers of the last snapshot, both kinds (static rules not included) */
     public int getActiveCount() {
         return active.size();
+    }
+
+    /** ACTIVE SERVER identifiers of the last snapshot */
+    public int getActiveServerCount() {
+        return activeServer;
     }
 
     Set<String> getActive() {
@@ -191,14 +245,28 @@ public class LinkIndexSuppression implements AutoCloseable {
         return probePerSlot;
     }
 
-    /** CLIENT entries not written */
-    public long getSuppressed() {
-        return suppressed.get();
+    public boolean isServerEnabled() {
+        return serverEnabled;
     }
 
-    /** CLIENT entries of suppressed identifiers written as probes */
+    /** entries not written, both kinds */
+    public long getSuppressed() {
+        return suppressedClient.get() + suppressedServer.get();
+    }
+
+    /** entries of {@code kind} not written */
+    public long getSuppressed(LinkKind kind) {
+        return kind == LinkKind.SERVER ? suppressedServer.get() : suppressedClient.get();
+    }
+
+    /** entries of suppressed identifiers written as probes, both kinds */
     public long getProbed() {
-        return probed.get();
+        return probedClient.get() + probedServer.get();
+    }
+
+    /** entries of {@code kind} of suppressed identifiers written as probes */
+    public long getProbed(LinkKind kind) {
+        return kind == LinkKind.SERVER ? probedServer.get() : probedClient.get();
     }
 
     public long getRefreshes() {
@@ -220,6 +288,6 @@ public class LinkIndexSuppression implements AutoCloseable {
     @Override
     public String toString() {
         return "LinkIndexSuppression{store=" + (store != null) + ", refresh=" + refresh + ", probePerSlot=" + probePerSlot
-                + ", forced=" + forced + ", pinned=" + pinned + '}';
+                + ", serverEnabled=" + serverEnabled + ", forced=" + forced + ", pinned=" + pinned + '}';
     }
 }

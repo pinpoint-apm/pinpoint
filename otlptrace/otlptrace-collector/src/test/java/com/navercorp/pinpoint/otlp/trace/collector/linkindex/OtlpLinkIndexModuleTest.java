@@ -91,11 +91,14 @@ class OtlpLinkIndexModuleTest {
             MeterRegistry registry = context.getBean(MeterRegistry.class);
             assertThat(registry.find("collector.otlptrace.linkindex.written").functionCounter()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.dropped").tag("reason", "slot_limit").functionCounter()).isNotNull();
-            // suppression on by default: list read from the store, counters registered
-            assertThat(context.getBean(LinkIndexSuppression.class).toString()).contains("store=true").contains("probePerSlot=100");
-            assertThat(registry.find("collector.otlptrace.linkindex.suppressed").functionCounter()).isNotNull();
-            assertThat(registry.find("collector.otlptrace.linkindex.probed").functionCounter()).isNotNull();
+            // suppression on by default for both kinds: list read from the store, counters registered per kind
+            assertThat(context.getBean(LinkIndexSuppression.class).toString())
+                    .contains("store=true").contains("probePerSlot=100").contains("serverEnabled=true");
+            assertThat(registry.find("collector.otlptrace.linkindex.suppressed").functionCounters()).hasSize(2);
+            assertThat(registry.find("collector.otlptrace.linkindex.suppressed").tag("kind", "server").functionCounter()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.probed").tag("kind", "client").functionCounter()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.suppress.active").gauge()).isNotNull();
+            assertThat(registry.find("collector.otlptrace.linkindex.suppress.active.server").gauge()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.suppress.refresh.errors").functionCounter()).isNotNull();
             // quota: 20 % per CLIENT identifier by default, SERVER limit off; drops tagged by reason and kind
             assertThat(context.getBean(SlotQuota.class).toString())
@@ -107,6 +110,16 @@ class OtlpLinkIndexModuleTest {
             assertThat(registry.find("collector.otlptrace.linkindex.slot.limit.reached.second").gauge()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.quota.limited.identifiers").gauge()).isNotNull();
             assertThat(registry.find("collector.otlptrace.linkindex.quota.untracked").functionCounter()).isNotNull();
+        }
+    }
+
+    @Test
+    void serverSuppressionCanBeTurnedOff() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("pinpoint.collector.otlptrace.link-index.enabled", "true");
+        properties.put("pinpoint.collector.otlptrace.link-index.suppress.server.enabled", "false");
+        try (AnnotationConfigApplicationContext context = context(properties, true)) {
+            assertThat(context.getBean(LinkIndexSuppression.class).isServerEnabled()).isFalse();
         }
     }
 

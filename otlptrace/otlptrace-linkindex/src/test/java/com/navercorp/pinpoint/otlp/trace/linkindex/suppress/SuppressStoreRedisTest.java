@@ -118,13 +118,13 @@ class SuppressStoreRedisTest {
     }
 
     @Test
-    void joinCountsMatchedAndFinallyUnmatchedClientsPerIdentifier() {
+    void joinCountsMatchedAndFinallyUnmatchedEntriesPerIdentifier() {
         LinkIndexWriter writer = new LinkIndexWriter(connector.connect(), BUCKETS, 300_000, 10_000, 1_000_000, 1,
                 Duration.ofSeconds(5), now::get);
         writer.start();
         try {
-            // slot k-1: mapmatch client 1 (never matched), checkout client 2 (matched in k)
-            writeAt(writer, slot - 1, List.of(client(1, "mapmatch-bg", "navi:12000"), client(2, "p.checkout", "cart:7070")));
+            // slot k-1: mapmatch client 1 (never matched), checkout client 2 (matched in k), cart server 5 (never matched)
+            writeAt(writer, slot - 1, List.of(client(1, "mapmatch-bg", "navi:12000"), client(2, "p.checkout", "cart:7070"), server(5)));
             // slot k: checkout client 3 (matched in k), its servers 2 and 3, mapmatch client 4 (still waiting for k+1)
             writeAt(writer, slot, List.of(client(3, "p.checkout", "cart:7070"), server(2), server(3), client(4, "mapmatch-bg", "navi:12000")));
 
@@ -132,17 +132,20 @@ class SuppressStoreRedisTest {
             when(mapWriter.write(anyMap())).thenReturn(1);
             LinkIndexStore store = new LinkIndexStore(connector.connect(), Duration.ofSeconds(5));
             try (LinkJoinService service = new LinkJoinService(store, mapWriter, code -> ServiceType.OPENTELEMETRY_SERVER, BUCKETS, 3, 1)) {
-                assertThat(service.getClientCounts(slot)).isNull();
+                assertThat(service.getIdentifierCounts(slot)).isNull();
 
                 LinkJoinService.JoinSummary summary = service.join(slot);
 
                 assertThat(summary.pairs()).isEqualTo(2);
                 assertThat(summary.droppedClient()).isEqualTo(1);
-                Map<String, LinkCounts> counts = service.getClientCounts(slot);
+                assertThat(summary.droppedServer()).isEqualTo(1);
+                Map<String, LinkCounts> counts = service.getIdentifierCounts(slot);
+                // the servers' parent span id (= trace) is the low 8 bytes of their trace id: parent class root
                 assertThat(counts).containsOnly(
                         Map.entry(CHECKOUT, new LinkCounts(2, 0)),
-                        Map.entry(MAPMATCH, new LinkCounts(0, 1)));     // client 4 is not decided yet
-                assertThat(service.getClientCounts(slot - 1)).isNull();
+                        Map.entry(MAPMATCH, new LinkCounts(0, 1)),      // client 4 is not decided yet
+                        Map.entry(SuppressKey.ofServer("cart", SuppressKey.PARENT_ROOT), new LinkCounts(2, 1)));
+                assertThat(service.getIdentifierCounts(slot - 1)).isNull();
             }
         } finally {
             writer.close();

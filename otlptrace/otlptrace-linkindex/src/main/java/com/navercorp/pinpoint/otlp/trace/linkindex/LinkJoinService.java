@@ -55,6 +55,10 @@ public class LinkJoinService implements AutoCloseable {
     /** default bucket size above which a slot is reported: the store's hash-max-ziplist-entries */
     public static final int DEFAULT_BUCKET_WARN_ENTRIES = 512;
 
+    // one entry's outcome for the per-identifier counts of the suppression list
+    private static final LinkCounts MATCHED = new LinkCounts(1, 0);
+    private static final LinkCounts UNMATCHED = new LinkCounts(0, 1);
+
     private final LinkIndexStore store;
     private final LinkMapWriter writer;
     private final IntFunction<ServiceType> serviceTypeLookup;
@@ -76,9 +80,9 @@ public class LinkJoinService implements AutoCloseable {
     private final LongAdder totalDeletedKeys = new LongAdder();
     private volatile long lastMaxBucketEntries;
     private volatile long lastOversizedBuckets;
-    // per CLIENT identifier outcome of the last joined slot, for the suppression list
+    // per identifier (CLIENT and SERVER, SuppressKey) outcome of the last joined slot, for the suppression list
     private volatile long lastJoinedSlot = Long.MIN_VALUE;
-    private volatile Map<String, LinkCounts> lastClientCounts = Map.of();
+    private volatile Map<String, LinkCounts> lastIdentifierCounts = Map.of();
 
     public LinkJoinService(LinkIndexStore store,
                            LinkMapWriter writer,
@@ -132,7 +136,7 @@ public class LinkJoinService implements AutoCloseable {
         final LongAdder unmatched = new LongAdder();
         final LongAdder droppedServer = new LongAdder();
         final LongAdder droppedClient = new LongAdder();
-        final ConcurrentHashMap<String, LinkCounts> clientCounts = new ConcurrentHashMap<>();
+        final ConcurrentHashMap<String, LinkCounts> identifierCounts = new ConcurrentHashMap<>();
 
         final List<Future<LinkAggregator>> futures = new ArrayList<>(threads);
         for (int worker = 0; worker < threads; worker++) {
@@ -140,7 +144,7 @@ public class LinkJoinService implements AutoCloseable {
             final int to = rangeStart(worker + 1);
             futures.add(executor.submit(() -> {
                 final LinkAggregator aggregator = new LinkAggregator(serviceTypeLookup, sampleModulo);
-                final JoinCounters counters = new JoinCounters(entries, maxBucketEntries, oversizedBuckets, unmatched, droppedServer, droppedClient, clientCounts);
+                final JoinCounters counters = new JoinCounters(entries, maxBucketEntries, oversizedBuckets, unmatched, droppedServer, droppedClient, identifierCounts);
                 for (int chunkStart = from; chunkStart < to; chunkStart += chunkBuckets) {
                     final int chunkEnd = Math.min(chunkStart + chunkBuckets, to);
                     joinChunk(slot, chunkStart, chunkEnd, aggregator, counters);
@@ -161,7 +165,7 @@ public class LinkJoinService implements AutoCloseable {
         final int rows = writer.write(stats);
         final JoinSummary summary = new JoinSummary(slot, entries.sum(), pairs, stats.size(), rows,
                 unmatched.sum(), droppedServer.sum(), droppedClient.sum(), maxBucketEntries.get(), oversizedBuckets.sum());
-        lastClientCounts = Map.copyOf(clientCounts);
+        lastIdentifierCounts = Map.copyOf(identifierCounts);
         lastJoinedSlot = slot;
         record(summary);
         logger.info("Joined {}", summary);
@@ -193,17 +197,23 @@ public class LinkJoinService implements AutoCloseable {
             final JoinResult result = LinkJoiner.join(slot, current, previous);
             for (MatchedPair pair : result.pairs()) {
                 aggregator.add(pair);
-                counters.clientCounts().merge(SuppressKey.of(pair.client().applicationName(), pair.client().destinationId()),
-                        new LinkCounts(1, 0), (a, b) -> a.plus(b.matched(), b.unmatched()));
+                count(counters, pair.client(), MATCHED);
+                count(counters, pair.server(), MATCHED);
             }
             for (LinkEntry dropped : result.droppedClients()) {
-                counters.clientCounts().merge(SuppressKey.of(dropped.applicationName(), dropped.destinationId()),
-                        new LinkCounts(0, 1), (a, b) -> a.plus(b.matched(), b.unmatched()));
+                count(counters, dropped, UNMATCHED);
+            }
+            for (LinkEntry dropped : result.droppedServers()) {
+                count(counters, dropped, UNMATCHED);
             }
             counters.unmatched().add(result.unmatched().size());
             counters.droppedServer().add(result.droppedServer());
             counters.droppedClient().add(result.droppedClient());
         }
+    }
+
+    private static void count(JoinCounters counters, LinkEntry entry, LinkCounts outcome) {
+        counters.identifierCounts().merge(SuppressKey.of(entry), outcome, (a, b) -> a.plus(b.matched(), b.unmatched()));
     }
 
     public CleanupSummary cleanup(long slot) {
@@ -300,14 +310,14 @@ public class LinkJoinService implements AutoCloseable {
     }
 
     /**
-     * @return the per CLIENT identifier outcome of slot {@code slot} if it is the last joined slot of this
-     * instance, {@code null} otherwise (another run joined it, or nothing was joined yet)
+     * @return the per identifier ({@link SuppressKey}: CLIENT and SERVER) outcome of slot {@code slot} if it is
+     * the last joined slot of this instance, {@code null} otherwise (another run joined it, or nothing was joined yet)
      */
-    public Map<String, LinkCounts> getClientCounts(long slot) {
+    public Map<String, LinkCounts> getIdentifierCounts(long slot) {
         if (slot != lastJoinedSlot) {
             return null;
         }
-        return lastClientCounts;
+        return lastIdentifierCounts;
     }
 
     private int rangeStart(int worker) {
@@ -352,7 +362,7 @@ public class LinkJoinService implements AutoCloseable {
 
     private record JoinCounters(LongAdder entries, LongAccumulator maxBucketEntries, LongAdder oversizedBuckets,
                                 LongAdder unmatched, LongAdder droppedServer, LongAdder droppedClient,
-                                ConcurrentHashMap<String, LinkCounts> clientCounts) {
+                                ConcurrentHashMap<String, LinkCounts> identifierCounts) {
     }
 
     public record CleanupSummary(long slot, long deletedKeys) {

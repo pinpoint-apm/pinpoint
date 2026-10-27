@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex.suppress;
 
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkEntry;
+import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 import org.junit.jupiter.api.Test;
+
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -66,5 +70,75 @@ class SuppressKeyTest {
                 .hasMessageContaining("app|");
         assertThatThrownBy(() -> SuppressKey.parseRules("|dest"))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void serverKeyRoundTrip() {
+        String key = SuppressKey.ofServer("sec.gateway.internal", SuppressKey.PARENT_ROOT);
+
+        assertThat(SuppressKey.isServer(key)).isTrue();
+        assertThat(SuppressKey.kind(key)).isEqualTo(LinkKind.SERVER);
+        assertThat(SuppressKey.applicationName(key)).isEqualTo("sec.gateway.internal");
+        assertThat(SuppressKey.destinationId(key)).isNull();
+        assertThat(SuppressKey.parentClass(key)).isEqualTo("root");
+        assertThat(SuppressKey.display(key)).isEqualTo("S|sec.gateway.internal|root");
+
+        String client = SuppressKey.of("S", "sec.gateway.internal");    // an application literally named S
+        assertThat(SuppressKey.isServer(client)).isFalse();
+        assertThat(SuppressKey.kind(client)).isEqualTo(LinkKind.CLIENT);
+        assertThat(SuppressKey.parentClass(client)).isNull();
+        assertThat(client).isNotEqualTo(key);
+    }
+
+    @Test
+    void serverClassIsRootWhenTheParentSpanIdIsTheLowHalfOfTheTraceId() {
+        byte[] traceId = new byte[16];
+        for (int i = 0; i < 16; i++) {
+            traceId[i] = (byte) (0x10 + i);
+        }
+        long low = 0x18191a1b1c1d1e1fL;
+
+        assertThat(SuppressKey.serverClass(traceId, low)).isEqualTo(SuppressKey.PARENT_ROOT);
+        assertThat(SuppressKey.serverClass(traceId, low + 1)).isEqualTo(SuppressKey.PARENT_OTHER);
+        assertThat(SuppressKey.serverClass(traceId, 0x1011121314151617L)).isEqualTo(SuppressKey.PARENT_OTHER);  // the high half
+        assertThatThrownBy(() -> SuppressKey.serverClass(new byte[8], low)).isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(SuppressKey.of(LinkEntry.server(traceId, low, 1, "gw", 1400, 1, false)))
+                .isEqualTo(SuppressKey.ofServer("gw", SuppressKey.PARENT_ROOT));
+        assertThat(SuppressKey.of(LinkEntry.server(traceId, 7, 1, "gw", 1400, 1, false)))
+                .isEqualTo(SuppressKey.ofServer("gw", SuppressKey.PARENT_OTHER));
+        assertThat(SuppressKey.of(LinkEntry.client(traceId, 7, 1, "gw", 1400, "cart:7070")))
+                .isEqualTo(SuppressKey.of("gw", "cart:7070"));
+    }
+
+    @Test
+    void parseServerRules() {
+        SuppressKey.Rules rules = SuppressKey.parseRules("S|sec.gateway.internal|root, S| p.cart , mapmatch-bg|navi:12000, p.frontend");
+
+        assertThat(rules.keys()).containsExactlyInAnyOrder(
+                SuppressKey.ofServer("sec.gateway.internal", "root"), SuppressKey.of("mapmatch-bg", "navi:12000"));
+        assertThat(rules.serverApplications()).containsExactly("p.cart");
+        assertThat(rules.applications()).containsExactly("p.frontend");
+        // one SERVER identifier
+        assertThat(rules.matches("sec.gateway.internal", SuppressKey.ofServer("sec.gateway.internal", "root"))).isTrue();
+        assertThat(rules.matches("sec.gateway.internal", SuppressKey.ofServer("sec.gateway.internal", "other"))).isFalse();
+        assertThat(rules.matches("sec.gateway.internal", SuppressKey.of("sec.gateway.internal", "root"))).isFalse();
+        // every SERVER entry of an application, but not its CLIENT entries
+        assertThat(rules.matches("p.cart", SuppressKey.ofServer("p.cart", "other"))).isTrue();
+        assertThat(rules.matches("p.cart", SuppressKey.of("p.cart", "db:3306"))).isFalse();
+        // an application rule covers both kinds
+        assertThat(rules.matches("p.frontend", SuppressKey.ofServer("p.frontend", "root"))).isTrue();
+        assertThat(rules.matches("p.frontend", SuppressKey.of("p.frontend", "cart:7070"))).isTrue();
+        assertThat(rules.toString()).contains("S|sec.gateway.internal|root").contains("S|p.cart");
+        assertThat(new SuppressKey.Rules(Set.of("a"), Set.of()).serverApplications()).isEmpty();
+    }
+
+    @Test
+    void invalidServerRuleIsRejected() {
+        assertThatThrownBy(() -> SuppressKey.parseRules("S|"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> SuppressKey.parseRules("S|app|client"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("root");
     }
 }
