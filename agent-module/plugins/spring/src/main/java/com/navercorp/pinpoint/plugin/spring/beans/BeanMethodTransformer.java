@@ -61,6 +61,11 @@ public class BeanMethodTransformer implements TransformCallback {
             }
 
             final List<InstrumentMethod> methodList = target.getDeclaredMethods(METHOD_FILTER);
+            if (methodList.isEmpty()) {
+                // Nothing to intercept. Returning null keeps the original bytecode, so the JVM skips the
+                // constant pool rewrite that a re-emitted class would need (see JDK-8376185 for a record case).
+                return null;
+            }
             for (InstrumentMethod method : methodList) {
                 addInterceptor(method);
             }
