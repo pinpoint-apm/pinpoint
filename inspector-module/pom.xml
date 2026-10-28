@@ -6,7 +6,7 @@
     <parent>
         <artifactId>pinpoint</artifactId>
         <groupId>com.navercorp.pinpoint</groupId>
-        <version>4.0.0</version>
+        <version>4.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-inspector-module</artifactId>
