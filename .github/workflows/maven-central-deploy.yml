@@ -42,7 +42,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node_install-
     - name: Set Publish Environment
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '8'
@@ -59,8 +59,12 @@ jobs:
         echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
     - name: Java Environment
       run: env | grep '^JAVA'
+    - name: Exclude plugins-it modules
+      run: |
+        PLUGINS_IT_EXCLUDES=$(find agent-module/plugins-it -name pom.xml -not -path '*/target/*' -exec dirname {} \; | sed 's/^/!/' | paste -sd, -)
+        echo "PLUGINS_IT_EXCLUDES=$PLUGINS_IT_EXCLUDES" >> $GITHUB_ENV
     - name: Publish package
-      run: ./mvnw --batch-mode deploy --file pom.xml -P '!it-module,!agent-testweb-module' -DskipTests=true -Pmaven.central.release
+      run: ./mvnw --batch-mode deploy --file pom.xml -P '!agent-testweb-module' -pl "$PLUGINS_IT_EXCLUDES" -DskipTests=true -Pmaven.central.release
       env:
         CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
         CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
