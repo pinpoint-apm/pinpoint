@@ -208,7 +208,7 @@
 
         <!-- spring boot3 dependency -->
         <spring6.version>6.2.19</spring6.version>
-        <spring-boot3.version>3.5.14</spring-boot3.version>
+        <spring-boot3.version>3.5.16</spring-boot3.version>
 
         <!-- spring boot4 dependency -->
         <spring7.version>7.0.8</spring7.version>
