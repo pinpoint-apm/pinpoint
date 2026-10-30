@@ -133,6 +133,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
         final long acceptedTime = spanChunkBo.getCollectorAcceptTime();
         final Put put = new Put(rowKey, acceptedTime, true);
 
+        this.durabilityApplier.apply(put);
+
         this.spanChunkSerializer.serialize(spanChunkBo, put, null);
 
         if (put.isEmpty()) {
