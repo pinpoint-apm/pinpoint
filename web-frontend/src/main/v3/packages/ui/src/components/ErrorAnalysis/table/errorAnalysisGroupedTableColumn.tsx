@@ -26,14 +26,18 @@ export const errorGroupedTableColumns = ({
           <span className="mr-3">Group by</span>
           {groupBy?.map((group, i) => {
             return (
+              // Without onClickGroupBy the group cannot be removed, so the badge only names it.
               <Badge
-                className="gap-1 border cursor-pointer border-muted-foreground/40 bg-secondary"
-                onClick={() => onClickGroupBy?.(group)}
+                className={cn(
+                  'gap-1 border border-muted-foreground/40 bg-secondary',
+                  onClickGroupBy && 'cursor-pointer',
+                )}
+                onClick={onClickGroupBy && (() => onClickGroupBy(group))}
                 variant="secondary"
                 key={i}
               >
                 {group}
-                <RxCross2 />
+                {onClickGroupBy && <RxCross2 />}
               </Badge>
             );
           })}
