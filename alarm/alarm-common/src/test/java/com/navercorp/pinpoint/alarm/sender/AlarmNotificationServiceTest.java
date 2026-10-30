@@ -295,6 +295,7 @@ class AlarmNotificationServiceTest {
         @Override public List<AlarmNotificationChannel> selectByServiceName(String serviceName) { return List.of(); }
         @Override public boolean existsUserGroup(String userGroupId) { return false; }
         @Override public List<AlarmNotificationChannel> selectByUserGroupDestinationForUpdate(String userGroupId) { return List.of(); }
+        @Override public List<Long> selectIdsByServiceNameForUpdate(String serviceName) { return List.of(); }
         @Override public void deleteByUserGroupDestination(String userGroupId) { }
     }
 
