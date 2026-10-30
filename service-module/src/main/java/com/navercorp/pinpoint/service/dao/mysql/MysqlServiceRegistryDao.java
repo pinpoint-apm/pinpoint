@@ -54,6 +54,11 @@ public class MysqlServiceRegistryDao implements ServiceRegistryDao {
     }
 
     @Override
+    public ServiceEntity selectServiceByNameForUpdate(String name) {
+        return sqlSessionTemplate.selectOne(NAMESPACE + "selectServiceByNameForUpdate", name);
+    }
+
+    @Override
     public ServiceEntity selectServiceByUid(int uid) {
         return sqlSessionTemplate.selectOne(NAMESPACE + "selectServiceByUid", uid);
     }

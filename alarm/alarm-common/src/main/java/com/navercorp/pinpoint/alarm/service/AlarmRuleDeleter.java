@@ -72,10 +72,22 @@ public class AlarmRuleDeleter {
      * <p>
      * Resolving the ids once without a lock keeps all six deletes on primary keys, so they
      * take the rows in the same order as the other writers instead of locking ranges.
+     * The rule rows are locked before their dependants, as the other writers do.
      */
     public int deleteRulesByApplication(AlarmApplication application) {
         List<Long> ruleIds = ruleDao.selectRuleIdsByApplication(application.getServiceName(),
                 application.getApplicationName(), application.getApplicationType());
+        if (ruleIds.isEmpty()) {
+            return 0;
+        }
+        return deleteRules(ruleDao.selectRuleIdsForUpdate(ruleIds));
+    }
+
+    /**
+     * Deletes the given rules by primary key, in the same table order as
+     * {@link #deleteRule}. The caller locks the rule rows first.
+     */
+    public int deleteRules(List<Long> ruleIds) {
         if (ruleIds.isEmpty()) {
             return 0;
         }

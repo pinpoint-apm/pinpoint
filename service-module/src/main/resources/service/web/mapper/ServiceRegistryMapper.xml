@@ -25,6 +25,13 @@
         WHERE name = #{name}
     </select>
 
+    <select id="selectServiceByNameForUpdate" parameterType="string" resultType="ServiceEntity">
+        SELECT uid, name
+        FROM service
+        WHERE name = #{name}
+        FOR UPDATE
+    </select>
+
     <select id="selectServiceByUid" parameterType="int" resultType="ServiceEntity">
         SELECT uid, name
         FROM service

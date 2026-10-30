@@ -41,6 +41,10 @@ public interface AlarmRuleV2Dao {
             @Param("applicationName") String applicationName,
             @Param("applicationType") String applicationType);
 
+    List<Long> selectRuleIdsByServiceForUpdate(@Param("serviceName") String serviceName);
+
+    List<Long> selectRuleIdsForUpdate(@Param("ruleIds") List<Long> ruleIds);
+
     void deleteByIds(@Param("ruleIds") List<Long> ruleIds);
 
     AlarmRuleV2 selectRuleById(Long id);

@@ -523,6 +523,11 @@ abstract class AlarmServiceTestSupport {
         }
 
         @Override
+        public List<Long> selectIdsByServiceNameForUpdate(String serviceName) {
+            return List.of();
+        }
+
+        @Override
         public void deleteByUserGroupDestination(String userGroupId) {
             deletedChannelUserGroupIds.add(userGroupId);
         }
@@ -672,6 +677,17 @@ abstract class AlarmServiceTestSupport {
                 String serviceName, String applicationName, String applicationType) {
             resolvedApplications.add(applicationName);
             return APPLICATION_RULE_IDS;
+        }
+
+        @Override
+        public List<Long> selectRuleIdsByServiceForUpdate(String serviceName) {
+            return List.of();
+        }
+
+        @Override
+        public List<Long> selectRuleIdsForUpdate(List<Long> ruleIds) {
+            deletionLog.add("ruleLock");
+            return ruleIds;
         }
 
         @Override
