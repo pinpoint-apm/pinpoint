@@ -14,6 +14,8 @@ public interface ServiceRegistryDao {
 
     ServiceEntity selectServiceByName(String name);
 
+    ServiceEntity selectServiceByNameForUpdate(String name);
+
     ServiceEntity selectServiceByUid(int uid);
 
     void deleteService(int uid);

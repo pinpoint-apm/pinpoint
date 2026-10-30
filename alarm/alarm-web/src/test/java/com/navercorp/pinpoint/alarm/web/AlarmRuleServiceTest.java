@@ -633,7 +633,9 @@ class AlarmRuleServiceTest extends AlarmServiceTestSupport {
 
         service.deleteRulesByApplication(APPLICATION);
 
-        assertEquals(DELETION_ORDER, deletionLog);
+        List<String> expected = new ArrayList<>(List.of("ruleLock"));
+        expected.addAll(DELETION_ORDER);
+        assertEquals(expected, deletionLog);
         assertEquals(List.of(APPLICATION_NAME), ruleDao.resolvedApplications);
         // Every child delete is driven by the resolved ids, not by the unindexed
         // application columns -- that is what keeps the lock off the whole table.

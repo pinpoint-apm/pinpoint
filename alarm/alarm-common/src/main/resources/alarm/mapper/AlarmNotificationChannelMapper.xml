@@ -254,6 +254,14 @@
         FOR UPDATE
     </select>
 
+    <select id="selectIdsByServiceNameForUpdate" parameterType="String" resultType="Long">
+        SELECT c.id
+        FROM alarm_notification_channel c
+        WHERE <include refid="channelServiceNamePredicate" />
+        ORDER BY c.id
+        FOR UPDATE
+    </select>
+
     <select id="selectById" parameterType="Long"
             resultType="com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel">
         SELECT <include refid="channelSelectColumns" />
