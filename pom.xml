@@ -988,6 +988,13 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- spring-batch-core pins its own spring-data-commons (3.4.x for batch 5.2); align every
+                 module with the spring-data line above, as spring-boot-dependencies does. -->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>${spring-data.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.testcontainers</groupId>
