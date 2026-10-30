@@ -108,6 +108,7 @@
         <module>hbase-testcluster</module>
         <module>commons-timeseries</module>
         <module>commons-server</module>
+        <module>spring-boot-tomcat</module>
         <module>commons-mybatis</module>
         <module>commons-mapstruct-spi</module>
         <module>datasource</module>
@@ -205,6 +206,7 @@
 
         <spring.version>${spring6.version}</spring.version>
         <spring-boot.version>${spring-boot3.version}</spring-boot.version>
+        <tomcat-embed.version>10.1.61</tomcat-embed.version>
 
         <!-- spring boot3 dependency -->
         <spring6.version>6.2.19</spring6.version>
@@ -459,6 +461,11 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-spring-boot-tomcat</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-batch</artifactId>
