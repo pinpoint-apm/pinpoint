@@ -91,14 +91,9 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
-        <!-- Renders the email body. Versioned here rather than in the root: the root
-             does not import the spring-boot BOM, and a pin there would also override the
-             thymeleaf that spring-boot-starter-thymeleaf brings elsewhere in the build,
-             leaving it mismatched with its own thymeleaf-spring6 on the next boot bump. -->
         <dependency>
             <groupId>org.thymeleaf</groupId>
-            <artifactId>thymeleaf</artifactId>
-            <version>3.1.5.RELEASE</version>
+            <artifactId>thymeleaf-spring6</artifactId>
         </dependency>
 
         <dependency>

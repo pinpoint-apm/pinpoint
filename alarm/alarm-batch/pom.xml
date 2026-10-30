@@ -108,8 +108,7 @@
 
         <dependency>
             <groupId>org.thymeleaf</groupId>
-            <artifactId>thymeleaf</artifactId>
-            <version>3.1.5.RELEASE</version>
+            <artifactId>thymeleaf-spring6</artifactId>
         </dependency>
 
         <dependency>
