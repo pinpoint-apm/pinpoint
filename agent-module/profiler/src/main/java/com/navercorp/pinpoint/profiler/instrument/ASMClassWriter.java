@@ -45,6 +45,18 @@ public final class ASMClassWriter extends ClassWriter {
         this.classLoader = classLoader;
     }
 
+    /**
+     * Writes the class on top of the constant pool of {@code classReader}: the original entries keep their
+     * indices and new ones are appended. HotSpot installs a class redefined with its constant pool preserved
+     * without rewriting the constant pool references, which keeps the agent clear of JDK-8376185 (that rewrite
+     * mis-decodes record component type annotations and corrupts the class).
+     */
+    public ASMClassWriter(final ClassInputStreamProvider pluginInputStreamProvider, final ClassReader classReader, final int flags, final ClassLoader classLoader) {
+        super(classReader, flags);
+        this.pluginInputStreamProvider = pluginInputStreamProvider;
+        this.classLoader = classLoader;
+    }
+
     @Override
     protected String getCommonSuperClass(String classInternalName1, String classInternalName2) {
         if (logger.isDebugEnabled()) {

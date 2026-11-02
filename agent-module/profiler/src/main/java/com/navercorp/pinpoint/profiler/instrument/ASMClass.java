@@ -43,6 +43,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.security.ProtectionDomain;
@@ -68,7 +69,11 @@ public class ASMClass implements InstrumentClass {
     private String name;
 
     public static ASMClass load(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode) {
-        ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, classLoader, protectionDomain, classNode);
+        return load(engineComponent, pluginContext, classLoader, protectionDomain, classNode, null);
+    }
+
+    public static ASMClass load(EngineComponent engineComponent, final InstrumentContext pluginContext, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode, final ClassReader classReader) {
+        ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, classLoader, protectionDomain, classNode, classReader);
         return new ASMClass(engineComponent, pluginContext, classNodeAdapter);
     }
 

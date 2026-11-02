@@ -73,7 +73,7 @@ public class ASMClassNodeAdapter {
         final int parsingOptions = getParsingOption(skipCode);
         classReader.accept(classNode, parsingOptions);
 
-        return new ASMClassNodeAdapter(pluginClassInputStreamProvider, classLoader, protectionDomain, classNode, skipCode);
+        return new ASMClassNodeAdapter(pluginClassInputStreamProvider, classLoader, protectionDomain, classNode, classReader, skipCode);
     }
 
     private static int getParsingOption(boolean skipCode) {
@@ -121,17 +121,28 @@ public class ASMClassNodeAdapter {
     private final ClassLoader classLoader;
     private final ProtectionDomain protectionDomain;
     private final ClassNode classNode;
+    // the reader classNode was parsed from; null for a class built from scratch
+    private final ClassReader classReader;
     private final boolean skipCode;
 
     public ASMClassNodeAdapter(final ClassInputStreamProvider pluginInputStreamProvider, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode) {
-        this(pluginInputStreamProvider, classLoader, protectionDomain, classNode, false);
+        this(pluginInputStreamProvider, classLoader, protectionDomain, classNode, null, false);
+    }
+
+    public ASMClassNodeAdapter(final ClassInputStreamProvider pluginInputStreamProvider, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode, final ClassReader classReader) {
+        this(pluginInputStreamProvider, classLoader, protectionDomain, classNode, classReader, false);
     }
 
     public ASMClassNodeAdapter(final ClassInputStreamProvider pluginInputStreamProvider, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode, final boolean skipCode) {
+        this(pluginInputStreamProvider, classLoader, protectionDomain, classNode, null, skipCode);
+    }
+
+    public ASMClassNodeAdapter(final ClassInputStreamProvider pluginInputStreamProvider, final ClassLoader classLoader, ProtectionDomain protectionDomain, final ClassNode classNode, final ClassReader classReader, final boolean skipCode) {
         this.pluginInputStreamProvider = pluginInputStreamProvider;
         this.classLoader = classLoader;
         this.protectionDomain = protectionDomain;
         this.classNode = classNode;
+        this.classReader = classReader;
         this.skipCode = skipCode;
     }
 
@@ -591,8 +602,16 @@ public class ASMClassNodeAdapter {
             flags = ClassWriter.COMPUTE_MAXS;
         }
 
-        final ClassWriter classWriter = new ASMClassWriter(this.pluginInputStreamProvider, flags, this.classLoader);
+        final ClassWriter classWriter = newClassWriter(flags);
         this.classNode.accept(classWriter);
         return classWriter.toByteArray();
+    }
+
+    private ClassWriter newClassWriter(final int flags) {
+        if (this.classReader != null) {
+            // keep the constant pool indices of the original class, see ASMClassWriter
+            return new ASMClassWriter(this.pluginInputStreamProvider, this.classReader, flags, this.classLoader);
+        }
+        return new ASMClassWriter(this.pluginInputStreamProvider, flags, this.classLoader);
     }
 }
