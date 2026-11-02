@@ -16,16 +16,42 @@
 
 package com.navercorp.pinpoint.it.plugin.jdbc.mysql;
 
+import com.navercorp.pinpoint.it.plugin.utils.jdbc.AbstractJDBCDriverClass;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class MySql8JDBCDriverClass extends MySql6JDBCDriverClass {
+public class MySql8JDBCDriverClass extends AbstractJDBCDriverClass {
+
+    @Override
+    public Class<Driver> getDriver() {
+        return forName("com.mysql.cj.jdbc.NonRegisteringDriver");
+    }
+
+    @Override
+    public Class<Connection> getConnection() {
+        return forName("com.mysql.cj.jdbc.ConnectionImpl");
+    }
+
+    @Override
+    public Class<Statement> getStatement() {
+        return forName("com.mysql.cj.jdbc.StatementImpl");
+    }
 
     @Override
     public Class<PreparedStatement> getPreparedStatement() {
         return forName("com.mysql.cj.jdbc.ClientPreparedStatement");
+    }
+
+    @Override
+    public Class<CallableStatement> getCallableStatement() {
+        return forName("com.mysql.cj.jdbc.CallableStatement");
     }
 
 }
