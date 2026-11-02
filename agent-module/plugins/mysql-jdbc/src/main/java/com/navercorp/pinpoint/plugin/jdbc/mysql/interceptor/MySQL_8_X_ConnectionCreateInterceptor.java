@@ -38,15 +38,15 @@ import java.util.Arrays;
  */
 // #1375 Workaround java level Deadlock
 // https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
-// @TargetConstructor({ "com.mysql.cj.core.ConnectionString", "java.lang.String", "int", "java.util.Properties" })
-public class MySQL_6_X_ConnectionCreateInterceptor implements AroundInterceptor {
+// @TargetConstructor({ "com.mysql.cj.conf.HostInfo" })
+public class MySQL_8_X_ConnectionCreateInterceptor implements AroundInterceptor {
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
 
-    public MySQL_6_X_ConnectionCreateInterceptor(TraceContext traceContext) {
+    public MySQL_8_X_ConnectionCreateInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
     }
 
