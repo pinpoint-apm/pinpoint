@@ -1600,11 +1600,6 @@
                 <artifactId>javassist</artifactId>
                 <version>3.27.0-GA</version>
             </dependency>
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
-                <version>3.2.12</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.ow2.asm</groupId>
