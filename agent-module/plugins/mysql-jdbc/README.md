@@ -1,7 +1,9 @@
 ## MySQL JDBC Driver
 * Since: Pinpoint 1.5.0
 * See: https://www.mysql.com/products/connector/
-* Range: mysql/mysql-connector-java [2.0, 8.0]
+* Range: mysql/mysql-connector-java [5.0, 5.max], [8.0.11, 8.0.30]
+* Range: com.mysql/mysql-connector-j [8.0.31,]
+* Not supported: 6.x
 
 
 ### Pinpoint Configuration
