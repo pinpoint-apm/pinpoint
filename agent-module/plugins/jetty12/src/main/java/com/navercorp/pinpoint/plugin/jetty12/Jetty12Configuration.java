@@ -32,6 +32,9 @@ public class Jetty12Configuration {
     private final String realIpEmptyValue;
     private final boolean traceRequestParam;
     private final Filter<String> excludeProfileMethodFilter;
+    private final boolean uriStatEnable;
+    private final boolean uriStatUseUserInput;
+    private final boolean uriStatCollectMethod;
 
     public Jetty12Configuration(ProfilerConfig config) {
         this.enable = config.readBoolean("profiler.jetty.enable", true);
@@ -44,6 +47,9 @@ public class Jetty12Configuration {
         this.traceRequestParam = serverConfig.isTraceRequestParam("profiler.jetty.tracerequestparam");
         this.realIpHeader = serverConfig.getRealIpHeader("profiler.jetty.realipheader");
         this.realIpEmptyValue = serverConfig.getRealIpEmptyValue("profiler.jetty.realipemptyvalue");
+        this.uriStatEnable = config.readBoolean("profiler.uri.stat.enable", true);
+        this.uriStatUseUserInput = config.readBoolean("profiler.uri.stat.jetty.useuserinput", false);
+        this.uriStatCollectMethod = config.readBoolean("profiler.uri.stat.collect.http.method", false);
     }
 
     public boolean isEnable() {
@@ -82,6 +88,18 @@ public class Jetty12Configuration {
         return excludeProfileMethodFilter;
     }
 
+    public boolean isUriStatEnable() {
+        return uriStatEnable;
+    }
+
+    public boolean isUriStatUseUserInput() {
+        return uriStatUseUserInput;
+    }
+
+    public boolean isUriStatCollectMethod() {
+        return uriStatCollectMethod;
+    }
+
     @Override
     public String toString() {
         return "Jetty12Configuration{" +
@@ -94,6 +112,9 @@ public class Jetty12Configuration {
                 ", realIpEmptyValue='" + realIpEmptyValue + '\'' +
                 ", traceRequestParam=" + traceRequestParam +
                 ", excludeProfileMethodFilter=" + excludeProfileMethodFilter +
+                ", uriStatEnable=" + uriStatEnable +
+                ", uriStatUseUserInput=" + uriStatUseUserInput +
+                ", uriStatCollectMethod=" + uriStatCollectMethod +
                 '}';
     }
 }

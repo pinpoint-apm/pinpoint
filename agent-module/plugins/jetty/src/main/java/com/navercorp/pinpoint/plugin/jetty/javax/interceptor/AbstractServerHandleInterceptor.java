@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.config.HttpStatusCodeErrors;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptorHelper;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
@@ -33,6 +35,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerBui
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListener;
 import com.navercorp.pinpoint.bootstrap.plugin.response.ServletResponseListenerBuilder;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletResponseAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
@@ -56,8 +59,17 @@ public abstract class AbstractServerHandleInterceptor implements ApiIdAwareAroun
     private final ServletRequestListener<HttpServletRequest> servletRequestListener;
     private final ServletResponseListener<HttpServletResponse> servletResponseListener;
 
+    private final TraceContext traceContext;
+    private final boolean uriStatEnable;
+    private final boolean uriStatUseUserInput;
+    private final boolean uriStatCollectMethod;
+
     public AbstractServerHandleInterceptor(TraceContext traceContext, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
+        this.traceContext = traceContext;
         final JettyConfiguration config = new JettyConfiguration(traceContext.getProfilerConfig());
+        this.uriStatEnable = config.isUriStatEnable();
+        this.uriStatUseUserInput = config.isUriStatUseUserInput();
+        this.uriStatCollectMethod = config.isUriStatCollectMethod();
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(
                 config.getExcludeProfileMethodFilter(),
@@ -124,6 +136,9 @@ public abstract class AbstractServerHandleInterceptor implements ApiIdAwareAroun
                 return;
             }
             final int statusCode = getStatusCode(response);
+            if (uriStatEnable && uriStatUseUserInput) {
+                recordUserUriTemplate(request);
+            }
             this.servletResponseListener.destroyed(response, throwable, statusCode); //must before request listener due to trace block ending
             this.servletRequestListener.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
@@ -131,6 +146,38 @@ public abstract class AbstractServerHandleInterceptor implements ApiIdAwareAroun
                 logger.info("Failed to servlet request event handle.", t);
             }
         }
+    }
+
+    private void recordUserUriTemplate(HttpServletRequest request) {
+        final Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        final SpanRecorder spanRecorder = trace.getSpanRecorder();
+        final String uriTemplate = getUserUriTemplate(request);
+        if (StringUtils.hasLength(uriTemplate)) {
+            spanRecorder.recordUriTemplate(uriTemplate, true);
+        }
+        if (uriStatCollectMethod) {
+            final String method = request.getMethod();
+            if (StringUtils.hasLength(method)) {
+                spanRecorder.recordUriHttpMethod(method);
+            }
+        }
+    }
+
+    private String getUserUriTemplate(HttpServletRequest request) {
+        for (String attributeName : JettyConstants.JETTY_URI_USER_INPUT_ATTRIBUTE_KEYS) {
+            final Object uriTemplate = request.getAttribute(attributeName);
+            if (uriTemplate instanceof String) {
+                final String value = (String) uriTemplate;
+                if (StringUtils.hasLength(value)) {
+                    return value;
+                }
+            }
+        }
+        return null;
     }
 
     private int getStatusCode(final HttpServletResponse response) {

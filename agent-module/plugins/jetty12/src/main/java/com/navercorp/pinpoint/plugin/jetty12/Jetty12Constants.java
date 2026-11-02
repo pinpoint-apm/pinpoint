@@ -32,4 +32,6 @@ public final class Jetty12Constants {
 
     public static final ServiceType JETTY = ServiceTypeFactory.of(1030, "JETTY", RECORD_STATISTICS);
     public static final ServiceType JETTY_METHOD = ServiceTypeFactory.of(1031, "JETTY_METHOD");
+
+    public static final String[] JETTY_URI_USER_INPUT_ATTRIBUTE_KEYS = {"pinpoint.metric.uri-template"};
 }
