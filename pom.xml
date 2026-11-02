@@ -320,6 +320,7 @@
     </properties>
 
     <dependencies>
+        <!-- spring-test MockMvc result matchers need hamcrest at test compile time -->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
@@ -1648,7 +1649,14 @@
             <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest</artifactId>
-                <version>2.2</version>
+                <version>3.0</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- shim for junit 4 (grpc-testing, ktor-server-tests, hbase-testcluster); unify with hamcrest 3.0 -->
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-core</artifactId>
+                <version>3.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
