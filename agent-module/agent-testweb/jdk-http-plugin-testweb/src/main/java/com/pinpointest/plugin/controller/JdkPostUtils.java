@@ -17,7 +17,7 @@
 package com.pinpointest.plugin.controller;
 
 
-import org.apache.commons.io.IOUtils;
+import org.springframework.util.StreamUtils;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -42,29 +42,18 @@ public class JdkPostUtils {
     }
 
     public static String checkLsmList(String url) throws Exception {
-        HttpURLConnection http = null;
-        OutputStream writer = null;
-        InputStream reader = null;
-        String jsonResult;
+        HttpURLConnection http = getHttpURLPostConnection(url);
         try {
-            http = getHttpURLPostConnection(url);
             //Set Parameter
-            StringBuilder postSb = new StringBuilder();
-            postSb.append("{foo:bar}");
-            writer = http.getOutputStream();
-            IOUtils.write(postSb, writer, UTF_8);
-            IOUtils.closeQuietly(writer);
-            http.connect();
-            reader = http.getInputStream();
-            jsonResult = IOUtils.toString(reader, UTF_8);
-        } finally {
-            if (http != null) {
-                http.disconnect();
+            try (OutputStream writer = http.getOutputStream()) {
+                StreamUtils.copy("{foo:bar}", UTF_8, writer);
             }
-            IOUtils.close(reader);
-            IOUtils.close(writer);
+            http.connect();
+            try (InputStream reader = http.getInputStream()) {
+                return StreamUtils.copyToString(reader, UTF_8);
+            }
+        } finally {
+            http.disconnect();
         }
-
-        return jsonResult;
     }
 }

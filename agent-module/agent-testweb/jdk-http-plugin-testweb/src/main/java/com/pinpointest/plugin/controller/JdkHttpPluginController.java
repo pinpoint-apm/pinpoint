@@ -1,9 +1,9 @@
 package com.pinpointest.plugin.controller;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @RestController
@@ -136,7 +137,7 @@ public class JdkHttpPluginController {
 
     private String readStream(HttpURLConnection connection) throws IOException {
         try (InputStream inputStream = connection.getInputStream()) {
-            return IOUtils.toString(inputStream, connection.getContentEncoding());
+            return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
         }
     }
 
