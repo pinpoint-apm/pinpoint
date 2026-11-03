@@ -60,6 +60,33 @@ const POPPER_EDGE_GAP = 8;
  */
 const HOVER_POPPER_WIDTH = 210;
 
+/**
+ * hover 팝업을 노드 옆에 붙일 x 좌표. 원하는 쪽(기준 노드의 반대쪽)에 자리가 없으면 반대쪽에 붙인다.
+ * 양쪽 다 모자라면 map 안에 들어오게 맞춘다.
+ *
+ * 폭은 실제로 잰 값이어야 한다. 팝업 폭은 rem 단위라 root 글자 크기에 따라 달라지고(MCP Apps 뷰는
+ * 13px), 기준 노드가 없는 servicemap에서는 모든 노드가 왼쪽에 붙이는 쪽으로 판정된다.
+ */
+const fitBeside = (
+  anchor: { left: number; right: number; preferRight: boolean },
+  width: number,
+  limit: number,
+) => {
+  const rightX = anchor.right;
+  const leftX = anchor.left - width;
+  const fitsRight = rightX + width + POPPER_EDGE_GAP <= limit;
+  const fitsLeft = leftX >= POPPER_EDGE_GAP;
+  const x = anchor.preferRight
+    ? fitsRight || !fitsLeft
+      ? rightX
+      : leftX
+    : fitsLeft || !fitsRight
+      ? leftX
+      : rightX;
+  const max = Math.max(POPPER_EDGE_GAP, limit - width - POPPER_EDGE_GAP);
+  return Math.min(Math.max(x, POPPER_EDGE_GAP), max);
+};
+
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
   isLoading?: boolean;
@@ -105,6 +132,10 @@ export const ServerMapCore = ({
   const containerRef = React.useRef<HTMLDivElement>(null);
   const rightClickTargetRef = React.useRef<Node | Edge | undefined>(undefined);
   const hoverNodeRef = React.useRef<Node | undefined>(undefined);
+  // hover 팝업을 붙일 노드의 양쪽 테두리(렌더 좌표). 어느 쪽에 붙일지는 팝업 폭을 잰 뒤 정한다.
+  const hoverAnchorRef = React.useRef<{ left: number; right: number; preferRight: boolean }>(
+    undefined,
+  );
   const [popperContentType, setPopperContentType] = React.useState<SERVERMAP_MENU_CONTENT_TYPE>();
   const [popperPosition, setPopperPosition] = React.useState<
     Partial<{
@@ -216,7 +247,13 @@ export const ServerMapCore = ({
       return Math.min(Math.max(flipped, POPPER_EDGE_GAP), max);
     };
 
-    const x = fit(popperPosition.x ?? 0, width, container.clientWidth);
+    const anchor =
+      popperContentType === SERVERMAP_MENU_CONTENT_TYPE.HOVER_NODE
+        ? hoverAnchorRef.current
+        : undefined;
+    const x = anchor
+      ? fitBeside(anchor, width, container.clientWidth)
+      : fit(popperPosition.x ?? 0, width, container.clientWidth);
     const y = fit(popperPosition.y ?? 0, height, container.clientHeight);
 
     // 넘치지 않으면 popperPosition을 그대로 쓰면 되므로 대체 좌표를 두지 않는다.
@@ -423,6 +460,12 @@ export const ServerMapCore = ({
           const centerY = target.renderedPosition()?.y;
           const radius = (target.renderedWidth() || 0) / 2;
 
+          hoverAnchorRef.current = {
+            left: centerX - radius,
+            right: centerX + radius,
+            preferRight: !!isLeftNode,
+          };
+          // 팝업 폭을 재기 전의 첫 위치다. 실제 위치는 폭을 잰 뒤 fitBeside가 정한다.
           setPopperPosition(
             isLeftNode
               ? { x: centerX + radius, y: centerY }
@@ -431,6 +474,7 @@ export const ServerMapCore = ({
                 { x: centerX - radius - HOVER_POPPER_WIDTH, y: centerY },
           );
         } else {
+          hoverAnchorRef.current = undefined;
           setPopperPosition(position);
         }
 
