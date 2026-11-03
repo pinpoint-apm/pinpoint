@@ -6,6 +6,9 @@ import org.testcontainers.DockerClientFactory;
 
 public class PullImage {
 
+    // DockerClientFactory.client() returns the global client shared with every container;
+    // Testcontainers forbids closing it (DockerClientFactory$2.close throws IllegalStateException).
+    @SuppressWarnings("resource")
     public static void pullWithPlatform(String image, String platform) {
         DockerClient client = DockerClientFactory.instance().client();
 
