@@ -92,7 +92,11 @@ public class NetworkMetricsBinder implements MeterBinder {
 
 
     private long getOpenSocketCount() {
+        // oshi 7.7+ returns null when the current process cannot be resolved
         OSProcess process = os.getProcess(os.getProcessId());
+        if (process == null) {
+            return 0;
+        }
         return process.getOpenFiles();
     }
 
