@@ -73,6 +73,10 @@ export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'
   inputPlaceHolder?: string;
   queryOption?: ServerMapQueryOptionProps['queryOption'];
   onApplyChangedOption?: ServerMapQueryOptionProps['onApply'];
+  /**
+   * 우클릭 메뉴(Merge, Filter Transaction)를 끈다. 이 메뉴들은 web 화면(필터 마법사 등)으로 이어지는 기능이라
+   * 그 화면이 없는 곳(MCP Apps 뷰)에서 쓴다. Apdex hover 팝업과 service group 자식 목록 팝업은 그대로 뜬다.
+   */
   disableMenu?: boolean;
 }
 
@@ -393,7 +397,7 @@ export const ServerMapCore = ({
     eventType,
     position,
   }) => {
-    if (eventType === 'right') {
+    if (eventType === 'right' && !disableMenu) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.BACKGROUND);
     }
@@ -450,7 +454,7 @@ export const ServerMapCore = ({
     // service group 노드는 필터 메뉴를 열지 않는다. 기준 application이 없어 filteredMap 조회가
     // 성립하지 않으므로(`getFilterTargetApplication`이 null) 메뉴를 띄워봐야 눌러도 아무 일이
     // 일어나지 않는다. transactionInfo가 없는 노드에 메뉴를 띄우지 않는 것과 같은 처리다.
-    if (eventType === 'right' && clickedData?.transactionInfo && !serviceGroup) {
+    if (eventType === 'right' && !disableMenu && clickedData?.transactionInfo && !serviceGroup) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.NODE);
       rightClickTargetRef.current = clickedData;
@@ -532,7 +536,12 @@ export const ServerMapCore = ({
     // service group 링크(Application→Service, Service→Application, Service→Service)는 필터
     // 메뉴를 열지 않는다. 한쪽 끝에 application이 없어 필터가 반쪽만 걸린 filteredMap이 열리기
     // 때문이다. 노드와 같은 이유이고, filteredMap으로 연결되는 것은 Application→Application뿐이다.
-    if (eventType === 'right' && clickedData?.transactionInfo && !serviceGroupLink) {
+    if (
+      eventType === 'right' &&
+      !disableMenu &&
+      clickedData?.transactionInfo &&
+      !serviceGroupLink
+    ) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.EDGE);
       rightClickTargetRef.current = clickedData;
@@ -743,242 +752,236 @@ export const ServerMapCore = ({
               </Tooltip>
             </TooltipProvider>
           </div>
-          {!disableMenu && (
-            <ServerMapMenu contentType={popperContentType} position={menuPosition}>
-              <div ref={popperContentRef}>
-                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.BACKGROUND && (
-                  <ServerMapMenuContent title="Merge">
-                    {checkedServiceTypes.length === 0 && unCheckedServiceTypes.length === 0 ? (
-                      <ServerMapMenuItem className="my-2 pointer-events-none text-muted-foreground">
-                        There are no merged service types.
-                      </ServerMapMenuItem>
-                    ) : (
-                      <>
-                        {checkedServiceTypes.map((type) => (
+          <ServerMapMenu contentType={popperContentType} position={menuPosition}>
+            <div ref={popperContentRef}>
+              {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.BACKGROUND && (
+                <ServerMapMenuContent title="Merge">
+                  {checkedServiceTypes.length === 0 && unCheckedServiceTypes.length === 0 ? (
+                    <ServerMapMenuItem className="my-2 pointer-events-none text-muted-foreground">
+                      There are no merged service types.
+                    </ServerMapMenuItem>
+                  ) : (
+                    <>
+                      {checkedServiceTypes.map((type) => (
+                        <ServerMapMenuItem key={type}>
+                          <label className="flex items-center flex-1 w-full gap-2 cursor-pointer">
+                            <input
+                              defaultChecked={true}
+                              type="checkbox"
+                              onClick={() => {
+                                setCheckedServiceTypes((prev) => prev.filter((t) => t !== type));
+                                setUnCheckedServiceTypes((prev) => [...prev, type]);
+                              }}
+                            />
+                            <div className="truncate">{type}</div>
+                          </label>
+                        </ServerMapMenuItem>
+                      ))}
+                      {unCheckedServiceTypes
+                        .filter((t) => allServiceTypes.current?.find((at) => at === t))
+                        .map((type) => (
                           <ServerMapMenuItem key={type}>
                             <label className="flex items-center flex-1 w-full gap-2 cursor-pointer">
                               <input
-                                defaultChecked={true}
                                 type="checkbox"
                                 onClick={() => {
-                                  setCheckedServiceTypes((prev) => prev.filter((t) => t !== type));
-                                  setUnCheckedServiceTypes((prev) => [...prev, type]);
+                                  setCheckedServiceTypes((prev) => [...prev, type]);
+                                  setUnCheckedServiceTypes((prev) =>
+                                    prev.filter((t) => t !== type),
+                                  );
                                 }}
                               />
                               <div className="truncate">{type}</div>
                             </label>
                           </ServerMapMenuItem>
                         ))}
-                        {unCheckedServiceTypes
-                          .filter((t) => allServiceTypes.current?.find((at) => at === t))
-                          .map((type) => (
-                            <ServerMapMenuItem key={type}>
-                              <label className="flex items-center flex-1 w-full gap-2 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  onClick={() => {
-                                    setCheckedServiceTypes((prev) => [...prev, type]);
-                                    setUnCheckedServiceTypes((prev) =>
-                                      prev.filter((t) => t !== type),
-                                    );
-                                  }}
+                    </>
+                  )}
+                  <Separator />
+                  <ServerMapMenuItem onClick={reset}>
+                    <FaRotate style={{ fill: 'var(--primary)' }} />
+                    Reset
+                  </ServerMapMenuItem>
+                </ServerMapMenuContent>
+              )}
+              {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.EDGE && (
+                <ServerMapMenuContent title={'Filter Transaction'}>
+                  <ServerMapMenuItem
+                    onClick={() =>
+                      handleClickMenuItem(SERVERMAP_MENU_FUNCTION_TYPE.FILTER_TRANSACTION)
+                    }
+                  >
+                    <FaExternalLinkAlt style={{ fill: 'var(--primary)' }} />
+                    Open in new tab
+                  </ServerMapMenuItem>
+                  <Separator />
+                  <ServerMapMenuItem
+                    onClick={() => handleClickMenuItem(SERVERMAP_MENU_FUNCTION_TYPE.FILTER_WIZARD)}
+                  >
+                    <FaGear style={{ fill: 'var(--primary)' }} />
+                    Configures
+                  </ServerMapMenuItem>
+                </ServerMapMenuContent>
+              )}
+              {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.NODE && (
+                <ServerMapMenuContent title={'Filter Transaction'}>
+                  <ServerMapMenuItem
+                    onClick={() => handleClickMenuItem(SERVERMAP_MENU_FUNCTION_TYPE.FILTER_WIZARD)}
+                  >
+                    <FaGear style={{ fill: 'var(--primary)' }} />
+                    Configures
+                  </ServerMapMenuItem>
+                </ServerMapMenuContent>
+              )}
+              {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.HOVER_NODE && (
+                <ServerMapMenuContent title={'Apdex Score'}>
+                  {renderApdexScore()}
+                </ServerMapMenuContent>
+              )}
+              {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST &&
+                (() => {
+                  const search = serviceGroupSearch.trim().toLowerCase();
+                  const subNodes = serviceGroupTargetRef.current?.subNodes ?? [];
+                  const filteredSubNodes = search
+                    ? subNodes.filter((n) => n.applicationName?.toLowerCase().includes(search))
+                    : subNodes;
+                  return (
+                    // w-max는 가장 긴 application 이름만큼 팝업을 넓힌다. 상한을 두지 않으면
+                    // 이름이 긴 노드에서 팝업이 map 컨테이너를 넘고, 그 상태로 검색 입력에
+                    // 포커스가 가면 브라우저가 map을 왼쪽으로 스크롤한다(위 클램프 주석 참고).
+                    <ServerMapMenuContent
+                      title={serviceGroupTargetRef.current?.applicationName ?? 'Service Group'}
+                      onClose={() => setPopperContentType(undefined)}
+                      className="w-max min-w-72 max-w-[22.5rem]"
+                    >
+                      <div className="px-3 pb-2">
+                        <div className="relative">
+                          <FaSearch className="absolute -translate-y-1/2 pointer-events-none left-2 top-1/2 text-muted-foreground" />
+                          <Input
+                            ref={serviceGroupSearchRef}
+                            placeholder={t('COMMON.SEARCH_INPUT')}
+                            value={serviceGroupSearch}
+                            onChange={(e) => setServiceGroupSearch(e.target.value)}
+                            className="h-8 pl-7"
+                          />
+                        </div>
+                      </div>
+                      <div className="overflow-y-auto max-h-72">
+                        {filteredSubNodes.length === 0 ? (
+                          <div className="px-3 py-2 text-muted-foreground">
+                            {t('COMMON.EMPTY_ON_SEARCH')}
+                          </div>
+                        ) : (
+                          filteredSubNodes.map((subNode) => {
+                            const isSelected = subNode.key === selectedSubNodeId;
+                            return (
+                              <ServerMapMenuItem
+                                key={subNode.key}
+                                className={cn(isSelected && 'bg-accent font-semibold')}
+                                onClick={() => handleClickSubNodeItem(subNode)}
+                              >
+                                {/* 아이콘은 바로 옆 이름이 말해 주는 것을 되풀이할 뿐이라
+                                    스크린 리더에는 읽히지 않게 둔다. */}
+                                <img
+                                  src={getServerImagePath(subNode)}
+                                  alt=""
+                                  width={28}
+                                  className="shrink-0"
                                 />
-                                <div className="truncate">{type}</div>
-                              </label>
-                            </ServerMapMenuItem>
-                          ))}
-                      </>
-                    )}
-                    <Separator />
-                    <ServerMapMenuItem onClick={reset}>
-                      <FaRotate style={{ fill: 'var(--primary)' }} />
-                      Reset
-                    </ServerMapMenuItem>
-                  </ServerMapMenuContent>
-                )}
-                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.EDGE && (
-                  <ServerMapMenuContent title={'Filter Transaction'}>
-                    <ServerMapMenuItem
-                      onClick={() =>
-                        handleClickMenuItem(SERVERMAP_MENU_FUNCTION_TYPE.FILTER_TRANSACTION)
-                      }
+                                <div className="flex-1 truncate" title={subNode.applicationName}>
+                                  {subNode.applicationName}
+                                </div>
+                                {/* 목록의 Apdex는 map 응답에 실려 온 노드의 값을 그대로 쓴다
+                                    (ChartsBoard처럼 노드마다 /getApdexScore를 부르지 않는다).
+                                    formula째로 넘겨야 표본이 없어 0으로 온 값을 실패로
+                                    칠하지 않는다. */}
+                                <ApdexScoreValue apdex={subNode.apdex} className="shrink-0" />
+                              </ServerMapMenuItem>
+                            );
+                          })
+                        )}
+                      </div>
+                    </ServerMapMenuContent>
+                  );
+                })()}
+              {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST &&
+                (() => {
+                  const search = serviceGroupSearch.trim().toLowerCase();
+                  const subLinks = serviceGroupLinkTargetRef.current?.subLinks ?? [];
+                  const filteredSubLinks = search
+                    ? subLinks.filter(
+                        (l) =>
+                          l.sourceInfo?.applicationName?.toLowerCase().includes(search) ||
+                          l.targetInfo?.applicationName?.toLowerCase().includes(search),
+                      )
+                    : subLinks;
+                  // 서비스 그룹 링크의 from/to는 ServiceGroupNode key를 가리키므로,
+                  // 그려진 노드에서 찾아 applicationName(=serviceName)을 제목에 사용한다.
+                  // 응답의 nodeDataArray가 아니라 mapView에서 찾는 이유: group을 펼치며 다시 묶은
+                  // 링크는 한쪽 끝이 펼친 group의 자식 application이라 응답의 최상위 노드에 없다.
+                  const linkFromKey = serviceGroupLinkTargetRef.current?.from;
+                  const linkToKey = serviceGroupLinkTargetRef.current?.to;
+                  const nodes = mapView.nodes;
+                  const fromNode = nodes.find((n) => n.key === linkFromKey);
+                  const toNode = nodes.find((n) => n.key === linkToKey);
+                  const linkTitle = serviceGroupLinkTargetRef.current
+                    ? `${fromNode?.applicationName ?? linkFromKey} → ${toNode?.applicationName ?? linkToKey}`
+                    : 'Service Group';
+                  return (
+                    <ServerMapMenuContent
+                      title={linkTitle}
+                      onClose={() => setPopperContentType(undefined)}
+                      className="w-max min-w-80 max-w-[22.5rem]"
                     >
-                      <FaExternalLinkAlt style={{ fill: 'var(--primary)' }} />
-                      Open in new tab
-                    </ServerMapMenuItem>
-                    <Separator />
-                    <ServerMapMenuItem
-                      onClick={() =>
-                        handleClickMenuItem(SERVERMAP_MENU_FUNCTION_TYPE.FILTER_WIZARD)
-                      }
-                    >
-                      <FaGear style={{ fill: 'var(--primary)' }} />
-                      Configures
-                    </ServerMapMenuItem>
-                  </ServerMapMenuContent>
-                )}
-                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.NODE && (
-                  <ServerMapMenuContent title={'Filter Transaction'}>
-                    <ServerMapMenuItem
-                      onClick={() =>
-                        handleClickMenuItem(SERVERMAP_MENU_FUNCTION_TYPE.FILTER_WIZARD)
-                      }
-                    >
-                      <FaGear style={{ fill: 'var(--primary)' }} />
-                      Configures
-                    </ServerMapMenuItem>
-                  </ServerMapMenuContent>
-                )}
-                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.HOVER_NODE && (
-                  <ServerMapMenuContent title={'Apdex Score'}>
-                    {renderApdexScore()}
-                  </ServerMapMenuContent>
-                )}
-                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LIST &&
-                  (() => {
-                    const search = serviceGroupSearch.trim().toLowerCase();
-                    const subNodes = serviceGroupTargetRef.current?.subNodes ?? [];
-                    const filteredSubNodes = search
-                      ? subNodes.filter((n) => n.applicationName?.toLowerCase().includes(search))
-                      : subNodes;
-                    return (
-                      // w-max는 가장 긴 application 이름만큼 팝업을 넓힌다. 상한을 두지 않으면
-                      // 이름이 긴 노드에서 팝업이 map 컨테이너를 넘고, 그 상태로 검색 입력에
-                      // 포커스가 가면 브라우저가 map을 왼쪽으로 스크롤한다(위 클램프 주석 참고).
-                      <ServerMapMenuContent
-                        title={serviceGroupTargetRef.current?.applicationName ?? 'Service Group'}
-                        onClose={() => setPopperContentType(undefined)}
-                        className="w-max min-w-72 max-w-[22.5rem]"
-                      >
-                        <div className="px-3 pb-2">
-                          <div className="relative">
-                            <FaSearch className="absolute -translate-y-1/2 pointer-events-none left-2 top-1/2 text-muted-foreground" />
-                            <Input
-                              ref={serviceGroupSearchRef}
-                              placeholder={t('COMMON.SEARCH_INPUT')}
-                              value={serviceGroupSearch}
-                              onChange={(e) => setServiceGroupSearch(e.target.value)}
-                              className="h-8 pl-7"
-                            />
+                      <div className="px-3 pb-2">
+                        <div className="relative">
+                          <FaSearch className="absolute -translate-y-1/2 pointer-events-none left-2 top-1/2 text-muted-foreground" />
+                          <Input
+                            ref={serviceGroupSearchRef}
+                            placeholder={t('COMMON.SEARCH_INPUT')}
+                            value={serviceGroupSearch}
+                            onChange={(e) => setServiceGroupSearch(e.target.value)}
+                            className="h-8 pl-7"
+                          />
+                        </div>
+                      </div>
+                      <div className="overflow-y-auto max-h-72">
+                        {filteredSubLinks.length === 0 ? (
+                          <div className="px-3 py-2 text-muted-foreground">
+                            {t('COMMON.EMPTY_ON_SEARCH')}
                           </div>
-                        </div>
-                        <div className="overflow-y-auto max-h-72">
-                          {filteredSubNodes.length === 0 ? (
-                            <div className="px-3 py-2 text-muted-foreground">
-                              {t('COMMON.EMPTY_ON_SEARCH')}
-                            </div>
-                          ) : (
-                            filteredSubNodes.map((subNode) => {
-                              const isSelected = subNode.key === selectedSubNodeId;
-                              return (
-                                <ServerMapMenuItem
-                                  key={subNode.key}
-                                  className={cn(isSelected && 'bg-accent font-semibold')}
-                                  onClick={() => handleClickSubNodeItem(subNode)}
+                        ) : (
+                          filteredSubLinks.map((subLink) => {
+                            const isSelected = subLink.key === selectedSubLinkId;
+                            const fromName = subLink.sourceInfo?.applicationName ?? subLink.from;
+                            const toName = subLink.targetInfo?.applicationName ?? subLink.to;
+                            return (
+                              <ServerMapMenuItem
+                                key={subLink.key}
+                                className={cn(isSelected && 'bg-accent font-semibold')}
+                                onClick={() => onClickSubLink?.(subLink)}
+                              >
+                                <div
+                                  className="flex items-center flex-1 min-w-0 gap-1"
+                                  title={`${fromName} → ${toName}`}
                                 >
-                                  {/* 아이콘은 바로 옆 이름이 말해 주는 것을 되풀이할 뿐이라
-                                      스크린 리더에는 읽히지 않게 둔다. */}
-                                  <img
-                                    src={getServerImagePath(subNode)}
-                                    alt=""
-                                    width={28}
-                                    className="shrink-0"
-                                  />
-                                  <div className="flex-1 truncate" title={subNode.applicationName}>
-                                    {subNode.applicationName}
-                                  </div>
-                                  {/* 목록의 Apdex는 map 응답에 실려 온 노드의 값을 그대로 쓴다
-                                      (ChartsBoard처럼 노드마다 /getApdexScore를 부르지 않는다).
-                                      formula째로 넘겨야 표본이 없어 0으로 온 값을 실패로
-                                      칠하지 않는다. */}
-                                  <ApdexScoreValue apdex={subNode.apdex} className="shrink-0" />
-                                </ServerMapMenuItem>
-                              );
-                            })
-                          )}
-                        </div>
-                      </ServerMapMenuContent>
-                    );
-                  })()}
-                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.SERVICE_GROUP_LINK_LIST &&
-                  (() => {
-                    const search = serviceGroupSearch.trim().toLowerCase();
-                    const subLinks = serviceGroupLinkTargetRef.current?.subLinks ?? [];
-                    const filteredSubLinks = search
-                      ? subLinks.filter(
-                          (l) =>
-                            l.sourceInfo?.applicationName?.toLowerCase().includes(search) ||
-                            l.targetInfo?.applicationName?.toLowerCase().includes(search),
-                        )
-                      : subLinks;
-                    // 서비스 그룹 링크의 from/to는 ServiceGroupNode key를 가리키므로,
-                    // 그려진 노드에서 찾아 applicationName(=serviceName)을 제목에 사용한다.
-                    // 응답의 nodeDataArray가 아니라 mapView에서 찾는 이유: group을 펼치며 다시 묶은
-                    // 링크는 한쪽 끝이 펼친 group의 자식 application이라 응답의 최상위 노드에 없다.
-                    const linkFromKey = serviceGroupLinkTargetRef.current?.from;
-                    const linkToKey = serviceGroupLinkTargetRef.current?.to;
-                    const nodes = mapView.nodes;
-                    const fromNode = nodes.find((n) => n.key === linkFromKey);
-                    const toNode = nodes.find((n) => n.key === linkToKey);
-                    const linkTitle = serviceGroupLinkTargetRef.current
-                      ? `${fromNode?.applicationName ?? linkFromKey} → ${toNode?.applicationName ?? linkToKey}`
-                      : 'Service Group';
-                    return (
-                      <ServerMapMenuContent
-                        title={linkTitle}
-                        onClose={() => setPopperContentType(undefined)}
-                        className="w-max min-w-80 max-w-[22.5rem]"
-                      >
-                        <div className="px-3 pb-2">
-                          <div className="relative">
-                            <FaSearch className="absolute -translate-y-1/2 pointer-events-none left-2 top-1/2 text-muted-foreground" />
-                            <Input
-                              ref={serviceGroupSearchRef}
-                              placeholder={t('COMMON.SEARCH_INPUT')}
-                              value={serviceGroupSearch}
-                              onChange={(e) => setServiceGroupSearch(e.target.value)}
-                              className="h-8 pl-7"
-                            />
-                          </div>
-                        </div>
-                        <div className="overflow-y-auto max-h-72">
-                          {filteredSubLinks.length === 0 ? (
-                            <div className="px-3 py-2 text-muted-foreground">
-                              {t('COMMON.EMPTY_ON_SEARCH')}
-                            </div>
-                          ) : (
-                            filteredSubLinks.map((subLink) => {
-                              const isSelected = subLink.key === selectedSubLinkId;
-                              const fromName = subLink.sourceInfo?.applicationName ?? subLink.from;
-                              const toName = subLink.targetInfo?.applicationName ?? subLink.to;
-                              return (
-                                <ServerMapMenuItem
-                                  key={subLink.key}
-                                  className={cn(isSelected && 'bg-accent font-semibold')}
-                                  onClick={() => onClickSubLink?.(subLink)}
-                                >
-                                  <div
-                                    className="flex items-center flex-1 min-w-0 gap-1"
-                                    title={`${fromName} → ${toName}`}
-                                  >
-                                    <span className="truncate">{fromName}</span>
-                                    <span className="shrink-0 text-muted-foreground">→</span>
-                                    <span className="truncate">{toName}</span>
-                                  </div>
-                                  <div className="ml-2 text-muted-foreground shrink-0">
-                                    {addCommas(subLink.totalCount ?? 0)}
-                                  </div>
-                                </ServerMapMenuItem>
-                              );
-                            })
-                          )}
-                        </div>
-                      </ServerMapMenuContent>
-                    );
-                  })()}
-              </div>
-            </ServerMapMenu>
-          )}
+                                  <span className="truncate">{fromName}</span>
+                                  <span className="shrink-0 text-muted-foreground">→</span>
+                                  <span className="truncate">{toName}</span>
+                                </div>
+                                <div className="ml-2 text-muted-foreground shrink-0">
+                                  {addCommas(subLink.totalCount ?? 0)}
+                                </div>
+                              </ServerMapMenuItem>
+                            );
+                          })
+                        )}
+                      </div>
+                    </ServerMapMenuContent>
+                  );
+                })()}
+            </div>
+          </ServerMapMenu>
           <ErrorBoundary>
             {error ? (
               <ThrowError error={error} />
