@@ -65,12 +65,23 @@ public class ModuleSupport {
     public void defineAgentModule(ClassLoader classLoader, URL[] jarFileList) {
         final JavaModule agentModule = newAgentModule(classLoader, jarFileList);
 
+        // Other agents can inject helpers into this loader's unnamed module that access agent packages.
+        // Grant access before loading transport service classes in prepareAgentModule.
+        addPermissionToInjectedHelpers(classLoader, agentModule);
         prepareAgentModule(classLoader, agentModule);
 
 //        addPermissionToLog4jModule(agentModule);
         addPermissionToLog4j2Module(agentModule);
         addPermissionToGuiceModule(agentModule);
         addPermissionToValueAnnotation(agentModule);
+    }
+
+    void addPermissionToInjectedHelpers(ClassLoader classLoader, JavaModule agentModule) {
+        JavaModule unnamedModule = wrapJavaModule(classLoader.getUnnamedModule());
+        agentModule.addReads(unnamedModule);
+        for (String packageName : agentModule.getPackages()) {
+            agentModule.addExports(packageName, unnamedModule);
+        }
     }
 
     private void addPermissionToValueAnnotation(JavaModule agentModule) {
