@@ -21,12 +21,13 @@ import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.LinkCounts;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressKey;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressManager;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.step.StepContribution;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
-import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 
 import java.util.Map;
 
@@ -47,7 +48,7 @@ class OtlpLinkSuppressTaskletTest {
     private final OtlpLinkJoinTasklets.Suppress tasklet = new OtlpLinkJoinTasklets.Suppress(service, manager);
 
     private static ChunkContext chunkContext(long slot) {
-        JobExecution jobExecution = new JobExecution(1L, OtlpLinkJoinLauncher.jobParameters(slot));
+        JobExecution jobExecution = new JobExecution(1L, new JobInstance(1L, OtlpLinkJoinLauncher.JOB_NAME), OtlpLinkJoinLauncher.jobParameters(slot));
         StepExecution stepExecution = new StepExecution("otlpLinkSuppressStep", jobExecution);
         return new ChunkContext(new StepContext(stepExecution));
     }

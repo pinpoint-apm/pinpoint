@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.servicemap.NodeViewEntry;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson2.JsonComponent;
 
 import java.io.IOException;
 import java.util.Map;

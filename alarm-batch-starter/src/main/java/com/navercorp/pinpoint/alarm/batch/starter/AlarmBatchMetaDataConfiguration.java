@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.batch.starter;
 
-import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
+import org.springframework.batch.core.configuration.support.JdbcDefaultBatchConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -37,7 +37,7 @@ import java.util.Objects;
  * back an alarm event.
  */
 @Configuration
-public class AlarmBatchMetaDataConfiguration extends DefaultBatchConfiguration {
+public class AlarmBatchMetaDataConfiguration extends JdbcDefaultBatchConfiguration {
 
     private final DataSource metaDataDataSource;
     private final PlatformTransactionManager metaDataTransactionManager;

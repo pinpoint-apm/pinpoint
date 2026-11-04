@@ -27,9 +27,6 @@ import com.navercorp.pinpoint.alarm.vo.AlarmMetricDefinition;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +34,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 
 import java.util.List;
-import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -130,11 +127,7 @@ class AlarmBatchAppContextTest {
     // Booting half the application makes this class the entry point, so the exclusions the
     // real one declares are declared here too. They are not on AlarmBatchJobConfiguration,
     // because Boot would then apply them to anything that imported it.
-    @EnableAutoConfiguration(exclude = {
-            DataSourceAutoConfiguration.class,
-            SecurityAutoConfiguration.class,
-            BatchAutoConfiguration.class
-    })
+    @EnableAutoConfiguration
     static class OneDataSource {
 
         @Bean

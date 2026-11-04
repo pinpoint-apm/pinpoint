@@ -21,12 +21,13 @@ import com.navercorp.pinpoint.alarm.dao.AlarmNotificationOutboxDao;
 import com.navercorp.pinpoint.batch.util.JobParametersUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
-import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -94,7 +95,7 @@ class AlarmHistoryCleanupTaskletTest {
 
     private static ChunkContext chunkContext() {
         Date scheduleDate = Date.from(SCHEDULE_TIME.toInstant(ZoneOffset.UTC));
-        JobExecution jobExecution = new JobExecution(1L, new JobParametersBuilder()
+        JobExecution jobExecution = new JobExecution(1L, new JobInstance(1L, "alarmHistoryCleanupJob"), new JobParametersBuilder()
                 .addDate(JobParametersUtils.SCHEDULE_DATE_KEY, scheduleDate)
                 .toJobParameters());
         StepExecution stepExecution = new StepExecution("alarmHistoryCleanupStep", jobExecution);
