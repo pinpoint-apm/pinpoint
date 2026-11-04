@@ -35,7 +35,7 @@ public final class Jackson {
     private Jackson() {
     }
 
-    public static ObjectMapper newMapper() {
+    public static JsonMapper newMapper() {
         return newBuilder().build();
     }
 
