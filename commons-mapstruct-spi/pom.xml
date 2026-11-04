@@ -10,6 +10,10 @@
 
     <artifactId>pinpoint-commons-mapstruct-spi</artifactId>
     <name>pinpoint-commons-mapstruct-spi</name>
+    <properties>
+        <junit-jupiter.version>${junit-jupiter5.version}</junit-jupiter.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.mapstruct</groupId>

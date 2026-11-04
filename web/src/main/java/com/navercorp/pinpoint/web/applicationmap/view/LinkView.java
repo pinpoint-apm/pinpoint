@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.LinkViewEntry;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
-import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson2.JsonComponent;
 
 import java.io.IOException;
 import java.util.Collection;

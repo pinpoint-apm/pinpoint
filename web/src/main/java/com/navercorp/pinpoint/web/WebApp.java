@@ -21,24 +21,18 @@ import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {
         SecurityAutoConfiguration.class,
-        SqlInitializationAutoConfiguration.class,
-        SpringDataWebAutoConfiguration.class,
-        RedisAutoConfiguration.class,
-        RedisRepositoriesAutoConfiguration.class,
-        RedisReactiveAutoConfiguration.class,
+        UserDetailsServiceAutoConfiguration.class,
+        ServletWebSecurityAutoConfiguration.class,
         ManagementWebSecurityAutoConfiguration.class
 })
 @Import({

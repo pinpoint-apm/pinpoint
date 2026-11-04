@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.batch.config;
 
-import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
+import org.springframework.batch.core.configuration.JobRegistry;
+import org.springframework.batch.core.configuration.support.JdbcDefaultBatchConfiguration;
+import org.springframework.batch.core.configuration.support.MapJobRegistry;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -25,7 +28,7 @@ import javax.sql.DataSource;
 import java.util.Objects;
 
 @Configuration
-public class MetaDataBatchConfiguration extends DefaultBatchConfiguration {
+public class MetaDataBatchConfiguration extends JdbcDefaultBatchConfiguration {
 
     private final DataSource metaDataDataSource;
     private final PlatformTransactionManager metaDataTransactionManager;
@@ -44,5 +47,15 @@ public class MetaDataBatchConfiguration extends DefaultBatchConfiguration {
     @Override
     protected PlatformTransactionManager getTransactionManager() {
         return metaDataTransactionManager;
+    }
+
+    /**
+     * Spring Batch 6 no longer exposes the {@link JobRegistry} as a bean (the {@code jobOperator} keeps a private one).
+     * Batch job launching and metadata cleanup look jobs up by name, so keep an explicit registry bean;
+     * {@link MapJobRegistry} registers every {@code Job} bean itself once all singletons are instantiated.
+     */
+    @Bean
+    public JobRegistry jobRegistry() {
+        return new MapJobRegistry();
     }
 }

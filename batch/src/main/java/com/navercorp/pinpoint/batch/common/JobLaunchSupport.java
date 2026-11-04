@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.batch.common;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.configuration.JobLocator;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -31,10 +31,10 @@ import java.util.Objects;
  */
 public class JobLaunchSupport implements InitializingBean {
 
-    private final JobLocator locator;
+    private final JobRegistry locator;
     private final JobLauncher launcher;
 
-    public JobLaunchSupport(JobLocator locator, JobLauncher launcher) {
+    public JobLaunchSupport(JobRegistry locator, JobLauncher launcher) {
         this.locator = Objects.requireNonNull(locator, "locator");
         this.launcher = Objects.requireNonNull(launcher, "launcher");
     }

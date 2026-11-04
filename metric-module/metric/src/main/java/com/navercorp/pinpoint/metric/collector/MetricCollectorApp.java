@@ -18,9 +18,8 @@
 package com.navercorp.pinpoint.metric.collector;
 
 import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.actuate.autoconfigure.metrics.export.otlp.OtlpMetricsExportAutoConfiguration;
+import org.springframework.boot.micrometer.metrics.autoconfigure.export.otlp.OtlpMetricsExportAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @SpringBootConfiguration
@@ -28,7 +27,6 @@ import org.springframework.context.annotation.Import;
         MetricCollectorConfig.class
 })
 @EnableAutoConfiguration(exclude = {
-        DataSourceAutoConfiguration.class,
         OtlpMetricsExportAutoConfiguration.class
 })
 public class MetricCollectorApp {

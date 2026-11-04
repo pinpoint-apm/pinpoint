@@ -28,6 +28,10 @@
     <name>pinpoint-commons-profiler</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <junit-jupiter.version>${junit-jupiter5.version}</junit-jupiter.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

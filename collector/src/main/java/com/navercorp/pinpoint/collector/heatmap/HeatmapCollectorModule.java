@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.collector.heatmap.config.HeatmapKafkaConfiguration
 import com.navercorp.pinpoint.collector.heatmap.config.HeatmapPropertySources;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
@@ -28,7 +27,7 @@ import org.springframework.context.annotation.Import;
  * @author minwoo-jung
  */
 @ComponentScan({"com.navercorp.pinpoint.collector.heatmap"})
-@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
+@EnableAutoConfiguration
 @Import({
         HeatmapPropertySources.class,
         HeatmapKafkaConfiguration.class})

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.channel.service.ChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
 import com.navercorp.pinpoint.realtime.dto.Echo;
 import com.navercorp.pinpoint.realtime.serde.ClusterKeyDeserializer;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.jackson2.autoconfigure.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

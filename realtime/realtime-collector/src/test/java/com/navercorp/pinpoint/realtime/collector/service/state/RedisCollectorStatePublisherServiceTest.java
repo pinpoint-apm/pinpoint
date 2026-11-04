@@ -52,7 +52,7 @@ public class RedisCollectorStatePublisherServiceTest {
 
         doReturn(TEST_RESULT.getBytes()).when(serde).serializeToByteArray(eq(state));
         doReturn(redisValueOperations).when(redisTemplate).opsForValue();
-        doNothing().when(redisValueOperations).set(eq(TEST_KEY), eq(TEST_RESULT), any());
+        doNothing().when(redisValueOperations).set(eq(TEST_KEY), eq(TEST_RESULT), any(Duration.class));
 
         RedisCollectorStatePublisherService service = new RedisCollectorStatePublisherService(
                 redisTemplate,
@@ -62,7 +62,7 @@ public class RedisCollectorStatePublisherServiceTest {
         );
         service.publish(state);
 
-        verify(redisValueOperations).set(eq(TEST_KEY), eq(TEST_RESULT), any());
+        verify(redisValueOperations).set(eq(TEST_KEY), eq(TEST_RESULT), any(Duration.class));
     }
 
 }

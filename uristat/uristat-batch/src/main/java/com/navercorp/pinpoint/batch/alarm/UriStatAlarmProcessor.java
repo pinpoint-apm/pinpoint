@@ -13,7 +13,7 @@ import com.navercorp.pinpoint.pinot.alarm.service.PinotAlarmService;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
 import jakarta.annotation.Nonnull;
-import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
 
 import java.util.ArrayList;
 import java.util.HashMap;

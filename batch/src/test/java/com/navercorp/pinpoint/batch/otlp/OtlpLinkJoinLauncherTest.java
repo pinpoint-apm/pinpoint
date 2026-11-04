@@ -20,12 +20,13 @@ import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexKeys;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -68,7 +69,7 @@ class OtlpLinkJoinLauncherTest {
             }
             launched.add(slot);
             now.addAndGet(jobDuration.getOrDefault(slot, 0L));
-            JobExecution execution = new JobExecution(1L, parameters);
+            JobExecution execution = new JobExecution(1L, new JobInstance(1L, OtlpLinkJoinLauncher.JOB_NAME), parameters);
             execution.setStatus(failing.contains(slot) ? BatchStatus.FAILED : BatchStatus.COMPLETED);
             return execution;
         });
@@ -87,8 +88,8 @@ class OtlpLinkJoinLauncherTest {
     @Test
     void slotIsTheOnlyIdentifyingParameter() {
         JobParameters parameters = OtlpLinkJoinLauncher.jobParameters(42);
-        assertThat(parameters.getParameters()).containsOnlyKeys(OtlpLinkJoinLauncher.SLOT_PARAMETER);
-        assertThat(parameters.getParameters().get(OtlpLinkJoinLauncher.SLOT_PARAMETER).isIdentifying()).isTrue();
+        assertThat(parameters.parameters()).extracting(parameter -> parameter.name()).containsOnly(OtlpLinkJoinLauncher.SLOT_PARAMETER);
+        assertThat(parameters.getParameter(OtlpLinkJoinLauncher.SLOT_PARAMETER).identifying()).isTrue();
     }
 
     @Test

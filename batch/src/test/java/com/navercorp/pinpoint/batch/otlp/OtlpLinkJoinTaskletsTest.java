@@ -20,13 +20,14 @@ import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexKeys;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkJoinService;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.step.StepContribution;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
-import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -50,13 +51,13 @@ class OtlpLinkJoinTaskletsTest {
     private final OtlpLinkJoinTasklets.Cleanup cleanup = new OtlpLinkJoinTasklets.Cleanup(service, jobRepository, TTL, now::get);
 
     private static ChunkContext chunkContext(long slot) {
-        JobExecution jobExecution = new JobExecution(1L, OtlpLinkJoinLauncher.jobParameters(slot));
+        JobExecution jobExecution = new JobExecution(1L, new JobInstance(1L, OtlpLinkJoinLauncher.JOB_NAME), OtlpLinkJoinLauncher.jobParameters(slot));
         StepExecution stepExecution = new StepExecution("otlpLinkCleanupStep", jobExecution);
         return new ChunkContext(new StepContext(stepExecution));
     }
 
     private void previousSlotEndedWith(BatchStatus status) {
-        JobExecution execution = new JobExecution(2L, OtlpLinkJoinLauncher.jobParameters(SLOT - 1));
+        JobExecution execution = new JobExecution(2L, new JobInstance(2L, OtlpLinkJoinLauncher.JOB_NAME), OtlpLinkJoinLauncher.jobParameters(SLOT - 1));
         execution.setStatus(status);
         when(jobRepository.getLastJobExecution(eq(OtlpLinkJoinLauncher.JOB_NAME), eq(OtlpLinkJoinLauncher.jobParameters(SLOT - 1))))
                 .thenReturn(execution);

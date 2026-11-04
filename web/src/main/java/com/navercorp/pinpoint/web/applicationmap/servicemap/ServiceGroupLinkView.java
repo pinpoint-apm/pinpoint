@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
-import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson2.JsonComponent;
 
 import java.io.IOException;
 import java.util.List;
