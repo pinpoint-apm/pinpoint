@@ -209,6 +209,22 @@ export const ServerMapCore = ({
       setServiceGroupSearch('');
     }
   }, [popperContentType]);
+  // 우클릭 핸들러도 한 번 등록되므로 disableMenu를 ref로 본다. 켜지는 순간 이미 열린 우클릭 메뉴만
+  // 닫는다 — hover·service group 팝업은 disableMenu와 무관하게 남는다.
+  const disableMenuRef = React.useRef(disableMenu);
+  React.useEffect(() => {
+    disableMenuRef.current = disableMenu;
+    if (!disableMenu) {
+      return;
+    }
+    setPopperContentType((type) =>
+      type === SERVERMAP_MENU_CONTENT_TYPE.BACKGROUND ||
+      type === SERVERMAP_MENU_CONTENT_TYPE.NODE ||
+      type === SERVERMAP_MENU_CONTENT_TYPE.EDGE
+        ? undefined
+        : type,
+    );
+  }, [disableMenu]);
 
   /**
    * 팝업을 map 영역 안쪽으로 접어 넣는다.
@@ -434,7 +450,7 @@ export const ServerMapCore = ({
     eventType,
     position,
   }) => {
-    if (eventType === 'right' && !disableMenu) {
+    if (eventType === 'right' && !disableMenuRef.current) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.BACKGROUND);
     }
@@ -498,7 +514,12 @@ export const ServerMapCore = ({
     // service group 노드는 필터 메뉴를 열지 않는다. 기준 application이 없어 filteredMap 조회가
     // 성립하지 않으므로(`getFilterTargetApplication`이 null) 메뉴를 띄워봐야 눌러도 아무 일이
     // 일어나지 않는다. transactionInfo가 없는 노드에 메뉴를 띄우지 않는 것과 같은 처리다.
-    if (eventType === 'right' && !disableMenu && clickedData?.transactionInfo && !serviceGroup) {
+    if (
+      eventType === 'right' &&
+      !disableMenuRef.current &&
+      clickedData?.transactionInfo &&
+      !serviceGroup
+    ) {
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.NODE);
       rightClickTargetRef.current = clickedData;
@@ -582,7 +603,7 @@ export const ServerMapCore = ({
     // 때문이다. 노드와 같은 이유이고, filteredMap으로 연결되는 것은 Application→Application뿐이다.
     if (
       eventType === 'right' &&
-      !disableMenu &&
+      !disableMenuRef.current &&
       clickedData?.transactionInfo &&
       !serviceGroupLink
     ) {
