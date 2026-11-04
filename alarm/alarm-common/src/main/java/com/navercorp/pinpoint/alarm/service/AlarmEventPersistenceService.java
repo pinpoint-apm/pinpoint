@@ -255,7 +255,8 @@ public class AlarmEventPersistenceService {
         for (AlarmCondition leaf : leaves) {
             MetricQueryKey key = MetricQueryKey.from(leaf);
             results.add(ConditionResult.from(leaf, key,
-                    metricResults.values().get(key), metricResults.details(key)));
+                    metricResults.values().get(key),
+                    metricResults.details(key).stream().map(MetricQueryResult.Detail::textWithId).toList()));
         }
         AlarmContext context = new AlarmContext(results, EffectiveRuleSnapshot.from(rule),
                 rule.getServiceName(), rule.getApplicationName(),

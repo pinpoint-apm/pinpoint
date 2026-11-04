@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.QueriedRange;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
@@ -401,6 +402,70 @@ class AlarmMessageFormatterTest {
     }
 
     @Test
+    void detailLine_slackLinksTheLineWithTheIdInFront() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = linkFormatter.formatWebhookBody(rule, null,
+                linkedDetail(rule, new Detail("TypeError: <x>", "e1", "/errors/g1")), true);
+
+        assertThat(body).contains("        \u2022 <https://pinpoint.example.com/errors/g1|[e1] TypeError: &lt;x&gt;>");
+    }
+
+    @Test
+    void detailLine_plainWebhookPutsTheLinkOnItsOwnLine() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = linkFormatter.formatWebhookBody(rule, null,
+                linkedDetail(rule, new Detail("TypeError", "e1", "/errors/g1")), false);
+
+        assertThat(body).contains("[e1] TypeError\n          https://pinpoint.example.com/errors/g1\n");
+    }
+
+    @Test
+    void detailLine_emailLinksTheLineWithTheIdInFront() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String html = linkFormatter.formatHtmlBody(rule, null,
+                linkedDetail(rule, new Detail("TypeError", "e1", "/errors/g1")));
+
+        assertThat(html).contains("href=\"https://pinpoint.example.com/errors/g1\"", "- [e1] TypeError");
+    }
+
+    @Test
+    void detailLine_customWebhookTemplateCarriesTheIdAndTheLink() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = linkFormatter.formatWebhookBody(rule, "${details}",
+                linkedDetail(rule, new Detail("TypeError", "e1", "/errors/g1")), false);
+
+        assertEquals("- [e1] TypeError\n  https://pinpoint.example.com/errors/g1", body);
+    }
+
+    @Test
+    void detailLine_idIsKeptWhenALongTextIsCut() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = linkFormatter.formatWebhookBody(rule, "${details}",
+                linkedDetail(rule, new Detail("x".repeat(500), "e1", null)), false);
+
+        assertThat(body).startsWith("- [e1] xxx");
+    }
+
+    @Test
+    void detailLine_smsLeavesTheIdAndTheLinkOut() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        MetricQueryResult results = linkedDetail(rule, new Detail("TypeError", "e1", "/errors/g1"));
+
+        assertThat(linkFormatter.formatSmsBody(rule, null, results))
+                .contains("    - TypeError\n").doesNotContain("e1", "/errors/g1");
+        assertEquals("- TypeError", linkFormatter.formatSmsBody(rule, "${details}", results));
+    }
+
+    @Test
+    void detailLine_withoutBaseUrlHasNoLink() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = formatter.formatWebhookBody(rule, null,
+                linkedDetail(rule, new Detail("TypeError", "e1", "/errors/g1")), true);
+
+        assertThat(body).contains("        \u2022 [e1] TypeError\n").doesNotContain("/errors/g1");
+    }
+
+    @Test
     void detailLink_usesTheRangeTheQueryCovered() {
         AlarmRuleV2 rule = createNewGroupRule();
         rule.setApplicationType(AlarmApplication.TYPE_JAVASCRIPT);
@@ -620,7 +685,13 @@ class AlarmMessageFormatterTest {
     private MetricQueryResult metricResults(AlarmRuleV2 rule, double value, List<String> details,
                                             int omitted) {
         MetricQueryKey key = MetricQueryKey.from(rule.getConditions());
-        return new MetricQueryResult(Map.of(key, value), Map.of(key, details), Map.of(key, omitted), null);
+        return new MetricQueryResult(Map.of(key, value),
+                Map.of(key, details.stream().map(Detail::of).toList()), Map.of(key, omitted), null);
+    }
+
+    private MetricQueryResult linkedDetail(AlarmRuleV2 rule, Detail detail) {
+        MetricQueryKey key = MetricQueryKey.from(rule.getConditions());
+        return new MetricQueryResult(Map.of(key, 1.0), Map.of(key, List.of(detail)), null);
     }
 
     private MetricQueryResult metricResultsWithRange(AlarmRuleV2 rule, double value, QueriedRange range) {

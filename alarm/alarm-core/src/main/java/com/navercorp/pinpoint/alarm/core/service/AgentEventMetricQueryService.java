@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.alarm.core.service;
 import com.navercorp.pinpoint.alarm.core.vo.CoreAlarmDataSource;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
@@ -94,7 +95,7 @@ public class AgentEventMetricQueryService implements MetricQueryService {
         Application application = applicationResolver.resolve(rule);
 
         Map<MetricQueryKey, Double> values = new LinkedHashMap<>();
-        Map<MetricQueryKey, List<String>> details = new LinkedHashMap<>();
+        Map<MetricQueryKey, List<Detail>> details = new LinkedHashMap<>();
         MetricQueryResult.QueriedRange range = null;
 
         for (AlarmCondition leaf : conditions) {
@@ -118,8 +119,8 @@ public class AgentEventMetricQueryService implements MetricQueryService {
             List<String> deadlocked = deadlockedAgents(agentIds, window);
             values.put(key, (double) deadlocked.size());
             if (!deadlocked.isEmpty()) {
-                details.put(key, List.of(String.format("deadlocked thread detected on %d of %d agent%s",
-                        deadlocked.size(), agentIds.size(), agentIds.size() == 1 ? "" : "s")));
+                details.put(key, List.of(Detail.of(String.format("deadlocked thread detected on %d of %d agent%s",
+                        deadlocked.size(), agentIds.size(), agentIds.size() == 1 ? "" : "s"))));
             }
             range = MetricQueryResult.QueriedRange.union(range,
                     new MetricQueryResult.QueriedRange(window.getFrom(), window.getTo()));

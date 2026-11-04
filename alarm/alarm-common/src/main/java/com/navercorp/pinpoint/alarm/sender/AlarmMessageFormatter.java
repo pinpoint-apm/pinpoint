@@ -20,18 +20,17 @@ import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
 import com.navercorp.pinpoint.alarm.evaluation.ConditionUtils;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.QueriedRange;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.HtmlUtils;
-import org.springframework.web.util.UriUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -44,6 +43,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -111,7 +111,7 @@ public class AlarmMessageFormatter {
     public String formatTitle(AlarmRuleV2 rule, String customTitle, MetricQueryResult metricResults) {
         ZonedDateTime now = ZonedDateTime.now();
         String template = StringUtils.hasText(customTitle) ? customTitle : defaultTitleTemplate(rule);
-        return replaceVariables(template, rule, metricResults, now, UNLIMITED_DETAIL_BYTES);
+        return replaceVariables(template, rule, textOnly(metricResults), now, UNLIMITED_DETAIL_BYTES);
     }
 
     private static String defaultTitleTemplate(AlarmRuleV2 rule) {
@@ -135,10 +135,20 @@ public class AlarmMessageFormatter {
     private String formatBody(AlarmRuleV2 rule, String customTemplate, MetricQueryResult metricResults,
                               int detailBudgetBytes) {
         ZonedDateTime now = ZonedDateTime.now();
+        MetricQueryResult textOnly = textOnly(metricResults);
         if (StringUtils.hasText(customTemplate)) {
-            return replaceVariables(customTemplate, rule, metricResults, now, detailBudgetBytes);
+            return replaceVariables(customTemplate, rule, textOnly, now, detailBudgetBytes);
         }
-        return buildDefaultBody(rule, metricResults, now, detailBudgetBytes);
+        return buildDefaultBody(rule, textOnly, now, detailBudgetBytes);
+    }
+
+    /** The SMS and the title keep to the text: the id and the link are long, and an SMS is billed by length. */
+    private static MetricQueryResult textOnly(MetricQueryResult metricResults) {
+        Map<MetricQueryKey, List<Detail>> details = new LinkedHashMap<>();
+        metricResults.details().forEach((key, lines) ->
+                details.put(key, lines.stream().map(line -> Detail.of(line.text())).toList()));
+        return new MetricQueryResult(metricResults.values(), details, metricResults.omittedDetails(),
+                metricResults.range());
     }
 
     /**
@@ -194,8 +204,8 @@ public class AlarmMessageFormatter {
 
             Details details = buildDetails(metricResults.details(e.getKey()), metricResults.omittedDetails(e.getKey()),
                     HTML_DETAIL_MAX_CHARS, UNLIMITED_DETAIL_BYTES);
-            for (String line : details.lines()) {
-                sb.append("        • ").append(escapeMrkdwn(line, mrkdwn)).append("\n");
+            for (Line line : details.lines()) {
+                sb.append("        • ").append(linkedLine(line, mrkdwn)).append("\n");
             }
             if (details.more() > 0) {
                 sb.append("        ").append(details.moreText()).append("\n");
@@ -323,10 +333,12 @@ public class AlarmMessageFormatter {
         }
     }
 
-    /**
-     * Detail lines that fit the channel budget, plus how many were left out.
-     */
-    record Details(List<String> lines, int more) {
+    /** A detail line as rendered: the id is in the text, and the url is absolute or null. */
+    record Line(String text, String url) {
+    }
+
+    /** Detail lines that fit the channel budget, plus how many were left out. */
+    record Details(List<Line> lines, int more) {
 
         static final Details NONE = new Details(List.of(), 0);
 
@@ -344,22 +356,43 @@ public class AlarmMessageFormatter {
      * {@code omitted} is what the query already left out, so the count stays right when it
      * returned only a sample.
      */
-    private static Details buildDetails(List<String> details, int omitted, int maxChars, int budgetBytes) {
+    private Details buildDetails(List<Detail> details, int omitted, int maxChars, int budgetBytes) {
         if (details.isEmpty()) {
             return Details.NONE;
         }
-        List<String> lines = new ArrayList<>(details.size());
+        List<Line> lines = new ArrayList<>(details.size());
         int consumed = 0;
-        for (String detail : details) {
-            String line = truncate(stripControlChars(detail), maxChars);
-            int size = line.getBytes(StandardCharsets.UTF_8).length;
+        for (Detail detail : details) {
+            String id = detail.id() != null ? stripControlChars(detail.id()) : null;
+            String text = new Detail(truncate(stripControlChars(detail.text()), maxChars), id, null).textWithId();
+            int size = utf8Length(text);
             if (consumed + size > budgetBytes) {
                 break;
             }
-            lines.add(line);
+            String url = detail.link() != null && pinpointBaseUrl != null ? pinpointBaseUrl + detail.link() : null;
+            lines.add(new Line(text, url));
             consumed += size;
         }
         return new Details(lines, details.size() - lines.size() + omitted);
+    }
+
+    private static int utf8Length(String text) {
+        return text.getBytes(StandardCharsets.UTF_8).length;
+    }
+
+    /**
+     * Slack takes the link as the line itself; anywhere else the URL goes on its own line,
+     * since a URL glued to text from the monitored application is not what a client turns
+     * into a link.
+     */
+    private static String linkedLine(Line line, boolean mrkdwn) {
+        if (line.url() == null) {
+            return escapeMrkdwn(line.text(), mrkdwn);
+        }
+        if (mrkdwn) {
+            return "<" + line.url() + "|" + escapeMrkdwn(line.text(), mrkdwn) + ">";
+        }
+        return line.text() + "\n          " + line.url();
     }
 
     private static String truncate(String text, int maxChars) {
@@ -426,9 +459,9 @@ public class AlarmMessageFormatter {
 
             Details details = buildDetails(metricResults.details(e.getKey()), metricResults.omittedDetails(e.getKey()),
                     PLAIN_DETAIL_MAX_CHARS, detailBudget);
-            for (String line : details.lines()) {
-                sb.append("    - ").append(line).append("\n");
-                detailBudget -= line.getBytes(StandardCharsets.UTF_8).length;
+            for (Line line : details.lines()) {
+                sb.append("    - ").append(line.text()).append("\n");
+                detailBudget -= utf8Length(line.text());
             }
             if (details.more() > 0) {
                 sb.append("    ").append(details.moreText()).append("\n");
@@ -473,34 +506,10 @@ public class AlarmMessageFormatter {
                 : toMs - 1000L * (rule.getCheckIntervalSec() != null ? rule.getCheckIntervalSec() : 0);
         return dataSource.detailLink(
                 pinpointBaseUrl,
-                serviceSegment(rule),
-                encodePathSegment(nullSafe(rule.getApplicationName()))
-                        + "@" + encodePathSegment(nullSafe(rule.getApplicationType())),
+                AlarmDataSource.serviceSegment(rule.getServiceName()),
+                AlarmDataSource.applicationSegment(rule.getApplicationName(), rule.getApplicationType()),
                 fromMs,
                 toMs);
-    }
-
-    /**
-     * An application name is whatever the agent reported it to be, and every detailLink puts it
-     * in a path, so it is encoded here rather than left to each data source. Each half is a path
-     * segment of its own; '@' joins them.
-     */
-    private static String encodePathSegment(String segment) {
-        return UriUtils.encodePathSegment(segment, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * The service of the rule as a path segment, for every link that opens a page of the web.
-     * A rule saved without a service belongs to DEFAULT, the service the web takes when a request
-     * names none.
-     * <p>
-     * The web reads a service segment with decodeURIComponent, and takes a segment that keeps a raw
-     * '@' for an application. So '@' has to be encoded too, which {@link #encodePathSegment} does not do.
-     */
-    private static String serviceSegment(AlarmRuleV2 rule) {
-        String serviceName = StringUtils.hasText(rule.getServiceName())
-                ? rule.getServiceName() : ServiceUid.DEFAULT_SERVICE_UID_NAME;
-        return UriUtils.encode(serviceName, StandardCharsets.UTF_8);
     }
 
     /**
@@ -515,7 +524,7 @@ public class AlarmMessageFormatter {
         return String.format("%s%s/%s?ruleId=%d&applicationName=%s&applicationType=%s",
                 pinpointBaseUrl,
                 alarmPagePath,
-                serviceSegment(rule),
+                AlarmDataSource.serviceSegment(rule.getServiceName()),
                 rule.getId(),
                 URLEncoder.encode(nullSafe(rule.getApplicationName()), StandardCharsets.UTF_8),
                 URLEncoder.encode(nullSafe(rule.getApplicationType()), StandardCharsets.UTF_8));
@@ -585,15 +594,18 @@ public class AlarmMessageFormatter {
     /**
      * Renders every metric's detail lines as one block for {@code ${details}} in custom templates.
      */
-    private static String buildDetailSummary(MetricQueryResult metricResults, int detailBudgetBytes) {
+    private String buildDetailSummary(MetricQueryResult metricResults, int detailBudgetBytes) {
         List<String> lines = new ArrayList<>();
         int budget = detailBudgetBytes;
         for (Map.Entry<MetricQueryKey, Double> e : metricResults.values().entrySet()) {
             Details details = buildDetails(metricResults.details(e.getKey()), metricResults.omittedDetails(e.getKey()),
                     PLAIN_DETAIL_MAX_CHARS, budget);
-            for (String line : details.lines()) {
-                lines.add("- " + line);
-                budget -= line.getBytes(StandardCharsets.UTF_8).length;
+            for (Line line : details.lines()) {
+                lines.add("- " + line.text());
+                budget -= utf8Length(line.text());
+                if (line.url() != null) {
+                    lines.add("  " + line.url());
+                }
             }
             if (details.more() > 0) {
                 lines.add(details.moreText());

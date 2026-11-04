@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.alarm.core.service;
 import com.navercorp.pinpoint.alarm.evaluation.ConditionEvaluator;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
@@ -92,7 +93,7 @@ class AgentEventMetricQueryServiceTest {
         MetricQueryResult result = query(dao, List.of("agent-a", "agent-b"));
         MetricQueryKey key = result.values().keySet().iterator().next();
 
-        assertEquals(List.of("deadlocked thread detected on 1 of 2 agents"), result.details(key));
+        assertEquals(List.of(Detail.of("deadlocked thread detected on 1 of 2 agents")), result.details(key));
     }
 
     @Test
