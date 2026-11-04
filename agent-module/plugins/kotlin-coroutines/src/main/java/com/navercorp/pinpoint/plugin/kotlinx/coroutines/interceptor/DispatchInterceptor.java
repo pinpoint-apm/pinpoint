@@ -59,7 +59,7 @@ public class DispatchInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
@@ -91,7 +91,7 @@ public class DispatchInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
