@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.alarm.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;

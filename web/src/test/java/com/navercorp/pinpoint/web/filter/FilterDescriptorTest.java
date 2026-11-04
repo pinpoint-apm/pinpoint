@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,27 +69,27 @@ public class FilterDescriptorTest {
     private String writeJsonString() throws IOException {
         StringWriter writer = new StringWriter();
 
-        try (JsonGenerator json = mapper.getFactory().createGenerator(writer)) {
+        try (JsonGenerator json = mapper.createGenerator(writer)) {
 
 //        json.writeStartArray();
             json.writeStartObject();
-            json.writeStringField("fs", "FROM_SERVICE_NAME");
-            json.writeStringField("fa", "FROM_APPLICATION");
-            json.writeStringField("fst", "FROM_SERVICE_TYPE");
-            json.writeStringField("fan", "FROM_AGENT_ID");
+            json.writeStringProperty("fs", "FROM_SERVICE_NAME");
+            json.writeStringProperty("fa", "FROM_APPLICATION");
+            json.writeStringProperty("fst", "FROM_SERVICE_TYPE");
+            json.writeStringProperty("fan", "FROM_AGENT_ID");
             // fromResponseTime
-            json.writeNumberField("rf", 0);
+            json.writeNumberProperty("rf", 0);
 
-            json.writeStringField("ts", "TO_SERVICE_NAME");
-            json.writeStringField("ta", "TO_APPLICATION");
-            json.writeStringField("tst", "TO_SERVICE_TYPE");
-            json.writeStringField("tan", "TO_AGENT_ID");
+            json.writeStringProperty("ts", "TO_SERVICE_NAME");
+            json.writeStringProperty("ta", "TO_APPLICATION");
+            json.writeStringProperty("tst", "TO_SERVICE_TYPE");
+            json.writeStringProperty("tan", "TO_AGENT_ID");
             // toResponseTime
-            json.writeNumberField("rt", 1000);
+            json.writeNumberProperty("rt", 1000);
 
-            json.writeNumberField("ie", 1);
+            json.writeNumberProperty("ie", 1);
 
-            json.writeStringField("url", encodeBase64("/**"));
+            json.writeStringProperty("url", encodeBase64("/**"));
             json.writeEndObject();
 //        json.writeEndArray();
 
@@ -122,7 +123,7 @@ public class FilterDescriptorTest {
 
     @Test
     public void invalidJson() {
-        Assertions.assertThrows(IOException.class, () -> {
+        Assertions.assertThrows(JacksonException.class, () -> {
             mapper.readValue("INVALID", new TypeReference<List<FilterDescriptor>>() {
             });
         });

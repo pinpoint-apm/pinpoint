@@ -15,9 +15,10 @@
  */
 package com.navercorp.pinpoint.alarm.vo;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,8 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmJsonMappingTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private final ObjectMapper objectMapper = JsonMapper.builder()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     @Test
     void alarmCondition_deserializesLeafEnums() throws Exception {
@@ -119,7 +121,7 @@ class AlarmJsonMappingTest {
                 {"type": "branch", "metric": "error_count", "op": ">", "threshold": 100, "windowSec": 300}
                 """;
 
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> objectMapper.readValue(json, AlarmCondition.class));
     }
 
@@ -129,7 +131,7 @@ class AlarmJsonMappingTest {
                 {"type": "LEAF", "metric": "error_count", "op": "~=", "threshold": 100, "windowSec": 300}
                 """;
 
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> objectMapper.readValue(json, AlarmCondition.class));
     }
 
@@ -151,7 +153,7 @@ class AlarmJsonMappingTest {
                 {"type": "GROUP", "operator": "XOR", "criteria": []}
                 """;
 
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> objectMapper.readValue(json, AlarmCondition.class));
     }
 
@@ -161,7 +163,7 @@ class AlarmJsonMappingTest {
                 {"type": "LEAF", "metric": "error_count", "op": ">", "threshold": 100, "windowSec": 300, "aggregation": "MEDIAN"}
                 """;
 
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> objectMapper.readValue(json, AlarmCondition.class));
     }
 
@@ -178,7 +180,7 @@ class AlarmJsonMappingTest {
                 }
                 """;
 
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> objectMapper.readValue(json, AlarmCondition.class));
     }
 
@@ -196,7 +198,7 @@ class AlarmJsonMappingTest {
                 {"key": "agent", "op": "REGEX", "value": "prod.*"}
                 """;
 
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> objectMapper.readValue(json, AlarmFilter.class));
     }
 
@@ -211,7 +213,7 @@ class AlarmJsonMappingTest {
                 }
                 """;
 
-        assertThrows(JsonMappingException.class,
+        assertThrows(DatabindException.class,
                 () -> objectMapper.readValue(json, AlarmFilter.class));
     }
 }

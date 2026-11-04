@@ -1,16 +1,14 @@
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-import java.io.IOException;
-
-public class ServiceTypeDescView extends JsonSerializer<ServiceType> {
+public class ServiceTypeDescView extends ValueSerializer<ServiceType> {
 
     @Override
-    public void serialize(ServiceType serviceType, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeObject(serviceType.getDesc());
+    public void serialize(ServiceType serviceType, JsonGenerator jgen, SerializationContext provider) {
+        jgen.writePOJO(serviceType.getDesc());
     }
 }

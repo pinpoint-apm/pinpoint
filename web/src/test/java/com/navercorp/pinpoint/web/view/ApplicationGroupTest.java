@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.bo.Application;
@@ -21,7 +21,7 @@ public class ApplicationGroupTest {
     private final ObjectMapper mapper = Jackson.newMapper();
 
     @Test
-    public void getApplicationList() throws JsonProcessingException {
+    public void getApplicationList() throws JacksonException {
         Application app1 = new Application("test1", ServiceType.TEST);
         Application app2 = new Application("test2", ServiceType.TEST);
         ApplicationGroup group = new ApplicationGroup(List.of(app1, app2));

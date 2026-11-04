@@ -22,10 +22,12 @@ import com.navercorp.pinpoint.channel.service.ChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
 import com.navercorp.pinpoint.realtime.dto.Echo;
 import com.navercorp.pinpoint.realtime.serde.ClusterKeyDeserializer;
-import org.springframework.boot.jackson2.autoconfigure.Jackson2ObjectMapperBuilderCustomizer;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import tools.jackson.databind.module.SimpleModule;
 
 import java.net.URI;
 import java.time.Duration;
@@ -38,9 +40,11 @@ import java.time.Duration;
 public class EchoServiceProtocolConfig {
 
     @Bean
-    public Jackson2ObjectMapperBuilderCustomizer clusterKeyDeserializerCustomizer() {
+    public JsonMapperBuilderCustomizer clusterKeyDeserializerCustomizer() {
         return builder -> {
-            builder.deserializers(new ClusterKeyDeserializer());
+            SimpleModule module = new SimpleModule("ClusterKeyDeserializer");
+            module.addDeserializer(ClusterKey.class, new ClusterKeyDeserializer());
+            builder.addModule(module);
         };
     }
 

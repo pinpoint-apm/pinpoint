@@ -15,11 +15,10 @@
  */
 package com.navercorp.pinpoint.alarm.util.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -28,11 +27,10 @@ import java.time.ZoneOffset;
  * A field carrying one says so on the way out, rather than leaving a reader to assume its own
  * zone -- which is right only where that zone happens to be the one the row was written on.
  */
-public class UtcTimestampSerializer extends JsonSerializer<LocalDateTime> {
+public class UtcTimestampSerializer extends ValueSerializer<LocalDateTime> {
 
     @Override
-    public void serialize(LocalDateTime value, JsonGenerator generator, SerializerProvider provider)
-            throws IOException {
+    public void serialize(LocalDateTime value, JsonGenerator generator, SerializationContext provider) {
         generator.writeString(value.toInstant(ZoneOffset.UTC).toString());
     }
 }

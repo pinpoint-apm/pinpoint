@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.Test;
 
@@ -71,7 +71,7 @@ class MapStructUtilsTest {
 
 
     @Test
-    void stringListToJson() throws JsonProcessingException {
+    void stringListToJson() throws JacksonException {
         ObjectMapper mapper = Jackson.newMapper();
         MapStructUtils mapStructUtils = new MapStructUtils(mapper);
 
@@ -81,7 +81,7 @@ class MapStructUtilsTest {
     }
 
     @Test
-    void integerListToJson() throws JsonProcessingException {
+    void integerListToJson() throws JacksonException {
         ObjectMapper mapper = Jackson.newMapper();
         MapStructUtils mapStructUtils = new MapStructUtils(mapper);
 

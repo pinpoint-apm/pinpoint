@@ -17,16 +17,14 @@
 
 package com.navercorp.pinpoint.common.server.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class YamlConfiguration {
     @Bean
-    public YAMLMapper yamlMapper(ObjectMapper objectMapper) {
-        ObjectMapper yamlMapper = objectMapper.copyWith(new YAMLFactory());
-        return new YAMLMapper(yamlMapper);
+    public YAMLMapper yamlMapper() {
+        return new YAMLMapper(Jackson.newYamlMapper());
     }
 }

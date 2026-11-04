@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.dao.pinot.MultiValueTagTypeHandler;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.timeseries.point.DoubleDataPoint;

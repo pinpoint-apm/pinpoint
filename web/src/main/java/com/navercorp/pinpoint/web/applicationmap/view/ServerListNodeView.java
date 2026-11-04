@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 
-import java.io.IOException;
 import java.util.Objects;
 
 public interface ServerListNodeView {
 
-    default void writeServerList(NodeView nodeView, JsonGenerator jgen) throws IOException {
+    default void writeServerList(NodeView nodeView, JsonGenerator jgen) {
     }
 
     static ServerListNodeView detailedView(HyperLinkFactory hyperLinkFactory) {
@@ -49,13 +48,13 @@ public interface ServerListNodeView {
         }
 
         @Override
-        public void writeServerList(NodeView nodeView, JsonGenerator jgen) throws IOException {
+        public void writeServerList(NodeView nodeView, JsonGenerator jgen) {
             Node node = nodeView.getNode();
             if (node.getServiceType().isUnknown()) {
                 JacksonWriterUtils.writeEmptyObject(jgen, "serverList");
             } else {
                 ServerGroupList serverGroupList = node.getServerGroupList();
-                jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, hyperLinkFactory));
+                jgen.writePOJOProperty("serverList", new ServerGroupListView(serverGroupList, hyperLinkFactory));
             }
         }
     }

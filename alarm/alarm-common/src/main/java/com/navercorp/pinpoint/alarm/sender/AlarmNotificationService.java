@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.alarm.sender;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
 import com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationChannelDao;
@@ -142,7 +142,7 @@ public class AlarmNotificationService {
     private String serializePayload(AlarmDeliveryPayload payload) {
         try {
             return payloadWriter.writeValueAsString(payload);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new AlarmSendException("Failed to serialize notification payload", e);
         }
     }
@@ -150,7 +150,7 @@ public class AlarmNotificationService {
     private AlarmDeliveryPayload deserializePayload(String payload) {
         try {
             return payloadReader.readValue(payload);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new AlarmSendException("Failed to deserialize notification payload", e);
         }
     }

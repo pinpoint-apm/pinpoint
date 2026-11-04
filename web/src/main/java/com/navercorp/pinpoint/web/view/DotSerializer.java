@@ -16,19 +16,17 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
-
-import java.io.IOException;
 
 /**
  * @author emeroad
  */
-public class DotSerializer extends JsonSerializer<Dot> {
+public class DotSerializer extends ValueSerializer<Dot> {
     @Override
-    public void serialize(Dot dot, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(Dot dot, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeStartArray();
         jgen.writeNumber(dot.getAcceptedTime());
         jgen.writeNumber(dot.getElapsedTime());

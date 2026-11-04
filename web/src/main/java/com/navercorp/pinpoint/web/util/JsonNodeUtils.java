@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.jspecify.annotations.Nullable;
 
 public final class JsonNodeUtils {

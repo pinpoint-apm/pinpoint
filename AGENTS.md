@@ -39,7 +39,7 @@ Format: `[#issue_number] Description` or `[#noissue] Description`
 ## Key Tech Stack
 
 - **Java:** Java Agent (JDK 8+), Backend Services (JDK 17+)
-- **Spring Boot:** 3.5.x (Spring 6.2.x)
+- **Spring Boot:** 4.1.x (Spring Framework 7.0.x), server JSON on Jackson 3 (`tools.jackson`); the agent stays on Jackson 2
 - **gRPC:** 1.75.x with Protocol Buffers 3.25.x
 - **Storage:** HBase 2.5.x, Apache Pinot 1.3.x
 - **Frontend:** React/TypeScript, Node 22.x, Yarn 1.22.x

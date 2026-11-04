@@ -15,9 +15,9 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -88,7 +88,7 @@ public class AlarmNotificationChannelApiMapper {
                 throw new IllegalStateException("Stored channel config must be a JSON object");
             }
             return parsed;
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Stored channel config is not valid JSON", e);
         }
     }

@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 
-import java.io.IOException;
 import java.util.Objects;
 
 public class AgentServerGroupListWriter {
 
-    public void write(String fieldName, ServerGroupList serverGroups, JsonGenerator jgen) throws IOException {
+    public void write(String fieldName, ServerGroupList serverGroups, JsonGenerator jgen) {
         Objects.requireNonNull(fieldName, "fieldName");
 
         if (serverGroups == null) {
@@ -32,13 +31,13 @@ public class AgentServerGroupListWriter {
             return;
         }
 
-        jgen.writeFieldName(fieldName);
+        jgen.writeName(fieldName);
         jgen.writeStartArray();
         for (ServerGroup serverGroup : serverGroups.getServerGroupList()) {
             for (ServerInstance serverInstance : serverGroup.getInstanceList()) {
                 jgen.writeStartObject();
-                jgen.writeStringField("id", serverInstance.getName());
-                jgen.writeStringField("name", serverInstance.getAgentName());
+                jgen.writeStringProperty("id", serverInstance.getName());
+                jgen.writeStringProperty("name", serverInstance.getAgentName());
                 jgen.writeEndObject();
             }
         }

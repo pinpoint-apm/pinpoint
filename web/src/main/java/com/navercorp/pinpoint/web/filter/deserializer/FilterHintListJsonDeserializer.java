@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.web.filter.deserializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import com.navercorp.pinpoint.web.filter.FilterHint;
 import com.navercorp.pinpoint.web.filter.RpcHint;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,11 +30,11 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class FilterHintListJsonDeserializer extends JsonDeserializer<FilterHint> {
+public class FilterHintListJsonDeserializer extends ValueDeserializer<FilterHint> {
 
     @Override
-    public FilterHint deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        if (!jp.getCurrentToken().isStructStart()) {
+    public FilterHint deserialize(JsonParser jp, DeserializationContext ctxt) {
+        if (!jp.currentToken().isStructStart()) {
             ctxt.handleUnexpectedToken(RpcHint.class, jp);
         }
         // skip json start

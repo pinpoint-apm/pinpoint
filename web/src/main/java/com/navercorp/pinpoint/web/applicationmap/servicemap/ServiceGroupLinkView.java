@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.web.applicationmap.servicemap;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
-import org.springframework.boot.jackson2.JsonComponent;
+import org.springframework.boot.jackson.JacksonComponent;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,21 +50,21 @@ public class ServiceGroupLinkView implements LinkViewEntry {
         return links;
     }
 
-    @JsonComponent
-    public static class ServiceGroupLinkViewSerializer extends JsonSerializer<ServiceGroupLinkView> {
+    @JacksonComponent
+    public static class ServiceGroupLinkViewSerializer extends ValueSerializer<ServiceGroupLinkView> {
 
         @Override
-        public void serialize(ServiceGroupLinkView view, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(ServiceGroupLinkView view, JsonGenerator jgen, SerializationContext provider) {
             jgen.writeStartObject();
 
-            jgen.writeStringField("key", view.getFrom().key() + "~" + view.getTo().key());
-            jgen.writeStringField("from", view.getFrom().key());
-            jgen.writeStringField("to", view.getTo().key());
-            jgen.writeStringField("type", "service");
+            jgen.writeStringProperty("key", view.getFrom().key() + "~" + view.getTo().key());
+            jgen.writeStringProperty("from", view.getFrom().key());
+            jgen.writeStringProperty("to", view.getTo().key());
+            jgen.writeStringProperty("type", "service");
 
-            jgen.writeArrayFieldStart("links");
+            jgen.writeArrayPropertyStart("links");
             for (LinkView linkView : view.getLinks()) {
-                provider.defaultSerializeValue(linkView, jgen);
+                provider.writeValue(jgen, linkView);
             }
             jgen.writeEndArray();
 

@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.web.response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.StringNode;
 import com.navercorp.pinpoint.common.server.response.Result;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.web.webhook.model.WebhookSendInfoResponse;
@@ -14,17 +14,17 @@ public class WebhookSendInfoResponseTest {
     private final ObjectMapper mapper = Jackson.newMapper();
 
     @Test
-    public void testCreatedMessage() throws JsonProcessingException {
+    public void testCreatedMessage() throws JacksonException {
         WebhookSendInfoResponse result = new WebhookSendInfoResponse(Result.SUCCESS, "12345");
         checkOutput(result);
     }
 
-    private void checkOutput(WebhookSendInfoResponse codeResult) throws JsonProcessingException {
+    private void checkOutput(WebhookSendInfoResponse codeResult) throws JacksonException {
         String jsonString = mapper.writeValueAsString(codeResult);
         JsonNode jsonNode = mapper.readTree(jsonString);
-        Assertions.assertEquals(TextNode.valueOf(Result.SUCCESS.name()), jsonNode.get("result"));
+        Assertions.assertEquals(StringNode.valueOf(Result.SUCCESS.name()), jsonNode.get("result"));
         Assertions.assertNull(jsonNode.get("message"));
-        Assertions.assertEquals(TextNode.valueOf("12345"), jsonNode.get("webhookSendInfoId"));
+        Assertions.assertEquals(StringNode.valueOf("12345"), jsonNode.get("webhookSendInfoId"));
     }
 
 

@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 import java.util.List;
 import java.util.Objects;
 
-
 public class Field {
     private final String name;
     private final List<Tag> tags;

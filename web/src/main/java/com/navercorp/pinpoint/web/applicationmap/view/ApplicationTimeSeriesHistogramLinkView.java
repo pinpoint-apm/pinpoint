@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 public interface ApplicationTimeSeriesHistogramLinkView {
 
-    default void writeTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) throws IOException {
+    default void writeTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) {
     }
 
     static ApplicationTimeSeriesHistogramLinkView detailedView(TimeHistogramView timeHistogramView) {
@@ -47,12 +46,12 @@ public interface ApplicationTimeSeriesHistogramLinkView {
         }
 
         @Override
-        public void writeTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) throws IOException {
+        public void writeTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) {
             Link link = linkView.getLink();
             ApplicationTimeHistogram linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
             List<TimeHistogramViewModel> sourceApplicationHistogram = timeHistogramView.build(linkApplicationTimeSeriesHistogram);
-            jgen.writeFieldName("timeSeriesHistogram");
-            jgen.writeObject(sourceApplicationHistogram);
+            jgen.writeName("timeSeriesHistogram");
+            jgen.writePOJO(sourceApplicationHistogram);
         }
     }
 }

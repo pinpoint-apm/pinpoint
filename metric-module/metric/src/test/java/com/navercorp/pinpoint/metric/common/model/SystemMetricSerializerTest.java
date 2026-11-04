@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import org.apache.logging.log4j.LogManager;
@@ -36,7 +36,7 @@ public class SystemMetricSerializerTest {
     private final ObjectMapper mapper = Jackson.newMapper();
 
     @Test
-    public void testLongCounterWithTags() throws JsonProcessingException {
+    public void testLongCounterWithTags() throws JacksonException {
         Tag deviceTag = new Tag("device", "disk1s5");
         Tag fstypeTag = new Tag("fstype", "apfs");
         Tag modeTag = new Tag("mode", "ro");
@@ -49,7 +49,7 @@ public class SystemMetricSerializerTest {
     }
 
     @Test
-    public void testLongCounterWithoutTags() throws JsonProcessingException {
+    public void testLongCounterWithoutTags() throws JacksonException {
         DoubleMetric longMetric = new DoubleMetric("mem", "localhost", "free", 103714816L,
                 Collections.emptyList(), System.currentTimeMillis());
         SystemMetricView systemMetricView = new SystemMetricView("tenantId", "applicationName", longMetric);
@@ -58,7 +58,7 @@ public class SystemMetricSerializerTest {
     }
 
     @Test
-    public void testDoubleCounter() throws JsonProcessingException {
+    public void testDoubleCounter() throws JacksonException {
         Tag cpuTag = new Tag("cpu", "cpu0");
         DoubleMetric doubleMetric = new DoubleMetric("cpu", "localhost", "usage_user", 16.200000000001854,
                 List.of(cpuTag), System.currentTimeMillis());

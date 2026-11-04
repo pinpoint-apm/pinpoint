@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 public interface ApplicationTimeSeriesHistogramNodeView {
 
-    default void writeTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) throws IOException {
+    default void writeTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) {
     }
 
     static ApplicationTimeSeriesHistogramNodeView detailedView(TimeHistogramView timeHistogramView) {
@@ -48,14 +47,14 @@ public interface ApplicationTimeSeriesHistogramNodeView {
         }
 
         @Override
-        public void writeTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) throws IOException {
+        public void writeTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) {
             NodeHistogram nodeHistogram = nodeView.getNode().getNodeHistogram();
             ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
             List<TimeHistogramViewModel> applicationTimeSeriesHistogram = timeHistogramView.build(applicationTimeHistogram);
             if (applicationTimeSeriesHistogram == null) {
                 JacksonWriterUtils.writeEmptyArray(jgen, "timeSeriesHistogram");
             } else {
-                jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
+                jgen.writePOJOProperty("timeSeriesHistogram", applicationTimeSeriesHistogram);
             }
         }
     }

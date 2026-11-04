@@ -16,37 +16,36 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadCountList;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-public class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThreadCountList> {
+public class AgentActiveThreadCountListSerializer extends ValueSerializer<AgentActiveThreadCountList> {
 
     @Override
-    public void serialize(AgentActiveThreadCountList agentActiveThreadStatusList, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(AgentActiveThreadCountList agentActiveThreadStatusList, JsonGenerator jgen, SerializationContext provider) {
         List<AgentActiveThreadCount> agentActiveThreadRepository = agentActiveThreadStatusList.getAgentActiveThreadRepository();
 
         jgen.writeStartObject();
 
         for (AgentActiveThreadCount agentActiveThread : agentActiveThreadRepository) {
-            jgen.writeFieldName(agentActiveThread.getAgentId());
+            jgen.writeName(agentActiveThread.getAgentId());
             jgen.writeStartObject();
 
-            jgen.writeNumberField("code", agentActiveThread.getCode());
-            jgen.writeStringField("message", agentActiveThread.getCodeMessage());
+            jgen.writeNumberProperty("code", agentActiveThread.getCode());
+            jgen.writeStringProperty("message", agentActiveThread.getCodeMessage());
 
             List<Integer> activeThreadCountList = agentActiveThread.getActiveThreadCountList();
             if (CollectionUtils.nullSafeSize(activeThreadCountList) == 4) {
-                jgen.writeFieldName("status");
+                jgen.writeName("status");
                 jgen.writeStartArray();
                 jgen.writeNumber(activeThreadCountList.get(0));
                 jgen.writeNumber(activeThreadCountList.get(1));

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.config.MetricCommonConfiguration;
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;

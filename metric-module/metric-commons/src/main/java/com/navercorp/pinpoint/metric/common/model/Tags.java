@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagSerializer;
 
 import java.util.ArrayList;
@@ -28,6 +29,11 @@ import java.util.Objects;
 public class Tags {
     private final List<Tag> tags;
 
+    /**
+     * Jackson fills the tags through {@link #add}. Jackson 3 would otherwise pick the
+     * {@code List} constructor as a properties-based creator (the parameter is named {@code tags}).
+     */
+    @JsonCreator
     public Tags() {
         this.tags = new ArrayList<>();
     }

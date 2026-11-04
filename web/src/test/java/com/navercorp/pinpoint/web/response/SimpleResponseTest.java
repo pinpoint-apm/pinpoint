@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.web.response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.StringNode;
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.Result;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
@@ -14,23 +14,23 @@ public class SimpleResponseTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void testStaticOk() throws JsonProcessingException {
+    public void testStaticOk() throws JacksonException {
         Response result = SimpleResponse.ok();
         JsonNode jsonNode = checkOutput(result);
-        Assertions.assertEquals(TextNode.valueOf(Result.SUCCESS.name()), jsonNode.get("result"));
+        Assertions.assertEquals(StringNode.valueOf(Result.SUCCESS.name()), jsonNode.get("result"));
         Assertions.assertNull(jsonNode.get("message"));
     }
 
     @Test
-    public void testStaticOkWithMessage() throws JsonProcessingException {
+    public void testStaticOkWithMessage() throws JacksonException {
         Response result = SimpleResponse.ok("Test Message");
         checkOutput(result);
         JsonNode jsonNode = checkOutput(result);
-        Assertions.assertEquals(TextNode.valueOf(Result.SUCCESS.name()), jsonNode.get("result"));
-        Assertions.assertEquals(TextNode.valueOf("Test Message"), jsonNode.get("message"));
+        Assertions.assertEquals(StringNode.valueOf(Result.SUCCESS.name()), jsonNode.get("result"));
+        Assertions.assertEquals(StringNode.valueOf("Test Message"), jsonNode.get("message"));
     }
 
-    private JsonNode checkOutput(Response codeResult) throws JsonProcessingException {
+    private JsonNode checkOutput(Response codeResult) throws JacksonException {
         String jsonString = mapper.writeValueAsString(codeResult);
         return mapper.readTree(jsonString);
     }
