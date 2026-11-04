@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.view.AgentEventMarkerSerializer;
 import com.navercorp.pinpoint.web.vo.AgentEvent;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.vo.sender.payload;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmCheckerInterface;
 import com.navercorp.pinpoint.web.vo.RuleInterface;
 

@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.alarm.sender;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;

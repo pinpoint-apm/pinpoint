@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.util.json;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 import java.util.List;
 import java.util.Map;

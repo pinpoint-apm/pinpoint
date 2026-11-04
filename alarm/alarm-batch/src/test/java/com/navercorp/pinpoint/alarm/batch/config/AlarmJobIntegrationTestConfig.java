@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.alarm.dao.AlarmTemplateDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmTemplateItemDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
 import com.navercorp.pinpoint.alarm.evaluation.ConditionEvaluator;
 import com.navercorp.pinpoint.alarm.dao.mapper.AlarmRuleLocalConfigMapper;

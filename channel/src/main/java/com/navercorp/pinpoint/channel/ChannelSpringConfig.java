@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.channel;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.serde.JacksonSerdeFactory;
 import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import org.springframework.context.annotation.Bean;

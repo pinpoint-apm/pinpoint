@@ -16,15 +16,19 @@
 
 package com.navercorp.pinpoint.common.server;
 
-import com.fasterxml.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
+import tools.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
 import com.navercorp.pinpoint.common.server.uid.ServiceHeaderEnabled;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 @Configuration
 public class CommonsServerConfiguration {
@@ -47,8 +51,17 @@ public class CommonsServerConfiguration {
     }
 
     @Bean
-    public com.fasterxml.jackson.databind.Module eclipseCollectionsModule() {
+    public tools.jackson.databind.JacksonModule eclipseCollectionsModule() {
         return new EclipseCollectionsModule();
+    }
+
+    /**
+     * Runs before Spring Boot's property-driven customizer, so {@code spring.jackson.*} can still override.
+     */
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public JsonMapperBuilderCustomizer jackson2CompatibleCustomizer() {
+        return Jackson::configureJackson2Compatible;
     }
 
     @Bean

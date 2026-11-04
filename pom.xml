@@ -186,6 +186,8 @@
         <mysql-connector-j.verison>8.4.0</mysql-connector-j.verison>
 
         <fastxml.jackson.version>2.21.8</fastxml.jackson.version>
+        <!-- Jackson 3 (tools.jackson) for the JDK 17 server modules; the agent stays on Jackson 2 -->
+        <tools.jackson.version>3.1.7</tools.jackson.version>
         <fastxml.jackson-annotation.version>2.21</fastxml.jackson-annotation.version>
         <mapstruct.version>1.6.3</mapstruct.version>
 
@@ -838,14 +840,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-web</artifactId>
                 <version>${spring-boot.version}</version>
-                <exclusions>
-                    <!-- Spring Boot 4 defaults to Jackson 3 (tools.jackson). Pinpoint still uses Jackson 2,
-                         configured through spring-boot-jackson2; keep Jackson 3 off the classpath. -->
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter-jackson</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -860,7 +854,7 @@
             <!-- Spring Boot 4 split auto-configuration into technology modules -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-jackson2</artifactId>
+                <artifactId>spring-boot-jackson</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
             <dependency>
@@ -943,10 +937,6 @@
                     <exclusion>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-starter-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter-jackson</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1100,6 +1090,13 @@
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
                 <version>${fastxml.jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${tools.jackson.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.navercorp.pinpoint.alarm.sender.AlarmNotificationService;
 import com.navercorp.pinpoint.alarm.sender.AlarmSendException;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox;
@@ -209,7 +209,7 @@ public class AlarmNotificationDispatcher {
                 int status = clientError.getStatusCode().value();
                 return status != 408 && status != 429;
             }
-            if (current instanceof JsonProcessingException || current instanceof IllegalArgumentException) {
+            if (current instanceof JacksonException || current instanceof IllegalArgumentException) {
                 return true;
             }
         }

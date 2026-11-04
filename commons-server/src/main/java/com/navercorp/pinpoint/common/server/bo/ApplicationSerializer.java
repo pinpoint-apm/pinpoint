@@ -16,23 +16,21 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * @author HyunGil Jeong
  */
-public class ApplicationSerializer extends JsonSerializer<Application> {
+public class ApplicationSerializer extends ValueSerializer<Application> {
 
     @Override
-    public void serialize(Application application, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(Application application, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeStartObject();
-        jgen.writeStringField("applicationName", application.getApplicationName());
-        jgen.writeStringField("serviceType", application.getServiceType().getDesc());
-        jgen.writeNumberField("code", application.getServiceTypeCode());
+        jgen.writeStringProperty("applicationName", application.getApplicationName());
+        jgen.writeStringProperty("serviceType", application.getServiceType().getDesc());
+        jgen.writeNumberProperty("code", application.getServiceTypeCode());
         jgen.writeEndObject();
     }
 }

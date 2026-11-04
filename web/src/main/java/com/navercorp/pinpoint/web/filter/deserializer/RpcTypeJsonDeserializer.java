@@ -16,26 +16,24 @@
 
 package com.navercorp.pinpoint.web.filter.deserializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import com.navercorp.pinpoint.web.filter.RpcType;
-
-import java.io.IOException;
 
 /**
  * @author emeroad
  */
-public class RpcTypeJsonDeserializer extends JsonDeserializer<RpcType> {
+public class RpcTypeJsonDeserializer extends ValueDeserializer<RpcType> {
 
 
     public RpcTypeJsonDeserializer() {
     }
 
     @Override
-    public RpcType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        if (jp.getCurrentToken() != JsonToken.VALUE_STRING) {
+    public RpcType deserialize(JsonParser jp, DeserializationContext ctxt) {
+        if (jp.currentToken() != JsonToken.VALUE_STRING) {
             ctxt.handleUnexpectedToken(RpcType.class, jp);
         }
         String address = jp.getText();

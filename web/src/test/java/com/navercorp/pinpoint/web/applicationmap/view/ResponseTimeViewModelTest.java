@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ class ResponseTimeViewModelTest {
     ObjectMapper mapper = Jackson.newMapper();
 
     @Test
-    void timeCount() throws JsonProcessingException {
+    void timeCount() throws JacksonException {
         TimeCount timeCount = new TimeCount(1, 2);
 
         String json = mapper.writeValueAsString(timeCount);

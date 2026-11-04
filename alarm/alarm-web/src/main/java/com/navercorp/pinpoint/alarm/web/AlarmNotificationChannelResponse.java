@@ -16,8 +16,8 @@
 package com.navercorp.pinpoint.alarm.web;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 

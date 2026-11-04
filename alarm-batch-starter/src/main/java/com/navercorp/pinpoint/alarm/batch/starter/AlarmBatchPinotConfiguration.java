@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.batch.starter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.AgentStatRegistryHandler;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.PinotAgentStatAlarmDao;

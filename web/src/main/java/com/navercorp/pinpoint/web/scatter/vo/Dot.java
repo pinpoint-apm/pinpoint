@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.scatter.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.view.DotSerializer;
 

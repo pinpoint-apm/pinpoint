@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -48,21 +48,17 @@ public class LinkViewTest {
 
 
     static ObjectMapper mapper() {
-        ObjectMapper mapper = Jackson.newMapper();
-
         SimpleModule module = new SimpleModule();
         AlertViewService alertViewService = new AlertViewService();
         AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();
         module.addSerializer(NodeView.class, new NodeView.NodeViewSerializer(alertViewService, agentServerGroupListWriter));
         module.addSerializer(LinkView.class, new LinkView.LinkViewSerializer(alertViewService, agentServerGroupListWriter));
-        mapper.registerModule(module);
-
-        return mapper;
+        return Jackson.newBuilder().addModule(module).build();
     }
 
 
     @Test
-    public void testSerializeV3() throws JsonProcessingException {
+    public void testSerializeV3() throws JacksonException {
         LinkView linkView = newLinkView();
 
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();

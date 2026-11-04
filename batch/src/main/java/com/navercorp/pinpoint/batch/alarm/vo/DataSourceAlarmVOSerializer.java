@@ -16,27 +16,25 @@
 
 package com.navercorp.pinpoint.batch.alarm.vo;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * @author Jongjin.Bae
  */
-public class DataSourceAlarmVOSerializer extends JsonSerializer<DataSourceAlarmVO> {
+public class DataSourceAlarmVOSerializer extends ValueSerializer<DataSourceAlarmVO> {
     
     @Override
-    public void serialize(DataSourceAlarmVO dataSourceAlarmVO, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
+    public void serialize(DataSourceAlarmVO dataSourceAlarmVO, JsonGenerator jgen, SerializationContext serializers) {
         jgen.writeStartObject();
         
-        jgen.writeStringField("databaseName", dataSourceAlarmVO.getDatabaseName());
+        jgen.writeStringProperty("databaseName", dataSourceAlarmVO.getDatabaseName());
 
-        jgen.writeNumberField("activeConnectionAvg", dataSourceAlarmVO.getActiveConnectionAvg());
-        jgen.writeNumberField("maxConnectionAvg", dataSourceAlarmVO.getMaxConnectionAvg());
+        jgen.writeNumberProperty("activeConnectionAvg", dataSourceAlarmVO.getActiveConnectionAvg());
+        jgen.writeNumberProperty("maxConnectionAvg", dataSourceAlarmVO.getMaxConnectionAvg());
 
-        jgen.writeNumberField("connectionValue", dataSourceAlarmVO.getConnectionUsedRate());
+        jgen.writeNumberProperty("connectionValue", dataSourceAlarmVO.getConnectionUsedRate());
         
         jgen.writeEndObject();
     }

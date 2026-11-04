@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.web.applicationmap.ServerGroupListTest;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;

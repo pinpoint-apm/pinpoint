@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap.servicemap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
@@ -51,19 +51,15 @@ public class ServiceGroupNodeViewTest {
     private final ObjectMapper mapper = mapper();
 
     static ObjectMapper mapper() {
-        ObjectMapper mapper = Jackson.newMapper();
-
         SimpleModule module = new SimpleModule();
         AlertViewService alertViewService = new AlertViewService();
         AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();
         module.addSerializer(NodeView.class, new NodeView.NodeViewSerializer(alertViewService, agentServerGroupListWriter));
-        mapper.registerModule(module);
-
-        return mapper;
+        return Jackson.newBuilder().addModule(module).build();
     }
 
     @Test
-    public void serialize_apdex() throws JsonProcessingException, JSONException {
+    public void serialize_apdex() throws JacksonException, JSONException {
         ServiceGroupNodeView view = new ServiceGroupNodeView("myService", List.of(
                 newNodeView("app1", 6, 2, 2),
                 newNodeView("app2", 4, 2, 4)
@@ -78,7 +74,7 @@ public class ServiceGroupNodeViewTest {
     }
 
     @Test
-    public void serialize_apdex_emptyGroup() throws JsonProcessingException, JSONException {
+    public void serialize_apdex_emptyGroup() throws JacksonException, JSONException {
         ServiceGroupNodeView view = new ServiceGroupNodeView("myService", List.of());
 
         String actualStr = mapper.writeValueAsString(view);

@@ -2,13 +2,13 @@ package com.navercorp.pinpoint.pinot.kafka;
 
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
 public class KafkaProperties {
     private String bootstrapServers;
     private String keySerializer = StringSerializer.class.getName();
     private String byteArrayKeySerializer = ByteArraySerializer.class.getName();
-    private String valueSerializer = JsonSerializer.class.getName();
+    private String valueSerializer = JacksonJsonSerializer.class.getName();
     private String partitionerClass;
     private String acks = "1";
     private String compressionType = "zstd";

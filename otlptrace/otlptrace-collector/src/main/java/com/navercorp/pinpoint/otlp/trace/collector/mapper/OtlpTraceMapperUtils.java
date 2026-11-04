@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
@@ -39,7 +39,6 @@ import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -404,16 +403,16 @@ public class OtlpTraceMapperUtils {
      * nested arrays/maps — the streaming counterpart of
      * {@link #getAttributeToMap(List, int, TruncationListener)} with the same truncation semantics.
      */
-    public static void writeAttributes(JsonGenerator generator, List<KeyValue> keyValueList, int maxBytes, @Nullable TruncationListener onTruncated) throws IOException {
+    public static void writeAttributes(JsonGenerator generator, List<KeyValue> keyValueList, int maxBytes, @Nullable TruncationListener onTruncated) {
         generator.writeStartObject();
         for (KeyValue kv : keyValueList) {
-            generator.writeFieldName(kv.getKey());
+            generator.writeName(kv.getKey());
             writeAnyValue(generator, kv.getValue(), maxBytes, onTruncated);
         }
         generator.writeEndObject();
     }
 
-    public static void writeAnyValue(JsonGenerator generator, AnyValue anyValue, int maxBytes, @Nullable TruncationListener onTruncated) throws IOException {
+    public static void writeAnyValue(JsonGenerator generator, AnyValue anyValue, int maxBytes, @Nullable TruncationListener onTruncated) {
         switch (anyValue.getValueCase()) {
             case INT_VALUE -> generator.writeNumber(anyValue.getIntValue());
             case DOUBLE_VALUE -> generator.writeNumber(anyValue.getDoubleValue());

@@ -15,18 +15,15 @@
  */
 package com.navercorp.pinpoint.web.trace.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.web.trace.callstacks.ErrorKey;
 
-import java.io.IOException;
-
-public class TransactionCallTreeCallStackSerializer extends JsonSerializer<TransactionCallTreeViewModel.CallStack> {
+public class TransactionCallTreeCallStackSerializer extends ValueSerializer<TransactionCallTreeViewModel.CallStack> {
 
     @Override
-    public void serialize(TransactionCallTreeViewModel.CallStack value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException {
+    public void serialize(TransactionCallTreeViewModel.CallStack value, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeStartArray();
         jgen.writeNumber(value.getBegin());
         jgen.writeNumber(value.getEnd());
@@ -66,7 +63,7 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         jgen.writeEndArray();
     }
 
-    void writeLong(JsonGenerator jgen, Long value) throws IOException {
+    void writeLong(JsonGenerator jgen, Long value) {
         if (value == null) {
             jgen.writeNull();
         } else {
@@ -74,7 +71,7 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         }
     }
 
-    void writeInteger(JsonGenerator jgen, Integer value) throws IOException {
+    void writeInteger(JsonGenerator jgen, Integer value) {
         if (value == null) {
             jgen.writeNull();
         } else {
@@ -82,19 +79,19 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         }
     }
 
-    void writeErrorKey(JsonGenerator jgen, ErrorKey errorKey) throws IOException {
+    void writeErrorKey(JsonGenerator jgen, ErrorKey errorKey) {
         if (errorKey == null) {
             jgen.writeNull();
             return;
         }
         jgen.writeStartObject();
-        jgen.writeStringField("serviceName", errorKey.serviceName());
-        jgen.writeStringField("applicationName", errorKey.applicationName());
-        jgen.writeStringField("agentId", errorKey.agentId());
-        jgen.writeStringField("transactionId", errorKey.transactionId());
+        jgen.writeStringProperty("serviceName", errorKey.serviceName());
+        jgen.writeStringProperty("applicationName", errorKey.applicationName());
+        jgen.writeStringProperty("agentId", errorKey.agentId());
+        jgen.writeStringProperty("transactionId", errorKey.transactionId());
         // json number overflow
-        jgen.writeStringField("spanId", String.valueOf(errorKey.spanId()));
-        jgen.writeStringField("exceptionId", String.valueOf(errorKey.exceptionId()));
+        jgen.writeStringProperty("spanId", String.valueOf(errorKey.spanId()));
+        jgen.writeStringProperty("exceptionId", String.valueOf(errorKey.exceptionId()));
         jgen.writeEndObject();
     }
 }

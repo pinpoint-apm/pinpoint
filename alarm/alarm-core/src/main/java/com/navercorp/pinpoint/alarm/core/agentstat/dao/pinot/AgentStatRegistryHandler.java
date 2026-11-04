@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.model.AgentStatQueryParameter;
 import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsage;

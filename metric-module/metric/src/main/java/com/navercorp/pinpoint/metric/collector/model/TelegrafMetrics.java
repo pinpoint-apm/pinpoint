@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.metric.collector.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.metric.collector.model.serialize.TelegrafJsonDeserializer;
 import jakarta.validation.Valid;
 

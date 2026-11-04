@@ -15,13 +15,13 @@
  */
 package com.navercorp.pinpoint.alarm.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import com.navercorp.pinpoint.alarm.dao.AlarmHistoryV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationOutboxDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
@@ -140,7 +140,7 @@ public class AlarmNotificationResultService {
             notification.put("failed", counts.dead());
             notification.put("pending", counts.pending());
             historyDao.updateContext(historyId, contextWriter.writeValueAsString(context));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             logger.warn("Failed to update alarm history notification context: history_id={}", historyId, e);
         }
     }
