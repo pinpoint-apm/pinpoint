@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
-import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson2.JsonComponent;
 
 import java.io.IOException;
 import java.util.ArrayList;

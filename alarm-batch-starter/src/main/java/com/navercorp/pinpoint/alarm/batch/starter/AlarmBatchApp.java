@@ -19,9 +19,6 @@ import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -42,11 +39,7 @@ import org.springframework.context.annotation.Import;
 // to a reader and to the tooling that offers to run it. Declared only here: the imported
 // configurations carry none, so importing one of them elsewhere does not switch these off in
 // whatever context did the importing.
-@EnableAutoConfiguration(exclude = {
-        DataSourceAutoConfiguration.class,
-        SecurityAutoConfiguration.class,
-        BatchAutoConfiguration.class
-})
+@EnableAutoConfiguration
 @Import({
         // Named here rather than inside the job configuration: it resolves the profile
         // directory it reads the jdbc properties from against the classpath, so a deployable

@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.batch.util.JobParametersUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.configuration.JobLocator;
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -41,16 +41,16 @@ public class BatchJobLauncher extends JobLaunchSupport {
     private final BatchMetaCleanupProperties metaCleanupProperties;
 
     public BatchJobLauncher(
-            @Qualifier("jobRegistry") JobLocator locator,
-            @Qualifier("jobLauncher") JobLauncher launcher,
+            @Qualifier("jobRegistry") JobRegistry locator,
+            @Qualifier("jobOperator") JobLauncher launcher,
             BatchProperties batchProperties
     ) {
         this(locator, launcher, batchProperties, new BatchMetaCleanupProperties());
     }
 
     public BatchJobLauncher(
-            @Qualifier("jobRegistry") JobLocator locator,
-            @Qualifier("jobLauncher") JobLauncher launcher,
+            @Qualifier("jobRegistry") JobRegistry locator,
+            @Qualifier("jobOperator") JobLauncher launcher,
             BatchProperties batchProperties,
             BatchMetaCleanupProperties metaCleanupProperties
     ) {

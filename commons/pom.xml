@@ -12,6 +12,10 @@
     <name>pinpoint-commons</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <junit-jupiter.version>${junit-jupiter5.version}</junit-jupiter.version>
+    </properties>
+
     <dependencies>
 
         <!-- Logging dependencies -->

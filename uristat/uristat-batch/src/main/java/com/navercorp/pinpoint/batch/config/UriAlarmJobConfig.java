@@ -28,12 +28,12 @@ import com.navercorp.pinpoint.pinot.alarm.dao.PinotAlarmDao;
 import com.navercorp.pinpoint.pinot.alarm.service.PinotAlarmService;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.listener.JobExecutionListener;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.partition.support.Partitioner;
+import org.springframework.batch.core.partition.Partitioner;
 import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -92,16 +92,15 @@ public class UriAlarmJobConfig {
             @Qualifier("uriAlarmReader") UriStatAlarmReader uriAlarmReader,
             @Qualifier("uriAlarmProcessor") UriStatAlarmProcessor uriAlarmProcessor,
             @Qualifier("uriAlarmWriter") UriStatAlarmWriter uriAlarmWriter,
-            @Qualifier("uriAlarmExecutor") TaskExecutor uriAlarmExecutor,
-            @Value("${alarm.worker.maxSize:2}") int throttleLimit) {
+            @Qualifier("uriAlarmExecutor") TaskExecutor uriAlarmExecutor) {
 
         return new StepBuilder("uriAlarmStep", jobRepository)
                 .<PinotAlarmKey, com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers>chunk(1, transactionManager)
                 .reader(uriAlarmReader)
                 .processor(uriAlarmProcessor)
                 .writer(uriAlarmWriter)
+                // Spring Batch 6 removed throttleLimit; concurrency is bounded by uriAlarmExecutor's pool size
                 .taskExecutor(uriAlarmExecutor)
-                .throttleLimit(throttleLimit)
                 .build();
     }
 

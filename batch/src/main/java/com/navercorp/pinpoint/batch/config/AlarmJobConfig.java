@@ -44,18 +44,18 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.partition.support.Partitioner;
+import org.springframework.batch.core.partition.Partitioner;
 import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,7 +76,7 @@ public class AlarmJobConfig {
                         @Qualifier("jobFailListener") Object jobFailListener) {
         return new JobBuilder("alarmJob", jobRepository)
                 .start(alarmPartitionStep)
-                .listener((org.springframework.batch.core.JobExecutionListener) jobFailListener)
+                .listener((org.springframework.batch.core.listener.JobExecutionListener) jobFailListener)
                 .build();
     }
 
@@ -103,16 +103,15 @@ public class AlarmJobConfig {
                                  @Qualifier("alarmExecutor") TaskExecutor alarmExecutor,
                                  @Qualifier("reader") ItemReader<Application> reader,
                                  @Qualifier("processor") ItemProcessor<Application, AppAlarmChecker> processor,
-                                 @Qualifier("writer") ItemWriter<AppAlarmChecker> writer,
-                                 @Value("${alarm.worker.maxSize:2}") int throttleLimit) {
+                                 @Qualifier("writer") ItemWriter<AppAlarmChecker> writer) {
 
         return new StepBuilder("alarmStep", jobRepository)
                 .<Application, AppAlarmChecker>chunk(1, transactionManager)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
+                // Spring Batch 6 removed throttleLimit; concurrency is bounded by alarmExecutor's pool size
                 .taskExecutor(alarmExecutor)
-                .throttleLimit(throttleLimit)
                 .build();
     }
 

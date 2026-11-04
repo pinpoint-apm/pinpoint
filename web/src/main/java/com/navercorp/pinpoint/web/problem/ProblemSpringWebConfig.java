@@ -20,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -40,12 +40,12 @@ public class ProblemSpringWebConfig {
     @Primary
     public ResponseEntityExceptionHandler pinpointExceptionHandling(
             @Value("${server.error.hostname:}") String hostnameAlias,
-            ServerProperties serverProperties) {
+            WebProperties webProperties) {
         if (StringUtils.isEmpty(hostnameAlias)) {
             hostnameAlias = getHostName();
         }
         logger.info("server.error.hostname:{}", hostnameAlias);
-        ErrorProperties error = serverProperties.getError();
+        ErrorProperties error = webProperties.getError();
         return new CustomExceptionHandler(hostnameAlias, error);
     }
 

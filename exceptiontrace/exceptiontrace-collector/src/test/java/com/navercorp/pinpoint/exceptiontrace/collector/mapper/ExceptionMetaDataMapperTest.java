@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.jackson2.autoconfigure.Jackson2AutoConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
         StackTraceMapper.class,
         ErrorMessageMapper.class,
         MapStructUtils.class,
-        JacksonAutoConfiguration.class
+        Jackson2AutoConfiguration.class
 })
 @ExtendWith(SpringExtension.class)
 class ExceptionMetaDataMapperTest {

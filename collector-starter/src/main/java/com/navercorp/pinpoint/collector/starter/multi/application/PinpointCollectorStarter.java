@@ -5,8 +5,7 @@ import com.navercorp.pinpoint.collector.starter.multi.application.type.Collector
 import com.navercorp.pinpoint.collector.starter.multi.application.type.CollectorTypeParser;
 import com.navercorp.pinpoint.collector.starter.multi.application.type.CollectorTypeSet;
 import com.navercorp.pinpoint.collector.starter.multi.application.type.FallbackCollectorTypeParser;
-import com.navercorp.pinpoint.collector.starter.multi.application.type.ShellBlockerConfig;
-import com.navercorp.pinpoint.collector.starter.multi.application.type.ShellCollectorTypeParser;
+import com.navercorp.pinpoint.collector.starter.multi.application.type.RunCommandCollectorTypeParser;
 import com.navercorp.pinpoint.collector.starter.multi.application.type.SimpleCollectorTypeParser;
 import com.navercorp.pinpoint.common.server.banner.PinpointSpringBanner;
 import com.navercorp.pinpoint.common.server.env.EnvironmentLoggingListener;
@@ -41,13 +40,13 @@ public class PinpointCollectorStarter {
 
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
 
-        builder.sources(PinpointCollectorStarter.class, ShellBlockerConfig.class);
+        builder.sources(PinpointCollectorStarter.class);
         builder.listeners(new ProfileResolveListener());
 
 
         CollectorTypeParser parser = new FallbackCollectorTypeParser(
                 new SimpleCollectorTypeParser(),
-                new ShellCollectorTypeParser()
+                new RunCommandCollectorTypeParser()
         );
         CollectorTypeSet types = parser.parse(args);
         logger.info(String.format("Collector type set: %s", types));
