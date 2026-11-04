@@ -394,6 +394,23 @@ const SidebarMenuButtonWithDropdownMenu = ({
       e.preventDefault();
     }
   }, []);
+  // 첫 항목에서 ↑를 누르면 검색창으로 돌아간다. 메뉴는 끝에서 돌지 않고(loop 꺼짐) Tab도 막으므로,
+  // 이게 없으면 목록에 들어간 뒤 검색어를 고치려면 닫았다 열어야 하고 그때 검색어가 지워진다.
+  // 메뉴의 화살표 처리는 항목에서 일어나므로 capture 단계에서 먼저 가로챈다.
+  const returnToSearchFromFirstItem = React.useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key !== 'ArrowUp') {
+        return;
+      }
+      const firstItem = e.currentTarget.querySelector('[role="menuitem"]');
+      if (firstItem && e.target === firstItem) {
+        e.preventDefault();
+        e.stopPropagation();
+        searchInputRef.current?.focus();
+      }
+    },
+    [],
+  );
   // 항목을 골라 닫을 때도 검색어를 비워야 하므로 같은 길로 닫는다.
   const close = React.useCallback(() => handleOpenChange(false), [handleOpenChange]);
   const searchable = !!item.childItemsSearchPlaceholder;
@@ -478,6 +495,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
         className="overflow-y-auto max-h-[360px]"
         // 잰 값은 실행 중에야 알 수 있어 Tailwind 클래스로 쓸 수 없다.
         style={searchable ? { minHeight: listMinHeight } : undefined}
+        onKeyDownCapture={searchable ? returnToSearchFromFirstItem : undefined}
       >
         {searchable && query.trim() && filteredChildItems.length === 0 ? (
           <div className="px-6 py-2 text-sm opacity-50">{item.childItemsSearchEmptyText}</div>
