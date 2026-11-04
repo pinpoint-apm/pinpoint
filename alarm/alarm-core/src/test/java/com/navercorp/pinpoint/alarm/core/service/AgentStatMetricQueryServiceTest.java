@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsage;
 import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsageCount;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.common.model.TagInformation;
@@ -98,7 +99,7 @@ class AgentStatMetricQueryServiceTest {
         MetricQueryResult result = query(dao, "file_descriptor_count", null);
         MetricQueryKey key = result.values().keySet().iterator().next();
 
-        assertEquals(List.of("max 8000.00 over 2 agents"), result.details(key));
+        assertEquals(List.of(Detail.of("max 8000.00 over 2 agents")), result.details(key));
     }
 
     @Test
@@ -161,7 +162,7 @@ class AgentStatMetricQueryServiceTest {
         MetricQueryResult result = query(dao, List.of("datasource_connection_usage_rate"), null);
         MetricQueryKey key = result.values().keySet().iterator().next();
 
-        assertEquals(List.of("max 90.00 over 2 pools"), result.details(key));
+        assertEquals(List.of(Detail.of("max 90.00 over 2 pools")), result.details(key));
     }
 
     // Two pools of one agent can serve the same database; both are pools that can fill up.
@@ -174,7 +175,7 @@ class AgentStatMetricQueryServiceTest {
         MetricQueryResult result = query(dao, List.of("datasource_connection_usage_rate"), null);
         MetricQueryKey key = result.values().keySet().iterator().next();
 
-        assertEquals(List.of("max 90.00 over 2 pools"), result.details(key));
+        assertEquals(List.of(Detail.of("max 90.00 over 2 pools")), result.details(key));
     }
 
     @Test

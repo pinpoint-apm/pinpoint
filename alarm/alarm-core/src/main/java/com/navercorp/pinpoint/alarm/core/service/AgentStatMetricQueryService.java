@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsageCount;
 import com.navercorp.pinpoint.alarm.core.vo.CoreAlarmDataSource;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
@@ -91,7 +92,7 @@ public class AgentStatMetricQueryService implements MetricQueryService {
         String applicationName = application.getApplicationName();
 
         Map<MetricQueryKey, Double> values = new LinkedHashMap<>();
-        Map<MetricQueryKey, List<String>> details = new LinkedHashMap<>();
+        Map<MetricQueryKey, List<Detail>> details = new LinkedHashMap<>();
         // Two leaves differing only in how they reduce are two keys but one read; the dedup
         // above is keyed by the whole condition and would issue the query once per each.
         Map<MetricRead, Collection<Double>> reads = new HashMap<>();
@@ -236,14 +237,14 @@ public class AgentStatMetricQueryService implements MetricQueryService {
             default -> stats.getMax();
         };
         int count = readings.size();
-        return new Reduction(value, List.of(String.format("%s %.2f over %d %s%s",
-                reducer.name().toLowerCase(Locale.ROOT), value, count, unit, count == 1 ? "" : "s")));
+        return new Reduction(value, List.of(Detail.of(String.format("%s %.2f over %d %s%s",
+                reducer.name().toLowerCase(Locale.ROOT), value, count, unit, count == 1 ? "" : "s"))));
     }
 
     /** What a read is decided by: the same pair asks the store the same question. */
     private record MetricRead(String metric, int windowSec) {
     }
 
-    private record Reduction(double value, List<String> detail) {
+    private record Reduction(double value, List<Detail> detail) {
     }
 }

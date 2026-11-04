@@ -15,11 +15,17 @@
  */
 package com.navercorp.pinpoint.alarm.vo;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import org.springframework.web.util.UriUtils;
+
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * What a rule measures: the metric family a condition draws from, plus the filter
@@ -91,6 +97,28 @@ public interface AlarmDataSource {
     @Deprecated
     default String detailLink(String baseUrl, String application, long fromMs, long toMs) {
         return null;
+    }
+
+    /**
+     * The service of a rule as a path segment, for every link that opens a page of the web.
+     * A rule saved without a service belongs to DEFAULT, the service the web takes when a request
+     * names none.
+     * <p>
+     * The web reads a service segment with decodeURIComponent, and takes a segment that keeps a raw
+     * '@' for an application. So '@' has to be encoded too, which a path segment encoding does not do.
+     */
+    static String serviceSegment(String serviceName) {
+        String name = StringUtils.hasText(serviceName) ? serviceName : ServiceUid.DEFAULT_SERVICE_UID_NAME;
+        return UriUtils.encode(name, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * {@code name@type}, as the URL carries an application. An application name is whatever the
+     * agent reported it to be, so each half is encoded as a path segment of its own; '@' joins them.
+     */
+    static String applicationSegment(String applicationName, String applicationType) {
+        return UriUtils.encodePathSegment(Objects.toString(applicationName, ""), StandardCharsets.UTF_8)
+                + "@" + UriUtils.encodePathSegment(Objects.toString(applicationType, ""), StandardCharsets.UTF_8);
     }
 
     /** How the web's pages take a time in their {@code from} and {@code to} parameters. */

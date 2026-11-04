@@ -26,11 +26,11 @@ import java.util.Objects;
  * lines per metric (e.g. the newly seen error groups behind a NEW_GROUP count)
  * and the time range the queries actually covered.
  * <p>
- * Details are plain strings so that this module stays independent of any data
- * source specific model.
+ * Details are plain text plus an optional link so that this module stays independent
+ * of any data source specific model.
  */
 public record MetricQueryResult(Map<MetricQueryKey, Double> values,
-                                Map<MetricQueryKey, List<String>> details,
+                                Map<MetricQueryKey, List<Detail>> details,
                                 Map<MetricQueryKey, Integer> omittedDetails,
                                 QueriedRange range) {
 
@@ -46,7 +46,7 @@ public record MetricQueryResult(Map<MetricQueryKey, Double> values,
     }
 
     public MetricQueryResult(Map<MetricQueryKey, Double> values,
-                             Map<MetricQueryKey, List<String>> details,
+                             Map<MetricQueryKey, List<Detail>> details,
                              QueriedRange range) {
         this(values, details, Map.of(), range);
     }
@@ -67,8 +67,29 @@ public record MetricQueryResult(Map<MetricQueryKey, Double> values,
         return new MetricQueryResult(values, Map.of(), range);
     }
 
-    public List<String> details(MetricQueryKey key) {
+    public List<Detail> details(MetricQueryKey key) {
         return details.getOrDefault(key, List.of());
+    }
+
+    /**
+     * One detail line. {@code id} names what the line describes on its screen, such as an event
+     * id. {@code link} is that screen, as a path under the web's base URL (so it starts with '/').
+     * Either is null when there is none. Only the email and webhook messages show them.
+     */
+    public record Detail(String text, String id, String link) {
+
+        public Detail {
+            Objects.requireNonNull(text, "text");
+        }
+
+        public static Detail of(String text) {
+            return new Detail(text, null, null);
+        }
+
+        /** The text with the id in front, where a cut of a long text cannot reach it. */
+        public String textWithId() {
+            return id != null ? "[" + id + "] " + text : text;
+        }
     }
 
     /** Detail lines the query itself left out, as when it describes only a sample of the groups. */
