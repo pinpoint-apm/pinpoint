@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from '..';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { LuChevronRight, LuChevronFirst, LuChevronLast } from 'react-icons/lu';
+import { LuChevronRight, LuChevronFirst, LuChevronLast, LuSearch } from 'react-icons/lu';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { LuCommand } from 'react-icons/lu';
 import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
@@ -41,6 +41,7 @@ import {
 } from '@pinpoint-fe/ui/src/components/ui/dropdown-menu';
 
 import { findActiveMenuItem, isMenuItemActive } from './menuItemActive';
+import { filterChildItemsByName } from './filterChildItemsByName';
 
 const SIDEBAR_WIDTH = 200;
 const SIDEBAR_COLLAPSED_WIDTH = 64;
@@ -55,6 +56,10 @@ export type SideNavigationMenuItem = MenuItem & {
   leftChildItems?: SideNavigationMenuItem[];
   leftSectionTitle?: string;
   rightSectionTitle?: string;
+  /** 주어지면 오른쪽 칸(`childItems`) 위에 검색창을 띄우고, 이름으로 목록을 거른다. */
+  childItemsSearchPlaceholder?: string;
+  /** 검색 결과가 없을 때 보여줄 문구. */
+  childItemsSearchEmptyText?: string;
 };
 
 interface TooltipProps {
@@ -361,7 +366,52 @@ const SidebarMenuButtonWithDropdownMenu = ({
   triggerClassName?: string;
 }) => {
   const [open, setOpen] = React.useState(false);
-  const close = React.useCallback(() => setOpen(false), []);
+  const [query, setQuery] = React.useState('');
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+  const [listMinHeight, setListMinHeight] = React.useState<number>();
+  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
+    setOpen(nextOpen);
+    // 다시 열 때는 전체 목록부터 보여주고, 높이도 그때 다시 잰다.
+    if (!nextOpen) {
+      setQuery('');
+      setListMinHeight(undefined);
+    }
+  }, []);
+  // 검색으로 목록이 줄어도 창 높이가 따라 줄지 않도록, 열렸을 때(검색어가 비어 전체 목록일 때)의
+  // 높이를 재 두고 그보다 작아지지 않게 한다. 목록 칸은 열릴 때마다 새로 붙으므로 붙는 순간 잰다.
+  const listRef = React.useRef<HTMLDivElement | null>(null);
+  const measureList = React.useCallback((node: HTMLDivElement | null) => {
+    listRef.current = node;
+    if (node) {
+      setListMinHeight((prev) => prev ?? node.offsetHeight);
+    }
+  }, []);
+  // 검색창에 입력하는 중에는 마우스가 목록 위를 지나가도 포커스를 뺏기지 않게 한다. 메뉴는 마우스가
+  // 항목에 오면 그 항목에, 떠나면 메뉴 자신에 포커스를 주는데, 그러면 다음 글자가 검색창이 아니라
+  // typeahead로 간다. 마우스 하이라이트는 CSS hover로 그대로 보인다.
+  const keepSearchFocus = React.useCallback((e: React.PointerEvent) => {
+    if (document.activeElement === searchInputRef.current) {
+      e.preventDefault();
+    }
+  }, []);
+  // 항목을 골라 닫을 때도 검색어를 비워야 하므로 같은 길로 닫는다.
+  const close = React.useCallback(() => handleOpenChange(false), [handleOpenChange]);
+  const searchable = !!item.childItemsSearchPlaceholder;
+
+  // 검색창이 있으면 열자마자 바로 칠 수 있게 그쪽으로 포커스를 준다. 메뉴는 열릴 때 자기 자신에
+  // 포커스를 주므로, 그 다음 프레임에 옮긴다.
+  React.useEffect(() => {
+    if (!open || !searchable) {
+      return;
+    }
+    const frame = requestAnimationFrame(() => searchInputRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [open, searchable]);
+
+  const filteredChildItems = React.useMemo(
+    () => filterChildItemsByName(item.childItems ?? [], searchable ? query : ''),
+    [item.childItems, searchable, query],
+  );
   const hasLeftSection = !!item.leftChildItems && item.leftChildItems.length > 0;
 
   const renderChildList = (childItems: SideNavigationMenuItem[]) => (
@@ -381,6 +431,8 @@ const SidebarMenuButtonWithDropdownMenu = ({
             )}
             asChild
             onSelect={close}
+            onPointerMove={searchable ? keepSearchFocus : undefined}
+            onPointerLeave={searchable ? keepSearchFocus : undefined}
           >
             {renderMenuItemContent(childItem, true)}
           </DropdownMenuItem>
@@ -395,12 +447,49 @@ const SidebarMenuButtonWithDropdownMenu = ({
         {typeof item.headerAction === 'function' ? item.headerAction(close) : item.headerAction}
       </div>
       <Separator className="mb-2 opacity-50" />
-      <div className="overflow-y-auto max-h-[360px]">{renderChildList(item.childItems ?? [])}</div>
+      {searchable && (
+        <div className="relative px-2 mb-2">
+          <LuSearch className="absolute w-3.5 h-3.5 -translate-y-1/2 pointer-events-none left-4 top-1/2 text-white/50" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={query}
+            placeholder={item.childItemsSearchPlaceholder}
+            aria-label={item.childItemsSearchPlaceholder}
+            className="w-full h-8 pr-2 text-sm text-white border rounded-md outline-none pl-7 bg-white/10 border-white/20 placeholder:text-white/50 focus:border-white/50"
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              // 메뉴는 자기 자신에 포커스가 있을 때만 화살표를 처리하므로 첫 항목으로 직접 옮긴다.
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                listRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+              }
+              // 메뉴의 typeahead(글자를 치면 그 글자로 시작하는 항목으로 포커스를 옮김)가 입력을
+              // 가로채지 않도록 막는다. Escape만 메뉴에 넘겨 닫히게 한다.
+              if (e.key !== 'Escape') {
+                e.stopPropagation();
+              }
+            }}
+          />
+        </div>
+      )}
+      <div
+        ref={searchable ? measureList : undefined}
+        className="overflow-y-auto max-h-[360px]"
+        // 잰 값은 실행 중에야 알 수 있어 Tailwind 클래스로 쓸 수 없다.
+        style={searchable ? { minHeight: listMinHeight } : undefined}
+      >
+        {searchable && query.trim() && filteredChildItems.length === 0 ? (
+          <div className="px-6 py-2 text-sm opacity-50">{item.childItemsSearchEmptyText}</div>
+        ) : (
+          renderChildList(filteredChildItems)
+        )}
+      </div>
     </>
   );
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       {WithTooltip({
         trigger: (
           <DropdownMenuTrigger asChild>
