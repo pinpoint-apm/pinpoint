@@ -97,7 +97,7 @@ public class RetrySubscriberSeedInterceptor implements AroundInterceptor {
                 return;
             }
 
-            final Trace trace = traceContext.currentTraceObject();
+            final Trace trace = traceContext.currentRawTraceObject();
             if (trace == null) {
                 return;
             }

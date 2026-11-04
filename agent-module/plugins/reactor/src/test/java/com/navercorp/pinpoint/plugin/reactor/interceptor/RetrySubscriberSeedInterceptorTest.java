@@ -26,11 +26,13 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -110,7 +112,7 @@ public class RetrySubscriberSeedInterceptorTest {
         Trace trace = mock(Trace.class);
         SpanEventRecorder recorder = mock(SpanEventRecorder.class);
         AsyncContext seed = mock(AsyncContext.class);
-        when(traceContext.currentTraceObject()).thenReturn(trace);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
         when(trace.traceBlockBegin()).thenReturn(recorder);
         when(recorder.recordNextAsyncContext()).thenReturn(seed);
 
@@ -120,6 +122,39 @@ public class RetrySubscriberSeedInterceptorTest {
         verify(recorder).recordServiceType(serviceType);
         verify(recorder).recordApi(methodDescriptor);
         verify(trace).traceBlockEnd();
+    }
+
+    @Test
+    public void emptySubscriberRecordsSeedForSampledTrace() {
+        verifySeedRecorded(true);
+    }
+
+    @Test
+    public void emptySubscriberRecordsSeedForUnsampledTrace() {
+        verifySeedRecorded(false);
+    }
+
+    private void verifySeedRecorded(boolean sampled) {
+        RetrySubscriberSeedInterceptor interceptor = newInterceptor(true);
+        TestAccessor target = new TestAccessor();
+        Trace trace = mock(Trace.class);
+        SpanEventRecorder recorder = mock(SpanEventRecorder.class);
+        AsyncContext seed = mock(AsyncContext.class);
+        when(trace.canSampled()).thenReturn(sampled);
+        // the real TraceContext hides unsampled traces from currentTraceObject()
+        when(traceContext.currentTraceObject()).thenReturn(sampled ? trace : null);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
+        when(trace.traceBlockBegin()).thenReturn(recorder);
+        when(recorder.recordNextAsyncContext()).thenReturn(seed);
+
+        interceptor.after(target, new Object[0], null, null);
+
+        assertSame(seed, target._$PINPOINT$_getAsyncContext());
+        InOrder inOrder = inOrder(trace, recorder);
+        inOrder.verify(trace).traceBlockBegin();
+        inOrder.verify(recorder).recordNextAsyncContext();
+        inOrder.verify(trace).traceBlockEnd();
+        verify(traceContext, never()).currentTraceObject();
     }
 
     @Test
@@ -137,7 +172,7 @@ public class RetrySubscriberSeedInterceptorTest {
     public void noCurrentTraceLeavesSubscriberEmpty() {
         RetrySubscriberSeedInterceptor interceptor = newInterceptor(true);
         TestAccessor target = new TestAccessor();
-        when(traceContext.currentTraceObject()).thenReturn(null);
+        when(traceContext.currentRawTraceObject()).thenReturn(null);
 
         interceptor.after(target, new Object[0], null, null);
 
@@ -150,7 +185,7 @@ public class RetrySubscriberSeedInterceptorTest {
         TestAccessor target = new TestAccessor();
         Trace trace = mock(Trace.class);
         SpanEventRecorder recorder = mock(SpanEventRecorder.class);
-        when(traceContext.currentTraceObject()).thenReturn(trace);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
         when(trace.traceBlockBegin()).thenReturn(recorder);
         when(recorder.recordNextAsyncContext()).thenThrow(new IllegalStateException("record failed"));
 
@@ -163,7 +198,7 @@ public class RetrySubscriberSeedInterceptorTest {
     @Test
     public void noCurrentTraceDoesNotTouchRecorderDependencies() {
         RetrySubscriberSeedInterceptor interceptor = newInterceptor(true);
-        when(traceContext.currentTraceObject()).thenReturn(null);
+        when(traceContext.currentRawTraceObject()).thenReturn(null);
 
         interceptor.after(new TestAccessor(), new Object[0], null, null);
 
