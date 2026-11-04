@@ -30,6 +30,12 @@
             <artifactId>reactor-core</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-profiler</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

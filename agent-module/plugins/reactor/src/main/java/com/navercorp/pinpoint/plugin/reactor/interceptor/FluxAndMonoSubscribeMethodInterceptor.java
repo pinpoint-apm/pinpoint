@@ -50,7 +50,7 @@ public class FluxAndMonoSubscribeMethodInterceptor implements BlockApiIdAwareAro
             return null;
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return null;
         }
