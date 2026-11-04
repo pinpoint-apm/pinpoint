@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.trace;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.buffer.StringAllocatorFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.config.SpanSerializeConfiguration;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
 
 import java.time.LocalDateTime;

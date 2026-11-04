@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -113,19 +113,19 @@ public class PinpointWebSocketMessageConverter {
         return mapper.convertValue(parameterNode, TypeRef.map());
     }
 
-    public String getRequestTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
+    public String getRequestTextMessage(String command, Map<String, Object> params) throws JacksonException {
         RequestMessage request = new RequestMessage(command, params);
 
         return mapper.writeValueAsString(request);
     }
 
-    public String getResponseTextMessage(String command, Map<String, Object> result) throws JsonProcessingException {
+    public String getResponseTextMessage(String command, Map<String, Object> result) throws JacksonException {
         ResponseMessage response = new ResponseMessage(command, result);
 
         return mapper.writeValueAsString(response);
     }
 
-    public String getSendTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
+    public String getSendTextMessage(String command, Map<String, Object> params) throws JacksonException {
 
         SendMessage message = new SendMessage(command, params);
 

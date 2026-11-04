@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.navercorp.pinpoint.alarm.validation.AlarmValidationConstants;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import jakarta.validation.constraints.NotBlank;

@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.otlp.web.dao.mysql;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
 import com.navercorp.pinpoint.otlp.web.dao.AppMetricDefinitionDao;
@@ -80,7 +80,7 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
             try {
                 String metricConfigJson = writer.writeValueAsString(appMetricDefinitionList);
                 return new AppMetricDefDto(applicationName, metricConfigJson, AppMetricDefinition.SCHEMA_VERSION);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 throw new JsonRuntimeException("can not convert appMetricDefinitionList to json :" + appMetricDefinitionList, e);
             }
         }
@@ -92,7 +92,7 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
 
             try {
                 return reader.readValue(appMetricDefDto.metricDefinition());
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 throw new JsonRuntimeException("can not convert appMetricDefDto to model :" + appMetricDefDto, e);
             }
         }

@@ -16,25 +16,24 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventMarker;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
  * @author HyunGil Jeong
  */
-public class AgentEventMarkerSerializer extends JsonSerializer<AgentEventMarker> {
+public class AgentEventMarkerSerializer extends ValueSerializer<AgentEventMarker> {
 
     @Override
-    public void serialize(AgentEventMarker agentEventMarker, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(AgentEventMarker agentEventMarker, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("totalCount", agentEventMarker.getTotalCount());
-        jsonGenerator.writeFieldName("typeCounts");
+        jsonGenerator.writeNumberProperty("totalCount", agentEventMarker.getTotalCount());
+        jsonGenerator.writeName("typeCounts");
         jsonGenerator.writeStartArray();
         for (Map.Entry<AgentEventType, Integer> e : agentEventMarker.getTypeCounts().entrySet()) {
             writeAgentEventTypeCount(jsonGenerator, e);
@@ -43,13 +42,13 @@ public class AgentEventMarkerSerializer extends JsonSerializer<AgentEventMarker>
         jsonGenerator.writeEndObject();
     }
 
-    private void writeAgentEventTypeCount(JsonGenerator jsonGenerator, Map.Entry<AgentEventType, Integer> entry) throws IOException {
+    private void writeAgentEventTypeCount(JsonGenerator jsonGenerator, Map.Entry<AgentEventType, Integer> entry) {
         AgentEventType agentEventType = entry.getKey();
         int count = entry.getValue();
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("code", agentEventType.getCode());
-        jsonGenerator.writeStringField("desc", agentEventType.getDesc());
-        jsonGenerator.writeNumberField("count", count);
+        jsonGenerator.writeNumberProperty("code", agentEventType.getCode());
+        jsonGenerator.writeStringProperty("desc", agentEventType.getDesc());
+        jsonGenerator.writeNumberProperty("count", count);
         jsonGenerator.writeEndObject();
     }
 }

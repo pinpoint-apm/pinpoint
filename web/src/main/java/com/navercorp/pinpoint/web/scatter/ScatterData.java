@@ -15,7 +15,7 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Ordering;
 import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
 import org.eclipse.collections.api.map.primitive.LongObjectMap;

@@ -15,23 +15,22 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.web.scatter.ScatterAgentMetaData;
 import com.navercorp.pinpoint.web.scatter.vo.DotAgentInfo;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
-public class ScatterAgentMetaDataSerializer extends JsonSerializer<ScatterAgentMetaData> {
+public class ScatterAgentMetaDataSerializer extends ValueSerializer<ScatterAgentMetaData> {
 
     @Override
-    public void serialize(ScatterAgentMetaData value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(ScatterAgentMetaData value, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeStartObject();
 
         Set<Map.Entry<Integer, DotAgentInfo>> entries = value.entrySet();
@@ -43,8 +42,8 @@ public class ScatterAgentMetaDataSerializer extends JsonSerializer<ScatterAgentM
     }
 
 
-    private void writeMetadata(Integer key, DotAgentInfo agentInfo, JsonGenerator jgen) throws IOException {
-        jgen.writeArrayFieldStart(key.toString());
+    private void writeMetadata(Integer key, DotAgentInfo agentInfo, JsonGenerator jgen) {
+        jgen.writeArrayPropertyStart(key.toString());
 
         jgen.writeString(agentInfo.getAgentId());
         jgen.writeString(agentInfo.getTransactionAgentId());

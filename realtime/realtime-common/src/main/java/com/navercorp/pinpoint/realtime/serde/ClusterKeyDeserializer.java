@@ -15,13 +15,11 @@
  */
 package com.navercorp.pinpoint.realtime.serde;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-
-import java.io.IOException;
 
 /**
  * @author youngjin.kim2
@@ -33,7 +31,7 @@ public class ClusterKeyDeserializer extends StdDeserializer<ClusterKey> {
     }
 
     @Override
-    public ClusterKey deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public ClusterKey deserialize(JsonParser parser, DeserializationContext ctx) {
         JsonNode clusterNode = parser.readValueAsTree();
 
         String serviceName = clusterNode.get("serviceName").asText();

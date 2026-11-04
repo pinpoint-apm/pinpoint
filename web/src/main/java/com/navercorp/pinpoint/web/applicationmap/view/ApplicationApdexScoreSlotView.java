@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface ApplicationApdexScoreSlotView {
 
-    default void writeApdexScoreSlot(NodeView nodeView, JsonGenerator jgen) throws IOException {
+    default void writeApdexScoreSlot(NodeView nodeView, JsonGenerator jgen) {
     }
 
     static ApplicationApdexScoreSlotView detailedView() {
@@ -41,7 +40,7 @@ public interface ApplicationApdexScoreSlotView {
     class DetailedApdexScoreSlotView implements ApplicationApdexScoreSlotView {
 
         @Override
-        public void writeApdexScoreSlot(NodeView nodeView, JsonGenerator jgen) throws IOException {
+        public void writeApdexScoreSlot(NodeView nodeView, JsonGenerator jgen) {
             NodeHistogram nodeHistogram = nodeView.getNode().getNodeHistogram();
             ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
 
@@ -50,7 +49,7 @@ public interface ApplicationApdexScoreSlotView {
             if (applicationTimeSeriesHistogram == null) {
                 JacksonWriterUtils.writeEmptyArray(jgen, "apdexSlot");
             } else {
-                jgen.writeObjectField("apdexSlot", applicationTimeSeriesHistogram);
+                jgen.writePOJOProperty("apdexSlot", applicationTimeSeriesHistogram);
             }
         }
     }

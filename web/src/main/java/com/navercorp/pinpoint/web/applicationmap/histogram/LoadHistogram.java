@@ -17,12 +17,11 @@
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonSerialize;
 
-import java.io.IOException;
 import java.util.Objects;
 
 @JsonSerialize(using = LoadHistogram.Serializer.class)
@@ -70,10 +69,10 @@ public class LoadHistogram {
     }
 
 
-    public static class Serializer extends JsonSerializer<LoadHistogram> {
+    public static class Serializer extends ValueSerializer<LoadHistogram> {
 
         @Override
-        public void serialize(final LoadHistogram histogram, final JsonGenerator jgen, final SerializerProvider serializerProvider) throws IOException {
+        public void serialize(final LoadHistogram histogram, final JsonGenerator jgen, final SerializationContext serializerProvider) {
             // 1s, 3s, 5s, Slow, Error, Avg, Max, Sum, Tot
             jgen.writeStartArray();
             jgen.writeNumber(histogram.getFastCount());

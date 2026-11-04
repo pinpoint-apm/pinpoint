@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.dao.pinot;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +56,7 @@ public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
         try {
             List<String> tags = reader.readValue(json);
             return TagUtils.parseTags(tags);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new SQLException(e);
         }
     }

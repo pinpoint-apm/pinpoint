@@ -16,67 +16,66 @@
 
 package com.navercorp.pinpoint.batch.alarm.vo.sender.payload;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
  * @author Jongjin.Bae
  */
-public class WebhookPayloadSerializer extends JsonSerializer<WebhookPayload> {
+public class WebhookPayloadSerializer extends ValueSerializer<WebhookPayload> {
     
     @Override
-    public void serialize(WebhookPayload webhookPayload, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
+    public void serialize(WebhookPayload webhookPayload, JsonGenerator jgen, SerializationContext serializers) {
         jgen.writeStartObject();
         
-        jgen.writeStringField("pinpointUrl", webhookPayload.getPinpointUrl());
-        jgen.writeStringField("batchEnv", webhookPayload.getBatchEnv());
-        jgen.writeStringField("applicationId", webhookPayload.getApplicationName());
-        jgen.writeStringField("serviceType", webhookPayload.getServiceType());
+        jgen.writeStringProperty("pinpointUrl", webhookPayload.getPinpointUrl());
+        jgen.writeStringProperty("batchEnv", webhookPayload.getBatchEnv());
+        jgen.writeStringProperty("applicationId", webhookPayload.getApplicationName());
+        jgen.writeStringProperty("serviceType", webhookPayload.getServiceType());
 
         writeChecker(webhookPayload, jgen);
         
-        jgen.writeStringField("unit", webhookPayload.getUnit());
+        jgen.writeStringProperty("unit", webhookPayload.getUnit());
         Number threshold = webhookPayload.getThreshold();
         if (threshold instanceof Integer integer) {
-            jgen.writeNumberField("threshold", integer);
+            jgen.writeNumberProperty("threshold", integer);
         } else if (threshold instanceof BigDecimal bigDecimal){
-            jgen.writeNumberField("threshold", bigDecimal);
+            jgen.writeNumberProperty("threshold", bigDecimal);
         } else {
-            throw new IOException("threshold type should be either Integer or BigDecimal");
+            throw new IllegalStateException("threshold type should be either Integer or BigDecimal");
         }
-        jgen.writeStringField("notes", webhookPayload.getNotes());
-        jgen.writeNumberField("sequenceCount", webhookPayload.getSequenceCount());
+        jgen.writeStringProperty("notes", webhookPayload.getNotes());
+        jgen.writeNumberProperty("sequenceCount", webhookPayload.getSequenceCount());
         
         jgen.writeEndObject();
     }
     
-    private void writeChecker(WebhookPayload webhookPayload, JsonGenerator jgen) throws IOException {
-        jgen.writeFieldName("checker");
+    private void writeChecker(WebhookPayload webhookPayload, JsonGenerator jgen) {
+        jgen.writeName("checker");
         jgen.writeStartObject();
         
-        jgen.writeStringField("name", webhookPayload.getCheckerName());
+        jgen.writeStringProperty("name", webhookPayload.getCheckerName());
         String checkerType = webhookPayload.getCheckerType();
-        jgen.writeStringField("type", checkerType);
+        jgen.writeStringProperty("type", checkerType);
         CheckerDetectedValue checkerDetectedValue = webhookPayload.getCheckerDetectedValue();
         
         if (checkerType.equals("LongValueAlarmChecker")) {
-            jgen.writeObjectField("detectedValue", ((AlarmCheckerDetectedValue) checkerDetectedValue).getDetectedValue());
+            jgen.writePOJOProperty("detectedValue", ((AlarmCheckerDetectedValue) checkerDetectedValue).getDetectedValue());
         }
         
         if (checkerType.equals("LongValueAgentChecker")) {
-            jgen.writeObjectField("detectedValue", ((AgentCheckerDetectedValue) checkerDetectedValue).getDetectedAgents());
+            jgen.writePOJOProperty("detectedValue", ((AgentCheckerDetectedValue) checkerDetectedValue).getDetectedAgents());
         }
         
         if (checkerType.equals("BooleanValueAgentChecker")) {
-            jgen.writeObjectField("detectedValue", ((AgentCheckerDetectedValue) checkerDetectedValue).getDetectedAgents());
+            jgen.writePOJOProperty("detectedValue", ((AgentCheckerDetectedValue) checkerDetectedValue).getDetectedAgents());
         }
         
         if (checkerType.equals("DataSourceAlarmListValueAgentChecker")) {
-            jgen.writeObjectField("detectedValue", ((AgentCheckerDetectedValue) checkerDetectedValue).getDetectedAgents());
+            jgen.writePOJOProperty("detectedValue", ((AgentCheckerDetectedValue) checkerDetectedValue).getDetectedAgents());
         }
         
         jgen.writeEndObject();

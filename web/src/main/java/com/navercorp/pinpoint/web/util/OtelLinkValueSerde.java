@@ -15,15 +15,14 @@
  */
 package com.navercorp.pinpoint.web.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 
 /**
  * Serializes and parses the {@code OPENTELEMETRY_LINK} annotation value, which is persisted
@@ -54,7 +53,7 @@ public final class OtelLinkValueSerde {
                     readLong(root.path("focusTimestamp")),
                     extractNode(root.get("attributes"))
             );
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return null;
         }
     }
@@ -105,27 +104,27 @@ public final class OtelLinkValueSerde {
         try (JsonGenerator gen = OBJECT_MAPPER.createGenerator(writer)) {
             gen.writeStartObject();
             if (value.traceId() != null) {
-                gen.writeStringField("traceId", value.traceId().toString());
+                gen.writeStringProperty("traceId", value.traceId().toString());
             }
             // long values serialized as String to avoid JS Number precision loss on the frontend
             if (value.spanId() != null) {
-                gen.writeStringField("spanId", String.valueOf(value.spanId()));
+                gen.writeStringProperty("spanId", String.valueOf(value.spanId()));
             }
             if (value.linkTraceId() != null) {
-                gen.writeStringField("linkTraceId", value.linkTraceId().toString());
+                gen.writeStringProperty("linkTraceId", value.linkTraceId().toString());
             }
             if (value.linkSpanId() != null) {
-                gen.writeStringField("linkSpanId", String.valueOf(value.linkSpanId()));
+                gen.writeStringProperty("linkSpanId", String.valueOf(value.linkSpanId()));
             }
             if (value.focusTimestamp() != null) {
-                gen.writeNumberField("focusTimestamp", value.focusTimestamp());
+                gen.writeNumberProperty("focusTimestamp", value.focusTimestamp());
             }
             if (value.attributes() != null) {
-                gen.writeFieldName("attributes");
+                gen.writeName("attributes");
                 gen.writeTree(value.attributes());
             }
             gen.writeEndObject();
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             return "{}";
         }
         return writer.toString();

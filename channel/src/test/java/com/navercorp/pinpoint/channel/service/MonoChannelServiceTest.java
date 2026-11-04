@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.channel.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.ChannelProviderRegistry;
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.MemoryChannelProvider;

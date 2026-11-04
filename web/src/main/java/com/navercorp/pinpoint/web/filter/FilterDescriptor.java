@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.util.JsonNodeUtils;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
@@ -46,9 +45,9 @@ public class FilterDescriptor {
     private final Option option;
 
 
-    public static class FilterDescriptorDeserializer extends JsonDeserializer<FilterDescriptor> {
+    public static class FilterDescriptorDeserializer extends ValueDeserializer<FilterDescriptor> {
         @Override
-        public FilterDescriptor deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public FilterDescriptor deserialize(JsonParser p, DeserializationContext ctxt) {
             JsonNode jsonNode = p.readValueAsTree();
 
             Node fromNode = readNode(jsonNode, Node.NodeType.FROM, "fs", "fa", "fst", "fan");

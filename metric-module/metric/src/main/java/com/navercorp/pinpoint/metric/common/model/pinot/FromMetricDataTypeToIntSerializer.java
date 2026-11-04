@@ -16,20 +16,18 @@
 
 package com.navercorp.pinpoint.metric.common.model.pinot;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
-
-import java.io.IOException;
 
 /**
  * @author minwoo.jung
  */
-public class FromMetricDataTypeToIntSerializer extends JsonSerializer<MetricDataType> {
+public class FromMetricDataTypeToIntSerializer extends ValueSerializer<MetricDataType> {
 
     @Override
-    public void serialize(MetricDataType metricDataType, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(MetricDataType metricDataType, JsonGenerator jsonGenerator, SerializationContext serializerProvider) {
         jsonGenerator.writeNumber(metricDataType.getCode());
     }
 }

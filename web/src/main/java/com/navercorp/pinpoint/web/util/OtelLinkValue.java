@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.jspecify.annotations.Nullable;
 

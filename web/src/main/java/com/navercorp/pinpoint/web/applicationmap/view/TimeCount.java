@@ -1,18 +1,16 @@
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(using = TimeCount.TimeCountSerializer.class)
 public record TimeCount(long time, long count) {
 
-    public static class TimeCountSerializer extends JsonSerializer<TimeCount> {
+    public static class TimeCountSerializer extends ValueSerializer<TimeCount> {
         @Override
-        public void serialize(TimeCount count, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(TimeCount count, JsonGenerator jgen, SerializationContext provider) {
             jgen.writeStartArray();
             jgen.writeNumber(count.time());
             jgen.writeNumber(count.count());

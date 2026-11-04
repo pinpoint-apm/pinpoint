@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.timeseries.time.Range;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.batch.config.BatchMetaCleanupJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.common.hbase.HbaseVersionCheckBean;

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.view.tree;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;

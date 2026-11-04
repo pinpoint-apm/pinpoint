@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.service.web.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.service.component.ReservedServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -38,13 +38,13 @@ class ServiceRegistryControllerMvcTest {
     private ReservedServiceRegistry reservedServiceRegistry;
 
     private MockMvc mockMvc;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper objectMapper = JsonMapper.builder().build();
 
     @BeforeEach
     void setUp() {
         ServiceRegistryController controller = new ServiceRegistryController(serviceRegistryService, reservedServiceRegistry);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
+                .setMessageConverters(new JacksonJsonHttpMessageConverter(objectMapper))
                 .build();
     }
 

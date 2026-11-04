@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.common.trace.ServiceType;

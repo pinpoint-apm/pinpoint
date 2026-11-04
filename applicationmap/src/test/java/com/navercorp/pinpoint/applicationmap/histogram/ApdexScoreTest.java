@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.applicationmap.histogram;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
@@ -68,7 +68,7 @@ public class ApdexScoreTest {
     }
 
     @Test
-    public void getApdexScore_formula() throws JsonProcessingException, JSONException {
+    public void getApdexScore_formula() throws JacksonException, JSONException {
         ApdexScore apdexScore = new ApdexScore(100, 50, 200);
         final String actualStr = MAPPER.writeValueAsString(apdexScore);
 

@@ -17,12 +17,11 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 
 import java.util.Objects;
-
 
 public class PingPongMessage {
 
@@ -43,7 +42,7 @@ public class PingPongMessage {
     private static String toJson(ObjectMapper mapper, Object object) {
         try {
             return mapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JsonRuntimeException(object + " message create fail.", e);
         }
     }

@@ -16,23 +16,22 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.common.server.threaddump.TThreadState;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDump;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-public class AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentActiveThreadDumpList> {
+public class AgentActiveThreadDumpListSerializer extends ValueSerializer<AgentActiveThreadDumpList> {
 
     @Override
-    public void serialize(AgentActiveThreadDumpList agentActiveThreadDumpList, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
+    public void serialize(AgentActiveThreadDumpList agentActiveThreadDumpList, JsonGenerator jgen, SerializationContext serializers) {
         List<AgentActiveThreadDump> agentActiveThreadDumpRepository = agentActiveThreadDumpList.getSortOldestAgentActiveThreadDumpRepository();
 
         jgen.writeStartArray();
@@ -40,26 +39,26 @@ public class AgentActiveThreadDumpListSerializer extends JsonSerializer<AgentAct
             jgen.writeStartObject();
 
             String hexStringThreadId = Long.toHexString(agentActiveThreadDump.getThreadId());
-            jgen.writeStringField("threadId", "0x" + hexStringThreadId);
+            jgen.writeStringProperty("threadId", "0x" + hexStringThreadId);
 
-            jgen.writeStringField("threadName", agentActiveThreadDump.getThreadName());
+            jgen.writeStringProperty("threadName", agentActiveThreadDump.getThreadName());
 
             TThreadState threadState = agentActiveThreadDump.getThreadState();
             if (threadState == null) {
-                jgen.writeStringField("threadState", TThreadState.UNKNOWN.name());
+                jgen.writeStringProperty("threadState", TThreadState.UNKNOWN.name());
             } else {
-                jgen.writeStringField("threadState", agentActiveThreadDump.getThreadState().name());
+                jgen.writeStringProperty("threadState", agentActiveThreadDump.getThreadState().name());
             }
 
-            jgen.writeNumberField("startTime", agentActiveThreadDump.getStartTime());
-            jgen.writeNumberField("execTime", agentActiveThreadDump.getExecTime());
-            jgen.writeNumberField("localTraceId", agentActiveThreadDump.getLocalTraceId());
+            jgen.writeNumberProperty("startTime", agentActiveThreadDump.getStartTime());
+            jgen.writeNumberProperty("execTime", agentActiveThreadDump.getExecTime());
+            jgen.writeNumberProperty("localTraceId", agentActiveThreadDump.getLocalTraceId());
 
-            jgen.writeBooleanField("sampled", agentActiveThreadDump.isSampled());
-            jgen.writeStringField("transactionId", agentActiveThreadDump.getTransactionId());
-            jgen.writeStringField("entryPoint", agentActiveThreadDump.getEntryPoint());
+            jgen.writeBooleanProperty("sampled", agentActiveThreadDump.isSampled());
+            jgen.writeStringProperty("transactionId", agentActiveThreadDump.getTransactionId());
+            jgen.writeStringProperty("entryPoint", agentActiveThreadDump.getEntryPoint());
 
-            jgen.writeStringField("detailMessage", agentActiveThreadDump.getDetailMessage());
+            jgen.writeStringProperty("detailMessage", agentActiveThreadDump.getDetailMessage());
 
             jgen.writeEndObject();
         }

@@ -15,8 +15,9 @@
  */
 package com.navercorp.pinpoint.web.trace.callstacks;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValueList;
@@ -29,7 +30,6 @@ import com.navercorp.pinpoint.common.trace.attribute.AttributeValueLong;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValueString;
 import org.apache.commons.io.output.StringBuilderWriter;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,17 +53,17 @@ public class AttributeBoWriter {
         try (JsonGenerator gen = mapper.createGenerator(writer)) {
             gen.writeStartObject();
             for (AttributeBo attr : attributeBoList) {
-                gen.writeFieldName(attr.getKey());
+                gen.writeName(attr.getKey());
                 writeValue(gen, attr.getValue());
             }
             gen.writeEndObject();
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             return JSON_PROCESSING_ERROR;
         }
         return writer.toString();
     }
 
-    private static void writeValue(JsonGenerator gen, AttributeValue value) throws IOException {
+    private static void writeValue(JsonGenerator gen, AttributeValue value) {
         if (value == null) {
             gen.writeNull();
             return;
@@ -86,7 +86,7 @@ public class AttributeBoWriter {
             case KEY_VALUE_LIST -> {
                 gen.writeStartObject();
                 for (AttributeKeyValue kv : ((AttributeKeyValueList) value).getKeyValueListValue()) {
-                    gen.writeFieldName(kv.getKey());
+                    gen.writeName(kv.getKey());
                     writeValue(gen, kv.getValue());
                 }
                 gen.writeEndObject();

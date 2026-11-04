@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmEventType;
 import com.navercorp.pinpoint.alarm.vo.AlarmHistoryV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import com.navercorp.pinpoint.alarm.vo.AlarmTemplate;
 import com.navercorp.pinpoint.alarm.vo.AlarmTemplateItem;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.AfterAll;
@@ -150,8 +150,9 @@ class AlarmTimestampResponseTest {
         assertThrows(MismatchedInputException.class, () -> objectMapper.readValue(
                 "{\"applicationName\":\"a\",\"updatedAt\":{\"applicationName\":\"victim\"}}",
                 AlarmRuleV2.class));
-        // An array is refused too, as a date in its array form that does not parse.
-        assertThrows(JsonMappingException.class, () -> objectMapper.readValue(
+        // An array is refused too, as a date in its array form that does not parse
+        // (Jackson 3 reports the bad element as a stream-level coercion error).
+        assertThrows(JacksonException.class, () -> objectMapper.readValue(
                 "{\"applicationName\":\"a\",\"updatedAt\":[1,2]}", AlarmRuleV2.class));
     }
 

@@ -116,7 +116,7 @@
 
         <!-- if  2.3.x jackson needed, should modify scope runtime -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -126,7 +126,7 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <scope>compile</scope>
         </dependency>

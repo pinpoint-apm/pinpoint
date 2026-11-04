@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
 

@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.server.util.Utf8;
@@ -13,7 +13,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import static com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperUtils.writeAttributes;
@@ -27,13 +26,12 @@ public class OtlpTraceLinkMapper {
     private static final String FIELD_ATTRIBUTES = "attributes";
     private static final String FIELD_DROPPED = "dropped";
 
-    private final JsonFactory jsonFactory;
+    private final ObjectMapper objectMapper;
     private final int valueMaxBytes;
 
     public OtlpTraceLinkMapper(ObjectMapper objectMapper,
                                @Value("${pinpoint.collector.otlptrace.link.value-max-bytes:8192}") int valueMaxBytes) {
-        Objects.requireNonNull(objectMapper, "objectMapper");
-        this.jsonFactory = objectMapper.getFactory();
+        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
         if (valueMaxBytes < 0) {
             throw new IllegalArgumentException("valueMaxBytes must be >= 0: " + valueMaxBytes);
         }
@@ -58,20 +56,20 @@ public class OtlpTraceLinkMapper {
             final OtelLink otelLink = toOtelLink(link);
             final String value = toJson(otelLink, onTruncated);
             return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), value);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             return AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), "json processing error");
         }
     }
 
-    private String toJson(OtelLink otelLink, TruncationListener onTruncated) throws IOException {
+    private String toJson(OtelLink otelLink, TruncationListener onTruncated) {
         final StringBuilderWriter buffer = new StringBuilderWriter();
-        try (JsonGenerator generator = jsonFactory.createGenerator(buffer)) {
+        try (JsonGenerator generator = objectMapper.createGenerator(buffer)) {
             generator.writeStartObject();
             if (!otelLink.traceId().isEmpty()) {
-                generator.writeStringField(FIELD_TRACE_ID, ByteStringUtils.encodeBase16(otelLink.traceId()));
+                generator.writeStringProperty(FIELD_TRACE_ID, ByteStringUtils.encodeBase16(otelLink.traceId()));
             }
             if (otelLink.spanId() != 0) {
-                generator.writeStringField(FIELD_SPAN_ID, String.valueOf(otelLink.spanId()));
+                generator.writeStringProperty(FIELD_SPAN_ID, String.valueOf(otelLink.spanId()));
             }
             // Only emit traceState when non-empty to keep well-behaved links compact. Capped like
             // attribute values since chained vendor entries can grow long.
@@ -82,15 +80,15 @@ public class OtlpTraceLinkMapper {
                     traceState = truncatedTraceState;
                     onTruncated.truncated();
                 }
-                generator.writeStringField(FIELD_TRACE_STATE, traceState);
+                generator.writeStringProperty(FIELD_TRACE_STATE, traceState);
             }
             if (!otelLink.attributes().isEmpty()) {
                 // Attribute values are capped at write time, invoking onTruncated per truncated leaf.
-                generator.writeFieldName(FIELD_ATTRIBUTES);
+                generator.writeName(FIELD_ATTRIBUTES);
                 writeAttributes(generator, otelLink.attributes(), valueMaxBytes, onTruncated);
             }
             if (otelLink.dropped() > 0) {
-                generator.writeNumberField(FIELD_DROPPED, otelLink.dropped());
+                generator.writeNumberProperty(FIELD_DROPPED, otelLink.dropped());
             }
             generator.writeEndObject();
         }

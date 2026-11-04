@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author Taejin Koo
