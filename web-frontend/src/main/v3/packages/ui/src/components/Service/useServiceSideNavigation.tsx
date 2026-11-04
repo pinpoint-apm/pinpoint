@@ -2,6 +2,7 @@ import React from 'react';
 import { TbCategory } from 'react-icons/tb';
 import { LuPlus, LuEllipsis } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   DEFAULT_SERVICE,
@@ -22,6 +23,7 @@ export const useServiceSideNavigation = (serviceGroupItems: SideNavigationMenuIt
   const setSelectedService = useSetAtom(selectedServiceAtom);
   const setAddServiceOpen = useSetAtom(isServiceAddSheetOpenAtom);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     if (!enableServiceMap || !services) return;
@@ -46,6 +48,8 @@ export const useServiceSideNavigation = (serviceGroupItems: SideNavigationMenuIt
           leftSectionTitle: 'Service Config',
           leftChildItems: serviceGroupItems,
           rightSectionTitle: 'Select Service',
+          childItemsSearchPlaceholder: t('CONFIGURATION.SERVICE_SETTING.SEARCH_PLACEHOLDER'),
+          childItemsSearchEmptyText: t('COMMON.EMPTY_ON_SEARCH'),
           headerAction: (close: () => void) => (
             <div className="flex items-center gap-1">
               <button
