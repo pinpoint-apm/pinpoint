@@ -17,7 +17,10 @@ package com.navercorp.pinpoint.alarm.core.vo;
 
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import com.navercorp.pinpoint.alarm.vo.AlarmMetricDefinition;
+import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -147,9 +150,21 @@ public enum CoreAlarmDataSource implements AlarmDataSource {
      * link to the server map of the application.
      */
     @Override
-    public String detailLink(String baseUrl, String serviceName, String application, long fromMs, long toMs) {
+    public String detailPath(AlarmRuleV2 rule, long fromMs, long toMs) {
         String page = this == AGENT_STAT || this == AGENT_EVENT ? "inspector" : "serviceMap";
-        return String.format("%s/%s/%s/%s?from=%s&to=%s", baseUrl, page, serviceName, application,
+        return pagePath(page, rule, fromMs, toMs);
+    }
+
+    /** The inspector of one agent of the rule's application, as a path under the web's base URL. */
+    public static String agentInspectorPath(AlarmRuleV2 rule, String agentId, long fromMs, long toMs) {
+        return pagePath("inspector", rule, fromMs, toMs)
+                + "&agentId=" + URLEncoder.encode(agentId, StandardCharsets.UTF_8);
+    }
+
+    private static String pagePath(String page, AlarmRuleV2 rule, long fromMs, long toMs) {
+        return String.format("/%s/%s/%s?from=%s&to=%s", page,
+                AlarmDataSource.serviceSegment(rule.getServiceName()),
+                AlarmDataSource.applicationSegment(rule.getApplicationName(), rule.getApplicationType()),
                 AlarmDataSource.linkTime(fromMs), AlarmDataSource.linkTime(toMs));
     }
 }

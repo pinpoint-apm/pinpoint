@@ -35,14 +35,14 @@ import com.navercorp.pinpoint.common.util.MathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.DoubleSummaryStatistics;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Reads what the agents of an application reported about themselves.
@@ -91,29 +91,32 @@ public class AgentStatMetricQueryService implements MetricQueryService {
         Application application = applicationResolver.resolve(rule);
         String applicationName = application.getApplicationName();
 
-        Map<MetricQueryKey, Double> values = new LinkedHashMap<>();
-        Map<MetricQueryKey, List<Detail>> details = new LinkedHashMap<>();
+        AgentQueryResultBuilder result = new AgentQueryResultBuilder();
         // Two leaves differing only in how they reduce are two keys but one read; the dedup
         // above is keyed by the whole condition and would issue the query once per each.
-        Map<MetricRead, Collection<Double>> reads = new HashMap<>();
-        MetricQueryResult.QueriedRange range = null;
+        Map<MetricRead, Read> reads = new HashMap<>();
+        // The summary and the lines name what met one leaf's op and threshold. Leaves that share
+        // a key differ in those, so such a key says only how the agents were reduced.
+        Map<MetricQueryKey, Long> leavesPerKey = conditions.stream()
+                .collect(Collectors.groupingBy(MetricQueryKey::from, Collectors.counting()));
 
         for (AlarmCondition leaf : conditions) {
             MetricQueryKey key = MetricQueryKey.from(leaf);
-            if (values.containsKey(key)) {
+            if (result.has(key)) {
                 continue;
             }
             int windowSec = windowSecOf(rule, leaf);
             Range window = Range.between(nowMs - windowSec * 1000L, nowMs);
 
-            Collection<Double> readings = reads.computeIfAbsent(
+            Read read = reads.computeIfAbsent(
                     new MetricRead(leaf.getMetric(), windowSec),
-                    read -> readByAgent(read.metric(), applicationName, window));
-            if (readings == null) {
+                    metricRead -> readByAgent(metricRead.metric(), applicationName, window));
+            if (read == null) {
                 logger.warn("Unknown {} metric='{}', rule_id={}, skipping",
                         getDataSource().name(), leaf.getMetric(), rule.getId());
                 continue;
             }
+            List<AgentReading> readings = read.readings();
             if (readings.isEmpty()) {
                 // No agent reported in the window. Reporting zero would read as "healthy",
                 // which is the opposite of what an application with no live agent means, so
@@ -123,27 +126,28 @@ public class AgentStatMetricQueryService implements MetricQueryService {
                 continue;
             }
 
-            Reduction reduction = reduce(readings, leaf.getAggregation(),
-                    METRIC_CONNECTION_POOL_USAGE.equals(leaf.getMetric()) ? "pool" : "agent");
-            values.put(key, reduction.value());
-            details.put(key, reduction.detail());
-            range = MetricQueryResult.QueriedRange.union(range,
-                    new MetricQueryResult.QueriedRange(window.getFrom(), window.getTo()));
+            double value = reduce(readings, leaf.getAggregation());
+            if (leavesPerKey.get(key) == 1) {
+                result.put(key, value, window, summary(leaf, read), lines(rule, leaf, read, window));
+            } else {
+                result.put(key, value, window, reduction(leaf, read, value), List.of());
+            }
         }
-        return new MetricQueryResult(values, details, range);
+        return result.result();
     }
 
     /**
      * @return the value per agent -- or per pool of each agent, for the connection metric --
      *         or null when the metric is not one of this data source's
      */
-    private Collection<Double> readByAgent(String metric, String applicationName, Range window) {
+    private Read readByAgent(String metric, String applicationName, Range window) {
         return switch (metric == null ? "" : metric) {
-            case "heap_usage_rate" -> heapUsageRate(applicationName, window).values();
-            case "jvm_cpu_usage_rate" -> cpuUsageRate(applicationName, FIELD_JVM, window).values();
-            case "system_cpu_usage_rate" -> cpuUsageRate(applicationName, FIELD_SYSTEM, window).values();
-            case "file_descriptor_count" -> fileDescriptorCount(applicationName, window).values();
-            case METRIC_CONNECTION_POOL_USAGE -> connectionPoolUsageReader.read(applicationName, window);
+            case "heap_usage_rate" -> Read.percent(heapUsageRate(applicationName, window));
+            case "jvm_cpu_usage_rate" -> Read.percent(cpuUsageRate(applicationName, FIELD_JVM, window));
+            case "system_cpu_usage_rate" -> Read.percent(cpuUsageRate(applicationName, FIELD_SYSTEM, window));
+            case "file_descriptor_count" -> Read.count(fileDescriptorCount(applicationName, window));
+            case METRIC_CONNECTION_POOL_USAGE ->
+                    Read.percent(connectionPoolUsageReader.read(applicationName, window));
             default -> null;
         };
     }
@@ -224,27 +228,79 @@ public class AgentStatMetricQueryService implements MetricQueryService {
      * Reduces the agents to one number. MAX is the default because that is what the v1 alarm
      * compared, and a rule written without an aggregation was written against that behaviour.
      */
-    private Reduction reduce(Collection<Double> readings, AlarmCondition.Aggregation aggregation,
-                             String unit) {
-        AlarmCondition.Aggregation reducer =
-                aggregation != null ? aggregation : AlarmCondition.Aggregation.MAX;
-
+    private static double reduce(List<AgentReading> readings, AlarmCondition.Aggregation aggregation) {
         DoubleSummaryStatistics stats = readings.stream()
-                .mapToDouble(Double::doubleValue).summaryStatistics();
-        double value = switch (reducer) {
+                .mapToDouble(AgentReading::value).summaryStatistics();
+        return switch (aggregation != null ? aggregation : AlarmCondition.Aggregation.MAX) {
             case MIN -> stats.getMin();
             case AVG -> stats.getAverage();
             default -> stats.getMax();
         };
-        int count = readings.size();
-        return new Reduction(value, List.of(Detail.of(String.format("%s %.2f over %d %s%s",
-                reducer.name().toLowerCase(Locale.ROOT), value, count, unit, count == 1 ? "" : "s"))));
+    }
+
+    /** How many of the agents met the condition, such as "3 of 5 agents > 80.00%". */
+    private static String summary(AlarmCondition leaf, Read read) {
+        long met = read.readings().stream().filter(reading -> leaf.isMetBy(reading.value()))
+                .map(AgentReading::agentId).distinct().count();
+        long agents = read.readings().stream().map(AgentReading::agentId).distinct().count();
+        return String.format("%d of %d agent%s %s %s", met, agents, agents == 1 ? "" : "s",
+                leaf.getOp().symbol(), read.format(leaf.getThreshold()));
+    }
+
+    /** How the agents were reduced, such as "max 92.00% over 5 agents", for a key no one leaf owns. */
+    private static String reduction(AlarmCondition leaf, Read read, double value) {
+        AlarmCondition.Aggregation aggregation =
+                leaf.getAggregation() != null ? leaf.getAggregation() : AlarmCondition.Aggregation.MAX;
+        int count = read.readings().size();
+        String unit = METRIC_CONNECTION_POOL_USAGE.equals(leaf.getMetric()) ? "pool" : "agent";
+        return String.format(Locale.ROOT, "%s %s over %d %s%s", aggregation.name().toLowerCase(Locale.ROOT),
+                read.format(value), count, unit, count == 1 ? "" : "s");
+    }
+
+    /**
+     * The readings that met the condition by their own value, the furthest past the threshold
+     * first. Each pool of an agent is a line of its own, since it is a pool that fills up.
+     */
+    private static List<Detail> lines(AlarmRuleV2 rule, AlarmCondition leaf, Read read, Range window) {
+        Comparator<AgentReading> byValue = Comparator.comparingDouble(AgentReading::value);
+        return read.readings().stream()
+                .filter(reading -> leaf.isMetBy(reading.value()))
+                .sorted(leaf.getOp().isBelow() ? byValue : byValue.reversed())
+                .map(reading -> {
+                    String text = read.format(reading.value());
+                    return AgentQueryResultBuilder.agentLine(rule, reading.agentId(),
+                            reading.pool() != null ? text + " " + reading.pool() : text, window);
+                })
+                .toList();
+    }
+
+    /** What the agents reported for one metric, and the unit its values print with. */
+    private record Read(List<AgentReading> readings, String unit) {
+
+        static Read percent(Map<String, Double> valueByAgent) {
+            return percent(readings(valueByAgent));
+        }
+
+        static Read percent(List<AgentReading> readings) {
+            return new Read(readings, "%");
+        }
+
+        static Read count(Map<String, Double> valueByAgent) {
+            return new Read(readings(valueByAgent), "");
+        }
+
+        private static List<AgentReading> readings(Map<String, Double> valueByAgent) {
+            return valueByAgent.entrySet().stream()
+                    .map(entry -> new AgentReading(entry.getKey(), null, entry.getValue()))
+                    .toList();
+        }
+
+        String format(double value) {
+            return String.format(Locale.ROOT, "%.2f%s", value, unit);
+        }
     }
 
     /** What a read is decided by: the same pair asks the store the same question. */
     private record MetricRead(String metric, int windowSec) {
-    }
-
-    private record Reduction(double value, List<Detail> detail) {
     }
 }

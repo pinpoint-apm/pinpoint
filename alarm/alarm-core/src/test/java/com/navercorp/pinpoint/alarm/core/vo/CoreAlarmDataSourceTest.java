@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.core.vo;
 
+import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -32,15 +33,23 @@ class CoreAlarmDataSourceTest {
     // The web parses only this date format; epoch millis make it open its default range.
     @Test
     void anAgentMetricLinksToTheApplicationInspector() {
-        assertEquals("https://p/inspector/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
-                CoreAlarmDataSource.AGENT_STAT.detailLink("https://p", "svc", "app@SPRING_BOOT", FROM, TO));
-        assertEquals("https://p/inspector/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
-                CoreAlarmDataSource.AGENT_EVENT.detailLink("https://p", "svc", "app@SPRING_BOOT", FROM, TO));
+        assertEquals("/inspector/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
+                CoreAlarmDataSource.AGENT_STAT.detailPath(rule(), FROM, TO));
+        assertEquals("/inspector/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
+                CoreAlarmDataSource.AGENT_EVENT.detailPath(rule(), FROM, TO));
     }
 
     @Test
     void aMapStatisticLinksToTheServiceMapOfTheRule() {
-        assertEquals("https://p/serviceMap/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
-                CoreAlarmDataSource.APPLICATION_OUT_CALL.detailLink("https://p", "svc", "app@SPRING_BOOT", FROM, TO));
+        assertEquals("/serviceMap/svc/app@SPRING_BOOT?from=2026-09-29-17-57-32&to=2026-09-29-18-17-32",
+                CoreAlarmDataSource.APPLICATION_OUT_CALL.detailPath(rule(), FROM, TO));
+    }
+
+    private static AlarmRuleV2 rule() {
+        AlarmRuleV2 rule = new AlarmRuleV2();
+        rule.setServiceName("svc");
+        rule.setApplicationName("app");
+        rule.setApplicationType("SPRING_BOOT");
+        return rule;
     }
 }

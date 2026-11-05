@@ -45,6 +45,7 @@ class ConnectionPoolUsageReader {
     private static final String FIELD_ACTIVE_CONNECTION = "activeConnectionSize";
     private static final String FIELD_MAX_CONNECTION = "maxConnectionSize";
     private static final String TAG_JDBC_URL = "jdbcUrl";
+    private static final String TAG_DATABASE_NAME = "databaseName";
 
     private final AgentStatAlarmDao agentStatAlarmDao;
 
@@ -52,22 +53,23 @@ class ConnectionPoolUsageReader {
         this.agentStatAlarmDao = Objects.requireNonNull(agentStatAlarmDao, "agentStatAlarmDao");
     }
 
-    /** @return the usage percentage of every pool, empty when nothing reported */
-    List<Double> read(String applicationName, Range window) {
+    /** @return the usage percentage of every pool, with its agent, empty when nothing reported */
+    List<AgentReading> read(String applicationName, Range window) {
         try {
             // Only an agent that reported a pool has one to read; most agents hold none.
             List<String> agentIds =
                     agentStatAlarmDao.selectAgentIds(applicationName, METRIC_DATA_SOURCE, window);
-            List<Double> usages = new ArrayList<>();
-            for (CompletableFuture<List<AgentFieldUsage>> read : issue(applicationName, agentIds, window)) {
-                Usage usage = usageOf(read.get());
+            List<AgentReading> usages = new ArrayList<>();
+            for (PoolRead read : issue(applicationName, agentIds, window)) {
+                Usage usage = usageOf(read.future().get());
                 if (usage.maxConnection() <= 0) {
                     // A pool that reported no ceiling has no rate to speak of. Treating the
                     // ceiling as zero would divide by it; reporting zero would call a full
                     // pool empty.
                     continue;
                 }
-                usages.add((usage.activeConnection() * 100.0) / usage.maxConnection());
+                usages.add(new AgentReading(read.agentId(), read.databaseName(),
+                        (usage.activeConnection() * 100.0) / usage.maxConnection()));
             }
             return usages;
         } catch (ExecutionException e) {
@@ -84,20 +86,28 @@ class ConnectionPoolUsageReader {
         }
     }
 
-    private List<CompletableFuture<List<AgentFieldUsage>>> issue(String applicationName,
-                                                                 List<String> agentIds, Range window)
+    private List<PoolRead> issue(String applicationName, List<String> agentIds, Range window)
             throws ExecutionException, InterruptedException {
-        List<CompletableFuture<List<AgentFieldUsage>>> reads = new ArrayList<>();
+        List<PoolRead> reads = new ArrayList<>();
         for (Map.Entry<String, List<TagInformation>> entry
                 : poolsByAgent(applicationName, agentIds, window).entrySet()) {
             for (TagInformation pool : entry.getValue()) {
-                reads.add(agentStatAlarmDao.selectAvgGroupByField(
+                reads.add(new PoolRead(agentStatAlarmDao.selectAvgGroupByField(
                         applicationName, entry.getKey(), METRIC_DATA_SOURCE,
                         List.of(FIELD_ACTIVE_CONNECTION, FIELD_MAX_CONNECTION),
-                        pool.tags(), window));
+                        pool.tags(), window), entry.getKey(), databaseName(pool.tags())));
             }
         }
         return reads;
+    }
+
+    private static String databaseName(List<Tag> tags) {
+        for (Tag tag : tags) {
+            if (TAG_DATABASE_NAME.equals(tag.getName())) {
+                return tag.getValue();
+            }
+        }
+        return null;
     }
 
     /**
@@ -151,6 +161,9 @@ class ConnectionPoolUsageReader {
     }
 
     private record PoolTagRead(CompletableFuture<List<TagInformation>> future, String agentId) {
+    }
+
+    private record PoolRead(CompletableFuture<List<AgentFieldUsage>> future, String agentId, String databaseName) {
     }
 
     private record Usage(double activeConnection, double maxConnection) {

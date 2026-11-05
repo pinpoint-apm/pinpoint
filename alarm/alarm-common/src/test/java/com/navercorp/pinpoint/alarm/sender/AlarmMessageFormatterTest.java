@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Details;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.QueriedRange;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
@@ -305,11 +306,13 @@ class AlarmMessageFormatterTest {
     void defaultHtmlBody_newGroupRule_listsNewErrorGroups() {
         AlarmRuleV2 rule = createNewGroupRule();
         String html = formatter.formatHtmlBody(rule, null, metricResults(rule, 3.0,
-                List.of("TypeError: undefined is not a function"), 2));
+                List.of("TypeError: undefined is not a function"), 1234));
 
         assertThat(html)
                 .contains("TypeError: undefined is not a function")
-                .contains("... and 2 more");
+                .contains("... and 1,234 more");
+        // without a link the line wraps, so its whole text stays readable
+        assertThat(html).contains("overflow-wrap:anywhere").doesNotContain("text-overflow:ellipsis");
     }
 
     @Test
@@ -425,7 +428,8 @@ class AlarmMessageFormatterTest {
         String html = linkFormatter.formatHtmlBody(rule, null,
                 linkedDetail(rule, new Detail("TypeError", "e1", "/errors/g1")));
 
-        assertThat(html).contains("href=\"https://pinpoint.example.com/errors/g1\"", "- [e1] TypeError");
+        assertThat(html).containsSubsequence("title=\"[e1] TypeError\"", "text-overflow:ellipsis",
+                "- <a", "href=\"https://pinpoint.example.com/errors/g1\"", ">[e1]</span>", "TypeError</a>");
     }
 
     @Test
@@ -686,12 +690,73 @@ class AlarmMessageFormatterTest {
                                             int omitted) {
         MetricQueryKey key = MetricQueryKey.from(rule.getConditions());
         return new MetricQueryResult(Map.of(key, value),
-                Map.of(key, details.stream().map(Detail::of).toList()), Map.of(key, omitted), null);
+                Map.of(key, new Details(null, details.stream().map(Detail::of).toList(), omitted)), null);
+    }
+
+    @Test
+    void summary_smsShowsTheSummaryInPlaceOfTheLines() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        MetricQueryResult results = summarized(rule, 12);
+
+        String sms = linkFormatter.formatSmsBody(rule, null, results);
+        assertThat(sms).contains("    - 12 of 20 agents > 80.00%\n").doesNotContain("agent-0", "more");
+    }
+
+    // A variable means the same in every channel: the template, not the channel, picks the summary.
+    @Test
+    void summary_customTemplateTakesTheSummaryApartFromTheLines() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        MetricQueryResult results = summarized(rule, 12);
+
+        assertEquals("12 of 20 agents > 80.00%", linkFormatter.formatSmsBody(rule, "${summary}", results));
+        assertThat(linkFormatter.formatSmsBody(rule, "${details}", results))
+                .startsWith("- 99.00%\n- 98.00%\n").doesNotContain("agents", "agent-0", "https://");
+
+        String webhook = linkFormatter.formatWebhookBody(rule, "${summary}\n${details}", results, false);
+        assertThat(webhook).startsWith("12 of 20 agents > 80.00%\n- [agent-0] 99.00%\n"
+                + "  https://pinpoint.example.com/inspector/agent-0\n").endsWith("... and 2 more");
+    }
+
+    @Test
+    void summary_isEmptyForAMetricWithoutOne() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        MetricQueryResult results = linkedDetail(rule, new Detail("TypeError", "e1", "/errors/g1"));
+
+        assertEquals("", linkFormatter.formatWebhookBody(rule, "${summary}", results, false));
+    }
+
+    @Test
+    void summary_webhookShowsTheSummaryAboveTheLines() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = linkFormatter.formatWebhookBody(rule, null, summarized(rule, 12), true);
+
+        assertThat(body).contains("        \u2022 12 of 20 agents &gt; 80.00%\n"
+                + "        \u2022 <https://pinpoint.example.com/inspector/agent-0|[agent-0] 99.00%>\n");
+        assertThat(body).contains("        ... and 2 more");
+    }
+
+    @Test
+    void summary_emailShowsTheSummaryAboveTheLines() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String html = linkFormatter.formatHtmlBody(rule, null, summarized(rule, 12));
+
+        assertThat(html).containsSubsequence(">12 of 20 agents &gt; 80.00%</div>",
+                "href=\"https://pinpoint.example.com/inspector/agent-0\"", ">[agent-0]</span>", "99.00%</a>");
+    }
+
+    private MetricQueryResult summarized(AlarmRuleV2 rule, int met) {
+        MetricQueryKey key = MetricQueryKey.from(rule.getConditions());
+        List<Detail> lines = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            lines.add(new Detail((99 - i) + ".00%", "agent-" + i, "/inspector/agent-" + i));
+        }
+        return new MetricQueryResult(Map.of(key, 99.0),
+                Map.of(key, new Details(met + " of 20 agents > 80.00%", lines, met - 10)), null);
     }
 
     private MetricQueryResult linkedDetail(AlarmRuleV2 rule, Detail detail) {
         MetricQueryKey key = MetricQueryKey.from(rule.getConditions());
-        return new MetricQueryResult(Map.of(key, 1.0), Map.of(key, List.of(detail)), null);
+        return new MetricQueryResult(Map.of(key, 1.0), Map.of(key, Details.of(List.of(detail))), null);
     }
 
     private MetricQueryResult metricResultsWithRange(AlarmRuleV2 rule, double value, QueriedRange range) {
