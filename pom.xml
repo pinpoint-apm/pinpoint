@@ -1192,13 +1192,6 @@
 
 
             <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-spring-boot</artifactId>
-                <version>${log4j2.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-bom</artifactId>
                 <version>${slf4j.version}</version>
