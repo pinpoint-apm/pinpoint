@@ -74,16 +74,25 @@
                         </th:block>
                     </td>
                 </tr>
-                <tr th:if="${!row.details().isEmpty()}">
+                <tr th:if="${row.summary() != null or !row.details().isEmpty()}">
                     <td colspan="3" style="padding:0 12px 10px 12px">
-                        <div th:each="line : ${row.details().lines()}"
-                             style="font-family:monospace;font-size:12px;color:#555;word-break:break-all;padding:2px 0">
-                            <a th:if="${line.url() != null}" th:href="${line.url()}"
-                               style="color:#1565c0" th:text="'- ' + ${line.text()}"></a>
-                            <span th:if="${line.url() == null}" th:text="'- ' + ${line.text()}"></span>
+                        <!--/* A linked line stays on one line and ends in an ellipsis, since its full text is
+                               behind the link. A line without a link wraps. The fixed layout keeps a long line
+                               from widening the conditions table. */-->
+                        <table role="presentation" style="width:100%;table-layout:fixed;border-collapse:collapse"><tr><td style="padding:0">
+                        <div th:if="${row.summary() != null}" style="font-size:13px;font-weight:bold;color:#222;padding:4px 0 2px"
+                             th:text="${row.summary()}"></div>
+                        <div th:each="line : ${row.details().lines()}" th:title="${line.text()}"
+                             th:style="'font-family:Arial,sans-serif;font-size:12px;color:#555;line-height:20px;padding:4px 0;'
+                                     + (${line.url() != null} ? 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis' : 'overflow-wrap:anywhere')">
+                            - <a th:href="${line.url()}" th:remove="${line.url() == null} ? tag : none"
+                               style="color:#1565c0;text-decoration:none"><span th:if="${line.id() != null}"
+                               style="font-family:Consolas,Menlo,monospace;color:#333" th:text="'[' + ${line.id()} + ']'"></span>
+                               <th:block th:text="${line.body()}"></th:block></a>
                         </div>
-                        <div th:if="${row.details().more() > 0}" style="font-size:12px;color:#999;padding:2px 0"
+                        <div th:if="${row.details().more() > 0}" style="font-size:12px;color:#666;padding:6px 0 0 0"
                              th:text="${row.details().moreText()}"></div>
+                        </td></tr></table>
                     </td>
                 </tr>
                 </th:block>

@@ -80,8 +80,9 @@ public enum TestAlarmDataSource implements AlarmDataSource {
     }
 
     @Override
-    public String detailLink(String baseUrl, String serviceName, String application, long fromMs, long toMs) {
-        return String.format("%s/detail/%s/%s?from=%d&to=%d", baseUrl, serviceName, application, fromMs, toMs);
+    public String detailPath(AlarmRuleV2 rule, long fromMs, long toMs) {
+        return String.format("/detail/%s/%s?from=%d&to=%d", AlarmDataSource.serviceSegment(rule.getServiceName()),
+                AlarmDataSource.applicationSegment(rule.getApplicationName(), rule.getApplicationType()), fromMs, toMs);
     }
 
     public static class Provider implements AlarmDataSourceProvider {

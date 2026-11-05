@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.alarm.dao.AlarmHistoryV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationOutboxDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
+import com.navercorp.pinpoint.alarm.sender.AlarmMessageFormatter;
 import com.navercorp.pinpoint.alarm.sender.AlarmNotificationService;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
@@ -256,7 +257,7 @@ public class AlarmEventPersistenceService {
             MetricQueryKey key = MetricQueryKey.from(leaf);
             results.add(ConditionResult.from(leaf, key,
                     metricResults.values().get(key),
-                    metricResults.details(key).stream().map(MetricQueryResult.Detail::textWithId).toList()));
+                    AlarmMessageFormatter.historyLines(metricResults.details(key))));
         }
         AlarmContext context = new AlarmContext(results, EffectiveRuleSnapshot.from(rule),
                 rule.getServiceName(), rule.getApplicationName(),

@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.batch.config;
 
+import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceProvider;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import com.navercorp.pinpoint.alarm.vo.AlarmMetricDefinition;
@@ -65,8 +66,9 @@ public enum IntegrationTestAlarmDataSource implements AlarmDataSource {
     }
 
     @Override
-    public String detailLink(String baseUrl, String serviceName, String application, long fromMs, long toMs) {
-        return String.format("%s/detail/%s/%s?from=%d&to=%d", baseUrl, serviceName, application, fromMs, toMs);
+    public String detailPath(AlarmRuleV2 rule, long fromMs, long toMs) {
+        return String.format("/detail/%s/%s?from=%d&to=%d", AlarmDataSource.serviceSegment(rule.getServiceName()),
+                AlarmDataSource.applicationSegment(rule.getApplicationName(), rule.getApplicationType()), fromMs, toMs);
     }
 
     public static class Provider implements AlarmDataSourceProvider {

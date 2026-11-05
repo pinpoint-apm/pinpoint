@@ -30,8 +30,7 @@ import java.util.Objects;
  * of any data source specific model.
  */
 public record MetricQueryResult(Map<MetricQueryKey, Double> values,
-                                Map<MetricQueryKey, List<Detail>> details,
-                                Map<MetricQueryKey, Integer> omittedDetails,
+                                Map<MetricQueryKey, Details> details,
                                 QueriedRange range) {
 
     private static final MetricQueryResult EMPTY = new MetricQueryResult(Map.of(), Map.of(), null);
@@ -42,13 +41,6 @@ public record MetricQueryResult(Map<MetricQueryKey, Double> values,
         // first one), so the same rule would render differently after every restart.
         values = unmodifiableCopy(Objects.requireNonNull(values, "values"));
         details = unmodifiableCopy(Objects.requireNonNull(details, "details"));
-        omittedDetails = unmodifiableCopy(Objects.requireNonNull(omittedDetails, "omittedDetails"));
-    }
-
-    public MetricQueryResult(Map<MetricQueryKey, Double> values,
-                             Map<MetricQueryKey, List<Detail>> details,
-                             QueriedRange range) {
-        this(values, details, Map.of(), range);
     }
 
     private static <V> Map<MetricQueryKey, V> unmodifiableCopy(Map<MetricQueryKey, V> map) {
@@ -67,14 +59,34 @@ public record MetricQueryResult(Map<MetricQueryKey, Double> values,
         return new MetricQueryResult(values, Map.of(), range);
     }
 
-    public List<Detail> details(MetricQueryKey key) {
-        return details.getOrDefault(key, List.of());
+    public Details details(MetricQueryKey key) {
+        return details.getOrDefault(key, Details.NONE);
+    }
+
+    /**
+     * The detail lines of one metric. {@code omitted} is how many lines the query itself left
+     * out, as when it describes only a sample of the groups.
+     * <p>
+     * {@code summary} is one line that stands for all of them, such as how many agents met the
+     * condition, or null.
+     */
+    public record Details(String summary, List<Detail> lines, int omitted) {
+
+        public static final Details NONE = new Details(null, List.of(), 0);
+
+        public Details {
+            lines = List.copyOf(lines);
+        }
+
+        public static Details of(List<Detail> lines) {
+            return new Details(null, lines, 0);
+        }
     }
 
     /**
      * One detail line. {@code id} names what the line describes on its screen, such as an event
      * id. {@code link} is that screen, as a path under the web's base URL (so it starts with '/').
-     * Either is null when there is none. Only the email and webhook messages show them.
+     * Either is null when there is none.
      */
     public record Detail(String text, String id, String link) {
 
@@ -85,16 +97,6 @@ public record MetricQueryResult(Map<MetricQueryKey, Double> values,
         public static Detail of(String text) {
             return new Detail(text, null, null);
         }
-
-        /** The text with the id in front, where a cut of a long text cannot reach it. */
-        public String textWithId() {
-            return id != null ? "[" + id + "] " + text : text;
-        }
-    }
-
-    /** Detail lines the query itself left out, as when it describes only a sample of the groups. */
-    public int omittedDetails(MetricQueryKey key) {
-        return omittedDetails.getOrDefault(key, 0);
     }
 
     public boolean isEmpty() {

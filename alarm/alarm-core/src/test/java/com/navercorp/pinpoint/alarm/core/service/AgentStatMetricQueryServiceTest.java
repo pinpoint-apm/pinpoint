@@ -90,16 +90,86 @@ class AgentStatMetricQueryServiceTest {
     }
 
     @Test
-    void theDetailSaysHowTheAgentsWereReduced() {
+    void theAgentsThatMetTheConditionAreLinesTheWorstFirst() {
         StubDao dao = new StubDao();
         dao.usages = List.of(
                 new AgentUsage("agent-a", 120.0),
-                new AgentUsage("agent-b", 8000.0));
+                new AgentUsage("agent-b", 8000.0),
+                new AgentUsage("agent-c", 300.0));
 
-        MetricQueryResult result = query(dao, "file_descriptor_count", null);
+        MetricQueryResult result = query(dao, List.of("file_descriptor_count"), null,
+                AlarmCondition.ComparisonOp.GT, 200.0);
         MetricQueryKey key = result.values().keySet().iterator().next();
 
-        assertEquals(List.of(Detail.of("max 8000.00 over 2 agents")), result.details(key));
+        assertEquals("2 of 3 agents > 200.00", result.details(key).summary());
+        List<Detail> lines = result.details(key).lines();
+        assertEquals(List.of("8000.00", "300.00"), lines.stream().map(Detail::text).toList());
+        assertEquals(List.of("agent-b", "agent-c"), lines.stream().map(Detail::id).toList());
+        assertTrue(lines.get(0).link().startsWith("/inspector/DEFAULT/app@?from="), lines.get(0).link());
+        assertTrue(lines.get(0).link().endsWith("&agentId=agent-b"), lines.get(0).link());
+    }
+
+    // A floor rule is broken by the lowest values, so those come first.
+    @Test
+    void underAFloorTheLowestAgentComesFirst() {
+        StubDao dao = new StubDao();
+        dao.fieldUsages = List.of(
+                new AgentFieldUsage("agent-a", "heapUsed", 70.0),
+                new AgentFieldUsage("agent-a", "heapMax", 1000.0),
+                new AgentFieldUsage("agent-b", "heapUsed", 30.0),
+                new AgentFieldUsage("agent-b", "heapMax", 1000.0),
+                new AgentFieldUsage("agent-c", "heapUsed", 600.0),
+                new AgentFieldUsage("agent-c", "heapMax", 1000.0));
+
+        MetricQueryResult result = query(dao, List.of("heap_usage_rate"), AlarmCondition.Aggregation.MIN,
+                AlarmCondition.ComparisonOp.LT, 10.0);
+        MetricQueryKey key = result.values().keySet().iterator().next();
+
+        assertEquals("2 of 3 agents < 10.00%", result.details(key).summary());
+        assertEquals(List.of("3.00%", "7.00%"), result.details(key).lines().stream().map(Detail::text).toList());
+    }
+
+    // "> 90 OR < 1" on one metric: the lines of either leaf would contradict the other.
+    @Test
+    void twoLeavesOnOneKeyKeepTheValueAndHowTheAgentsWereReduced() {
+        StubDao dao = new StubDao();
+        dao.usages = List.of(new AgentUsage("agent-a", 0.5), new AgentUsage("agent-b", 0.2));
+
+        AgentStatMetricQueryService service = new AgentStatMetricQueryService(dao, RESOLVER);
+        AlarmRuleV2 rule = new AlarmRuleV2();
+        rule.setApplicationName("app");
+        rule.setCheckIntervalSec(300);
+        List<AlarmCondition> conditions = Stream.of(
+                        AlarmCondition.ComparisonOp.GT, AlarmCondition.ComparisonOp.LT)
+                .map(op -> leaf("file_descriptor_count", 300, null, op,
+                        op == AlarmCondition.ComparisonOp.GT ? 90.0 : 1.0))
+                .toList();
+
+        MetricQueryResult result = service.query(rule, conditions, List.of(), null);
+        MetricQueryKey key = result.values().keySet().iterator().next();
+
+        assertEquals(0.5, result.values().get(key));
+        assertEquals(List.of(), result.details(key).lines());
+        assertEquals("max 0.50 over 2 agents", result.details(key).summary());
+    }
+
+    @Test
+    void atMostTenAgentsAreLinesAndTheRestAreCounted() {
+        StubDao dao = new StubDao();
+        List<AgentUsage> usages = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            usages.add(new AgentUsage("agent-" + i, 100.0 + i));
+        }
+        dao.usages = usages;
+
+        MetricQueryResult result = query(dao, List.of("file_descriptor_count"), null,
+                AlarmCondition.ComparisonOp.GT, 0.0);
+        MetricQueryKey key = result.values().keySet().iterator().next();
+
+        assertEquals("12 of 12 agents > 0.00", result.details(key).summary());
+        assertEquals(10, result.details(key).lines().size());
+        assertEquals("agent-11", result.details(key).lines().get(0).id());
+        assertEquals(2, result.details(key).omitted());
     }
 
     @Test
@@ -153,16 +223,26 @@ class AgentStatMetricQueryServiceTest {
                 "the agents are the ones that reported a pool");
     }
 
+    // A pool is what fills up, so each pool that met the condition is a line, named by its
+    // database. The summary counts agents.
     @Test
-    void aPoolDetailCountsPoolsRatherThanAgents() {
+    void eachPoolThatMetTheConditionIsALine() {
         StubDao dao = new StubDao();
-        dao.pool("agent-a", "orders", 5.0, 100.0);
-        dao.pool("agent-a", "billing", 90.0, 100.0);
+        dao.pool("agent-a", "orders", 85.0, 100.0);
+        dao.pool("agent-a", "billing", 95.0, 100.0);
+        dao.pool("agent-a", "users", 40.0, 100.0);
+        dao.pool("agent-b", "billing", 90.0, 100.0);
+        dao.pool("agent-c", "orders", 20.0, 100.0);
 
-        MetricQueryResult result = query(dao, List.of("datasource_connection_usage_rate"), null);
+        MetricQueryResult result = query(dao, List.of("datasource_connection_usage_rate"), null,
+                AlarmCondition.ComparisonOp.GT, 80.0);
         MetricQueryKey key = result.values().keySet().iterator().next();
 
-        assertEquals(List.of(Detail.of("max 90.00 over 2 pools")), result.details(key));
+        assertEquals("2 of 3 agents > 80.00%", result.details(key).summary());
+        List<Detail> lines = result.details(key).lines();
+        assertEquals(List.of("95.00% billing", "90.00% billing", "85.00% orders"),
+                lines.stream().map(Detail::text).toList());
+        assertEquals(List.of("agent-a", "agent-b", "agent-a"), lines.stream().map(Detail::id).toList());
     }
 
     // Two pools of one agent can serve the same database; both are pools that can fill up.
@@ -175,7 +255,8 @@ class AgentStatMetricQueryServiceTest {
         MetricQueryResult result = query(dao, List.of("datasource_connection_usage_rate"), null);
         MetricQueryKey key = result.values().keySet().iterator().next();
 
-        assertEquals(List.of(Detail.of("max 90.00 over 2 pools")), result.details(key));
+        assertEquals(List.of("90.00% orders", "10.00% orders"),
+                result.details(key).lines().stream().map(Detail::text).toList());
     }
 
     @Test
@@ -203,14 +284,9 @@ class AgentStatMetricQueryServiceTest {
         rule.setCheckIntervalSec(300);
 
         List<AlarmCondition> conditions = Stream.of(300, 3600)
-                .map(windowSec -> {
-                    AlarmCondition leaf = new AlarmCondition();
-                    leaf.setType(AlarmCondition.Type.LEAF);
-                    leaf.setMetric("heap_usage_rate");
-                    leaf.setWindowSec(windowSec);
-                    leaf.setAggregation(AlarmCondition.Aggregation.MAX);
-                    return leaf;
-                }).toList();
+                .map(windowSec -> leaf("heap_usage_rate", windowSec, AlarmCondition.Aggregation.MAX,
+                        AlarmCondition.ComparisonOp.GTE, 0.0))
+                .toList();
 
         MetricQueryResult result = service.query(rule, conditions, List.of(), null);
 
@@ -292,14 +368,9 @@ class AgentStatMetricQueryServiceTest {
 
         List<AlarmCondition> conditions = Stream.of(
                         AlarmCondition.Aggregation.MAX, AlarmCondition.Aggregation.AVG)
-                .map(aggregation -> {
-                    AlarmCondition leaf = new AlarmCondition();
-                    leaf.setType(AlarmCondition.Type.LEAF);
-                    leaf.setMetric("heap_usage_rate");
-                    leaf.setWindowSec(300);
-                    leaf.setAggregation(aggregation);
-                    return leaf;
-                }).toList();
+                .map(aggregation -> leaf("heap_usage_rate", 300, aggregation,
+                        AlarmCondition.ComparisonOp.GTE, 0.0))
+                .toList();
 
         MetricQueryResult result = service.query(rule, conditions, List.of(), null);
 
@@ -314,6 +385,12 @@ class AgentStatMetricQueryServiceTest {
 
     private MetricQueryResult query(AgentStatAlarmDao dao, List<String> metrics,
                                     AlarmCondition.Aggregation aggregation) {
+        return query(dao, metrics, aggregation, AlarmCondition.ComparisonOp.GTE, 0.0);
+    }
+
+    private MetricQueryResult query(AgentStatAlarmDao dao, List<String> metrics,
+                                    AlarmCondition.Aggregation aggregation,
+                                    AlarmCondition.ComparisonOp op, double threshold) {
         AgentStatMetricQueryService service = new AgentStatMetricQueryService(dao, RESOLVER);
 
         AlarmRuleV2 rule = new AlarmRuleV2();
@@ -321,16 +398,23 @@ class AgentStatMetricQueryServiceTest {
         rule.setApplicationName("app");
         rule.setCheckIntervalSec(300);
 
-        List<AlarmCondition> conditions = metrics.stream().map(metric -> {
-            AlarmCondition leaf = new AlarmCondition();
-            leaf.setType(AlarmCondition.Type.LEAF);
-            leaf.setMetric(metric);
-            leaf.setWindowSec(300);
-            leaf.setAggregation(aggregation);
-            return leaf;
-        }).toList();
+        List<AlarmCondition> conditions = metrics.stream()
+                .map(metric -> leaf(metric, 300, aggregation, op, threshold))
+                .toList();
 
         return service.query(rule, conditions, List.of(), null);
+    }
+
+    private static AlarmCondition leaf(String metric, int windowSec, AlarmCondition.Aggregation aggregation,
+                                       AlarmCondition.ComparisonOp op, double threshold) {
+        AlarmCondition leaf = new AlarmCondition();
+        leaf.setType(AlarmCondition.Type.LEAF);
+        leaf.setMetric(metric);
+        leaf.setWindowSec(windowSec);
+        leaf.setAggregation(aggregation);
+        leaf.setOp(op);
+        leaf.setThreshold(threshold);
+        return leaf;
     }
 
     private Double value(MetricQueryResult result, String metric) {
@@ -347,15 +431,16 @@ class AgentStatMetricQueryServiceTest {
         private int sumGroupByFieldCalls;
         private List<AgentUsageCount> usageCounts = List.of();
         private List<AgentUsage> usages = List.of();
-        /** agentId -> the pools it reported, in discovery order */
+        /** agentId -> the url of each pool it reported, in discovery order */
         private final Map<String, List<String>> pools = new LinkedHashMap<>();
-        /** "agentId database" -> active and max connections */
+        /** "agentId url" -> active and max connections; the url tells two pools of one database apart */
         private final Map<String, double[]> poolUsage = new LinkedHashMap<>();
         private final List<String> agentIdMetrics = new ArrayList<>();
 
         void pool(String agentId, String database, double active, double max) {
-            pools.computeIfAbsent(agentId, id -> new ArrayList<>()).add(database);
-            poolUsage.put(agentId + " " + database, new double[]{active, max});
+            String url = "jdbc:mysql://host" + poolUsage.size() + "/" + database;
+            pools.computeIfAbsent(agentId, id -> new ArrayList<>()).add(url);
+            poolUsage.put(agentId + " " + url, new double[]{active, max});
         }
 
         @Override
@@ -375,10 +460,10 @@ class AgentStatMetricQueryServiceTest {
         public CompletableFuture<List<AgentFieldUsage>> selectAvgGroupByField(
                 String applicationName, String agentId, String metricName,
                 List<String> fieldList, List<Tag> tagList, Range range) {
-            String database = tagList.stream()
-                    .filter(tag -> "databaseName".equals(tag.getName()))
+            String url = tagList.stream()
+                    .filter(tag -> "jdbcUrl".equals(tag.getName()))
                     .map(Tag::getValue).findFirst().orElse("");
-            double[] usage = poolUsage.get(agentId + " " + database);
+            double[] usage = poolUsage.get(agentId + " " + url);
             if (usage == null) {
                 return CompletableFuture.completedFuture(fieldUsages);
             }
@@ -405,8 +490,8 @@ class AgentStatMetricQueryServiceTest {
                                                           String metricName, String fieldName,
                                                           Range range) {
             List<Tag> tags = new ArrayList<>();
-            for (String database : pools.getOrDefault(agentId, List.of())) {
-                tags.add(new Tag("jdbcUrl", "jdbc:mysql://host/" + database));
+            for (String url : pools.getOrDefault(agentId, List.of())) {
+                tags.add(new Tag("jdbcUrl", url));
             }
             tags.add(new Tag("databaseName", "ignored, not a url"));
             return CompletableFuture.completedFuture(tags);

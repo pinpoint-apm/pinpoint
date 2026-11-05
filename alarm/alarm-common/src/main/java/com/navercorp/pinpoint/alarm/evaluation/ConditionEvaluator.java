@@ -77,20 +77,6 @@ public class ConditionEvaluator {
             return false;
         }
 
-        if (node.getTrigger() == AlarmCondition.Trigger.NEW_GROUP) {
-            return actualValue > 0;
-        }
-
-        return compare(actualValue, node.getOp(), node.getThreshold());
-    }
-
-    private boolean compare(double actual, AlarmCondition.ComparisonOp op, double threshold) {
-        return switch (op) {
-            case GT -> actual > threshold;
-            case GTE -> actual >= threshold;
-            case LT -> actual < threshold;
-            case LTE -> actual <= threshold;
-            case EQ -> Double.compare(actual, threshold) == 0;
-        };
+        return node.isMetBy(actualValue);
     }
 }
