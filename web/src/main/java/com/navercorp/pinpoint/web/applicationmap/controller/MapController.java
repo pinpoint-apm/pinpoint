@@ -120,8 +120,7 @@ public class MapController {
     ) {
         final TimeWindow timeWindow = newTimeWindow(rangeForm);
 
-        final SearchOption searchOption = searchOptionBuilder()
-                .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
+        final SearchOption searchOption = newSearchOption(searchForm);
 
         // use Service.DEFAULT for servermap api
         final Application application = getApplication(Service.DEFAULT, appForm);
@@ -148,6 +147,8 @@ public class MapController {
             ApplicationForm appForm,
             @Valid @ModelAttribute
             RangeForm rangeForm,
+            @Valid @ModelAttribute
+            SearchOptionForm searchForm,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState
     ) {
@@ -156,8 +157,8 @@ public class MapController {
             throw new UnsupportedOperationException("Service map is not enabled");
         }
         final TimeWindow timeWindow = newTimeWindow(rangeForm);
-        final SearchOption searchOption = searchOptionBuilder().build(SearchOptionForm.DEFAULT_SEARCH_DEPTH, SearchOptionForm.DEFAULT_SEARCH_DEPTH, false, false);
         final Service service = serviceModelResolver.getService(serviceName.getName());
+        final SearchOption searchOption = newServiceMapSearchOption(service, searchForm);
         final List<Application> sourceApplications = getSourceApplications(service, appForm);
         final ApplicationMap map = selectServiceMap(service, sourceApplications, timeWindow, searchOption, useStatisticsAgentState);
 
@@ -166,6 +167,20 @@ public class MapController {
         final Set<String> expandedServiceNames = Set.of(serviceName.getName());
         ServiceMapViewBuilder builder = new ServiceMapViewBuilder(map, timeWindow, nodeRender, linkRender, expandedServiceNames);
         return new MapWrap<>(builder.build());
+    }
+
+    private SearchOption newServiceMapSearchOption(Service service, SearchOptionForm searchForm) {
+        // The frontend sends the search option only for the DEFAULT service.
+        // Other services omit it, so keep their fixed option: the SearchOptionForm defaults (bidirectional) would change their maps.
+        if (Service.DEFAULT.equals(service)) {
+            return newSearchOption(searchForm);
+        }
+        return searchOptionBuilder().build(SearchOptionForm.DEFAULT_SEARCH_DEPTH, SearchOptionForm.DEFAULT_SEARCH_DEPTH, false, false);
+    }
+
+    private SearchOption newSearchOption(SearchOptionForm searchForm) {
+        return searchOptionBuilder()
+                .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
     }
 
     private ApplicationMap selectServiceMap(Service service, List<Application> sourceApplications, TimeWindow timeWindow, SearchOption searchOption, boolean useStatisticsAgentState) {
