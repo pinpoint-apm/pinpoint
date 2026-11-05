@@ -66,7 +66,7 @@ public class DisableChildTrace implements Trace {
 
     @Override
     public void traceBlockEnd() {
-        traceBlockBegin(DEFAULT_STACKID);
+        traceBlockEnd(DEFAULT_STACKID);
     }
 
 
