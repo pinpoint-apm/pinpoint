@@ -38,9 +38,10 @@
         <pinpoint.agent.default.jvmargument>
             -D${project.name}
             -Dpinpoint.profiler.profiles.active=${pinpoint.agent.profile}
+            -Dpinpoint.serviceName=DEFAULT
             -Dpinpoint.applicationName=PluginTest
-            -Dpinpoint.agentId=PluginTestAgent
-            -Dprofiler.sampling.rate=${pinpoint.agent.sampling-rate}
+            -Dpinpoint.agentName=PluginTestAgent
+            -Dprofiler.sampling.counting.sampling-rate=${pinpoint.agent.sampling-rate}
         </pinpoint.agent.default.jvmargument>
         <pinpoint.agent.jvmargument>${pinpoint.agent.default.jvmargument}</pinpoint.agent.jvmargument>
 
@@ -158,7 +159,7 @@
                         <attach>${spring-boot-maven-plugin.attatch}</attach>
                         <classifier>exec</classifier>
                         <jvmArguments>${pinpoint.agent.jvmargument}</jvmArguments>
-                        <agents>${maven.multiModuleProjectDirectory}/agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap.jar</agents>
+                        <agents>${maven.multiModuleProjectDirectory}/agent-module/agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap.jar</agents>
 
                         <commandlineArguments>
                         </commandlineArguments>
