@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.jspecify.annotations.Nullable;
 
 public final class JsonNodeUtils {
@@ -17,7 +17,7 @@ public final class JsonNodeUtils {
         if (isNull(node)) {
             return defaultValue;
         }
-        return node.asText();
+        return node.asString();
     }
 
     public static Long longValue(JsonNode jsonNode, String fieldName) {

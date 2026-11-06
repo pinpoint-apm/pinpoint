@@ -20,9 +20,10 @@ import com.navercorp.pinpoint.common.server.util.ServerBootLogger;
 import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
+import org.springframework.boot.transaction.autoconfigure.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -32,7 +33,8 @@ import org.springframework.context.annotation.Import;
 @EnableAutoConfiguration(exclude = {
         TransactionAutoConfiguration.class,
         SecurityAutoConfiguration.class,
-        BatchAutoConfiguration.class
+        UserDetailsServiceAutoConfiguration.class,
+        ServletWebSecurityAutoConfiguration.class
 })
 @Import({
         BatchModule.class,

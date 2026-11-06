@@ -1,11 +1,11 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,44 +16,53 @@
 
 package com.navercorp.pinpoint.common.server.util.json;
 
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
+import tools.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.fasterxml.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-
+/**
+ * Jackson 3 mapper factory.
+ * <p>
+ * Every mapper keeps the Jackson 2 wire behavior the web API and the stored JSON were built against
+ * (declaration-order properties, enum names, lenient primitives, ...); see {@link #configureJackson2Compatible}.
+ */
 public final class Jackson {
-
     private Jackson() {
     }
 
-
-    public static ObjectMapper newMapper() {
-        Jackson2ObjectMapperBuilder builder = newBuilder();
-        return builder.build();
+    public static JsonMapper newMapper() {
+        return newBuilder().build();
     }
 
-    public static Jackson2ObjectMapperBuilder newBuilder() {
-        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
-
-        builder.featuresToDisable(
-                SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-                SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS
-        );
-        builder.modulesToInstall(new EclipseCollectionsModule());
+    public static JsonMapper.Builder newBuilder() {
+        JsonMapper.Builder builder = JsonMapper.builder();
+        configureJackson2Compatible(builder);
+        builder.addModule(new EclipseCollectionsModule());
         return builder;
     }
 
-
-    @Deprecated
     public static YAMLMapper newYamlMapper() {
-        YAMLMapper mapper = new YAMLMapper();
-
-        Jackson2ObjectMapperBuilder builder = Jackson.newBuilder();
-        builder.configure(mapper);
-
-        return mapper;
+        YAMLMapper.Builder builder = YAMLMapper.builder();
+        configureJackson2Compatible(builder);
+        builder.addModule(new EclipseCollectionsModule());
+        return builder.build();
     }
 
+    /**
+     * Jackson 2 defaults plus the Spring Boot adjustments pinpoint has always run with:
+     * ISO-8601 dates, unknown properties ignored, no default view inclusion.
+     * Parameter-name based creators stay enabled; Jackson 2 got them from jackson-module-parameter-names.
+     */
+    public static <M extends ObjectMapper, B extends MapperBuilder<M, B>> B configureJackson2Compatible(B builder) {
+        return builder.configureForJackson2()
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, DateTimeFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .enable(MapperFeature.DETECT_PARAMETER_NAMES);
+    }
 }

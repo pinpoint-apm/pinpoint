@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.web.filter.deserializer.RpcTypeJsonDeserializer;
 
 import java.util.Objects;

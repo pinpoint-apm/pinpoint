@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -75,7 +75,7 @@ public class PinpointWebSocketMessageConverter {
         }
 
         JsonNode type = root.path(TYPE);
-        PinpointWebSocketMessageType messageType = PinpointWebSocketMessageType.getType(type.asText());
+        PinpointWebSocketMessageType messageType = PinpointWebSocketMessageType.getType(type.asString());
         return switch (messageType) {
             case PING -> new PingMessage();
             case PONG -> new PongMessage();
@@ -87,14 +87,14 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private PinpointWebSocketMessage readSend(JsonNode root) {
-        String command = root.path(COMMAND).asText();
+        String command = root.path(COMMAND).asString();
         JsonNode resultNode = root.path(PARAMETERS);
         Map<String, Object> parameterMap = readMap(resultNode);
         return new SendMessage(command, parameterMap);
     }
 
     private PinpointWebSocketMessage readResponse(JsonNode root) {
-        String command = root.path(COMMAND).asText();
+        String command = root.path(COMMAND).asString();
 
         JsonNode resultNode = root.path(RESULT);
         Map<String, Object> resultMap = readMap(resultNode);
@@ -102,7 +102,7 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private PinpointWebSocketMessage readRequest(JsonNode root) {
-        String command = root.path(COMMAND).asText();
+        String command = root.path(COMMAND).asString();
         JsonNode parameterNode = root.path(PARAMETERS);
         Map<String, Object> parameterMap = readMap(parameterNode);
 
@@ -113,19 +113,19 @@ public class PinpointWebSocketMessageConverter {
         return mapper.convertValue(parameterNode, TypeRef.map());
     }
 
-    public String getRequestTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
+    public String getRequestTextMessage(String command, Map<String, Object> params) throws JacksonException {
         RequestMessage request = new RequestMessage(command, params);
 
         return mapper.writeValueAsString(request);
     }
 
-    public String getResponseTextMessage(String command, Map<String, Object> result) throws JsonProcessingException {
+    public String getResponseTextMessage(String command, Map<String, Object> result) throws JacksonException {
         ResponseMessage response = new ResponseMessage(command, result);
 
         return mapper.writeValueAsString(response);
     }
 
-    public String getSendTextMessage(String command, Map<String, Object> params) throws JsonProcessingException {
+    public String getSendTextMessage(String command, Map<String, Object> params) throws JacksonException {
 
         SendMessage message = new SendMessage(command, params);
 

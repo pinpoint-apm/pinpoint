@@ -1,14 +1,13 @@
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.common.server.bo.Application;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,9 +38,9 @@ public class ScatterDataMapView {
         }
     }
 
-    public static class ScatterDataMapViewSerializer extends JsonSerializer<ScatterDataMapView> {
+    public static class ScatterDataMapViewSerializer extends ValueSerializer<ScatterDataMapView> {
         @Override
-        public void serialize(ScatterDataMapView view, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        public void serialize(ScatterDataMapView view, JsonGenerator gen, SerializationContext serializers) {
             Map<Application, ScatterData> dataMap = view.getDataMap();
             if (dataMap.isEmpty()) {
                 gen.writeStartObject();
@@ -50,8 +49,8 @@ public class ScatterDataMapView {
             }
             gen.writeStartObject();
             for (Map.Entry<Application, ScatterData> entry : dataMap.entrySet()) {
-                gen.writeFieldName(nodeName(entry.getKey()));
-                gen.writeObject(ScatterDataView.of(entry.getValue()));
+                gen.writeName(nodeName(entry.getKey()));
+                gen.writePOJO(ScatterDataView.of(entry.getValue()));
             }
             gen.writeEndObject();
         }

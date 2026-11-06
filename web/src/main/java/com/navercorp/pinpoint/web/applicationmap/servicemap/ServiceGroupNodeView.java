@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.servicemap;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
-import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson.JacksonComponent;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -58,22 +57,22 @@ public class ServiceGroupNodeView implements NodeViewEntry {
         return ApdexScore.newApdexScore(apdexScores);
     }
 
-    @JsonComponent
-    public static class ServiceGroupNodeViewSerializer extends JsonSerializer<ServiceGroupNodeView> {
+    @JacksonComponent
+    public static class ServiceGroupNodeViewSerializer extends ValueSerializer<ServiceGroupNodeView> {
 
         @Override
-        public void serialize(ServiceGroupNodeView view, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(ServiceGroupNodeView view, JsonGenerator jgen, SerializationContext provider) {
             jgen.writeStartObject();
 
-            jgen.writeStringField("key", view.getServiceName());
-            jgen.writeStringField("type", "service");
-            jgen.writeStringField("serviceName", view.getServiceName());
+            jgen.writeStringProperty("key", view.getServiceName());
+            jgen.writeStringProperty("type", "service");
+            jgen.writeStringProperty("serviceName", view.getServiceName());
 
-            jgen.writeObjectField("apdex", view.getApdexScore());
+            jgen.writePOJOProperty("apdex", view.getApdexScore());
 
-            jgen.writeArrayFieldStart("nodes");
+            jgen.writeArrayPropertyStart("nodes");
             for (NodeView nodeView : view.getNodes()) {
-                provider.defaultSerializeValue(nodeView, jgen);
+                provider.writeValue(jgen, nodeView);
             }
             jgen.writeEndArray();
 

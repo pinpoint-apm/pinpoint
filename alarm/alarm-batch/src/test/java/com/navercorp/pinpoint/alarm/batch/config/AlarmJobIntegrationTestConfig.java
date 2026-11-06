@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.alarm.dao.AlarmTemplateDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmTemplateItemDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
 import com.navercorp.pinpoint.alarm.evaluation.ConditionEvaluator;
 import com.navercorp.pinpoint.alarm.dao.mapper.AlarmRuleLocalConfigMapper;
@@ -42,10 +42,11 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.mapper.MapperFactoryBean;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.configuration.support.MapJobRegistry;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.support.TaskExecutorJobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -145,11 +146,13 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
     }
 
     @Bean
-    public JobLauncher jobLauncher(JobRepository jobRepository) throws Exception {
-        TaskExecutorJobLauncher launcher = new TaskExecutorJobLauncher();
-        launcher.setJobRepository(jobRepository);
-        launcher.afterPropertiesSet();
-        return launcher;
+    public JobOperator jobOperator(JobRepository jobRepository) throws Exception {
+        TaskExecutorJobOperator jobOperator = new TaskExecutorJobOperator();
+        jobOperator.setJobRepository(jobRepository);
+        // start(Job, JobParameters) does not consult the registry, but afterPropertiesSet requires one
+        jobOperator.setJobRegistry(new MapJobRegistry());
+        jobOperator.afterPropertiesSet();
+        return jobOperator;
     }
 
     // ---- MyBatis ----

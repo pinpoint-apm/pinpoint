@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.config;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import com.navercorp.pinpoint.batch.alarm.AlarmMessageSender;
@@ -44,26 +45,26 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.partition.support.Partitioner;
+import org.springframework.batch.core.partition.Partitioner;
 import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.retry.interceptor.RetryInterceptorBuilder;
-import org.springframework.retry.interceptor.RetryOperationsInterceptor;
+import org.springframework.resilience.retry.MethodRetrySpec;
+import org.springframework.resilience.retry.SimpleRetryInterceptor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -76,7 +77,7 @@ public class AlarmJobConfig {
                         @Qualifier("jobFailListener") Object jobFailListener) {
         return new JobBuilder("alarmJob", jobRepository)
                 .start(alarmPartitionStep)
-                .listener((org.springframework.batch.core.JobExecutionListener) jobFailListener)
+                .listener((org.springframework.batch.core.listener.JobExecutionListener) jobFailListener)
                 .build();
     }
 
@@ -103,16 +104,15 @@ public class AlarmJobConfig {
                                  @Qualifier("alarmExecutor") TaskExecutor alarmExecutor,
                                  @Qualifier("reader") ItemReader<Application> reader,
                                  @Qualifier("processor") ItemProcessor<Application, AppAlarmChecker> processor,
-                                 @Qualifier("writer") ItemWriter<AppAlarmChecker> writer,
-                                 @Value("${alarm.worker.maxSize:2}") int throttleLimit) {
+                                 @Qualifier("writer") ItemWriter<AppAlarmChecker> writer) {
 
         return new StepBuilder("alarmStep", jobRepository)
                 .<Application, AppAlarmChecker>chunk(1, transactionManager)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
+                // Spring Batch 6 removed throttleLimit; concurrency is bounded by alarmExecutor's pool size
                 .taskExecutor(alarmExecutor)
-                .throttleLimit(throttleLimit)
                 .build();
     }
 
@@ -198,8 +198,10 @@ public class AlarmJobConfig {
     }
 
     @Bean(name = "retryableAdvisor")
-    public RetryOperationsInterceptor retryableAdvisor() {
-        return RetryInterceptorBuilder.stateless().build();
+    public SimpleRetryInterceptor retryableAdvisor() {
+        // same as the former spring-retry stateless default: 3 attempts in total, no back-off
+        MethodRetrySpec retrySpec = new MethodRetrySpec((method, throwable) -> true, 2, Duration.ZERO);
+        return new SimpleRetryInterceptor(retrySpec);
     }
 
     @Bean

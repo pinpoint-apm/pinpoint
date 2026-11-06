@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.channel.serde;
 
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.ObjectWriter;
 import jakarta.annotation.Nonnull;
 
 import java.io.IOException;

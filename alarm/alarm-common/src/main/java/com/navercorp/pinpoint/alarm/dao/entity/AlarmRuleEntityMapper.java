@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.alarm.dao.entity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleDetails;
@@ -171,7 +171,7 @@ public class AlarmRuleEntityMapper {
         }
         try {
             return conditionReader.readValue(json);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Failed to deserialize alarm condition", e);
         }
     }
@@ -182,7 +182,7 @@ public class AlarmRuleEntityMapper {
         }
         try {
             return filtersReader.readValue(json);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Failed to deserialize alarm filters", e);
         }
     }
@@ -193,7 +193,7 @@ public class AlarmRuleEntityMapper {
         }
         try {
             return conditionWriter.writeValueAsString(condition);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Failed to serialize alarm condition", e);
         }
     }
@@ -204,7 +204,7 @@ public class AlarmRuleEntityMapper {
         }
         try {
             return filtersWriter.writeValueAsString(filters);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Failed to serialize alarm filters", e);
         }
     }

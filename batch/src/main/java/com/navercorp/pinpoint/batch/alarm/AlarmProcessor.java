@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import jakarta.annotation.Nonnull;
-import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
 
 import java.util.ArrayList;
 import java.util.HashMap;

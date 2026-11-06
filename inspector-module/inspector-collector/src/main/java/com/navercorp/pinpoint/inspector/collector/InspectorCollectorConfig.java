@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
@@ -39,7 +38,7 @@ import org.springframework.kafka.core.KafkaTemplate;
  * @author minwoo.jung
  */
 @ComponentScan({"com.navercorp.pinpoint.inspector.collector"})
-@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
+@EnableAutoConfiguration
 @Import({
         PinotConfiguration.class,
         InspectorPropertySources.class,

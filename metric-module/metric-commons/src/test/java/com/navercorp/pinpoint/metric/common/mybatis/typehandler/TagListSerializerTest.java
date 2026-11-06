@@ -1,13 +1,12 @@
 package com.navercorp.pinpoint.metric.common.mybatis.typehandler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
 
 class TagListSerializerTest {
 

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.batch.common;
 
-import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.job.JobExecution;
 
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>

@@ -22,11 +22,11 @@ import com.navercorp.pinpoint.batch.dao.BatchMetaCandidateDao.JobExecutionRow;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.JobParameters;
+import org.springframework.batch.core.step.StepContribution;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.scope.context.StepContext;
@@ -113,7 +113,7 @@ class BatchMetaCleanupTaskletTest {
     private void instance(long id, String jobName, Duration age, BatchStatus status) {
         LocalDateTime createTime = now.minus(age);
         rows.add(new JobExecutionRow(id, id, jobName, createTime, status.name(), 1));
-        JobExecution execution = new JobExecution(new JobInstance(id, jobName), id, new JobParameters());
+        JobExecution execution = new JobExecution(id, new JobInstance(id, jobName), new JobParameters());
         execution.setCreateTime(createTime);
         execution.setStatus(status);
         executions.computeIfAbsent(id, k -> new ArrayList<>()).add(execution);
@@ -127,16 +127,16 @@ class BatchMetaCleanupTaskletTest {
         // the first row of the instance now also reports two executions
         rows.replaceAll(r -> r.instanceId() == id && r.executionCount() == 1
                 ? new JobExecutionRow(r.executionId(), r.instanceId(), r.jobName(), r.createTime(), r.status(), 2) : r);
-        JobExecution execution = new JobExecution(new JobInstance(id, first.jobName()), executionId, new JobParameters());
+        JobExecution execution = new JobExecution(executionId, new JobInstance(id, first.jobName()), new JobParameters());
         execution.setCreateTime(createTime);
         execution.setStatus(BatchStatus.COMPLETED);
         executions.get(id).add(execution);
     }
 
     private static ChunkContext chunkContext(Map<String, Object> jobParameters) {
-        org.springframework.batch.core.JobParametersBuilder builder = new org.springframework.batch.core.JobParametersBuilder();
+        org.springframework.batch.core.job.parameters.JobParametersBuilder builder = new org.springframework.batch.core.job.parameters.JobParametersBuilder();
         jobParameters.forEach((k, v) -> builder.addString(k, String.valueOf(v)));
-        JobExecution jobExecution = new JobExecution(1L, builder.toJobParameters());
+        JobExecution jobExecution = new JobExecution(1L, new JobInstance(1L, "batchMetaCleanupJob"), builder.toJobParameters());
         return new ChunkContext(new StepContext(new StepExecution("batchMetaCleanupStep", jobExecution)));
     }
 
@@ -202,7 +202,7 @@ class BatchMetaCleanupTaskletTest {
         instance(1, "alarmJob", Duration.ofDays(40), BatchStatus.FAILED);
         instance(2, "alarmJob", Duration.ofDays(40));
         // between the page read and the lock, another process restarted instance 1: a new STARTING execution
-        JobExecution restarted = new JobExecution(new JobInstance(1L, "alarmJob"), 10L, new JobParameters());
+        JobExecution restarted = new JobExecution(10L, new JobInstance(1L, "alarmJob"), new JobParameters());
         restarted.setCreateTime(now);
         restarted.setStatus(BatchStatus.STARTING);
         executions.get(1L).add(restarted);
@@ -361,7 +361,7 @@ class BatchMetaCleanupTaskletTest {
     @Test
     void executeReportsTheWriteCount() {
         instance(1, "alarmJob", Duration.ofDays(40));
-        StepContribution contribution = new StepContribution(new StepExecution("batchMetaCleanupStep", new JobExecution(1L, new JobParameters())));
+        StepContribution contribution = new StepContribution(new StepExecution("batchMetaCleanupStep", new JobExecution(1L, new JobInstance(1L, "alarmJob"), new JobParameters())));
 
         tasklet().execute(contribution, chunkContext(Map.of("dryRun", "false")));
 

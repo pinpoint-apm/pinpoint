@@ -1,12 +1,11 @@
 package com.navercorp.pinpoint.common.server.util.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Iterators;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -56,16 +55,16 @@ public class JsonFields<K, V> implements Iterable<JsonField<K, V>>, RandomAccess
     }
 
 
-    public static class Serializer<K, V> extends JsonSerializer<JsonFields<K, V>> {
+    public static class Serializer<K, V> extends ValueSerializer<JsonFields<K, V>> {
         @Override
-        public void serialize(JsonFields<K, V> fields, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        public void serialize(JsonFields<K, V> fields, JsonGenerator gen, SerializationContext serializers) {
             final Function<K, String> nameMapper = fields.nameMapper;
 
             gen.writeStartObject();
             for (JsonField<K, V> entry : fields.fields) {
                 String name = nameMapper.apply(entry.name());
-                gen.writeFieldName(name);
-                gen.writeObject(entry.value());
+                gen.writeName(name);
+                gen.writePOJO(entry.value());
             }
             gen.writeEndObject();
         }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.AgentStatRegistryHandler;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.PinotAgentStatAlarmDao;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;

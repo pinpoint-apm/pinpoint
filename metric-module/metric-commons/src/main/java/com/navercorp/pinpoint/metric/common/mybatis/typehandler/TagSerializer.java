@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.metric.common.mybatis.typehandler;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.Tags;
 
-import java.io.IOException;
 import java.util.List;
 
-public class TagSerializer extends JsonSerializer<Tags> {
+public class TagSerializer extends ValueSerializer<Tags> {
 
     @Override
-    public void serialize(Tags tags, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Tags tags, JsonGenerator gen, SerializationContext provider) {
         writeTags(gen, tags.getTags());
     }
 
@@ -36,10 +35,10 @@ public class TagSerializer extends JsonSerializer<Tags> {
      * Writes the tag list as a {@code {"name":"value"}} JSON object; shared
      * with {@link TagListSerializer}.
      */
-    public static void writeTags(JsonGenerator gen, List<Tag> tags) throws IOException {
+    public static void writeTags(JsonGenerator gen, List<Tag> tags) {
         gen.writeStartObject();
         for (Tag tag : tags) {
-            gen.writeStringField(tag.getName(), tag.getValue());
+            gen.writeStringProperty(tag.getName(), tag.getValue());
         }
         gen.writeEndObject();
     }

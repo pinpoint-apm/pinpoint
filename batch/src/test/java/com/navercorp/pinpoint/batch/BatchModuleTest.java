@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.batch.config.BatchMetaCleanupJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
 import com.navercorp.pinpoint.common.hbase.HbaseVersionCheckBean;
@@ -31,7 +31,7 @@ import org.mockito.Mockito;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.client.RestTemplateBuilderConfigurer;
+import org.springframework.boot.restclient.autoconfigure.RestTemplateBuilderConfigurer;
 import org.springframework.boot.convert.ApplicationConversionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

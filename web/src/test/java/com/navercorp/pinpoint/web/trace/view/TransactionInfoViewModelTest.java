@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.trace.view;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +29,7 @@ class TransactionInfoViewModelTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    void fieldName() throws JsonProcessingException {
+    void fieldName() throws JacksonException {
         Field.CallStackMeta callStackMeta = Field.getCallStackMeta();
 
         ObjectMapper mapper = Jackson.newMapper();

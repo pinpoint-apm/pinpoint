@@ -56,10 +56,6 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-spring-boot-tomcat</artifactId>
-        </dependency>
 
 
         <dependency>
@@ -76,6 +72,10 @@
         </dependency>
 
         <!-- spring batch -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-transaction</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-core</artifactId>

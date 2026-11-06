@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.problem;
 
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 import com.navercorp.pinpoint.service.service.ServiceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

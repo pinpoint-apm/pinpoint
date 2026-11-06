@@ -15,9 +15,9 @@
  */
 package com.navercorp.pinpoint.alarm.batch.config;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,12 +49,12 @@ import java.util.Objects;
 @EnableScheduling
 public class AlarmJobSchedulerConfiguration {
 
-    private final JobLauncher jobLauncher;
+    private final JobOperator jobOperator;
     private final Job alarmJob;
 
-    public AlarmJobSchedulerConfiguration(JobLauncher jobLauncher,
+    public AlarmJobSchedulerConfiguration(JobOperator jobOperator,
                                           @Qualifier("alarmEvaluationJob") Job alarmJob) {
-        this.jobLauncher = Objects.requireNonNull(jobLauncher, "jobLauncher");
+        this.jobOperator = Objects.requireNonNull(jobOperator, "jobOperator");
         this.alarmJob = Objects.requireNonNull(alarmJob, "alarmJob");
     }
 
@@ -73,7 +73,7 @@ public class AlarmJobSchedulerConfiguration {
             scheduler = "alarmScheduler")
     public void runAlarmJob() throws Exception {
         // A new run needs distinct parameters; Batch refuses to re-run a completed instance.
-        jobLauncher.run(alarmJob, new JobParametersBuilder()
+        jobOperator.start(alarmJob, new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters());
     }

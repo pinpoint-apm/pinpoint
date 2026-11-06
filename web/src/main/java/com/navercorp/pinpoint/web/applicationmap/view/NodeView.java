@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
@@ -32,9 +32,8 @@ import com.navercorp.pinpoint.web.applicationmap.servicemap.NodeViewEntry;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson.JacksonComponent;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -91,8 +90,8 @@ public class NodeView implements NodeViewEntry {
     }
 
 
-    @JsonComponent
-    public static class NodeViewSerializer extends JsonSerializer<NodeView> {
+    @JacksonComponent
+    public static class NodeViewSerializer extends ValueSerializer<NodeView> {
         private final AlertViewService alertViewService;
 
         private final AgentServerGroupListWriter agentServerGroupListWriter;
@@ -103,37 +102,37 @@ public class NodeView implements NodeViewEntry {
         }
 
         @Override
-        public void serialize(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(NodeView nodeView, JsonGenerator jgen, SerializationContext provider) {
             Node node = nodeView.getNode();
 
             jgen.writeStartObject();
 
             if (nodeView.serviceMap) {
-                jgen.writeObjectField("key", node.getServiceNodeName().toString());
-                jgen.writeStringField("type", "app");
+                jgen.writePOJOProperty("key", node.getServiceNodeName().toString());
+                jgen.writeStringProperty("type", "app");
             } else {
-                jgen.writeObjectField("key", node.getNodeName());
+                jgen.writePOJOProperty("key", node.getNodeName());
             }
 
-            jgen.writeStringField("nodeKey", node.getNodeKey());
+            jgen.writeStringProperty("nodeKey", node.getNodeKey());
 
-            jgen.writeObjectField("serviceKey", node.getServiceNodeName().toString());
+            jgen.writePOJOProperty("serviceKey", node.getServiceNodeName().toString());
 
             Application application = node.getApplication();
-            jgen.writeStringField("serviceName", application.getService().getServiceName());
-            jgen.writeStringField("applicationName", node.getApplicationTextName());
+            jgen.writeStringProperty("serviceName", application.getService().getServiceName());
+            jgen.writeStringProperty("applicationName", node.getApplicationTextName());
 
             final ServiceType serviceType = node.getServiceType();
 
-            jgen.writeStringField("serviceType", serviceType.toString());
-            jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
+            jgen.writeStringProperty("serviceType", serviceType.toString());
+            jgen.writeNumberProperty("serviceTypeCode", serviceType.getCode());
 
-            jgen.writeStringField("nodeCategory", serviceType.getCategory().nodeCategory().toString());
-            jgen.writeBooleanField("isQueue", serviceType.isQueue());
+            jgen.writeStringProperty("nodeCategory", serviceType.getCategory().nodeCategory().toString());
+            jgen.writeBooleanProperty("isQueue", serviceType.isQueue());
 
-            jgen.writeBooleanField("isAuthorized", node.isAuthorized());
+            jgen.writeBooleanProperty("isAuthorized", node.isAuthorized());
 
-            jgen.writeObjectField("apdex", node.getApdexScore());
+            jgen.writePOJOProperty("apdex", node.getApdexScore());
 
             writeHistogram(nodeView, jgen, provider);
             writeServerGroupList(nodeView, jgen);
@@ -142,7 +141,7 @@ public class NodeView implements NodeViewEntry {
         }
 
 
-        private void writeServerGroupList(NodeView nodeView, JsonGenerator jgen) throws IOException {
+        private void writeServerGroupList(NodeView nodeView, JsonGenerator jgen) {
             final Node node = nodeView.getNode();
 
             if (node.getServiceType().isUnknown()) {
@@ -164,9 +163,9 @@ public class NodeView implements NodeViewEntry {
             }
         }
 
-        private void writeAgentCount(int instanceCount, long instanceErrorCount, JsonGenerator jgen) throws IOException {
-            jgen.writeNumberField("instanceCount", instanceCount);
-            jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
+        private void writeAgentCount(int instanceCount, long instanceErrorCount, JsonGenerator jgen) {
+            jgen.writeNumberProperty("instanceCount", instanceCount);
+            jgen.writeNumberProperty("instanceErrorCount", instanceErrorCount);
         }
 
 
@@ -184,7 +183,7 @@ public class NodeView implements NodeViewEntry {
             return HistogramAggregator.countErrorInstances(agentHistogramMap.values());
         }
 
-        private void writeHistogram(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        private void writeHistogram(NodeView nodeView, JsonGenerator jgen, SerializationContext provider) {
             final Node node = nodeView.getNode();
             final ServiceType serviceType = node.getServiceType();
             final NodeHistogram nodeHistogram = node.getNodeHistogram();
@@ -194,28 +193,28 @@ public class NodeView implements NodeViewEntry {
             if (nodeServiceType) {
                 Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
                 if (applicationHistogram == null) {
-                    jgen.writeBooleanField("hasAlert", false);
+                    jgen.writeBooleanProperty("hasAlert", false);
                 } else {
-                    jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount());
-                    jgen.writeNumberField("errorCount", applicationHistogram.getTotalErrorCount());
-                    jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
+                    jgen.writeNumberProperty("totalCount", applicationHistogram.getTotalCount());
+                    jgen.writeNumberProperty("errorCount", applicationHistogram.getTotalErrorCount());
+                    jgen.writeNumberProperty("slowCount", applicationHistogram.getSlowCount());
 
-                    jgen.writeBooleanField("hasAlert", alertViewService.hasAlert(applicationHistogram));
+                    jgen.writeBooleanProperty("hasAlert", alertViewService.hasAlert(applicationHistogram));
                 }
 
                 ResponseTimeStatics responseTimeStatics = ResponseTimeStatics.fromHistogram(applicationHistogram);
-                jgen.writeObjectField(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
+                jgen.writePOJOProperty(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
                 if (applicationHistogram == null) {
                     JacksonWriterUtils.writeEmptyObject(jgen, "histogram");
                 } else {
-                    jgen.writeObjectField("histogram", applicationHistogram);
+                    jgen.writePOJOProperty("histogram", applicationHistogram);
                 }
 
                 // agent histogram
                 AgentHistogramNodeView agentHistogramNodeView = nodeView.getAgentHistogramView();
                 agentHistogramNodeView.writeAgentHistogram(nodeView, jgen);
             } else {
-                jgen.writeBooleanField("hasAlert", false);
+                jgen.writeBooleanProperty("hasAlert", false);
             }
 
             // time histogram

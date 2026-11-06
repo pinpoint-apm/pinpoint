@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.alarm.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;
@@ -123,20 +123,20 @@ class AlarmEvaluationServiceTest {
         assertEquals(0, context.path("notification").path("sent").asInt());
         JsonNode effectiveRule = context.path("effective_rule");
         assertEquals(1L, effectiveRule.path("id").asLong());
-        assertEquals("Test Rule", effectiveRule.path("name").asText());
-        assertEquals("Test description", effectiveRule.path("description").asText());
-        assertEquals("CRITICAL", effectiveRule.path("severity").asText());
-        assertEquals("AGENT_STAT", effectiveRule.path("data_source").asText());
+        assertEquals("Test Rule", effectiveRule.path("name").asString());
+        assertEquals("Test description", effectiveRule.path("description").asString());
+        assertEquals("CRITICAL", effectiveRule.path("severity").asString());
+        assertEquals("AGENT_STAT", effectiveRule.path("data_source").asString());
         assertEquals(77L, effectiveRule.path("template_id").asLong());
-        assertEquals("Test Template", effectiveRule.path("template_name").asText());
-        assertEquals("test-service", effectiveRule.path("service_name").asText());
-        assertEquals("test-app", effectiveRule.path("application_name").asText());
+        assertEquals("Test Template", effectiveRule.path("template_name").asString());
+        assertEquals("test-service", effectiveRule.path("service_name").asString());
+        assertEquals("test-app", effectiveRule.path("application_name").asString());
         assertEquals(300, effectiveRule.path("check_interval_sec").asInt());
         assertEquals(3600, effectiveRule.path("action_interval_sec").asInt());
-        assertEquals("LEAF", effectiveRule.path("conditions").path("type").asText());
+        assertEquals("LEAF", effectiveRule.path("conditions").path("type").asString());
         assertTrue(effectiveRule.path("filters").isArray());
         assertTrue(effectiveRule.path("enabled").asBoolean());
-        assertEquals("severity", effectiveRule.path("override_keys").get(0).asText());
+        assertEquals("severity", effectiveRule.path("override_keys").get(0).asString());
         assertEquals(1, transactionManager.commitCount);
         assertEquals(TransactionDefinition.PROPAGATION_REQUIRES_NEW,
                 transactionManager.lastDefinition.getPropagationBehavior());
@@ -420,7 +420,7 @@ class AlarmEvaluationServiceTest {
                 .path("notification");
         assertEquals(1, notification.path("preparation_failed").asInt());
         assertEquals("recipient lookup failed",
-                notification.path("preparation_failures").get(0).path("message").asText());
+                notification.path("preparation_failures").get(0).path("message").asString());
     }
 
     @Test

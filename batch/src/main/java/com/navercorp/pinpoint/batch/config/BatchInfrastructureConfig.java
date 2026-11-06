@@ -40,7 +40,7 @@ import org.apache.logging.log4j.Logger;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,10 +86,10 @@ public class BatchInfrastructureConfig {
 
     @Bean
     public BatchJobLauncher batchJobLauncher(JobRegistry jobRegistry,
-                                             JobLauncher jobLauncher,
+                                             JobOperator jobOperator,
                                              BatchProperties batchProperties,
                                              BatchMetaCleanupProperties batchMetaCleanupProperties) {
-        return new BatchJobLauncher(jobRegistry, jobLauncher, batchProperties, batchMetaCleanupProperties);
+        return new BatchJobLauncher(jobRegistry, jobOperator, batchProperties, batchMetaCleanupProperties);
     }
 
     @Bean

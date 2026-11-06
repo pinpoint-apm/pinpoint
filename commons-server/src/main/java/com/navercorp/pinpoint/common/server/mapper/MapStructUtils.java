@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.mapper;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -29,7 +29,6 @@ import org.apache.commons.io.output.StringBuilderWriter;
 import org.mapstruct.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -44,12 +43,10 @@ import java.util.Objects;
 @Component
 public class MapStructUtils {
 
-    private final JsonFactory jsonFactory;
+    private final ObjectMapper mapper;
 
     public MapStructUtils(ObjectMapper mapper) {
-        Objects.requireNonNull(mapper, "mapper");
-
-        this.jsonFactory = mapper.getFactory();
+        this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     @Qualifier
@@ -67,20 +64,20 @@ public class MapStructUtils {
         return parseList(json, MapStructUtils::readStringMap);
     }
 
-    private static Map<String, String> readStringMap(JsonParser parser, JsonToken token) throws IOException {
+    private static Map<String, String> readStringMap(JsonParser parser, JsonToken token) {
         if (token != JsonToken.START_OBJECT) {
-            throw new JsonParseException(parser, "expected JSON object");
+            throw new StreamReadException(parser, "expected JSON object");
         }
         final Map<String, String> map = new LinkedHashMap<>();
-        while (parser.nextToken() == JsonToken.FIELD_NAME) {
+        while (parser.nextToken() == JsonToken.PROPERTY_NAME) {
             final String name = parser.currentName();
             final JsonToken valueToken = parser.nextToken();
             if (valueToken == JsonToken.VALUE_NULL) {
                 map.put(name, null);
             } else if (valueToken != null && valueToken.isScalarValue()) {
-                map.put(name, parser.getText());
+                map.put(name, parser.getString());
             } else {
-                throw new JsonParseException(parser, "expected scalar value");
+                throw new StreamReadException(parser, "expected scalar value");
             }
         }
         return map;
@@ -125,7 +122,7 @@ public class MapStructUtils {
 
     @FunctionalInterface
     private interface ElementReader<T> {
-        T read(JsonParser parser, JsonToken token) throws IOException;
+        T read(JsonParser parser, JsonToken token);
     }
 
     /**
@@ -133,9 +130,9 @@ public class MapStructUtils {
      * non-null elements to {@code elementReader}.
      */
     private <T> List<T> parseList(String json, ElementReader<T> elementReader) {
-        try (JsonParser parser = jsonFactory.createParser(json)) {
+        try (JsonParser parser = mapper.createParser(json)) {
             if (parser.nextToken() != JsonToken.START_ARRAY) {
-                throw new JsonParseException(parser, "expected JSON array");
+                throw new StreamReadException(parser, "expected JSON array");
             }
             final List<T> list = new ArrayList<>();
             JsonToken token;
@@ -147,28 +144,28 @@ public class MapStructUtils {
                 }
             }
             return list;
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JsonRuntimeException("Json read error", e);
         }
     }
 
-    private static String readString(JsonParser parser, JsonToken token) throws IOException {
+    private static String readString(JsonParser parser, JsonToken token) {
         if (token == null || !token.isScalarValue()) {
-            throw new JsonParseException(parser, "expected scalar value");
+            throw new StreamReadException(parser, "expected scalar value");
         }
-        return parser.getText();
+        return parser.getString();
     }
 
-    private static Integer readInteger(JsonParser parser, JsonToken token) throws IOException {
+    private static Integer readInteger(JsonParser parser, JsonToken token) {
         if (token != JsonToken.VALUE_NUMBER_INT) {
-            throw new JsonParseException(parser, "expected integer value");
+            throw new StreamReadException(parser, "expected integer value");
         }
         return parser.getIntValue();
     }
 
-    private static Long readLong(JsonParser parser, JsonToken token) throws IOException {
+    private static Long readLong(JsonParser parser, JsonToken token) {
         if (token != JsonToken.VALUE_NUMBER_INT) {
-            throw new JsonParseException(parser, "expected integer value");
+            throw new StreamReadException(parser, "expected integer value");
         }
         return parser.getLongValue();
     }
@@ -187,7 +184,7 @@ public class MapStructUtils {
         }
         try {
             final StringBuilderWriter buffer = new StringBuilderWriter();
-            try (JsonGenerator generator = jsonFactory.createGenerator(buffer)) {
+            try (JsonGenerator generator = mapper.createGenerator(buffer)) {
                 generator.writeStartArray();
                 for (T element : lists) {
                     writeElement(generator, element);
@@ -195,12 +192,12 @@ public class MapStructUtils {
                 generator.writeEndArray();
             }
             return buffer.toString();
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JsonRuntimeException("Json Write error", e);
         }
     }
 
-    private void writeElement(JsonGenerator generator, Object element) throws IOException {
+    private void writeElement(JsonGenerator generator, Object element) {
         if (element == null) {
             generator.writeNull();
         } else if (element instanceof String string) {
@@ -213,7 +210,7 @@ public class MapStructUtils {
             generator.writeBoolean(bool);
         } else {
             // non-scalar element — delegate to the mapper codec bound to the factory
-            generator.writeObject(element);
+            generator.writePOJO(element);
         }
     }
 }

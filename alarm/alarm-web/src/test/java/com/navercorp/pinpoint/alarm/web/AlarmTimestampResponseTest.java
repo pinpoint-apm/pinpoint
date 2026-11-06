@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmEventType;
 import com.navercorp.pinpoint.alarm.vo.AlarmHistoryV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import com.navercorp.pinpoint.alarm.vo.AlarmTemplate;
 import com.navercorp.pinpoint.alarm.vo.AlarmTemplateItem;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.alarm.util.json.UtcTimestampSerializer;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.AfterAll;
@@ -78,8 +78,8 @@ class AlarmTimestampResponseTest {
 
         JsonNode json = objectMapper.valueToTree(state);
 
-        assertEquals(SENT, json.get("lastFiredAt").asText());
-        assertEquals("2026-09-21T19:51:12Z", json.get("nextCheckAt").asText());
+        assertEquals(SENT, json.get("lastFiredAt").asString());
+        assertEquals("2026-09-21T19:51:12Z", json.get("nextCheckAt").asString());
     }
 
     @Test
@@ -91,7 +91,7 @@ class AlarmTimestampResponseTest {
 
         JsonNode json = objectMapper.valueToTree(history);
 
-        assertEquals(SENT, json.get("createdAt").asText());
+        assertEquals(SENT, json.get("createdAt").asString());
     }
 
     @Test
@@ -104,9 +104,9 @@ class AlarmTimestampResponseTest {
 
         JsonNode json = objectMapper.valueToTree(AlarmRuleResponse.from(rule, null, item));
 
-        assertEquals(SENT, json.get("updatedAt").asText());
+        assertEquals(SENT, json.get("updatedAt").asString());
         // The nested item is the reason this is on the field rather than on a response of its own.
-        assertEquals(SENT, json.get("templateItem").get("updatedAt").asText());
+        assertEquals(SENT, json.get("templateItem").get("updatedAt").asString());
     }
 
     @Test
@@ -119,8 +119,8 @@ class AlarmTimestampResponseTest {
 
         JsonNode json = objectMapper.valueToTree(template);
 
-        assertEquals(SENT, json.get("updatedAt").asText());
-        assertEquals(SENT, json.get("items").get(0).get("updatedAt").asText());
+        assertEquals(SENT, json.get("updatedAt").asString());
+        assertEquals(SENT, json.get("items").get(0).get("updatedAt").asString());
     }
 
     @Test
@@ -132,7 +132,7 @@ class AlarmTimestampResponseTest {
         JsonNode json = objectMapper.valueToTree(
                 new AlarmNotificationChannelApiMapper(objectMapper).toResponse(channel));
 
-        assertEquals(SENT, json.get("updatedAt").asText());
+        assertEquals(SENT, json.get("updatedAt").asString());
     }
 
     @Test
@@ -150,8 +150,9 @@ class AlarmTimestampResponseTest {
         assertThrows(MismatchedInputException.class, () -> objectMapper.readValue(
                 "{\"applicationName\":\"a\",\"updatedAt\":{\"applicationName\":\"victim\"}}",
                 AlarmRuleV2.class));
-        // An array is refused too, as a date in its array form that does not parse.
-        assertThrows(JsonMappingException.class, () -> objectMapper.readValue(
+        // An array is refused too, as a date in its array form that does not parse
+        // (Jackson 3 reports the bad element as a stream-level coercion error).
+        assertThrows(JacksonException.class, () -> objectMapper.readValue(
                 "{\"applicationName\":\"a\",\"updatedAt\":[1,2]}", AlarmRuleV2.class));
     }
 

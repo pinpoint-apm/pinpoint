@@ -22,12 +22,12 @@ import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.step.StepContribution;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 
 import java.util.Map;
 import java.util.Objects;

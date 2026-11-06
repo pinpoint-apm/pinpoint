@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleChannel;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;

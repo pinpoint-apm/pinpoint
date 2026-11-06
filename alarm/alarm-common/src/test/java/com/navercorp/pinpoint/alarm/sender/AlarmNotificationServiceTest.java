@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.sender;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
 import com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationChannelDao;
@@ -68,7 +68,7 @@ class AlarmNotificationServiceTest {
 
         assertEquals(2, result.deliveries().size());
         assertEquals("email-title", objectMapper.readTree(result.deliveries().get(0).payload())
-                .path("subject").asText());
+                .path("subject").asString());
         assertEquals(1, emailSender.prepareCount);
         assertEquals(1, smsSender.prepareCount);
         assertEquals(0, emailSender.sendCount);

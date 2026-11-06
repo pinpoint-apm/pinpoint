@@ -17,9 +17,9 @@ package com.navercorp.pinpoint.alarm.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
@@ -277,7 +277,7 @@ public class AlarmEventPersistenceService {
     private String serialize(ObjectWriter writer, Object value, String description) {
         try {
             return writer.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             logger.warn("Failed to serialize {}", description, e);
             return "{}";
         }

@@ -16,37 +16,35 @@
 
 package com.navercorp.pinpoint.applicationmap.histogram;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
-
-import java.io.IOException;
 
 /**
  * @author emeroad
  */
-public class HistogramSerializer extends JsonSerializer<Histogram> {
+public class HistogramSerializer extends ValueSerializer<Histogram> {
 
 
     @Override
-    public void serialize(Histogram histogram, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(Histogram histogram, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeStartObject();
         final HistogramSchema schema = histogram.getHistogramSchema();
 
-        jgen.writeFieldName(schema.getFastSlot().getSlotName());
+        jgen.writeName(schema.getFastSlot().getSlotName());
         jgen.writeNumber(histogram.getFastCount());
 
-        jgen.writeFieldName(schema.getNormalSlot().getSlotName());
+        jgen.writeName(schema.getNormalSlot().getSlotName());
         jgen.writeNumber(histogram.getNormalCount());
 
-        jgen.writeFieldName(schema.getSlowSlot().getSlotName());
+        jgen.writeName(schema.getSlowSlot().getSlotName());
         jgen.writeNumber(histogram.getSlowCount());
 
-        jgen.writeFieldName(schema.getVerySlowSlot().getSlotName());
+        jgen.writeName(schema.getVerySlowSlot().getSlotName());
         jgen.writeNumber(histogram.getVerySlowCount());
 
-        jgen.writeFieldName(schema.getTotalErrorView().getSlotName());
+        jgen.writeName(schema.getTotalErrorView().getSlotName());
         jgen.writeNumber(histogram.getTotalErrorCount());
 
         jgen.writeEndObject();

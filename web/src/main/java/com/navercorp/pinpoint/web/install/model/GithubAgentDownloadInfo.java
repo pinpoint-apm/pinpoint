@@ -16,15 +16,13 @@
 
 package com.navercorp.pinpoint.web.install.model;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.node.ArrayNode;
 import com.navercorp.pinpoint.common.util.StringUtils;
-
-import java.io.IOException;
 
 /**
  * @author Taejin Koo
@@ -40,11 +38,11 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
         super(version, downloadUrl);
     }
 
-    public static class Deserializer extends JsonDeserializer<GithubAgentDownloadInfo> {
+    public static class Deserializer extends ValueDeserializer<GithubAgentDownloadInfo> {
         private static final String VERSION_PREFIX = "v";
 
         @Override
-        public GithubAgentDownloadInfo deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        public GithubAgentDownloadInfo deserialize(JsonParser jp, DeserializationContext ctxt) {
 
             JsonNode jsonNode = jp.readValueAsTree();
 
@@ -53,11 +51,11 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
             }
 
             JsonNode tagNameNode = jsonNode.get("tag_name");
-            if (!tagNameNode.isTextual()) {
+            if (!tagNameNode.isString()) {
                 return null;
             }
 
-            String tagName = tagNameNode.asText();
+            String tagName = tagNameNode.asString();
             if (StringUtils.isEmpty(tagName)) {
                 return null;
             }
@@ -97,21 +95,21 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
                 }
 
                 JsonNode nameNode = jsonNode.get("name");
-                if (!nameNode.isTextual()) {
+                if (!nameNode.isString()) {
                     continue;
                 }
 
-                String name = nameNode.asText();
+                String name = nameNode.asString();
                 if (!name.contains("pinpoint-agent")) {
                     continue;
                 }
 
                 JsonNode downloadNode = jsonNode.get("browser_download_url");
-                if (!downloadNode.isTextual()) {
+                if (!downloadNode.isString()) {
                     continue;
                 }
 
-                String download = downloadNode.asText();
+                String download = downloadNode.asString();
                 if (StringUtils.hasLength(download)) {
                     return download;
                 }

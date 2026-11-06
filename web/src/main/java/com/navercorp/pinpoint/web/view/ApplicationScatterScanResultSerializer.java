@@ -16,27 +16,25 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.web.scatter.vo.ApplicationScatterScanResult;
 import com.navercorp.pinpoint.common.server.bo.Application;
-
-import java.io.IOException;
 
 /**
  * @author emeroad
  */
-public class ApplicationScatterScanResultSerializer extends JsonSerializer<ApplicationScatterScanResult> {
+public class ApplicationScatterScanResultSerializer extends ValueSerializer<ApplicationScatterScanResult> {
     @Override
-    public void serialize(ApplicationScatterScanResult value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+    public void serialize(ApplicationScatterScanResult value, JsonGenerator jgen, SerializationContext provider) {
         jgen.writeStartObject();
         Application application = value.getApplication();
-        jgen.writeStringField("applicationName", application.getApplicationName());
-        jgen.writeNumberField("applicationServiceType", application.getServiceTypeCode());
+        jgen.writeStringProperty("applicationName", application.getApplicationName());
+        jgen.writeNumberProperty("applicationServiceType", application.getServiceTypeCode());
 
-        jgen.writeFieldName("scatter");
-        jgen.writeObject(value.getScatterScanResult());
+        jgen.writeName("scatter");
+        jgen.writePOJO(value.getScatterScanResult());
 
         jgen.writeEndObject();
     }

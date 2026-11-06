@@ -16,16 +16,15 @@
 
 package com.navercorp.pinpoint.metric.collector.model.serialize;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,7 @@ import java.util.List;
  * @author Hyunjoon Cho
  */
 @Component
-public class TelegrafJsonDeserializer extends JsonDeserializer<TelegrafMetrics> {
+public class TelegrafJsonDeserializer extends ValueDeserializer<TelegrafMetrics> {
 
     private static final TypeReference<List<TelegrafMetric>> REF_BATCH = new TypeReference<>() {
     };
@@ -42,11 +41,11 @@ public class TelegrafJsonDeserializer extends JsonDeserializer<TelegrafMetrics> 
     }
 
     @Override
-    public TelegrafMetrics deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        if (jp.nextToken() != JsonToken.FIELD_NAME) {
+    public TelegrafMetrics deserialize(JsonParser jp, DeserializationContext ctxt) {
+        if (jp.nextToken() != JsonToken.PROPERTY_NAME) {
             ctxt.handleUnexpectedToken(TelegrafMetrics.class, jp);
         }
-        String text = jp.getText();
+        String text = jp.getString();
         if ("metrics".equals(text)) {
             // batch
             if (jp.nextToken() != JsonToken.START_ARRAY) {

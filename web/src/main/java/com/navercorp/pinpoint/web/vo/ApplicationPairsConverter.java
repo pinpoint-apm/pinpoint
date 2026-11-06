@@ -15,9 +15,9 @@
  */
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import org.springframework.core.convert.converter.Converter;
 
@@ -39,7 +39,7 @@ public class ApplicationPairsConverter implements Converter<String, ApplicationP
     public ApplicationPairs convert(String source) {
         try {
             return reader.readValue(source);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JsonRuntimeException("ApplicationPairs error", e);
         }
     }

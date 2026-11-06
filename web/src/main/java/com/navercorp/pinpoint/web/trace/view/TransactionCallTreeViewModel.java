@@ -17,10 +17,10 @@ package com.navercorp.pinpoint.web.trace.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.web.trace.callstacks.ErrorKey;
 import com.navercorp.pinpoint.web.trace.callstacks.Record;
@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.web.trace.span.TraceState;
 import com.navercorp.pinpoint.web.view.LogLinkView;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -212,12 +211,12 @@ public class TransactionCallTreeViewModel {
         @JsonSerialize(using = CallStackMeta.EnumSerializer.class)
         public static class CallStackMeta {
 
-            public static class EnumSerializer extends JsonSerializer<CallStackMeta> {
+            public static class EnumSerializer extends ValueSerializer<CallStackMeta> {
                 @Override
-                public void serialize(CallStackMeta index, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                public void serialize(CallStackMeta index, JsonGenerator jgen, SerializationContext provider) {
                     jgen.writeStartObject();
                     for (Field field : FIELD_CACHE) {
-                        jgen.writeNumberField(field.name(), field.ordinal());
+                        jgen.writeNumberProperty(field.name(), field.ordinal());
                     }
                     jgen.writeEndObject();
                 }

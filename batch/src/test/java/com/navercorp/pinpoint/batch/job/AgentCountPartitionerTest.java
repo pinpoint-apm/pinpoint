@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.job;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
 
 import java.util.Map;
 import java.util.Optional;

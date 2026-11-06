@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 public interface AgentTimeSeriesHistogramNodeView {
 
-    default void writeAgentTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) throws IOException {
+    default void writeAgentTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) {
     }
 
     static AgentTimeSeriesHistogramNodeView detailedView(TimeHistogramView timeHistogramView) {
@@ -48,13 +47,13 @@ public interface AgentTimeSeriesHistogramNodeView {
         }
 
         @Override
-        public void writeAgentTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) throws IOException {
+        public void writeAgentTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) {
             NodeHistogram nodeHistogram = nodeView.getNode().getNodeHistogram();
             AgentTimeHistogram agentTimeHistogram = nodeHistogram.getAgentTimeHistogram();
 
             JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentFields = timeHistogramView.build(agentTimeHistogram);
-            jgen.writeFieldName("agentTimeSeriesHistogram");
-            jgen.writeObject(agentFields);
+            jgen.writeName("agentTimeSeriesHistogram");
+            jgen.writePOJO(agentFields);
         }
     }
 

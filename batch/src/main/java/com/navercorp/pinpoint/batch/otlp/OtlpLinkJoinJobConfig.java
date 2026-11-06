@@ -33,20 +33,20 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkIndexKeys;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressManager;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressPolicy;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressStore;
-import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.listener.StepExecutionListener;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.builder.TaskletStepBuilder;
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
+import org.springframework.batch.infrastructure.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -267,10 +267,10 @@ public class OtlpLinkJoinJobConfig {
     }
 
     @Bean
-    public OtlpLinkJoinLauncher otlpLinkJoinLauncher(@Qualifier("jobLauncher") JobLauncher jobLauncher,
+    public OtlpLinkJoinLauncher otlpLinkJoinLauncher(@Qualifier("jobOperator") JobOperator jobOperator,
                                                      @Qualifier("otlpLinkJoinJob") Job job,
                                                      @Value("${" + PREFIX + "ttl:5m}") Duration ttl) {
-        return new OtlpLinkJoinLauncher(jobLauncher, job, SETTLE_MILLIS, ttl.toMillis(), System::currentTimeMillis);
+        return new OtlpLinkJoinLauncher(jobOperator, job, SETTLE_MILLIS, ttl.toMillis(), System::currentTimeMillis);
     }
 
     @Bean

@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.core.listener.StepExecutionListener;
+import org.springframework.batch.infrastructure.item.Chunk;
+import org.springframework.batch.infrastructure.item.ItemWriter;
 
 import java.util.List;
 import java.util.Map;

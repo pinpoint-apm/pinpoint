@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.validation.ConditionValidator;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;

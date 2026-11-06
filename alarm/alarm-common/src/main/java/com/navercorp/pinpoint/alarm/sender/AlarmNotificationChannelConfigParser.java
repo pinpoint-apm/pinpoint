@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.alarm.sender;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +54,7 @@ public final class AlarmNotificationChannelConfigParser {
         JsonNode root;
         try {
             root = configReader.readValue(config);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException(
                     "notification channel config must be a valid JSON object", e);
         }
@@ -85,11 +85,11 @@ public final class AlarmNotificationChannelConfigParser {
         if (field == null || field.isNull()) {
             return null;
         }
-        if (!field.isTextual()) {
+        if (!field.isString()) {
             throw new IllegalArgumentException(
                     "notification channel config " + fieldName + " must be a string");
         }
-        String value = field.textValue();
+        String value = field.stringValue();
         if (value.length() > maxLength) {
             throw new IllegalArgumentException(
                     "notification channel config " + fieldName + " must be at most " + maxLength + " characters");

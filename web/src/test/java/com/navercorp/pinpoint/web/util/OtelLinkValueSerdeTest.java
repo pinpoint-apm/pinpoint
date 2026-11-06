@@ -15,9 +15,9 @@
  */
 package com.navercorp.pinpoint.web.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.junit.jupiter.api.Test;
@@ -92,9 +92,9 @@ class OtelLinkValueSerdeTest {
         JsonNode node = mapper.readTree(OtelLinkValueSerde.toJson(value));
 
         // long ids are serialized as JSON strings to avoid JS Number precision loss on the frontend
-        assertThat(node.get("spanId").isTextual()).isTrue();
-        assertThat(node.get("spanId").asText()).isEqualTo("111");
-        assertThat(node.get("linkSpanId").isTextual()).isTrue();
+        assertThat(node.get("spanId").isString()).isTrue();
+        assertThat(node.get("spanId").asString()).isEqualTo("111");
+        assertThat(node.get("linkSpanId").isString()).isTrue();
         // focusTimestamp stays a JSON number
         assertThat(node.get("focusTimestamp").isNumber()).isTrue();
         assertThat(node.get("focusTimestamp").asLong()).isEqualTo(1670305848569L);

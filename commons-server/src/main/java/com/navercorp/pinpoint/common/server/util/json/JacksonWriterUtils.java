@@ -17,22 +17,20 @@
 
 package com.navercorp.pinpoint.common.server.util.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
 
 public final class JacksonWriterUtils {
     private JacksonWriterUtils() {
     }
 
-    public static void writeEmptyArray(JsonGenerator gen, String fieldName) throws IOException {
-        gen.writeFieldName(fieldName);
+    public static void writeEmptyArray(JsonGenerator gen, String fieldName) {
+        gen.writeName(fieldName);
         gen.writeStartArray();
         gen.writeEndArray();
     }
 
-    public static void writeEmptyObject(JsonGenerator gen, String fieldName) throws IOException {
-        gen.writeFieldName(fieldName);
+    public static void writeEmptyObject(JsonGenerator gen, String fieldName) {
+        gen.writeName(fieldName);
         gen.writeStartObject();
         gen.writeEndObject();
     }

@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
@@ -29,9 +29,8 @@ import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
 import com.navercorp.pinpoint.web.applicationmap.servicemap.LinkViewEntry;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
-import org.springframework.boot.jackson.JsonComponent;
+import org.springframework.boot.jackson.JacksonComponent;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -64,8 +63,8 @@ public class LinkView implements LinkViewEntry {
         return applicationTimeSeriesHistogramLinkView;
     }
 
-    @JsonComponent
-    public static class LinkViewSerializer extends JsonSerializer<LinkView> {
+    @JacksonComponent
+    public static class LinkViewSerializer extends ValueSerializer<LinkView> {
 
         private final AlertViewService alertViewService;
 
@@ -77,23 +76,23 @@ public class LinkView implements LinkViewEntry {
         }
 
         @Override
-        public void serialize(LinkView linkView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(LinkView linkView, JsonGenerator jgen, SerializationContext provider) {
             Link link = linkView.getLink();
             jgen.writeStartObject();
 
             if (linkView.enableServiceMap) {
-                jgen.writeObjectField("key", link.getServiceLinkName().toString());
-                jgen.writeObjectField("from", link.getFrom().getServiceNodeName().toString());
-                jgen.writeObjectField("to", link.getTo().getServiceNodeName().toString());
-                jgen.writeStringField("type", "app");
+                jgen.writePOJOProperty("key", link.getServiceLinkName().toString());
+                jgen.writePOJOProperty("from", link.getFrom().getServiceNodeName().toString());
+                jgen.writePOJOProperty("to", link.getTo().getServiceNodeName().toString());
+                jgen.writeStringProperty("type", "app");
             } else {
-                jgen.writeObjectField("key", link.getLinkName());
-                jgen.writeObjectField("from", link.getFrom().getNodeName());
-                jgen.writeObjectField("to", link.getTo().getNodeName());
+                jgen.writePOJOProperty("key", link.getLinkName());
+                jgen.writePOJOProperty("from", link.getFrom().getNodeName());
+                jgen.writePOJOProperty("to", link.getTo().getNodeName());
             }
 
-            jgen.writeStringField("linkKey", link.getLinkNameKey());
-            jgen.writeObjectField("serviceKey", link.getServiceLinkName().toString());
+            jgen.writeStringProperty("linkKey", link.getLinkNameKey());
+            jgen.writePOJOProperty("serviceKey", link.getServiceLinkName().toString());
 
 
             // for FilterWizard, to agent mapping data
@@ -106,15 +105,15 @@ public class LinkView implements LinkViewEntry {
             writerFilterHint(link, jgen);
 
             Histogram histogram = link.getHistogram();
-            jgen.writeNumberField("totalCount", histogram.getTotalCount());
-            jgen.writeNumberField("errorCount", histogram.getTotalErrorCount());
-            jgen.writeNumberField("slowCount", histogram.getSlowCount());
+            jgen.writeNumberProperty("totalCount", histogram.getTotalCount());
+            jgen.writeNumberProperty("errorCount", histogram.getTotalErrorCount());
+            jgen.writeNumberProperty("slowCount", histogram.getSlowCount());
 
             ResponseTimeStatics responseTimeStatics = ResponseTimeStatics.fromHistogram(histogram);
-            jgen.writeObjectField(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
+            jgen.writePOJOProperty(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
 
 
-            jgen.writeObjectField("histogram", histogram);
+            jgen.writePOJOProperty("histogram", histogram);
             // time histogram
             ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView = linkView.getApplicationTimeSeriesHistogramLinkView();
             applicationTimeSeriesHistogramLinkView.writeTimeSeriesHistogram(linkView, jgen);
@@ -124,61 +123,61 @@ public class LinkView implements LinkViewEntry {
             agentLinkView.writeAgentLink(linkView, jgen);
 
 //        String state = link.getLinkState();
-//        jgen.writeStringField("state", state);
+//        jgen.writeStringProperty("state", state);
             boolean alert = alertViewService.hasAlert(link.getHistogram());
-            jgen.writeBooleanField("hasAlert", alert);
+            jgen.writeBooleanProperty("hasAlert", alert);
 
             jgen.writeEndObject();
         }
 
-        private void writerFilterHint(Link link, JsonGenerator jgen) throws IOException {
+        private void writerFilterHint(Link link, JsonGenerator jgen) {
             Application filterApplication = link.getFilterApplication();
-            jgen.writeFieldName("filter");
+            jgen.writeName("filter");
             jgen.writeStartObject();
-            jgen.writeStringField("serviceName", filterApplication.getService().getServiceName());
-            jgen.writeStringField("applicationName", filterApplication.getApplicationName());
+            jgen.writeStringProperty("serviceName", filterApplication.getService().getServiceName());
+            jgen.writeStringProperty("applicationName", filterApplication.getApplicationName());
             ServiceType serviceType = filterApplication.getServiceType();
-            jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
-            jgen.writeStringField("serviceTypeName", serviceType.getName());
+            jgen.writeNumberProperty("serviceTypeCode", serviceType.getCode());
+            jgen.writeStringProperty("serviceTypeName", serviceType.getName());
             if (link.isWasToWasLink()) {
                 writeWasToWasTargetRpcList("outRpcList", link, jgen);
             }
             jgen.writeEndObject();
         }
 
-        private void writeAgents(String fieldName, Node node, JsonGenerator jgen) throws IOException {
+        private void writeAgents(String fieldName, Node node, JsonGenerator jgen) {
             if (node.getServiceType().isWas()) {
                 ServerGroupList serverGroups = node.getServerGroupList();
                 agentServerGroupListWriter.write(fieldName, serverGroups, jgen);
             }
         }
 
-        private void writeWasToWasTargetRpcList(String fieldName, Link link, JsonGenerator jgen) throws IOException {
+        private void writeWasToWasTargetRpcList(String fieldName, Link link, JsonGenerator jgen) {
             // write additional information to be used for filtering failed WAS -> WAS call events.
-            jgen.writeFieldName(fieldName);
+            jgen.writeName(fieldName);
             jgen.writeStartArray();
             Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();
             for (Application application : sourceLinkTargetAgentList) {
                 jgen.writeStartObject();
-                jgen.writeStringField("rpc", application.getApplicationName());
-                jgen.writeNumberField("rpcServiceTypeCode", application.getServiceTypeCode());
+                jgen.writeStringProperty("rpc", application.getApplicationName());
+                jgen.writeNumberProperty("rpcServiceTypeCode", application.getServiceTypeCode());
                 jgen.writeEndObject();
             }
             jgen.writeEndArray();
 
         }
 
-        private void writeSimpleNode(String fieldName, Node node, JsonGenerator jgen) throws IOException {
-            jgen.writeFieldName(fieldName);
+        private void writeSimpleNode(String fieldName, Node node, JsonGenerator jgen) {
+            jgen.writeName(fieldName);
 
             jgen.writeStartObject();
             Application application = node.getApplication();
-            jgen.writeStringField("serviceName", application.getService().getServiceName());
-            jgen.writeStringField("applicationName", application.getApplicationName());
+            jgen.writeStringProperty("serviceName", application.getService().getServiceName());
+            jgen.writeStringProperty("applicationName", application.getApplicationName());
             ServiceType serviceType = application.getServiceType();
-            jgen.writeStringField("serviceType", serviceType.toString());
-            jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
-            jgen.writeStringField("nodeCategory", serviceType.getCategory().nodeCategory().toString());
+            jgen.writeStringProperty("serviceType", serviceType.toString());
+            jgen.writeNumberProperty("serviceTypeCode", serviceType.getCode());
+            jgen.writeStringProperty("nodeCategory", serviceType.getCategory().nodeCategory().toString());
 
             jgen.writeEndObject();
         }

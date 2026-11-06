@@ -50,6 +50,7 @@
     </modules>
 
     <properties>
+        <junit-jupiter.version>${junit-jupiter5.version}</junit-jupiter.version>
         <jetty9-version>9.4.57.v20241219</jetty9-version>
 
         <!-- START : plugins-it, agent-testweb dependency -->

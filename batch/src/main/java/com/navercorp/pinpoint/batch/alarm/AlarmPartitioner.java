@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.batch.alarm;
 import com.navercorp.pinpoint.batch.common.DefaultDivider;
 import com.navercorp.pinpoint.batch.common.Divider;
 import jakarta.annotation.Nonnull;
-import org.springframework.batch.core.partition.support.Partitioner;
-import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.core.partition.Partitioner;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Map;
