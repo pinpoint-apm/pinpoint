@@ -75,10 +75,6 @@
         <!-- The dao retries a failed pinot read. Reached transitively until the shared alarm
              module stopped declaring what only its endpoints use. -->
         <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>
         </dependency>
