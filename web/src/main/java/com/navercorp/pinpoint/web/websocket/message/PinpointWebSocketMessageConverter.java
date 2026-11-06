@@ -75,7 +75,7 @@ public class PinpointWebSocketMessageConverter {
         }
 
         JsonNode type = root.path(TYPE);
-        PinpointWebSocketMessageType messageType = PinpointWebSocketMessageType.getType(type.asText());
+        PinpointWebSocketMessageType messageType = PinpointWebSocketMessageType.getType(type.asString());
         return switch (messageType) {
             case PING -> new PingMessage();
             case PONG -> new PongMessage();
@@ -87,14 +87,14 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private PinpointWebSocketMessage readSend(JsonNode root) {
-        String command = root.path(COMMAND).asText();
+        String command = root.path(COMMAND).asString();
         JsonNode resultNode = root.path(PARAMETERS);
         Map<String, Object> parameterMap = readMap(resultNode);
         return new SendMessage(command, parameterMap);
     }
 
     private PinpointWebSocketMessage readResponse(JsonNode root) {
-        String command = root.path(COMMAND).asText();
+        String command = root.path(COMMAND).asString();
 
         JsonNode resultNode = root.path(RESULT);
         Map<String, Object> resultMap = readMap(resultNode);
@@ -102,7 +102,7 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private PinpointWebSocketMessage readRequest(JsonNode root) {
-        String command = root.path(COMMAND).asText();
+        String command = root.path(COMMAND).asString();
         JsonNode parameterNode = root.path(PARAMETERS);
         Map<String, Object> parameterMap = readMap(parameterNode);
 

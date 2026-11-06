@@ -17,7 +17,7 @@ public final class JsonNodeUtils {
         if (isNull(node)) {
             return defaultValue;
         }
-        return node.asText();
+        return node.asString();
     }
 
     public static Long longValue(JsonNode jsonNode, String fieldName) {

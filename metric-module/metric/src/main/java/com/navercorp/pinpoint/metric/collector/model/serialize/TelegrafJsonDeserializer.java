@@ -45,7 +45,7 @@ public class TelegrafJsonDeserializer extends ValueDeserializer<TelegrafMetrics>
         if (jp.nextToken() != JsonToken.PROPERTY_NAME) {
             ctxt.handleUnexpectedToken(TelegrafMetrics.class, jp);
         }
-        String text = jp.getText();
+        String text = jp.getString();
         if ("metrics".equals(text)) {
             // batch
             if (jp.nextToken() != JsonToken.START_ARRAY) {

@@ -34,12 +34,12 @@ class AlarmCatalogResponseTest {
 
         JsonNode json = objectMapper.valueToTree(response);
 
-        assertEquals("AGENT_STAT", json.get("value").asText());
-        assertEquals("Agent Stat", json.get("label").asText());
-        assertEquals("agent", json.get("filterKeys").get(0).asText());
-        assertEquals("sample_count", json.get("metrics").get(0).get("value").asText());
+        assertEquals("AGENT_STAT", json.get("value").asString());
+        assertEquals("Agent Stat", json.get("label").asString());
+        assertEquals("agent", json.get("filterKeys").get(0).asString());
+        assertEquals("sample_count", json.get("metrics").get(0).get("value").asString());
         assertFalse(json.get("metrics").get(0).has("trigger"));
-        assertEquals("NEW_GROUP", json.get("metrics").get(1).get("trigger").asText());
+        assertEquals("NEW_GROUP", json.get("metrics").get(1).get("trigger").asString());
         assertFalse(json.get("metrics").get(1).has("allowedAggregations"));
     }
 }

@@ -49,14 +49,14 @@ public class TransactionCallTreeCallStackSerializerTest {
 
         JsonNode errorKey = row.get(ERROR_KEY_INDEX);
         assertThat(errorKey.isObject()).isTrue();
-        assertThat(errorKey.get("serviceName").asText()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
-        assertThat(errorKey.get("applicationName").asText()).isEqualTo("app-name");
-        assertThat(errorKey.get("agentId").asText()).isEqualTo("agent-id");
-        assertThat(errorKey.get("transactionId").asText()).isEqualTo("agent-id^0^30");
-        assertThat(errorKey.get("spanId").isTextual()).isTrue();
-        assertThat(errorKey.get("spanId").asText()).isEqualTo("100");
-        assertThat(errorKey.get("exceptionId").isTextual()).isTrue();
-        assertThat(errorKey.get("exceptionId").asText()).isEqualTo("1400");
+        assertThat(errorKey.get("serviceName").asString()).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID_NAME);
+        assertThat(errorKey.get("applicationName").asString()).isEqualTo("app-name");
+        assertThat(errorKey.get("agentId").asString()).isEqualTo("agent-id");
+        assertThat(errorKey.get("transactionId").asString()).isEqualTo("agent-id^0^30");
+        assertThat(errorKey.get("spanId").isString()).isTrue();
+        assertThat(errorKey.get("spanId").asString()).isEqualTo("100");
+        assertThat(errorKey.get("exceptionId").isString()).isTrue();
+        assertThat(errorKey.get("exceptionId").asString()).isEqualTo("1400");
     }
 
     @Test
