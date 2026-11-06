@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.reactor.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
@@ -33,6 +34,13 @@ public class FluxAndMonoPublishOnInterceptor extends SpanEventApiIdAwareAroundIn
         super(traceContext);
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
         this.tracePublishOn = config.isTracePublishOn();
+    }
+
+    @Override
+    protected Trace currentTrace() {
+        // Unsampled traces must seed the publisher too, so the downstream call on the worker thread
+        // still sends the sampling flag instead of starting a new sampled root.
+        return traceContext.currentRawTraceObject();
     }
 
     @Override
