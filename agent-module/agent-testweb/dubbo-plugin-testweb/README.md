@@ -6,22 +6,22 @@
 
 ## Install
 ```
-$ mvnw -P pinpoint-dubbo-plugin-testweb install -Dmaven.test.skip=true
+$ ./mvnw -pl agent-module/agent-testweb/dubbo-plugin-testweb install -Dmaven.test.skip=true
 ```
 
 ## Run
 Provider
 ```
-$ mvnw -Djava.net.preferIPv4Stack=true -Dexec.mainClass=com.pinpoint.test.plugin.provider.DubboProviderApplication exec:java
+$ ./mvnw -pl agent-module/agent-testweb/dubbo-plugin-testweb -Djava.net.preferIPv4Stack=true -Dexec.mainClass=com.pinpoint.test.plugin.provider.DubboProviderApplication exec:java
 ```
 
 Consumer
 ```
-$ mvnw -P pinpoint-dubbo-plugin-testweb spring-boot:start
+$ ./mvnw -pl agent-module/agent-testweb/dubbo-plugin-testweb spring-boot:start
 ```
 You can then access here: http://localhost:18080/sayHi
 
 ## Stop
 ```
-$ mvnw -P pinpoint-dubbo-plugin-testweb spring-boot:stop
+$ ./mvnw -pl agent-module/agent-testweb/dubbo-plugin-testweb spring-boot:stop
 ```

@@ -4,14 +4,14 @@ Spring Boot 2 (Java 8) testweb for agent verification on JDK 8.
 
 ## Install
 ```
-$ mvnw -pl agent-module/agent-testweb/spring-boot2-plugin-testweb install -Dmaven.test.skip=true
+$ ./mvnw -pl agent-module/agent-testweb/spring-boot2-plugin-testweb install -Dmaven.test.skip=true
 ```
 
 ## Run (JDK 8, cmd.exe)
 ```
 > "%JAVA_8_HOME%\bin\java" -javaagent:<agent-dir>\pinpoint-bootstrap.jar ^
     -Dpinpoint.profiler.profiles.active=local ^
-    -Dpinpoint.applicationName=PluginTest -Dpinpoint.agentId=PluginTestAgent ^
+    -Dpinpoint.serviceName=DEFAULT -Dpinpoint.applicationName=PluginTest -Dpinpoint.agentName=PluginTestAgent ^
     -jar target\pinpoint-spring-boot2-plugin-testweb-<version>-exec.jar
 ```
 You can then access here: http://localhost:18080/
