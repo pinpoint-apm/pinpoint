@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.common.server.event;
 import java.util.Map;
 import java.util.Objects;
 
-public record ContextData(String applicationName, String agentId, long startTime, Map<String, Object> attribute) {
+public record ContextData(String serviceName, String applicationName, String agentId, long startTime, Map<String, Object> attribute) {
     public ContextData {
+        Objects.requireNonNull(serviceName, "serviceName");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(attribute, "attribute");
