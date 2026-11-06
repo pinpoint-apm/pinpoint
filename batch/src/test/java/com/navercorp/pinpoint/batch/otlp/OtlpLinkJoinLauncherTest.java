@@ -24,7 +24,7 @@ import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
 
@@ -56,9 +56,9 @@ class OtlpLinkJoinLauncherTest {
 
     private final long minute = LinkIndexKeys.slotOf(System.currentTimeMillis());
 
-    private JobLauncher jobLauncher() throws Exception {
-        JobLauncher jobLauncher = mock(JobLauncher.class);
-        when(jobLauncher.run(eq(job), any(JobParameters.class))).thenAnswer(invocation -> {
+    private JobOperator jobOperator() throws Exception {
+        JobOperator jobOperator = mock(JobOperator.class);
+        when(jobOperator.start(eq(job), any(JobParameters.class))).thenAnswer(invocation -> {
             JobParameters parameters = invocation.getArgument(1);
             long slot = parameters.getLong(OtlpLinkJoinLauncher.SLOT_PARAMETER);
             if (completedBefore.contains(slot)) {
@@ -73,11 +73,11 @@ class OtlpLinkJoinLauncherTest {
             execution.setStatus(failing.contains(slot) ? BatchStatus.FAILED : BatchStatus.COMPLETED);
             return execution;
         });
-        return jobLauncher;
+        return jobOperator;
     }
 
     private OtlpLinkJoinLauncher launcher() throws Exception {
-        return new OtlpLinkJoinLauncher(jobLauncher(), job, SETTLE, TTL, now::get);
+        return new OtlpLinkJoinLauncher(jobOperator(), job, SETTLE, TTL, now::get);
     }
 
     /** the cron fires at second 30 of minute {@code m}: slot m-1 has ended */
@@ -235,8 +235,8 @@ class OtlpLinkJoinLauncherTest {
 
     @Test
     void parametersCarryTheSlot() throws Exception {
-        JobLauncher jobLauncher = jobLauncher();
-        OtlpLinkJoinLauncher launcher = new OtlpLinkJoinLauncher(jobLauncher, job, SETTLE, TTL, now::get);
+        JobOperator jobOperator = jobOperator();
+        OtlpLinkJoinLauncher launcher = new OtlpLinkJoinLauncher(jobOperator, job, SETTLE, TTL, now::get);
         completedBefore.add(minute - 4);
         completedBefore.add(minute - 3);
         completedBefore.add(minute - 2);
@@ -244,7 +244,7 @@ class OtlpLinkJoinLauncherTest {
         launcher.run();
 
         ArgumentCaptor<JobParameters> captor = ArgumentCaptor.forClass(JobParameters.class);
-        org.mockito.Mockito.verify(jobLauncher, org.mockito.Mockito.times(4)).run(eq(job), captor.capture());
+        org.mockito.Mockito.verify(jobOperator, org.mockito.Mockito.times(4)).start(eq(job), captor.capture());
         assertThat(captor.getAllValues().get(3).getLong(OtlpLinkJoinLauncher.SLOT_PARAMETER)).isEqualTo(minute - 1);
     }
 }

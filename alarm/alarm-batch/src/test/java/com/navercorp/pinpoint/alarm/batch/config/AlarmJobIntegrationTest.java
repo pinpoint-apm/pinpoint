@@ -52,7 +52,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.JobExecution;
-import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.batch.test.JobOperatorTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -99,7 +99,7 @@ class AlarmJobIntegrationTest {
     private static final Set<String> PRIMARY_ONLY = Set.of(IntegrationTestAlarmDataSource.PRIMARY.name());
 
     @Autowired
-    private JobLauncherTestUtils jobLauncherTestUtils;
+    private JobOperatorTestUtils jobOperatorTestUtils;
 
     @Autowired
     private AlarmRuleV2Dao alarmRuleV2Dao;
@@ -182,7 +182,7 @@ class AlarmJobIntegrationTest {
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 150.0));
 
-        JobExecution exec = jobLauncherTestUtils.launchJob();
+        JobExecution exec = jobOperatorTestUtils.startJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
 
@@ -270,7 +270,7 @@ class AlarmJobIntegrationTest {
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 30.0)); // below threshold
 
-        jobLauncherTestUtils.launchJob();
+        jobOperatorTestUtils.startJob();
 
         AlarmState state = alarmStateDao.selectByRuleId(rule.getId());
         assertNotNull(state);
@@ -289,7 +289,7 @@ class AlarmJobIntegrationTest {
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 10.0)); // now below threshold
 
-        jobLauncherTestUtils.launchJob();
+        jobOperatorTestUtils.startJob();
 
         AlarmState state = alarmStateDao.selectByRuleId(rule.getId());
         assertEquals(AlarmStatus.NORMAL, state.getStatus());
@@ -308,7 +308,7 @@ class AlarmJobIntegrationTest {
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 200.0));
 
-        jobLauncherTestUtils.launchJob();
+        jobOperatorTestUtils.startJob();
 
         AlarmState state = alarmStateDao.selectByRuleId(rule.getId());
         assertEquals(AlarmStatus.FIRING, state.getStatus());
@@ -327,7 +327,7 @@ class AlarmJobIntegrationTest {
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 200.0));
 
-        jobLauncherTestUtils.launchJob();
+        jobOperatorTestUtils.startJob();
 
         assertEquals(1, countHistory(rule.getId(), "FIRED"));
         verify(mockNotificationService, times(1)).prepareNotifications(any(), any());
@@ -339,7 +339,7 @@ class AlarmJobIntegrationTest {
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 999.0));
 
-        jobLauncherTestUtils.launchJob();
+        jobOperatorTestUtils.startJob();
 
         // selectEnabledRules() should not return disabled rules
         AlarmState state = alarmStateDao.selectByRuleId(rule.getId());
@@ -361,7 +361,7 @@ class AlarmJobIntegrationTest {
                             : metricResults("affected_user_count", 20.0);
                 });
 
-        jobLauncherTestUtils.launchJob();
+        jobOperatorTestUtils.startJob();
 
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(rule1.getId()).getStatus());
         assertEquals(AlarmStatus.NORMAL, alarmStateDao.selectByRuleId(rule2.getId()).getStatus());
@@ -384,7 +384,7 @@ class AlarmJobIntegrationTest {
                     return metricResults("error_count", 150.0);
                 });
 
-        jobLauncherTestUtils.launchJob();
+        jobOperatorTestUtils.startJob();
 
         assertEquals(AlarmStatus.FIRING, alarmStateDao.selectByRuleId(rule.getId()).getStatus());
         assertEquals(1, countHistory(rule.getId(), "FIRED"));
@@ -423,7 +423,7 @@ class AlarmJobIntegrationTest {
         AlarmRuleV2 rule = insertTemplateRule(template);
         alarmTemplateDao.markDeleted(template.getTemplateId());
 
-        jobLauncherTestUtils.launchJob();
+        jobOperatorTestUtils.startJob();
 
         assertEquals(AlarmStatus.NORMAL, alarmStateDao.selectByRuleId(rule.getId()).getStatus());
         assertEquals(0, countHistory(rule.getId(), "FIRED"));
@@ -441,7 +441,7 @@ class AlarmJobIntegrationTest {
         when(mockMetricQueryService.query(any(), any(), any(), any()))
                 .thenReturn(metricResults("error_count", 150.0));
 
-        JobExecution exec = jobLauncherTestUtils.launchJob();
+        JobExecution exec = jobOperatorTestUtils.startJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
         AlarmState brokenState = alarmStateDao.selectByRuleId(brokenRule.getId());
@@ -483,7 +483,7 @@ class AlarmJobIntegrationTest {
                     return metricResults("affected_user_count", 100.0);
                 });
 
-        JobExecution exec = jobLauncherTestUtils.launchJob();
+        JobExecution exec = jobOperatorTestUtils.startJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
         AlarmState brokenState = alarmStateDao.selectByRuleId(brokenRule.getId());
@@ -507,7 +507,7 @@ class AlarmJobIntegrationTest {
                 .thenReturn(metricResults("error_count", 150.0));
         AlarmState before = alarmStateDao.selectByRuleId(otherProcessRule.getId());
 
-        JobExecution exec = jobLauncherTestUtils.launchJob();
+        JobExecution exec = jobOperatorTestUtils.startJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
 
@@ -541,7 +541,7 @@ class AlarmJobIntegrationTest {
                             : preparedDelivery(20L);
                 });
 
-        JobExecution exec = jobLauncherTestUtils.launchJob();
+        JobExecution exec = jobOperatorTestUtils.startJob();
 
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
         // The firing write rolled back whole, and the tasklet then recorded the rule as one
@@ -738,7 +738,7 @@ class AlarmJobIntegrationTest {
     @Test
     void jobCompletes_whenNoRulesExist() throws Exception {
         // empty table
-        JobExecution exec = jobLauncherTestUtils.launchJob();
+        JobExecution exec = jobOperatorTestUtils.startJob();
         assertEquals(ExitStatus.COMPLETED, exec.getExitStatus());
     }
 

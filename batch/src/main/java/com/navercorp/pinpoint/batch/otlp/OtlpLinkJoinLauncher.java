@@ -24,7 +24,7 @@ import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
 
@@ -56,7 +56,7 @@ public class OtlpLinkJoinLauncher {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final JobLauncher jobLauncher;
+    private final JobOperator jobOperator;
     private final Job job;
     private final long settleMillis;
     private final long ttlMillis;
@@ -66,8 +66,8 @@ public class OtlpLinkJoinLauncher {
     private final AtomicLong skippedSlots = new AtomicLong();
     private final AtomicLong failedLaunches = new AtomicLong();
 
-    public OtlpLinkJoinLauncher(JobLauncher jobLauncher, Job job, long settleMillis, long ttlMillis, LongSupplier clock) {
-        this.jobLauncher = Objects.requireNonNull(jobLauncher, "jobLauncher");
+    public OtlpLinkJoinLauncher(JobOperator jobOperator, Job job, long settleMillis, long ttlMillis, LongSupplier clock) {
+        this.jobOperator = Objects.requireNonNull(jobOperator, "jobOperator");
         this.job = Objects.requireNonNull(job, "job");
         if (settleMillis < 0 || ttlMillis < 1) {
             throw new IllegalArgumentException("settle must not be negative, ttl must be positive");
@@ -128,7 +128,7 @@ public class OtlpLinkJoinLauncher {
      */
     private boolean launch(long slot) {
         try {
-            final JobExecution execution = jobLauncher.run(job, jobParameters(slot));
+            final JobExecution execution = jobOperator.start(job, jobParameters(slot));
             if (execution.getStatus() == BatchStatus.COMPLETED) {
                 return true;
             }
