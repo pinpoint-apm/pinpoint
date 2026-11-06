@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author minwoo-jung
  */
-@Retryable(maxAttempts = 3, retryFor = {Exception.class})
+@Retryable(maxRetries = 2, includes = Exception.class)
 public class PinotAgentStatAlarmDao implements AgentStatAlarmDao {
 
     /**

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.config;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import com.navercorp.pinpoint.batch.alarm.AlarmMessageSender;
@@ -62,8 +63,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.retry.interceptor.RetryInterceptorBuilder;
-import org.springframework.retry.interceptor.RetryOperationsInterceptor;
+import org.springframework.resilience.retry.MethodRetrySpec;
+import org.springframework.resilience.retry.SimpleRetryInterceptor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -197,8 +198,10 @@ public class AlarmJobConfig {
     }
 
     @Bean(name = "retryableAdvisor")
-    public RetryOperationsInterceptor retryableAdvisor() {
-        return RetryInterceptorBuilder.stateless().build();
+    public SimpleRetryInterceptor retryableAdvisor() {
+        // same as the former spring-retry stateless default: 3 attempts in total, no back-off
+        MethodRetrySpec retrySpec = new MethodRetrySpec((method, throwable) -> true, 2, Duration.ZERO);
+        return new SimpleRetryInterceptor(retrySpec);
     }
 
     @Bean

@@ -19,13 +19,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 
 import javax.sql.DataSource;
 import java.util.List;
 
 @Configuration
-@EnableRetry
+@EnableResilientMethods
 @Import({
         MyBatisConfiguration.class,
 })
