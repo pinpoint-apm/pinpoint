@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    @Retryable(retryFor = DuplicateKeyException.class, maxAttempts = 3)
+    @Retryable(includes = DuplicateKeyException.class, maxRetries = 2)
     public Service insertService(String name) {
         StringPrecondition.requireHasLength(name, "name");
         if (Service.wellKnownService(name) != null) {
