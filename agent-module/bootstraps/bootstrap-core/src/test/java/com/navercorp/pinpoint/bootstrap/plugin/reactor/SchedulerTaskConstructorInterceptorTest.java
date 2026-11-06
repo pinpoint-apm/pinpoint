@@ -104,7 +104,7 @@ public class SchedulerTaskConstructorInterceptorTest {
         Trace trace = mock(Trace.class);
         SpanEventRecorder recorder = mock(SpanEventRecorder.class);
         AsyncContext boundary = mock(AsyncContext.class);
-        when(traceContext.currentTraceObject()).thenReturn(trace);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
         when(trace.traceBlockBegin()).thenReturn(recorder);
         when(recorder.recordNextAsyncContext()).thenReturn(boundary);
 
@@ -122,7 +122,7 @@ public class SchedulerTaskConstructorInterceptorTest {
         Trace trace = mock(Trace.class);
         SpanEventRecorder recorder = mock(SpanEventRecorder.class);
         AsyncContext boundary = mock(AsyncContext.class);
-        when(traceContext.currentTraceObject()).thenReturn(trace);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
         when(trace.traceBlockBegin()).thenReturn(recorder);
         when(recorder.recordNextAsyncContext()).thenReturn(boundary);
 
@@ -135,9 +135,29 @@ public class SchedulerTaskConstructorInterceptorTest {
     }
 
     @Test
+    public void noCarrier_unsampledTrace_recordsBoundaryContext() {
+        MockAsyncContextAccessor target = new MockAsyncContextAccessor();
+        Trace trace = mock(Trace.class);
+        SpanEventRecorder recorder = mock(SpanEventRecorder.class);
+        AsyncContext boundary = mock(AsyncContext.class);
+        when(trace.canSampled()).thenReturn(false);
+        // the real TraceContext hides unsampled traces from currentTraceObject()
+        when(traceContext.currentTraceObject()).thenReturn(null);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
+        when(trace.traceBlockBegin()).thenReturn(recorder);
+        when(recorder.recordNextAsyncContext()).thenReturn(boundary);
+
+        interceptor.after(target, new Object[]{mock(Runnable.class)}, null, null);
+
+        assertSame(boundary, target._$PINPOINT$_getAsyncContext());
+        verify(trace).traceBlockEnd();
+        verify(traceContext, never()).currentTraceObject();
+    }
+
+    @Test
     public void noCarrierAndNoCurrentTrace_capturesNothing() {
         MockAsyncContextAccessor target = new MockAsyncContextAccessor();
-        when(traceContext.currentTraceObject()).thenReturn(null);
+        when(traceContext.currentRawTraceObject()).thenReturn(null);
 
         interceptor.after(target, new Object[]{mock(Runnable.class)}, null, null);
 
@@ -150,7 +170,7 @@ public class SchedulerTaskConstructorInterceptorTest {
 
         Trace trace = mock(Trace.class);
         SpanEventRecorder recorder = mock(SpanEventRecorder.class);
-        when(traceContext.currentTraceObject()).thenReturn(trace);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
         when(trace.traceBlockBegin()).thenReturn(recorder);
         when(recorder.recordNextAsyncContext()).thenThrow(new IllegalStateException("recorder failed"));
 
@@ -164,7 +184,7 @@ public class SchedulerTaskConstructorInterceptorTest {
     public void nonAccessorTarget_isHarmless() {
         Trace trace = mock(Trace.class);
         SpanEventRecorder recorder = mock(SpanEventRecorder.class);
-        when(traceContext.currentTraceObject()).thenReturn(trace);
+        when(traceContext.currentRawTraceObject()).thenReturn(trace);
         when(trace.traceBlockBegin()).thenReturn(recorder);
         when(recorder.recordNextAsyncContext()).thenReturn(mock(AsyncContext.class));
 

@@ -94,7 +94,8 @@ public class SchedulerTaskConstructorInterceptor implements AroundInterceptor {
                 return;
             }
 
-            final Trace trace = traceContext.currentTraceObject();
+            // raw: an unsampled trace must carry its DisableAsyncContext across the hop as well
+            final Trace trace = traceContext.currentRawTraceObject();
             if (trace == null) {
                 return;
             }
