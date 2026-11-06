@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressPolicy;
 import com.navercorp.pinpoint.otlp.trace.linkindex.suppress.SuppressStore;
 import org.springframework.batch.core.listener.StepExecutionListener;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.builder.TaskletStepBuilder;
@@ -267,10 +267,10 @@ public class OtlpLinkJoinJobConfig {
     }
 
     @Bean
-    public OtlpLinkJoinLauncher otlpLinkJoinLauncher(@Qualifier("jobOperator") JobLauncher jobLauncher,
+    public OtlpLinkJoinLauncher otlpLinkJoinLauncher(@Qualifier("jobOperator") JobOperator jobOperator,
                                                      @Qualifier("otlpLinkJoinJob") Job job,
                                                      @Value("${" + PREFIX + "ttl:5m}") Duration ttl) {
-        return new OtlpLinkJoinLauncher(jobLauncher, job, SETTLE_MILLIS, ttl.toMillis(), System::currentTimeMillis);
+        return new OtlpLinkJoinLauncher(jobOperator, job, SETTLE_MILLIS, ttl.toMillis(), System::currentTimeMillis);
     }
 
     @Bean

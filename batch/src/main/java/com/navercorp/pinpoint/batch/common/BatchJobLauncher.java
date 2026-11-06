@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Objects;
@@ -42,7 +42,7 @@ public class BatchJobLauncher extends JobLaunchSupport {
 
     public BatchJobLauncher(
             @Qualifier("jobRegistry") JobRegistry locator,
-            @Qualifier("jobOperator") JobLauncher launcher,
+            @Qualifier("jobOperator") JobOperator launcher,
             BatchProperties batchProperties
     ) {
         this(locator, launcher, batchProperties, new BatchMetaCleanupProperties());
@@ -50,7 +50,7 @@ public class BatchJobLauncher extends JobLaunchSupport {
 
     public BatchJobLauncher(
             @Qualifier("jobRegistry") JobRegistry locator,
-            @Qualifier("jobOperator") JobLauncher launcher,
+            @Qualifier("jobOperator") JobOperator launcher,
             BatchProperties batchProperties,
             BatchMetaCleanupProperties metaCleanupProperties
     ) {
