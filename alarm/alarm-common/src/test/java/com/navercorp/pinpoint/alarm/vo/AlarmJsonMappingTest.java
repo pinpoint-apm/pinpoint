@@ -144,7 +144,7 @@ class AlarmJsonMappingTest {
         AlarmCondition condition = objectMapper.readValue(json, AlarmCondition.class);
 
         assertEquals(AlarmCondition.Type.LEAF, condition.getType());
-        assertEquals("LEAF", objectMapper.valueToTree(condition).path("type").asText());
+        assertEquals("LEAF", objectMapper.valueToTree(condition).path("type").asString());
     }
 
     @Test

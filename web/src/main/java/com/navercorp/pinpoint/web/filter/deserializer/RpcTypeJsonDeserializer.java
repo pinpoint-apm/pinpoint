@@ -36,7 +36,7 @@ public class RpcTypeJsonDeserializer extends ValueDeserializer<RpcType> {
         if (jp.currentToken() != JsonToken.VALUE_STRING) {
             ctxt.handleUnexpectedToken(RpcType.class, jp);
         }
-        String address = jp.getText();
+        String address = jp.getString();
         if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) {
             ctxt.handleUnexpectedToken(RpcType.class, jp);
         }

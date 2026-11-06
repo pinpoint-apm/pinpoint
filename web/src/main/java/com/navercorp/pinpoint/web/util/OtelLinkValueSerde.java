@@ -71,10 +71,10 @@ public final class OtelLinkValueSerde {
     }
 
     private static @Nullable String readText(@Nullable JsonNode node) {
-        if (JsonNodeUtils.isNull(node) || !node.isTextual()) {
+        if (JsonNodeUtils.isNull(node) || !node.isString()) {
             return null;
         }
-        final String text = node.asText();
+        final String text = node.asString();
         return text.isEmpty() ? null : text;
     }
 
@@ -85,9 +85,9 @@ public final class OtelLinkValueSerde {
         if (node.isNumber()) {
             return node.asLong();
         }
-        if (node.isTextual()) {
+        if (node.isString()) {
             try {
-                return Long.parseLong(node.asText());
+                return Long.parseLong(node.asString());
             } catch (NumberFormatException ignored) {
                 return null;
             }

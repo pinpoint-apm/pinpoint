@@ -75,7 +75,7 @@ public class MapStructUtils {
             if (valueToken == JsonToken.VALUE_NULL) {
                 map.put(name, null);
             } else if (valueToken != null && valueToken.isScalarValue()) {
-                map.put(name, parser.getText());
+                map.put(name, parser.getString());
             } else {
                 throw new StreamReadException(parser, "expected scalar value");
             }
@@ -153,7 +153,7 @@ public class MapStructUtils {
         if (token == null || !token.isScalarValue()) {
             throw new StreamReadException(parser, "expected scalar value");
         }
-        return parser.getText();
+        return parser.getString();
     }
 
     private static Integer readInteger(JsonParser parser, JsonToken token) {
