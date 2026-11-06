@@ -21,10 +21,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterAll;
@@ -67,9 +66,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  * interceptor records a span event only on the Servlet async path (it needs the {@code AsyncContext}
  * request attribute), which a synchronous mock request never has.
  */
-@PluginForkedTest
+@PluginTest
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(17)
 @Dependency({"org.springframework:spring-webmvc:[7.0.0,7.max]", "org.springframework:spring-test", "jakarta.servlet:jakarta.servlet-api:6.1.0"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 @PinpointConfig("pinpoint-webmvc-uristat.config")
