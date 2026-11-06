@@ -27,13 +27,13 @@ public class SimpleContextSupplier implements ContextSupplier {
     @Override
     public ContextData applyAsContext(SpanBo spanBo) {
         SpanOwner owner = spanBo.getSpanOwner();
-        return new ContextData(owner.getApplicationName(), owner.getAgentId(), spanBo.getStartTimeMillis(), Map.of());
+        return new ContextData(owner.getServiceName(), owner.getApplicationName(), owner.getAgentId(), spanBo.getStartTimeMillis(), Map.of());
     }
 
     @Override
     public ContextData applyAsContext(SpanChunkBo spanChunkBo) {
         SpanOwner owner = spanChunkBo.getSpanOwner();
-        return new ContextData(owner.getApplicationName(), owner.getAgentId(), -1, Map.of());
+        return new ContextData(owner.getServiceName(), owner.getApplicationName(), owner.getAgentId(), -1, Map.of());
     }
 
 }
