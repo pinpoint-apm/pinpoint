@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.web.problem;
 
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.navercorp.pinpoint.service.service.ServiceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,13 +39,10 @@ import org.springframework.web.context.request.async.AsyncRequestNotUsableExcept
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static com.navercorp.pinpoint.web.problem.StackTraceProcessor.COMPOUND;
-import static java.util.Arrays.asList;
 
 /**
  * @author intr3p1d
@@ -56,7 +52,6 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final ToStringSerializer serializer = ToStringSerializer.instance;
 
     private static final String[] EXCLUDE_PATHS = {
             "/favicon.ico",
@@ -230,13 +225,16 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
 
     public void addStackTraces(ProblemDetail problemDetail, Throwable th) {
         if (errorProperties.getIncludeStacktrace() == ErrorProperties.IncludeAttribute.ALWAYS) {
-            final Collection<StackTraceElement> stackTrace = COMPOUND.process(asList(th.getStackTrace()));
-            List<String> trace = traceToStringArray(stackTrace);
+            List<String> trace = toTrace(th.getStackTrace());
             problemDetail.setProperty("trace", trace);
         }
     }
 
-    private List<String> traceToStringArray(Collection<StackTraceElement> stackTrace) {
-        return stackTrace.stream().map(serializer::valueToString).collect(Collectors.toList());
+    private static List<String> toTrace(StackTraceElement[] stackTrace) {
+        List<String> trace = new ArrayList<>(stackTrace.length);
+        for (StackTraceElement element : stackTrace) {
+            trace.add(element.toString());
+        }
+        return trace;
     }
 }
