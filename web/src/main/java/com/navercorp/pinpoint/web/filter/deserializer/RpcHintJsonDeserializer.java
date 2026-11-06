@@ -37,7 +37,7 @@ public class RpcHintJsonDeserializer extends ValueDeserializer<RpcHint> {
 
     @Override
     public RpcHint deserialize(JsonParser jp, DeserializationContext ctxt) {
-        final String applicationName = jp.getText();
+        final String applicationName = jp.getString();
 
         if (jp.nextToken() != JsonToken.START_ARRAY) {
             ctxt.handleUnexpectedToken(RpcHint.class, jp);

@@ -51,11 +51,11 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
             }
 
             JsonNode tagNameNode = jsonNode.get("tag_name");
-            if (!tagNameNode.isTextual()) {
+            if (!tagNameNode.isString()) {
                 return null;
             }
 
-            String tagName = tagNameNode.asText();
+            String tagName = tagNameNode.asString();
             if (StringUtils.isEmpty(tagName)) {
                 return null;
             }
@@ -95,21 +95,21 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
                 }
 
                 JsonNode nameNode = jsonNode.get("name");
-                if (!nameNode.isTextual()) {
+                if (!nameNode.isString()) {
                     continue;
                 }
 
-                String name = nameNode.asText();
+                String name = nameNode.asString();
                 if (!name.contains("pinpoint-agent")) {
                     continue;
                 }
 
                 JsonNode downloadNode = jsonNode.get("browser_download_url");
-                if (!downloadNode.isTextual()) {
+                if (!downloadNode.isString()) {
                     continue;
                 }
 
-                String download = downloadNode.asText();
+                String download = downloadNode.asString();
                 if (StringUtils.hasLength(download)) {
                     return download;
                 }

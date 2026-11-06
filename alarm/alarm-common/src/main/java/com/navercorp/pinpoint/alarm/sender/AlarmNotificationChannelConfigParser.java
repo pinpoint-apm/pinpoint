@@ -85,11 +85,11 @@ public final class AlarmNotificationChannelConfigParser {
         if (field == null || field.isNull()) {
             return null;
         }
-        if (!field.isTextual()) {
+        if (!field.isString()) {
             throw new IllegalArgumentException(
                     "notification channel config " + fieldName + " must be a string");
         }
-        String value = field.textValue();
+        String value = field.stringValue();
         if (value.length() > maxLength) {
             throw new IllegalArgumentException(
                     "notification channel config " + fieldName + " must be at most " + maxLength + " characters");

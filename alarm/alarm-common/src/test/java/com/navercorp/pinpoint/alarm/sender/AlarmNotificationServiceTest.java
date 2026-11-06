@@ -68,7 +68,7 @@ class AlarmNotificationServiceTest {
 
         assertEquals(2, result.deliveries().size());
         assertEquals("email-title", objectMapper.readTree(result.deliveries().get(0).payload())
-                .path("subject").asText());
+                .path("subject").asString());
         assertEquals(1, emailSender.prepareCount);
         assertEquals(1, smsSender.prepareCount);
         assertEquals(0, emailSender.sendCount);

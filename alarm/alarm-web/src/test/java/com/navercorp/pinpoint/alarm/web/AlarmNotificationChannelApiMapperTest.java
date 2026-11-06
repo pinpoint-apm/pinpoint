@@ -54,7 +54,7 @@ class AlarmNotificationChannelApiMapperTest {
 
         AlarmNotificationChannelResponse response = mapper.toResponse(channel);
 
-        assertEquals("SLACK", response.config().get("format").textValue());
+        assertEquals("SLACK", response.config().get("format").stringValue());
         assertTrue(response.config().get("futureField").booleanValue());
     }
 

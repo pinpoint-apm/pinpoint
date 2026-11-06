@@ -78,8 +78,8 @@ class AlarmTimestampResponseTest {
 
         JsonNode json = objectMapper.valueToTree(state);
 
-        assertEquals(SENT, json.get("lastFiredAt").asText());
-        assertEquals("2026-09-21T19:51:12Z", json.get("nextCheckAt").asText());
+        assertEquals(SENT, json.get("lastFiredAt").asString());
+        assertEquals("2026-09-21T19:51:12Z", json.get("nextCheckAt").asString());
     }
 
     @Test
@@ -91,7 +91,7 @@ class AlarmTimestampResponseTest {
 
         JsonNode json = objectMapper.valueToTree(history);
 
-        assertEquals(SENT, json.get("createdAt").asText());
+        assertEquals(SENT, json.get("createdAt").asString());
     }
 
     @Test
@@ -104,9 +104,9 @@ class AlarmTimestampResponseTest {
 
         JsonNode json = objectMapper.valueToTree(AlarmRuleResponse.from(rule, null, item));
 
-        assertEquals(SENT, json.get("updatedAt").asText());
+        assertEquals(SENT, json.get("updatedAt").asString());
         // The nested item is the reason this is on the field rather than on a response of its own.
-        assertEquals(SENT, json.get("templateItem").get("updatedAt").asText());
+        assertEquals(SENT, json.get("templateItem").get("updatedAt").asString());
     }
 
     @Test
@@ -119,8 +119,8 @@ class AlarmTimestampResponseTest {
 
         JsonNode json = objectMapper.valueToTree(template);
 
-        assertEquals(SENT, json.get("updatedAt").asText());
-        assertEquals(SENT, json.get("items").get(0).get("updatedAt").asText());
+        assertEquals(SENT, json.get("updatedAt").asString());
+        assertEquals(SENT, json.get("items").get(0).get("updatedAt").asString());
     }
 
     @Test
@@ -132,7 +132,7 @@ class AlarmTimestampResponseTest {
         JsonNode json = objectMapper.valueToTree(
                 new AlarmNotificationChannelApiMapper(objectMapper).toResponse(channel));
 
-        assertEquals(SENT, json.get("updatedAt").asText());
+        assertEquals(SENT, json.get("updatedAt").asString());
     }
 
     @Test
