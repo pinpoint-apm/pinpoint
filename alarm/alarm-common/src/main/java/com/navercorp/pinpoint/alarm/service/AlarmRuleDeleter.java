@@ -74,8 +74,15 @@ public class AlarmRuleDeleter {
      * take the rows in the same order as the other writers instead of locking ranges.
      */
     public int deleteRulesByApplication(AlarmApplication application) {
-        List<Long> ruleIds = ruleDao.selectRuleIdsByApplication(application.getServiceName(),
-                application.getApplicationName(), application.getApplicationType());
+        return deleteRules(ruleDao.selectRuleIdsByApplication(application.getServiceName(),
+                application.getApplicationName(), application.getApplicationType()));
+    }
+
+    /**
+     * Deletes the given rules by primary key, in the same table order as
+     * {@link #deleteRule}.
+     */
+    public int deleteRules(List<Long> ruleIds) {
         if (ruleIds.isEmpty()) {
             return 0;
         }

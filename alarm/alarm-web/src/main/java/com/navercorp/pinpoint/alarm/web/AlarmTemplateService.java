@@ -224,6 +224,10 @@ public class AlarmTemplateService {
         // TODO: that batch arrives with the alarm batch module in a follow-up PR. Until it
         // does, a deployment that deletes templates keeps their rules, local overrides,
         // state, history and suppressed outbox rows.
+        markTemplateDeleted(id);
+    }
+
+    void markTemplateDeleted(Long id) {
         templateItemDao.markDeletedByTemplateId(id);
         templateDao.markDeleted(id);
     }

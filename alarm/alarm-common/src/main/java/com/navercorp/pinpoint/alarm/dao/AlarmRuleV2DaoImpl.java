@@ -66,6 +66,11 @@ public class AlarmRuleV2DaoImpl implements AlarmRuleV2Dao {
     }
 
     @Override
+    public List<Long> selectRuleIdsByServiceForUpdate(String serviceName) {
+        return mapper.selectRuleIdsByServiceForUpdate(serviceName);
+    }
+
+    @Override
     public void deleteByIds(List<Long> ruleIds) {
         mapper.deleteByIds(ruleIds);
     }

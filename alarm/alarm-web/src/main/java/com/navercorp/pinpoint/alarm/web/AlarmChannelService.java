@@ -115,8 +115,7 @@ public class AlarmChannelService {
         AlarmOwnerships.verifyServiceName(serviceName);
         AlarmNotificationChannel currentChannel = getChannelForUpdate(id);
         AlarmOwnerships.verifyChannel(currentChannel, serviceName);
-        channelBindingDao.deleteByChannelId(id);
-        channelDao.delete(id);
+        removeChannel(id);
     }
 
     // User group deletion listeners run after commit, so alarm cleanup needs its own transaction.
@@ -128,9 +127,13 @@ public class AlarmChannelService {
         List<AlarmNotificationChannel> channels =
                 channelDao.selectByUserGroupDestinationForUpdate(userGroupId);
         for (AlarmNotificationChannel channel : channels) {
-            channelBindingDao.deleteByChannelId(channel.getId());
-            channelDao.delete(channel.getId());
+            removeChannel(channel.getId());
         }
+    }
+
+    void removeChannel(Long id) {
+        channelBindingDao.deleteByChannelId(id);
+        channelDao.delete(id);
     }
 
     // ---- Template-Channel mapping ----

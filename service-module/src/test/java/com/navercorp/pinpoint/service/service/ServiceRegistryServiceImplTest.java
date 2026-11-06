@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,7 +19,11 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -148,6 +153,40 @@ class ServiceRegistryServiceImplTest {
         serviceRegistryService.deleteService("to-delete");
 
         verify(serviceRegistryDao).deleteService(300);
+    }
+
+    @Test
+    void deleteService_listenersRunBeforeServiceRow() {
+        ServiceDeletionListener listener = mock(ServiceDeletionListener.class);
+        ServiceRegistryServiceImpl service = new ServiceRegistryServiceImpl(
+                serviceRegistryDao, serviceUidGenerator, List.of(listener));
+        ServiceEntity existing = new ServiceEntity();
+        existing.setUid(300);
+        existing.setName("to-delete");
+        when(serviceRegistryDao.selectServiceByName("to-delete")).thenReturn(existing);
+
+        service.deleteService("to-delete");
+
+        InOrder order = inOrder(listener, serviceRegistryDao);
+        order.verify(listener).onServiceDelete(new Service("to-delete", 300));
+        order.verify(serviceRegistryDao).deleteService(300);
+    }
+
+    @Test
+    void deleteService_listenerFailure_keepsService() {
+        ServiceDeletionListener listener = mock(ServiceDeletionListener.class);
+        ServiceRegistryServiceImpl service = new ServiceRegistryServiceImpl(
+                serviceRegistryDao, serviceUidGenerator, List.of(listener));
+        ServiceEntity existing = new ServiceEntity();
+        existing.setUid(300);
+        existing.setName("to-delete");
+        when(serviceRegistryDao.selectServiceByName("to-delete")).thenReturn(existing);
+        doThrow(new IllegalStateException("cleanup failed")).when(listener).onServiceDelete(any());
+
+        assertThatThrownBy(() -> service.deleteService("to-delete"))
+                .isInstanceOf(IllegalStateException.class);
+
+        verify(serviceRegistryDao, never()).deleteService(anyInt());
     }
 
     @Test

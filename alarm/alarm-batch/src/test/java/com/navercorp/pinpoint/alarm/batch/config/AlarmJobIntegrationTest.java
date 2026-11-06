@@ -700,6 +700,31 @@ class AlarmJobIntegrationTest {
     }
 
     @Test
+    void serviceLookupsReturnEveryApplicationOfTheServiceAndNoOtherService() {
+        AlarmRuleV2 rule = insertRule("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
+        AlarmRuleV2 otherApplicationRule = buildRule("error_count", AlarmCondition.ComparisonOp.GTE, 200.0, true);
+        otherApplicationRule.setApplicationName("other-app");
+        alarmRuleV2Dao.insertRule(otherApplicationRule);
+        AlarmRuleV2 otherServiceRule = buildRule("error_count", AlarmCondition.ComparisonOp.GTE, 300.0, true);
+        otherServiceRule.setServiceName("other-service");
+        alarmRuleV2Dao.insertRule(otherServiceRule);
+
+        AlarmNotificationChannel channel = insertWebhookChannel();
+        AlarmNotificationChannel otherServiceChannel = new AlarmNotificationChannel();
+        otherServiceChannel.setServiceName("other-service");
+        otherServiceChannel.setChannelName("Other Webhook");
+        otherServiceChannel.setMethodType(AlarmMethodType.WEBHOOK);
+        otherServiceChannel.setDestination("https://example.com/other");
+        otherServiceChannel.setConfig("{}");
+        alarmNotificationChannelDao.insert(otherServiceChannel);
+
+        assertEquals(List.of(rule.getId(), otherApplicationRule.getId()),
+                alarmRuleV2Dao.selectRuleIdsByServiceForUpdate(SERVICE_NAME));
+        assertEquals(List.of(channel.getId()),
+                alarmNotificationChannelDao.selectIdsByServiceNameForUpdate(SERVICE_NAME));
+    }
+
+    @Test
     void sentResultUpdatesHistorySummaryAndActualNotificationTime() throws Exception {
         AlarmRuleV2 rule = insertRule("error_count", AlarmCondition.ComparisonOp.GTE, 100.0);
         AlarmHistoryV2 history = new AlarmHistoryV2();

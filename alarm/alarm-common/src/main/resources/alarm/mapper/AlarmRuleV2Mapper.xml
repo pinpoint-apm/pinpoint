@@ -131,6 +131,14 @@
         WHERE <include refid="applicationPredicate" />
     </select>
 
+    <select id="selectRuleIdsByServiceForUpdate" resultType="Long">
+        SELECT r.id
+        FROM alarm_rule_v2 r
+        WHERE r.service_name = #{serviceName}
+        ORDER BY r.id
+        FOR UPDATE
+    </select>
+
     <delete id="deleteByIds">
         DELETE FROM alarm_rule_v2
         WHERE id IN

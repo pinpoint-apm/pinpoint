@@ -50,5 +50,7 @@ public interface AlarmNotificationChannelDao {
     List<AlarmNotificationChannel> selectByUserGroupDestinationForUpdate(
             @Param("userGroupId") String userGroupId);
 
+    List<Long> selectIdsByServiceNameForUpdate(@Param("serviceName") String serviceName);
+
     void deleteByUserGroupDestination(@Param("userGroupId") String userGroupId);
 }

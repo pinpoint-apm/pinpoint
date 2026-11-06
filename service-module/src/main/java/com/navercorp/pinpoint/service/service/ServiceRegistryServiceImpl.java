@@ -7,6 +7,8 @@ import com.navercorp.pinpoint.service.dao.ServiceRegistryDao;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.service.dao.dto.ServiceEntity;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.retry.annotation.Retryable;
@@ -21,11 +23,22 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 
     private final ServiceRegistryDao serviceRegistryDao;
     private final IdGenerator<ServiceUid> serviceUidGenerator;
+    private final List<ServiceDeletionListener> serviceDeletionListeners;
 
     public ServiceRegistryServiceImpl(ServiceRegistryDao serviceRegistryDao,
                                       IdGenerator<ServiceUid> serviceUidGenerator) {
+        this(serviceRegistryDao, serviceUidGenerator, List.of());
+    }
+
+    @Autowired
+    public ServiceRegistryServiceImpl(ServiceRegistryDao serviceRegistryDao,
+                                      IdGenerator<ServiceUid> serviceUidGenerator,
+                                      @Lazy List<ServiceDeletionListener> serviceDeletionListeners) {
         this.serviceRegistryDao = Objects.requireNonNull(serviceRegistryDao, "serviceRegistryDao");
         this.serviceUidGenerator = Objects.requireNonNull(serviceUidGenerator, "serviceUidGenerator");
+        // Listeners reach back to this service through their own dependencies, so the
+        // lazy list resolves them on first delete instead of at construction.
+        this.serviceDeletionListeners = Objects.requireNonNull(serviceDeletionListeners, "serviceDeletionListeners");
     }
 
     @Override
@@ -93,6 +106,10 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
         ServiceEntity service = serviceRegistryDao.selectServiceByName(name);
         if (service == null) {
             return;
+        }
+        Service deleted = toService(service);
+        for (ServiceDeletionListener listener : serviceDeletionListeners) {
+            listener.onServiceDelete(deleted);
         }
         serviceRegistryDao.deleteService(service.getUid());
     }
