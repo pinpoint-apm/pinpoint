@@ -20,7 +20,7 @@ import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Objects;
@@ -32,9 +32,9 @@ import java.util.Objects;
 public class JobLaunchSupport implements InitializingBean {
 
     private final JobRegistry locator;
-    private final JobLauncher launcher;
+    private final JobOperator launcher;
 
-    public JobLaunchSupport(JobRegistry locator, JobLauncher launcher) {
+    public JobLaunchSupport(JobRegistry locator, JobOperator launcher) {
         this.locator = Objects.requireNonNull(locator, "locator");
         this.launcher = Objects.requireNonNull(launcher, "launcher");
     }
@@ -42,7 +42,7 @@ public class JobLaunchSupport implements InitializingBean {
     public JobExecution run(String jobName, JobParameters params) {
         try {
             Job job = locator.getJob(jobName);
-            return launcher.run(job, params);
+            return launcher.start(job, params);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

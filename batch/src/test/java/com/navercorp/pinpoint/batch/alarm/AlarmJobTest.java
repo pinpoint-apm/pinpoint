@@ -20,7 +20,7 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.batch.test.JobOperatorTestUtils;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 import java.util.Date;
@@ -32,9 +32,9 @@ public class AlarmJobTest {
 
     public static void main(String[] args) throws Exception {
         GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext("/applicationContext-test.xml");
-        JobLauncherTestUtils testLauncher = applicationContext.getBean(JobLauncherTestUtils.class);
+        JobOperatorTestUtils testLauncher = applicationContext.getBean(JobOperatorTestUtils.class);
 
-        JobExecution jobExecution = testLauncher.launchJob(getParameters());
+        JobExecution jobExecution = testLauncher.startJob(getParameters());
         BatchStatus status = jobExecution.getStatus();
         assertEquals(BatchStatus.COMPLETED, status);
 

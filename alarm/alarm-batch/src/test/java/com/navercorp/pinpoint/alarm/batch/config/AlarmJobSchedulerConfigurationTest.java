@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.parameters.JobParameters;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -37,17 +37,17 @@ class AlarmJobSchedulerConfigurationTest {
      */
     @Test
     void runAlarmJobLaunchesTheJobWithParametersThatDifferEachRun() throws Exception {
-        JobLauncher jobLauncher = mock(JobLauncher.class);
+        JobOperator jobOperator = mock(JobOperator.class);
         Job alarmJob = mock(Job.class);
         AlarmJobSchedulerConfiguration configuration =
-                new AlarmJobSchedulerConfiguration(jobLauncher, alarmJob);
+                new AlarmJobSchedulerConfiguration(jobOperator, alarmJob);
 
         configuration.runAlarmJob();
         Thread.sleep(2);
         configuration.runAlarmJob();
 
         ArgumentCaptor<JobParameters> parametersCaptor = ArgumentCaptor.forClass(JobParameters.class);
-        verify(jobLauncher, times(2)).run(eq(alarmJob), parametersCaptor.capture());
+        verify(jobOperator, times(2)).start(eq(alarmJob), parametersCaptor.capture());
 
         Long first = parametersCaptor.getAllValues().get(0).getLong("time");
         Long second = parametersCaptor.getAllValues().get(1).getLong("time");
