@@ -59,10 +59,11 @@ public class MapControllerConfiguration {
                                                          HistogramService histogramService,
                                                          ApplicationFactory applicationFactory,
                                                          ApplicationValidator applicationValidator,
+                                                         ServiceModelResolver serviceModelResolver,
                                                          HyperLinkFactory hyperLinkFactory,
                                                          ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
+        return new MapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, serviceModelResolver, hyperLinkFactory, maxPeriod);
     }
 
     @Bean

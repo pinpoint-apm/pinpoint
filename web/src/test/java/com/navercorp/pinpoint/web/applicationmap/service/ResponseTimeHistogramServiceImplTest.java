@@ -61,6 +61,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -566,6 +568,97 @@ public class ResponseTimeHistogramServiceImplTest {
         assertHistogramValues(histogram, 1);
     }
 
+    /**
+     * selectLinkHistogram WAS1 -> WAS2: out search rows found, no backward search
+     */
+    @Test
+    public void selectLinkHistogramOutLinkTest() {
+        ResponseTimeHistogramService service = newResponseService();
+
+        final Application fromApplication = new Application("was1", ServiceType.STAND_ALONE);
+        final Application toApplication = new Application("was2", ServiceType.STAND_ALONE);
+        final long timestamp = System.currentTimeMillis();
+        final TimeWindow timeWindow = new TimeWindow(Range.between(timestamp, timestamp + 60000));
+
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
+                .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
+
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogram(fromApplication, toApplication, timeWindow);
+
+        Assertions.assertThat(linkHistogramSummary.getLinkName()).isEqualTo(LinkName.of(fromApplication, toApplication));
+        assertHistogramValues(linkHistogramSummary.getHistogram(), 1);
+        Assertions.assertThat(linkHistogramSummary.getLinkApplicationTimeHistogram().getHistogramList()).isNotEmpty();
+        verify(linkSelectorFactory, times(1)).createLinkSelector(any(), any(), any());
+    }
+
+    /**
+     * selectLinkHistogram WAS1 -> WAS2: out search empty (caller agent in another cluster), in search rows used
+     */
+    @Test
+    public void selectLinkHistogramInLinkFallbackTest() {
+        ResponseTimeHistogramService service = newResponseService();
+
+        final Application fromApplication = new Application("was1", ServiceType.STAND_ALONE);
+        final Application toApplication = new Application("was2", ServiceType.STAND_ALONE);
+        final long timestamp = System.currentTimeMillis();
+        final TimeWindow timeWindow = new TimeWindow(Range.between(timestamp, timestamp + 60000));
+
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
+                .thenReturn(createCallerLinkSelector(List.of(), timestamp));
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), eq(LinkDataMapProcessor.NO_OP), any(LinkDataMapProcessor.class)))
+                .thenReturn(createCalleeLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
+
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogram(fromApplication, toApplication, timeWindow);
+
+        assertHistogramValues(linkHistogramSummary.getHistogram(), 1);
+        Assertions.assertThat(linkHistogramSummary.getLinkApplicationTimeHistogram().getHistogramList()).isNotEmpty();
+        verify(linkSelectorFactory, times(2)).createLinkSelector(any(), any(), any());
+    }
+
+    /**
+     * selectLinkHistogram WAS1 -> WAS2: both sides empty
+     */
+    @Test
+    public void selectLinkHistogramEmptyTest() {
+        ResponseTimeHistogramService service = newResponseService();
+
+        final Application fromApplication = new Application("was1", ServiceType.STAND_ALONE);
+        final Application toApplication = new Application("was2", ServiceType.STAND_ALONE);
+        final long timestamp = System.currentTimeMillis();
+        final TimeWindow timeWindow = new TimeWindow(Range.between(timestamp, timestamp + 60000));
+
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
+                .thenReturn(createCallerLinkSelector(List.of(), timestamp));
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), eq(LinkDataMapProcessor.NO_OP), any(LinkDataMapProcessor.class)))
+                .thenReturn(createCalleeLinkSelector(List.of(), timestamp));
+
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogram(fromApplication, toApplication, timeWindow);
+
+        Assertions.assertThat(linkHistogramSummary.getLinkName()).isEqualTo(LinkName.of(fromApplication, toApplication));
+        assertHistogramValues(linkHistogramSummary.getHistogram(), 0);
+    }
+
+    /**
+     * selectLinkHistogram USER -> WAS: in link only, no out search
+     */
+    @Test
+    public void selectLinkHistogramUserTest() {
+        ResponseTimeHistogramService service = newResponseService();
+
+        final Application fromApplication = new Application("user", ServiceType.USER);
+        final Application toApplication = new Application("WAS", ServiceType.STAND_ALONE);
+        final long timestamp = System.currentTimeMillis();
+        final TimeWindow timeWindow = new TimeWindow(Range.between(timestamp, timestamp + 60000));
+
+        when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), eq(LinkDataMapProcessor.NO_OP), any(LinkDataMapProcessor.class)))
+                .thenReturn(createCalleeLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
+
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogram(fromApplication, toApplication, timeWindow);
+
+        assertHistogramValues(linkHistogramSummary.getHistogram(), 1);
+        verify(linkSelectorFactory, times(1)).createLinkSelector(any(), any(), any());
+    }
+
     private LinkSelector createCallerLinkSelector(List<LinkKey> linkKeys, long timestamp) {
         return new LinkSelector() {
             @Override
@@ -576,7 +669,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
                 LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
                 for (LinkKey linkKey : linkKeys) {
-                    linkDataDuplexMap.addTargetLinkData(createLinkData(linkKey.getFrom(), linkKey.getTo(), timestamp));
+                    linkDataDuplexMap.addSourceLinkData(createLinkData(linkKey.getFrom(), linkKey.getTo(), timestamp));
                 }
                 return linkDataDuplexMap;
             }
@@ -593,7 +686,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
                 LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
                 for (LinkKey linkKey : linkKeys) {
-                    linkDataDuplexMap.addSourceLinkData(createLinkData(linkKey.getFrom(), linkKey.getTo(), timestamp));
+                    linkDataDuplexMap.addTargetLinkData(createLinkData(linkKey.getFrom(), linkKey.getTo(), timestamp));
                 }
                 return linkDataDuplexMap;
             }

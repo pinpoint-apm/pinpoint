@@ -34,4 +34,6 @@ public interface ResponseTimeHistogramService {
     NodeHistogramSummary selectNodeHistogramData(ResponseTimeHistogramServiceOption option);
 
     LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, TimeWindow range);
+
+    LinkHistogramSummary selectLinkHistogram(Application fromApplication, Application toApplication, TimeWindow timeWindow);
 }
