@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.alarm.core.service;
 import com.navercorp.pinpoint.alarm.evaluation.ConditionEvaluator;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmState;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
@@ -85,14 +86,29 @@ class AgentEventMetricQueryServiceTest {
     }
 
     @Test
-    void theDetailCountsTheDeadlockedAgentsOutOfAll() {
+    void theSummaryCountsTheDeadlockedAgentsOutOfAll() {
         StubDao dao = new StubDao();
         dao.deadlocked("agent-b");
 
         MetricQueryResult result = query(dao, List.of("agent-a", "agent-b"));
         MetricQueryKey key = result.values().keySet().iterator().next();
 
-        assertEquals(List.of("deadlocked thread detected on 1 of 2 agents"), result.details(key));
+        assertEquals("deadlocked thread detected on 1 of 2 agents", result.details(key).summary());
+    }
+
+    @Test
+    void eachDeadlockedAgentIsALineLinkedToItsInspector() {
+        StubDao dao = new StubDao();
+        dao.deadlocked("agent-c");
+        dao.deadlocked("agent-b");
+
+        MetricQueryResult result = query(dao, List.of("agent-a", "agent-b", "agent-c"));
+        MetricQueryKey key = result.values().keySet().iterator().next();
+
+        List<Detail> lines = result.details(key).lines();
+        assertEquals(List.of("agent-b", "agent-c"), lines.stream().map(Detail::text).toList());
+        assertTrue(lines.get(0).link().startsWith("/inspector/DEFAULT/app@?from="), lines.get(0).link());
+        assertTrue(lines.get(0).link().endsWith("&agentId=agent-b"), lines.get(0).link());
     }
 
     @Test

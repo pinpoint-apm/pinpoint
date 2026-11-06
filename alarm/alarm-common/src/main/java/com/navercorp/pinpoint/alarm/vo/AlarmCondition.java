@@ -93,6 +93,11 @@ public class AlarmCondition {
             return symbol;
         }
 
+        /** Whether a value meets the op by being low, as with "&lt; 10", so the lowest is the worst. */
+        public boolean isBelow() {
+            return this == LT || this == LTE;
+        }
+
         @JsonCreator
         public static ComparisonOp fromSymbol(String symbol) {
             return switch (symbol) {
@@ -230,6 +235,23 @@ public class AlarmCondition {
 
     public void setBaselinePeriodSec(Integer baselinePeriodSec) {
         this.baselinePeriodSec = baselinePeriodSec;
+    }
+
+    /**
+     * Whether a value of this leaf's metric meets it. The evaluator fires a rule by it, and a data
+     * source names what met it by the same test.
+     */
+    public boolean isMetBy(double value) {
+        if (trigger == Trigger.NEW_GROUP) {
+            return value > 0;
+        }
+        return switch (op) {
+            case GT -> value > threshold;
+            case GTE -> value >= threshold;
+            case LT -> value < threshold;
+            case LTE -> value <= threshold;
+            case EQ -> Double.compare(value, threshold) == 0;
+        };
     }
 
     @JsonAnySetter

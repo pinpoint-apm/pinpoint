@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.alarm.core.service;
 import com.navercorp.pinpoint.alarm.core.vo.CoreAlarmDataSource;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
@@ -35,9 +36,7 @@ import org.apache.logging.log4j.Logger;
 import java.time.Duration;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -93,9 +92,7 @@ public class AgentEventMetricQueryService implements MetricQueryService {
         long nowMs = System.currentTimeMillis();
         Application application = applicationResolver.resolve(rule);
 
-        Map<MetricQueryKey, Double> values = new LinkedHashMap<>();
-        Map<MetricQueryKey, List<String>> details = new LinkedHashMap<>();
-        MetricQueryResult.QueriedRange range = null;
+        AgentQueryResultBuilder result = new AgentQueryResultBuilder();
 
         for (AlarmCondition leaf : conditions) {
             if (!METRIC_DEADLOCK_COUNT.equals(leaf.getMetric())) {
@@ -104,7 +101,7 @@ public class AgentEventMetricQueryService implements MetricQueryService {
                 continue;
             }
             MetricQueryKey key = MetricQueryKey.from(leaf);
-            if (values.containsKey(key)) {
+            if (result.has(key)) {
                 continue;
             }
             int windowSec = windowSecOf(rule, leaf);
@@ -116,15 +113,19 @@ public class AgentEventMetricQueryService implements MetricQueryService {
                 continue;
             }
             List<String> deadlocked = deadlockedAgents(agentIds, window);
-            values.put(key, (double) deadlocked.size());
-            if (!deadlocked.isEmpty()) {
-                details.put(key, List.of(String.format("deadlocked thread detected on %d of %d agent%s",
-                        deadlocked.size(), agentIds.size(), agentIds.size() == 1 ? "" : "s")));
+            if (deadlocked.isEmpty()) {
+                result.put(key, 0, window);
+            } else {
+                result.put(key, deadlocked.size(), window,
+                        String.format("deadlocked thread detected on %d of %d agent%s",
+                                deadlocked.size(), agentIds.size(), agentIds.size() == 1 ? "" : "s"),
+                        deadlocked.stream().sorted()
+                                .map(agentId -> new Detail(agentId, null, CoreAlarmDataSource.agentInspectorPath(
+                                        rule, agentId, window.getFrom(), window.getTo())))
+                                .toList());
             }
-            range = MetricQueryResult.QueriedRange.union(range,
-                    new MetricQueryResult.QueriedRange(window.getFrom(), window.getTo()));
         }
-        return new MetricQueryResult(values, details, range);
+        return result.result();
     }
 
     /**

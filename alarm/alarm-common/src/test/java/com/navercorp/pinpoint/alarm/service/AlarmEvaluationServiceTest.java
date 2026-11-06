@@ -143,6 +143,35 @@ class AlarmEvaluationServiceTest {
     }
 
     @Test
+    void firedHistoryKeepsTheSummaryTheLinesAndHowManyWereLeftOut() throws Exception {
+        MetricQueryService queryService = new MetricQueryService() {
+            @Override public AlarmDataSource getDataSource() {
+                return TestAlarmDataSource.AGENT_STAT;
+            }
+
+            @Override
+            public MetricQueryResult query(AlarmRuleV2 rule,
+                                           List<AlarmCondition> conditions,
+                                           List<com.navercorp.pinpoint.alarm.vo.AlarmFilter> filters,
+                                           AlarmState state) {
+                MetricQueryKey key = MetricQueryKey.from(conditions.get(0));
+                return new MetricQueryResult(Map.of(key, 150.0),
+                        Map.of(key, new MetricQueryResult.Details("3 of 5 agents > 100.00",
+                                List.of(new MetricQueryResult.Detail("150.00", "agent-a", "/inspector/a")), 2)),
+                        null);
+            }
+        };
+
+        evaluationService.evaluate(createRule(1L, null), queryService);
+
+        JsonNode details = objectMapper.readTree(historyDao.inserted.get(0).getContext())
+                .path("results").get(0).path("details");
+        assertEquals(List.of("3 of 5 agents > 100.00", "[agent-a] 150.00", "... and 2 more"),
+                List.of(details.get(0).asText(), details.get(1).asText(), details.get(2).asText()));
+        assertEquals(3, details.size());
+    }
+
+    @Test
     void alreadyFiring_usesLastEnqueuedTimeForThrottle() {
         AlarmState existing = new AlarmState(1L);
         existing.setStatus(AlarmStatus.FIRING);
