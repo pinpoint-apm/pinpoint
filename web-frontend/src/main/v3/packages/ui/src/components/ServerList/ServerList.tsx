@@ -30,7 +30,7 @@ export const ServerList = ({
   if (!data?.length) {
     return (
       <div className={cn('h-full', className)}>
-        <div className="flex items-center justify-center p-3 opacity-50 h-[calc(100%-45px)]">
+        <div className="flex items-center justify-center p-3 opacity-50 h-full">
           {t('COMMON.NO_DATA')}
         </div>
       </div>
@@ -39,7 +39,7 @@ export const ServerList = ({
 
   return (
     <div className={cn('h-full', className)}>
-      <div className="p-3 flex gap-2 flex-col h-[calc(100%-45px)] overflow-y-auto">
+      <div className="p-3 flex gap-2 flex-col h-full overflow-y-auto">
         <TooltipProvider delayDuration={0}>
           {data?.map((instance) => {
             const slow = statistics?.agentHistogram?.[instance.agentId]?.Slow;
