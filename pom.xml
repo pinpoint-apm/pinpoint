@@ -263,7 +263,7 @@
 
         <grpc.version>1.85.1</grpc.version>
         <grpc-bom.version>1.85.1</grpc-bom.version>
-        <protobuf-java.version>3.25.8</protobuf-java.version>
+        <protobuf-java.version>3.25.9</protobuf-java.version>
         <protoc.version>${protobuf-java.version}</protoc.version>
 
         <guava.version>33.6.0-jre</guava.version>
