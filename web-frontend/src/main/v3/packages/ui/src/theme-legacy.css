@@ -289,6 +289,12 @@ body {
   --snb-child-link-title: var(--blue-900);
   --snb-theme-hover: var(--snb-child-link-background);
   --snb-submenu-background: var(--blue-900);
+  --snb-scrollbar-thumb: rgb(255 255 255 / 0.3);
+
+  /* 네이티브 스크롤바의 공통 색. 바탕(track)은 비워 두어 어느 배경 위에서도 그 배경색을 따른다.
+     배경이 어두운 영역(사이드 메뉴 등)은 --scrollbar-thumb 만 덮어쓴다. */
+  --scrollbar-thumb: var(--grey-400);
+  --scrollbar-track: transparent;
 }
 
 body.dark-mode {
@@ -405,4 +411,5 @@ body.dark-mode {
   --snb-child-link-item-hover: var(--grey-400);
   --snb-child-link-title: var(--blue-grey-100);
   --snb-theme-hover: var(--snb-child-link-background);
+  --snb-scrollbar-thumb: var(--grey-400);
 }

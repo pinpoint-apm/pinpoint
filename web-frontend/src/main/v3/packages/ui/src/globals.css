@@ -245,6 +245,13 @@
   button {
     font-size: inherit;
   }
+  /* 네이티브 스크롤바를 공통 색으로 맞춘다(토큰은 theme-legacy.css). 지정하지 않으면 바탕이
+     흰색으로 그려져 사이드 메뉴처럼 배경이 어두운 곳에서 흰 띠가 생긴다.
+     scrollbar-color 는 상속 속성이라 상위에서 한 번만 정하면 계산된 색이 그대로 내려간다.
+     모든 요소에 두어야 영역마다 --scrollbar-thumb 를 덮어쓴 값이 그 요소에서 풀린다. */
+  * {
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
 }
 
 @layer components {
