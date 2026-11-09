@@ -373,12 +373,16 @@ export const ServerMapChartsBoardFetcher = ({
         }}
         onClose={() => setOpenServerView(false)}
       >
-        <div style={{ width: SERVER_LIST_WIDTH }}>
+        {/* 제목 줄을 뺀 나머지 높이만 목록에 준다. 목록이 칸 전체 높이를 가지면 제목 줄만큼 넘쳐
+            드로어 자체에 스크롤이 하나 더 생긴다(목록과 차트는 각자 스크롤을 가진다). */}
+        <div className="flex flex-col h-full" style={{ width: SERVER_LIST_WIDTH }}>
           <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
             <img src={serverMapCurrentTarget?.imgPath} width={52} />
             <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
           </div>
-          <ServerListForCommon nodeStatistics={data} serviceName={targetServiceName} />
+          <div className="flex-1 min-h-0">
+            <ServerListForCommon nodeStatistics={data} serviceName={targetServiceName} />
+          </div>
         </div>
         <div style={{ width: currentPanelWidth }}>
           <ChartsBoard
