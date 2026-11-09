@@ -74,6 +74,10 @@ export interface LayoutWithSideNavigationProps {
   bottomMenuItems?: SideNavigationMenuItem[];
 }
 
+// 사이드 메뉴와 그 드롭다운은 배경이 파랗다. 공통 스크롤바 색(회색)은 그 위에서 잘 안 보이므로
+// 사이드 메뉴용 색으로 바꾼다. 드롭다운은 portal 로 떨어져 그려지므로 따로 얹어야 한다.
+const SNB_SCROLLBAR_CLASS_NAME = '[--scrollbar-thumb:var(--snb-scrollbar-thumb)]';
+
 const SIDEBAR_MENU_BUTTON_BASE_CLASS_NAME = `h-10! !rounded p-1.5 pl-1.5! pr-2! text-sm
   hover:bg-(--blue-700) hover:text-(--white-default)`;
 
@@ -251,7 +255,10 @@ export const LayoutWithSideNavigation = ({
                 color: 'var(--snb-text)',
                 background: 'var(--snb-background)',
               }}
-              className="[&:hover_.scale-button-wrapper]:inline-block"
+              className={cn(
+                '[&:hover_.scale-button-wrapper]:inline-block',
+                SNB_SCROLLBAR_CLASS_NAME,
+              )}
             >
               <SidebarHeader className="gap-0 p-0">
                 <div className="mb-2">
@@ -530,6 +537,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
         alignOffset={-50}
         className={cn(
           'rounded-md border-none shadow-lg bg-(--blue-900) text-(--white-default)',
+          SNB_SCROLLBAR_CLASS_NAME,
           hasLeftSection ? 'min-w-[440px]' : 'w-full min-w-[220px]',
         )}
       >
