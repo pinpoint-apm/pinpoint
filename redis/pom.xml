@@ -31,9 +31,6 @@
     <properties>
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
-        <!-- lettuce-core 7.x (Spring Boot 4.1 BOM) requires Netty 4.2 (MultiThreadIoEventLoopGroup);
-             the parent still pins netty4.version to 4.1.x for the agent/grpc modules. -->
-        <netty4.version>4.2.17.Final</netty4.version>
     </properties>
 
     <dependencies>
