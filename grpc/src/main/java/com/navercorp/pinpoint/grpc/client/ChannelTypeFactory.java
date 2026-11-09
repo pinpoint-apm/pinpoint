@@ -3,10 +3,11 @@ package com.navercorp.pinpoint.grpc.client;
 import com.navercorp.pinpoint.grpc.ChannelTypeEnum;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.util.Objects;
@@ -43,7 +44,7 @@ public class ChannelTypeFactory {
 
         @Override
         public EventLoopGroup newEventLoopGroup(int nThreads, Executor executor) {
-            return new EpollEventLoopGroup(nThreads, executor);
+            return new MultiThreadIoEventLoopGroup(nThreads, executor, EpollIoHandler.newFactory());
         }
     }
 
@@ -56,7 +57,7 @@ public class ChannelTypeFactory {
 
         @Override
         public EventLoopGroup newEventLoopGroup(int nThreads, Executor executor) {
-            return new NioEventLoopGroup(nThreads, executor);
+            return new MultiThreadIoEventLoopGroup(nThreads, executor, NioIoHandler.newFactory());
         }
     }
 }
