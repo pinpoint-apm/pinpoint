@@ -45,7 +45,12 @@ export interface CallTreeTableColumnsProps {
   // The row that has been stepped into; its button stays filled in as the way back out.
   steppedInSpanId?: string;
   // Where a row that threw links to (the error analysis). Omitted -> the row shows its title only.
-  getErrorAnalysisHref?: (errorKey: TransactionInfo.ErrorKey) => string;
+  // `exception` is the row's own exception. Rows of one chain share the errorKey, so it is what
+  // tells which card of the chain the error analysis should open at (#14203).
+  getErrorAnalysisHref?: (
+    errorKey: TransactionInfo.ErrorKey,
+    exception?: { className: string; message: string },
+  ) => string;
   // What an OTel "Link" row shows to reach the linked transaction. Omitted -> the row shows its
   // title only. Both are passed in because building them needs the router and React Query, which
   // a view drawn outside Pinpoint web (an MCP Apps view) does not have.
@@ -564,7 +569,13 @@ const MethodCell = (props: {
     Icon = <FaFire className="fill-status-fail" />;
 
     const errorKey: TransactionInfo.ErrorKey | null = rowData.errorKey;
-    const href = errorKey ? getErrorAnalysisHref?.(errorKey) : undefined;
+    // For an exception row the title is the simple class name and the arguments its message.
+    const href = errorKey
+      ? getErrorAnalysisHref?.(errorKey, {
+          className: String(text ?? ''),
+          message: String(rowData.arguments ?? ''),
+        })
+      : undefined;
     if (href) {
       return (
         <>

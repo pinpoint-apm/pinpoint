@@ -36,6 +36,10 @@ export interface CallTreeProps extends Omit<
   'bindSql' | 'getErrorAnalysisHref' | 'renderOtelLink'
 > {}
 
+// How much of an exception message the error analysis link carries. Enough to tell apart the
+// causes of one chain that share a class; the rest would only lengthen the URL.
+const ERROR_MESSAGE_URL_MAX_LENGTH = 200;
+
 // Pinpoint web's Call Tree: `CallTreeCore` plus what needs the router and React Query — binding
 // the SQL, and the links to the error analysis and to linked OTel transactions, which are built
 // from this screen's URL.
@@ -49,7 +53,7 @@ export const CallTree = (props: CallTreeProps) => {
   const focusTimestamp = transactionInfo?.focusTimestamp;
 
   const getErrorAnalysisHref = React.useCallback(
-    (errorKey: TransactionInfo.ErrorKey) => {
+    (errorKey: TransactionInfo.ErrorKey, exception?: { className: string; message: string }) => {
       // The call stack's begin/end can be empty (0) for many nodes, which would
       // produce a window around epoch 0 and a negative `from` that the backend
       // (Timestamp) rejects. Center the window on the transaction's focus
@@ -67,6 +71,10 @@ export const CallTree = (props: CallTreeProps) => {
             ...errorKey,
             timestamp: focusTimestamp,
             uriTemplate: metaData.uri,
+            // Which card of the chain to open at. The message only narrows down a class that
+            // repeats in the chain and is compared by prefix, so a cut keeps the URL short.
+            errorClassName: exception?.className,
+            errorMessage: exception?.message.slice(0, ERROR_MESSAGE_URL_MAX_LENGTH),
           }),
           openErrorDetail: true,
         },

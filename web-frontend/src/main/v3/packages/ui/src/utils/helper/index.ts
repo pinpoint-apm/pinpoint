@@ -1,5 +1,6 @@
 export * from './application';
 export * from './charts';
+export * from './errorAnalysis';
 export * from './filteredMap/index';
 export * from './route';
 export * from './routeV2';
