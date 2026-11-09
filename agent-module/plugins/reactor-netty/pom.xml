@@ -37,7 +37,23 @@
                     <groupId>io.projectreactor.netty.incubator</groupId>
                     <artifactId>reactor-netty-incubator-quic</artifactId>
                 </exclusion>
+                <!-- netty-bom 4.2 manages the native jars as runtime scope; Maven scope mediation then demotes
+                     their transitive chain (resolver-dns -> handler -> transport/common) to runtime, hiding
+                     io.netty.channel.* from the compile classpath. Exclude the natives and declare what we use. -->
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-resolver-dns-native-macos</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-native-epoll</artifactId>
+                </exclusion>
             </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
