@@ -207,7 +207,16 @@ export const ErrorAnalysisPage = ({
                   </SheetDescription>
                 </SheetHeader>
                 <Separator className="mt-[20px]" />
-                <ErrorAnalysisErrorDetail errorInfo={errorInfo} />
+                {/* 목록 행은 chain의 한 카드라 exceptionDepth가 있고, Call Tree 링크(URL의
+                    transactionInfo)는 클래스 이름·메시지만 싣는다. 둘 다 이 값으로 그 카드를 찾는다. */}
+                <ErrorAnalysisErrorDetail
+                  errorInfo={errorInfo}
+                  focus={{
+                    exceptionDepth: errorInfo.exceptionDepth,
+                    errorClassName: errorInfo.errorClassName,
+                    errorMessage: errorInfo.errorMessage,
+                  }}
+                />
               </SheetContent>
             </Sheet>
           )}
