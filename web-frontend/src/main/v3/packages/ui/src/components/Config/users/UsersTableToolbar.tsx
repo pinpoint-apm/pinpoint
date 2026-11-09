@@ -43,11 +43,6 @@ export const UsersTableToolbar = ({
 
   return (
     <div className="flex justify-between">
-      {!hideAddButton && (
-        <Button onClick={onClickAdd} disabled={!enableUserEdit}>
-          <MdOutlineAdd className="mr-0.5" /> {t('CONFIGURATION.USERS.LABEL.USER_ADD_BUTTON')}
-        </Button>
-      )}
       <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-xs h-9">
         <Input
           value={inputValue}
@@ -60,6 +55,11 @@ export const UsersTableToolbar = ({
           <RxMagnifyingGlass />
         </Button>
       </div>
+      {!hideAddButton && (
+        <Button onClick={onClickAdd} disabled={!enableUserEdit}>
+          <MdOutlineAdd className="mr-0.5" /> {t('CONFIGURATION.USERS.LABEL.USER_ADD_BUTTON')}
+        </Button>
+      )}
     </div>
   );
 };
