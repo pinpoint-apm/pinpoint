@@ -101,6 +101,32 @@ describe('CallTreeCore', () => {
     expect(screen.getByText('Link to trace-2')).toBeTruthy();
   });
 
+  test('passes the row exception to the error analysis link builder', () => {
+    const getErrorAnalysisHref = jest.fn(() => '/errorAnalysis');
+    const causeRow = row({
+      id: 6,
+      title: 'IllegalArgumentException',
+      arguments: 'bad id',
+      isMethod: false,
+      hasException: true,
+      errorKey: { exceptionId: 'exception-1' },
+    });
+    render(
+      <CallTreeCore
+        data={[causeRow]}
+        mapData={[causeRow]}
+        metaData={metaData}
+        getErrorAnalysisHref={getErrorAnalysisHref}
+      />,
+    );
+
+    // Rows of one chain share the errorKey, so the row's own exception tells which cause it is.
+    expect(getErrorAnalysisHref).toHaveBeenCalledWith(
+      { exceptionId: 'exception-1' },
+      { className: 'IllegalArgumentException', message: 'bad id' },
+    );
+  });
+
   test('binds the SQL through the given function', async () => {
     const bindSql = jest.fn().mockResolvedValue({ bindedQuery: 'select * from t where id = 42' });
     render(<CallTreeCore data={rows} mapData={mapData} metaData={metaData} bindSql={bindSql} />);
