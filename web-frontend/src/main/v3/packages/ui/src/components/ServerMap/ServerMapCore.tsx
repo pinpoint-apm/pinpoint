@@ -91,6 +91,12 @@ export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'
   data?: GetServerMap.Response | FilteredMap.Response;
   isLoading?: boolean;
   error?: Error | null;
+  /**
+   * Filter Transaction 메뉴(노드·링크 우클릭)의 항목을 처리한다. 주지 않으면 그 메뉴를 열지 않는다 —
+   * 메뉴는 이 콜백을 부르는 것이 전부라, 처리할 곳이 없으면 눌러도 아무 일이 없는 죽은 버튼이 된다.
+   * 실시간 보기가 그렇다(주소에 조회 기간이 없어 filteredMap을 열 기준이 없다).
+   * Merge 메뉴(배경 우클릭)는 이 컴포넌트 안에서 처리하므로 이 값과 무관하게 열린다.
+   */
   onClickMenuItem?: (type: SERVERMAP_MENU_FUNCTION_TYPE, data: Node | Edge) => void;
   onMergeStateChange?: () => void;
   onClickSubNode?: (subNode: GetServerMap.NodeData) => void;
@@ -225,6 +231,12 @@ export const ServerMapCore = ({
         : type,
     );
   }, [disableMenu]);
+  // Filter Transaction 메뉴는 처리할 곳(onClickMenuItem)이 있을 때만 연다. 우클릭 핸들러가 한 번만
+  // 등록되므로 disableMenu와 같은 이유로 ref로 본다.
+  const hasFilterMenuRef = React.useRef(!!onClickMenuItem);
+  React.useEffect(() => {
+    hasFilterMenuRef.current = !!onClickMenuItem;
+  }, [onClickMenuItem]);
 
   /**
    * 팝업을 map 영역 안쪽으로 접어 넣는다.
@@ -517,6 +529,7 @@ export const ServerMapCore = ({
     if (
       eventType === 'right' &&
       !disableMenuRef.current &&
+      hasFilterMenuRef.current &&
       clickedData?.transactionInfo &&
       !serviceGroup
     ) {
@@ -604,6 +617,7 @@ export const ServerMapCore = ({
     if (
       eventType === 'right' &&
       !disableMenuRef.current &&
+      hasFilterMenuRef.current &&
       clickedData?.transactionInfo &&
       !serviceGroupLink
     ) {
