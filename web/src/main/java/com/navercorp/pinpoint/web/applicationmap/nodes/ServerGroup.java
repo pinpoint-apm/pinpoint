@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 

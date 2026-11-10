@@ -21,7 +21,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
@@ -183,7 +182,7 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
         return response;
     }
 
-    private void nullResponseLog(@NotNull Exception ex, @NotNull WebRequest request) {
+    private void nullResponseLog(@NonNull Exception ex, @NonNull WebRequest request) {
         if (request instanceof ServletWebRequest servletWebRequest) {
             HttpServletResponse response = servletWebRequest.getResponse();
             if (response != null && response.isCommitted()) {

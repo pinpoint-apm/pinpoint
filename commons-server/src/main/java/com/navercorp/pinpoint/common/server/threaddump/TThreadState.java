@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.threaddump;
 
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public enum TThreadState {
     NEW(0),

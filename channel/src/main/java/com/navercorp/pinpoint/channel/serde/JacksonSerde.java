@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.channel.serde;
 
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.ObjectWriter;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,13 +38,13 @@ class JacksonSerde<T> implements Serde<T> {
     }
 
     @Override
-    @Nonnull
-    public T deserialize(@Nonnull InputStream inputStream) throws IOException {
+    @NonNull
+    public T deserialize(@NonNull InputStream inputStream) throws IOException {
         return reader.readValue(inputStream);
     }
 
     @Override
-    public void serialize(@Nonnull T object, @Nonnull OutputStream outputStream) throws IOException {
+    public void serialize(@NonNull T object, @NonNull OutputStream outputStream) throws IOException {
         this.writer.writeValue(outputStream, object);
     }
 

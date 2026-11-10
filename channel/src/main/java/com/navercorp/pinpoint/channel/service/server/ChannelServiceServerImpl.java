@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.channel.SubConsumer;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

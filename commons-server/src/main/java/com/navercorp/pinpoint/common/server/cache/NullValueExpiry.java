@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.common.server.cache;
 
 import com.github.benmanes.caffeine.cache.Expiry;
 import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.cache.support.NullValue;
 
 import java.time.Duration;

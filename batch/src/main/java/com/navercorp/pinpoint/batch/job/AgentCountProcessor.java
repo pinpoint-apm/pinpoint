@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
@@ -51,7 +51,7 @@ public class AgentCountProcessor implements ItemProcessor<Application, Integer> 
     }
 
     @Override
-    public Integer process(@Nonnull Application application) {
+    public Integer process(@NonNull Application application) {
         // Per-agent event lookup. Could switch to AgentIdDao.getAgentIdEntryByMinStateTimestamp (one filtered scan).
         long localCount = batchApplicationIndexService.selectAgentIds(application)
                 .stream()

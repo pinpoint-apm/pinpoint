@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.common.server.bo.Application;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListener;
@@ -52,7 +52,7 @@ public class AlarmReader implements ItemReader<Application>, StepExecutionListen
     }
 
     @Override
-    public void beforeStep(@Nonnull StepExecution stepExecution) {
+    public void beforeStep(@NonNull StepExecution stepExecution) {
         this.applicationQueue = new ConcurrentLinkedQueue<>(fetchApplications());
     }
 
@@ -70,7 +70,7 @@ public class AlarmReader implements ItemReader<Application>, StepExecutionListen
     }
 
     @Override
-    public ExitStatus afterStep(@Nonnull StepExecution stepExecution) {
+    public ExitStatus afterStep(@NonNull StepExecution stepExecution) {
         return null;
     }
 }

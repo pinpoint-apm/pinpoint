@@ -24,7 +24,7 @@ import io.grpc.InternalChannelz.TransportStats;
 import io.grpc.InternalInstrumented;
 import io.grpc.InternalLogId;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -100,7 +100,7 @@ public class ChannelzTestUtils {
         }
 
         @Override
-        public void addListener(@Nonnull Runnable listener, Executor executor) {
+        public void addListener(@NonNull Runnable listener, Executor executor) {
             executor.execute(listener);
         }
 
@@ -125,7 +125,7 @@ public class ChannelzTestUtils {
         }
 
         @Override
-        public T get(long timeout, @Nonnull TimeUnit unit) {
+        public T get(long timeout, @NonNull TimeUnit unit) {
             return result;
         }
     }

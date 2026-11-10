@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.log.web.service;
 
 import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Flux;
 
 import java.util.List;

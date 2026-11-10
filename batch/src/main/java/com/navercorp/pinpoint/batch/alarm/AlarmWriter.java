@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.batch.service.AlarmService;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.listener.StepExecutionListener;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ItemWriter;
@@ -52,7 +52,7 @@ public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionLi
 
 
     @Override
-    public void write(@Nonnull Chunk<? extends AppAlarmChecker> appAlarmCheckers) {
+    public void write(@NonNull Chunk<? extends AppAlarmChecker> appAlarmCheckers) {
         List<AlarmChecker<?>> checkers = AppAlarmChecker.flatten(appAlarmCheckers.getItems());
         interceptor.before(checkers);
         try {

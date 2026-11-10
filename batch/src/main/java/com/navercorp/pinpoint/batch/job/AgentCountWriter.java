@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.batch.job;
 import com.navercorp.pinpoint.web.dao.AgentStatisticsDao;
 import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.BatchStatus;
@@ -48,10 +48,10 @@ public class AgentCountWriter implements ItemWriter<Integer>, StepExecutionListe
     }
 
     @Override
-    public void beforeStep(@Nonnull StepExecution stepExecution) {}
+    public void beforeStep(@NonNull StepExecution stepExecution) {}
 
     @Override
-    public ExitStatus afterStep(@Nonnull StepExecution stepExecution) {
+    public ExitStatus afterStep(@NonNull StepExecution stepExecution) {
         if (!stepExecution.getFailureExceptions().isEmpty()) {
             Throwable t = stepExecution.getFailureExceptions().get(0);
             logger.error("Error detected while counting active agents", t);

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.realtime.vo.ProfilerDescription;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,8 +44,8 @@ public class CollectorStateSerde implements Serde<CollectorState> {
     private static final byte[] DELIMITER = "\r\n".getBytes(UTF_8);
 
     @Override
-    @Nonnull
-    public CollectorState deserialize(@Nonnull InputStream inputStream) throws IOException {
+    @NonNull
+    public CollectorState deserialize(@NonNull InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, UTF_8));
 
         List<ProfilerDescription> profilers = new ArrayList<>();
@@ -61,7 +61,7 @@ public class CollectorStateSerde implements Serde<CollectorState> {
     }
 
     @Override
-    public void serialize(@Nonnull CollectorState state, @Nonnull OutputStream outputStream) throws IOException {
+    public void serialize(@NonNull CollectorState state, @NonNull OutputStream outputStream) throws IOException {
         List<ProfilerDescription> profilers = state.getProfilers();
         for (int i = 0; i < profilers.size(); i++) {
             ProfilerDescription key = profilers.get(i);

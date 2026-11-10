@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers;
 import com.navercorp.pinpoint.pinot.alarm.service.PinotAlarmService;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmHistory;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.infrastructure.item.Chunk;

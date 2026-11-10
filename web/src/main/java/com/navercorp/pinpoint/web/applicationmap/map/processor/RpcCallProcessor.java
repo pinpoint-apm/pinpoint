@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.common.server.bo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
@@ -160,7 +160,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
         return acceptApplicationCache.computeIfAbsent(cacheKey, acceptApplicationCacheKey -> acceptApplications);
     }
 
-    @NotNull
+    @NonNull
     private AcceptApplicationSet getAcceptApplicationsFromHostApplication(Application fromApplication, Range range) {
         logger.debug("acceptApplicationCache miss {}", fromApplication);
         Set<AcceptApplication> queriedAcceptApplications = hostApplicationMapDao.findAcceptApplicationName(fromApplication, range);
