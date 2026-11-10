@@ -31,5 +31,23 @@
             <artifactId>netty-all</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Declared directly so that the classes stay on the compile classpath whichever
+             Netty line this module compiles against: netty-bom 4.2 manages these jars in a way
+             that demotes them to runtime when they only come in transitively. -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
