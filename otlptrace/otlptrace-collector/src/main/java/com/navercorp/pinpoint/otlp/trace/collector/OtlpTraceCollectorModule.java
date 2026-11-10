@@ -33,6 +33,8 @@ import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.exceptiontrace.collector.ExceptionTraceCollectorConfig;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import com.navercorp.pinpoint.otlp.trace.collector.inspector.OtlpMetricInspectorGateReporter;
+import com.navercorp.pinpoint.otlp.trace.collector.inspector.OtlpMetricInspectorModule;
 import com.navercorp.pinpoint.otlp.trace.collector.linkindex.OtlpLinkIndexModule;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
 import com.navercorp.pinpoint.otlp.trace.collector.service.OtlpTraceExportService;
@@ -59,6 +61,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 import java.util.List;
@@ -101,7 +104,12 @@ import java.util.concurrent.Executor;
         OtlpTraceCollectorHttpModule.class,
 
         // Link index writer for the join job (pinpoint.collector.otlptrace.link-index.enabled, default off).
-        OtlpLinkIndexModule.class
+        OtlpLinkIndexModule.class,
+
+        // OTLP metrics -> Inspector agent stat receiver (pinpoint.collector.otlptrace.inspector.enabled,
+        // default off; also needs the Inspector storage module). MetricsService on the same gRPC
+        // servers, POST /v1/metrics on the servlet port.
+        OtlpMetricInspectorModule.class
 })
 @ComponentScan({
         "com.navercorp.pinpoint.otlp.trace.collector.mapper",
@@ -175,6 +183,13 @@ public class OtlpTraceCollectorModule {
     @Bean
     public CollectorProperties collectorProperties() {
         return new CollectorProperties();
+    }
+
+    // Always registered (the module above is conditional): logs "feature on, storage module off" at
+    // startup so a silently skipped metrics receiver is not mistaken for a working one.
+    @Bean
+    public OtlpMetricInspectorGateReporter otlpMetricInspectorGateReporter(Environment environment) {
+        return new OtlpMetricInspectorGateReporter(environment);
     }
 
     @Bean

@@ -14,6 +14,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>otlptrace-linkindex</module>
+        <module>otlptrace-inspector</module>
         <module>otlptrace-collector</module>
     </modules>
 </project>
