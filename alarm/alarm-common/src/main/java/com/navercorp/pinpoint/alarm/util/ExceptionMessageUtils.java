@@ -15,6 +15,9 @@
  */
 package com.navercorp.pinpoint.alarm.util;
 
+import org.springframework.core.NestedExceptionUtils;
+import org.springframework.util.StringUtils;
+
 import java.util.Objects;
 
 public final class ExceptionMessageUtils {
@@ -23,11 +26,9 @@ public final class ExceptionMessageUtils {
     }
 
     public static String rootCauseMessage(Throwable failure) {
-        Throwable root = Objects.requireNonNull(failure, "failure");
-        for (Throwable current = failure; current != null; current = current.getCause()) {
-            root = current;
-        }
+        Objects.requireNonNull(failure, "failure");
+        Throwable root = NestedExceptionUtils.getMostSpecificCause(failure);
         String message = root.getMessage();
-        return message == null || message.isBlank() ? root.getClass().getSimpleName() : message;
+        return StringUtils.hasText(message) ? message : root.getClass().getSimpleName();
     }
 }
