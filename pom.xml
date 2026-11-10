@@ -259,6 +259,11 @@
 
         <netty3.version>3.10.6.Final</netty3.version>
         <netty4.version>4.2.17.Final</netty4.version>
+        <!-- Netty 4.1 line for the agent plugins that instrument Netty 4.1 based libraries.
+             netty-bom 4.2 manages the native jars as runtime scope, which demotes the transitive
+             netty-transport/common/buffer to runtime and hides io.netty.channel.* from their
+             compile classpath. Such modules set <netty4.version>${netty41.version}</netty4.version>. -->
+        <netty41.version>4.1.133.Final</netty41.version>
         <brotli4j.version>1.24.0</brotli4j.version>
 
         <grpc.version>1.85.1</grpc.version>
