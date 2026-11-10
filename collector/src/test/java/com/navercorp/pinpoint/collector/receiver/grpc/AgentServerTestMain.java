@@ -90,9 +90,9 @@ public class AgentServerTestMain {
         grpcReceiver.setServerOption(ServerOption.newBuilder().build());
 
 
-        grpcReceiver.afterPropertiesSet();
+        grpcReceiver.start();
         grpcReceiver.blockUntilShutdown();
-        grpcReceiver.destroy();
+        grpcReceiver.stop();
     }
 
     public static void main(String[] args) throws Exception {

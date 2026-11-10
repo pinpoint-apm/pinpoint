@@ -82,12 +82,12 @@ public class SpanServerTestMain {
         grpcReceiver.setServerInterceptorList(List.of(interceptor));
 
 //        for(int i = 0; i < 9999; i++) {
-        grpcReceiver.afterPropertiesSet();
+        grpcReceiver.start();
 
         grpcReceiver.blockUntilShutdown();
 //            TimeUnit.SECONDS.sleep(30);
 //            System.out.println("###### SHUTDOWN");
-//            grpcReceiver.destroy();
+//            grpcReceiver.stop();
 //            grpcReceiver.blockUntilShutdown();
 //            System.out.println("###### START");
 //            TimeUnit.SECONDS.sleep(30);

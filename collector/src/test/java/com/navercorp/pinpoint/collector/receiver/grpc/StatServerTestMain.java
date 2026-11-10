@@ -64,10 +64,10 @@ public class StatServerTestMain {
         grpcReceiver.setEnable(true);
         grpcReceiver.setServerOption(ServerOption.newBuilder().build());
 
-        grpcReceiver.afterPropertiesSet();
+        grpcReceiver.start();
 
         grpcReceiver.blockUntilShutdown();
-        grpcReceiver.destroy();
+        grpcReceiver.stop();
     }
 
     private ServerServiceDefinition newStatBindableService(Executor executor) {
