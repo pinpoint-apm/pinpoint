@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.realtime.util;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 import java.util.concurrent.ThreadFactory;

@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.pinot.alarm.dao.PinotAlarmDao;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListener;
@@ -26,14 +26,14 @@ public class UriStatAlarmReader implements ItemReader<PinotAlarmKey>, StepExecut
     private final UriStatDao uriStatDao;
     private Queue<PinotAlarmKey> applicationQueue;
 
-    public UriStatAlarmReader(@Nonnull TenantProvider tenantProvider, @Nonnull PinotAlarmDao alarmDao, @Nonnull UriStatDao uriStatDao) {
+    public UriStatAlarmReader(@NonNull TenantProvider tenantProvider, @NonNull PinotAlarmDao alarmDao, @NonNull UriStatDao uriStatDao) {
         this.tenantId = tenantProvider.getTenantId();
         this.alarmDao = alarmDao;
         this.uriStatDao = uriStatDao;
     }
 
     @Override
-    public void beforeStep(@Nonnull StepExecution stepExecution) {
+    public void beforeStep(@NonNull StepExecution stepExecution) {
         long now = System.currentTimeMillis();
         this.applicationQueue = new ConcurrentLinkedQueue<>(fetchUriStatAlarmKeys(now));
     }

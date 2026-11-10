@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.realtime.dto;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

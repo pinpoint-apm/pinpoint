@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.trace.dao.hbase.SpanQueryBuilder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.SpanHint;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -88,11 +88,11 @@ public class FilteringSpanDecoderTest {
         Assertions.assertNull(result);
     }
 
-    private @NotNull Buffer newSpanBuffer() {
+    private @NonNull Buffer newSpanBuffer() {
         return newQualifierBuffer(SpanEncoder.TYPE_SPAN);
     }
 
-    private @NotNull Buffer newQualifierBuffer(byte type) {
+    private @NonNull Buffer newQualifierBuffer(byte type) {
         Buffer buffer = new FixedBuffer(1);
         buffer.putByte(type);
         buffer.setOffset(0);

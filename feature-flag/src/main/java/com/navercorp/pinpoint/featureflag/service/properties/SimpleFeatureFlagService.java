@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.featureflag.service.properties;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

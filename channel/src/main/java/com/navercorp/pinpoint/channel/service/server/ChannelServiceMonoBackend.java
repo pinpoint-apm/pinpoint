@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.channel.service.server;
 
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 /**

@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.realtime.dto;
 
 import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author youngjin.kim2

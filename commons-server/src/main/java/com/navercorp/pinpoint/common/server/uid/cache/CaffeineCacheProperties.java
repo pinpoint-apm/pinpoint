@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.uid.cache;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 

@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.pinot.alarm.dao.PinotAlarmDao;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmHistory;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

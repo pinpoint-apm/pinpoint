@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.hyperlink;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class DefaultLinkSource implements LinkSource {
     private final String hostName;

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.realtime.collector.sink;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.MonoSink;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Objects;
 

@@ -30,7 +30,7 @@ import org.springframework.web.socket.adapter.standard.StandardWebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import reactor.core.Disposable;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,7 +56,7 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
     }
 
     @Override
-    public void afterConnectionEstablished(@Nonnull WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
         try {
             if (session instanceof StandardWebSocketSession webSocketSession) {
                 startLiveTail(webSocketSession);
@@ -103,7 +103,7 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
         return List.of(str.split(","));
     }
 
-    private void stopLiveTail(@Nonnull WebSocketSession session) {
+    private void stopLiveTail(@NonNull WebSocketSession session) {
         logger.info("Stopping live-tail, session: {}", session);
         Object disposable = session.getAttributes().get(LIVE_TAIL_DISPOSABLE_ATTR);
         if (disposable instanceof Disposable dis) {
@@ -112,7 +112,7 @@ class LogWebSocketHandler extends TextWebSocketHandler implements PinpointWebSoc
     }
 
     @Override
-    public void afterConnectionClosed(@Nonnull WebSocketSession session, @Nonnull CloseStatus status) throws Exception {
+    public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) throws Exception {
         stopLiveTail(session);
         super.afterConnectionClosed(session, status);
     }

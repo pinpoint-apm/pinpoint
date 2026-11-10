@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.common.server.config;
 
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
@@ -31,7 +31,7 @@ import java.util.Properties;
 public class YamlPropertySourceFactory implements PropertySourceFactory {
 
     @Override
-    @Nonnull
+    @NonNull
     public PropertySource<?> createPropertySource(String name, EncodedResource encodedResource) {
         Resource resource = encodedResource.getResource();
         String filename = resource.getFilename();

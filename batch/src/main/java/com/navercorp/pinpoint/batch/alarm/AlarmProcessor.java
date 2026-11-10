@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.common.server.bo.Application;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
     }
 
     @Override
-    public AppAlarmChecker process(@Nonnull Application application) {
+    public AppAlarmChecker process(@NonNull Application application) {
         List<AlarmChecker<?>> checkers = getAlarmCheckers(application);
         if (CollectionUtils.isEmpty(checkers)) {
             return null;

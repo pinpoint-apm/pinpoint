@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.monitor.receiver;
 
 import com.navercorp.pinpoint.collector.monitor.MonitoredThreadPoolExecutorFactory;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 import java.util.concurrent.BlockingQueue;
@@ -40,11 +40,11 @@ public class ExecutorFactoryBean extends ThreadPoolExecutorFactoryBean {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     protected ThreadPoolExecutor createExecutor(int corePoolSize, int maxPoolSize, int keepAliveSeconds,
-                                                @Nonnull BlockingQueue<Runnable> queue,
-                                                @Nonnull ThreadFactory threadFactory,
-                                                @Nonnull RejectedExecutionHandler rejectedExecutionHandler) {
+                                                @NonNull BlockingQueue<Runnable> queue,
+                                                @NonNull ThreadFactory threadFactory,
+                                                @NonNull RejectedExecutionHandler rejectedExecutionHandler) {
         if (executorFactory != null && executorFactory.isEnable()) {
             return executorFactory.createExecutor(corePoolSize, maxPoolSize, keepAliveSeconds, queue, threadFactory, rejectedExecutionHandler);
         }

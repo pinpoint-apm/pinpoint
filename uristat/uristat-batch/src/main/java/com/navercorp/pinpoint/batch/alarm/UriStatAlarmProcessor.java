@@ -12,7 +12,7 @@ import com.navercorp.pinpoint.pinot.alarm.condition.AlarmConditionFactory;
 import com.navercorp.pinpoint.pinot.alarm.service.PinotAlarmService;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class UriStatAlarmProcessor implements ItemProcessor<PinotAlarmKey, Pinot
     }
 
     @Override
-    public PinotAlarmCheckers process(@Nonnull PinotAlarmKey alarmKeys) {
+    public PinotAlarmCheckers process(@NonNull PinotAlarmKey alarmKeys) {
         List<PinotAlarmChecker<? extends Number>> checkers = getAlarmCheckers(alarmKeys);
         if (CollectionUtils.isEmpty(checkers)) {
             return null;

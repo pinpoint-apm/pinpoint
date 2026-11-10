@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.grpc.channelz.service;
 
 import com.navercorp.pinpoint.common.util.KeyValueTokenizer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 
 /**

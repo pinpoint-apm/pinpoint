@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import java.util.Objects;
 
 /**
@@ -58,13 +58,13 @@ public class RedisActiveThreadCountHandlerAdaptor extends ActiveThreadCountHandl
     }
 
     @Override
-    public void afterConnectionEstablished(@Nonnull WebSocketSession session) {
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         logger.debug("Connection established: {}", session);
         this.delegate.afterConnectionEstablished(session);
     }
 
     @Override
-    public void afterConnectionClosed(@Nonnull WebSocketSession session, @Nonnull CloseStatus status) {
+    public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         logger.debug("Connection closed: {}, {}", session, status);
         this.delegate.afterConnectionClosed(session, status);
     }

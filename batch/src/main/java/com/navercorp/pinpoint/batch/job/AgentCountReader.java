@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.Application;
 import com.navercorp.pinpoint.common.server.uid.Service;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.service.service.ServiceRegistryService;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
@@ -62,7 +62,7 @@ public class AgentCountReader implements ItemReader<Application>, StepExecutionL
     }
 
     @Override
-    public void beforeStep(@Nonnull StepExecution stepExecution) {
+    public void beforeStep(@NonNull StepExecution stepExecution) {
         this.applicationQueue = new ConcurrentLinkedQueue<>();
         for (Service service : getServices()) {
             for (Application application : batchApplicationIndexService.selectApplications(service)) {
@@ -105,7 +105,7 @@ public class AgentCountReader implements ItemReader<Application>, StepExecutionL
     }
 
     @Override
-    public ExitStatus afterStep(@Nonnull StepExecution stepExecution) {
+    public ExitStatus afterStep(@NonNull StepExecution stepExecution) {
         return null;
     }
 

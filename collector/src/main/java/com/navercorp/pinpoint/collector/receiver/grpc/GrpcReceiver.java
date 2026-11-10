@@ -36,7 +36,7 @@ import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.ssl.SslContext;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanNameAware;
@@ -211,7 +211,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     }
 
     @Override
-    public void setBeanName(@Nonnull final String beanName) {
+    public void setBeanName(@NonNull final String beanName) {
         this.beanName = beanName;
     }
 

@@ -23,7 +23,7 @@ import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
 import io.grpc.SynchronizationContext;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class MockLoadBalancerHelper extends LoadBalancer.Helper {
     }
 
     @Override
-    public void updateBalancingState(@Nonnull ConnectivityState newState, @Nonnull LoadBalancer.SubchannelPicker newPicker) {
+    public void updateBalancingState(@NonNull ConnectivityState newState, LoadBalancer.@NonNull SubchannelPicker newPicker) {
         states.add(newState);
         pickers.add(newPicker);
     }

@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.HtmlUtils;
 import org.thymeleaf.TemplateEngine;

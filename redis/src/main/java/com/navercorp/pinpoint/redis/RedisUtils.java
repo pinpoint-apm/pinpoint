@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.redis;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
