@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.sender;
 
+import org.springframework.util.StringUtils;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
@@ -23,7 +24,6 @@ import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.common.server.webhook.WebhookUrlValidator;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;

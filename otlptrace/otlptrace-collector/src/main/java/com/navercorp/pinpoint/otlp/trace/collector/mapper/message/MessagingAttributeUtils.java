@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper.message;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceConstants;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 

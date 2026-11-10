@@ -15,13 +15,13 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
+import org.springframework.util.StringUtils;
 import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
 import com.navercorp.pinpoint.alarm.validation.AlarmValidationConstants;
 import com.navercorp.pinpoint.alarm.validation.ConditionValidator;
 import com.navercorp.pinpoint.alarm.validation.FilterKeyValidator;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

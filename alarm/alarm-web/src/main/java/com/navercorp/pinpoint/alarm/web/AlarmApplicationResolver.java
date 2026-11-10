@@ -17,9 +17,9 @@ package com.navercorp.pinpoint.alarm.web;
 
 import com.navercorp.pinpoint.alarm.service.AlarmApplicationExistenceChecker;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;

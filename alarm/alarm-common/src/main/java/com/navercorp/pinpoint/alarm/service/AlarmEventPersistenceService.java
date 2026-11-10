@@ -17,11 +17,11 @@ package com.navercorp.pinpoint.alarm.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.util.StringUtils;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
 import com.navercorp.pinpoint.alarm.dao.AlarmHistoryV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationOutboxDao;

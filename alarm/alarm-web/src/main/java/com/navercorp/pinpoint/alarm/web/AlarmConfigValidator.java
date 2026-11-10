@@ -26,9 +26,9 @@ import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmTemplate;
 import com.navercorp.pinpoint.alarm.vo.AlarmTemplateItem;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
