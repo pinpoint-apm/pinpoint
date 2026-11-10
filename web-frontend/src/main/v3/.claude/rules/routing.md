@@ -19,7 +19,9 @@ paths:
 3. `apps/web/src/pages/`에 얇은 페이지 래퍼 생성 (필요 시 `useAtomValue`로 `configurationAtom` 읽기)
 4. 날짜 검증이 필요한 경우 `packages/ui/src/loader/`에 라우트 로더 생성
 5. `apps/web/src/routes/index.tsx`의 `InitialFetchOutlet` children에 라우트 추가 (설정 페이지는 `ConfigurationOutlet`)
-6. 코드 분할을 위해 `React.lazy()` 사용 (기본 라우트 제외)
+6. 코드 분할을 위해 `React.lazy()` 사용 — 기본 라우트(serverMap)도 예외가 아니다. 정적 import로 두면
+   echarts·cytoscape가 entry에 묶여 새 창으로 열리는 화면(transactionDetail 등)까지 매번 받는다.
+   대신 첫 URL이 serverMap으로 이어지면 라우트 모듈에서 `loadServerMap()`을 바로 불러 렌더를 기다리지 않고 받기 시작한다
 7. service 단위 화면이면 경로에 `:serviceName?` 세그먼트를 둔다 — 그것만으로 경로의 serviceName을
    읽는다(`registerAppRoutes`, `service-map.md`). 테스트용 라우트
    (`packages/ui/src/utils/helper/__fixtures__/appRoutes.ts`)도 함께 맞춘다.
