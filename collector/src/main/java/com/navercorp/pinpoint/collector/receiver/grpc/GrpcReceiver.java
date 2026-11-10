@@ -40,12 +40,12 @@ import org.jspecify.annotations.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanNameAware;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.util.Assert;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +54,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * The server is built and the port is opened in {@link #start()}, after all singletons are ready.
+ * The port is closed and the resources are released in {@link #stop()}, before the other beans are destroyed.
+ * The default phase is kept, so the receiver starts last and stops first.
+ * <p>
+ * Spring calls {@link #stop()} only for a running lifecycle, so a failed {@link #start()} releases
+ * what it has built by itself.
+ *
  * @author Taejin Koo
  */
-public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameAware {
+public class GrpcReceiver implements SmartLifecycle, BeanNameAware {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private String beanName;
@@ -81,18 +88,47 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private SslContext sslContext;
 
     private Server server;
+    private volatile boolean running;
     private ChannelzRegistry channelzRegistry;
 
     private Monitor monitor = Monitor.NONE;
 
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void start() {
+        if (this.running || this.server != null) {
+            return;
+        }
         if (Boolean.FALSE == this.enable) {
             logger.warn("{} is {}", this.beanName, enable);
             return;
         }
 
+        try {
+            this.server = buildServer();
+        } catch (Exception e) {
+            release();
+            throw new IllegalStateException(this.beanName + " server build failed. address:" + this.bindAddress, e);
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("Start {} server {}", this.beanName, this.server);
+        }
+        try {
+            this.server.start();
+        } catch (Throwable th) {
+            final Throwable rootCause = NestedExceptionUtils.getRootCause(th);
+            if (rootCause instanceof BindException) {
+                logger.error("Server bind failed. {} address:{}", this.beanName, this.bindAddress, rootCause);
+            } else {
+                logger.error("Server start failed. {} address:{}", this.beanName, this.bindAddress);
+            }
+            release();
+            throw new IllegalStateException(this.beanName + " server start failed. address:" + this.bindAddress, th);
+        }
+        this.running = true;
+    }
+
+    private Server buildServer() throws Exception {
         Objects.requireNonNull(this.beanName, "beanName");
         Objects.requireNonNull(this.bindAddress, "bindAddress");
         Objects.requireNonNull(this.addressFilter, "addressFilter");
@@ -145,21 +181,42 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         // Add service
         addService();
 
-        this.server = serverFactory.build();
+        return serverFactory.build();
+    }
+
+    @Override
+    public void stop() {
         if (logger.isInfoEnabled()) {
-            logger.info("Start {} server {}", this.beanName, this.server);
+            logger.info("Stop {} server {}", this.beanName, this.server);
         }
-        try {
-            this.server.start();
-        } catch (Throwable th) {
-            final Throwable rootCause = NestedExceptionUtils.getRootCause(th);
-            if (rootCause instanceof BindException) {
-                logger.error("Server bind failed. {} address:{}", this.beanName, this.bindAddress, rootCause);
-            } else {
-                logger.error("Server start failed. {} address:{}", this.beanName, this.bindAddress);
+        release();
+        this.running = false;
+    }
+
+    private void release() {
+        monitor.close();
+
+        shutdownServer();
+
+        for (Object bindableService : serviceList) {
+            if (bindableService instanceof Closeable closeable) {
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    logger.warn("{} service close failed. {}", this.beanName, bindableService, e);
+                }
             }
-            throw th;
         }
+
+        if (this.serverFactory != null) {
+            this.serverFactory.close();
+            this.serverFactory = null;
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.running;
     }
 
     private void addService() {
@@ -178,28 +235,6 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
         if (!ServerUtils.shutdownAndAwaitTermination(server, maxWaitTime, TimeUnit.MILLISECONDS)) {
             logger.warn("{} server shutdown error", beanName);
-        }
-    }
-
-
-    @Override
-    public void destroy() throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info("Destroy {} server {}", this.beanName, this.server);
-        }
-
-        monitor.close();
-
-        shutdownServer();
-
-        for (Object bindableService : serviceList) {
-            if (bindableService instanceof Closeable closeable) {
-                closeable.close();
-            }
-        }
-
-        if (this.serverFactory != null) {
-            this.serverFactory.close();
         }
     }
 
