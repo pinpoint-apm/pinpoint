@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex;
 
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 
 import java.nio.charset.StandardCharsets;
 
@@ -93,7 +93,7 @@ public final class LinkIndexKeys {
         if (modulo <= 1) {
             return true;
         }
-        final long low = BytesUtils.bytesToLong(traceId, 8);
+        final long low = ByteArrayUtils.bytesToLong(traceId, 8);
         return Math.floorMod(fmix64(low), (long) modulo) == 0;
     }
 
@@ -116,8 +116,8 @@ public final class LinkIndexKeys {
         if (modulo <= 1) {
             return false;
         }
-        final long high = BytesUtils.bytesToLong(traceId, 0);
-        final long low = BytesUtils.bytesToLong(traceId, 8);
+        final long high = ByteArrayUtils.bytesToLong(traceId, 0);
+        final long low = ByteArrayUtils.bytesToLong(traceId, 8);
         return Math.floorMod(fmix64(high ^ fmix64(low ^ PROBE_SALT)), (long) modulo) == 0;
     }
 

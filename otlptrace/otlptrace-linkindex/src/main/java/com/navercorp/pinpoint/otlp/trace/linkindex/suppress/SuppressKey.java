@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex.suppress;
 
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkEntry;
 import com.navercorp.pinpoint.otlp.trace.linkindex.LinkKind;
 
@@ -92,7 +92,7 @@ public final class SuppressKey {
         if (traceId.length != LinkEntry.TRACE_ID_LENGTH) {
             throw new IllegalArgumentException("traceId must be " + LinkEntry.TRACE_ID_LENGTH + " bytes:" + traceId.length);
         }
-        return BytesUtils.bytesToLong(traceId, 8) == parentSpanId ? PARENT_ROOT : PARENT_OTHER;
+        return ByteArrayUtils.bytesToLong(traceId, 8) == parentSpanId ? PARENT_ROOT : PARENT_OTHER;
     }
 
     public static boolean isServer(String key) {

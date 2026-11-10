@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.otlp.trace.linkindex;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Arrays;
 
@@ -44,7 +44,7 @@ public final class LinkEntryCodec {
         final byte[] field = new byte[FIELD_LENGTH];
         field[0] = entry.kind().getCode();
         System.arraycopy(entry.traceId(), 0, field, 1, LinkEntry.TRACE_ID_LENGTH);
-        BytesUtils.writeLong(entry.spanId(), field, 1 + LinkEntry.TRACE_ID_LENGTH);
+        ByteArrayUtils.writeLong(entry.spanId(), field, 1 + LinkEntry.TRACE_ID_LENGTH);
         return field;
     }
 
@@ -75,7 +75,7 @@ public final class LinkEntryCodec {
         }
         final LinkKind kind = LinkKind.fromCode(field[0]);
         final byte[] traceId = Arrays.copyOfRange(field, 1, 1 + LinkEntry.TRACE_ID_LENGTH);
-        final long spanId = BytesUtils.bytesToLong(field, 1 + LinkEntry.TRACE_ID_LENGTH);
+        final long spanId = ByteArrayUtils.bytesToLong(field, 1 + LinkEntry.TRACE_ID_LENGTH);
 
         try {
             final Buffer buffer = new FixedBuffer(value);
