@@ -26,7 +26,30 @@ import { InitialFetchOutlet } from '@pinpoint-fe/web/src/components/Layout/Initi
 import { ConfigurationOutlet } from '@pinpoint-fe/web/src/components/Layout/ConfigurationOutlet';
 import { RouteErrorFallback } from '@pinpoint-fe/ui/src/components/Error';
 
-import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
+// The server map pulls in echarts and cytoscape, so it is lazy like every other page; otherwise
+// pages opened in their own window (transaction detail, inspector, ...) download both too.
+// It is still the landing page, so start fetching it right away when the first URL ends up there
+// rather than waiting for the router to render it.
+const loadServerMap = () => import('@pinpoint-fe/web/src/pages/ServerMap');
+const ServerMap = lazy(loadServerMap);
+const isServerMapEntry = (pathname: string) => {
+  const path = (
+    BASE_PATH && pathname.startsWith(BASE_PATH) ? pathname.slice(BASE_PATH.length) : pathname
+  ).replace(/\/+$/, '');
+  return (
+    path === '' ||
+    path === '/main' ||
+    path.startsWith('/main/') ||
+    path === APP_PATH.SERVER_MAP ||
+    (path.startsWith(`${APP_PATH.SERVER_MAP}/`) &&
+      path !== APP_PATH.SERVER_MAP_REALTIME &&
+      !path.startsWith(`${APP_PATH.SERVER_MAP_REALTIME}/`))
+  );
+};
+if (isServerMapEntry(window.location.pathname)) {
+  // Only a head start: a failed fetch surfaces when React.lazy imports it again on render.
+  loadServerMap().catch(() => {});
+}
 const ServiceMap = lazy(() => import('@pinpoint-fe/web/src/pages/ServiceMap'));
 const ServiceMapRealtime = lazy(() => import('@pinpoint-fe/web/src/pages/ServiceMap/Realtime'));
 const Realtime = lazy(() => import('@pinpoint-fe/web/src/pages/ServerMap/Realtime'));
