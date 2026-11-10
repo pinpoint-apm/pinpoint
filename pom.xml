@@ -1908,6 +1908,13 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
+                    <configuration>
+                        <!-- Spring Boot 4 leaves optional dependencies out of the executable jar by default
+                             (includeOptional: true up to 3.5, false from 4.0). The logging implementation
+                             (log4j-core, log4j-slf4j2-impl, log4j-jul) is managed as optional above so that
+                             library modules do not pass it on, so the starters need it packaged. -->
+                        <includeOptional>true</includeOptional>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>
