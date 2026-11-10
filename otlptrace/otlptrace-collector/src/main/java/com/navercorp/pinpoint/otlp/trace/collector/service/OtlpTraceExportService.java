@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceRejectReason;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAgentCacheKey;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAgentInfo;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
@@ -113,9 +114,9 @@ public class OtlpTraceExportService {
         this.uriStatInsertErrorCounter = insertErrorCounter(meterRegistry, "uriStat");
     }
 
+    /** Once per (serviceUid, agentId) for the collector's lifetime: see {@link OtlpAgentCacheKey}. */
     static String agentCacheKey(OtlpAgentInfo agentInfo) {
-        // The supplier is already resolved (FixedServiceUid) by OtlpResourceIdResolver; get() is a field read.
-        return agentInfo.serviceUid().get().getUid() + "/" + agentInfo.agentInfoBo().getAgentId();
+        return OtlpAgentCacheKey.trace(agentInfo.serviceUid(), agentInfo.agentInfoBo().getAgentId());
     }
 
     private static Counter insertErrorCounter(MeterRegistry meterRegistry, String op) {
