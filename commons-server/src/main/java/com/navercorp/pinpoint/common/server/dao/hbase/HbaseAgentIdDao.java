@@ -11,7 +11,6 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.ApplicationFactory;
 import com.navercorp.pinpoint.common.server.util.AgentIdRowKeyUtils;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.server.dao.AgentIdDao;
 import com.navercorp.pinpoint.common.server.dao.hbase.mapper.AgentIdEntryMapper;
 import com.navercorp.pinpoint.common.server.dao.hbase.mapper.ListMergeResultsExtractor;
@@ -31,6 +30,7 @@ import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

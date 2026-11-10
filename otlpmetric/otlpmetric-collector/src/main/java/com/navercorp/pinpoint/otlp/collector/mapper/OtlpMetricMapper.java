@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.otlp.collector.mapper;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpResource;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpResourceAttributes;
@@ -28,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;

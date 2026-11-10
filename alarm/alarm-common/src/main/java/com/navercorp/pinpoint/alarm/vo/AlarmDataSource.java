@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.alarm.vo;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;

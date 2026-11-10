@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
+import org.springframework.util.StringUtils;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
