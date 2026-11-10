@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.linkindex;
 
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 
 /**
  * Join key of one call: (traceId, caller CLIENT span id).
@@ -24,6 +24,6 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 record PairKey(long traceIdHigh, long traceIdLow, long spanId) {
 
     static PairKey of(byte[] traceId, long spanId) {
-        return new PairKey(BytesUtils.bytesToLong(traceId, 0), BytesUtils.bytesToLong(traceId, 8), spanId);
+        return new PairKey(ByteArrayUtils.bytesToLong(traceId, 0), ByteArrayUtils.bytesToLong(traceId, 8), spanId);
     }
 }
