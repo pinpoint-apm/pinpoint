@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.uid.FixedServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUidSupplier;
+import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAgentCacheKey;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpAgentInfo;
 import java.util.List;
 import java.util.Optional;
@@ -182,12 +183,16 @@ class OtlpTraceExportServiceTest {
     }
 
     private static AgentInfoBo agentInfo(String agentId) {
+        return agentInfo(agentId, 1_000L);
+    }
+
+    private static AgentInfoBo agentInfo(String agentId, long startTime) {
         AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
         builder.setAgentId(agentId);
         builder.setApplicationName("app");
         builder.setServiceTypeCode(1300);
         builder.setServiceUid(ServiceUid.DEFAULT);
-        builder.setStartTime(1_000L);
+        builder.setStartTime(startTime);
         return builder.build();
     }
 
@@ -211,13 +216,31 @@ class OtlpTraceExportServiceTest {
     }
 
     @Test
-    void agentCacheKey_isPerServiceAndAgent() {
-        AgentInfoBo agent = agentInfo("agent-1");
+    void agentCacheKey_isPerServiceAndAgent_withoutTheStartTime() {
+        AgentInfoBo agent = agentInfo("agent-1", 1_782_864_000_000L);
         String defaultKey = OtlpTraceExportService.agentCacheKey(new OtlpAgentInfo(ServiceUidSupplier.DEFAULT, agent));
         String teamKey = OtlpTraceExportService.agentCacheKey(new OtlpAgentInfo(new FixedServiceUid(ServiceUid.of(100001)), agent));
 
         assertThat(defaultKey).isNotEqualTo(teamKey);
         assertThat(defaultKey).endsWith("/agent-1");
-        assertThat(teamKey).isEqualTo("100001/agent-1");
+        assertThat(teamKey).isEqualTo("t:100001/agent-1");
+        // the metric path registers the same agent in its own key space
+        assertThat(OtlpAgentCacheKey.metric(ServiceUidSupplier.DEFAULT, "agent-1", 1_782_864_000_000L))
+                .isEqualTo("m:0/agent-1@1782864000000")
+                .isNotEqualTo(defaultKey);
+    }
+
+    /** The trace path's start time is usually the span start time, which changes every span: one registration per agent. */
+    @Test
+    void agentRegistration_once_althoughTheStartTimeChanges() {
+        HbaseOtlpApplicationIndexV2Service applicationIndex = mock(HbaseOtlpApplicationIndexV2Service.class);
+        OtlpTraceMapperData mapperData = new OtlpTraceMapperData();
+        for (int i = 0; i < 3; i++) {
+            mapperData.addAgentInfo(new OtlpAgentInfo(ServiceUidSupplier.DEFAULT, agentInfo("agent-1", 1_000L + i)));
+        }
+
+        newService(mapperData, null, applicationIndex).export(List.of(resourceSpansWithSpans(1)), OtlpTransport.GRPC);
+
+        verify(applicationIndex, times(1)).insert(any(), any());
     }
 }

@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanOwner;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import org.springframework.stereotype.Component;
@@ -30,18 +32,35 @@ public class OtlpAgentInfoMapper {
 
     public AgentInfoBo map(SpanBo spanBo, Map<String, AttributeValue> resourceAttributeMap) {
         final SpanOwner owner = spanBo.getSpanOwner();
-        final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
-        builder.setAgentId(owner.getAgentId());
-        if (owner.getAgentName() != null) {
-            builder.setAgentName(owner.getAgentName());
-        }
-        builder.setApplicationName(owner.getApplicationName());
         // Register the agent/application under the application-level type, not the span-level
         // serviceType — a specialized root (e.g. a kafka CONSUMER as the first-seen span) must
         // not decide the application's registered type.
-        builder.setServiceTypeCode(spanBo.getApplicationServiceType());
-        builder.setServiceUid(owner.getServiceUid());
-        builder.setStartTime(owner.getAgentStartTime());
+        return map(owner.getAgentId(), owner.getAgentName(), owner.getApplicationName(), owner.getServiceUid(),
+                spanBo.getApplicationServiceType(), owner.getAgentStartTime(), resourceAttributeMap);
+    }
+
+    /**
+     * For a Resource seen without spans (the OTLP metrics receiver): the same AgentInfo the first
+     * span would have registered, under the OTel application type.
+     *
+     * @param agentStartTime epoch millis, or 0 when the resource gives no process start time
+     */
+    public AgentInfoBo map(IdAndName idAndName, long agentStartTime, Map<String, AttributeValue> resourceAttributeMap) {
+        return map(idAndName.agentId(), idAndName.agentName(), idAndName.applicationName(), idAndName.serviceUid().get(),
+                ServiceType.OPENTELEMETRY_SERVER.getCode(), agentStartTime, resourceAttributeMap);
+    }
+
+    private AgentInfoBo map(String agentId, String agentName, String applicationName, ServiceUid serviceUid,
+                            int serviceTypeCode, long agentStartTime, Map<String, AttributeValue> resourceAttributeMap) {
+        final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
+        builder.setAgentId(agentId);
+        if (agentName != null) {
+            builder.setAgentName(agentName);
+        }
+        builder.setApplicationName(applicationName);
+        builder.setServiceTypeCode(serviceTypeCode);
+        builder.setServiceUid(serviceUid);
+        builder.setStartTime(agentStartTime);
 
         final String hostName = AttributeUtils.getAttributeStringValue(resourceAttributeMap, OtlpTraceConstants.ATTRIBUTE_KEY_HOST_NAME, null);
         if (hostName != null) {

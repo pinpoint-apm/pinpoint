@@ -162,7 +162,12 @@ gRPC server executor (4 threads / queue 256)
 
 spanChunk uses only `TraceV2`/CF `S` (no scatter index). AgentInfo (`AGENTINFO`/CF `Info`,
 rowkey=`agentId+startTime`) and ApplicationIndex v2 (`APPLICATION`, `AGENT_ID`) are synchronous put +
-Caffeine dedup (`otlpAgentIdCache`, maxSize 10000, shared across transports). serviceUid is always
+Caffeine dedup (`otlpAgentIdCache`, maxSize 10000, shared across transports and with the metric
+path, one key space each: `OtlpAgentCacheKey`). The trace key is `t:serviceUid/agentId`, one
+registration per agent for the collector's lifetime: its start time is the span start time
+approximation (changes from span to span) unless the Resource carries `process.creation.time`. The
+metric key is `m:serviceUid/agentId@startTime`, one registration per process session: an agent
+restarted under the same agentId registers its new session there. serviceUid is always
 `ServiceUid.DEFAULT` (TODO).
 
 ### Loss analysis
