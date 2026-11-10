@@ -14,10 +14,8 @@
 
     <properties>
         <spring.version>${spring5.version}</spring.version>
-        <!-- netty-bom 4.2 manages the native jars as runtime scope, which demotes the
-             transitive netty-transport/common/buffer to runtime and hides
-             io.netty.channel.* from the compile classpath. Compile against 4.1. -->
-        <netty4.version>4.1.133.Final</netty4.version>
+        <!-- Compile against Netty 4.1; see netty41.version in the root pom. -->
+        <netty4.version>${netty41.version}</netty4.version>
     </properties>
 
     <dependencies>
