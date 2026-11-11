@@ -35,12 +35,12 @@ class AlarmNotificationChannelConfigParserTest {
             new AlarmNotificationChannelConfigParser(new ObjectMapper());
 
     @Test
-    void parseIgnoresUnknownFields() {
+    void parseIgnoresUnknownFieldsAndTheStoredTitleAndTemplate() {
         AlarmNotificationChannelConfig config = parser.parse(AlarmMethodType.WEBHOOK, """
-                {"format":"SLACK","title":"title","template":"body","futureOption":true}
+                {"format":"SLACK","title":1,"template":"body","futureOption":true}
                 """);
 
-        assertEquals(new AlarmNotificationChannelConfig("SLACK", "title", "body"), config);
+        assertEquals(new AlarmNotificationChannelConfig("SLACK", null, null), config);
     }
 
     @ParameterizedTest
@@ -102,10 +102,6 @@ class AlarmNotificationChannelConfigParserTest {
                         "notification channel config must be a JSON object"),
                 Arguments.of("{\"format\":false}",
                         "notification channel config format must be a string"),
-                Arguments.of("{\"title\":1}",
-                        "notification channel config title must be a string"),
-                Arguments.of("{\"template\":{}}",
-                        "notification channel config template must be a string"),
                 Arguments.of("{\"format\":\"TEAMS\"}",
                         "notification channel config format must be DEFAULT or SLACK")
         );

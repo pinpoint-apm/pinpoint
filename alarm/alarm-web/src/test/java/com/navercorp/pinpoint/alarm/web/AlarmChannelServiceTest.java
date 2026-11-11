@@ -606,16 +606,12 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
                 new InvalidConfig("{not-json",
                         "notification channel config must be a valid JSON object"),
                 new InvalidConfig("[]",
-                        "notification channel config must be a JSON object"),
-                new InvalidConfig("{\"title\":1}",
-                        "notification channel config title must be a string")
+                        "notification channel config must be a JSON object")
         );
     }
 
     static List<InvalidConfig> invalidUpdateChannelConfigs() {
         return List.of(
-                new InvalidConfig("{\"template\":{}}",
-                        "notification channel config template must be a string"),
                 new InvalidConfig("{\"format\":\"TEAMS\"}",
                         "notification channel config format must be DEFAULT or SLACK")
         );

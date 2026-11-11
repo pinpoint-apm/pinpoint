@@ -35,8 +35,6 @@ import java.util.Set;
 public final class AlarmNotificationChannelConfigParser {
 
     private static final Set<String> SUPPORTED_WEBHOOK_FORMATS = Set.of("DEFAULT", "SLACK");
-    private static final int MAX_TITLE_LENGTH = 200;
-    private static final int MAX_TEMPLATE_LENGTH = 2000;
 
     private final ObjectReader configReader;
 
@@ -62,7 +60,7 @@ public final class AlarmNotificationChannelConfigParser {
             throw new IllegalArgumentException("notification channel config must be a JSON object");
         }
 
-        String format = stringField(root, "format", Integer.MAX_VALUE);
+        String format = stringField(root, "format");
         if (format != null) {
             format = format.toUpperCase(Locale.ROOT);
             if (!SUPPORTED_WEBHOOK_FORMATS.contains(format)) {
@@ -74,13 +72,12 @@ public final class AlarmNotificationChannelConfigParser {
                         "notification channel config format is only supported for WEBHOOK channels");
             }
         }
-        return new AlarmNotificationChannelConfig(
-                format,
-                stringField(root, "title", MAX_TITLE_LENGTH),
-                stringField(root, "template", MAX_TEMPLATE_LENGTH));
+        // A title and a template stored through the API are not used: nobody else can see or
+        // check what a channel sends then. The message is always the default one.
+        return new AlarmNotificationChannelConfig(format, null, null);
     }
 
-    private String stringField(JsonNode root, String fieldName, int maxLength) {
+    private String stringField(JsonNode root, String fieldName) {
         JsonNode field = root.get(fieldName);
         if (field == null || field.isNull()) {
             return null;
@@ -89,11 +86,6 @@ public final class AlarmNotificationChannelConfigParser {
             throw new IllegalArgumentException(
                     "notification channel config " + fieldName + " must be a string");
         }
-        String value = field.stringValue();
-        if (value.length() > maxLength) {
-            throw new IllegalArgumentException(
-                    "notification channel config " + fieldName + " must be at most " + maxLength + " characters");
-        }
-        return value;
+        return field.stringValue();
     }
 }
