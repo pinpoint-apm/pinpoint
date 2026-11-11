@@ -16,18 +16,17 @@
 package com.navercorp.pinpoint.channel.service.server;
 
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.SmartLifecycle;
 
 /**
+ * Serves the demands of a channel, started and stopped by the context as a {@link SmartLifecycle}.
+ * <p>
+ * {@link #start()} subscribes the demand channel after all singletons are ready, and {@link #stop()}
+ * unsubscribes it before the other beans are destroyed.
+ *
  * @author youngjin.kim2
  */
-public interface ChannelServiceServer extends InitializingBean {
-
-    void listen();
-
-    default void afterPropertiesSet() {
-        listen();
-    }
+public interface ChannelServiceServer extends SmartLifecycle {
 
     static <D, S> ChannelServiceServer buildMono(
             ChannelProviderRepository channelProviderRepository,

@@ -50,7 +50,7 @@ public class FluxChannelServiceTest {
 
         FluxChannelServiceProtocol<String, String> protocol = defineProtocol();
 
-        ChannelServiceServer.buildFlux(channelRepo, protocol, d -> Flux.fromArray(d.split(","))).listen();
+        ChannelServiceServer.buildFlux(channelRepo, protocol, d -> Flux.fromArray(d.split(","))).start();
 
         List<String> response = ChannelServiceClient.buildFlux(channelRepo, protocol, Schedulers.immediate())
                 .request("Foo,Bar,Hello,World,END").collectList().block(Duration.ofSeconds(1));

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.PubChannel;
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubConsumer;
+import com.navercorp.pinpoint.channel.Subscription;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,12 +37,15 @@ import java.util.function.Supplier;
  */
 class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
 
-    private static final Logger logger = LogManager.getLogger(ChannelServiceServerImpl.class);
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ChannelProviderRepository channelProviderRepository;
     private final ChannelServiceServerProtocol<D, S> protocol;
     private final ChannelServiceMonoBackend<D, S> monoBackend;
     private final ChannelServiceFluxBackend<D, S> fluxBackend;
+
+    private Subscription subscription;
+    private volatile boolean running;
 
     ChannelServiceServerImpl(
             ChannelProviderRepository channelProviderRepository,
@@ -78,8 +82,31 @@ class ChannelServiceServerImpl<D, S> implements ChannelServiceServer {
     }
 
     @Override
-    public void listen() {
-        this.getDemandSubChannel().subscribe(this.getSubConsumer());
+    public void start() {
+        if (this.running) {
+            return;
+        }
+        this.subscription = this.getDemandSubChannel().subscribe(this.getSubConsumer());
+        this.running = true;
+    }
+
+    @Override
+    public void stop() {
+        final Subscription subscription = this.subscription;
+        if (subscription != null) {
+            try {
+                subscription.unsubscribe();
+            } catch (Exception e) {
+                logger.warn("Failed to unsubscribe the demand channel {}", this.protocol.getDemandSubChannelURI(), e);
+            }
+            this.subscription = null;
+        }
+        this.running = false;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.running;
     }
 
     private SubConsumer getSubConsumer() {
