@@ -17,23 +17,35 @@
 package com.navercorp.pinpoint.collector.scheduler;
 
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
-import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ScheduledFuture;
 
 
+/**
+ * Flushes the cached statistics periodically, started and stopped by the context as a {@link SmartLifecycle}.
+ * <p>
+ * {@link #stop()} flushes what is left in the caches once more. The {@link #PHASE} is below the default
+ * phase of the receivers, so the last flush runs after the receivers have stopped and before the
+ * HBase connection is closed with the other beans. The last flush is asynchronous and is not awaited.
+ */
 @Component
-public class StatisticsLinkScheduler {
+public class StatisticsLinkScheduler implements SmartLifecycle {
+
+    public static final int PHASE = SmartLifecycle.DEFAULT_PHASE - 1;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final TaskScheduler scheduler;
@@ -41,7 +53,10 @@ public class StatisticsLinkScheduler {
     private final StartTimeDistributor startTimeDistributor;
     private final Duration flushInterval;
 
-    public StatisticsLinkScheduler(@Qualifier("avgMaxLinkScheduler") TaskScheduler scheduler,
+    private final List<ScheduledFuture<?>> flushTasks = new ArrayList<>();
+    private volatile boolean running;
+
+    public StatisticsLinkScheduler(@Qualifier("statisticsLinkScheduler") TaskScheduler scheduler,
                                    @Value("${collector.map-link.stat.flush-interval:5000}") Duration flushInterval,
                                    StartTimeDistributor startTimeDistributor,
                                    List<CachedStatisticsDao> statisticsDaoList) {
@@ -54,8 +69,11 @@ public class StatisticsLinkScheduler {
         logger.info("StatisticsLinkScheduler CachedStatisticsDao:{}", statisticsDaoList);
     }
 
-    @PostConstruct
-    public void linkScheduling()  {
+    @Override
+    public void start() {
+        if (this.running) {
+            return;
+        }
         final long intervalMillis = flushInterval.toMillis();
         final long now = System.currentTimeMillis();
 
@@ -64,8 +82,39 @@ public class StatisticsLinkScheduler {
             Instant startInstant = Instant.ofEpochMilli(now + intervalMillis + nextTick);
             logger.info("{} started for {}: interval={}ms, nextTick={}ms, startTime={}",
                     ClassUtils.getShortName(this.getClass()), ClassUtils.getShortName(dao.getClass()), intervalMillis, nextTick, startInstant);
-            this.scheduler.scheduleWithFixedDelay(dao::flushLink, startInstant, flushInterval);
+            this.flushTasks.add(this.scheduler.scheduleWithFixedDelay(dao::flushLink, startInstant, flushInterval));
         }
+        this.running = true;
+    }
+
+    @Override
+    public void stop() {
+        logger.info("{} stopped", ClassUtils.getShortName(this.getClass()));
+        for (ScheduledFuture<?> flushTask : this.flushTasks) {
+            if (flushTask != null) {
+                flushTask.cancel(false);
+            }
+        }
+        this.flushTasks.clear();
+        // the last flush: the receivers have stopped, the HBase connection is still open
+        for (CachedStatisticsDao dao : statisticsDaoList) {
+            try {
+                dao.flushLink();
+            } catch (Exception e) {
+                logger.warn("{} last flush failed. {}", ClassUtils.getShortName(this.getClass()), ClassUtils.getShortName(dao.getClass()), e);
+            }
+        }
+        this.running = false;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.running;
+    }
+
+    @Override
+    public int getPhase() {
+        return PHASE;
     }
 
 }
