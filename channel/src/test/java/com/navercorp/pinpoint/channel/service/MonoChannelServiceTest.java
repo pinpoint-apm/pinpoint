@@ -49,7 +49,7 @@ public class MonoChannelServiceTest {
 
         MonoChannelServiceProtocol<String, String> protocol = defineProtocol();
 
-        ChannelServiceServer.buildMono(channelRepo, protocol, d -> Mono.just("Hello, " + d + "!")).listen();
+        ChannelServiceServer.buildMono(channelRepo, protocol, d -> Mono.just("Hello, " + d + "!")).start();
 
         String response = ChannelServiceClient.buildMono(channelRepo, protocol)
                 .request("Channel").block(Duration.ofSeconds(1));
@@ -63,10 +63,10 @@ public class MonoChannelServiceTest {
         MonoChannelServiceProtocol<String, String> protocol = defineProtocol();
 
         ChannelServiceServer.buildMono(
-                repo, protocol, d -> d.equals("Steve") ? Mono.just("Hello, " + d) : null).listen();
+                repo, protocol, d -> d.equals("Steve") ? Mono.just("Hello, " + d) : null).start();
 
         ChannelServiceServer.buildMono(
-                repo, protocol, d -> d.equals("Bob") ? Mono.just("Bye, " + d) : null).listen();
+                repo, protocol, d -> d.equals("Bob") ? Mono.just("Bye, " + d) : null).start();
 
         MonoChannelServiceClient<String, String> client = ChannelServiceClient.buildMono(repo, protocol);
         assertThat(client.request("Steve").block(Duration.ofSeconds(1))).isEqualTo("Hello, Steve");
@@ -81,10 +81,32 @@ public class MonoChannelServiceTest {
 
         ChannelServiceServer.buildMono(repo, protocol, d -> {
             throw new RuntimeException();
-        }).listen();
+        }).start();
 
         MonoChannelServiceClient<String, String> client = ChannelServiceClient.buildMono(repo, protocol);
         assertThatThrownBy(() -> client.request("Hi").block(Duration.ofMillis(100)));
+    }
+
+    @Test
+    @DisplayName("Server should serve demands only between start and stop")
+    public void shouldServeBetweenStartAndStop() {
+        ChannelProviderRepository repo = getChannelProviderRepository();
+        MonoChannelServiceProtocol<String, String> protocol = defineProtocol();
+        ChannelServiceServer server = ChannelServiceServer.buildMono(repo, protocol, d -> Mono.just("Hello, " + d));
+        MonoChannelServiceClient<String, String> client = ChannelServiceClient.buildMono(repo, protocol);
+
+        // not subscribed by the builder
+        assertThat(server.isRunning()).isFalse();
+        assertThat(server.isAutoStartup()).isTrue();
+        assertThatThrownBy(() -> client.request("Steve").block(Duration.ofMillis(100)));
+
+        server.start();
+        assertThat(server.isRunning()).isTrue();
+        assertThat(client.request("Steve").block(Duration.ofSeconds(1))).isEqualTo("Hello, Steve");
+
+        server.stop();
+        assertThat(server.isRunning()).isFalse();
+        assertThatThrownBy(() -> client.request("Steve").block(Duration.ofMillis(100)));
     }
 
     private ChannelProviderRepository getChannelProviderRepository() {
