@@ -19,8 +19,7 @@ package com.navercorp.pinpoint.batch.common;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.SmartLifecycle;
 
 import java.time.Duration;
 import java.util.List;
@@ -29,16 +28,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
+ * Launches the startup jobs once, started and stopped by the context as a {@link SmartLifecycle}.
+ * <p>
+ * {@link #start()} runs after all singletons are ready, so a job does not start while the beans
+ * it uses are still being initialized. The default phase is kept: the launcher starts last and
+ * stops first, before the beans the jobs use are destroyed.
+ *
  * @author youngjin.kim2
  */
-public class StartupJobLauncher implements InitializingBean, DisposableBean {
+public class StartupJobLauncher implements SmartLifecycle {
 
     private static final Logger logger = LogManager.getLogger(StartupJobLauncher.class);
 
     private final BatchJobLauncher launcher;
     private final List<String> jobs;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor;
+    private volatile boolean running;
 
     public StartupJobLauncher(BatchJobLauncher launcher, List<String> jobs) {
         this.launcher = Objects.requireNonNull(launcher, "launcher");
@@ -46,13 +52,17 @@ public class StartupJobLauncher implements InitializingBean, DisposableBean {
     }
 
     @Override
-    public void afterPropertiesSet() {
+    public void start() {
+        if (this.running) {
+            return;
+        }
         if (this.jobs.isEmpty()) {
             logger.info("No startup jobs to launch");
             return;
         }
 
         logger.info("Startup job launcher started");
+        this.executor = Executors.newSingleThreadExecutor();
         this.executor.execute(() -> {
             for (String job : jobs) {
                 logger.info("Launching job {}", job);
@@ -60,10 +70,21 @@ public class StartupJobLauncher implements InitializingBean, DisposableBean {
             }
             logger.info("Startup job launcher finished");
         });
+        this.running = true;
     }
 
     @Override
-    public void destroy() {
-        MoreExecutors.shutdownAndAwaitTermination(this.executor, Duration.ofSeconds(3));
+    public void stop() {
+        final ExecutorService executor = this.executor;
+        if (executor != null) {
+            MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(3));
+            this.executor = null;
+        }
+        this.running = false;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.running;
     }
 }
