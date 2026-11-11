@@ -5,16 +5,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class HeatmapFlusherTest {
@@ -85,6 +95,44 @@ class HeatmapFlusherTest {
         flusher.flush();
 
         assertEquals(5, calls.get());
+    }
+
+    @Test
+    void startSchedulesTheFlushAndStopSendsTheRest() {
+        HeatmapCounter<String> counter = new HeatmapCounter<>();
+        Map<String, Long> sent = new HashMap<>();
+        HeatmapFlusher<String> flusher = new HeatmapFlusher<>(counter, (key, count) -> {
+            sent.put(key, count);
+            return done();
+        }, scheduler, INTERVAL, GENEROUS_TIMEOUT);
+        ScheduledFuture<?> flushTask = mock(ScheduledFuture.class);
+        doReturn(flushTask).when(scheduler).scheduleWithFixedDelay(any(Runnable.class), any(Instant.class), eq(INTERVAL));
+
+        // not scheduled by the constructor
+        verify(scheduler, never()).scheduleWithFixedDelay(any(Runnable.class), any(Instant.class), any(Duration.class));
+        assertFalse(flusher.isRunning());
+        assertTrue(flusher.isAutoStartup());
+
+        flusher.start();
+        assertTrue(flusher.isRunning());
+        verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), any(Instant.class), eq(INTERVAL));
+
+        counter.increment("a");
+        flusher.stop();
+
+        assertFalse(flusher.isRunning());
+        verify(flushTask).cancel(false);
+        assertEquals(Map.of("a", 1L), sent);
+    }
+
+    @Test
+    void stopsAfterTheDefaultPhaseAndBeforeTheKafkaProducer() {
+        HeatmapFlusher<String> flusher = new HeatmapFlusher<>(new HeatmapCounter<>(), (key, count) -> done(),
+                scheduler, INTERVAL, GENEROUS_TIMEOUT);
+
+        // a higher phase stops first: receivers (DEFAULT_PHASE) > flusher > DefaultKafkaProducerFactory (MIN_VALUE)
+        assertTrue(flusher.getPhase() < SmartLifecycle.DEFAULT_PHASE);
+        assertTrue(flusher.getPhase() > Integer.MIN_VALUE);
     }
 
     private static CompletableFuture<?> done() {
