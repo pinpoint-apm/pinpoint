@@ -62,7 +62,7 @@ public class WebhookAlarmSender implements AlarmSender {
                                         AlarmNotificationChannelConfig channelConfig,
                                         MetricQueryResult metricResults) {
         boolean slack = isSlack(channelConfig.format());
-        String title = messageFormatter.formatTitle(rule, channelConfig.title(), metricResults);
+        String title = messageFormatter.formatWebhookTitle(rule, channelConfig.title(), metricResults, slack);
         String body = messageFormatter.formatWebhookBody(
                 rule, channelConfig.template(), metricResults, slack);
         String content = buildPayload(slack, channelConfig, title, body);

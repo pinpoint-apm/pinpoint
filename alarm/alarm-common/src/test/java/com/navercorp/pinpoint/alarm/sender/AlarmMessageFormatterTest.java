@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.QueriedRange;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
+import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmMetricDefinition;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
@@ -381,7 +382,7 @@ class AlarmMessageFormatterTest {
 
         assertThat(body)
                 .startsWith("🚨 *[CRITICAL]* *[test-app]* Test Alarm")
-                .contains("    └ `error_count` : 127 (>= 50, window: 300s)");
+                .contains("    └ `error_count` : 127 (&gt;= 50, window: 300s)");
     }
 
     @Test
@@ -390,6 +391,65 @@ class AlarmMessageFormatterTest {
         String body = formatter.formatWebhookBody(rule, "${metrics}", metricResults(rule, 127.0), true);
 
         assertEquals("error_count=127", body);
+    }
+
+    @Test
+    void webhookBody_slackCustomTemplate_escapesTheValuesButNotTheTemplate() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setDescription("see <!here>");
+        String body = linkFormatter.formatWebhookBody(rule, "<${detail_link}|Open> ${description} ${details}",
+                metricResults(rule, 1.0, List.of("Error: <https://evil.example|click here> & <!channel>")), true);
+
+        assertThat(body)
+                .matches("(?s)<https://pinpoint\\.example\\.com/detail/test-service/test-app@\\?from=\\d+&amp;to=\\d+\\|Open> .*")
+                .contains("|Open> see &lt;!here&gt; - Error: &lt;https://evil.example|click here&gt; &amp; &lt;!channel&gt;")
+                .doesNotContain("<https://evil.example", "<!channel>", "<!here>");
+    }
+
+    @Test
+    void webhookBody_slackDefault_escapesTheRuleValues() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setName("<!channel> latency > 500ms");
+        rule.setDescription("see <https://wiki.example|wiki> & co");
+        rule.setFilters(List.of(new AlarmFilter("uri", AlarmFilter.Op.EQ, "<a&b>")));
+        String body = formatter.formatWebhookBody(rule, null, metricResults(rule, 1.0), true);
+
+        assertThat(body)
+                .contains("*[test-app]* &lt;!channel&gt; latency &gt; 500ms")
+                .contains("*Description:* see &lt;https://wiki.example|wiki&gt; &amp; co")
+                .contains("`uri` EQ [&lt;a&amp;b&gt;]")
+                .doesNotContain("<!channel>", "<https://wiki.example", "<a&b>");
+    }
+
+    @Test
+    void webhookBody_slackDefault_escapesTheOperator() {
+        AlarmRuleV2 rule = createRule();
+        rule.getConditions().setOp(AlarmCondition.ComparisonOp.LT);
+
+        assertThat(formatter.formatWebhookBody(rule, null, metricResults(rule, 3.0), true))
+                .contains("`error_count` : 3 (&lt; 50, window: 300s)");
+        assertThat(formatter.formatWebhookBody(rule, null, metricResults(rule, 3.0), false))
+                .contains("error_count : 3 (< 50, window: 300s)");
+    }
+
+    @Test
+    void webhookBody_plainCustomTemplate_keepsTheValues() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = formatter.formatWebhookBody(rule, "${details}", metricResults(rule, 1.0,
+                List.of("Error: <b> & <!channel>")), false);
+
+        assertEquals("- Error: <b> & <!channel>", body);
+    }
+
+    @Test
+    void webhookTitle_slack_escapesTheValues() {
+        AlarmRuleV2 rule = createRule();
+        rule.setName("<!channel> down");
+
+        assertEquals("[CRITICAL][test-app] &lt;!channel&gt; down",
+                formatter.formatWebhookTitle(rule, null, metricResults(rule, 127.0), true));
+        assertEquals("[CRITICAL][test-app] <!channel> down",
+                formatter.formatTitle(rule, null, metricResults(rule, 127.0)));
     }
 
     @Test
@@ -411,6 +471,15 @@ class AlarmMessageFormatterTest {
                 linkedDetail(rule, new Detail("TypeError: <x>", "e1", "/errors/g1")), true);
 
         assertThat(body).contains("        \u2022 <https://pinpoint.example.com/errors/g1|[e1] TypeError: &lt;x&gt;>");
+    }
+
+    @Test
+    void detailLine_slackEscapesTheUrlLikeAnyOtherValue() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String body = linkFormatter.formatWebhookBody(rule, null,
+                linkedDetail(rule, new Detail("TypeError", "e1", "/errors/g1?a=1&b=2")), true);
+
+        assertThat(body).contains("<https://pinpoint.example.com/errors/g1?a=1&amp;b=2|[e1] TypeError>");
     }
 
     @Test

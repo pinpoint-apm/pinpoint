@@ -110,9 +110,20 @@ public class AlarmMessageFormatter {
     }
 
     public String formatTitle(AlarmRuleV2 rule, String customTitle, MetricQueryResult metricResults) {
+        return formatTitle(rule, customTitle, metricResults, Markup.PLAIN);
+    }
+
+    /** Slack shows the title in the same mrkdwn text block as the body, so its values are escaped like the body's. */
+    public String formatWebhookTitle(AlarmRuleV2 rule, String customTitle, MetricQueryResult metricResults,
+                                     boolean mrkdwn) {
+        return formatTitle(rule, customTitle, metricResults, Markup.of(mrkdwn));
+    }
+
+    private String formatTitle(AlarmRuleV2 rule, String customTitle, MetricQueryResult metricResults, Markup markup) {
         ZonedDateTime now = ZonedDateTime.now();
         String template = StringUtils.hasText(customTitle) ? customTitle : defaultTitleTemplate(rule);
-        return replaceVariables(template, rule, metricResults, now, UNLIMITED_DETAIL_BYTES, DetailStyle.TEXT_ONLY);
+        return replaceVariables(template, rule, metricResults, now, UNLIMITED_DETAIL_BYTES, DetailStyle.TEXT_ONLY,
+                markup);
     }
 
     private static String defaultTitleTemplate(AlarmRuleV2 rule) {
@@ -137,7 +148,8 @@ public class AlarmMessageFormatter {
                               int detailBudgetBytes) {
         ZonedDateTime now = ZonedDateTime.now();
         if (StringUtils.hasText(customTemplate)) {
-            return replaceVariables(customTemplate, rule, metricResults, now, detailBudgetBytes, DetailStyle.TEXT_ONLY);
+            return replaceVariables(customTemplate, rule, metricResults, now, detailBudgetBytes, DetailStyle.TEXT_ONLY,
+                    Markup.PLAIN);
         }
         return buildDefaultBody(rule, metricResults, now, detailBudgetBytes);
     }
@@ -155,47 +167,50 @@ public class AlarmMessageFormatter {
     /**
      * Body for webhook deliveries: the same layout with or without Slack mrkdwn, since
      * {@code *bold*} and backticks render only in Slack and are literal text anywhere else.
-     * A custom template is rendered as-is, like the other channels.
+     * With mrkdwn, every value is escaped, in the default body and in a custom template; the text of a
+     * custom template is its author's own and stays as written.
      */
     public String formatWebhookBody(AlarmRuleV2 rule, String customTemplate, MetricQueryResult metricResults,
                                     boolean mrkdwn) {
         ZonedDateTime now = ZonedDateTime.now();
+        Markup markup = Markup.of(mrkdwn);
         if (StringUtils.hasText(customTemplate)) {
-            return replaceVariables(customTemplate, rule, metricResults, now, UNLIMITED_DETAIL_BYTES, DetailStyle.FULL);
+            return replaceVariables(customTemplate, rule, metricResults, now, UNLIMITED_DETAIL_BYTES, DetailStyle.FULL,
+                    markup);
         }
-        return buildWebhookBody(rule, metricResults, now, mrkdwn);
+        return buildWebhookBody(rule, metricResults, now, markup);
     }
 
     private String buildWebhookBody(AlarmRuleV2 rule, MetricQueryResult metricResults, ZonedDateTime now,
-                                    boolean mrkdwn) {
+                                    Markup markup) {
         Map<MetricQueryKey, AlarmCondition> leafByMetric = buildLeafByMetricKey(rule);
         AlarmSeverity severity = rule.getSeverity();
 
         StringBuilder sb = new StringBuilder();
-        if (mrkdwn) {
+        if (markup == Markup.SLACK) {
             // Slack shows one text block, so the body leads with the headline. A DEFAULT
             // payload has its own title field saying the same thing, so it starts at the
             // fields instead of repeating it.
             sb.append(severityEmoji(severity)).append(' ')
-                    .append(bold("[" + severityName(severity) + "]", mrkdwn)).append(' ')
-                    .append(bold("[" + nullSafe(rule.getApplicationName()) + "]", mrkdwn)).append(' ')
-                    .append(nullSafe(rule.getName())).append("\n\n");
+                    .append(markup.bold("[" + severityName(severity) + "]")).append(' ')
+                    .append(markup.bold("[" + nullSafe(rule.getApplicationName()) + "]")).append(' ')
+                    .append(markup.escape(nullSafe(rule.getName()))).append("\n\n");
         }
 
         if (StringUtils.hasText(rule.getDescription())) {
-            appendField(sb, "📝", "Description", rule.getDescription(), mrkdwn);
+            appendField(sb, "📝", "Description", rule.getDescription(), markup);
         }
-        appendField(sb, "🌐", "Service", nullSafe(rule.getServiceName()), mrkdwn);
-        appendField(sb, "📦", "Application", nullSafe(rule.getApplicationName()), mrkdwn);
-        appendField(sb, "📊", "Data Source", nullSafe(rule.getDataSource()), mrkdwn);
+        appendField(sb, "🌐", "Service", nullSafe(rule.getServiceName()), markup);
+        appendField(sb, "📦", "Application", nullSafe(rule.getApplicationName()), markup);
+        appendField(sb, "📊", "Data Source", nullSafe(rule.getDataSource()), markup);
 
-        sb.append("\n• 🔍 ").append(bold("Conditions:", mrkdwn)).append("\n");
+        sb.append("\n• 🔍 ").append(markup.bold("Conditions:")).append("\n");
         for (Map.Entry<MetricQueryKey, Double> e : metricResults.values().entrySet()) {
             AlarmCondition leaf = leafByMetric.get(e.getKey());
-            sb.append("    └ ").append(code(metricName(e.getKey()), mrkdwn))
+            sb.append("    └ ").append(markup.code(metricName(e.getKey())))
                     .append(" : ").append(formatNumber(e.getValue()));
             if (hasDisplayCondition(leaf)) {
-                sb.append(" (").append(nullSafe(leaf.getOp())).append(" ").append(formatNumber(leaf.getThreshold()));
+                sb.append(" (").append(markup.escape(nullSafe(leaf.getOp()))).append(" ").append(formatNumber(leaf.getThreshold()));
                 if (leaf.getWindowSec() != null) {
                     sb.append(", window: ").append(leaf.getWindowSec()).append("s");
                 }
@@ -206,7 +221,7 @@ public class AlarmMessageFormatter {
             Rendered details = buildDetails(metricResults.details(e.getKey()), DetailStyle.FULL,
                     HTML_DETAIL_MAX_CHARS, UNLIMITED_DETAIL_BYTES);
             for (Line line : details.lines()) {
-                sb.append("        • ").append(linkedLine(line, mrkdwn)).append("\n");
+                sb.append("        • ").append(linkedLine(line, markup)).append("\n");
             }
             if (details.more() > 0) {
                 sb.append("        ").append(details.moreText()).append("\n");
@@ -215,42 +230,23 @@ public class AlarmMessageFormatter {
 
         List<AlarmFilter> filters = rule.getFilters();
         if (!CollectionUtils.isEmpty(filters)) {
-            sb.append("\n• 🚫 ").append(bold("Filters:", mrkdwn)).append("\n");
+            sb.append("\n• 🚫 ").append(markup.bold("Filters:")).append("\n");
             for (AlarmFilter f : filters) {
-                sb.append("    └ ").append(code(nullSafe(f.getKey()), mrkdwn))
+                sb.append("    └ ").append(markup.code(nullSafe(f.getKey())))
                         .append(" ").append(nullSafe(f.getOp()))
-                        .append(" [").append(nullSafe(f.getValue())).append("]\n");
+                        .append(" [").append(markup.escape(nullSafe(f.getValue()))).append("]\n");
             }
         }
 
         sb.append("\n");
-        appendField(sb, "⏱️", "Check Interval", formatInterval(rule.getCheckIntervalSec()), mrkdwn);
-        appendField(sb, "🕒", "Fired At", now.format(DT_FORMAT), mrkdwn);
+        appendField(sb, "⏱️", "Check Interval", formatInterval(rule.getCheckIntervalSec()), markup);
+        appendField(sb, "🕒", "Fired At", now.format(DT_FORMAT), markup);
         return sb.toString().stripTrailing();
     }
 
-    private static void appendField(StringBuilder sb, String emoji, String label, String value, boolean mrkdwn) {
-        sb.append("• ").append(emoji).append(' ').append(bold(label + ":", mrkdwn))
-                .append(' ').append(value).append("\n");
-    }
-
-    private static String bold(String text, boolean mrkdwn) {
-        return mrkdwn ? "*" + text + "*" : text;
-    }
-
-    private static String code(String text, boolean mrkdwn) {
-        return mrkdwn ? "`" + text + "`" : text;
-    }
-
-    /**
-     * Slack renders the text block as mrkdwn, so text coming from the monitored application
-     * has to escape the characters that build links ({@code <url|label>}) and mentions.
-     */
-    private static String escapeMrkdwn(String text, boolean mrkdwn) {
-        if (!mrkdwn) {
-            return text;
-        }
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    private static void appendField(StringBuilder sb, String emoji, String label, String value, Markup markup) {
+        sb.append("• ").append(emoji).append(' ').append(markup.bold(label + ":"))
+                .append(' ').append(markup.escape(value)).append("\n");
     }
 
     private static String severityName(AlarmSeverity severity) {
@@ -277,7 +273,8 @@ public class AlarmMessageFormatter {
 
     @NonNull
     private String buildCustomTemplate(AlarmRuleV2 rule, String customTemplate, MetricQueryResult metricResults, ZonedDateTime now) {
-        String body = replaceVariables(customTemplate, rule, metricResults, now, UNLIMITED_DETAIL_BYTES, DetailStyle.FULL);
+        String body = replaceVariables(customTemplate, rule, metricResults, now, UNLIMITED_DETAIL_BYTES, DetailStyle.FULL,
+                Markup.PLAIN);
         String escaped = HtmlUtils.htmlEscape(body);
         return escaped.replace("\n", "<br>\n");
     }
@@ -440,12 +437,12 @@ public class AlarmMessageFormatter {
      * since a URL glued to text from the monitored application is not what a client turns
      * into a link.
      */
-    private static String linkedLine(Line line, boolean mrkdwn) {
+    private static String linkedLine(Line line, Markup markup) {
         if (line.url() == null) {
-            return escapeMrkdwn(line.text(), mrkdwn);
+            return markup.escape(line.text());
         }
-        if (mrkdwn) {
-            return "<" + line.url() + "|" + escapeMrkdwn(line.text(), mrkdwn) + ">";
+        if (markup == Markup.SLACK) {
+            return Markup.slackLink(line.url(), line.text());
         }
         return line.text() + "\n          " + line.url();
     }
@@ -582,7 +579,7 @@ public class AlarmMessageFormatter {
     }
 
     private String replaceVariables(String template, AlarmRuleV2 rule, MetricQueryResult metricResults,
-                                    ZonedDateTime now, int detailBudgetBytes, DetailStyle style) {
+                                    ZonedDateTime now, int detailBudgetBytes, DetailStyle style, Markup markup) {
         // absent keys (e.g. ${metric} with no metric results) are left as-is, like the
         // previous chained-replace implementation
         Map<String, String> variables = new HashMap<>();
@@ -637,6 +634,7 @@ public class AlarmMessageFormatter {
                     .collect(Collectors.joining(", "));
         }
         variables.put("filters", filterSummary);
+        variables.replaceAll((key, value) -> markup.escape(value));
 
         StringSubstitutor substitutor = new StringSubstitutor(variables);
         substitutor.setDisableSubstitutionInValues(true);

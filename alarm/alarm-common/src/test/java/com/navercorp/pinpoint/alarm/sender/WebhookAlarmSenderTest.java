@@ -15,17 +15,29 @@
  */
 package com.navercorp.pinpoint.alarm.sender;
 
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Detail;
+import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.Details;
+import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
+import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
+import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
+import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
+import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.thymeleaf.TemplateEngine;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,7 +75,7 @@ class WebhookAlarmSenderTest {
         try {
             String webhookUrl = "http://127.0.0.1:" + server.getAddress().getPort() + "/alarm";
             AlarmMessageFormatter messageFormatter = mock(AlarmMessageFormatter.class);
-            when(messageFormatter.formatTitle(any(), any(), any())).thenReturn("title");
+            when(messageFormatter.formatWebhookTitle(any(), any(), any(), anyBoolean())).thenReturn("title");
             when(messageFormatter.formatWebhookBody(any(), any(), any(), anyBoolean())).thenReturn("body");
             WebhookAlarmSender sender = new WebhookAlarmSender(
                     new RestTemplate(), messageFormatter);
@@ -197,14 +210,14 @@ class WebhookAlarmSenderTest {
         AlarmNotificationChannelConfig config = new AlarmNotificationChannelConfig(
                 "SLACK", "custom-title", "custom-template");
         MetricQueryResult metricResults = MetricQueryResult.empty();
-        when(messageFormatter.formatTitle(rule, "custom-title", metricResults)).thenReturn("rendered-title");
+        when(messageFormatter.formatWebhookTitle(rule, "custom-title", metricResults, true)).thenReturn("rendered-title");
         when(messageFormatter.formatWebhookBody(rule, "custom-template", metricResults, true)).thenReturn("rendered-body");
 
         AlarmDeliveryPayload payload = sender.prepare(rule, channel, config, metricResults);
 
         assertEquals("{\"text\":\"rendered-title\\nrendered-body\"}", payload.content());
         assertEquals(List.of("https://example.test/hook"), payload.destinations());
-        verify(messageFormatter).formatTitle(rule, "custom-title", metricResults);
+        verify(messageFormatter).formatWebhookTitle(rule, "custom-title", metricResults, true);
         verify(messageFormatter).formatWebhookBody(rule, "custom-template", metricResults, true);
         verifyNoInteractions(restTemplate);
     }
@@ -235,7 +248,7 @@ class WebhookAlarmSenderTest {
         channel.setDestination("https://example.test/hook");
         AlarmNotificationChannelConfig config = new AlarmNotificationChannelConfig("DEFAULT", null, null);
         MetricQueryResult metricResults = MetricQueryResult.empty();
-        when(messageFormatter.formatTitle(rule, null, metricResults)).thenReturn("rendered-title");
+        when(messageFormatter.formatWebhookTitle(rule, null, metricResults, false)).thenReturn("rendered-title");
         when(messageFormatter.formatWebhookBody(rule, null, metricResults, false)).thenReturn("rendered-body");
 
         AlarmDeliveryPayload payload = sender.prepare(rule, channel, config, metricResults);
@@ -254,7 +267,7 @@ class WebhookAlarmSenderTest {
         AlarmNotificationChannelConfig config =
                 new AlarmNotificationChannelConfig("SLACK", null, "${metrics}");
         MetricQueryResult metricResults = MetricQueryResult.empty();
-        when(messageFormatter.formatTitle(rule, null, metricResults)).thenReturn("rendered-title");
+        when(messageFormatter.formatWebhookTitle(rule, null, metricResults, true)).thenReturn("rendered-title");
         when(messageFormatter.formatWebhookBody(rule, "${metrics}", metricResults, true))
                 .thenReturn("rendered-body");
 
@@ -262,5 +275,50 @@ class WebhookAlarmSenderTest {
 
         // a custom template has no headline of its own, so the title still leads
         assertEquals("{\"text\":\"rendered-title\\nrendered-body\"}", payload.content());
+    }
+
+    @ParameterizedTest
+    @CsvSource(nullValues = "null", value = {
+            "null, null",
+            "${name}, null",
+            "null, '${name} ${description} ${filters} ${summary} ${details}'",
+            "'[${severity}] ${name}', ${details}"
+    })
+    void prepareSlack_leavesNoMarkupFromTheValues(String title, String template) {
+        AlarmMessageFormatter formatter = new AlarmMessageFormatter(new TemplateEngine(), "",
+                "https://pinpoint.example.com", "/config/alarm",
+                new AlarmDataSourceRegistry(List.of(new TestAlarmDataSource.Provider())));
+        WebhookAlarmSender sender = new WebhookAlarmSender(mock(RestTemplate.class), formatter);
+
+        AlarmRuleV2 rule = new AlarmRuleV2();
+        rule.setId(7L);
+        rule.setName("<!channel> down");
+        rule.setDescription("see <https://evil.example|wiki>");
+        rule.setSeverity(AlarmSeverity.CRITICAL);
+        rule.setDataSource(TestAlarmDataSource.AGENT_STAT.name());
+        rule.setServiceName("test-service");
+        rule.setApplicationName("test-app");
+        rule.setFilters(List.of(new AlarmFilter("uri", AlarmFilter.Op.EQ, "<!here>")));
+        AlarmCondition leaf = new AlarmCondition();
+        leaf.setType(AlarmCondition.Type.LEAF);
+        leaf.setMetric("deadlock_count");
+        leaf.setTrigger(AlarmCondition.Trigger.NEW_GROUP);
+        rule.setConditions(leaf);
+        MetricQueryKey key = MetricQueryKey.from(leaf);
+        MetricQueryResult results = new MetricQueryResult(Map.of(key, 1.0), Map.of(key, new Details(
+                "<!everyone>", List.of(new Detail("Error: <https://evil.example|click> & <@U123>", "e1", null)), 0)),
+                null);
+        AlarmNotificationChannel channel = new AlarmNotificationChannel();
+        channel.setDestination("https://example.test/hook");
+
+        String text = JsonMapper.builder().build()
+                .readTree(sender.prepare(rule, channel, new AlarmNotificationChannelConfig("SLACK", title, template),
+                        results).content())
+                .get("text").asString();
+
+        // Slack builds mentions and links only from a raw '<'; every one left must be a link of Pinpoint's own
+        String[] afterEachBracket = text.split("<", -1);
+        assertThat(List.of(afterEachBracket).subList(1, afterEachBracket.length)).allSatisfy(markup ->
+                assertThat(markup).startsWith("https://pinpoint.example.com/"));
     }
 }
