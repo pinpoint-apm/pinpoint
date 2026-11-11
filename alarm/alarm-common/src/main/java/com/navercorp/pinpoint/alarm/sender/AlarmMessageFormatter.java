@@ -178,8 +178,8 @@ public class AlarmMessageFormatter {
             // fields instead of repeating it.
             sb.append(severityEmoji(severity)).append(' ')
                     .append(bold("[" + severityName(severity) + "]", mrkdwn)).append(' ')
-                    .append(bold("[" + nullSafe(rule.getApplicationName()) + "]", mrkdwn)).append(' ')
-                    .append(nullSafe(rule.getName())).append("\n\n");
+                    .append(bold("[" + escapeMrkdwn(nullSafe(rule.getApplicationName()), mrkdwn) + "]", mrkdwn))
+                    .append(' ').append(escapeMrkdwn(nullSafe(rule.getName()), mrkdwn)).append("\n\n");
         }
 
         if (StringUtils.hasText(rule.getDescription())) {
@@ -195,7 +195,7 @@ public class AlarmMessageFormatter {
             sb.append("    └ ").append(code(metricName(e.getKey()), mrkdwn))
                     .append(" : ").append(formatNumber(e.getValue()));
             if (hasDisplayCondition(leaf)) {
-                sb.append(" (").append(nullSafe(leaf.getOp())).append(" ").append(formatNumber(leaf.getThreshold()));
+                sb.append(" (").append(escapeMrkdwn(nullSafe(leaf.getOp()), mrkdwn)).append(" ").append(formatNumber(leaf.getThreshold()));
                 if (leaf.getWindowSec() != null) {
                     sb.append(", window: ").append(leaf.getWindowSec()).append("s");
                 }
@@ -217,21 +217,50 @@ public class AlarmMessageFormatter {
         if (!CollectionUtils.isEmpty(filters)) {
             sb.append("\n• 🚫 ").append(bold("Filters:", mrkdwn)).append("\n");
             for (AlarmFilter f : filters) {
-                sb.append("    └ ").append(code(nullSafe(f.getKey()), mrkdwn))
+                sb.append("    └ ").append(code(escapeMrkdwn(nullSafe(f.getKey()), mrkdwn), mrkdwn))
                         .append(" ").append(nullSafe(f.getOp()))
-                        .append(" [").append(nullSafe(f.getValue())).append("]\n");
+                        .append(" [").append(escapeMrkdwn(nullSafe(f.getValue()), mrkdwn)).append("]\n");
             }
         }
 
         sb.append("\n");
         appendField(sb, "⏱️", "Check Interval", formatInterval(rule.getCheckIntervalSec()), mrkdwn);
         appendField(sb, "🕒", "Fired At", now.format(DT_FORMAT), mrkdwn);
+        appendLinks(sb, buildDetailLink(rule, metricResults.range()), buildHistoryLink(rule), mrkdwn);
         return sb.toString().stripTrailing();
+    }
+
+    /**
+     * The same links as the email footer. Slack shows a label in place of the URL; a plain webhook
+     * gets the URL itself, which a messenger turns into a link.
+     */
+    private static void appendLinks(StringBuilder sb, String detailLink, String historyLink, boolean mrkdwn) {
+        if (detailLink == null && historyLink == null) {
+            return;
+        }
+        sb.append("\n");
+        if (mrkdwn) {
+            List<String> links = new ArrayList<>(2);
+            if (detailLink != null) {
+                links.add("<" + detailLink + "|View Details>");
+            }
+            if (historyLink != null) {
+                links.add("<" + historyLink + "|Alarm History>");
+            }
+            sb.append("• 🔗 ").append(String.join(" · ", links)).append("\n");
+            return;
+        }
+        if (detailLink != null) {
+            appendField(sb, "🔗", "View Details", detailLink, false);
+        }
+        if (historyLink != null) {
+            appendField(sb, "📜", "History", historyLink, false);
+        }
     }
 
     private static void appendField(StringBuilder sb, String emoji, String label, String value, boolean mrkdwn) {
         sb.append("• ").append(emoji).append(' ').append(bold(label + ":", mrkdwn))
-                .append(' ').append(value).append("\n");
+                .append(' ').append(escapeMrkdwn(value, mrkdwn)).append("\n");
     }
 
     private static String bold(String text, boolean mrkdwn) {
@@ -243,8 +272,9 @@ public class AlarmMessageFormatter {
     }
 
     /**
-     * Slack renders the text block as mrkdwn, so text coming from the monitored application
-     * has to escape the characters that build links ({@code <url|label>}) and mentions.
+     * Slack renders the text block as mrkdwn, so every value has to escape the characters that
+     * build links ({@code <url|label>}) and mentions. A stray {@code <} would also run to the
+     * {@code >} of the links at the end of the body.
      */
     private static String escapeMrkdwn(String text, boolean mrkdwn) {
         if (!mrkdwn) {
@@ -318,7 +348,7 @@ public class AlarmMessageFormatter {
         context.setVariable("conditions", conditions);
         context.setVariable("filters", rule.getFilters() != null ? rule.getFilters() : List.of());
         context.setVariable("detailLink",
-                pinpointBaseUrl != null ? buildDetailLink(rule, metricResults.range()) : null);
+                buildDetailLink(rule, metricResults.range()));
         context.setVariable("historyLink", buildHistoryLink(rule));
         return templateEngine.process(HTML_BODY_TEMPLATE, context);
     }
@@ -551,6 +581,9 @@ public class AlarmMessageFormatter {
      * check interval is then the best guess available.
      */
     private String buildDetailLink(AlarmRuleV2 rule, QueriedRange range) {
+        if (pinpointBaseUrl == null) {
+            return null;
+        }
         AlarmDataSource dataSource = dataSourceRegistry.find(rule.getDataSource()).orElse(null);
         if (dataSource == null) {
             return null;
@@ -596,8 +629,7 @@ public class AlarmMessageFormatter {
         variables.put("check_interval", rule.getCheckIntervalSec() != null
                 ? String.valueOf(rule.getCheckIntervalSec()) : "");
         variables.put("fired_at", now.format(DT_FORMAT));
-        String detailLink = pinpointBaseUrl != null
-                ? nullSafe(buildDetailLink(rule, metricResults.range())) : "";
+        String detailLink = nullSafe(buildDetailLink(rule, metricResults.range()));
         variables.put("detail_link", detailLink);
         // Message bodies already stored by users spell it ${rum_link}; an unknown key is
         // left in the output verbatim, so dropping the old name would print it to recipients.

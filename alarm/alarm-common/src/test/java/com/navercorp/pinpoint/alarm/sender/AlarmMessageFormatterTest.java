@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult.QueriedRange;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
+import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmMetricDefinition;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
@@ -381,7 +382,7 @@ class AlarmMessageFormatterTest {
 
         assertThat(body)
                 .startsWith("🚨 *[CRITICAL]* *[test-app]* Test Alarm")
-                .contains("    └ `error_count` : 127 (>= 50, window: 300s)");
+                .contains("    └ `error_count` : 127 (&gt;= 50, window: 300s)");
     }
 
     @Test
@@ -458,6 +459,71 @@ class AlarmMessageFormatterTest {
         assertThat(linkFormatter.formatSmsBody(rule, null, results))
                 .contains("    - TypeError\n").doesNotContain("e1", "/errors/g1");
         assertEquals("- TypeError", linkFormatter.formatSmsBody(rule, "${details}", results));
+    }
+
+    @Test
+    void webhookBody_slack_endsWithTheLinks() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setId(7L);
+        String body = linkFormatter.formatWebhookBody(rule, null, metricResults(rule, 1.0), true);
+
+        assertThat(body).matches("(?s).*• 🕒 \\*Fired At:\\* [^\\n]+\\n\\n"
+                + "• 🔗 <https://pinpoint\\.example\\.com/detail/test-service/test-app@\\?from=\\d+&to=\\d+\\|View Details>"
+                + " · <https://pinpoint\\.example\\.com/config/alarm/test-service\\?ruleId=7&applicationName=test-app"
+                + "&applicationType=\\|Alarm History>");
+    }
+
+    @Test
+    void webhookBody_slack_escapesTheValuesSoTheLinksStayWhole() {
+        AlarmRuleV2 rule = createRule();
+        rule.setId(7L);
+        rule.setName("p99 < 100ms");
+        rule.setDescription("see <!here> & wiki");
+        rule.setFilters(List.of(new AlarmFilter("uri", AlarmFilter.Op.EQ, "<a>")));
+        rule.getConditions().setOp(AlarmCondition.ComparisonOp.LT);
+        String body = linkFormatter.formatWebhookBody(rule, null, metricResults(rule, 3.0), true);
+
+        assertThat(body)
+                .contains("*[test-app]* p99 &lt; 100ms")
+                .contains("*Description:* see &lt;!here&gt; &amp; wiki")
+                .contains("`error_count` : 3 (&lt; 50, window: 300s)")
+                .contains("`uri` EQ [&lt;a&gt;]");
+        // every raw '<' left opens one of the links at the end
+        String[] afterEachBracket = body.split("<", -1);
+        assertThat(List.of(afterEachBracket).subList(1, afterEachBracket.length)).hasSize(2)
+                .allSatisfy(markup -> assertThat(markup).startsWith("https://pinpoint.example.com/"));
+    }
+
+    @Test
+    void webhookBody_plain_endsWithTheLinkUrls() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setId(7L);
+        String body = linkFormatter.formatWebhookBody(rule, null, metricResults(rule, 1.0), false);
+
+        assertThat(body).matches("(?s).*• 🕒 Fired At: [^\\n]+\\n\\n"
+                + "• 🔗 View Details: https://pinpoint\\.example\\.com/detail/test-service/test-app@\\?from=\\d+&to=\\d+\\n"
+                + "• 📜 History: https://pinpoint\\.example\\.com/config/alarm/test-service\\?ruleId=7"
+                + "&applicationName=test-app&applicationType=");
+    }
+
+    @Test
+    void webhookBody_leavesOutTheLinksItCannotBuild() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        rule.setId(7L);
+        AlarmMessageFormatter noDataSources = new AlarmMessageFormatter(templateEngine(), "",
+                "https://pinpoint.example.com/", ALARM_PAGE_PATH, new AlarmDataSourceRegistry(List.of()));
+
+        assertThat(formatter.formatWebhookBody(rule, null, metricResults(rule, 1.0), true))
+                .doesNotContain("🔗", "📜", "https://");
+        assertThat(noDataSources.formatWebhookBody(rule, null, metricResults(rule, 1.0), true))
+                .endsWith("\n\n• 🔗 <https://pinpoint.example.com/config/alarm/test-service?ruleId=7"
+                        + "&applicationName=test-app&applicationType=|Alarm History>");
+        assertThat(noDataSources.formatWebhookBody(rule, null, metricResults(rule, 1.0), false))
+                .contains("• 📜 History: https://").doesNotContain("View Details");
+
+        rule.setId(null);
+        assertThat(linkFormatter.formatWebhookBody(rule, null, metricResults(rule, 1.0), false))
+                .contains("• 🔗 View Details: https://").doesNotContain("History:");
     }
 
     @Test
