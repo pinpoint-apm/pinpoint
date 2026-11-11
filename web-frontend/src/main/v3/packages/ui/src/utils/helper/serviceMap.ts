@@ -1,4 +1,5 @@
-import { GetServerMap, GetServiceMap } from '@pinpoint-fe/ui/src/constants';
+import { ApplicationType, GetServerMap, GetServiceMap } from '@pinpoint-fe/ui/src/constants';
+import { findCalleeApplication } from './serverMap';
 
 const emptyResponseStatistics: GetServerMap.ResponseStatistics = {
   Tot: 0,
@@ -294,7 +295,34 @@ export interface ServerMapSearchItem {
   serviceGroup?: GetServerMap.NodeData;
   /** 목록에 함께 보일 소속 service 이름. 표시할 것이 없으면 undefined다. */
   serviceName?: string;
+  /**
+   * USER 노드가 호출하는 application. USER가 아니거나 하나로 정해지지 않으면 undefined다.
+   *
+   * USER 노드는 백엔드가 이름을 리터럴 `USER`로 바꿔 내려주므로 이름만으로는 목록에서 서로
+   * 구별되지 않는다(USER가 여럿이면 같은 행이 여러 줄 찍힌다). 어느 application 앞의 USER인지가
+   * 곧 그 노드를 알아보는 단서다. `nodeKey`를 쪼개 만들지 않는다 — 합성된 이름이라 경계를 알 수
+   * 없다(`findCalleeApplication` 참고). 나가는 링크의 `targetInfo`가 그 값을 그대로 갖고 있다.
+   */
+  callee?: ApplicationType;
 }
+
+/**
+ * 검색 목록의 필터. 화면에 보이는 글자(`keywords`)에 입력값이 **붙어서** 들어 있을 때만 남긴다.
+ *
+ * cmdk 기본 필터는 두 가지 이유로 쓰지 않는다:
+ * - `value`도 검색 대상에 넣는다. value는 항목 식별용 노드 key(`DEFAULT^pasta-naver-dev^...`)라
+ *   앞에 붙은 service 이름의 글자까지 맞는다.
+ * - 글자가 순서대로만 있으면 띄엄띄엄 맞는다(`user` → `cl·u·s·t·e·r`). 노드 이름은 길고 비슷한
+ *   것이 많아 관계없는 노드가 대량으로 걸린다.
+ */
+export const serverMapSearchFilter = (_value: string, search: string, keywords?: string[]) => {
+  const query = search.trim().toLowerCase();
+
+  if (!query) {
+    return 1;
+  }
+  return keywords?.some((keyword) => keyword.toLowerCase().includes(query)) ? 1 : 0;
+};
 
 /**
  * 목록에 함께 보일 소속 service 이름을 정한다. 표시하지 않을 노드는 undefined.
@@ -322,22 +350,36 @@ const resolveSearchServiceName = (node: GetServerMap.NodeData): string | undefin
  */
 export const buildServerMapSearchList = (
   nodes: GetServerMap.NodeData[] | undefined,
-): ServerMapSearchItem[] =>
-  (nodes ?? []).flatMap((node): ServerMapSearchItem[] => {
+  links?: GetServerMap.LinkData[],
+): ServerMapSearchItem[] => {
+  // 접힌 group 안쪽 USER의 링크는 group 링크의 `subLinks`에만 있으므로 함께 펼쳐서 찾는다.
+  const allLinks = withServiceGroupChildren(links);
+  const withCallee = (item: ServerMapSearchItem): ServerMapSearchItem => {
+    if (item.node.serviceType !== 'USER') {
+      return item;
+    }
+    const callee = findCalleeApplication(allLinks, item.node.key);
+    return callee ? { ...item, callee } : item;
+  };
+
+  return (nodes ?? []).flatMap((node): ServerMapSearchItem[] => {
     const subNodes = node.subNodes;
 
     if (!Array.isArray(subNodes) || subNodes.length === 0) {
-      return [{ node, serviceName: resolveSearchServiceName(node) }];
+      return [withCallee({ node, serviceName: resolveSearchServiceName(node) })];
     }
 
     // group 노드 자체는 이름이 곧 service라 소속 service를 따로 붙이지 않는다.
     return [
       { node, isServiceGroup: true },
-      ...subNodes.map((subNode) => ({
-        node: subNode,
-        serviceGroup: node,
-        // 자식의 service는 group 엔트리가 알려준 값이 정본이다(자식 key에서 다시 읽지 않는다).
-        serviceName: node.serviceName,
-      })),
+      ...subNodes.map((subNode) =>
+        withCallee({
+          node: subNode,
+          serviceGroup: node,
+          // 자식의 service는 group 엔트리가 알려준 값이 정본이다(자식 key에서 다시 읽지 않는다).
+          serviceName: node.serviceName,
+        }),
+      ),
     ];
   });
+};

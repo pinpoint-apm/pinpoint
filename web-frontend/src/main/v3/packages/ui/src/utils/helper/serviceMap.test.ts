@@ -5,6 +5,7 @@ import {
   findServiceGroupNode,
   flattenServiceMapResponse,
   getExpandedServiceGroupId,
+  serverMapSearchFilter,
 } from './serviceMap';
 import { GetServerMap, GetServiceMap } from '@pinpoint-fe/ui/src/constants';
 
@@ -309,6 +310,74 @@ describe('buildServerMapSearchList', () => {
       { node: emptyGroup, serviceName: undefined },
     ]);
   });
+
+  describe('USER nodes', () => {
+    // USER 노드는 이름이 리터럴 `USER`로 와서 여럿이면 서로 구별되지 않는다.
+    const makeUser = (key: string) =>
+      ({ key, applicationName: 'USER', serviceType: 'USER' }) as GetServerMap.NodeData;
+    const userToLink = (from: string, applicationName: string) =>
+      makeAppLink({
+        key: `${from}~x`,
+        from,
+        to: 'x',
+        targetInfo: { applicationName, serviceType: 'JAVA' },
+      } as Partial<GetServerMap.LinkData>);
+
+    test('labels each USER node with the application it calls', () => {
+      const userA = makeUser('svcA^home_JAVA^USER');
+      const userB = makeUser('svcA^product_JAVA^USER');
+
+      const list = buildServerMapSearchList(
+        [userA, userB],
+        [userToLink(userA.key, 'home'), userToLink(userB.key, 'product')],
+      );
+
+      expect(list.map((item) => item.callee)).toEqual([
+        { applicationName: 'home', serviceType: 'JAVA' },
+        { applicationName: 'product', serviceType: 'JAVA' },
+      ]);
+    });
+
+    // 접힌 group 안쪽 USER의 링크는 group 링크의 subLinks에만 있다.
+    test('finds the callee of a USER inside a collapsed service group', () => {
+      const user = makeUser('svcB^b-1_TOMCAT^USER');
+      const group = makeGroup([user]);
+      const groupLink = makeAppLink({
+        key: 'svcB~svcB',
+        from: 'svcB',
+        to: 'svcB',
+        subLinks: [userToLink(user.key, 'b-1')],
+      } as Partial<GetServerMap.LinkData>);
+
+      const [, child] = buildServerMapSearchList([group], [groupLink]);
+
+      expect(child).toMatchObject({
+        node: user,
+        serviceGroup: group,
+        callee: { applicationName: 'b-1', serviceType: 'JAVA' },
+      });
+    });
+
+    // 호출 대상이 하나로 정해지지 않으면 지어내지 않는다 — nodeKey를 쪼개 만들지 않는다.
+    test('leaves callee empty when the USER has no single outbound link', () => {
+      const user = makeUser('svcA^home_JAVA^USER');
+
+      expect(buildServerMapSearchList([user])[0].callee).toBeUndefined();
+      expect(
+        buildServerMapSearchList(
+          [user],
+          [userToLink(user.key, 'home'), userToLink(user.key, 'other')],
+        )[0].callee,
+      ).toBeUndefined();
+    });
+
+    // USER가 아닌 노드는 나가는 링크가 하나여도 callee를 붙이지 않는다.
+    test('does not attach a callee to non-USER nodes', () => {
+      expect(
+        buildServerMapSearchList([appNode], [userToLink(appNode.key, 'b')])[0].callee,
+      ).toBeUndefined();
+    });
+  });
 });
 
 describe('expandServiceGroups', () => {
@@ -408,5 +477,35 @@ describe('expandServiceGroups', () => {
 
     expect(keysOf(view.links)).toEqual(keysOf([aToB1, aToB2, b1ToB2, b1ToC1, b2ToC1]));
     expect(view.links.some((link) => Array.isArray(link.subLinks))).toBe(false);
+  });
+});
+
+describe('serverMapSearchFilter', () => {
+  const user = ['USER (USER) → ACL-PORTAL-DEV (SPRING_BOOT)', 'DEFAULT'];
+  const pasta = ['pasta-naver-dev (STAND_ALONE)', 'DEFAULT'];
+  const esfarm = ['esfarm-cluster-acl-history-client (UNKNOWN)', 'DEFAULT'];
+
+  test('matches a contiguous substring, case-insensitively', () => {
+    expect(serverMapSearchFilter('DEFAULT^ACL-PORTAL-DEV_SPRING_BOOT^USER', 'user', user)).toBe(1);
+    expect(serverMapSearchFilter('x', 'acl-portal', user)).toBe(1);
+  });
+
+  // 노드 key(value) 앞에 붙은 service 이름의 글자로 맞지 않는다.
+  test('ignores the value (node key)', () => {
+    expect(serverMapSearchFilter('DEFAULT^pasta-naver-dev^STAND_ALONE', 'user', pasta)).toBe(0);
+  });
+
+  // 글자가 순서대로 흩어져 있기만 한 것은 맞지 않는다(cl-u-s-t-e-r).
+  test('does not match scattered characters', () => {
+    expect(serverMapSearchFilter('x', 'user', esfarm)).toBe(0);
+  });
+
+  test('matches the service name keyword', () => {
+    expect(serverMapSearchFilter('x', 'default', pasta)).toBe(1);
+  });
+
+  test('keeps every item for a blank search and drops items without keywords', () => {
+    expect(serverMapSearchFilter('x', '  ', pasta)).toBe(1);
+    expect(serverMapSearchFilter('x', 'user', undefined)).toBe(0);
   });
 });

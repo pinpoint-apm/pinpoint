@@ -431,6 +431,7 @@ export const ServerMapCore = ({
     () =>
       buildServerMapSearchList(
         data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined,
+        data?.applicationMapData?.linkDataArray as GetServerMap.LinkData[] | undefined,
       ),
     [data],
   );
