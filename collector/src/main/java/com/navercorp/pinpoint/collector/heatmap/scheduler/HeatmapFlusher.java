@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.collector.heatmap.scheduler;
 
 import com.navercorp.pinpoint.collector.heatmap.counter.HeatmapCounter;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.time.Duration;
@@ -29,11 +28,21 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
-public class HeatmapFlusher<K> {
+/**
+ * Flushes the heatmap counter periodically, started and stopped by the context as a {@link SmartLifecycle}.
+ * <p>
+ * {@link #stop()} sends what is left in the counter. The {@link #PHASE} is below the default phase of the
+ * receivers and above the phase of the Kafka producer, so the last flush runs after the receivers
+ * have stopped counting and before the producer is closed.
+ */
+public class HeatmapFlusher<K> implements SmartLifecycle {
+
+    public static final int PHASE = SmartLifecycle.DEFAULT_PHASE - 1;
 
     private final Logger logger = LogManager.getLogger(getClass());
     private final ThrottledLogger statLogger = ThrottledLogger.getUncountedIntervalLogger(logger, Duration.ofMinutes(5));
@@ -45,6 +54,9 @@ public class HeatmapFlusher<K> {
     private final TaskScheduler scheduler;
     private final Duration flushInterval;
     private final long flushTimeoutNanos;
+
+    private ScheduledFuture<?> flushTask;
+    private volatile boolean running;
 
     public HeatmapFlusher(HeatmapCounter<K> counter, BiFunction<K, Long, CompletableFuture<?>> sink, TaskScheduler scheduler,
                           Duration flushInterval, Duration flushTimeout) {
@@ -63,18 +75,40 @@ public class HeatmapFlusher<K> {
         return timeout.toNanos();
     }
 
-    @PostConstruct
-    public void scheduling() {
+    @Override
+    public void start() {
+        if (this.running) {
+            return;
+        }
         logger.info("start heatmap flusher. interval:{}", flushInterval);
         // random initial delay for collectors started together
         long jitterMillis = ThreadLocalRandom.current().nextLong(flushInterval.toMillis());
         Instant startTime = Instant.now().plusMillis(jitterMillis);
-        this.scheduler.scheduleWithFixedDelay(this::flush, startTime, flushInterval);
+        this.flushTask = this.scheduler.scheduleWithFixedDelay(this::flush, startTime, flushInterval);
+        this.running = true;
     }
 
-    @PreDestroy
-    public void shutdown() {
+    @Override
+    public void stop() {
+        logger.info("stop heatmap flusher");
+        final ScheduledFuture<?> flushTask = this.flushTask;
+        if (flushTask != null) {
+            flushTask.cancel(false);
+            this.flushTask = null;
+        }
+        // the last flush: the receivers have stopped, the producer is still open
         flush();
+        this.running = false;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.running;
+    }
+
+    @Override
+    public int getPhase() {
+        return PHASE;
     }
 
     public void flush() {
