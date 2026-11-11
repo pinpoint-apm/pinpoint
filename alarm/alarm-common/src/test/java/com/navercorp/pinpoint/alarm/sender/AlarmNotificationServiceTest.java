@@ -88,8 +88,8 @@ class AlarmNotificationServiceTest {
                 service.prepareNotifications(rule(1L), MetricQueryResult.empty());
 
         assertEquals(1, result.deliveries().size());
-        assertEquals(new AlarmNotificationChannelConfig(
-                null, "custom-title", "custom-template"), emailSender.lastChannelConfig);
+        // the stored title and template are ignored
+        assertEquals(AlarmNotificationChannelConfig.empty(), emailSender.lastChannelConfig);
     }
 
     @Test
