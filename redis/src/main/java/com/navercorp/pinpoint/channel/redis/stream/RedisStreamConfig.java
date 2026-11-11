@@ -65,10 +65,10 @@ public class RedisStreamConfig {
             builder.executor(executor);
         }
         builder.pollTimeout(Duration.ofMillis(100));
-        StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer =
-                StreamMessageListenerContainer.create(redisConnectionFactory, builder.build());
-        listenerContainer.start();
-        return listenerContainer;
+        // The container is a SmartLifecycle bean with autoStartup: the context starts it after
+        // all singletons are ready and stops it on close. Subscriptions registered earlier are
+        // held and begin polling on start.
+        return StreamMessageListenerContainer.create(redisConnectionFactory, builder.build());
     }
 
     @Bean("redisStreamPubSubChannelProvider")

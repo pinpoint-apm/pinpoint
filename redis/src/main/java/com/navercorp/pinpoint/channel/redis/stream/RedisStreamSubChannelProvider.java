@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.channel.redis.stream;
 
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubChannelProvider;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
@@ -27,7 +26,7 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-class RedisStreamSubChannelProvider implements SubChannelProvider, InitializingBean {
+class RedisStreamSubChannelProvider implements SubChannelProvider {
 
     private final StreamMessageListenerContainer<String, MapRecord<String, String, String>> listenerContainer;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
@@ -51,11 +50,6 @@ class RedisStreamSubChannelProvider implements SubChannelProvider, InitializingB
                 this.name,
                 key
         );
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.listenerContainer.start();
     }
 
 }
