@@ -12,6 +12,7 @@ import org.apache.logging.log4j.spi.LoggerContext;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -42,7 +43,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
                 return configLocation;
             }
         }
-        throw new IllegalStateException("'log4j2-agent.xml' not found. agentPath:" + profilePath);
+        throw new IllegalStateException("log4j2 configuration not found. lookup:" + Arrays.toString(LOOKUP) + " agentPath:" + profilePath);
     }
 
     Log4j2LoggingSystem(Path configLocation) {
