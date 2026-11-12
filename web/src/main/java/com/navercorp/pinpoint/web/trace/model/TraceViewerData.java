@@ -359,7 +359,7 @@ public class TraceViewerData {
 
         public String getCname() { return cname; }
 
-        public Map<String, String> getargs() { return args; }
+        public Map<String, String> getArgs() { return args; }
 
         public void addArgs(Map<String, String> args) {
             this.args.putAll(args);
