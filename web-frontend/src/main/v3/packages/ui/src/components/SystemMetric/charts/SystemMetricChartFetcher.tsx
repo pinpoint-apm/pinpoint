@@ -1,7 +1,12 @@
 import React from 'react';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import {
+  GridComponent,
+  GraphicComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { SystemMetricMetricInfo } from '@pinpoint-fe/ui/src/constants';
 import { useGetSystemMetricChartData, useGetSystemMetricTagsData } from '@pinpoint-fe/ui/src/hooks';
@@ -30,7 +35,14 @@ import {
   formatCategoryDateLabel,
 } from '../../../lib/charts/echartsTimeSeriesFormat';
 
-echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+echarts.use([
+  LineChart,
+  GridComponent,
+  GraphicComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 // 페이지의 모든 System Metric 차트를 하나의 echarts 그룹으로 묶어 tooltip/axisPointer를 동기화한다.
 // (billboard 의 tooltip.linked: true 대체)

@@ -1,14 +1,14 @@
 import React from 'react';
 import * as echarts from 'echarts/core';
 import { BarChart as BarChartEcharts } from 'echarts/charts';
-import { GridComponent } from 'echarts/components';
+import { GridComponent, GraphicComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { abbreviateNumber, getMaxTickValue } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '../../../lib';
 import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
 import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 
-echarts.use([BarChartEcharts, GridComponent, CanvasRenderer]);
+echarts.use([BarChartEcharts, GridComponent, GraphicComponent, CanvasRenderer]);
 
 export interface ResponseAvgMaxChartProps {
   /**

@@ -1,7 +1,12 @@
 import React from 'react';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import {
+  GridComponent,
+  GraphicComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { ErrorAnalysisChartType } from '@pinpoint-fe/ui/src/constants';
 import { abbreviateNumber } from '@pinpoint-fe/ui/src/utils';
@@ -14,7 +19,14 @@ import {
   formatCategoryDateLabel,
 } from '../../../lib/charts/echartsTimeSeriesFormat';
 
-echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+echarts.use([
+  LineChart,
+  GridComponent,
+  GraphicComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 const formatErrorCount = (value: number) => abbreviateNumber(value, ['', 'K', 'M', 'G']);
 

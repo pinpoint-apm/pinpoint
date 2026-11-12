@@ -1,7 +1,12 @@
 import React from 'react';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import {
+  GridComponent,
+  GraphicComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { abbreviateNumber, addCommas } from '@pinpoint-fe/ui/src/utils';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -13,7 +18,14 @@ import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptio
 import { formatAxisTooltip } from '../../../lib/charts/echartsTimeSeriesFormat';
 import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 
-echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+echarts.use([
+  LineChart,
+  GridComponent,
+  GraphicComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 export type LoadChartDataType = {
   dates?: number[];

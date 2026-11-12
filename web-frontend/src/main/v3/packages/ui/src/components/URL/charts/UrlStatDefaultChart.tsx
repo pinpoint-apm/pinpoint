@@ -1,13 +1,13 @@
 import React from 'react';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
-import { GridComponent } from 'echarts/components';
+import { GridComponent, GraphicComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { cn } from '../../../lib';
 import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
 import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 
-echarts.use([LineChart, GridComponent, CanvasRenderer]);
+echarts.use([LineChart, GridComponent, GraphicComponent, CanvasRenderer]);
 
 export interface UrlStatDefaultChartProps {
   className?: string;
