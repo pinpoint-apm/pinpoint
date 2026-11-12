@@ -217,3 +217,23 @@ export const parseSystemMetricPath = (pathname = '', enableServiceMap: boolean) 
 export const getApplicationKey = (application?: ApplicationType) => {
   return `${application?.applicationName}^${application?.serviceType}`;
 };
+
+/** 백엔드 `ServiceType.OPENTELEMETRY_SERVER` (`OpenTelemetryServiceTypeCategory#isServer`). */
+const OPEN_TELEMETRY_SERVER_SERVICE_TYPE = 'OPENTELEMETRY_SERVER';
+const OPEN_TELEMETRY_SERVER_SERVICE_TYPE_CODE = 1220;
+
+/**
+ * OpenTelemetry로 수집된 application인가.
+ *
+ * 경로에서 읽은 application에는 `code`가 없으므로(`getApplicationTypeAndName`) serviceType 이름으로도 본다.
+ */
+export const isOpenTelemetryApplication = (application?: ApplicationType | null) => {
+  if (!application) {
+    return false;
+  }
+
+  return (
+    application.serviceType === OPEN_TELEMETRY_SERVER_SERVICE_TYPE ||
+    application.code === OPEN_TELEMETRY_SERVER_SERVICE_TYPE_CODE
+  );
+};

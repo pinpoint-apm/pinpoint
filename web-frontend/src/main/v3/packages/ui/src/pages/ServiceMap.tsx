@@ -1,5 +1,10 @@
 import React from 'react';
-import { getServiceMapPath, getServiceMapRealtimePath } from '@pinpoint-fe/ui/src/utils';
+import { useTranslation } from 'react-i18next';
+import {
+  getServiceMapPath,
+  getServiceMapRealtimePath,
+  isOpenTelemetryApplication,
+} from '@pinpoint-fe/ui/src/utils';
 import { useIsDefaultService, useRequestService } from '@pinpoint-fe/ui/src/hooks';
 import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import { ServiceMap } from '../components/ServiceMap';
@@ -14,6 +19,7 @@ export type ServiceMapPageProps = Omit<
   | 'getRealtimePagePath'
   | 'requiresApplication'
   | 'serviceName'
+  | 'getRealtimeDisabledReason'
 >;
 
 export const ServiceMapPage = (props: ServiceMapPageProps) => {
@@ -40,6 +46,17 @@ export const ServiceMapPage = (props: ServiceMapPageProps) => {
     [serviceName],
   );
 
+  // OpenTelemetry application은 실시간 보기를 지원하지 않는다(액티브 스레드는 Pinpoint agent의
+  // WebSocket으로만 온다). 기준 application이 있는 DEFAULT service에서만 판단할 수 있다.
+  const { t } = useTranslation();
+  const getRealtimeDisabledReason = React.useCallback(
+    (application?: ApplicationType | null) =>
+      isOpenTelemetryApplication(application)
+        ? t('SERVER_MAP.REAL_TIME.NOT_SUPPORTED_OPEN_TELEMETRY')
+        : undefined,
+    [t],
+  );
+
   return (
     <ServerMapPage
       {...props}
@@ -50,6 +67,7 @@ export const ServiceMapPage = (props: ServiceMapPageProps) => {
       getRealtimePagePath={getRealtimePagePath}
       requiresApplication={isDefaultService}
       serviceName={serviceName}
+      getRealtimeDisabledReason={getRealtimeDisabledReason}
     />
   );
 };

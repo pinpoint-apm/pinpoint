@@ -49,6 +49,11 @@ export interface DatetimePickerProps extends Omit<
   to?: Date | string;
   isRealtime?: boolean;
   enableRealtimeButton?: boolean;
+  /**
+   * 실시간 버튼을 보이되 누를 수 없게 한다. 값은 툴팁에 띄울 이유다.
+   * (`enableRealtimeButton`이 켜져 있을 때만 의미가 있다. 이미 실시간 중이면 멈춤 버튼은 그대로 둔다.)
+   */
+  realtimeDisabledReason?: string;
   maxDateRangeDays?: number;
   outOfDateRangeMessage?: string;
   onChange?: DatetimePickerChangeHandler;
@@ -103,6 +108,7 @@ export const DatetimePicker = React.memo(
     className,
     isRealtime,
     enableRealtimeButton,
+    realtimeDisabledReason,
     from,
     to,
     maxDateRangeDays = 2,
@@ -261,16 +267,28 @@ export const DatetimePicker = React.memo(
                   </Tooltip>
                 ) : (
                   <Tooltip>
+                    {/* disabled 버튼은 pointer 이벤트를 받지 않아 툴팁이 뜨지 않으므로 span으로 감싼다. */}
                     <TooltipTrigger asChild>
-                      <Button
-                        className="h-8 px-2 py-1 border-l-0 rounded-none"
-                        variant="outline"
-                        onClick={handleRealtime(true)}
+                      <span
+                        className={cn(
+                          'inline-flex',
+                          realtimeDisabledReason && 'cursor-not-allowed',
+                        )}
+                        tabIndex={realtimeDisabledReason ? 0 : -1}
                       >
-                        <RxPlay />
-                      </Button>
+                        {/* 기본 disabled:opacity-50은 테두리까지 흐려 붙어 있는 버튼 그룹이 끊겨 보이고
+                            비활성인지도 잘 드러나지 않는다. 테두리는 두고 배경·아이콘으로 구분한다. */}
+                        <Button
+                          className="h-8 px-2 py-1 border-l-0 rounded-none disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/40 disabled:shadow-none"
+                          variant="outline"
+                          disabled={!!realtimeDisabledReason}
+                          onClick={handleRealtime(true)}
+                        >
+                          <RxPlay />
+                        </Button>
+                      </span>
                     </TooltipTrigger>
-                    <TooltipContent>Real-time mode</TooltipContent>
+                    <TooltipContent>{realtimeDisabledReason || 'Real-time mode'}</TooltipContent>
                   </Tooltip>
                 ))}
               <Tooltip>
