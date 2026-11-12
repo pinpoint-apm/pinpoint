@@ -6,6 +6,7 @@ import {
   TooltipComponent,
   LegendComponent,
   GraphicComponent,
+  MarkPointComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { cn, DEFAULT_CHART_CONFIG, InspectorChartOptions } from '../../../lib';
@@ -26,8 +27,22 @@ echarts.use([
   TooltipComponent,
   LegendComponent,
   GraphicComponent,
+  MarkPointComponent,
   CanvasRenderer,
 ]);
+
+const ISOLATED_POINT_SYMBOL_SIZE = 3;
+
+// A value whose both neighbors are uncollected (null) has nothing to connect to, so no line segment
+// is drawn, and since symbols are turned off nothing appears on the chart at all.
+// (e.g. a value collected every 60 seconds on a 10-second query grid)
+// Returns the positions of such values as [category index, value] coordinates.
+const getIsolatedPointCoords = (seriesData: (number | null)[]) =>
+  seriesData.flatMap((value, index) =>
+    value !== null && seriesData[index - 1] == null && seriesData[index + 1] == null
+      ? [{ coord: [index, value] }]
+      : [],
+  );
 
 export interface ChartCoreProps {
   data: InspectorAgentChart.Response | InspectorApplicationChart.Response;
@@ -83,10 +98,14 @@ export const ChartCore = ({
       // 음수(-1)는 BE 의 미수집(uncollected) 센티넬이므로 null 로 두어 선을 끊는다.
       const seriesData = mv.valueList.map((v) => (v < 0 ? null : v));
       const dashed = seriesOption?.dashed;
+      const isBar = seriesOption?.type === 'bar';
+      // A bar is visible even with a single value, and a stacked series is drawn at its cumulative
+      // height, which differs from the coordinate of the raw value, so both are excluded.
+      const isolatedPoints = isBar || seriesOption?.stack ? [] : getIsolatedPointCoords(seriesData);
 
       return {
         name: seriesOption?.name ?? mv.fieldName,
-        type: seriesOption?.type === 'bar' ? ('bar' as const) : ('line' as const),
+        type: isBar ? ('bar' as const) : ('line' as const),
         yAxisIndex,
         data: seriesData,
         stack: seriesOption?.stack,
@@ -98,6 +117,19 @@ export const ChartCore = ({
           ...(dashed ? { type: 'dashed' as const } : {}),
         },
         ...(seriesOption?.color ? { itemStyle: { color: seriesOption.color } } : {}),
+        // Draw a small dot only for the values that have no line segment. The series data is left
+        // as is, so the tooltip and hover behave the same.
+        ...(isolatedPoints.length > 0
+          ? {
+              markPoint: {
+                symbol: 'circle',
+                symbolSize: ISOLATED_POINT_SYMBOL_SIZE,
+                silent: true,
+                label: { show: false },
+                data: isolatedPoints,
+              },
+            }
+          : {}),
         // 그래프 또는 legend 항목에 hover 하면 다른 시리즈를 흐리게 해 hover 한 값을 강조한다.
         // (SystemMetric 차트와 동일한 동작)
         emphasis: {
