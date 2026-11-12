@@ -7,6 +7,7 @@ import {
   hasServiceNameInPath,
   parseServiceScopedPath,
   registerAppRoutes,
+  isOpenTelemetryApplication,
 } from './application';
 import { APP_PATH, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 
@@ -382,6 +383,26 @@ describe('Test application helper utils', () => {
       };
       const result = getApplicationKey(application);
       expect(result).toBe('app-name^service_type');
+    });
+  });
+
+  describe('Test "isOpenTelemetryApplication"', () => {
+    test('Returns true for OPENTELEMETRY_SERVER by service type name', () => {
+      expect(
+        isOpenTelemetryApplication({ applicationName: 'app', serviceType: 'OPENTELEMETRY_SERVER' }),
+      ).toBe(true);
+    });
+
+    test('Returns true for OPENTELEMETRY_SERVER by service type code', () => {
+      expect(isOpenTelemetryApplication({ applicationName: 'app', code: 1220 })).toBe(true);
+    });
+
+    test('Returns false for other applications and empty input', () => {
+      expect(isOpenTelemetryApplication({ applicationName: 'app', serviceType: 'TOMCAT' })).toBe(
+        false,
+      );
+      expect(isOpenTelemetryApplication(null)).toBe(false);
+      expect(isOpenTelemetryApplication(undefined)).toBe(false);
     });
   });
 });

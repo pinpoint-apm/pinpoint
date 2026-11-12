@@ -17,7 +17,11 @@ import {
   serverMapCurrentTargetAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/src/atoms';
-import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import {
+  ApplicationType,
+  FilteredMapType as FilteredMap,
+  GetServerMap,
+} from '@pinpoint-fe/ui/src/constants';
 import { IoMdClose } from 'react-icons/io';
 import {
   DatetimePicker,
@@ -63,6 +67,11 @@ export interface ServermapPageProps {
   requiresApplication?: boolean;
   /** 헤더에 표시할 service 이름. application 선택 박스를 대신한다. */
   serviceName?: string;
+  /**
+   * 기준 application이 실시간 보기를 지원하지 않으면 그 이유를 돌려준다(실시간 버튼 툴팁).
+   * undefined를 돌려주면 실시간 버튼을 그대로 쓸 수 있다.
+   */
+  getRealtimeDisabledReason?: (application?: ApplicationType | null) => string | undefined;
 }
 
 const SERVERMAP_CONTAINER_ID = 'server-map-main-container';
@@ -77,6 +86,7 @@ export const ServerMapPage = ({
   getRealtimePagePath = getRealtimePath,
   requiresApplication = true,
   serviceName,
+  getRealtimeDisabledReason,
 }: ServermapPageProps) => {
   const configuration = useConfiguration();
   const periodMax = configuration?.[`periodMax.serverMap`];
@@ -251,6 +261,7 @@ export const ServerMapPage = ({
           <div className="flex gap-1 ml-auto">
             <DatetimePicker
               enableRealtimeButton
+              realtimeDisabledReason={getRealtimeDisabledReason?.(application)}
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
