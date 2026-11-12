@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.web.trace.model;
 
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.web.trace.callstacks.Record;
 import org.eclipse.collections.api.factory.Stacks;
 import org.eclipse.collections.api.stack.MutableStack;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Stack;
 
@@ -76,6 +79,22 @@ class TraceViewerDataTest {
         Assertions.assertEquals(-1, index);
         Assertions.assertEquals(2, stack.size());
 
+    }
+
+    @Test
+    void traceEvent_serializesArgs() {
+        Record record = newRecord(2);
+        when(record.getParentId()).thenReturn(1);
+        when(record.getApiType()).thenReturn("SPRING_BEAN");
+        when(record.getApplicationName()).thenReturn("app");
+        TraceViewerData.TraceEvent event = TraceViewerData.TraceEvent.defaultTrace(0, true, record, false);
+
+        JsonMapper mapper = Jackson.newMapper();
+        JsonNode args = mapper.valueToTree(event).get("args");
+
+        Assertions.assertNotNull(args, "the flame graph reads args.id and args.parentId of every event");
+        Assertions.assertEquals("2", args.get("id").asString());
+        Assertions.assertEquals("1", args.get("parentId").asString());
     }
 
     private Record newRecord(int id) {
