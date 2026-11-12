@@ -16,6 +16,7 @@ jest.mock('echarts/components', () => ({
   TooltipComponent: {},
   LegendComponent: {},
   GraphicComponent: {},
+  MarkPointComponent: {},
 }));
 jest.mock('echarts/renderers', () => ({ CanvasRenderer: {} }));
 // legend 줄바꿈 행 수 계산은 canvas measureText 에 의존하는데 jsdom 에는 canvas 가 없다.
@@ -192,5 +193,106 @@ describe('ChartCore', () => {
       makeData([{ fieldName: 'cpu', unit: 'percent', chartType: 'line', valueList: [1, 2, 3] }]),
     );
     expect(option.series[0].emphasis.focus).toBe('series');
+  });
+
+  describe('isolated points (a value whose both neighbors are uncollected)', () => {
+    // Values collected every 60 seconds on a 10-second grid: one value followed by five uncollected slots.
+    const sparseValues = [-1, 5, -1, -1, -1, -1, -1, 7, -1, -1, -1, -1];
+    const sparseTimestamps = sparseValues.map((_, index) => index * 10000);
+
+    it('should mark every isolated point so that sparse data is visible', () => {
+      const { option } = renderChart(
+        makeData(
+          [{ fieldName: 'heap', unit: 'bytes', chartType: 'line', valueList: sparseValues }],
+          sparseTimestamps,
+        ),
+      );
+      const { markPoint } = option.series[0];
+      expect(markPoint.data).toEqual([{ coord: [1, 5] }, { coord: [7, 7] }]);
+      expect(markPoint.symbol).toBe('circle');
+      expect(markPoint.silent).toBe(true);
+      expect(markPoint.label.show).toBe(false);
+      // The series data is left as is, so the tooltip dataIndex stays aligned with the timestamps.
+      expect(option.series[0].data).toEqual(sparseValues.map((v) => (v < 0 ? null : v)));
+    });
+
+    it('should mark an isolated point at either end of the range', () => {
+      const { option } = renderChart(
+        makeData(
+          [{ fieldName: 'heap', unit: 'bytes', chartType: 'line', valueList: [3, -1, -1, 4] }],
+          [1000, 2000, 3000, 4000],
+        ),
+      );
+      expect(option.series[0].markPoint.data).toEqual([{ coord: [0, 3] }, { coord: [3, 4] }]);
+    });
+
+    it('should mark an isolated 0 as well', () => {
+      const { option } = renderChart(
+        makeData([
+          { fieldName: 'cpu', unit: 'percent', chartType: 'line', valueList: [-1, 0, -1] },
+        ]),
+      );
+      expect(option.series[0].markPoint.data).toEqual([{ coord: [1, 0] }]);
+    });
+
+    it('should not add markPoint when every value has a collected neighbor', () => {
+      const { option } = renderChart(
+        makeData(
+          [
+            {
+              fieldName: 'heap',
+              unit: 'bytes',
+              chartType: 'line',
+              valueList: [1, 2, -1, -1, 3, 4],
+            },
+          ],
+          [1000, 2000, 3000, 4000, 5000, 6000],
+        ),
+      );
+      expect(option.series[0].markPoint).toBeUndefined();
+    });
+
+    it('should mark only the isolated point when a series mixes segments and isolated points', () => {
+      const { option } = renderChart(
+        makeData(
+          [
+            {
+              fieldName: 'heap',
+              unit: 'bytes',
+              chartType: 'line',
+              valueList: [1, 2, -1, 9, -1, 3],
+            },
+          ],
+          [1000, 2000, 3000, 4000, 5000, 6000],
+        ),
+      );
+      expect(option.series[0].markPoint.data).toEqual([{ coord: [3, 9] }, { coord: [5, 3] }]);
+    });
+
+    it('should not mark a bar series, which is visible without a neighbor', () => {
+      const chartOptions = {
+        seriesOptions: { gcTime: { unit: 'ms', type: 'bar' } },
+        yAxis: [{ unit: 'ms' }],
+        legendShow: true,
+      };
+      const { option } = renderChart(
+        makeData([{ fieldName: 'gcTime', unit: 'ms', chartType: 'bar', valueList: [-1, 5, -1] }]),
+        chartOptions,
+      );
+      expect(option.series[0].markPoint).toBeUndefined();
+    });
+
+    it('should not mark a stacked series, whose drawn height is the cumulative value', () => {
+      const chartOptions = {
+        seriesOptions: { fast: { unit: 'count', stack: 'inspector-stack' } },
+        yAxis: [{ unit: 'count' }],
+        legendShow: true,
+      };
+      const { option } = renderChart(
+        makeData([{ fieldName: 'fast', unit: 'count', chartType: 'line', valueList: [-1, 5, -1] }]),
+        chartOptions,
+      );
+      expect(option.series[0].markPoint).toBeUndefined();
+    });
   });
 });
