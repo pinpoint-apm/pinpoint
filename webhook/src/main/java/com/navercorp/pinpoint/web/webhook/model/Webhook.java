@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.webhook.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 public class Webhook {
@@ -9,6 +10,7 @@ public class Webhook {
     private String applicationName;
     private String serviceName;
 
+    @JsonCreator
     public Webhook() {}
 
     public Webhook(String webhookId, String alias, String url, String applicationName, String serviceName) {
