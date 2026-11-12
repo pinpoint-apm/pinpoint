@@ -1,7 +1,12 @@
 import React from 'react';
 import * as echarts from 'echarts/core';
 import { BarChart as BarChartEcharts, LineChart as LineChartEcharts } from 'echarts/charts';
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import {
+  GridComponent,
+  GraphicComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { UrlStatChartType as UrlStatChartApi } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../../lib';
@@ -17,6 +22,7 @@ echarts.use([
   BarChartEcharts,
   LineChartEcharts,
   GridComponent,
+  GraphicComponent,
   TooltipComponent,
   LegendComponent,
   CanvasRenderer,

@@ -4,13 +4,13 @@ import { HelpPopover } from '../../../components/HelpPopover';
 import * as echarts from 'echarts/core';
 import { BarChart as BarChartEcharts } from 'echarts/charts';
 import { AxisBreak } from 'echarts/features';
-import { GridComponent } from 'echarts/components';
+import { GridComponent, GraphicComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { cn } from '../../../lib';
 import { buildEmptyMessageGraphic } from '../../../lib/charts/echartsCommonOptions';
 import { useEChartsInstance } from '../../../lib/charts/useEChartsInstance';
 
-echarts.use([BarChartEcharts, AxisBreak, GridComponent, CanvasRenderer]);
+echarts.use([BarChartEcharts, AxisBreak, GridComponent, GraphicComponent, CanvasRenderer]);
 
 export interface ResponseSummaryChartProps {
   /**
