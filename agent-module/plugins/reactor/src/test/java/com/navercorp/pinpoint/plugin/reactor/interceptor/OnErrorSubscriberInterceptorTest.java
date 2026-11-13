@@ -24,6 +24,10 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataRegistrar;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,6 +69,17 @@ class OnErrorSubscriberInterceptorTest {
     /** onErrorResume's ResumeSubscriber: a CoreSubscriber woven with the AsyncContext accessor. */
     private Subscriber<?> subscriber;
     private OnErrorSubscriberInterceptor interceptor;
+
+    @BeforeAll
+    static void registerServiceTypes() {
+        // ReactorConstants resolves its service types from ServiceTypeProvider when it is first loaded.
+        // Loading it before a locator is registered fails its static initializer for the whole JVM,
+        // which breaks every later test class that touches ReactorConstants
+        ServiceTypeLocator locator = mock(ServiceTypeLocator.class);
+        when(locator.findServiceTypeByName("REACTOR")).thenReturn(mock(ServiceType.class));
+        when(locator.findServiceTypeByName("REACTOR_SCHEDULER")).thenReturn(mock(ServiceType.class));
+        TraceMetadataRegistrar.registerServiceTypes(locator);
+    }
 
     @BeforeEach
     void setUp() {
