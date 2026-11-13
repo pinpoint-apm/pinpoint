@@ -144,9 +144,6 @@ public class GrpcReceiver implements SmartLifecycle, BeanNameAware {
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 
-        ConnectionCountServerTransportFilter countFilter = new ConnectionCountServerTransportFilter();
-        this.serverFactory.addTransportFilter(countFilter);
-
         TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory(beanName);
         // Mandatory interceptor
         final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
@@ -157,6 +154,11 @@ public class GrpcReceiver implements SmartLifecycle, BeanNameAware {
                 this.serverFactory.addTransportFilter(transportFilter);
             }
         }
+
+        // Must be the last filter: if a later filter rejected the transport in transportReady(),
+        // transportTerminated() would receive null attributes and the count would never be decremented
+        ConnectionCountServerTransportFilter countFilter = new ConnectionCountServerTransportFilter();
+        this.serverFactory.addTransportFilter(countFilter);
 
         // Mandatory interceptor
         ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
