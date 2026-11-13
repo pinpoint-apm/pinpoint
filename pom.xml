@@ -258,6 +258,7 @@
         <!-- Caffeine 3.x requires Java 11; the agent stays on the last 2.x release -->
         <caffeine-jdk8.version>2.9.3</caffeine-jdk8.version>
         <resilience4j-jdk8.version>1.7.1</resilience4j-jdk8.version>
+        <bucket4j.version>8.22.0</bucket4j.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
         <netty4.version>4.2.17.Final</netty4.version>
