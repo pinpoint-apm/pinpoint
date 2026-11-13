@@ -79,7 +79,8 @@
       "UNLOCK_SERVER": "현재 서버 고정 해제",
       "NOT_WAS": "선택한 대상이 WAS가 아닙니다.",
       "CONNECTION_CLOSED": "연결이 종료되었습니다.",
-      "SELECT_NODE": "서버맵에서 노드를 선택하면 액티브 요청을 볼 수 있습니다."
+      "SELECT_NODE": "서버맵에서 노드를 선택하면 액티브 요청을 볼 수 있습니다.",
+      "NOT_SUPPORTED_OPEN_TELEMETRY": "OpenTelemetry 애플리케이션은 실시간 모드를 지원하지 않습니다."
     }
   },
   "TRANSACTION_LIST": {

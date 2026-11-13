@@ -79,7 +79,8 @@
       "UNLOCK_SERVER": "Unlock current server",
       "NOT_WAS": "Selected target is not a WAS.",
       "CONNECTION_CLOSED": "Connection closed.",
-      "SELECT_NODE": "Select a node on the map to see its active requests."
+      "SELECT_NODE": "Select a node on the map to see its active requests.",
+      "NOT_SUPPORTED_OPEN_TELEMETRY": "Real-time mode is not supported for OpenTelemetry applications."
     }
   },
   "TRANSACTION_LIST": {

@@ -49,6 +49,11 @@ export interface DatetimePickerProps extends Omit<
   to?: Date | string;
   isRealtime?: boolean;
   enableRealtimeButton?: boolean;
+  /**
+   * 실시간 버튼을 보이되 누를 수 없게 한다. 값은 툴팁에 띄울 이유다.
+   * (`enableRealtimeButton`이 켜져 있을 때만 의미가 있다. 이미 실시간 중이면 멈춤 버튼은 그대로 둔다.)
+   */
+  realtimeDisabledReason?: string;
   maxDateRangeDays?: number;
   outOfDateRangeMessage?: string;
   onChange?: DatetimePickerChangeHandler;
@@ -103,6 +108,7 @@ export const DatetimePicker = React.memo(
     className,
     isRealtime,
     enableRealtimeButton,
+    realtimeDisabledReason,
     from,
     to,
     maxDateRangeDays = 2,
@@ -258,6 +264,30 @@ export const DatetimePicker = React.memo(
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>Stop Realtime</TooltipContent>
+                  </Tooltip>
+                ) : realtimeDisabledReason ? (
+                  <Tooltip>
+                    {/* disabled 버튼은 pointer 이벤트를 받지 않아 툴팁이 뜨지 않으므로 span으로 감싸
+                        span을 trigger로 둔다. 활성일 때는 감싸지 않는다 — trigger가 span이면 툴팁 설명
+                        (aria-describedby)이 포커스를 받는 버튼이 아닌 span에 붙어 스크린 리더가 읽지 못한다. */}
+                    <TooltipTrigger asChild>
+                      <span
+                        className="inline-flex cursor-not-allowed"
+                        tabIndex={0}
+                        aria-label={realtimeDisabledReason}
+                      >
+                        {/* 기본 disabled:opacity-50은 테두리까지 흐려 붙어 있는 버튼 그룹이 끊겨 보이고
+                            비활성인지도 잘 드러나지 않는다. 테두리는 두고 배경·아이콘으로 구분한다. */}
+                        <Button
+                          className="h-8 px-2 py-1 border-l-0 rounded-none disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/40 disabled:shadow-none"
+                          variant="outline"
+                          disabled
+                        >
+                          <RxPlay />
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>{realtimeDisabledReason}</TooltipContent>
                   </Tooltip>
                 ) : (
                   <Tooltip>
