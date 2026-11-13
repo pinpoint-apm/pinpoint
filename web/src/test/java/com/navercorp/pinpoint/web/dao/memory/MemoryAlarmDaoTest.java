@@ -51,8 +51,8 @@ public class MemoryAlarmDaoTest {
         resultRules2 = memoryAlarmDao.selectRuleByUserGroupId("id");
         assertThat(resultRules2).isEmpty();
 
-        memoryAlarmDao.deleteRule(rule);
-        memoryAlarmDao.deleteRule(rule2);
+        memoryAlarmDao.deleteRule(rule.getRuleId());
+        memoryAlarmDao.deleteRule(rule2.getRuleId());
         List<Rule> resultRules = memoryAlarmDao.selectRuleByApplicationName(applicationId);
         assertThat(resultRules).isEmpty();
     }

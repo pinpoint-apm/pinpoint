@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.vo.RuleDeleteRequest;
 import com.navercorp.pinpoint.web.response.AlarmResponse;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import jakarta.validation.constraints.NotBlank;
@@ -70,13 +71,13 @@ public class AlarmController {
         return new AlarmResponse(Result.SUCCESS, ruleId);
     }
 
-    @PreAuthorize("@naverPermissionEvaluator.hasAlarmPermission(#serviceName.getName(), #rule.getApplicationName(), T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
+    @PreAuthorize("@naverPermissionEvaluator.hasAlarmPermission(#serviceName.getName(), #request.applicationName(), T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @DeleteMapping
-    public Response deleteRule(@ServiceParam ServiceName serviceName, @RequestBody Rule rule) {
-        if (StringUtils.isEmpty(rule.getRuleId())) {
+    public Response deleteRule(@ServiceParam ServiceName serviceName, @RequestBody RuleDeleteRequest request) {
+        if (StringUtils.isEmpty(request.ruleId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not ruleId to delete alarm rule");
         }
-        alarmService.deleteRule(rule);
+        alarmService.deleteRule(request.ruleId(), request.webhookSend());
         return SimpleResponse.ok();
     }
 

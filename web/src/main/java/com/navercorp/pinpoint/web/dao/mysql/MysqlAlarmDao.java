@@ -54,8 +54,8 @@ public class MysqlAlarmDao implements AlarmDao {
     }
 
     @Override
-    public void deleteRule(Rule rule) {
-        sqlSessionTemplate.insert(NAMESPACE + "deleteRule", rule);
+    public void deleteRule(String ruleId) {
+        sqlSessionTemplate.delete(NAMESPACE + "deleteRule", ruleId);
     }
 
     @Override

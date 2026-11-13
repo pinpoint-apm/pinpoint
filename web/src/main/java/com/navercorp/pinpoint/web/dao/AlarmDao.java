@@ -30,7 +30,7 @@ public interface AlarmDao {
     
     String insertRuleExceptWebhookSend(Rule rule);
 
-    void deleteRule(Rule rule);
+    void deleteRule(String ruleId);
 
     List<Rule> selectRuleByUserGroupId(String userGroupId);
     
