@@ -24,10 +24,9 @@ import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,9 +52,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  * <p>This IT pins both halves: the propagation headers reach the wire, and the WebFlux client event
  * exists. Without the adaptor fix the second assertion fails on 7.x.
  */
-@PluginForkedTest
+@PluginTest
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(17)
 @Dependency({"org.springframework:spring-webflux:[7.0.0,7.max]",
         // same version as spring-webflux: ReactorClientHttpConnector implements SmartLifecycle (spring-context, optional for webflux)
         "org.springframework:spring-context",
