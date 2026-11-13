@@ -80,7 +80,6 @@ public class ProfilerLibs {
                 "jakarta.annotation",
                 "jakarta.inject",
                 "org.codehaus.mojo.animal_sniffer",
-                "org.checkerframework",
 
                 "io.github.resilience4j",
                 "io.vavr"
