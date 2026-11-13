@@ -254,7 +254,9 @@
 
         <asm.version>9.9.1</asm.version>
         <thrift.version>0.16.0</thrift.version>
-        <caffeine.version>2.9.3</caffeine.version>
+        <caffeine.version>3.3.1</caffeine.version>
+        <!-- Caffeine 3.x requires Java 11; the agent stays on the last 2.x release -->
+        <caffeine-jdk8.version>2.9.3</caffeine-jdk8.version>
         <resilience4j-jdk8.version>1.7.1</resilience4j-jdk8.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
