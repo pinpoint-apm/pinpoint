@@ -175,6 +175,11 @@
                     <groupId>net.hydromatic</groupId>
                     <artifactId>aggdesigner-algorithm</artifactId>
                 </exclusion>
+                <!-- annotations only, not needed at runtime -->
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
+                </exclusion>
                 <!-- end calcite-core runtime exclusions -->
 
                 <!-- pinot-spi: Groovy is only used by the ingestion job templates -->
