@@ -234,6 +234,13 @@
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <!-- overrides the root caffeine.version, which is for the server modules (Java 17) -->
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine-jdk8.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

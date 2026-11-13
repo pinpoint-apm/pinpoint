@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.common.server.cache;
 
 import com.github.benmanes.caffeine.cache.Expiry;
-import org.checkerframework.checker.index.qual.NonNegative;
 import org.jspecify.annotations.NonNull;
 import org.springframework.cache.support.NullValue;
 
@@ -54,7 +53,7 @@ public class NullValueExpiry<K, V> implements Expiry<K, V> {
     }
 
     @Override
-    public long expireAfterUpdate(@NonNull K key, @NonNull V value, long currentTime, @NonNegative long currentDuration) {
+    public long expireAfterUpdate(@NonNull K key, @NonNull V value, long currentTime, long currentDuration) {
         if (nullValuePredicate.test(value) && isEnabled(nullValueExpireAfterWriteNanos)) {
             return nullValueExpireAfterWriteNanos;
         }
@@ -65,7 +64,7 @@ public class NullValueExpiry<K, V> implements Expiry<K, V> {
     }
 
     @Override
-    public long expireAfterRead(@NonNull K key, @NonNull V value, long currentTime, @NonNegative long currentDuration) {
+    public long expireAfterRead(@NonNull K key, @NonNull V value, long currentTime, long currentDuration) {
         if (isEnabled(expireAfterAccessNanos)) {
             return expireAfterAccessNanos;
         }
