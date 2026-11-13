@@ -15,6 +15,10 @@
  */
 package com.navercorp.pinpoint.alarm.web;
 
+import com.navercorp.pinpoint.alarm.web.controller.AlarmCatalogController;
+import com.navercorp.pinpoint.alarm.web.controller.AlarmChannelController;
+import com.navercorp.pinpoint.alarm.web.controller.AlarmRuleController;
+import com.navercorp.pinpoint.alarm.web.controller.AlarmTemplateController;
 import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceProvider;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;

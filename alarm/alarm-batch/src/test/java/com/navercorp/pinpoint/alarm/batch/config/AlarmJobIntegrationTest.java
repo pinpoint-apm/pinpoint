@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
-import com.navercorp.pinpoint.alarm.sender.AlarmNotificationService;
+import com.navercorp.pinpoint.alarm.service.AlarmNotificationService;
 import com.navercorp.pinpoint.alarm.service.AlarmEventPersistenceService;
 import com.navercorp.pinpoint.alarm.service.AlarmNotificationOutboxClaimService;
 import com.navercorp.pinpoint.alarm.service.AlarmNotificationResultService;

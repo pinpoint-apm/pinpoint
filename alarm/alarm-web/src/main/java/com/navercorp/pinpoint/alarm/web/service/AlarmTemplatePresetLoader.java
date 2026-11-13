@@ -1,0 +1,220 @@
+/*
+ * Copyright 2026 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.navercorp.pinpoint.alarm.web.service;
+
+import com.navercorp.pinpoint.alarm.web.model.AlarmTemplatePreset;
+import org.springframework.util.StringUtils;
+import tools.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
+import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
+import com.navercorp.pinpoint.alarm.validation.AlarmValidationConstants;
+import com.navercorp.pinpoint.alarm.validation.ConditionValidator;
+import com.navercorp.pinpoint.alarm.validation.FilterKeyValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+/**
+ * Loads the built-in alarm template presets from the classpath — one JSON file
+ * per preset under {@value #PRESET_LOCATION_PATTERN}, listed in filename order —
+ * and validates every rule at startup, so a broken preset fails deployment
+ * instead of surfacing when a user opens the template start view. A preset reading
+ * a data source no installed module owns is left out instead, with a warning.
+ */
+@Component
+public class AlarmTemplatePresetLoader {
+
+    private static final Logger logger = LogManager.getLogger(AlarmTemplatePresetLoader.class);
+
+    private static final String PRESET_LOCATION_PATTERN = "classpath*:alarm/presets/*.json";
+
+    private final List<AlarmTemplatePreset> presets;
+    private final AlarmDataSourceRegistry dataSourceRegistry;
+
+    @Autowired
+    public AlarmTemplatePresetLoader(ObjectMapper objectMapper,
+                                     ConditionValidator conditionValidator,
+                                     FilterKeyValidator filterKeyValidator,
+                                     AlarmDataSourceRegistry dataSourceRegistry) {
+        this(objectMapper, conditionValidator, filterKeyValidator, dataSourceRegistry,
+                resolvePresetResources());
+    }
+
+    AlarmTemplatePresetLoader(ObjectMapper objectMapper,
+                              ConditionValidator conditionValidator,
+                              FilterKeyValidator filterKeyValidator,
+                              AlarmDataSourceRegistry dataSourceRegistry,
+                              List<Resource> resources) {
+        Objects.requireNonNull(objectMapper, "objectMapper");
+        Objects.requireNonNull(conditionValidator, "conditionValidator");
+        Objects.requireNonNull(filterKeyValidator, "filterKeyValidator");
+        this.dataSourceRegistry = Objects.requireNonNull(dataSourceRegistry, "dataSourceRegistry");
+
+        // Presets are content a distribution supplies, not something this module ships,
+        // so a deployment that offers none still starts -- it simply offers no preset. It is
+        // logged because the other way to end up here is a catalog that moved or stopped
+        // being packaged, which otherwise looks the same from the outside: an empty rule
+        // editor and nothing said about why.
+        if (resources.isEmpty()) {
+            logger.warn("No alarm template presets found on the classpath ({}); "
+                    + "the rule editor will offer none", PRESET_LOCATION_PATTERN);
+        }
+        List<AlarmTemplatePreset> presets = new ArrayList<>(resources.size());
+        for (Resource resource : resources) {
+            presets.add(read(objectMapper, resource));
+        }
+        List<AlarmTemplatePreset> offered = presets.stream()
+                .filter(preset -> isInstalled(preset, dataSourceRegistry))
+                .toList();
+        validate(offered, conditionValidator, filterKeyValidator, dataSourceRegistry);
+        this.presets = offered;
+    }
+
+    public List<AlarmTemplatePreset> getPresets() {
+        return presets;
+    }
+
+    // The distribution that ships a preset may run with its module turned off, so this is not
+    // a startup failure. A misspelled data source lands here too, hence the warning.
+    private static boolean isInstalled(AlarmTemplatePreset preset, AlarmDataSourceRegistry registry) {
+        List<String> missing = preset.rules() == null ? List.of() : preset.rules().stream()
+                .map(AlarmTemplatePreset.Rule::dataSource)
+                .filter(dataSource -> dataSource != null && registry.find(dataSource).isEmpty())
+                .distinct()
+                .toList();
+        if (!missing.isEmpty()) {
+            logger.warn("Alarm template preset {} reads data sources no installed module owns {}; not offered",
+                    preset.name() == null ? null : preset.name().ko(), missing);
+        }
+        return missing.isEmpty();
+    }
+
+    private static List<Resource> resolvePresetResources() {
+        try {
+            Resource[] resources = new PathMatchingResourcePatternResolver()
+                    .getResources(PRESET_LOCATION_PATTERN);
+            return Arrays.stream(resources)
+                    .sorted(Comparator.comparing(Resource::getFilename,
+                            Comparator.nullsLast(Comparator.naturalOrder())))
+                    .toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(
+                    "Failed to resolve alarm template presets: " + PRESET_LOCATION_PATTERN, e);
+        }
+    }
+
+    private static AlarmTemplatePreset read(ObjectMapper objectMapper, Resource resource) {
+        try (InputStream inputStream = resource.getInputStream()) {
+            return objectMapper.readValue(inputStream, AlarmTemplatePreset.class);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to read alarm template preset: " + resource, e);
+        }
+    }
+
+    private static void validate(List<AlarmTemplatePreset> presets,
+                                 ConditionValidator conditionValidator,
+                                 FilterKeyValidator filterKeyValidator,
+                                 AlarmDataSourceRegistry dataSourceRegistry) {
+        // Per locale: a preset whose Korean and English names are identical (common
+        // for English product terms) must not collide with itself.
+        Set<String> koNames = new HashSet<>();
+        Set<String> enNames = new HashSet<>();
+        for (AlarmTemplatePreset preset : presets) {
+            validateLocalizedText(preset.name(), "preset name");
+            // Optional, like a rule's, but a half-translated one shows a blank in one locale.
+            if (preset.description() != null) {
+                validateLocalizedText(preset.description(), "preset description");
+            }
+            boolean koAdded = koNames.add(preset.name().ko());
+            boolean enAdded = enNames.add(preset.name().en());
+            if (!koAdded || !enAdded) {
+                throw new IllegalStateException("Duplicate preset name: " + preset.name().ko());
+            }
+            if (CollectionUtils.isEmpty(preset.rules())) {
+                throw new IllegalStateException("Preset '" + preset.name().ko() + "' must have at least one rule");
+            }
+            for (AlarmTemplatePreset.Rule rule : preset.rules()) {
+                validateRule(preset.name().ko(), rule, conditionValidator, filterKeyValidator,
+                        dataSourceRegistry);
+            }
+            // A bundle holds one category, so a mixed preset could never be saved as one.
+            long categories = preset.rules().stream()
+                    .map(rule -> dataSourceRegistry.get(rule.dataSource()).category())
+                    .distinct()
+                    .count();
+            if (categories > 1) {
+                throw new IllegalStateException("Preset '" + preset.name().ko() + "' mixes data source categories");
+            }
+        }
+    }
+
+    private static void validateRule(String presetName,
+                                     AlarmTemplatePreset.Rule rule,
+                                     ConditionValidator conditionValidator,
+                                     FilterKeyValidator filterKeyValidator,
+                                     AlarmDataSourceRegistry dataSourceRegistry) {
+        try {
+            validateLocalizedText(rule.name(), "rule name");
+            // Optional, but a half-translated one would show a blank in one locale.
+            if (rule.description() != null) {
+                validateLocalizedText(rule.description(), "rule description");
+            }
+            if (rule.severity() == null) {
+                throw new IllegalArgumentException("rule must have a severity");
+            }
+            if (rule.dataSource() == null) {
+                throw new IllegalArgumentException("rule must have a dataSource");
+            }
+            // Presets prefill the template form as-is, so they must hold exact
+            // picker values rather than relying on save-time interval round-up.
+            if (!AlarmValidationConstants.CHECK_INTERVAL_SEC_OPTIONS.contains(rule.checkIntervalSec())) {
+                throw new IllegalArgumentException("invalid checkIntervalSec: " + rule.checkIntervalSec());
+            }
+            if (!AlarmValidationConstants.ACTION_INTERVAL_SEC_OPTIONS.contains(rule.actionIntervalSec())) {
+                throw new IllegalArgumentException("invalid actionIntervalSec: " + rule.actionIntervalSec());
+            }
+            conditionValidator.validate(rule.conditions());
+            AlarmDataSource dataSource = dataSourceRegistry.get(rule.dataSource());
+            filterKeyValidator.validateConditions(dataSource, rule.conditions());
+            filterKeyValidator.validateFilters(dataSource, rule.filters());
+        } catch (RuntimeException e) {
+            String ruleName = rule.name() == null ? null : rule.name().ko();
+            throw new IllegalStateException(
+                    "Invalid preset rule '" + ruleName + "' in preset '" + presetName + "': " + e.getMessage(), e);
+        }
+    }
+
+    private static void validateLocalizedText(AlarmTemplatePreset.LocalizedText text, String field) {
+        if (text == null || !StringUtils.hasText(text.ko()) || !StringUtils.hasText(text.en())) {
+            throw new IllegalStateException(field + " must have both ko and en texts");
+        }
+    }
+}
