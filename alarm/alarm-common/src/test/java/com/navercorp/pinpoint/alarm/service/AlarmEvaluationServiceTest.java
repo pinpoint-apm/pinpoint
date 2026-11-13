@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.alarm.dao.AlarmNotificationChannelDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationOutboxDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
-import com.navercorp.pinpoint.alarm.sender.AlarmNotificationService;
 import com.navercorp.pinpoint.alarm.sender.AlarmNotificationChannelConfigParser;
 import com.navercorp.pinpoint.alarm.sender.AlarmSendException;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;

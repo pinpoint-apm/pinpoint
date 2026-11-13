@@ -6,8 +6,8 @@ import com.navercorp.pinpoint.alarm.core.vo.CoreAlarmDataSource;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
 import com.navercorp.pinpoint.alarm.validation.ConditionValidator;
 import com.navercorp.pinpoint.alarm.validation.FilterKeyValidator;
-import com.navercorp.pinpoint.alarm.web.AlarmTemplatePreset;
-import com.navercorp.pinpoint.alarm.web.AlarmTemplatePresetLoader;
+import com.navercorp.pinpoint.alarm.web.model.AlarmTemplatePreset;
+import com.navercorp.pinpoint.alarm.web.service.AlarmTemplatePresetLoader;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

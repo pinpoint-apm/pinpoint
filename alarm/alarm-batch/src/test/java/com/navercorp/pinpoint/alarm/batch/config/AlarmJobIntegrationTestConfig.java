@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.alarm.evaluation.ConditionEvaluator;
 import com.navercorp.pinpoint.alarm.dao.mapper.AlarmRuleLocalConfigMapper;
 import com.navercorp.pinpoint.alarm.dao.mapper.AlarmTemplateItemMapper;
 import com.navercorp.pinpoint.alarm.dao.mapper.AlarmRuleV2Mapper;
-import com.navercorp.pinpoint.alarm.sender.AlarmNotificationService;
+import com.navercorp.pinpoint.alarm.service.AlarmNotificationService;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceProvider;
 import com.navercorp.pinpoint.alarm.service.AlarmEvaluationService;
 import com.navercorp.pinpoint.alarm.service.AlarmEventPersistenceService;

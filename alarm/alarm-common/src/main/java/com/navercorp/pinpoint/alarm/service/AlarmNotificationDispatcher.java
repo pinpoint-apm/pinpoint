@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.alarm.service;
 
 import tools.jackson.core.JacksonException;
-import com.navercorp.pinpoint.alarm.sender.AlarmNotificationService;
 import com.navercorp.pinpoint.alarm.sender.AlarmSendException;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationOutbox;
 import org.apache.logging.log4j.LogManager;
