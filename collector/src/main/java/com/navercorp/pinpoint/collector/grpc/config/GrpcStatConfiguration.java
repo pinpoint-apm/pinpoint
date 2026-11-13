@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.common.server.thread.MonitoringExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
-import jakarta.inject.Provider;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -44,7 +43,7 @@ public class GrpcStatConfiguration {
     @Bean
     @Validated
     @ConfigurationProperties("collector.receiver.grpc.stat.bindaddress")
-    public Provider<BindAddress> grpcStatBindAddressBuilder() {
+    public BindAddress.Builder grpcStatBindAddressBuilder() {
         BindAddress.Builder builder = BindAddress.newBuilder();
         builder.setPort(9992);
         return builder;
@@ -87,7 +86,7 @@ public class GrpcStatConfiguration {
 
         ServerOption serverOption = grpcStatServerOption().build();
 
-        BindAddress bindAddress = grpcStatBindAddressBuilder().get();
+        BindAddress bindAddress = grpcStatBindAddressBuilder().build();
 
         return new GrpcReceiverProperties(enable, bindAddress, serverOption);
     }
