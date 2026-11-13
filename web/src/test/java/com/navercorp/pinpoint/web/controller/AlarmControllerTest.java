@@ -99,7 +99,7 @@ public class AlarmControllerTest {
     @Test
     public void insertAndSelectAndDeleteRule() throws Exception {
         String jsonParm = "{" +
-                            "\"applicationId\" : \"" + APPLICATION_ID + "\"," + 
+                            "\"applicationName\" : \"" + APPLICATION_ID + "\"," + 
                             "\"serviceType\" : \"" + SERVICE_TYPE + "\"," + 
                             "\"userGroupId\" : \"" + USER_GROUP_ID + "\"," + 
                             "\"checkerName\" : \"" + CHECKER_NAME + "\"," + 
@@ -122,7 +122,7 @@ public class AlarmControllerTest {
         this.mockMvc.perform(get("/api/alarmRule?userGroupId=" + USER_GROUP_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$[0]", hasKey("applicationId")))
+                .andExpect(jsonPath("$[0]", hasKey("applicationName")))
                 .andExpect(jsonPath("$[0]", hasKey("serviceType")))
                 .andExpect(jsonPath("$[0]", hasKey("userGroupId")))
                 .andExpect(jsonPath("$[0]", hasKey("checkerName")))
@@ -143,7 +143,7 @@ public class AlarmControllerTest {
     @Test
     public void updateRule() throws Exception {
         String jsonParm = "{" +
-                            "\"applicationId\" : \"" + APPLICATION_ID + "\"," + 
+                            "\"applicationName\" : \"" + APPLICATION_ID + "\"," + 
                             "\"serviceType\" : \"" + SERVICE_TYPE + "\"," + 
                             "\"userGroupId\" : \"" + USER_GROUP_ID + "\"," + 
                             "\"checkerName\" : \"" + CHECKER_NAME + "\"," + 
@@ -165,7 +165,7 @@ public class AlarmControllerTest {
         
         String updatedJsonParm = "{" +
                 "\"ruleId\" : \"" + resultMap.get("ruleId") + "\"," + 
-                "\"applicationId\" : \"" + APPLICATION_ID_UPDATED + "\"," + 
+                "\"applicationName\" : \"" + APPLICATION_ID_UPDATED + "\"," + 
                 "\"serviceType\" : \"" + SERVICE_TYPE + "\"," + 
                 "\"userGroupId\" : \"" + USER_GROUP_ID_UPDATED + "\"," + 
                 "\"checkerName\" : \"" + CHECKER_NAME_UPDATED + "\"," + 

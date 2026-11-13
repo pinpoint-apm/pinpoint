@@ -57,7 +57,7 @@ public class WebhookAlarmController {
     public AlarmResponse insertRuleWithWebhooks(@ServiceParam ServiceName serviceName, @RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
         if (Rule.isRuleInvalidForPost(rule)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationName/checkerName/userGroupId/threashold to insert alarm rule");
         }
 
         final String ruleId = webhookAlarmServiceFacade.insertRuleWithWebhooks(rule, ruleWithWebhooks.getWebhookIds());

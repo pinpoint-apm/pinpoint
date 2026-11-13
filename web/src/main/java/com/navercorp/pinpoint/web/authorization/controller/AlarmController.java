@@ -52,7 +52,7 @@ import java.util.Objects;
 public class AlarmController {
 
     public final static String USER_GROUP_ID_PARAMS = "userGroupId";
-    public final static String APPLICATION_ID_PARAMS = "applicationId";
+    public final static String APPLICATION_NAME_PARAMS = "applicationName";
 
     private final AlarmService alarmService;
 
@@ -64,7 +64,7 @@ public class AlarmController {
     @PostMapping
     public AlarmResponse insertRule(@ServiceParam ServiceName serviceName, @RequestBody Rule rule) {
         if (Rule.isRuleInvalidForPost(rule)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationName/checkerName/userGroupId/threashold to insert alarm rule");
         }
         final String ruleId = alarmService.insertRule(rule);
         return new AlarmResponse(Result.SUCCESS, ruleId);
@@ -85,8 +85,8 @@ public class AlarmController {
         return alarmService.selectRuleByUserGroupId(userGroupId);
     }
 
-    @GetMapping(params = APPLICATION_ID_PARAMS)
-    public List<Rule> getRulesByApplication(@ServiceParam ServiceName serviceName, @RequestParam(value = APPLICATION_ID_PARAMS) @NotBlank String applicationName) {
+    @GetMapping(params = APPLICATION_NAME_PARAMS)
+    public List<Rule> getRulesByApplication(@ServiceParam ServiceName serviceName, @RequestParam(value = APPLICATION_NAME_PARAMS) @NotBlank String applicationName) {
         return alarmService.selectRuleByApplicationName(applicationName);
     }
 
@@ -96,7 +96,7 @@ public class AlarmController {
         if (Rule.isRuleInvalid(rule)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "There is not ruleId/userGroupId/applicationId/checkerName to publish alarm rule"
+                    "There is not ruleId/userGroupId/applicationName/checkerName to publish alarm rule"
             );
         }
         alarmService.updateRule(rule);

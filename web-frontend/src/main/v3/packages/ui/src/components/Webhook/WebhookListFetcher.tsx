@@ -15,7 +15,7 @@ export const WebhookListFetcher = ({
   ...props
 }: WebhookListFetcherProps) => {
   const { data: webhookList } = useGetWebhook({
-    applicationId: props?.applicationId,
+    applicationName: props?.applicationName,
     disableFetch,
     suspense: true,
   });

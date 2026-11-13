@@ -108,7 +108,7 @@ public class ApdexScoreController {
     @GetMapping(value = "/getApplicationStat/apdexScore/chart")
     public StatChart<?> getApplicationApdexScoreChart(
             @ServiceParam ServiceName serviceName,
-            @RequestParam("applicationId") @NotBlank String applicationName,
+            @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to) {
@@ -124,7 +124,7 @@ public class ApdexScoreController {
     @GetMapping(value = "/getApplicationStat/apdexScore/chart", params = "serviceTypeName")
     public StatChart<?> getApplicationApdexScoreChart(
             @ServiceParam ServiceName serviceName,
-            @RequestParam("applicationId") @NotBlank String applicationName,
+            @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("from") Timestamp from,
             @RequestParam("to") Timestamp to) {
@@ -140,7 +140,7 @@ public class ApdexScoreController {
     @GetMapping(value = "/getAgentStat/apdexScore/chart")
     public StatChart<?> getAgentApdexScoreChart(
             @ServiceParam ServiceName serviceName,
-            @RequestParam("applicationId") @NotBlank String applicationName,
+            @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") Short serviceTypeCode,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("from") Timestamp from,
@@ -157,7 +157,7 @@ public class ApdexScoreController {
     @GetMapping(value = "/getAgentStat/apdexScore/chart", params = "serviceTypeName")
     public StatChart<?> getAgentApdexScoreChart(
             @ServiceParam ServiceName serviceName,
-            @RequestParam("applicationId") @NotBlank String applicationName,
+            @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("from") Timestamp from,

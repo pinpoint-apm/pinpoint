@@ -45,22 +45,6 @@ public class Webhook {
         this.url = url;
     }
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
-     */
-    @Deprecated
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
-    /**
-     * @deprecated Since 3.1.0. Use {@link #setApplicationName(String)} instead.
-     */
-    @Deprecated
-    public void setApplicationId(String applicationName) {
-        this.setApplicationName(applicationName);
-    }
-
     public String getApplicationName() {
         return applicationName;
     }

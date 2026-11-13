@@ -62,14 +62,6 @@ public class WebhookPayload {
         return batchEnv;
     }
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
-     */
-    @Deprecated
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
     public String getApplicationName() {
         return applicationName;
     }

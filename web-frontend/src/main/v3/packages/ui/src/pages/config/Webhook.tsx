@@ -50,7 +50,7 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
   const [currentTargetWebhookData, setCurrentTargetWebhookData] =
     React.useState<Partial<Webhook.WebhookData>>();
   const { refetch: refetchWebhookList } = useGetWebhook({
-    applicationId: selectedApplication?.applicationName,
+    applicationName: selectedApplication?.applicationName,
   });
 
   const { mutate } = useWebhookMutation({
@@ -83,7 +83,7 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
             onClick={() => {
               setEditable(true);
               setCurrentTargetWebhookData({
-                applicationId: selectedApplication?.applicationName,
+                applicationName: selectedApplication?.applicationName,
               });
             }}
           >
@@ -91,7 +91,7 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
             {t('CONFIGURATION.WEBHOOK.CREATE')}
           </Button>
         </div>
-        <WebhookList applicationId={selectedApplication?.applicationName}>
+        <WebhookList applicationName={selectedApplication?.applicationName}>
           {(webhookList) => (
             <WebhookTable
               data={webhookList}
@@ -196,7 +196,7 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
                   mutate({
                     params: {
                       alias: currentDeletingTarget.alias,
-                      applicationId: currentDeletingTarget.applicationId,
+                      applicationName: currentDeletingTarget.applicationName,
                       serviceName: currentDeletingTarget.serviceName,
                       url: currentDeletingTarget.url,
                       webhookId: currentDeletingTarget.webhookId,

@@ -150,7 +150,7 @@ export const AlarmDetail = ({
   const [openWebhookDialog, setOpenWebhookDialog] = React.useState(false);
   const { data: chekerList } = useGetAlarmRuleChecker({ disableFetch: !editable });
   const { refetch: refetchWebhookList } = useGetWebhook({
-    applicationId: data?.applicationId,
+    applicationName: data?.applicationName,
   });
   const { refetch: refetchUsedWebhookList } = useGetWebhook({
     ruleId: data?.ruleId,
@@ -429,7 +429,7 @@ export const AlarmDetail = ({
           <WebhookDetail
             editable
             data={{
-              applicationId: data?.applicationId,
+              applicationName: data?.applicationName,
             }}
             onClickCancel={() => {
               setOpenWebhookDialog(false);

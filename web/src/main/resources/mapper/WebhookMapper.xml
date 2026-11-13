@@ -34,31 +34,31 @@
     </delete>
 
     <select id="selectWebhookByApplicationName" resultType="Webhook">
-        SELECT *
+        SELECT *, application_id AS application_name
         FROM webhook
         WHERE application_id = #{applicationName}
     </select>
 
     <select id="selectWebhookByServiceName" resultType="Webhook">
-        SELECT *
+        SELECT *, application_id AS application_name
         FROM webhook
         WHERE service_name = #{serviceName}
     </select>
 
     <select id="selectWebhookByRuleId" resultType="Webhook">
-        SELECT webhook.* FROM webhook
+        SELECT webhook.*, webhook.application_id AS application_name FROM webhook
         JOIN webhook_send ON webhook.webhook_id = webhook_send.webhook_id
         WHERE rule_id = #{ruleId};
     </select>
 
     <select id="selectWebhookByPinotAlarmRuleId" resultType="Webhook">
-        SELECT webhook.* FROM webhook
+        SELECT webhook.*, webhook.application_id AS application_name FROM webhook
         JOIN pinot_webhook_send ON webhook.webhook_id = pinot_webhook_send.webhook_id
         WHERE rule_id = #{ruleId};
     </select>
 
     <select id="selectWebhook" resultType="Webhook">
-        SELECT * FROM webhook
+        SELECT *, application_id AS application_name FROM webhook
         WHERE webhook_id = #{webhookId};
     </select>
 
