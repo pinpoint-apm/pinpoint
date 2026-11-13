@@ -168,7 +168,7 @@
         <dependency>
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j_jdk17-core</artifactId>
-            <version>8.13.1</version>
+            <version>${bucket4j.version}</version>
         </dependency>
 
         <dependency>
