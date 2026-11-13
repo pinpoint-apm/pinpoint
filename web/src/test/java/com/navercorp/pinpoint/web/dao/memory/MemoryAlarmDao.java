@@ -67,8 +67,8 @@ public class MemoryAlarmDao implements AlarmDao {
     }
 
     @Override
-    public void deleteRule(Rule rule) {
-        alarmRule.remove(rule.getRuleId());
+    public void deleteRule(String ruleId) {
+        alarmRule.remove(ruleId);
     }
 
 

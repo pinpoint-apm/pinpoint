@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.alarm.vo;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.web.vo.RuleInterface;
 import jakarta.validation.constraints.NotBlank;
@@ -41,7 +40,6 @@ public class Rule implements RuleInterface {
     private boolean webhookSend;
     private String notes;
 
-    @JsonCreator
     public Rule() {
     }
 

@@ -15,7 +15,7 @@
             (#{applicationName}, #{serviceType}, #{checkerName}, #{threshold}, #{userGroupId}, #{smsSend}, #{emailSend}, #{notes})
     </insert>
     
-    <delete id="deleteRule" parameterType="Rule">
+    <delete id="deleteRule" parameterType="string">
         DELETE
         FROM alarm_rule
         WHERE rule_id = #{ruleId} 
