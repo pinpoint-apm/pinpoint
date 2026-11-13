@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.common.plugin.util;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class HostAndPort {
     public static final int NO_PORT = -1;
+    public static final int MAX_PORT = 65535;
 
 // TODO
 //    private final String host;
@@ -49,7 +49,7 @@ public class HostAndPort {
     }
 
     public static boolean isValidPort(int port) {
-        return port >= 0 && port <= 65535;
+        return port >= 0 && port <= MAX_PORT;
     }
 
     public static String toHostAndPortString(String host, int port) {
@@ -65,12 +65,9 @@ public class HostAndPort {
         if (noPort == port) {
             return host;
         }
-        final int hostLength = StringUtils.getLength(host);
-        final StringBuilder builder = new StringBuilder(hostLength + 6);
-        builder.append(host);
-        builder.append(':');
-        builder.append(port);
-        return builder.toString();
+        return host +
+                ':' +
+                port;
     }
 
 }
