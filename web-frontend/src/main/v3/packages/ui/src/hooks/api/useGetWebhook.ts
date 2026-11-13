@@ -4,7 +4,7 @@ import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<Webhook.Parameters>) => {
-  if (queryParams.ruleId || queryParams.applicationId) {
+  if (queryParams.ruleId || queryParams.applicationName) {
     return '?' + convertParamsToQueryString(queryParams);
   }
 

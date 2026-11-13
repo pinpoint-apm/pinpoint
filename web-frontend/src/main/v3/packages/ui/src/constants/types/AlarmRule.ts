@@ -1,11 +1,11 @@
 export namespace AlarmRule {
   export interface Parameters {
-    applicationId: string;
+    applicationName: string;
   }
 
   export interface AlarmRuleData {
     ruleId?: string;
-    applicationId: string;
+    applicationName: string;
     serviceType: string;
     checkerName: string;
     threshold: number;
@@ -24,7 +24,7 @@ export namespace AlarmRule {
 
   export interface DeleteParmeters extends Pick<
     AlarmRuleData,
-    'applicationId' | 'emailSend' | 'ruleId' | 'smsSend' | 'webhookSend'
+    'applicationName' | 'emailSend' | 'ruleId' | 'smsSend' | 'webhookSend'
   > {}
 
   export interface MutaionResponse {

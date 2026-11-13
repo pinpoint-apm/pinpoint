@@ -59,7 +59,7 @@ export const AlarmPage = ({
   const [currentTargetAlarmData, setCurrentTargetAlarmData] =
     React.useState<Partial<AlarmRule.AlarmRuleData>>();
   const { refetch: refetchAlarmList } = useAlarmRuleQuery({
-    applicationId: selectedApplication?.applicationName,
+    applicationName: selectedApplication?.applicationName,
   });
   const { mutate } = useAlarmRuleMutation({
     onSuccess: () => {
@@ -99,7 +99,7 @@ export const AlarmPage = ({
               setEditable(true);
               setCurrentTargetAlarmData({
                 serviceType: selectedApplication?.serviceType,
-                applicationId: selectedApplication?.applicationName,
+                applicationName: selectedApplication?.applicationName,
                 smsSend: true,
                 emailSend: true,
                 webhookSend: true,
@@ -111,7 +111,7 @@ export const AlarmPage = ({
           </Button>
         </div>
         <AlarmList
-          applicationId={selectedApplication?.applicationName}
+          applicationName={selectedApplication?.applicationName}
           onClickRowItem={(data) => {
             setEditable(false);
             setCurrentTargetAlarmData(data);
@@ -215,7 +215,7 @@ export const AlarmPage = ({
                 if (currentDeletingTarget) {
                   mutate({
                     params: {
-                      applicationId: currentDeletingTarget?.applicationId,
+                      applicationName: currentDeletingTarget?.applicationName,
                       ruleId: currentDeletingTarget?.ruleId,
                       emailSend: currentDeletingTarget?.emailSend,
                       smsSend: currentDeletingTarget?.smsSend,

@@ -4,7 +4,7 @@ import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<AlarmRule.Parameters>) => {
-  if (queryParams.applicationId) {
+  if (queryParams.applicationName) {
     return '?' + convertParamsToQueryString(queryParams);
   }
 
@@ -12,13 +12,13 @@ const getQueryString = (queryParams: Partial<AlarmRule.Parameters>) => {
 };
 
 export const useAlarmRuleQuery = ({
-  applicationId,
+  applicationName,
   suspense,
 }: {
-  applicationId?: string;
+  applicationName?: string;
   suspense?: boolean;
 }) => {
-  const queryString = getQueryString({ applicationId });
+  const queryString = getQueryString({ applicationName });
   const query = suspense ? useSuspenseQuery : useQuery;
 
   const { data, isLoading, refetch } = query({

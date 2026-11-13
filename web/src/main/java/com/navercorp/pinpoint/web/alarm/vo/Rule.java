@@ -57,22 +57,6 @@ public class Rule implements RuleInterface {
         this.notes = notes;
     }
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead
-     */
-    @Deprecated
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead
-     */
-    @Deprecated
-    public void setApplicationId(String applicationName) {
-        setApplicationName(applicationName);
-    }
-
     public String getApplicationName() {
         return applicationName;
     }

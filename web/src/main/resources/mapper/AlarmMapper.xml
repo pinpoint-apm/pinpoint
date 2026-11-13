@@ -22,13 +22,13 @@
     </delete>
     
     <select id="selectRuleByUserGroupId" resultType="Rule">
-        SELECT *
+        SELECT *, application_id AS application_name
         FROM alarm_rule
         WHERE user_group_id = #{userGroupId}
     </select>
 
     <select id="selectRuleByApplicationName" resultType="Rule">
-        SELECT *
+        SELECT *, application_id AS application_name
         FROM alarm_rule
         WHERE application_id = #{applicationName}
     </select>

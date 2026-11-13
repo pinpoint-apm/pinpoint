@@ -2,10 +2,10 @@ import { AlarmTable, AlarmTableProps } from './AlarmTable';
 import { useAlarmRuleQuery } from '@pinpoint-fe/ui/src/hooks';
 
 export interface AlarmListFetcherProps extends AlarmTableProps {
-  applicationId?: string;
+  applicationName?: string;
 }
 
-export const AlarmListFetcher = ({ applicationId, ...props }: AlarmListFetcherProps) => {
-  const { data } = useAlarmRuleQuery({ applicationId, suspense: true });
+export const AlarmListFetcher = ({ applicationName, ...props }: AlarmListFetcherProps) => {
+  const { data } = useAlarmRuleQuery({ applicationName, suspense: true });
   return <AlarmTable data={data} {...props} />;
 };

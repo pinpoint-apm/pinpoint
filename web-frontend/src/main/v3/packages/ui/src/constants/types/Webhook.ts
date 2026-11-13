@@ -1,14 +1,14 @@
 export namespace Webhook {
   export interface Parameters {
     ruleId?: string;
-    applicationId?: string;
+    applicationName?: string;
   }
   export type Response = WebhookData[];
   export interface WebhookData {
     webhookId?: string;
     alias: string;
     url: string;
-    applicationId: string;
+    applicationName: string;
     serviceName: string;
   }
 
