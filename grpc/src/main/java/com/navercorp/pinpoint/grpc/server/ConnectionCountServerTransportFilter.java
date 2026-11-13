@@ -21,12 +21,12 @@ import io.grpc.ServerTransportFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ConnectionCountServerTransportFilter extends ServerTransportFilter {
 
-    private static final Attributes.Key<AtomicInteger> TERMINATED = Attributes.Key.create("TransportTerminated");
+    private static final Attributes.Key<AtomicBoolean> TERMINATED = Attributes.Key.create("TransportTerminated");
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final AtomicLong currentConnection = new AtomicLong();
@@ -38,7 +38,7 @@ public class ConnectionCountServerTransportFilter extends ServerTransportFilter 
     @Override
     public Attributes transportReady(Attributes transportAttrs) {
         Attributes.Builder builder = transportAttrs.toBuilder();
-        builder.set(TERMINATED, new AtomicInteger());
+        builder.set(TERMINATED, new AtomicBoolean());
         Attributes attributes = builder.build();
 
         currentConnection.incrementAndGet();
@@ -51,11 +51,11 @@ public class ConnectionCountServerTransportFilter extends ServerTransportFilter 
             // transportTerminated() can be called before transportReady()
             return;
         }
-        final AtomicInteger terminated = transportAttrs.get(TERMINATED);
+        final AtomicBoolean terminated = transportAttrs.get(TERMINATED);
         if (terminated == null) {
             return;
         }
-        if (terminated.getAndIncrement() == 0) {
+        if (terminated.compareAndSet(false, true)) {
             currentConnection.decrementAndGet();
         } else {
             logger.info("transportTerminated() already terminated attribute:{}", transportAttrs);
