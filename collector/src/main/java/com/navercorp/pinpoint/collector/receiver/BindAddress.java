@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import jakarta.inject.Provider;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
@@ -30,6 +30,10 @@ public class BindAddress {
 
     public BindAddress(String ip, int port) {
         this.ip = Objects.requireNonNull(ip, "ip");
+        // 0 is valid: it asks the OS for an ephemeral port
+        if (!HostAndPort.isValidPort(port)) {
+            throw new IllegalArgumentException("port out of range:" + port);
+        }
         this.port = port;
     }
 
@@ -45,7 +49,7 @@ public class BindAddress {
         return new Builder();
     }
 
-    public static class Builder implements Provider<BindAddress> {
+    public static class Builder {
         @NonNull
         private String ip = "0.0.0.0";
         private int port;
@@ -65,12 +69,6 @@ public class BindAddress {
 
         public BindAddress build() {
             return new BindAddress(this.ip, this.port);
-        }
-
-
-        @Override
-        public BindAddress get() {
-            return build();
         }
     }
 

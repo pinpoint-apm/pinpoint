@@ -90,6 +90,7 @@
                 </exclusion>
             </exclusions>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
