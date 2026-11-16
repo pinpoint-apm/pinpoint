@@ -16,7 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.util.json;
 
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.primitive.IntLists;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,6 +41,30 @@ class JacksonTest {
         User user2 = mapper.readValue(json, User.class);
 
         Assertions.assertThat(user1).isEqualTo(user2);
+    }
+
+    /**
+     * The EclipseCollectionsModule instance is shared by every mapper
+     */
+    @Test
+    void eclipseCollectionsModule() throws JacksonException {
+        ObjectMapper[] mappers = {Jackson.newMapper(), Jackson.newMapper(), Jackson.newBuilder().build(), Jackson.newYamlMapper()};
+        ImmutableIntList intList = IntLists.immutable.of(1, 2, 3);
+        ImmutableList<String> list = Lists.immutable.of("a", "b");
+
+        for (ObjectMapper mapper : mappers) {
+            Assertions.assertThat(mapper.registeredModules()).hasSize(1);
+
+            String intListJson = mapper.writeValueAsString(intList);
+            Assertions.assertThat(mapper.readValue(intListJson, ImmutableIntList.class)).isEqualTo(intList);
+
+            String listJson = mapper.writeValueAsString(list);
+            ImmutableList<String> read = mapper.readValue(listJson, new TypeReference<ImmutableList<String>>() {
+            });
+            Assertions.assertThat(read).isEqualTo(list);
+        }
+
+        Assertions.assertThat(Jackson.newMapper().writeValueAsString(intList)).isEqualTo("[1,2,3]");
     }
 
     static class User {
