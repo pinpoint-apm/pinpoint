@@ -67,6 +67,33 @@ class JacksonTest {
         Assertions.assertThat(Jackson.newMapper().writeValueAsString(intList)).isEqualTo("[1,2,3]");
     }
 
+    @Test
+    void shared() throws JacksonException {
+        ObjectMapper mapper = Jackson.shared();
+        Assertions.assertThat(mapper).isSameAs(Jackson.shared());
+        Assertions.assertThat(mapper).isNotSameAs(Jackson.newMapper());
+
+        User user1 = new User("abc");
+
+        String json = mapper.writeValueAsString(user1);
+
+        User user2 = mapper.readValue(json, User.class);
+
+        Assertions.assertThat(user1).isEqualTo(user2);
+    }
+
+    @Test
+    void shared_sameConfiguration() {
+        ObjectMapper shared = Jackson.shared();
+        ObjectMapper mapper = Jackson.newMapper();
+
+        Assertions.assertThat(shared.serializationConfig().getSerializationFeatures())
+                .isEqualTo(mapper.serializationConfig().getSerializationFeatures());
+        Assertions.assertThat(shared.deserializationConfig().getDeserializationFeatures())
+                .isEqualTo(mapper.deserializationConfig().getDeserializationFeatures());
+        Assertions.assertThat(shared.registeredModules()).hasSameSizeAs(mapper.registeredModules());
+    }
+
     static class User {
         private final String name;
 

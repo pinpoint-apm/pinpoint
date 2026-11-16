@@ -39,6 +39,20 @@ public final class Jackson {
     private Jackson() {
     }
 
+    /**
+     * Shared mapper with the same configuration as {@link #newMapper()}.
+     * <p>
+     * Unlike {@link JsonMapper#shared()}, it keeps the Jackson 2 wire behavior and has the modules registered.
+     * Use it where the ObjectMapper bean cannot be injected. If a different configuration is needed, use {@link #newBuilder()}.
+     */
+    public static JsonMapper shared() {
+        return SharedHolder.MAPPER;
+    }
+
+    private static final class SharedHolder {
+        private static final JsonMapper MAPPER = newMapper();
+    }
+
     public static JsonMapper newMapper() {
         return newBuilder().build();
     }
