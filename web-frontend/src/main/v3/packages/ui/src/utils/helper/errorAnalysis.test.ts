@@ -111,4 +111,43 @@ describe('findErrorDetailFocusIndex', () => {
 
     expect(findErrorDetailFocusIndex(withNull, { errorClassName: 'RuntimeException' })).toBe(0);
   });
+
+  test('should prefer an exact message over a message it starts with', () => {
+    // Clicking 'bad id' matches 'bad' by prefix too; the exact card has to win (PR #14619 review).
+    const repeated = [
+      card(0, 'java.lang.RuntimeException', 'bad'),
+      card(1, 'java.lang.RuntimeException', 'bad id'),
+    ];
+
+    expect(
+      findErrorDetailFocusIndex(repeated, {
+        errorClassName: 'RuntimeException',
+        errorMessage: 'bad id',
+      }),
+    ).toBe(1);
+    expect(
+      findErrorDetailFocusIndex(repeated, {
+        errorClassName: 'RuntimeException',
+        errorMessage: 'bad',
+      }),
+    ).toBe(0);
+  });
+
+  test('should not let an empty message match every message by prefix', () => {
+    // An empty string is a prefix of anything, so it would otherwise pull in the outer card.
+    const repeated = [
+      card(0, 'java.lang.RuntimeException', ''),
+      card(1, 'java.lang.RuntimeException', 'inner failure with a long message'),
+    ];
+
+    expect(
+      findErrorDetailFocusIndex(repeated, {
+        errorClassName: 'RuntimeException',
+        errorMessage: 'inner failure',
+      }),
+    ).toBe(1);
+    expect(
+      findErrorDetailFocusIndex(repeated, { errorClassName: 'RuntimeException', errorMessage: '' }),
+    ).toBe(0);
+  });
 });

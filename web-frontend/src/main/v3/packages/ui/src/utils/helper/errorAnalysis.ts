@@ -30,10 +30,17 @@ const ABBREVIATED_SUFFIX = /\.\.\.\(\d+\)$/;
 const normalizeMessage = (message?: string | null) =>
   (message ?? '').replace(ABBREVIATED_SUFFIX, '');
 
-const isSameMessage = (a?: string | null, b?: string | null) => {
+const isExactMessage = (a?: string | null, b?: string | null) =>
+  normalizeMessage(a) === normalizeMessage(b);
+
+// 한쪽이 잘렸을 수 있으므로 앞부분이 같으면 같은 메시지로 본다. 빈 메시지는 모든 메시지의 앞부분이라
+// 짝을 가리는 데 쓸 수 없으므로 어느 한쪽이라도 비면 같다고 보지 않는다(빈 것끼리는 exact가 맡는다).
+const isPrefixMessage = (a?: string | null, b?: string | null) => {
   const left = normalizeMessage(a);
   const right = normalizeMessage(b);
-
+  if (!left || !right) {
+    return false;
+  }
   return left.startsWith(right) || right.startsWith(left);
 };
 
@@ -42,7 +49,8 @@ const isSameMessage = (a?: string | null, b?: string | null) => {
  *
  * 1. `exceptionDepth`를 알면 그 카드다. 클래스 이름도 왔다면 맞는지 함께 본다 — 다르면 다른 chain의
  *    정보이므로 믿지 않고 아래 규칙으로 넘어간다.
- * 2. 클래스 이름이 같은 카드를 찾는다. 같은 클래스가 chain에 여러 번 나오면 메시지로 좁힌다.
+ * 2. 클래스 이름이 같은 카드를 찾는다. 같은 클래스가 chain에 여러 번 나오면 메시지로 좁힌다
+ *    (정확히 같은 것 → 앞부분이 같은 것 순).
  *    그래도 여럿이면(클래스·메시지가 모두 같으면) 가장 바깥 카드다 — 화면에서 서로 구별되지 않는다.
  *    같은 예외를 여러 메서드가 다시 던진 경우에도 Call Tree에는 행이 여럿 생기지만 상세 카드는 하나다.
  */
@@ -72,9 +80,12 @@ export const findErrorDetailFocusIndex = (
     return -1;
   }
 
+  // 메시지는 정확히 같은 것 → 앞부분이 같은 것 → 클래스만 같은 것 순으로 좁힌다. 앞부분 비교를 먼저
+  // 하면 'bad'(바깥)와 'bad id'(cause) 중 'bad id'를 눌러도 둘 다 걸려 바깥 카드가 골라진다.
   const sameClass = data.map((d, index) => ({ d, index })).filter(({ d }) => isSameClass(d));
-  const sameMessage = sameClass.filter(({ d }) => isSameMessage(d.errorMessage, errorMessage));
-  const candidates = sameMessage.length > 0 ? sameMessage : sameClass;
+  const exactMessage = sameClass.filter(({ d }) => isExactMessage(d.errorMessage, errorMessage));
+  const prefixMessage = sameClass.filter(({ d }) => isPrefixMessage(d.errorMessage, errorMessage));
+  const candidates = [exactMessage, prefixMessage, sameClass].find((c) => c.length > 0) ?? [];
 
   if (candidates.length === 0) {
     return -1;
