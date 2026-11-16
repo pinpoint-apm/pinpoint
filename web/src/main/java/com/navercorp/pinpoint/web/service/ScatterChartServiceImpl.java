@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
 import com.navercorp.pinpoint.web.trace.service.SpanService;
-import com.navercorp.pinpoint.web.util.ListListUtils;
+import com.navercorp.pinpoint.common.server.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.common.server.uid.Service;
