@@ -13,8 +13,9 @@ public class NetUtilsTest {
     @Test
     public void toInetSocketAddress() {
         InetSocketAddress inetSocketAddress = NetUtils.toInetSocketAddress("192.168.0.1:8081");
-        Assertions.assertEquals(inetSocketAddress.getHostName(), "192.168.0.1");
-        Assertions.assertEquals(inetSocketAddress.getPort(), 8081);
+        // getHostName() triggers a reverse DNS lookup for IP literals, which depends on the environment
+        Assertions.assertEquals("192.168.0.1", inetSocketAddress.getHostString());
+        Assertions.assertEquals(8081, inetSocketAddress.getPort());
     }
 
     @Test
