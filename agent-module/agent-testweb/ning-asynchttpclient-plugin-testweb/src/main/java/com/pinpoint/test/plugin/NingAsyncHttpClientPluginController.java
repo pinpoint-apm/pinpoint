@@ -18,11 +18,11 @@ package com.pinpoint.test.plugin;
 
 import com.pinpoint.test.common.view.ApiLinkPage;
 import com.pinpoint.test.common.view.HrefTag;
+import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Response;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
@@ -31,21 +31,32 @@ import org.springframework.web.reactive.result.method.annotation.RequestMappingH
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * org.asynchttpclient 3.x by default; build with -Dtestweb.async-http-client.version=2.16.1 (or another 2.x) to try the
+ * 2.x line, which runs on the same Java 11.
+ */
 @RestController
-public class NingAsyncHttpClientPluginController {
+public class NingAsyncHttpClientPluginController implements DisposableBean {
 
     private final RequestMappingHandlerMapping handlerMapping;
+    private final AsyncHttpClient asyncHttpClient;
+    private final ExecutorService callbackExecutor = Executors.newSingleThreadExecutor();
 
-    @Autowired
-    public NingAsyncHttpClientPluginController(RequestMappingHandlerMapping handlerMapping) {
-        this.handlerMapping = handlerMapping;
+    public NingAsyncHttpClientPluginController(RequestMappingHandlerMapping handlerMapping, AsyncHttpClient asyncHttpClient) {
+        this.handlerMapping = Objects.requireNonNull(handlerMapping, "handlerMapping");
+        this.asyncHttpClient = Objects.requireNonNull(asyncHttpClient, "asyncHttpClient");
     }
 
     @GetMapping("/")
@@ -58,74 +69,90 @@ public class NingAsyncHttpClientPluginController {
             }
         }
         list.sort(Comparator.comparing(HrefTag::getPath));
-        return new ApiLinkPage("ning-asynchttpclient-plugin-testweb")
+        return new ApiLinkPage("ning-asynchttpclient-plugin-testweb (async-http-client " + libraryVersion() + ")")
                 .addHrefTag(list)
                 .build();
     }
 
-    @GetMapping("/client/post")
-    public Mono<String> clientPost() throws Exception {
-        AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
-        Response response = asyncHttpClient.preparePost("http://naver.com").execute().get();
-        return Mono.just(response.getResponseBody());
+    @GetMapping("/client/version")
+    public Mono<String> clientVersion() {
+        return Mono.just(libraryVersion());
     }
 
     @GetMapping("/client/get")
-    public Mono<String> clientGet(ServerWebExchange exchange) throws Exception {
-        AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
+    public Mono<String> clientGet() throws Exception {
         Response response = asyncHttpClient.prepareGet("http://naver.com").execute().get();
         return Mono.just(response.getResponseBody());
     }
 
-    @GetMapping("/client/local")
-    public Mono<String> clientLocal() throws Exception {
-        AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
-        Response response = asyncHttpClient.prepareGet("http://localhost:18080").execute().get();
+    @GetMapping("/client/post")
+    public Mono<String> clientPost() throws Exception {
+        Response response = asyncHttpClient.preparePost("http://naver.com").execute().get();
         return Mono.just(response.getResponseBody());
+    }
+
+    @GetMapping("/client/local")
+    public Mono<String> clientLocal(ServerWebExchange exchange) throws Exception {
+        Response response = asyncHttpClient.prepareGet(localUrl(exchange)).execute().get();
+        return Mono.just("status=" + response.getStatusCode());
     }
 
     @GetMapping("/client/unknown")
     public Mono<String> clientUnknown() throws Exception {
-        AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
-        Response response = asyncHttpClient.prepareGet("http://falfjlajdflajflajlf").execute().get();
-        return Mono.just(response.getResponseBody());
+        try {
+            Response response = asyncHttpClient.prepareGet("http://falfjlajdflajflajlf").execute().get();
+            return Mono.just("status=" + response.getStatusCode());
+        } catch (ExecutionException e) {
+            // onThrowable of the handler records the failure
+            return Mono.just("failed=" + e.getCause());
+        }
+    }
+
+    @GetMapping("/client/handler")
+    public Mono<String> clientHandler(ServerWebExchange exchange) throws Exception {
+        // an application handler: the traced callbacks are the ones AsyncCompletionHandler declares
+        String result = asyncHttpClient.prepareGet(localUrl(exchange)).execute(new AsyncCompletionHandler<String>() {
+            @Override
+            public String onCompleted(Response response) {
+                return "status=" + response.getStatusCode();
+            }
+        }).get();
+        return Mono.just(result);
     }
 
     @GetMapping("/client/callback")
-    public Mono<String> clientCallback() throws Exception {
-        AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
-        ListenableFuture<Response> listenableFuture = asyncHttpClient.prepareGet("http://httpbin.org").execute();
-//        Listener listener = new Listener(listenableFuture);
-
-        Runnable callback = () -> {
+    public Mono<String> clientCallback(ServerWebExchange exchange) {
+        ListenableFuture<Response> listenableFuture = asyncHttpClient.prepareGet(localUrl(exchange)).execute();
+        listenableFuture.addListener(() -> {
             try {
                 Response response = listenableFuture.get();
-                System.out.println("Response: " + response.getResponseBody());
+                System.out.println("Callback response status=" + response.getStatusCode());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        };
-        Executor executor = Executors.newSingleThreadExecutor();
-        listenableFuture.addListener(callback, executor);
-
+        }, callbackExecutor);
         return Mono.just("Callback added");
     }
 
-    class Listener implements Runnable {
-        private final ListenableFuture<Response> future;
+    private static String localUrl(ServerWebExchange exchange) {
+        return "http://localhost:" + exchange.getRequest().getLocalAddress().getPort() + "/";
+    }
 
-        public Listener(ListenableFuture<Response> future) {
-            this.future = future;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Response response = future.get();
-                System.out.println("Response: " + response.getResponseBody());
-            } catch (Exception e) {
-                e.printStackTrace();
+    private static String libraryVersion() {
+        try (InputStream in = AsyncHttpClient.class.getResourceAsStream("/META-INF/maven/org.asynchttpclient/async-http-client/pom.properties")) {
+            if (in == null) {
+                return "unknown";
             }
+            Properties properties = new Properties();
+            properties.load(in);
+            return properties.getProperty("version", "unknown");
+        } catch (IOException e) {
+            return "unknown";
         }
+    }
+
+    @Override
+    public void destroy() {
+        callbackExecutor.shutdown();
     }
 }

@@ -16,13 +16,22 @@
 
 package com.pinpoint.test.plugin;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class NingAsyncHttpClientPluginTestStarter {
 
     public static void main(String[] args) {
         SpringApplication.run(NingAsyncHttpClientPluginTestStarter.class, args);
+    }
+
+    // one client for the application: each client owns an event loop and a timer thread
+    @Bean(destroyMethod = "close")
+    public AsyncHttpClient asyncHttpClient() {
+        return new DefaultAsyncHttpClient();
     }
 }

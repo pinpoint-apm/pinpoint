@@ -20,6 +20,8 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
+        <!-- 3.x requires Java 11; -Dtestweb.async-http-client.version=2.16.1 (or another 2.x) tries the 2.x line -->
+        <testweb.async-http-client.version>3.0.14</testweb.async-http-client.version>
     </properties>
 
     <dependencies>
@@ -34,7 +36,7 @@
         <dependency>
             <groupId>org.asynchttpclient</groupId>
             <artifactId>async-http-client</artifactId>
-            <version>3.0.13</version>
+            <version>${testweb.async-http-client.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
