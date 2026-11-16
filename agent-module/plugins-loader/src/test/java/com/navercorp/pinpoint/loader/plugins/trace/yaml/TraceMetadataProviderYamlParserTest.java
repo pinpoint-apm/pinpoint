@@ -28,14 +28,21 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderParser;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -97,6 +104,87 @@ public class TraceMetadataProviderYamlParserTest {
         AnnotationKeyExpectation testAnnotationView = new AnnotationKeyExpectation(102, "test.annotation.view")
                 .properties(AnnotationKeyProperty.VIEW_IN_RECORD_SET);
         verifier.verifyAnnotationKey(testAnnotationView);
+    }
+
+    /**
+     * In the agent, the context classloader is the classloader of the application
+     * and it does not see the classes of the plugins-loader.
+     */
+    @Test
+    public void parseValid_contextClassLoader() {
+        TraceMetadataProviderParser parser = new TraceMetadataProviderYamlParser();
+        URL validTypeProviderEntryUrl = ClassLoader.getSystemResource(VALID_TYPE_PROVIDER_ENTRY);
+
+        Thread thread = Thread.currentThread();
+        ClassLoader contextClassLoader = thread.getContextClassLoader();
+        thread.setContextClassLoader(new URLClassLoader(new URL[0], null));
+        try {
+            TraceMetadataProvider traceMetadataProvider = parser.parse(validTypeProviderEntryUrl);
+
+            TraceMetadataProviderVerifier verifier = new TraceMetadataProviderVerifier(traceMetadataProvider);
+            verifier.verifyServiceType(new ServiceTypeInfoExpectation(1, "BASIC"));
+            verifier.verifyAnnotationKey(new AnnotationKeyExpectation(101, "test.annotation.arg"));
+        } finally {
+            thread.setContextClassLoader(contextClassLoader);
+        }
+    }
+
+    @Test
+    public void parseValid_reuse() {
+        TraceMetadataProviderParser parser = new TraceMetadataProviderYamlParser();
+        URL validTypeProviderEntryUrl = ClassLoader.getSystemResource(VALID_TYPE_PROVIDER_ENTRY);
+
+        for (int i = 0; i < 3; i++) {
+            TraceMetadataProvider traceMetadataProvider = parser.parse(validTypeProviderEntryUrl);
+
+            TraceMetadataProviderVerifier verifier = new TraceMetadataProviderVerifier(traceMetadataProvider);
+            verifier.verifyServiceType(new ServiceTypeInfoExpectation(1, "BASIC"));
+            verifier.verifyAnnotationKey(new AnnotationKeyExpectation(101, "test.annotation.arg"));
+        }
+    }
+
+    @Test
+    public void parse_unknownProperty(@TempDir Path tempDir) throws IOException {
+        URL url = writeYaml(tempDir, "serviceTypes:\n"
+                + "    - code: 1\n"
+                + "      name: 'BASIC'\n"
+                + "      unknown: true\n");
+
+        TraceMetadataProviderParser parser = new TraceMetadataProviderYamlParser();
+        assertThatThrownBy(() -> parser.parse(url))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Error parsing yml");
+    }
+
+    @Test
+    public void parse_invalidType(@TempDir Path tempDir) throws IOException {
+        URL url = writeYaml(tempDir, "serviceTypes:\n"
+                + "    - code: 'code'\n"
+                + "      name: 'BASIC'\n");
+
+        TraceMetadataProviderParser parser = new TraceMetadataProviderYamlParser();
+        assertThatThrownBy(() -> parser.parse(url))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Error parsing yml");
+    }
+
+    @Test
+    public void parse_globalTag(@TempDir Path tempDir) throws IOException {
+        URL url = writeYaml(tempDir, "serviceTypes:\n"
+                + "    - !!java.util.HashMap\n"
+                + "      code: 1\n"
+                + "      name: 'BASIC'\n");
+
+        TraceMetadataProviderParser parser = new TraceMetadataProviderYamlParser();
+        assertThatThrownBy(() -> parser.parse(url))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Error parsing yml");
+    }
+
+    private URL writeYaml(Path tempDir, String yaml) throws IOException {
+        Path path = tempDir.resolve("type-provider.yml");
+        Files.write(path, yaml.getBytes(StandardCharsets.UTF_8));
+        return path.toUri().toURL();
     }
 
     private static class TraceMetadataProviderVerifier {
