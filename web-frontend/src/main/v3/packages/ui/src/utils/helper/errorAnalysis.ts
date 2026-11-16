@@ -33,15 +33,37 @@ const normalizeMessage = (message?: string | null) =>
 const isExactMessage = (a?: string | null, b?: string | null) =>
   normalizeMessage(a) === normalizeMessage(b);
 
-// 한쪽이 잘렸을 수 있으므로 앞부분이 같으면 같은 메시지로 본다. 빈 메시지는 모든 메시지의 앞부분이라
-// 짝을 가리는 데 쓸 수 없으므로 어느 한쪽이라도 비면 같다고 보지 않는다(빈 것끼리는 exact가 맡는다).
-const isPrefixMessage = (a?: string | null, b?: string | null) => {
-  const left = normalizeMessage(a);
-  const right = normalizeMessage(b);
-  if (!left || !right) {
+/**
+ * Call Tree 링크가 URL에 싣는 메시지의 최대 길이. agent와 달리 꼬리표 없이 자르므로, 이 길이에 닿은
+ * 메시지는 잘렸을 수 있다고 본다.
+ */
+export const ERROR_MESSAGE_URL_MAX_LENGTH = 200;
+
+/**
+ * 앞부분이 같으면 같은 메시지로 본다 — 단 **짧은 쪽이 실제로 잘린 경우에만**. 잘리지 않은 짧은 메시지는
+ * 그 자체로 완전한 메시지라, 그것으로 시작하는 더 긴 메시지와는 다른 예외다. 그렇게 보지 않으면 바깥
+ * 'bad'와 원인 'bad xxx…'(URL에서 잘림) 중 원인을 눌러도 둘 다 걸려 바깥이 골라진다(PR #14619 리뷰).
+ *
+ * - 카드(exception trace): agent가 자르면 꼬리표가 붙는다.
+ * - 누른 줄(Call Tree): agent 꼬리표, 또는 URL에 실으며 `ERROR_MESSAGE_URL_MAX_LENGTH`로 자른 것.
+ *
+ * 빈 메시지는 모든 메시지의 앞부분이라 짝을 가리는 데 쓸 수 없으므로 같다고 보지 않는다(빈 것끼리는
+ * exact가 맡는다).
+ */
+const isPrefixMessage = (cardMessage?: string | null, focusMessage?: string | null) => {
+  const card = normalizeMessage(cardMessage);
+  const focus = normalizeMessage(focusMessage);
+  if (!card || !focus || card === focus) {
     return false;
   }
-  return left.startsWith(right) || right.startsWith(left);
+  if (card.length < focus.length) {
+    const isCardCut = ABBREVIATED_SUFFIX.test(cardMessage ?? '');
+    return isCardCut && focus.startsWith(card);
+  }
+  const isFocusCut =
+    ABBREVIATED_SUFFIX.test(focusMessage ?? '') ||
+    (focusMessage ?? '').length >= ERROR_MESSAGE_URL_MAX_LENGTH;
+  return isFocusCut && card.startsWith(focus);
 };
 
 /**
