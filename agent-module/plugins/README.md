@@ -45,8 +45,7 @@ _Last updated: 2026-10-27_
 | [okhttp](okhttp) | `com.squareup.okhttp3:okhttp` | `[3.0, 4.12]` | 1.5.0 |
 | [okhttp](okhttp) | `com.squareup.okhttp3:okhttp-jvm` | `[5.0, 5.5]` | 1.5.0 |
 | [ktor](ktor) | `io.ktor:ktor-client-core-jvm` (client) | `[2.3, 3.5]` | 4.0.0 |
-| [ning-asynchttpclient](ning-asynchttpclient) | `com.ning:async-http-client` | `[1.7, 1.9]` | 1.5.0 |
-| [ning-asynchttpclient](ning-asynchttpclient) | `org.asynchttpclient:async-http-client` | `[2.0, 2.12]` | 1.5.0 |
+| [ning-asynchttpclient](ning-asynchttpclient) | `org.asynchttpclient:async-http-client` | `[2.0, 3.0]` | 1.5.0 |
 | [google-httpclient](google-httpclient) | `com.google.http-client:google-http-client` | `[1.40, 1.42]` | 1.5.0 |
 | [reactor-netty](reactor-netty) | `io.projectreactor.netty:reactor-netty` | `[0.8.0.RELEASE, 0.9.2.RELEASE]` | 2.0.0 |
 | [cxf](cxf) | `org.apache.cxf` (client) | `[3.0, 3.5]` | 1.5.0 |

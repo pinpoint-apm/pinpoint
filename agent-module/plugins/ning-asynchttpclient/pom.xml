@@ -24,21 +24,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.ning</groupId>
-            <artifactId>async-http-client</artifactId>
-            <version>${plugins-ning-asynchttpclient.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.asynchttpclient</groupId>
             <artifactId>async-http-client</artifactId>
             <version>${plugins-org-asynchttpclient.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
-            <version>${netty3.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

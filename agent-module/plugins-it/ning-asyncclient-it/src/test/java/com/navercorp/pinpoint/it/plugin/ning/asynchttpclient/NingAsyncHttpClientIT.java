@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.it.plugin.ning.asynchttpclient;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.WebServer;
@@ -25,25 +23,18 @@ import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.api.PluginTest;
-import com.ning.http.client.AsyncHandler;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Request;
-import com.ning.http.client.Response;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.Future;
-
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
-import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
-
 /**
+ * org.asynchttpclient 2.x, the Java 8 line.
+ *
  * @author netspider
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({ "com.ning:async-http-client:[1.7.24],[1.8.16,1.8.999)",
+@Dependency({"org.asynchttpclient:async-http-client:[2.0.0],[2.0.40],[2.5.4],[2.10.5],[2.12.4],[2.16.1,2.max]",
         WebServer.VERSION, PluginITConstants.VERSION})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-ning-asynchttpclient-plugin"})
 public class NingAsyncHttpClientIT {
@@ -52,24 +43,12 @@ public class NingAsyncHttpClientIT {
     private static WebServer webServer;
 
     @BeforeAll
-    public static void BeforeClass() throws Exception {
+    public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
     }
 
     @Test
     public void test() throws Exception {
-        try (AsyncHttpClient client = new AsyncHttpClient()) {
-            Future<Response> f = client.preparePost(webServer.getCallHttpUrl()).addParameter("param1", "value1").execute();
-            Response response = f.get();
-        }
-        
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache();
-
-        String destinationId = webServer.getHostAndPort();
-        String httpUrl = webServer.getCallHttpUrl();
-        verifier.verifyTrace(event("ASYNC_HTTP_CLIENT", AsyncHttpClient.class.getMethod("executeRequest", Request.class, AsyncHandler.class), null, null, destinationId,
-                annotation("http.url", httpUrl)));
-        verifier.verifyTraceCount(0);
-   }
+        AsyncHttpClientTester.executeAndVerify(webServer);
+    }
 }

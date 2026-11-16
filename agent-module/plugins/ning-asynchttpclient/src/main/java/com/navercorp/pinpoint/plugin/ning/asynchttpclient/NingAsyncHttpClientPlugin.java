@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.AsyncHandl
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.AsyncHandlerOnStatusReceivedInterceptor;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.AsyncHandlerOnThrowableInterceptor;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.ExecuteInterceptor;
-import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.ExecuteRequestInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -59,33 +58,10 @@ public class NingAsyncHttpClientPlugin implements ProfilerPlugin, MatchableTrans
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        // 1.8.x ~ 1.9.x
-        logger.debug("Add AsyncHttpClient(1.8.x ~ 1.9.x)");
-        addAsyncHttpClientTransformer();
-
-        // 2.x
-        logger.debug("Add DefaultAsyncHttpClient(2.x ~");
+        // org.asynchttpclient 2.x ~ 3.x (com.ning 1.x is not supported any more)
+        logger.debug("Add DefaultAsyncHttpClient(2.x ~ 3.x)");
         addDefaultAsyncHttpClientTransformer();
         addAsyncHanlderTransformer();
-    }
-
-    private void addAsyncHttpClientTransformer() {
-        transformTemplate.transform("com.ning.http.client.AsyncHttpClient", AsyncHttpClientTransform.class);
-    }
-
-    public static class AsyncHttpClientTransform implements TransformCallback {
-
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-            final InstrumentMethod executeRequestMethod = target.getDeclaredMethod("executeRequest", "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler");
-            if (executeRequestMethod != null) {
-                executeRequestMethod.addInterceptor(ExecuteRequestInterceptor.class);
-            }
-
-            return target.toBytecode();
-        }
     }
 
     private void addDefaultAsyncHttpClientTransformer() {

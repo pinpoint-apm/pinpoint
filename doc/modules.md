@@ -33,7 +33,7 @@
 | Httpclient4 | httpclient | 4.0 | 4.5.4 |  |  |
 | Thrift | libthrift | 0.9.1 | 0.14.1 |  |  |
 | Google HTTP Client | google-http-client | 1.19.0 | 1.39.2 |  |  |
-| AsyncHttpClient | async-http-client | 1.7.24 | 1.8.17 |  |  |
+| AsyncHttpClient | org.asynchttpclient:async-http-client | 2.0.0 | 3.0.14 |  |  |
 | OkHttp | okhttp | 2.0.0 | 3.3.1 |  |  |
 | Apache HttpAsyncClient | httpasyncclient | 4.0 | 4.1.3 |  |  |
 | \*Akka HTTP | akka-http\_2.12 | 10.1.0 | 10.1.x |  |  |
