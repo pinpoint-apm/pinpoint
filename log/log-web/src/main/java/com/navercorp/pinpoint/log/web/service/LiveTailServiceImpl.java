@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.log.vo.FileKey;
 import com.navercorp.pinpoint.log.vo.LogPile;
 import com.navercorp.pinpoint.log.web.dao.LiveTailDao;
 import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
-import com.navercorp.pinpoint.web.util.ListListUtils;
+import com.navercorp.pinpoint.common.server.util.ListListUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Flux;
