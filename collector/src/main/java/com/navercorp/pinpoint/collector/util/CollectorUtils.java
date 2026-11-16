@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.collector.util;
 
-import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.util.IdValidateUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 /**
@@ -50,27 +46,4 @@ public final class CollectorUtils {
         return hostName + "@" + pid;
     }
 
-    @Deprecated
-    public static void checkAgentId(final String agentId) {
-        if (!IdValidateUtils.validateId(agentId)) {
-            throw new IllegalArgumentException("invalid agentId. agentId=" + agentId);
-        }
-    }
-
-    @Deprecated
-    public static void checkApplicationName(final String applicationName) {
-        if (!IdValidateUtils.validateId(applicationName)) {
-            throw new IllegalArgumentException("invalid applicationName. applicationName=" + applicationName);
-        }
-    }
-
-    @Deprecated
-    public static void checkAgentName(final String agentName) {
-        if (StringUtils.isEmpty(agentName)) {
-            return;
-        }
-        if (!IdValidateUtils.validateId(agentName, PinpointConstants.AGENT_NAME_MAX_LEN)) {
-            throw new IllegalArgumentException("invalid agentName. agentName=" + agentName);
-        }
-    }
 }
