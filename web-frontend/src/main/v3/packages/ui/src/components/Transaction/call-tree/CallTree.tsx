@@ -14,6 +14,7 @@ import {
 } from '@pinpoint-fe/ui/src/constants';
 import {
   convertParamsToQueryString,
+  ERROR_MESSAGE_URL_MAX_LENGTH,
   getErrorAnalysisPath,
   getTransactionDetailPath,
   getTransactionDetailQueryString,
@@ -35,10 +36,6 @@ export interface CallTreeProps extends Omit<
   CallTreeCoreProps,
   'bindSql' | 'getErrorAnalysisHref' | 'renderOtelLink'
 > {}
-
-// How much of an exception message the error analysis link carries. Enough to tell apart the
-// causes of one chain that share a class; the rest would only lengthen the URL.
-const ERROR_MESSAGE_URL_MAX_LENGTH = 200;
 
 // Pinpoint web's Call Tree: `CallTreeCore` plus what needs the router and React Query — binding
 // the SQL, and the links to the error analysis and to linked OTel transactions, which are built

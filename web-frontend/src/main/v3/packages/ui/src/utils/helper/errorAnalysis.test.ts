@@ -1,5 +1,5 @@
 import { ErrorAnalysisTransactionInfo } from '@pinpoint-fe/ui/src/constants';
-import { findErrorDetailFocusIndex } from './errorAnalysis';
+import { ERROR_MESSAGE_URL_MAX_LENGTH, findErrorDetailFocusIndex } from './errorAnalysis';
 
 const card = (
   exceptionDepth: number,
@@ -143,11 +143,71 @@ describe('findErrorDetailFocusIndex', () => {
     expect(
       findErrorDetailFocusIndex(repeated, {
         errorClassName: 'RuntimeException',
-        errorMessage: 'inner failure',
+        errorMessage: 'inner failure...(33)',
       }),
     ).toBe(1);
     expect(
       findErrorDetailFocusIndex(repeated, { errorClassName: 'RuntimeException', errorMessage: '' }),
     ).toBe(0);
+  });
+
+  test('should not take a complete short message for the start of a longer one', () => {
+    // The link cuts the clicked cause to ERROR_MESSAGE_URL_MAX_LENGTH. The outer 'bad' is a
+    // complete message, not a cut one, so it must not match the cause it happens to start
+    // (PR #14619 review).
+    const longCause = `bad ${'x'.repeat(300)}`;
+    const repeated = [
+      card(0, 'java.lang.RuntimeException', 'bad'),
+      card(1, 'java.lang.RuntimeException', longCause),
+    ];
+    const focus = {
+      errorClassName: 'RuntimeException',
+      errorMessage: longCause.slice(0, ERROR_MESSAGE_URL_MAX_LENGTH),
+    };
+
+    expect(findErrorDetailFocusIndex(repeated, focus)).toBe(1);
+
+    // The same holds when the exception trace abbreviated the cause.
+    const abbreviated = [
+      card(0, 'java.lang.RuntimeException', 'bad'),
+      card(1, 'java.lang.RuntimeException', `${longCause.slice(0, 256)}...(304)`),
+    ];
+    expect(findErrorDetailFocusIndex(abbreviated, focus)).toBe(1);
+  });
+
+  test('should not take a complete short clicked message for the start of a longer card', () => {
+    // 'bad' was not cut on the way, so it names a different exception than 'bad id'.
+    const repeated = [
+      card(0, 'java.lang.RuntimeException', 'bad id'),
+      card(1, 'java.lang.RuntimeException', 'bad request'),
+      card(2, 'java.lang.RuntimeException', 'bad'),
+    ];
+
+    expect(
+      findErrorDetailFocusIndex(repeated, {
+        errorClassName: 'RuntimeException',
+        errorMessage: 'bad',
+      }),
+    ).toBe(2);
+    expect(
+      findErrorDetailFocusIndex(repeated.slice(0, 2), {
+        errorClassName: 'RuntimeException',
+        errorMessage: 'bad',
+      }),
+    ).toBe(0);
+  });
+
+  test('should still match a card the agent abbreviated shorter than the clicked message', () => {
+    const repeated = [
+      card(0, 'java.lang.RuntimeException', 'outer'),
+      card(1, 'java.lang.RuntimeException', 'inner failure...(500)'),
+    ];
+
+    expect(
+      findErrorDetailFocusIndex(repeated, {
+        errorClassName: 'RuntimeException',
+        errorMessage: 'inner failure with the rest of a long message',
+      }),
+    ).toBe(1);
   });
 });
