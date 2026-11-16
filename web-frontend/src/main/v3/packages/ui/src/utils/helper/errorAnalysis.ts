@@ -109,11 +109,13 @@ export const findErrorDetailFocusIndex = (
   const prefixMessage = sameClass.filter(({ d }) => isPrefixMessage(d.errorMessage, errorMessage));
   const candidates = [exactMessage, prefixMessage, sameClass].find((c) => c.length > 0) ?? [];
 
-  if (candidates.length === 0) {
+  const [first, ...rest] = candidates;
+  if (!first) {
     return -1;
   }
 
-  return candidates.reduce((outermost, curr) =>
-    curr.d.exceptionDepth < outermost.d.exceptionDepth ? curr : outermost,
+  return rest.reduce(
+    (outermost, curr) => (curr.d.exceptionDepth < outermost.d.exceptionDepth ? curr : outermost),
+    first,
   ).index;
 };
