@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.util.json;
 
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.DateTimeFeature;
@@ -32,6 +33,9 @@ import tools.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
  * (declaration-order properties, enum names, lenient primitives, ...); see {@link #configureJackson2Compatible}.
  */
 public final class Jackson {
+    // stateless: setupModule() registers new handlers on each mapper, so one instance serves every builder
+    private static final JacksonModule ECLIPSE_COLLECTIONS_MODULE = new EclipseCollectionsModule();
+
     private Jackson() {
     }
 
@@ -42,14 +46,14 @@ public final class Jackson {
     public static JsonMapper.Builder newBuilder() {
         JsonMapper.Builder builder = JsonMapper.builder();
         configureJackson2Compatible(builder);
-        builder.addModule(new EclipseCollectionsModule());
+        builder.addModule(ECLIPSE_COLLECTIONS_MODULE);
         return builder;
     }
 
     public static YAMLMapper newYamlMapper() {
         YAMLMapper.Builder builder = YAMLMapper.builder();
         configureJackson2Compatible(builder);
-        builder.addModule(new EclipseCollectionsModule());
+        builder.addModule(ECLIPSE_COLLECTIONS_MODULE);
         return builder.build();
     }
 
