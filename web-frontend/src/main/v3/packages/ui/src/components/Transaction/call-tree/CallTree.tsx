@@ -67,15 +67,20 @@ export const CallTree = (props: CallTreeProps) => {
         {
           from,
           to,
-          transactionInfo: JSON.stringify({
-            ...errorKey,
-            timestamp: focusTimestamp,
-            uriTemplate: metaData.uri,
-            // Which card of the chain to open at. The message only narrows down a class that
-            // repeats in the chain and is compared by prefix, so a cut keeps the URL short.
-            errorClassName: exception?.className,
-            errorMessage: exception?.message.slice(0, ERROR_MESSAGE_URL_MAX_LENGTH),
-          }),
+          // Encoded once more than the query string does: Error Analysis reads every query value
+          // through getSearchParameters, which decodes it a second time. Unencoded, a '%' in the
+          // message ("100% used") would throw URIError there and break the whole page.
+          transactionInfo: encodeURIComponent(
+            JSON.stringify({
+              ...errorKey,
+              timestamp: focusTimestamp,
+              uriTemplate: metaData.uri,
+              // Which card of the chain to open at. The message only narrows down a class that
+              // repeats in the chain and is compared by prefix, so a cut keeps the URL short.
+              errorClassName: exception?.className,
+              errorMessage: exception?.message.slice(0, ERROR_MESSAGE_URL_MAX_LENGTH),
+            }),
+          ),
           openErrorDetail: true,
         },
       )}`;
