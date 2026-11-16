@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.loader.plugins.trace.yaml;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ParsedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
@@ -27,6 +23,10 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +44,6 @@ import java.util.List;
 public class TraceMetadataProviderYamlParser implements TraceMetadataProviderParser {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     @Override
     public ParsedTraceMetadataProvider parse(URL url) {
@@ -64,16 +63,24 @@ public class TraceMetadataProviderYamlParser implements TraceMetadataProviderPar
 
     private ParsedTraceMetadata parse0(URL metaUrl) throws IOException {
         try (InputStream inputStream = metaUrl.openStream()) {
-            ParsedTraceMetadata parsedTraceMetadata = mapper.readValue(inputStream, ParsedTraceMetadata.class);
+            // Yaml is not thread-safe and cheap to create
+            final Yaml yaml = newYaml();
+            ParsedTraceMetadata parsedTraceMetadata = yaml.load(inputStream);
             if (parsedTraceMetadata == null) {
                 logger.warn("Empty type provider definition. Skipping : {}", metaUrl.toExternalForm());
             }
             return parsedTraceMetadata;
-        } catch (JsonParseException | JsonMappingException e) {
+        } catch (YAMLException e) {
             throw new IllegalStateException("Error parsing yml : " + metaUrl, e);
         } catch (IOException e) {
             throw new IllegalStateException("Error opening stream : " + metaUrl, e);
         }
+    }
+
+    private Yaml newYaml() {
+        // the property types are resolved from ParsedTraceMetadata, global tags(!!className) in the document are not allowed
+        final Constructor constructor = new Constructor(ParsedTraceMetadata.class, new LoaderOptions());
+        return new Yaml(constructor);
     }
 
     private String getTypeProviderId(URL metaUrl) {
