@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.inspector.web;
 
-import com.navercorp.pinpoint.common.server.config.YAMLMapper;
 import com.navercorp.pinpoint.common.server.config.YamlConfiguration;
 import com.navercorp.pinpoint.inspector.web.config.InspectorPropertySources;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebPinotDaoConfiguration;
@@ -30,9 +29,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author minwoo.jung
@@ -54,22 +54,18 @@ public class InspectorWebConfig {
 
     @Bean
     public Mappings agentInspectorDefinition(@Value(YMLInspectorManager.AGENT_DEFINITION_YML_PATH)
-                                                      Resource inspectorMetric,
-                                                      YAMLMapper mapper) throws IOException {
-
-        InputStream stream = inspectorMetric.getInputStream();
-
-        return mapper.mapper().readValue(stream, Mappings.class);
+                                             Resource inspectorMetric,
+                                             YAMLMapper mapper) throws IOException {
+        String content = inspectorMetric.getContentAsString(StandardCharsets.UTF_8);
+        return mapper.readValue(content, Mappings.class);
     }
 
     @Bean
     public Mappings applicationInspectorDefinition(@Value(YMLInspectorManager.APPLICATION_DEFINITION_YML_PATH)
-                                             Resource inspectorMetric,
+                                                   Resource inspectorMetric,
                                                    YAMLMapper mapper) throws IOException {
-
-        InputStream stream = inspectorMetric.getInputStream();
-
-        return mapper.mapper().readValue(stream, Mappings.class);
+        String content = inspectorMetric.getContentAsString(StandardCharsets.UTF_8);
+        return mapper.readValue(content, Mappings.class);
     }
 
     @Bean

@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.metric.web.config;
 
-import com.navercorp.pinpoint.common.server.config.YAMLMapper;
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.config.MetricCommonConfiguration;
 import com.navercorp.pinpoint.metric.web.mapping.Mappings;
@@ -24,10 +23,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -96,9 +96,8 @@ public class MetricWebPinotDaoConfiguration {
     public Mappings telegrafMetricDefinition(@Value(YMLSystemMetricBasicGroupManager.TELEGRAF_METRIC)
                                             Resource telegrafMetric,
                                             YAMLMapper mapper) throws IOException {
+        String content = telegrafMetric.getContentAsString(StandardCharsets.UTF_8);
 
-        InputStream stream = telegrafMetric.getInputStream();
-
-        return mapper.mapper().readValue(stream, Mappings.class);
+        return mapper.readValue(content, Mappings.class);
     }
 }
