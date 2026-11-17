@@ -1,0 +1,12 @@
+server:
+  port: 18080
+
+activemq:
+  broker:
+    # false: connect to an external broker at activemq.broker.url instead of starting one in the app
+    embedded: true
+    url: tcp://localhost:61616
+
+logging:
+  level:
+    root: info

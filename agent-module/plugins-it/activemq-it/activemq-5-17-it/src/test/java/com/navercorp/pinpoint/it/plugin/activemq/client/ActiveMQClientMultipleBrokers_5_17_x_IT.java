@@ -36,7 +36,7 @@ import java.util.Arrays;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
-@Dependency({"org.apache.activemq:activemq-all:[5.17.0,)"})
+@Dependency({"org.apache.activemq:activemq-all:[5.17.0,6.0.0)"})
 public class ActiveMQClientMultipleBrokers_5_17_x_IT extends ActiveMQClientITBase {
 
     private static final String PRODUCER_BROKER = "Producer_Broker";

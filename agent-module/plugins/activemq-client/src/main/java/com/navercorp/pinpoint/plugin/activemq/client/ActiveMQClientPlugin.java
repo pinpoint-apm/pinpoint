@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
@@ -138,13 +137,10 @@ public class ActiveMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
             Filter<String> excludeDestinationFilter = config.getExcludeDestinationFilter();
 
             target.addGetter(ActiveMQSessionGetter.class, "session");
-            final MethodFilter methodFilter = MethodFilters.chain(
-                    MethodFilters.name("send"),
-                    MethodFilters.argAt(0, "javax.jms.Destination"),
-                    MethodFilters.argAt(1, "javax.jms.Message")
-            );
-
-            for (InstrumentMethod method : target.getDeclaredMethods(methodFilter)) {
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("send"))) {
+                if (!isSendToDestination(method.getParameterTypes())) {
+                    continue;
+                }
                 try {
                     method.addScopedInterceptor(ActiveMQMessageProducerSendInterceptor.class, va(excludeDestinationFilter), ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
                 } catch (Exception e) {
@@ -155,6 +151,18 @@ public class ActiveMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
             }
 
             return target.toBytecode();
+        }
+
+        // send(Destination, Message, ...): javax.jms on ActiveMQ 5.x, jakarta.jms on 6.x
+        private boolean isSendToDestination(String[] parameterTypes) {
+            if (parameterTypes == null || parameterTypes.length < 2) {
+                return false;
+            }
+            return isJmsType(parameterTypes[0], "Destination") && isJmsType(parameterTypes[1], "Message");
+        }
+
+        private boolean isJmsType(String type, String simpleName) {
+            return ("javax.jms." + simpleName).equals(type) || ("jakarta.jms." + simpleName).equals(type);
         }
     }
 

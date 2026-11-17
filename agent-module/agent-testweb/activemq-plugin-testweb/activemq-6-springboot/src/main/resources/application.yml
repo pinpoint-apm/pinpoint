@@ -1,0 +1,18 @@
+server:
+  port: 18080
+
+activemq:
+  broker:
+    # false: connect to an external broker at spring.activemq.broker-url instead of starting one in the app
+    embedded: true
+
+spring:
+  activemq:
+    broker-url: tcp://localhost:61617
+  jms:
+    template:
+      receive-timeout: 3s
+
+logging:
+  level:
+    root: info

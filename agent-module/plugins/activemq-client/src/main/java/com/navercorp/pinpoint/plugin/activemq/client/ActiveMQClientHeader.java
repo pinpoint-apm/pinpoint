@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.plugin.activemq.client;
 
-import org.apache.activemq.command.ActiveMQMessage;
+import org.apache.activemq.command.Message;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
+import java.io.IOException;
 
 /**
+ * Reads and writes the trace headers through the ActiveMQ message itself rather than the JMS API:
+ * ActiveMQ 5.x implements javax.jms and 6.x implements jakarta.jms, while org.apache.activemq.command.Message
+ * keeps the same property methods on both.
+ *
  * @author HyunGil Jeong
  */
 public enum ActiveMQClientHeader {
@@ -44,160 +47,131 @@ public enum ActiveMQClientHeader {
         return this.id;
     }
 
-    private interface MessageHandler<T> {
-        void setMessage(Message message, ActiveMQClientHeader key, T value) throws JMSException;
-
-        T getMessage(Message message, ActiveMQClientHeader key, T defaultValue);
+    private static void setProperty(Message message, ActiveMQClientHeader key, Object value) throws IOException {
+        message.setProperty(key.id, value);
     }
 
-    private static abstract class MessageHandlerBase<T> implements MessageHandler<T> {
-
-        @Override
-        public final void setMessage(Message message, ActiveMQClientHeader key, T value) throws JMSException {
-            String id = key.id;
-            if (message instanceof ActiveMQMessage) {
-                ActiveMQMessage activeMQMessage = (ActiveMQMessage) message;
-                if (activeMQMessage.isReadOnlyProperties()) {
-                    activeMQMessage.setReadOnlyProperties(false);
-                    setMessage0(message, id, value);
-                    activeMQMessage.setReadOnlyProperties(true);
-                    return;
-                }
-            }
-            setMessage0(message, id, value);
+    private static Object getProperty(Message message, ActiveMQClientHeader key) {
+        try {
+            return message.getProperty(key.id);
+        } catch (IOException ignored) {
+            // just ignore and let the caller return the default value
+            return null;
         }
+    }
 
-        @Override
-        public final T getMessage(Message message, ActiveMQClientHeader key, T defaultValue) {
-            String id = key.id;
-            try {
-                if (message.propertyExists(id)) {
-                    return getMessage0(message, id);
-                }
-            } catch (JMSException ignored) {
-                // just ignore and return default value
-            }
+    // A property that came over the wire is not always the type it was set with (a String arrives as a UTF8Buffer,
+    // and another client may have set a number as text), so read it leniently the way the JMS getters do.
+    private static String getString(Message message, ActiveMQClientHeader key, String defaultValue) {
+        final Object value = getProperty(message, key);
+        if (value == null) {
             return defaultValue;
         }
-
-        protected abstract void setMessage0(Message message, String id, T value) throws JMSException;
-
-        protected abstract T getMessage0(Message message, String id) throws JMSException;
+        return value.toString();
     }
 
-    private static final MessageHandler<String> STRING_MESSAGE_HANDLER = new MessageHandlerBase<String>() {
-
-        @Override
-        protected void setMessage0(Message message, String id, String value) throws JMSException {
-            message.setStringProperty(id, value);
+    private static Long getLong(Message message, ActiveMQClientHeader key, Long defaultValue) {
+        final Object value = getProperty(message, key);
+        if (value == null) {
+            return defaultValue;
         }
-
-        @Override
-        protected String getMessage0(Message message, String id) throws JMSException {
-            return message.getStringProperty(id);
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
         }
-    };
-
-    private static final MessageHandler<Long> LONG_MESSAGE_HANDLER = new MessageHandlerBase<Long>() {
-
-        @Override
-        protected void setMessage0(Message message, String id, Long value) throws JMSException {
-            message.setLongProperty(id, value);
+        try {
+            return Long.valueOf(value.toString());
+        } catch (NumberFormatException ignored) {
+            return defaultValue;
         }
+    }
 
-        @Override
-        protected Long getMessage0(Message message, String id) throws JMSException {
-            return message.getLongProperty(id);
+    private static Short getShort(Message message, ActiveMQClientHeader key, Short defaultValue) {
+        final Object value = getProperty(message, key);
+        if (value == null) {
+            return defaultValue;
         }
-    };
-
-    private static final MessageHandler<Short> SHORT_MESSAGE_HANDLER = new MessageHandlerBase<Short>() {
-
-        @Override
-        protected void setMessage0(Message message, String id, Short value) throws JMSException {
-            message.setShortProperty(id, value);
+        if (value instanceof Number) {
+            return ((Number) value).shortValue();
         }
-
-        @Override
-        protected Short getMessage0(Message message, String id) throws JMSException {
-            return message.getShortProperty(id);
+        try {
+            return Short.valueOf(value.toString());
+        } catch (NumberFormatException ignored) {
+            return defaultValue;
         }
-    };
+    }
 
-    private static final MessageHandler<Boolean> BOOLEAN_MESSAGE_HANDLER = new MessageHandlerBase<Boolean>() {
-
-        @Override
-        protected void setMessage0(Message message, String id, Boolean value) throws JMSException {
-            message.setBooleanProperty(id, value);
+    private static Boolean getBoolean(Message message, ActiveMQClientHeader key, Boolean defaultValue) {
+        final Object value = getProperty(message, key);
+        if (value == null) {
+            return defaultValue;
         }
-
-        @Override
-        protected Boolean getMessage0(Message message, String id) throws JMSException {
-            return message.getBooleanProperty(id);
+        if (value instanceof Boolean) {
+            return (Boolean) value;
         }
-    };
+        return Boolean.valueOf(value.toString());
+    }
 
-    public static void setTraceId(Message message, String traceId) throws JMSException {
-        STRING_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_TRACE_ID, traceId);
+    public static void setTraceId(Message message, String traceId) throws IOException {
+        setProperty(message, ACTIVEMQ_TRACE_ID, traceId);
     }
 
     public static String getTraceId(Message message, String defaultValue) {
-        return STRING_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_TRACE_ID, defaultValue);
+        return getString(message, ACTIVEMQ_TRACE_ID, defaultValue);
     }
 
-    public static void setSpanId(Message message, Long spanId) throws JMSException {
-        LONG_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_SPAN_ID, spanId);
+    public static void setSpanId(Message message, Long spanId) throws IOException {
+        setProperty(message, ACTIVEMQ_SPAN_ID, spanId);
     }
 
     public static Long getSpanId(Message message, Long defaultValue) {
-        return LONG_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_SPAN_ID, defaultValue);
+        return getLong(message, ACTIVEMQ_SPAN_ID, defaultValue);
     }
 
-    public static void setParentSpanId(Message message, Long parentSpanId) throws JMSException {
-        LONG_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_PARENT_SPAN_ID, parentSpanId);
+    public static void setParentSpanId(Message message, Long parentSpanId) throws IOException {
+        setProperty(message, ACTIVEMQ_PARENT_SPAN_ID, parentSpanId);
     }
 
     public static Long getParentSpanId(Message message, Long defaultValue) {
-        return LONG_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_PARENT_SPAN_ID, defaultValue);
+        return getLong(message, ACTIVEMQ_PARENT_SPAN_ID, defaultValue);
     }
 
-    public static void setSampled(Message message, Boolean sampled) throws JMSException {
-        BOOLEAN_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_SAMPLED, sampled);
+    public static void setSampled(Message message, Boolean sampled) throws IOException {
+        setProperty(message, ACTIVEMQ_SAMPLED, sampled);
     }
 
     public static Boolean getSampled(Message message, Boolean defaultValue) {
-        return BOOLEAN_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_SAMPLED, defaultValue);
+        return getBoolean(message, ACTIVEMQ_SAMPLED, defaultValue);
     }
 
-    public static void setFlags(Message message, Short flags) throws JMSException {
-        SHORT_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_FLAGS, flags);
+    public static void setFlags(Message message, Short flags) throws IOException {
+        setProperty(message, ACTIVEMQ_FLAGS, flags);
     }
 
     public static Short getFlags(Message message, Short defaultValue) {
-        return SHORT_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_FLAGS, defaultValue);
+        return getShort(message, ACTIVEMQ_FLAGS, defaultValue);
     }
 
-    public static void setParentApplicationName(Message message, String parentApplicationName) throws JMSException {
-        STRING_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_PARENT_APPLICATION_NAME, parentApplicationName);
+    public static void setParentApplicationName(Message message, String parentApplicationName) throws IOException {
+        setProperty(message, ACTIVEMQ_PARENT_APPLICATION_NAME, parentApplicationName);
     }
 
     public static String getParentApplicationName(Message message, String defaultValue) {
-        return STRING_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_PARENT_APPLICATION_NAME, defaultValue);
+        return getString(message, ACTIVEMQ_PARENT_APPLICATION_NAME, defaultValue);
     }
 
-    public static void setParentApplicationType(Message message, Short parentApplicationType) throws JMSException {
-        SHORT_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_PARENT_APPLICATION_TYPE, parentApplicationType);
+    public static void setParentApplicationType(Message message, Short parentApplicationType) throws IOException {
+        setProperty(message, ACTIVEMQ_PARENT_APPLICATION_TYPE, parentApplicationType);
     }
 
     public static Short getParentApplicationType(Message message, Short defaultValue) {
-        return SHORT_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_PARENT_APPLICATION_TYPE, defaultValue);
+        return getShort(message, ACTIVEMQ_PARENT_APPLICATION_TYPE, defaultValue);
     }
 
-    public static void setParentServiceName(Message message, String parentServiceName) throws JMSException {
-        STRING_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_PARENT_SERVICE_NAME, parentServiceName);
+    public static void setParentServiceName(Message message, String parentServiceName) throws IOException {
+        setProperty(message, ACTIVEMQ_PARENT_SERVICE_NAME, parentServiceName);
     }
 
     public static String getParentServiceName(Message message, String defaultValue) {
-        return STRING_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_PARENT_SERVICE_NAME, defaultValue);
+        return getString(message, ACTIVEMQ_PARENT_SERVICE_NAME, defaultValue);
     }
 }
