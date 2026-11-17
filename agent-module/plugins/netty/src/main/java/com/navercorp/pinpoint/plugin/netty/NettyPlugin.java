@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseNotifyInter
 import com.navercorp.pinpoint.plugin.netty.transformer.http.HttpEncoderTransformer;
 import com.navercorp.pinpoint.plugin.netty.transformer.http.HttpRequestTransformer;
 
+import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
@@ -60,6 +61,8 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
             logger.info("Add channel.close() transform");
             transformTemplate.transform("io.netty.channel.socket.nio.NioSocketChannel", NioSocketChannelTransformer.class);
             transformTemplate.transform("io.netty.channel.AbstractChannel", AbstractChannelTransformer.class);
+            // Netty 4.2 moved close() from AbstractChannel to a default method of the Channel interface
+            transformTemplate.transform("io.netty.channel.Channel", ChannelTransformer.class);
         }
 
         if (!config.isPluginEnable()) {
@@ -235,6 +238,21 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             final InstrumentMethod closeMethod = target.getDeclaredMethod("close");
             if (closeMethod != null) {
+                closeMethod.addInterceptor(ChannelCloseMethodInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class ChannelTransformer implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            // Netty 4.1 declares close() abstract here and implements it in AbstractChannel (AbstractChannelTransformer);
+            // Netty 4.2 implements it here as a default method and AbstractChannel no longer declares it.
+            final InstrumentMethod closeMethod = target.getDeclaredMethod("close");
+            if (closeMethod != null && !Modifier.isAbstract(closeMethod.getModifiers())) {
                 closeMethod.addInterceptor(ChannelCloseMethodInterceptor.class);
             }
             return target.toBytecode();
