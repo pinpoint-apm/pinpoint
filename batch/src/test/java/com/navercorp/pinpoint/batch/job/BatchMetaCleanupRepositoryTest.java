@@ -29,7 +29,7 @@ import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
+import org.springframework.batch.core.repository.support.JdbcJobRepositoryFactoryBean;
 import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -70,7 +70,7 @@ class BatchMetaCleanupRepositoryTest {
                 .generateUniqueName(true)
                 .addScript("classpath:/org/springframework/batch/core/schema-h2.sql")
                 .build();
-        JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
+        JdbcJobRepositoryFactoryBean factory = new JdbcJobRepositoryFactoryBean();
         factory.setDataSource(dataSource);
         factory.setTransactionManager(new DataSourceTransactionManager(dataSource));
         factory.setDatabaseType("H2");

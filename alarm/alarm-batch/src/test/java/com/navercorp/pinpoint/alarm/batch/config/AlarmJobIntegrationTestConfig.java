@@ -26,9 +26,6 @@ import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
 import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
 import com.navercorp.pinpoint.alarm.evaluation.ConditionEvaluator;
-import com.navercorp.pinpoint.alarm.dao.mapper.AlarmRuleLocalConfigMapper;
-import com.navercorp.pinpoint.alarm.dao.mapper.AlarmTemplateItemMapper;
-import com.navercorp.pinpoint.alarm.dao.mapper.AlarmRuleV2Mapper;
 import com.navercorp.pinpoint.alarm.service.AlarmNotificationService;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceProvider;
 import com.navercorp.pinpoint.alarm.service.AlarmEvaluationService;
@@ -41,14 +38,13 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.mapper.MapperFactoryBean;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.configuration.support.MapJobRegistry;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.support.TaskExecutorJobOperator;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
+import org.springframework.batch.core.repository.support.JdbcJobRepositoryFactoryBean;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -137,7 +133,7 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
     public JobRepository jobRepository(
             DataSource dataSource,
             PlatformTransactionManager transactionManager) throws Exception {
-        JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
+        JdbcJobRepositoryFactoryBean factory = new JdbcJobRepositoryFactoryBean();
         factory.setDataSource(dataSource);
         factory.setTransactionManager(transactionManager);
         factory.setDatabaseType("MYSQL");
