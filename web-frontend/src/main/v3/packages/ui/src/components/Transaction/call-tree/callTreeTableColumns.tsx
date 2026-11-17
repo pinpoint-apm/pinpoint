@@ -72,6 +72,10 @@ export type CallTreeTableColumnId =
   | 'agent'
   | 'agentName';
 
+// The Method column never gets narrower than its step in/out button: the button is `w-5` (20px)
+// and `CallTreeTable` pads every cell by `p-1.5` (6px a side), so 20 + 6 * 2.
+export const METHOD_COLUMN_MIN_SIZE = 32;
+
 export const useCallTreeTableColumns = ({
   metaData,
   onClickDetailView,
@@ -175,22 +179,36 @@ export const callTreeTableColumns = ({
       const rowData = props.row.original;
       const isSteppedIn = String(rowData.id) === steppedInSpanId;
       return (
-        <div className="flex items-center" style={{ paddingLeft: `${props.row.original.tab}rem` }}>
-          {props.row.getCanExpand() && (
-            <button onClick={props.row.getToggleExpandedHandler()} className="pr-1 cursor-pointer">
-              {props.row.getIsExpanded() ? <LuChevronDown /> : <LuChevronRight />}
-            </button>
-          )}
-          <MethodCell
-            {...{
-              rowData,
-              onClickDetailView,
-              getErrorAnalysisHref,
-              renderOtelLink,
-            }}
-          />
+        <div className="flex items-center">
+          {/* The indent, the toggle and the name clip together inside this box, so a deep row
+              (#7745) loses its name to the column edge but never the step button beside it.
+              The indent is a spacer rather than padding: a box cannot shrink below its own
+              padding, so a padded box would push the button out of the column instead. */}
+          <div className="flex items-center flex-1 min-w-0 overflow-hidden">
+            <span
+              aria-hidden
+              className="flex-none"
+              style={{ width: `${props.row.original.tab}rem` }}
+            />
+            {props.row.getCanExpand() && (
+              <button
+                onClick={props.row.getToggleExpandedHandler()}
+                className="flex-none pr-1 cursor-pointer"
+              >
+                {props.row.getIsExpanded() ? <LuChevronDown /> : <LuChevronRight />}
+              </button>
+            )}
+            <MethodCell
+              {...{
+                rowData,
+                onClickDetailView,
+                getErrorAnalysisHref,
+                renderOtelLink,
+              }}
+            />
+          </div>
           {/* Pinned to the right edge of the Method column (`ml-auto`) so it always sits in the
-              same place instead of drifting with the method name's length.
+              same place instead of drifting with the method name's length or the row's depth.
 
               Only method rows can be stepped into — leaves included, since a leaf here can still
               be the parent of async work in another thread. The rest (SQL, annotations, exception
@@ -207,6 +225,7 @@ export const callTreeTableColumns = ({
       );
     },
     size: 350,
+    minSize: METHOD_COLUMN_MIN_SIZE,
   },
   {
     id: 'arguments',

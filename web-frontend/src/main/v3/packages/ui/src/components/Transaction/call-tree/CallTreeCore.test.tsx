@@ -26,6 +26,7 @@ jest.mock('@tanstack/react-virtual', () => ({
 }));
 
 import { CallTreeCore } from './CallTreeCore';
+import { METHOD_COLUMN_MIN_SIZE } from './callTreeTableColumns';
 
 const row = (fields: Partial<TransactionInfo.CallStackKeyValueMap>) =>
   ({
@@ -138,5 +139,30 @@ describe('CallTreeCore', () => {
     expect(formData.get('type')).toBe('sql');
     expect(formData.get('metaData')).toBe('select * from t where id = ?');
     expect(formData.get('bind')).toBe('42');
+  });
+
+  // #7745: a deep row's indent runs past the Method column, which clips its overflow. The step
+  // button must stay outside the part that clips, or the rows that most need a step in lose it.
+  test('should keep the step button out of the clipped indent when the row is deep', () => {
+    const deepRow = row({ id: 7, title: 'recursionBusiness', isMethod: true, tab: 100 });
+    render(<CallTreeCore data={[deepRow]} mapData={[deepRow]} metaData={metaData} />);
+
+    const stepButton = screen.getByRole('button', { name: /STEP_IN_SPAN|Step in/ });
+    const clippedBox = screen.getByText('recursionBusiness').closest('.overflow-hidden');
+
+    expect(clippedBox).not.toBeNull();
+    expect(clippedBox?.contains(stepButton)).toBe(false);
+  });
+
+  test('should not let the Method column shrink below the step button', () => {
+    render(<CallTreeCore data={rows} mapData={mapData} metaData={metaData} />);
+
+    const methodHeader = screen.getByRole('columnheader', { name: 'Method' });
+    const resizer = methodHeader.querySelector('.cursor-col-resize') as HTMLElement;
+    fireEvent.mouseDown(resizer, { clientX: 400 });
+    fireEvent.mouseMove(document, { clientX: 0 });
+    fireEvent.mouseUp(document, { clientX: 0 });
+
+    expect(methodHeader.style.width).toBe(`${METHOD_COLUMN_MIN_SIZE}px`);
   });
 });
