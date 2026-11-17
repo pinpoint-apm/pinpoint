@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.it.plugin.jdbc.r2dbc;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
 import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
@@ -26,17 +28,21 @@ import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
+import io.r2dbc.spi.Connection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import reactor.core.publisher.Mono;
 
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.mariadb:r2dbc-mariadb:[1.1.2]",
+// 1.2.0 changed the MariadbConnectionConfiguration constructor parameters; 1.4.1 moved to Netty 4.2.
+@Dependency({"org.mariadb:r2dbc-mariadb:[1.1.2],[1.2.0],[1.4.2]",
         "org.mariadb.jdbc:mariadb-java-client:3.0.6",
         "org.springframework.data:spring-data-r2dbc:1.5.1",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION})
@@ -47,6 +53,9 @@ public class R2dbcMariadb_IT extends SqlBase {
     private final Logger logger = LogManager.getLogger(getClass());
 
     private static R2dbcEntityTemplate template;
+    private static MariadbConnectionFactory connectionFactory;
+    private static String expectedHost;
+    private static String expectedDatabase;
 
     private final TestStatementHelper testStatementHelper = new TestStatementHelper();
 
@@ -61,12 +70,29 @@ public class R2dbcMariadb_IT extends SqlBase {
         final String password = driverProperties.getPassword();
 
         MariadbConnectionConfiguration connectionConfiguration = MariadbConnectionConfiguration.builder().host(host).port(port).username(username).password(password).database(database).build();
-        MariadbConnectionFactory connectionFactory = new MariadbConnectionFactory(connectionConfiguration);
+        connectionFactory = new MariadbConnectionFactory(connectionConfiguration);
         template = new R2dbcEntityTemplate(connectionFactory);
+        expectedHost = host + ":" + port;
+        expectedDatabase = database;
     }
 
     @Test
     public void testStatements() throws Exception {
         testStatementHelper.sql(template);
+    }
+
+    @Test
+    public void databaseInfo() {
+        final Connection connection = Mono.from(connectionFactory.create()).block();
+        Assertions.assertNotNull(connection, "connection");
+        try {
+            Assertions.assertTrue(connection instanceof DatabaseInfoAccessor, "Not DatabaseInfoAccessor");
+            final DatabaseInfo databaseInfo = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
+            Assertions.assertNotNull(databaseInfo, "databaseInfo");
+            Assertions.assertEquals(expectedDatabase, databaseInfo.getDatabaseId());
+            Assertions.assertEquals(expectedHost, databaseInfo.getMultipleHost());
+        } finally {
+            Mono.from(connection.close()).block();
+        }
     }
 }
