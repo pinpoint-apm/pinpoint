@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.SpringDataR2dbcConstants;
 import com.navercorp.pinpoint.plugin.spring.r2dbc.interceptor.SetDatabaseInfoInterceptor;
+import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.util.HostAddress;
 
 import java.util.ArrayList;
@@ -33,24 +33,25 @@ import static com.navercorp.pinpoint.plugin.spring.r2dbc.SpringDataR2dbcConstant
 public class MariadbConnectionConfigurationConstructorInterceptor extends SetDatabaseInfoInterceptor {
     @Override
     public DatabaseInfo getDatabaseInfo(Object target, Object[] args, Object result) {
-        String database = ArrayArgumentUtils.getArgument(args, 5, String.class);
+        // Read the constructed configuration rather than constructor arguments by position:
+        // the constructor's parameter list changes between driver versions (1.2.0 inserted collation and timezone before port).
+        if (!(target instanceof MariadbConnectionConfiguration)) {
+            return null;
+        }
+        final MariadbConnectionConfiguration configuration = (MariadbConnectionConfiguration) target;
+
+        String database = configuration.getDatabase();
         if (database == null) {
             database = UNKNOWN_DATABASE;
         }
 
-        final String host = ArrayArgumentUtils.getArgument(args, 6, String.class);
-        final Integer port = ArrayArgumentUtils.getArgument(args, 10, Integer.class);
-        final List<String> hostList = new ArrayList<>();
-        final List<HostAddress> hostAddressList = ArrayArgumentUtils.getArgument(args, 11, List.class);
-        if (hostAddressList != null) {
-            for (HostAddress hostAddress : hostAddressList) {
-                hostList.add(HostAndPort.toHostAndPortString(hostAddress.getHost(), hostAddress.getPort()));
-            }
-        } else {
-            if (host == null || port == null) {
-                return null;
-            }
-            hostList.add(HostAndPort.toHostAndPortString(host, port));
+        final List<HostAddress> hostAddressList = configuration.getHostAddresses();
+        if (hostAddressList == null || hostAddressList.isEmpty()) {
+            return null;
+        }
+        final List<String> hostList = new ArrayList<>(hostAddressList.size());
+        for (HostAddress hostAddress : hostAddressList) {
+            hostList.add(HostAndPort.toHostAndPortString(hostAddress.getHost(), hostAddress.getPort()));
         }
 
         final DatabaseInfo databaseInfo = new DefaultDatabaseInfo(SpringDataR2dbcConstants.SPRING_DATA_R2DBC_MARIADB, SpringDataR2dbcConstants.SPRING_DATA_R2DBC_MARIADB_EXECUTE_QUERY, null, null, hostList, database);
