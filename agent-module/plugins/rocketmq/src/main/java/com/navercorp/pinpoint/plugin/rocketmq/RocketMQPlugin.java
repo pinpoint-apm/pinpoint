@@ -36,6 +36,11 @@ import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.ChannelTablesAccess
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.ChannelTablesGetter;
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.MQClientInstanceGetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.PropertiesGetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.PropertiesSetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.QueueIdGetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.SendCallbackGetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.TopicGetter;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ConsumerMessageListenerConcurrentlyInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.ConsumerMessageListenerOrderlyInterceptor;
 import com.navercorp.pinpoint.plugin.rocketmq.interceptor.DefaultMQPushConsumerImplStartInterceptor;
@@ -80,6 +85,14 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
         if (config.isProducerEnable()) {
             transformTemplate.transform("org.apache.rocketmq.client.impl.MQClientAPIImpl",
                     MQClientAPIImplTransform.class);
+            // 5.1.0 moved SendMessageRequestHeader from rocketmq-common to rocketmq-remoting
+            transformTemplate.transform("org.apache.rocketmq.common.protocol.header.SendMessageRequestHeader",
+                    SendMessageRequestHeaderTransform.class);
+            transformTemplate.transform("org.apache.rocketmq.remoting.protocol.header.SendMessageRequestHeader",
+                    SendMessageRequestHeaderTransform.class);
+            // 5.1.4+ wraps the user callback before handing it to MQClientAPIImpl
+            transformTemplate.transform("org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl$BackpressureSendCallBack",
+                    BackpressureSendCallBackTransform.class);
             final Matcher matcher = Matchers.newPackageBasedMatcher(basePackageNames,
                     new InterfaceInternalNameMatcherOperand(
                             "org.apache.rocketmq.client.producer.SendCallback",
@@ -132,6 +145,35 @@ public class RocketMQPlugin implements ProfilerPlugin, MatchableTransformTemplat
                 updateNameServerAddressListMethod.addInterceptor(UpdateNameServerAddressListInterceptor.class);
             }
 
+            return target.toBytecode();
+        }
+    }
+
+    public static class SendMessageRequestHeaderTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                    byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
+                    classfileBuffer);
+            target.addGetter(TopicGetter.class, "topic");
+            target.addGetter(QueueIdGetter.class, "queueId");
+            target.addGetter(PropertiesGetter.class, "properties");
+            target.addSetter(PropertiesSetter.class, "properties");
+            return target.toBytecode();
+        }
+    }
+
+    public static class BackpressureSendCallBackTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                    byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className,
+                    classfileBuffer);
+            target.addGetter(SendCallbackGetter.class, "sendCallback");
             return target.toBytecode();
         }
     }
