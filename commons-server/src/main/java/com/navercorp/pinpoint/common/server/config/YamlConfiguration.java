@@ -20,11 +20,12 @@ package com.navercorp.pinpoint.common.server.config;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 @Configuration
 public class YamlConfiguration {
     @Bean
     public YAMLMapper yamlMapper() {
-        return new YAMLMapper(Jackson.newYamlMapper());
+        return Jackson.newYamlMapper();
     }
 }
