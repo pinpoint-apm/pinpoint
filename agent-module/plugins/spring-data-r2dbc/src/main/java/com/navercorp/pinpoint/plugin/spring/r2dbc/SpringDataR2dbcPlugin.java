@@ -622,7 +622,11 @@ public class SpringDataR2dbcPlugin implements ProfilerPlugin, MatchableTransform
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             target.addField(DatabaseInfoAccessor.class);
 
-            final InstrumentMethod initHandshakeMethod = target.getDeclaredMethod("initHandshake", "io.asyncer.r2dbc.mysql.client.Client", "io.asyncer.r2dbc.mysql.constant.SslMode", "java.lang.String", "java.lang.String", "java.lang.CharSequence", "java.util.Set", "int");
+            InstrumentMethod initHandshakeMethod = target.getDeclaredMethod("initHandshake", "io.asyncer.r2dbc.mysql.client.Client", "io.asyncer.r2dbc.mysql.constant.SslMode", "java.lang.String", "java.lang.String", "java.lang.CharSequence", "java.util.Set", "int");
+            if (initHandshakeMethod == null) {
+                // 1.4.2 appended serverRSAPublicKeyFile; client and database keep their positions
+                initHandshakeMethod = target.getDeclaredMethod("initHandshake", "io.asyncer.r2dbc.mysql.client.Client", "io.asyncer.r2dbc.mysql.constant.SslMode", "java.lang.String", "java.lang.String", "java.lang.CharSequence", "java.util.Set", "int", "java.lang.String");
+            }
             if (initHandshakeMethod != null) {
                 initHandshakeMethod.addInterceptor(AsyncerInitFlowInitHandshakeInterceptor.class);
             }
