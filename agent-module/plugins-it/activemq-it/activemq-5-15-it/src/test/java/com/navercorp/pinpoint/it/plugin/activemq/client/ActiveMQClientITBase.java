@@ -105,6 +105,7 @@ public abstract class ActiveMQClientITBase {
 
         // Then
         assertNoConsumerError(receivedMessage);
+        assertTraceHeaders(receivedMessage.get());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -164,6 +165,7 @@ public abstract class ActiveMQClientITBase {
 
         // Then
         assertNoConsumerError(receivedMessage);
+        assertTraceHeaders(receivedMessage.get());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -200,11 +202,13 @@ public abstract class ActiveMQClientITBase {
         // When
         pollingMessageReceiver.start();
         producer.send(expectedTextMessage);
-        messageReceiveHandler.await(5000L);
+        final boolean received = messageReceiveHandler.await(5000L);
         pollingMessageReceiver.stop();
 
         // Then
         assertNoConsumerError(pollingMessageReceiver.getException());
+        Assertions.assertTrue(received, "message not received within the timeout");
+        assertTraceHeaders(messageReceiveHandler.getMessage());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -275,7 +279,9 @@ public abstract class ActiveMQClientITBase {
 
         // Then
         assertNoConsumerError(receivedMessage1);
+        assertTraceHeaders(receivedMessage1.get());
         assertNoConsumerError(receivedMessage2);
+        assertTraceHeaders(receivedMessage2.get());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -343,6 +349,7 @@ public abstract class ActiveMQClientITBase {
 
         // Then
         assertNoConsumerError(receivedMessage);
+        assertTraceHeaders(receivedMessage.get());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -388,14 +395,18 @@ public abstract class ActiveMQClientITBase {
         pollingMessageReceiver1.start();
         pollingMessageReceiver2.start();
         producer.send(expectedTextMessage);
-        messageReceiveHandler1.await(5000L);
-        messageReceiveHandler2.await(5000L);
+        final boolean received1 = messageReceiveHandler1.await(5000L);
+        final boolean received2 = messageReceiveHandler2.await(5000L);
         pollingMessageReceiver1.stop();
         pollingMessageReceiver2.stop();
 
         // Then
         assertNoConsumerError(pollingMessageReceiver1.getException());
+        Assertions.assertTrue(received1, "message not received within the timeout");
+        assertTraceHeaders(messageReceiveHandler1.getMessage());
         assertNoConsumerError(pollingMessageReceiver2.getException());
+        Assertions.assertTrue(received2, "message not received within the timeout");
+        assertTraceHeaders(messageReceiveHandler2.getMessage());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -473,6 +484,18 @@ public abstract class ActiveMQClientITBase {
             messageStringBuilder.append('{').append(((TextMessage) message).getText()).append('}');
         }
         return messageStringBuilder.toString();
+    }
+
+    /**
+     * The trace assertions above pass even when the consumer starts a trace of its own, so check on the received
+     * message that the producer attached the headers the consumer continues the trace from.
+     */
+    protected final void assertTraceHeaders(Message message) throws JMSException {
+        Assertions.assertNotNull(message, "message");
+        Assertions.assertNotNull(message.getStringProperty("Pinpoint-TraceID"), "Pinpoint-TraceID");
+        Assertions.assertTrue(message.propertyExists("Pinpoint-SpanID"), "Pinpoint-SpanID");
+        Assertions.assertTrue(message.propertyExists("Pinpoint-pSpanID"), "Pinpoint-pSpanID");
+        Assertions.assertNotNull(message.getStringProperty("Pinpoint-pAppName"), "Pinpoint-pAppName");
     }
 
     protected final void assertNoConsumerError(Exception consumerException) {

@@ -27,10 +27,16 @@ public class MessageReceiveHandler {
 
     private final CountDownLatch messageReceivedLatch = new CountDownLatch(1);
     private final MessagePrinter messageLogger = new MessagePrinter();
+    private volatile Message message;
 
     public void handleMessage(Message message) {
+        this.message = message;
         messageLogger.printMessage(message);
         messageReceivedLatch.countDown();
+    }
+
+    public Message getMessage() {
+        return message;
     }
 
     public boolean await(long timeoutMs) throws InterruptedException {

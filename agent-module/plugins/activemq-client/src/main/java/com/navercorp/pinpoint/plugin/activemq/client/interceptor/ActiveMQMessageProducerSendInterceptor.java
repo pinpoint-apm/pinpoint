@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientHeader;
@@ -36,11 +37,10 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQMessageProducer;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.command.Message;
 import org.apache.activemq.transport.Transport;
 import org.apache.activemq.transport.TransportFilter;
 import org.apache.activemq.transport.failover.FailoverTransport;
-
-import javax.jms.Message;
 
 /**
  * @author HyunGil Jeong
@@ -79,11 +79,17 @@ public class ActiveMQMessageProducerSendInterceptor implements AroundInterceptor
             return;
         }
 
-        Message message = (Message) args[1];
+        // The JMS Message type is javax.jms on 5.x and jakarta.jms on 6.x, so the trace headers go through
+        // the ActiveMQ message, which is what a message created by an ActiveMQ session is on both.
+        final Message message = ArrayArgumentUtils.getArgument(args, 1, Message.class);
         try {
             if (trace.canSampled()) {
                 SpanEventRecorder recorder = trace.traceBlockBegin();
                 recorder.recordServiceType(ActiveMQClientConstants.ACTIVEMQ_CLIENT);
+                if (message == null) {
+                    // a message of another JMS provider: the send is traced, but no trace header is attached
+                    return;
+                }
 
                 TraceId nextId = trace.getTraceId().getNextTraceId();
                 recorder.recordNextSpanId(nextId.getSpanId());
@@ -97,7 +103,7 @@ public class ActiveMQMessageProducerSendInterceptor implements AroundInterceptor
                 if (traceContext.getServiceName() != null) {
                     ActiveMQClientHeader.setParentServiceName(message, traceContext.getServiceName());
                 }
-            } else {
+            } else if (message != null) {
                 ActiveMQClientHeader.setSampled(message, false);
             }
         } catch (Throwable t) {
@@ -170,9 +176,6 @@ public class ActiveMQMessageProducerSendInterceptor implements AroundInterceptor
             return false;
         }
         if (!(args[0] instanceof ActiveMQDestination)) {
-            return false;
-        }
-        if (!(args[1] instanceof Message)) {
             return false;
         }
         return true;

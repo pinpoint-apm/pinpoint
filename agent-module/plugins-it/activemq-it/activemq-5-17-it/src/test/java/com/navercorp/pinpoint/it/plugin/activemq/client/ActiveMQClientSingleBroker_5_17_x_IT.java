@@ -36,7 +36,7 @@ import java.util.Collections;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
-@Dependency({"org.apache.activemq:activemq-all:[5.17.0,)"})
+@Dependency({"org.apache.activemq:activemq-all:[5.17.0,6.0.0)"})
 public class ActiveMQClientSingleBroker_5_17_x_IT extends ActiveMQClientITBase {
 
     private static final String BROKER_NAME = "Test_Broker";

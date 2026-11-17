@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterce
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
 import org.apache.activemq.command.ActiveMQTextMessage;
 
-import javax.jms.JMSException;
-
 /**
  * @author HyunGil Jeong
  */
@@ -88,8 +86,8 @@ public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAr
                 sb.append('{').append(text).append('}');
                 return sb.toString();
             }
-        } catch (JMSException ignored) {
-            // ignore
+        } catch (Exception ignored) {
+            // getText() throws javax.jms.JMSException on 5.x and jakarta.jms.JMSException on 6.x; name neither
         }
         return simpleClassName;
     }
