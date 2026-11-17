@@ -14,8 +14,6 @@
 
     <properties>
         <spring.version>${spring5.version}</spring.version>
-        <!-- Compile against Netty 4.1; see netty41.version in the root pom. -->
-        <netty4.version>${netty41.version}</netty4.version>
     </properties>
 
     <dependencies>
