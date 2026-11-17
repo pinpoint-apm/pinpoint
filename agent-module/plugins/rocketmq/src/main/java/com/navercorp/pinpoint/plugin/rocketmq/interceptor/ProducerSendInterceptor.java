@@ -32,7 +32,11 @@ import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.rocketmq.RocketMQConstants;
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.EndPointFieldAccessor;
-import org.apache.rocketmq.common.protocol.header.SendMessageRequestHeader;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.PropertiesGetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.PropertiesSetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.QueueIdGetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.SendCallbackGetter;
+import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.TopicGetter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -170,17 +174,31 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         recorder.recordEndPoint(endPoint);
         recorder.recordDestinationId(endPoint);
 
-        final SendMessageRequestHeader sendMessageRequestHeader = (SendMessageRequestHeader) args[3];
-        recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY,
-                sendMessageRequestHeader.getTopic());
-        recorder.recordAttribute(RocketMQConstants.ROCKETMQ_PARTITION_ANNOTATION_KEY,
-                sendMessageRequestHeader.getQueueId());
+        // SendMessageRequestHeader is reached through accessors rather than by type:
+        // 5.1.0 moved it to another package, so the class this plugin compiles against is absent there.
+        final Object requestHeader = ArrayArgumentUtils.getArgument(args, 3, Object.class);
+        if (requestHeader instanceof TopicGetter) {
+            recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY,
+                    ((TopicGetter) requestHeader)._$PINPOINT$_getTopic());
+        }
+        if (requestHeader instanceof QueueIdGetter) {
+            recorder.recordAttribute(RocketMQConstants.ROCKETMQ_PARTITION_ANNOTATION_KEY,
+                    ((QueueIdGetter) requestHeader)._$PINPOINT$_getQueueId());
+        }
+        if (!(requestHeader instanceof PropertiesGetter) || !(requestHeader instanceof PropertiesSetter)) {
+            return;
+        }
         final Trace trace = traceContext.currentRawTraceObject();
         final TraceId nextTraceId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextTraceId.getSpanId());
         // set header
         final Map<String, Object> paramMap = new HashMap<>();
-        final StringBuilder properties = new StringBuilder(sendMessageRequestHeader.getProperties());
+        final String headerProperties = ((PropertiesGetter) requestHeader)._$PINPOINT$_getProperties();
+        final StringBuilder properties = headerProperties == null ? new StringBuilder() : new StringBuilder(headerProperties);
+        // Some client versions drop the trailing separator, which would glue the first appended entry onto the last value
+        if (properties.length() > 0 && properties.charAt(properties.length() - 1) != PROPERTY_SEPARATOR) {
+            properties.append(PROPERTY_SEPARATOR);
+        }
         if (trace.canSampled()) {
             paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextTraceId.getFlags()));
             paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
@@ -203,7 +221,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             properties.append(entry.getValue());
             properties.append(PROPERTY_SEPARATOR);
         }
-        sendMessageRequestHeader.setProperties(properties.toString());
+        ((PropertiesSetter) requestHeader)._$PINPOINT$_setProperties(properties.toString());
     }
 
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args,
@@ -214,7 +232,15 @@ public class ProducerSendInterceptor implements AroundInterceptor {
     }
 
     private AsyncContextAccessor getSendCallback(Object[] args) {
-        return ArrayArgumentUtils.getArgument(args, 6, AsyncContextAccessor.class);
+        Object sendCallback = ArrayArgumentUtils.getArgument(args, 6, Object.class);
+        // 5.1.4+ wraps the user callback in DefaultMQProducerImpl$BackpressureSendCallBack
+        if (sendCallback instanceof SendCallbackGetter) {
+            sendCallback = ((SendCallbackGetter) sendCallback)._$PINPOINT$_getSendCallback();
+        }
+        if (sendCallback instanceof AsyncContextAccessor) {
+            return (AsyncContextAccessor) sendCallback;
+        }
+        return null;
     }
 
     private boolean isSkipTrace() {

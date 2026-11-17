@@ -1,7 +1,7 @@
 ## Apache RocketMQ
 * Since: Pinpoint 2.2.0
 * See: https://rocketmq.apache.org/
-* Range: org.apache.rocketmq/rocketmq-client [4.0, 5.0]
+* Range: org.apache.rocketmq/rocketmq-client [4.0, 5.5]
 
 ### RocketMQ Configuration
 To enable RocketMQ Producer, set the following option in *pinpoint.config*:
