@@ -24,5 +24,5 @@ import java.util.List;
  * @author Hyunjoon Cho
  */
 public interface SystemMetricDao<T extends SystemMetric> {
-    void insert(String tenantId, String hostGroupName, String hostName, List<T> systemMetrics);
+    void insert(String tenantId, String serviceName, String hostGroupName, String hostName, List<T> systemMetrics);
 }

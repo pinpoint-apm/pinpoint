@@ -56,8 +56,9 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
     }
 
     @Override
-    public void insert(String tenantId, String hostGroupName, String hostName, List<DoubleMetric> systemMetrics) {
+    public void insert(String tenantId, String serviceName, String hostGroupName, String hostName, List<DoubleMetric> systemMetrics) {
         Objects.requireNonNull(tenantId, "tenantId");
+        Objects.requireNonNull(serviceName, "serviceName");
         Objects.requireNonNull(hostGroupName, "hostGroupName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
@@ -66,7 +67,7 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
                 .toList();
         for (DoubleMetric doubleMetric : systemMetrics) {
             String kafkaKey = generateKafkaKey(doubleMetric);
-            SystemMetricView systemMetricView = new SystemMetricView(tenantId, hostGroupName, doubleMetric);
+            SystemMetricView systemMetricView = new SystemMetricView(tenantId, serviceName, hostGroupName, doubleMetric);
             for (String topic : topicNames) {
                 CompletableFuture<SendResult<String, SystemMetricView>> callback = this.kafkaDoubleTemplate.send(topic, kafkaKey, systemMetricView);
                 callback.whenComplete(resultCallback);

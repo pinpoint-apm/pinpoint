@@ -24,14 +24,16 @@ import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 public class MetricTagKey {
 
     private final String tenantId;
+    private final String serviceName;
     private final String hostGroupName;
     private final String hostName;
     private final String metricName;
     private final String fieldName;
     private final long saveTime;
 
-    public MetricTagKey(String tenantId, String hostGroupName, String hostName, String metricName, String fieldName, long saveTime) {
+    public MetricTagKey(String tenantId, String serviceName, String hostGroupName, String hostName, String metricName, String fieldName, long saveTime) {
         this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
@@ -63,17 +65,22 @@ public class MetricTagKey {
         return tenantId;
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
         MetricTagKey that = (MetricTagKey) o;
-        return saveTime == that.saveTime && tenantId.equals(that.tenantId) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName);
+        return saveTime == that.saveTime && tenantId.equals(that.tenantId) && serviceName.equals(that.serviceName) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName);
     }
 
     @Override
     public int hashCode() {
         int result = tenantId.hashCode();
+        result = 31 * result + serviceName.hashCode();
         result = 31 * result + hostGroupName.hashCode();
         result = 31 * result + hostName.hashCode();
         result = 31 * result + metricName.hashCode();
@@ -86,6 +93,7 @@ public class MetricTagKey {
     public String toString() {
         return "MetricTagKey{" +
                 "tenantId='" + tenantId + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", hostGroupName='" + hostGroupName + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +

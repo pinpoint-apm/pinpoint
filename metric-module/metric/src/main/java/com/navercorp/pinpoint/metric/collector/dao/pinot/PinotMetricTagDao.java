@@ -76,12 +76,13 @@ public class PinotMetricTagDao implements MetricTagDao {
 
      MetricJsonTag convertMetricJsonTag(MetricTag metricTag) {
         String jsonTag = tagListSerializer.serialize(metricTag.getTags());
-        return new MetricJsonTag(metricTag.getTenantId(), metricTag.getHostGroupName(), metricTag.getHostName(), metricTag.getMetricName(), metricTag.getFieldName(), jsonTag, metricTag.getSaveTime());
+        return new MetricJsonTag(metricTag.getTenantId(), metricTag.getServiceName(), metricTag.getHostGroupName(), metricTag.getHostName(), metricTag.getMetricName(), metricTag.getFieldName(), jsonTag, metricTag.getSaveTime());
     }
 
     public static class MetricJsonTag {
 
         private final String tenantId;
+        private final String serviceName;
         private final String hostGroupName;
         private final String hostName;
         private final String metricName;
@@ -89,8 +90,9 @@ public class PinotMetricTagDao implements MetricTagDao {
         private final String tags;
         private final long saveTime;
 
-        public MetricJsonTag(String tenantId, String hostGroupName, String hostName, String metricName, String fieldName, String jsonTag, long saveTime) {
+        public MetricJsonTag(String tenantId, String serviceName, String hostGroupName, String hostName, String metricName, String fieldName, String jsonTag, long saveTime) {
             this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
+            this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
             this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
             this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
             this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
@@ -127,11 +129,15 @@ public class PinotMetricTagDao implements MetricTagDao {
             return tenantId;
         }
 
+        public String getServiceName() {
+            return serviceName;
+        }
+
     }
 
     @Override
     public MetricTagCollection selectMetricTag(MetricTagKey metricTagKey) {
         List<MetricTag> metricTagList = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
-        return new MetricTagCollection(metricTagKey.getTenantId(), metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
+        return new MetricTagCollection(metricTagKey.getTenantId(), metricTagKey.getServiceName(), metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
     }
 }

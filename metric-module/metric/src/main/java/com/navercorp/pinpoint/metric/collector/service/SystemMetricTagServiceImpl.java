@@ -46,40 +46,40 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
     }
 
     @Override
-    public void saveMetricTag(String tenantId, String hostGroupName, SystemMetric systemMetric) {
+    public void saveMetricTag(String tenantId, String serviceName, String hostGroupName, SystemMetric systemMetric) {
         final String metricName = systemMetric.getMetricName();
         final String hostName = systemMetric.getHostName();
         final String fieldName = systemMetric.getFieldName();
         final List<Tag> tagList = systemMetric.getTags();
         final long saveTime = getSaveTime();
 
-        MetricTagCollection metricTagCache = this.metricTagCache.getMetricTag(new MetricTagKey(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime));//
+        MetricTagCollection metricTagCache = this.metricTagCache.getMetricTag(new MetricTagKey(tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, saveTime));//
 
         if (metricTagCache == null) {
-            MetricTagKey metricTagKey = new MetricTagKey(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime);
+            MetricTagKey metricTagKey = new MetricTagKey(tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, saveTime);
             List<Tag> copiedTagList = tagListCopy(tagList);
 
-            this.metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(tenantId, hostGroupName, hostName, metricName, fieldName, copiedTagList, saveTime));
-            this.metricTagCache.saveMetricTag(new MetricTag(tenantId, hostGroupName, hostName, metricName, fieldName, copiedTagList, saveTime));
+            this.metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, copiedTagList, saveTime));
+            this.metricTagCache.saveMetricTag(new MetricTag(tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, copiedTagList, saveTime));
         } else {
             for (MetricTag metricTag : metricTagCache.getMetricTagList()) {
                 if (TagListUtils.containsAll(tagList, metricTag.getTags())) {
                     return;
                 }
             }
-            MetricTagKey metricTagKey = new MetricTagKey(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime);
+            MetricTagKey metricTagKey = new MetricTagKey(tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, saveTime);
             List<Tag> copiedTagList = tagListCopy(tagList);
 
             this.metricTagCache.updateCacheForMetricTag(metricTagKey, createMetricTagCollection(metricTagCache, copiedTagList, saveTime));
-            this.metricTagCache.saveMetricTag(new MetricTag(tenantId, hostGroupName, hostName, metricName, fieldName, copiedTagList, saveTime));
+            this.metricTagCache.saveMetricTag(new MetricTag(tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, copiedTagList, saveTime));
         }
     }
 
-    MetricTagCollection createMetricTagCollection(String tenantId, String applicationName, String hostName, String metricName, String fieldName, List<Tag> tagList, long saveTime) {
-        MetricTag metricTag = new MetricTag(tenantId, applicationName, hostName, metricName, fieldName, tagList, saveTime);
+    MetricTagCollection createMetricTagCollection(String tenantId, String serviceName, String hostGroupName, String hostName, String metricName, String fieldName, List<Tag> tagList, long saveTime) {
+        MetricTag metricTag = new MetricTag(tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, tagList, saveTime);
         List<MetricTag> metricTagList = List.of(metricTag);
 
-        return new MetricTagCollection(tenantId, applicationName, hostName, metricName, fieldName, metricTagList);
+        return new MetricTagCollection(tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, metricTagList);
     }
 
     MetricTagCollection createMetricTagCollection(MetricTagCollection metricTagCollection, List<Tag> tagList, long saveTime) {
@@ -90,9 +90,9 @@ public class SystemMetricTagServiceImpl implements SystemMetricTagService {
             results.add(metricTag.copy());
         }
 
-        results.add(new MetricTag(metricTagCollection.getTenantId(), metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(),metricTagCollection.getFieldName(), tagList, saveTime));
+        results.add(new MetricTag(metricTagCollection.getTenantId(), metricTagCollection.getServiceName(), metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(),metricTagCollection.getFieldName(), tagList, saveTime));
 
-        return new MetricTagCollection(metricTagCollection.getTenantId(), metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(), metricTagCollection.getFieldName(), results);
+        return new MetricTagCollection(metricTagCollection.getTenantId(), metricTagCollection.getServiceName(), metricTagCollection.getHostGroupName(), metricTagCollection.getHostName(), metricTagCollection.getMetricName(), metricTagCollection.getFieldName(), results);
     }
 
     List<Tag> tagListCopy(List<Tag> tags) {

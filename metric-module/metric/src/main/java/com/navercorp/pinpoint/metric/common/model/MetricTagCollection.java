@@ -27,6 +27,7 @@ import java.util.Objects;
 public class MetricTagCollection {
 
     private final String tenantId;
+    private final String serviceName;
     private final String hostGroupName;
     private final String hostName;
     private final String metricName;
@@ -34,8 +35,9 @@ public class MetricTagCollection {
 
     private final List<MetricTag> metricTagList;
 
-    public MetricTagCollection(String tenantId, String hostGroupName, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
+    public MetricTagCollection(String tenantId, String serviceName, String hostGroupName, String hostName, String metricName, String fieldName, List<MetricTag> metricTagList) {
         this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.hostGroupName = StringPrecondition.requireHasLength(hostGroupName, "hostGroupName");
         this.hostName = StringPrecondition.requireHasLength(hostName, "hostName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
@@ -67,18 +69,23 @@ public class MetricTagCollection {
         return tenantId;
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         MetricTagCollection that = (MetricTagCollection) o;
-        return tenantId.equals(that.tenantId) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName) && metricTagList.equals(that.metricTagList);
+        return tenantId.equals(that.tenantId) && serviceName.equals(that.serviceName) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName) && metricTagList.equals(that.metricTagList);
     }
 
     @Override
     public int hashCode() {
         int result = tenantId.hashCode();
+        result = 31 * result + serviceName.hashCode();
         result = 31 * result + hostGroupName.hashCode();
         result = 31 * result + hostName.hashCode();
         result = 31 * result + metricName.hashCode();
@@ -91,6 +98,7 @@ public class MetricTagCollection {
     public String toString() {
         return "MetricTagCollection{" +
                 "tenantId='" + tenantId + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", hostGroupName='" + hostGroupName + '\'' +
                 ", hostName='" + hostName + '\'' +
                 ", metricName='" + metricName + '\'' +

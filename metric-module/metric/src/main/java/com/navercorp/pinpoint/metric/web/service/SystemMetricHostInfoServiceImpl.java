@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.service;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
@@ -104,7 +105,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
     private List<MetricTag> getAnyOneTag(MetricDataSearchKey metricDataSearchKey, Field field) {
         long saveTime = getSaveTime();
-        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(),
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), ServiceUid.DEFAULT_SERVICE_UID_NAME,
                 metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(),
                 metricDataSearchKey.getMetricName(), field.getName(), saveTime);
         MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
@@ -129,14 +130,14 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
         }
 
         List<MetricTag> metricTagList = new ArrayList<>();
-        MetricTag singleMetricTag = new MetricTag(metricDataSearchKey.getTenantId(), metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), tags, getSaveTime());
+        MetricTag singleMetricTag = new MetricTag(metricDataSearchKey.getTenantId(), ServiceUid.DEFAULT_SERVICE_UID_NAME, metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), tags, getSaveTime());
         metricTagList.add(singleMetricTag);
 
         return metricTagList;
     }
 
     private List<MetricTag> getExactMatchingTag(MetricDataSearchKey metricDataSearchKey, Field field) {
-        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), ServiceUid.DEFAULT_SERVICE_UID_NAME, metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
         MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
 
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();

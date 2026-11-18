@@ -26,7 +26,7 @@ public class TelegrafMetricsValidatorTest {
         final Validator validator = validatorFactory.getValidator();
 
         DoubleMetric systemMetric = new DoubleMetric("", "fieldname", "hostName", 0, Collections.emptyList(), System.currentTimeMillis());
-        Metrics metrics = new Metrics("tenantId", "hostGroupName", "hostName", List.of(systemMetric));
+        Metrics metrics = new Metrics("tenantId", "serviceName", "hostGroupName", "hostName", List.of(systemMetric));
 
         Set<ConstraintViolation<Metrics>> result = validator.validate(metrics);
 

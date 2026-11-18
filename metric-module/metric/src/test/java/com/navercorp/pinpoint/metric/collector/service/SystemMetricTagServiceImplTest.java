@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -36,6 +37,7 @@ public class SystemMetricTagServiceImplTest {
         SystemMetricTagServiceImpl systemMetricTagService = new SystemMetricTagServiceImpl(metricTagCache);
 
         String tenantId = "tenantId";
+        String serviceName = "serviceName";
         String applicationName = "applicationName";
         String hostName = "hostName";
         String metricName = "metricName";
@@ -43,17 +45,17 @@ public class SystemMetricTagServiceImplTest {
         long saveTime = getSaveTime();
         List<Tag> tagList = List.of(new Tag("key", "value"));
 
-        MetricTagKey metricTagKey = new MetricTagKey(tenantId, applicationName, hostName, metricName, fieldName, saveTime);
+        MetricTagKey metricTagKey = new MetricTagKey(tenantId, serviceName, applicationName, hostName, metricName, fieldName, saveTime);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(null);
 
         SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
-        systemMetricTagService.saveMetricTag(tenantId, applicationName, systemMetric);
+        systemMetricTagService.saveMetricTag(tenantId, serviceName, applicationName, systemMetric);
 
 
-        MetricTag metricTag = new MetricTag(tenantId, applicationName, hostName, metricName, fieldName, tagList, saveTime);
+        MetricTag metricTag = new MetricTag(tenantId, serviceName, applicationName, hostName, metricName, fieldName, tagList, saveTime);
 
         List<MetricTag> metricTagList = List.of(metricTag);
-        MetricTagCollection metricTagCollection = new MetricTagCollection(tenantId, applicationName, hostName, metricName, fieldName, metricTagList);
+        MetricTagCollection metricTagCollection = new MetricTagCollection(tenantId, serviceName, applicationName, hostName, metricName, fieldName, metricTagList);
 
         verify(metricTagCache).updateCacheForMetricTag(metricTagKey, metricTagCollection);
         verify(metricTagCache).saveMetricTag(metricTag);
@@ -65,6 +67,7 @@ public class SystemMetricTagServiceImplTest {
         SystemMetricTagServiceImpl systemMetricTagService = new SystemMetricTagServiceImpl(metricTagCache);
 
         String tenantId = "tenantId";
+        String serviceName = "serviceName";
         String applicationName = "applicationName";
         String hostName = "hostName";
         String metricName = "metricName";
@@ -72,15 +75,15 @@ public class SystemMetricTagServiceImplTest {
         long saveTime = getSaveTime();
         List<Tag> tagList = List.of(new Tag("key", "value"));
 
-        MetricTagKey metricTagKey = new MetricTagKey(tenantId, applicationName, hostName, metricName, fieldName, saveTime);
-        MetricTag metricTag = new MetricTag(tenantId, applicationName, hostName, metricName, fieldName, tagList, saveTime);
+        MetricTagKey metricTagKey = new MetricTagKey(tenantId, serviceName, applicationName, hostName, metricName, fieldName, saveTime);
+        MetricTag metricTag = new MetricTag(tenantId, serviceName, applicationName, hostName, metricName, fieldName, tagList, saveTime);
 
         List<MetricTag> metricTagList = List.of(metricTag);
-        MetricTagCollection metricTagCollection = new MetricTagCollection(tenantId, applicationName, hostName, metricName, fieldName, metricTagList);
+        MetricTagCollection metricTagCollection = new MetricTagCollection(tenantId, serviceName, applicationName, hostName, metricName, fieldName, metricTagList);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(metricTagCollection);
 
         SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
-        systemMetricTagService.saveMetricTag(tenantId, applicationName, systemMetric);
+        systemMetricTagService.saveMetricTag(tenantId, serviceName, applicationName, systemMetric);
 
         verify(metricTagCache, never()).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
         verify(metricTagCache, never()).saveMetricTag(any(MetricTag.class));
@@ -88,11 +91,35 @@ public class SystemMetricTagServiceImplTest {
 
 
     @Test
+    public void saveMetricTag_anotherService() {
+        MetricTagCache metricTagCache = mock(MetricTagCache.class);
+        SystemMetricTagServiceImpl systemMetricTagService = new SystemMetricTagServiceImpl(metricTagCache);
+
+        String tenantId = "tenantId";
+        String hostGroupName = "hostGroupName";
+        String hostName = "hostName";
+        String metricName = "metricName";
+        String fieldName = "fieldName";
+        long saveTime = getSaveTime();
+        List<Tag> tagList = List.of(new Tag("key", "value"));
+
+        MetricTagKey service1Key = new MetricTagKey(tenantId, "service1", hostGroupName, hostName, metricName, fieldName, saveTime);
+        MetricTag service1Tag = new MetricTag(tenantId, "service1", hostGroupName, hostName, metricName, fieldName, tagList, saveTime);
+        lenient().when(metricTagCache.getMetricTag(service1Key)).thenReturn(new MetricTagCollection(tenantId, "service1", hostGroupName, hostName, metricName, fieldName, List.of(service1Tag)));
+
+        SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, tagList, Long.MAX_VALUE);
+        systemMetricTagService.saveMetricTag(tenantId, "service2", hostGroupName, systemMetric);
+
+        verify(metricTagCache).saveMetricTag(new MetricTag(tenantId, "service2", hostGroupName, hostName, metricName, fieldName, tagList, saveTime));
+    }
+
+    @Test
     public void saveMetricTag3() {
         MetricTagCache metricTagCache = mock(MetricTagCache.class);
         SystemMetricTagServiceImpl systemMetricTagService = new SystemMetricTagServiceImpl(metricTagCache);
 
         String tenantId = "tenantId";
+        String serviceName = "serviceName";
         String applicationName = "applicationName";
         String hostName = "hostName";
         String metricName = "metricName";
@@ -100,15 +127,15 @@ public class SystemMetricTagServiceImplTest {
         long saveTime = getSaveTime();
         List<Tag> tagList = List.of(new Tag("key", "value"));
 
-        MetricTagKey metricTagKey = new MetricTagKey(tenantId, applicationName, hostName, metricName, fieldName, saveTime);
-        MetricTag metricTag = new MetricTag(tenantId, applicationName, hostName, metricName, fieldName, tagList, saveTime);
+        MetricTagKey metricTagKey = new MetricTagKey(tenantId, serviceName, applicationName, hostName, metricName, fieldName, saveTime);
+        MetricTag metricTag = new MetricTag(tenantId, serviceName, applicationName, hostName, metricName, fieldName, tagList, saveTime);
 
         List<MetricTag> metricTagList = List.of(metricTag);
-        MetricTagCollection metricTagCollection = new MetricTagCollection(tenantId, applicationName, hostName, metricName, fieldName, metricTagList);
+        MetricTagCollection metricTagCollection = new MetricTagCollection(tenantId, serviceName, applicationName, hostName, metricName, fieldName, metricTagList);
         when(metricTagCache.getMetricTag(metricTagKey)).thenReturn(metricTagCollection);
 
         SystemMetric systemMetric = new DoubleMetric(metricName, hostName, fieldName, 0, List.of(), Long.MAX_VALUE);
-        systemMetricTagService.saveMetricTag(tenantId, applicationName, systemMetric);
+        systemMetricTagService.saveMetricTag(tenantId, serviceName, applicationName, systemMetric);
 
         verify(metricTagCache).updateCacheForMetricTag(any(MetricTagKey.class), any(MetricTagCollection.class));
         verify(metricTagCache).saveMetricTag(any(MetricTag.class));
@@ -120,6 +147,7 @@ public class SystemMetricTagServiceImplTest {
         SystemMetricTagServiceImpl systemMetricTagService = new SystemMetricTagServiceImpl(metricTagCache);
 
         String tenantId = "tenantId";
+        String serviceName = "serviceName";
         String applicationName = "applicationName";
         String hostName = "hostName";
         String metricName = "metricName";
@@ -130,7 +158,7 @@ public class SystemMetricTagServiceImplTest {
                 new Tag("key2", "value2")
         );
 
-        MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(tenantId, applicationName, hostName, metricName, fieldName, tagList, saveTime);
+        MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(tenantId, serviceName, applicationName, hostName, metricName, fieldName, tagList, saveTime);
         Assertions.assertEquals(applicationName, metricTagCollection.getHostGroupName());
         Assertions.assertEquals(hostName, metricTagCollection.getHostName());
         Assertions.assertEquals(metricName, metricTagCollection.getMetricName());
@@ -157,25 +185,26 @@ public class SystemMetricTagServiceImplTest {
         SystemMetricTagServiceImpl systemMetricTagService = new SystemMetricTagServiceImpl(metricTagCache);
 
         String tenantId = "tenantId";
+        String serviceName = "serviceName";
         String applicationName = "applicationName";
         String hostName = "hostName";
         String metricName = "metricName";
         String fieldName = "fieldName";
         long saveTime = new Date().getTime();
 
-        MetricTag metricTag = new MetricTag(tenantId, applicationName, hostName, metricName, fieldName, List.of(), saveTime);
+        MetricTag metricTag = new MetricTag(tenantId, serviceName, applicationName, hostName, metricName, fieldName, List.of(), saveTime);
         List<Tag> tagList2 = List.of(
                 new Tag("key", "value"),
                 new Tag("key2", "value2")
         );
-        MetricTag metricTag2 = new MetricTag(tenantId, applicationName, hostName, metricName, fieldName, tagList2, saveTime);
+        MetricTag metricTag2 = new MetricTag(tenantId, serviceName, applicationName, hostName, metricName, fieldName, tagList2, saveTime);
 
         List<Tag> tagList3 = List.of(
                 new Tag("key", "value"),
                 new Tag("key2", "value2"),
                 new Tag("key3", "value3")
         );
-        MetricTag metricTag3 = new MetricTag(tenantId, applicationName, hostName, metricName, fieldName, tagList3, saveTime);
+        MetricTag metricTag3 = new MetricTag(tenantId, serviceName, applicationName, hostName, metricName, fieldName, tagList3, saveTime);
 
         List<MetricTag> metricTagList = List.of(metricTag, metricTag2, metricTag3);
 
@@ -185,7 +214,7 @@ public class SystemMetricTagServiceImplTest {
                 new Tag("key3", "value3"),
                 new Tag("key4", "value4")
         );
-        MetricTagCollection mtc = new MetricTagCollection(tenantId, applicationName, hostName, metricName, fieldName, metricTagList);
+        MetricTagCollection mtc = new MetricTagCollection(tenantId, serviceName, applicationName, hostName, metricName, fieldName, metricTagList);
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(mtc, tagList4, saveTime);
 
         Assertions.assertEquals(applicationName, metricTagCollection.getHostGroupName());
