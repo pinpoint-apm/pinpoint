@@ -31,6 +31,7 @@ import java.util.Objects;
 public class SystemMetricDataSearchKey {
 
     private final String tenantId;
+    private final String serviceName;
     private final String tableName;
     private final String hostGroupName;
     private final String hostName;
@@ -47,6 +48,7 @@ public class SystemMetricDataSearchKey {
 
         this.tableName = Objects.requireNonNull(tableName, "tableName");
         this.tenantId = metricDataSearchKey.getTenantId();
+        this.serviceName = metricDataSearchKey.getServiceName();
         this.hostGroupName = metricDataSearchKey.getHostGroupName();
         this.hostName = metricDataSearchKey.getHostName();
         this.metricName = metricDataSearchKey.getMetricName();
@@ -60,6 +62,10 @@ public class SystemMetricDataSearchKey {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getTableName() {

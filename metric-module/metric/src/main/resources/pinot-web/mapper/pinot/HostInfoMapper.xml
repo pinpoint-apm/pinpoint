@@ -16,34 +16,46 @@
         </constructor>
     </resultMap>
 
-    <select id="selectHostGroupNameList" parameterType="String" resultType="String">
+    <!-- TODO: '' rows were collected before serviceName; drop it after retention (tag 70 days, double 56 days) -->
+    <sql id="serviceNameCondition">
+        <choose>
+            <when test="serviceName == @com.navercorp.pinpoint.common.server.uid.ServiceUid@DEFAULT_SERVICE_UID_NAME">
+                serviceName IN (#{serviceName}, '')
+            </when>
+            <otherwise>
+                serviceName = #{serviceName}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <select id="selectHostGroupNameList" resultType="String">
         SELECT DISTINCT hostGroupName
         FROM systemMetricTag
-        WHERE tenantId = #{tenantId} AND hostGroupName IS NOT NULL
+        WHERE tenantId = #{tenantId} AND <include refid="serviceNameCondition"/> AND hostGroupName IS NOT NULL
     </select>
 
     <select id="selectHostList" parameterType="hostInfoSearchKey" resultType="String">
         SELECT DISTINCT hostName
         FROM systemMetricTag
-        WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName}
+        WHERE tenantId = #{tenantId} AND <include refid="serviceNameCondition"/> AND hostGroupName = #{hostGroupName}
     </select>
 
     <select id="selectCollectedMetricInfo" parameterType="metricInfoSearchKey" resultType="String">
         SELECT DISTINCT metricName
         FROM systemMetricTag
-        WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName} AND hostName = #{hostName}
+        WHERE tenantId = #{tenantId} AND <include refid="serviceNameCondition"/> AND hostGroupName = #{hostGroupName} AND hostName = #{hostName}
     </select>
 
     <select id="selectCollectedMetricTags" parameterType="metricTagsSearchKey" resultType="String">
         SELECT DISTINCT tags
         FROM systemMetricTag
-        WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName}
+        WHERE tenantId = #{tenantId} AND <include refid="serviceNameCondition"/> AND hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName}
     </select>
 
     <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">
         SELECT tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, tags, cast(saveTime AS long) as saveTime
         FROM systemMetricTag
-        WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName} AND fieldName = #{fieldName}
+        WHERE tenantId = #{tenantId} AND <include refid="serviceNameCondition"/> AND hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName} AND fieldName = #{fieldName}
     </select>
 
 </mapper>

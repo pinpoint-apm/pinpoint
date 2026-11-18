@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.metric.web.service;
 
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
@@ -53,24 +52,24 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     @Override
-    public List<String> getHostGroupNameList(String tenantId) {
-        List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList(tenantId);
+    public List<String> getHostGroupNameList(String tenantId, String serviceName) {
+        List<String> hostGroupNameList = systemMetricHostInfoDao.selectHostGroupNameList(tenantId, serviceName);
         hostGroupNameList.sort(Comparator.naturalOrder());
 
         return hostGroupNameList;
     }
 
     @Override
-    public List<String> getHostList(String tenantId, String hostGroupName) {
-        List<String> hostList = systemMetricHostInfoDao.selectHostList(tenantId, hostGroupName);
+    public List<String> getHostList(String tenantId, String serviceName, String hostGroupName) {
+        List<String> hostList = systemMetricHostInfoDao.selectHostList(tenantId, serviceName, hostGroupName);
         hostList.sort(Comparator.naturalOrder());
 
         return hostList;
     }
 
     @Override
-    public List<MetricInfo> getCollectedMetricInfoV2(String tenantId, String hostGroupName, String hostName) {
-        List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(tenantId, hostGroupName, hostName);
+    public List<MetricInfo> getCollectedMetricInfoV2(String tenantId, String serviceName, String hostGroupName, String hostName) {
+        List<String> metricNameList = systemMetricHostInfoDao.getCollectedMetricInfo(tenantId, serviceName, hostGroupName, hostName);
 
         List<MetricInfo> metricDefinitionIdList = new ArrayList<>();
         for (String metricName : metricNameList) {
@@ -85,10 +84,10 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
     }
 
     @Override
-    public List<String> getCollectedMetricInfoTags(String tenantId, String hostGroupName, String hostName, String metricDefinitionId) {
+    public List<String> getCollectedMetricInfoTags(String tenantId, String serviceName, String hostGroupName, String hostName, String metricDefinitionId) {
         String metricName = systemMetricBasicGroupManager.findMetricName(metricDefinitionId);
 
-        return systemMetricHostInfoDao.selectCollectedMetricTags(tenantId, hostGroupName, hostName, metricName);
+        return systemMetricHostInfoDao.selectCollectedMetricTags(tenantId, serviceName, hostGroupName, hostName, metricName);
     }
 
     @Override
@@ -105,7 +104,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
     private List<MetricTag> getAnyOneTag(MetricDataSearchKey metricDataSearchKey, Field field) {
         long saveTime = getSaveTime();
-        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), ServiceUid.DEFAULT_SERVICE_UID_NAME,
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), metricDataSearchKey.getServiceName(),
                 metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(),
                 metricDataSearchKey.getMetricName(), field.getName(), saveTime);
         MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
@@ -130,14 +129,14 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
         }
 
         List<MetricTag> metricTagList = new ArrayList<>();
-        MetricTag singleMetricTag = new MetricTag(metricDataSearchKey.getTenantId(), ServiceUid.DEFAULT_SERVICE_UID_NAME, metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), tags, getSaveTime());
+        MetricTag singleMetricTag = new MetricTag(metricDataSearchKey.getTenantId(), metricDataSearchKey.getServiceName(), metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), tags, getSaveTime());
         metricTagList.add(singleMetricTag);
 
         return metricTagList;
     }
 
     private List<MetricTag> getExactMatchingTag(MetricDataSearchKey metricDataSearchKey, Field field) {
-        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), ServiceUid.DEFAULT_SERVICE_UID_NAME, metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
+        MetricTagKey metricTagKey = new MetricTagKey(metricDataSearchKey.getTenantId(), metricDataSearchKey.getServiceName(), metricDataSearchKey.getHostGroupName(), metricDataSearchKey.getHostName(), metricDataSearchKey.getMetricName(), field.getName(), getSaveTime());
         MetricTagCollection metricTagCollection = systemMetricHostInfoDao.selectMetricTagCollection(metricTagKey);
 
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
@@ -146,12 +145,22 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
         for (MetricTag metricTag : metricTagList) {
             List<Tag> collectedTagList = metricTag.getTags();
-            if (TagListUtils.containsAll(collectedTagList, tagList)) {
+            if (TagListUtils.containsAll(collectedTagList, tagList) && !containsTags(exactMetricTagList, collectedTagList)) {
                 exactMetricTagList.add(metricTag.copy());
             }
         }
 
         return exactMetricTagList;
+    }
+
+    // TODO: The legacy '' and DEFAULT rows of one tag set both match a DEFAULT query; drop with the '' condition in HostInfoMapper.xml
+    private static boolean containsTags(List<MetricTag> metricTagList, List<Tag> tags) {
+        for (MetricTag metricTag : metricTagList) {
+            if (metricTag.getTags().equals(tags)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private long getSaveTime() {

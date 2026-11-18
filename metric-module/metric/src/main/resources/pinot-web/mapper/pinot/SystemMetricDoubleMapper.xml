@@ -16,6 +16,7 @@
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM ${tableName}
         WHERE tenantId = #{tenantId}
+        AND <include refid="com.navercorp.pinpoint.metric.web.dao.pinot.PinotSystemMetricHostInfoDao.serviceNameCondition"/>
         AND hostGroupName = #{hostGroupName}
         AND metricName = #{metricName}
         AND hostName = #{hostName}

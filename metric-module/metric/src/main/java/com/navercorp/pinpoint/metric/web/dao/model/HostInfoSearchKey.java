@@ -24,15 +24,21 @@ import java.util.Objects;
 public class HostInfoSearchKey {
 
     private final String tenantId;
+    private final String serviceName;
     private final String hostGroupName;
 
-    public HostInfoSearchKey(String tenantId, String hostGroupName) {
+    public HostInfoSearchKey(String tenantId, String serviceName, String hostGroupName) {
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
     }
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getHostGroupName() {
