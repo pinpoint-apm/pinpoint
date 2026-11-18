@@ -1,7 +1,7 @@
 ## Apache Kafka
 * Since: Pinpoint 1.8.0
 * See: https://kafka.apache.org/
-* Range: org.apache.kafka/kafka-clients [0.11, 3.max]
+* Range: org.apache.kafka/kafka-clients [0.11, 4.4]
 
 ### Kafka Configuration
 To enable Kafka Producer, set the following option in *pinpoint.config*:

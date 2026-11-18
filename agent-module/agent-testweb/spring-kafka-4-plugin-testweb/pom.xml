@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-testweb</artifactId>
+        <version>4.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-spring-kafka-4-plugin-testweb</artifactId>
+
+    <packaging>jar</packaging>
+
+    <properties>
+        <pinpoint.agent.jvmargument>
+            ${pinpoint.agent.default.jvmargument}
+            -Dprofiler.kafka.producer.enable=true
+            -Dprofiler.springkafka.consumer.enable=true
+            -Dprofiler.springkafka.container.enable=true
+            -Dprofiler.springkafka.container.mark.error=true
+        </pinpoint.agent.jvmargument>
+
+        <jdk.version>17</jdk.version>
+        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
+        <spring.version>${spring7.version}</spring.version>
+        <spring-boot.version>${spring-boot4.version}</spring-boot.version>
+        <jakarta.annotation-api.version>${jakarta.annotation-api2.version}</jakarta.annotation-api.version>
+        <jaxb.version>${jaxb4.version}</jaxb.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- spring-kafka 4.x and kafka-clients 4.x come from the Spring Boot 4 BOM -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

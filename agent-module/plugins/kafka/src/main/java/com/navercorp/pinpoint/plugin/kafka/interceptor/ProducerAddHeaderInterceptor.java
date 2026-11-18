@@ -45,6 +45,9 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private final boolean headerEnable;
 
+    private volatile Method maxUsableProduceMagicMethod;
+    private volatile boolean maxUsableProduceMagicResolved;
+
     public ProducerAddHeaderInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
         KafkaConfig config = new KafkaConfig(traceContext.getProfilerConfig());
@@ -79,11 +82,12 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
             }
 
             // Check if the Kafka version is 2.0 or higher
-            final Class clazz = apiVersions.getClass();
-            final Method method = clazz.getMethod("maxUsableProduceMagic");
-            final byte result = (byte) method.invoke(apiVersions);
-            if (result < org.apache.kafka.common.record.RecordBatch.MAGIC_VALUE_V2) {
-                return;
+            final Method method = getMaxUsableProduceMagicMethod();
+            if (method != null) {
+                final byte result = (byte) method.invoke(apiVersions);
+                if (result < org.apache.kafka.common.record.RecordBatch.MAGIC_VALUE_V2) {
+                    return;
+                }
             }
         } catch (Exception ignored) {
         }
@@ -98,6 +102,21 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
         } catch (Exception e) {
             logger.warn("Failed to set headers. {}", e.getMessage(), e);
         }
+    }
+
+    // Looked up once: 4.0.0 removed ApiVersions.maxUsableProduceMagic(), and a lookup per send would throw on every record.
+    private Method getMaxUsableProduceMagicMethod() {
+        if (maxUsableProduceMagicResolved) {
+            return maxUsableProduceMagicMethod;
+        }
+        Method method = null;
+        try {
+            method = org.apache.kafka.clients.ApiVersions.class.getMethod("maxUsableProduceMagic");
+        } catch (Exception ignored) {
+        }
+        maxUsableProduceMagicMethod = method;
+        maxUsableProduceMagicResolved = true;
+        return method;
     }
 
     @Override
