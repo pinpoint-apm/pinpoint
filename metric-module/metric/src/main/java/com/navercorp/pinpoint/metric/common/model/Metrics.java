@@ -9,14 +9,16 @@ import java.util.Objects;
 
 public class Metrics implements Iterable<DoubleMetric> {
     private final String tenantId;
+    private final String serviceName;
     private final String hostGroupName;
     private final String hostName;
 
     @Valid
     private final List<DoubleMetric> metrics;
 
-    public Metrics(String tenantId, String hostGroupName, String hostName, List<DoubleMetric> metrics) {
+    public Metrics(String tenantId, String serviceName, String hostGroupName, String hostName, List<DoubleMetric> metrics) {
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
+        this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
         this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.metrics = Objects.requireNonNull(metrics, "metrics");
@@ -32,6 +34,10 @@ public class Metrics implements Iterable<DoubleMetric> {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
     }
 
     public List<DoubleMetric> getMetrics() {

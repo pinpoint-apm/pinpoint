@@ -59,6 +59,6 @@ public class SystemMetricFilterTest {
             systemMetricList.add(doubleMetric);
         }
 
-        return new Metrics("tenantId", "hostGroupName", "hostName", systemMetricList);
+        return new Metrics("tenantId", "serviceName", "hostGroupName", "hostName", systemMetricList);
     }
 }

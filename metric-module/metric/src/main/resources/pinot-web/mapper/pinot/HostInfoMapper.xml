@@ -6,6 +6,7 @@
     <resultMap id="MetricTagResultMap" type="MetricTag">
         <constructor>
             <arg column="tenantId" javaType="string"/>
+            <arg column="serviceName" javaType="string"/>
             <arg column="hostGroupName" javaType="string"/>
             <arg column="hostName" javaType="string"/>
             <arg column="metricName" javaType="string"/>
@@ -40,7 +41,7 @@
     </select>
 
     <select id="selectMetricTagList" resultMap="MetricTagResultMap" parameterType="MetricTagKey">
-        SELECT tenantId, hostGroupName, hostName, metricName, fieldName, tags, cast(saveTime AS long) as saveTime
+        SELECT tenantId, serviceName, hostGroupName, hostName, metricName, fieldName, tags, cast(saveTime AS long) as saveTime
         FROM systemMetricTag
         WHERE tenantId = #{tenantId} AND hostGroupName = #{hostGroupName} AND hostName = #{hostName} AND metricName = #{metricName} AND fieldName = #{fieldName}
     </select>

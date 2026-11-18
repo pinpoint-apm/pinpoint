@@ -72,6 +72,6 @@ public class PinotSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
     @Override
     public MetricTagCollection selectMetricTagCollection(MetricTagKey metricTagKey) {
         List<MetricTag> metricTagList = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectMetricTagList", metricTagKey);
-        return new MetricTagCollection(metricTagKey.getTenantId(), metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
+        return new MetricTagCollection(metricTagKey.getTenantId(), metricTagKey.getServiceName(), metricTagKey.getHostGroupName(), metricTagKey.getHostName(), metricTagKey.getMetricName(), metricTagKey.getFieldName(), metricTagList);
     }
 }

@@ -38,7 +38,7 @@ public class SystemMetricService {
     public void insert(Metrics metrics) {
         Objects.requireNonNull(metrics, "metrics");
         List<DoubleMetric> doubleMetrics = metrics.getMetrics();
-        systemMetricDoubleDao.insert(metrics.getTenantId(), metrics.getHostGroupName(), metrics.getHostName(), doubleMetrics);
+        systemMetricDoubleDao.insert(metrics.getTenantId(), metrics.getServiceName(), metrics.getHostGroupName(), metrics.getHostName(), doubleMetrics);
     }
 
 }

@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.metric.collector.controller;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
@@ -77,6 +80,7 @@ public class TelegrafMetricController {
     @PostMapping(value = "/telegraf")
     public ResponseEntity<String> saveSystemMetric(
             @RequestHeader(value = "hostGroupName") String hostGroupName,
+            @RequestHeader(value = "serviceName", required = false) String serviceName,
             @RequestBody TelegrafMetrics telegrafMetrics, BindingResult bindingResult
     ) throws BindException {
         if (bindingResult.hasErrors()) {
@@ -88,6 +92,13 @@ public class TelegrafMetricController {
         if (!isValidGroupName(hostGroupName)) {
             logger.warn("invalid hostGroupName='{}'", hostGroupName);
             return ResponseEntity.badRequest().body("invalid hostGroupName='" + hostGroupName + "'");
+        }
+
+        if (StringUtils.isEmpty(serviceName) || ServiceUid.DEFAULT_SERVICE_UID_NAME.equalsIgnoreCase(serviceName)) {
+            serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
+        } else if (!IdValidateUtils.validateId(serviceName, PinpointConstants.SERVICE_NAME_MIN_LEN, PinpointConstants.SERVICE_NAME_MAX_LEN)) {
+            logger.warn("invalid serviceName='{}', hostGroupName='{}'", serviceName, hostGroupName);
+            return ResponseEntity.badRequest().body("invalid serviceName='" + serviceName + "'");
         }
 
         String hostName = getHost(telegrafMetrics);
@@ -107,7 +118,7 @@ public class TelegrafMetricController {
 
         String tenantId = tenantProvider.getTenantId();
 
-        Metrics systemMetric = toMetrics(tenantId, hostGroupName, hostName, telegrafMetrics);
+        Metrics systemMetric = toMetrics(tenantId, serviceName, hostGroupName, hostName, telegrafMetrics);
 
         updateMetadata(systemMetric);
         systemMetricService.insert(systemMetric);
@@ -128,12 +139,12 @@ public class TelegrafMetricController {
         return host.getValue();
     }
 
-    private Metrics toMetrics(String tenantId, String hostGroupName, String hostName, TelegrafMetrics telegrafMetrics) {
+    private Metrics toMetrics(String tenantId, String serviceName, String hostGroupName, String hostName, TelegrafMetrics telegrafMetrics) {
         List<TelegrafMetric> metrics = telegrafMetrics.getMetrics();
 
         List<DoubleMetric> metricList = toDoubleMetric(metrics);
 
-        return new Metrics(tenantId, hostGroupName, hostName, metricList);
+        return new Metrics(tenantId, serviceName, hostGroupName, hostName, metricList);
     }
 
     @NonNull
@@ -197,7 +208,7 @@ public class TelegrafMetricController {
     private void updateMetadata(Metrics systemMetrics) {
         for (DoubleMetric systemMetric : systemMetrics) {
             systemMetricMetadataService.saveMetricDataType(systemMetric);
-            systemMetricTagService.saveMetricTag(systemMetrics.getTenantId(), systemMetrics.getHostGroupName(), systemMetric);
+            systemMetricTagService.saveMetricTag(systemMetrics.getTenantId(), systemMetrics.getServiceName(), systemMetrics.getHostGroupName(), systemMetric);
         }
 
     }
