@@ -261,11 +261,20 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-            // Version 2.8.0+ is supported.
+            // Version 4.0.0+ is supported. (ApiVersions was added to the constructor)
             InstrumentMethod constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
                     "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer",
                     "org.apache.kafka.clients.producer.internals.ProducerMetadata", "org.apache.kafka.clients.KafkaClient",
-                    "org.apache.kafka.clients.producer.internals.ProducerInterceptors", "org.apache.kafka.common.utils.Time");
+                    "org.apache.kafka.clients.producer.internals.ProducerInterceptors", "org.apache.kafka.clients.ApiVersions",
+                    "org.apache.kafka.common.utils.Time");
+
+            if (constructor == null) {
+                // Version 2.8.0+ is supported.
+                constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
+                        "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer",
+                        "org.apache.kafka.clients.producer.internals.ProducerMetadata", "org.apache.kafka.clients.KafkaClient",
+                        "org.apache.kafka.clients.producer.internals.ProducerInterceptors", "org.apache.kafka.common.utils.Time");
+            }
 
             if (constructor == null) {
                 // Version 2.3.0+ is supported.
@@ -408,11 +417,12 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             if (invokeErrorHandlerMethod != null) {
                 invokeErrorHandlerMethod.addInterceptor(ListenerConsumerInvokeErrorHandlerInterceptor.class);
             }
-            final InstrumentMethod doInvokeBatchListenerMethod = target.getDeclaredMethod("doInvokeBatchListener", "org.apache.kafka.clients.consumer.ConsumerRecord", "java.util.List");
+            final InstrumentMethod doInvokeBatchListenerMethod = target.getDeclaredMethod("doInvokeBatchListener", "org.apache.kafka.clients.consumer.ConsumerRecords", "java.util.List");
             if (doInvokeBatchListenerMethod != null) {
-                doInvokeBatchListenerMethod.addScopedInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(1), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+                // The record list is null (empty since spring-kafka 4.1) when the listener takes ConsumerRecords, so the records are read from the first argument.
+                doInvokeBatchListenerMethod.addScopedInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(0), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
-            final InstrumentMethod invokeBatchErrorHandlerMethod = target.getDeclaredMethod("invokeBatchErrorHandler", "org.apache.kafka.clients.consumer.ConsumerRecord", "java.util.List", "java.lang.RuntimeException");
+            final InstrumentMethod invokeBatchErrorHandlerMethod = target.getDeclaredMethod("invokeBatchErrorHandler", "org.apache.kafka.clients.consumer.ConsumerRecords", "java.util.List", "java.lang.RuntimeException");
             if (invokeBatchErrorHandlerMethod != null) {
                 invokeBatchErrorHandlerMethod.addInterceptor(ListenerConsumerInvokeErrorHandlerInterceptor.class);
             }
@@ -627,6 +637,11 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentMethod constructor = target.getConstructor("java.util.Map");
             if (constructor != null) {
                 constructor.addInterceptor(ConsumerRecordsInterceptor.class);
+            }
+            // Version 4.0.0+: the consumers build the records with the next offsets as well.
+            InstrumentMethod nextOffsetsConstructor = target.getConstructor("java.util.Map", "java.util.Map");
+            if (nextOffsetsConstructor != null) {
+                nextOffsetsConstructor.addInterceptor(ConsumerRecordsInterceptor.class);
             }
             return target.toBytecode();
         }

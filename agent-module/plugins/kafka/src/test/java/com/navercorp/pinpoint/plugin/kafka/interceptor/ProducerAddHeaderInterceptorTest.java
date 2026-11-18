@@ -152,4 +152,27 @@ public class ProducerAddHeaderInterceptorTest {
         Assertions.assertEquals(0, headers.length);
     }
 
+    @Test
+    public void beforeChecksMagicOnEverySend() {
+        doReturn(profilerConfig).when(traceContext).getProfilerConfig();
+        lenient().doReturn(true).when(profilerConfig).readBoolean(KafkaConfig.HEADER_ENABLE, true);
+        doReturn(trace).when(traceContext).currentRawTraceObject();
+        doReturn(false).when(trace).canSampled();
+        doReturn(recorder).when(trace).currentSpanEventRecorder();
+
+        doReturn(apiVersions).when(apiVersionsGetter)._$PINPOINT$_getApiVersions();
+        doReturn(RecordBatch.MAGIC_VALUE_V2, RecordBatch.MAGIC_VALUE_V1).when(apiVersions).maxUsableProduceMagic();
+
+        ProducerAddHeaderInterceptor interceptor = new ProducerAddHeaderInterceptor(traceContext);
+
+        RecordHeaders first = new RecordHeaders();
+        interceptor.before(apiVersionsGetter, new Object[]{first});
+        Assertions.assertEquals(1, first.toArray().length);
+
+        // the method lookup is cached, the value it returns is not
+        RecordHeaders second = new RecordHeaders();
+        interceptor.before(apiVersionsGetter, new Object[]{second});
+        Assertions.assertEquals(0, second.toArray().length);
+    }
+
 }

@@ -48,7 +48,8 @@ public class ConsumerRecordsInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (ArrayUtils.getLength(args) != 1) {
+        // (Map records) or, since 4.0.0, (Map records, Map nextOffsets): the records are always the first argument.
+        if (ArrayUtils.getLength(args) < 1) {
             return;
         }
         if (!(args[0] instanceof Map)) {

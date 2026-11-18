@@ -111,7 +111,7 @@ _Last updated: 2026-10-27_
 
 | Plugin | Library | Supported Version | Since |
 | --- | --- | --- | --- |
-| [kafka](kafka) | `org.apache.kafka:kafka-clients` | `[0.11, 3.max]` | 1.8.0 |
+| [kafka](kafka) | `org.apache.kafka:kafka-clients` | `[0.11, 4.4]` | 1.8.0 |
 | [rabbitmq](rabbitmq) | `com.rabbitmq:amqp-client` | `[3.0.0, 5.x]` | 1.7.0 |
 | [rocketmq](rocketmq) | `org.apache.rocketmq:rocketmq-client` | `[4.0, 5.5]` | 2.2.0 |
 | [activemq-client](activemq-client) | `org.apache.activemq:activemq-client` | `[5.1.0, 6.2]` | 1.6.0 |
