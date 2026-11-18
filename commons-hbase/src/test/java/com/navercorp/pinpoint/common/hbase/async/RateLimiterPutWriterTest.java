@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +45,7 @@ class RateLimiterPutWriterTest {
 
     @Test
     void putN() {
-        when(putWriter.put(any(TableName.class), any(List.class)))
+        when(putWriter.put(any(TableName.class), anyList()))
                 .thenReturn(List.of(new CompletableFuture<>(), new CompletableFuture<>()));
 
         ConcurrencyLimiterHelper helper = new ConcurrencyLimiterHelper(2);
@@ -59,7 +60,7 @@ class RateLimiterPutWriterTest {
 
     @Test
     void putN_complete() {
-        when(putWriter.put(any(TableName.class), any(List.class)))
+        when(putWriter.put(any(TableName.class), anyList()))
                 .thenReturn(List.of(new CompletableFuture<>(), new CompletableFuture<>()));
 
         ConcurrencyLimiterHelper helper = new ConcurrencyLimiterHelper(2);

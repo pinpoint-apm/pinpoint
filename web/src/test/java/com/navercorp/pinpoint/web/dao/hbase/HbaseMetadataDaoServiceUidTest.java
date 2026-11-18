@@ -23,6 +23,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
@@ -56,7 +57,7 @@ class HbaseMetadataDaoServiceUidTest {
 
         clearInvocations(encoder, operations);
         List<List<SqlMetaDataBo>> canned = List.of(List.of(), List.of());
-        when(operations.get(eq(table), any(List.class), eq(mapper))).thenReturn(canned);
+        when(operations.get(eq(table), anyList(), eq(mapper))).thenReturn(canned);
         List<List<SqlMetaDataBo>> result = dao.getSqlMetaData(List.of(
                 new SqlMetaDataDao.SqlMetaDataKey(SERVICE_A, "agent", 10L, 7),
                 new SqlMetaDataDao.SqlMetaDataKey(SERVICE_B, "agent", 10L, 7)));
@@ -93,7 +94,7 @@ class HbaseMetadataDaoServiceUidTest {
 
         clearInvocations(encoder, operations);
         List<List<SqlUidMetaDataBo>> canned = List.of(List.of(), List.of());
-        when(operations.get(eq(table), any(List.class), eq(mapper))).thenReturn(canned);
+        when(operations.get(eq(table), anyList(), eq(mapper))).thenReturn(canned);
         List<List<SqlUidMetaDataBo>> result = dao.getSqlUidMetaData(List.of(
                 new SqlUidMetaDataDao.SqlUidMetaDataKey(
                         SERVICE_A, "agent", 10L, new byte[16]),
@@ -132,7 +133,7 @@ class HbaseMetadataDaoServiceUidTest {
 
         clearInvocations(encoder, operations);
         List<List<StringMetaDataBo>> canned = List.of(List.of(), List.of());
-        when(operations.get(eq(table), any(List.class), eq(mapper))).thenReturn(canned);
+        when(operations.get(eq(table), anyList(), eq(mapper))).thenReturn(canned);
         List<List<StringMetaDataBo>> result = dao.getStringMetaData(List.of(
                 new StringMetaDataDao.StringMetaDataKey(SERVICE_A, "agent", 10L, 7),
                 new StringMetaDataDao.StringMetaDataKey(SERVICE_B, "agent", 10L, 7)));

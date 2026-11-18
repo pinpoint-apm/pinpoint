@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -90,7 +91,7 @@ public class HbaseApiMetaDataDaoTest {
 
         ApiMetaDataBo bo = new ApiMetaDataBo(serviceB, "agent-a", 100L, 2, 0, MethodTypeEnum.DEFAULT, "api");
         List<List<ApiMetaDataBo>> canned = List.of(List.of(), List.of(bo));
-        when(hbaseOperations.get(eq(tableName), any(List.class), eq(apiMetaDataMapper))).thenReturn(canned);
+        when(hbaseOperations.get(eq(tableName), anyList(), eq(apiMetaDataMapper))).thenReturn(canned);
 
         List<List<ApiMetaDataBo>> result = dao.getApiMetaData(keys);
 
