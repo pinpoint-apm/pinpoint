@@ -28,6 +28,7 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -46,23 +47,23 @@ public class PinotSystemMetricHostInfoDao implements SystemMetricHostInfoDao {
     }
 
     @Override
-    public List<String> selectHostGroupNameList(String tenantId) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostGroupNameList", tenantId);
+    public List<String> selectHostGroupNameList(String tenantId, String serviceName) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostGroupNameList", Map.of("tenantId", tenantId, "serviceName", serviceName));
     }
 
     @Override
-    public List<String> selectHostList(String tenantId, String hostGroupName) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostList", new HostInfoSearchKey(tenantId, hostGroupName));
+    public List<String> selectHostList(String tenantId, String serviceName, String hostGroupName) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectHostList", new HostInfoSearchKey(tenantId, serviceName, hostGroupName));
     }
 
     @Override
-    public List<String> getCollectedMetricInfo(String tenantId, String hostGroupName, String hostName) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(tenantId, hostGroupName, hostName));
+    public List<String> getCollectedMetricInfo(String tenantId, String serviceName, String hostGroupName, String hostName) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricInfo", new MetricInfoSearchKey(tenantId, serviceName, hostGroupName, hostName));
     }
 
     @Override
-    public List<String> selectCollectedMetricTags(String tenantId, String hostGroupName, String hostName, String metricName) {
-        List<String> jsonStrings = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricTags", new MetricTagsSearchKey(tenantId, hostGroupName, hostName, metricName));
+    public List<String> selectCollectedMetricTags(String tenantId, String serviceName, String hostGroupName, String hostName, String metricName) {
+        List<String> jsonStrings = sqlPinotSessionTemplate.selectList(NAMESPACE + "selectCollectedMetricTags", new MetricTagsSearchKey(tenantId, serviceName, hostGroupName, hostName, metricName));
 
         return jsonStrings.stream()
                 .map(TagUtils::toTagString)

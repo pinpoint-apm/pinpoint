@@ -34,6 +34,8 @@ import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManage
 import com.navercorp.pinpoint.metric.web.view.SystemMetricView;
 import com.navercorp.pinpoint.common.timeseries.time.Timestamp;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
+import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -70,33 +72,38 @@ public class SystemMetricController {
     }
 
     @GetMapping(value = "/hostGroup")
-    public List<String> getHostGroup() {
+    public List<String> getHostGroup(@ServiceParam ServiceName serviceName) {
         String tenantId = tenantProvider.getTenantId();
-        return systemMetricHostInfoService.getHostGroupNameList(tenantId);
+        return systemMetricHostInfoService.getHostGroupNameList(tenantId, serviceName.getName());
     }
 
     @GetMapping(value = "/hostGroup/host")
-    public List<String> getHostGroup(@RequestParam("hostGroupName") String hostGroupName) {
+    public List<String> getHostGroup(@ServiceParam ServiceName serviceName,
+                                     @RequestParam("hostGroupName") String hostGroupName) {
         String tenantId = tenantProvider.getTenantId();
-        return systemMetricHostInfoService.getHostList(tenantId, hostGroupName);
+        return systemMetricHostInfoService.getHostList(tenantId, serviceName.getName(), hostGroupName);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricInfoV2")
-    public List<MetricInfo> getCollectedMetricInfoV2(@RequestParam("hostGroupName") String hostGroupName, @RequestParam("hostName") String hostName) {
+    public List<MetricInfo> getCollectedMetricInfoV2(@ServiceParam ServiceName serviceName,
+                                                     @RequestParam("hostGroupName") String hostGroupName,
+                                                     @RequestParam("hostName") String hostName) {
         String tenantId = tenantProvider.getTenantId();
-        return systemMetricHostInfoService.getCollectedMetricInfoV2(tenantId, hostGroupName, hostName);
+        return systemMetricHostInfoService.getCollectedMetricInfoV2(tenantId, serviceName.getName(), hostGroupName, hostName);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedTags")
-    public List<String> getCollectedTags(@RequestParam("hostGroupName") String hostGroupName,
+    public List<String> getCollectedTags(@ServiceParam ServiceName serviceName,
+                                         @RequestParam("hostGroupName") String hostGroupName,
                                          @RequestParam("hostName") String hostName,
                                          @RequestParam("metricDefinitionId") String metricDefinitionId) {
         String tenantId = tenantProvider.getTenantId();
-        return systemMetricHostInfoService.getCollectedMetricInfoTags(tenantId, hostGroupName, hostName, metricDefinitionId);
+        return systemMetricHostInfoService.getCollectedMetricInfoTags(tenantId, serviceName.getName(), hostGroupName, hostName, metricDefinitionId);
     }
 
     @GetMapping(value = "/hostGroup/host/collectedMetricData")
-    public SystemMetricView getCollectedMetricData(@RequestParam("hostGroupName") String hostGroupName,
+    public SystemMetricView getCollectedMetricData(@ServiceParam ServiceName serviceName,
+                                                   @RequestParam("hostGroupName") String hostGroupName,
                                                    @RequestParam("hostName") String hostName,
                                                    @RequestParam("metricDefinitionId") String metricDefinitionId,
                                                    @RequestParam("from") Timestamp from,
@@ -107,7 +114,7 @@ public class SystemMetricController {
 
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
-        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(tenantId, hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
+        MetricDataSearchKey metricDataSearchKey = new MetricDataSearchKey(tenantId, serviceName.getName(), hostGroupName, hostName, systemMetricBasicGroupManager.findMetricName(metricDefinitionId), metricDefinitionId, timeWindow);
         List<Tag> tagList = TagUtils.parseTags(tags);
 
         SystemMetricData<? extends Number> systemMetricData = systemMetricDataService.getCollectedMetricData(metricDataSearchKey, timeWindow, tagList);

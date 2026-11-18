@@ -26,13 +26,13 @@ import java.util.List;
  */
 public interface SystemMetricHostInfoDao {
 
-    List<String> selectHostGroupNameList(String tenantId);
+    List<String> selectHostGroupNameList(String tenantId, String serviceName);
 
-    List<String> selectHostList(String tenantId, String hostGroupName);
+    List<String> selectHostList(String tenantId, String serviceName, String hostGroupName);
 
-    List<String> getCollectedMetricInfo(String tenantId, String hostGroupName, String hostName);
+    List<String> getCollectedMetricInfo(String tenantId, String serviceName, String hostGroupName, String hostName);
 
-    List<String> selectCollectedMetricTags(String tenantId, String hostGroupName, String hostName, String metricName);
+    List<String> selectCollectedMetricTags(String tenantId, String serviceName, String hostGroupName, String hostName, String metricName);
 
     MetricTagCollection selectMetricTagCollection(MetricTagKey metricTagKey);
 }
