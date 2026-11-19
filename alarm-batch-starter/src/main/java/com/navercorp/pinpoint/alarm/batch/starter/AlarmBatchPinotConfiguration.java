@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.sql.DataSource;
 
@@ -54,8 +55,8 @@ public class AlarmBatchPinotConfiguration {
     private static final Logger logger = LogManager.getLogger(AlarmBatchPinotConfiguration.class);
 
     @Bean
-    public AgentStatRegistryHandler agentStatRegistryHandler(ObjectMapper objectMapper) {
-        return new AgentStatRegistryHandler(objectMapper);
+    public AgentStatRegistryHandler agentStatRegistryHandler(JsonMapper jsonMapper) {
+        return new AgentStatRegistryHandler(jsonMapper);
     }
 
     @Bean

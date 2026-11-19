@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot;
 
-import tools.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.session.Configuration;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class AgentStatMapperTest {
                 "expected the agent stat mapper at " + PinotAgentStatAlarmDao.MAPPER_LOCATION);
 
         Configuration config = new Configuration();
-        new AgentStatRegistryHandler(new ObjectMapper()).registerHandlers(config);
+        new AgentStatRegistryHandler(Jackson.shared()).registerHandlers(config);
 
         for (Resource mapper : mappers) {
             try (InputStream stream = mapper.getInputStream()) {

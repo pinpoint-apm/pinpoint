@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.inspector.web.config;
 
-import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.config.MetricCommonConfiguration;
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
@@ -36,6 +35,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.sql.DataSource;
 
@@ -80,8 +80,8 @@ public class InspectorWebPinotDaoConfiguration {
     }
 
     @Bean
-    public InspectorRegistryHandler inspectorRegistryHandler(ObjectMapper objectMapper) {
-        return new InspectorRegistryHandler(objectMapper);
+    public InspectorRegistryHandler inspectorRegistryHandler(JsonMapper jsonMapper) {
+        return new InspectorRegistryHandler(jsonMapper);
     }
 
     @Bean

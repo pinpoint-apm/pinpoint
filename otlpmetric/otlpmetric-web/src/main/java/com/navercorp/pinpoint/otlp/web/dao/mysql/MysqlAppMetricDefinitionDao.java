@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.otlp.web.dao.mysql;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
@@ -28,6 +27,7 @@ import com.navercorp.pinpoint.otlp.web.dao.model.AppMetricDefDto;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +43,8 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
     private final SqlSessionTemplate sqlSessionTemplate;
     private final Mapper mapper;
 
-    public MysqlAppMetricDefinitionDao(@Qualifier("otlpMysqlSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate, ObjectMapper mapper) {
-        this.sqlSessionTemplate = sqlSessionTemplate;
+    public MysqlAppMetricDefinitionDao(@Qualifier("otlpMysqlSqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate, JsonMapper mapper) {
+        this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "sqlSessionTemplate");
         this.mapper = new Mapper(mapper);
     }
 
@@ -70,9 +70,11 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
         private final ObjectWriter writer;
         private final ObjectReader reader;
 
-        public Mapper(ObjectMapper mapper) {
-            this.writer = mapper.writerFor(new TypeReference<List<AppMetricDefinition>>() {});
-            this.reader = mapper.readerForListOf(AppMetricDefinition.class);
+        public Mapper(JsonMapper mapper) {
+            Objects.requireNonNull(mapper, "mapper");
+            TypeReference<List<AppMetricDefinition>> listType = new TypeReference<>() {};
+            this.writer = mapper.writerFor(listType);
+            this.reader = mapper.readerFor(listType);
         }
 
         public AppMetricDefDto toDto(String applicationName, List<AppMetricDefinition> appMetricDefinitionList) {

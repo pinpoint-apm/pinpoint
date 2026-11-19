@@ -30,6 +30,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,9 +46,9 @@ import java.util.Objects;
  */
 public class AgentStatRegistryHandler implements MyBatisRegistryHandler {
 
-    private final ObjectMapper mapper;
+    private final JsonMapper mapper;
 
-    public AgentStatRegistryHandler(ObjectMapper mapper) {
+    public AgentStatRegistryHandler(JsonMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
