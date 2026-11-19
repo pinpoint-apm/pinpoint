@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.inspector.web.config;
 
-import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.dao.pinot.MultiValueTagTypeHandler;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.timeseries.point.DoubleDataPoint;
@@ -33,6 +32,7 @@ import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,9 +42,9 @@ import java.util.Objects;
  */
 public class InspectorRegistryHandler implements MyBatisRegistryHandler {
 
-    private final ObjectMapper mapper;
+    private final JsonMapper mapper;
 
-    public InspectorRegistryHandler(ObjectMapper mapper) {
+    public InspectorRegistryHandler(JsonMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 

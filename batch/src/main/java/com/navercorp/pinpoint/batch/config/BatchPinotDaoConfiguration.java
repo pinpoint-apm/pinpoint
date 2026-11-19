@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.batch.config;
 
-import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.AgentStatRegistryHandler;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.PinotAgentStatAlarmDao;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
@@ -34,6 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.sql.DataSource;
 
@@ -80,8 +80,8 @@ public class BatchPinotDaoConfiguration {
     }
 
     @Bean
-    public AgentStatRegistryHandler agentStatRegistryHandler(ObjectMapper objectMapper) {
-        return new AgentStatRegistryHandler(objectMapper);
+    public AgentStatRegistryHandler agentStatRegistryHandler(JsonMapper jsonMapper) {
+        return new AgentStatRegistryHandler(jsonMapper);
     }
 
     @Bean

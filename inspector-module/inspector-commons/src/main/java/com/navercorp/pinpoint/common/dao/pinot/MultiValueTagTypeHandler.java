@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -38,7 +39,7 @@ public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
 
     private final ObjectReader reader;
 
-    public MultiValueTagTypeHandler(ObjectMapper mapper) {
+    public MultiValueTagTypeHandler(JsonMapper mapper) {
         this.reader = mapper.readerForListOf(String.class);
     }
 

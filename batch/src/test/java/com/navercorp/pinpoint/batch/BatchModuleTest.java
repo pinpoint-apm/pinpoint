@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch;
 
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.batch.config.BatchMetaCleanupJobConfig;
 import com.navercorp.pinpoint.batch.config.CleanupAgentAndApplicationJobConfig;
@@ -38,6 +39,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -121,8 +123,8 @@ public class BatchModuleTest {
 
         // Spring Boot auto-configuration is not active in this plain test context
         @Bean
-        public ObjectMapper objectMapper() {
-            return new ObjectMapper();
+        public JsonMapper jsonMapper() {
+            return Jackson.shared();
         }
 
         @Bean

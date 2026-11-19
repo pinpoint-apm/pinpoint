@@ -15,6 +15,7 @@ import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,10 +25,10 @@ import java.util.Objects;
  */
 public class CommonRegistryHandler implements MyBatisRegistryHandler {
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
-    public CommonRegistryHandler(ObjectMapper objectMapper) {
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+    public CommonRegistryHandler(JsonMapper jsonMapper) {
+        this.jsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
     }
 
     @Override
@@ -51,7 +52,7 @@ public class CommonRegistryHandler implements MyBatisRegistryHandler {
         typeHandlerRegistry.register(MetricDataType.class, MetricDataTypeHandler.class);
 
         TypeReference<List<Tag>> tagList = new TypeReference<>() {};
-        TagListSerializer serializer = new TagListSerializer(objectMapper);
+        TagListSerializer serializer = new TagListSerializer(jsonMapper);
         typeHandlerRegistry.register(tagList, new TagListTypeHandler(serializer));
     }
 
