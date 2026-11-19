@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.metric.collector.model.serialize;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
@@ -34,10 +34,17 @@ import java.util.List;
 @Component
 public class TelegrafJsonDeserializer extends ValueDeserializer<TelegrafMetrics> {
 
-    private static final TypeReference<List<TelegrafMetric>> REF_BATCH = new TypeReference<>() {
-    };
+    // resolved once by Jackson before this deserializer is first used
+    private JavaType metricType;
+    private JavaType batchType;
 
     public TelegrafJsonDeserializer() {
+    }
+
+    @Override
+    public void resolve(DeserializationContext ctxt) {
+        this.metricType = ctxt.constructType(TelegrafMetric.class);
+        this.batchType = ctxt.getTypeFactory().constructCollectionType(List.class, metricType);
     }
 
     @Override
@@ -51,11 +58,11 @@ public class TelegrafJsonDeserializer extends ValueDeserializer<TelegrafMetrics>
             if (jp.nextToken() != JsonToken.START_ARRAY) {
                 ctxt.handleUnexpectedToken(TelegrafMetrics.class, jp);
             }
-            List<TelegrafMetric> metrics = jp.readValueAs(REF_BATCH);
+            List<TelegrafMetric> metrics = jp.readValueAs(batchType);
             return new TelegrafMetrics(metrics);
         } else {
             // standard
-            TelegrafMetric metric = jp.readValueAs(TelegrafMetric.class);
+            TelegrafMetric metric = jp.readValueAs(metricType);
             return new TelegrafMetrics(Collections.singletonList(metric));
         }
 
