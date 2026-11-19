@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.sender;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class AlarmNotificationChannelConfigParserTest {
 
     private final AlarmNotificationChannelConfigParser parser =
-            new AlarmNotificationChannelConfigParser(new ObjectMapper());
+            new AlarmNotificationChannelConfigParser(new JsonMapper());
 
     @Test
     void parseIgnoresUnknownFieldsAndTheStoredTitleAndTemplate() {

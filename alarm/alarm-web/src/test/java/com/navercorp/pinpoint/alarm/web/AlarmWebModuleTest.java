@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.alarm.web.controller.AlarmCatalogController;
 import com.navercorp.pinpoint.alarm.web.controller.AlarmChannelController;
 import com.navercorp.pinpoint.alarm.web.controller.AlarmRuleController;
 import com.navercorp.pinpoint.alarm.web.controller.AlarmTemplateController;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceProvider;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;
 import com.navercorp.pinpoint.common.server.dao.ApplicationDao;
@@ -52,8 +52,8 @@ class AlarmWebModuleTest {
         }
 
         @Bean
-        ObjectMapper objectMapper() {
-            return new ObjectMapper();
+        JsonMapper objectMapper() {
+            return new JsonMapper();
         }
 
         @Bean

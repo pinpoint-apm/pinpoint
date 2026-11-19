@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import org.springframework.core.convert.converter.Converter;
@@ -30,7 +30,7 @@ public class ApplicationPairsConverter implements Converter<String, ApplicationP
 
     private final ObjectReader reader;
 
-    public ApplicationPairsConverter(ObjectMapper mapper) {
+    public ApplicationPairsConverter(JsonMapper mapper) {
         Objects.requireNonNull(mapper, "mapper");
         this.reader = mapper.readerFor(ApplicationPairs.class);
     }

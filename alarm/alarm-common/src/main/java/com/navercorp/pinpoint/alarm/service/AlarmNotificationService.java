@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.alarm.sender.AlarmNotificationChannelConfigParser;
 import com.navercorp.pinpoint.alarm.sender.AlarmSendException;
 import com.navercorp.pinpoint.alarm.sender.AlarmSender;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
@@ -65,14 +65,14 @@ public class AlarmNotificationService {
     public AlarmNotificationService(AlarmChannelBindingDao channelBindingDao,
                                     AlarmNotificationChannelDao channelDao,
                                     List<AlarmSender> senders,
-                                    ObjectMapper objectMapper,
+                                    JsonMapper jsonMapper,
                                     AlarmNotificationChannelConfigParser channelConfigParser) {
         this.channelBindingDao = Objects.requireNonNull(channelBindingDao, "channelBindingDao");
         this.channelDao = Objects.requireNonNull(channelDao, "channelDao");
-        ObjectMapper requiredObjectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+        JsonMapper requiredJsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
         this.channelConfigParser = Objects.requireNonNull(channelConfigParser, "channelConfigParser");
-        this.payloadReader = requiredObjectMapper.readerFor(AlarmDeliveryPayload.class);
-        this.payloadWriter = requiredObjectMapper.writerFor(AlarmDeliveryPayload.class);
+        this.payloadReader = requiredJsonMapper.readerFor(AlarmDeliveryPayload.class);
+        this.payloadWriter = requiredJsonMapper.writerFor(AlarmDeliveryPayload.class);
         this.senderMap = senders.stream()
                 .collect(Collectors.toMap(AlarmSender::getMethodType, Function.identity()));
     }

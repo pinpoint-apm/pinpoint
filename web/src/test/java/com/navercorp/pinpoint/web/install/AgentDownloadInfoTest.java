@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.install;
 
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.IOUtils;
@@ -75,10 +75,10 @@ public class AgentDownloadInfoTest {
     void defaultTest() throws Exception {
         String mockResponseString = getMockJsonString();
 
-        ObjectMapper objectMapper = Jackson.newMapper();
+        JsonMapper jsonMapper = Jackson.newMapper();
         TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<>() {
         };
-        List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(mockResponseString, typeReference);
+        List<GithubAgentDownloadInfo> agentDownloadInfoList = jsonMapper.readValue(mockResponseString, typeReference);
         assertThat(agentDownloadInfoList).hasSize(15);
     }
 

@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import org.apache.logging.log4j.LogManager;
@@ -35,10 +34,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SystemMetricSerializerTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void testLongCounterWithTags() throws JacksonException {
+    public void testLongCounterWithTags() {
         Tag deviceTag = new Tag("device", "disk1s5");
         Tag fstypeTag = new Tag("fstype", "apfs");
         Tag modeTag = new Tag("mode", "ro");
@@ -51,7 +50,7 @@ public class SystemMetricSerializerTest {
     }
 
     @Test
-    public void testLongCounterWithoutTags() throws JacksonException {
+    public void testLongCounterWithoutTags() {
         DoubleMetric longMetric = new DoubleMetric("mem", "localhost", "free", 103714816L,
                 Collections.emptyList(), System.currentTimeMillis());
         SystemMetricView systemMetricView = new SystemMetricView("tenantId", "serviceName", "applicationName", longMetric);
@@ -60,7 +59,7 @@ public class SystemMetricSerializerTest {
     }
 
     @Test
-    public void testDoubleCounter() throws JacksonException {
+    public void testDoubleCounter() {
         Tag cpuTag = new Tag("cpu", "cpu0");
         DoubleMetric doubleMetric = new DoubleMetric("cpu", "localhost", "usage_user", 16.200000000001854,
                 List.of(cpuTag), System.currentTimeMillis());

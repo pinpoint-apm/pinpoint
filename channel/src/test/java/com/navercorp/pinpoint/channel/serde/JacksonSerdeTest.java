@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.channel.serde;
 
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.type.TypeFactory;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JacksonSerdeTest {
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    JsonMapper jsonMapper = new JsonMapper();
     Random random = new Random();
 
     @Test
@@ -65,12 +65,12 @@ public class JacksonSerdeTest {
 
     private Serde<Foo<Foo<String>>> getSerde() {
 
-        TypeFactory typeFactory = objectMapper.getTypeFactory();
+        TypeFactory typeFactory = jsonMapper.getTypeFactory();
         JavaType t1 = typeFactory.constructParametricType(Foo.class, String.class);
         JavaType t2 = typeFactory.constructParametricType(Foo.class, t1);
 
-        ObjectReader reader = objectMapper.readerFor(t2);
-        ObjectWriter writer = objectMapper.writerFor(t2);
+        ObjectReader reader = jsonMapper.readerFor(t2);
+        ObjectWriter writer = jsonMapper.writerFor(t2);
         return new JacksonSerde<>(reader, writer);
     }
 

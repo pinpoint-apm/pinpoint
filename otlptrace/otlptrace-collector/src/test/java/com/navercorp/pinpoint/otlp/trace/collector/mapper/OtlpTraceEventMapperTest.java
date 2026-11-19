@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import io.opentelemetry.proto.common.v1.AnyValue;
@@ -28,7 +28,7 @@ class OtlpTraceEventMapperTest {
 
     @BeforeEach
     void setUp() {
-        mapper = new OtlpTraceEventMapper(new ObjectMapper(), 8192);
+        mapper = new OtlpTraceEventMapper(new JsonMapper(), 8192);
         annotations = new ArrayList<>();
     }
 
@@ -56,7 +56,7 @@ class OtlpTraceEventMapperTest {
         AnnotationBo bo = annotations.get(0);
         assertThat(bo.getKey()).isEqualTo(AnnotationKey.OPENTELEMETRY_EVENT.getCode());
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) bo.getValue(), Map.class);
         @SuppressWarnings("unchecked")
@@ -84,7 +84,7 @@ class OtlpTraceEventMapperTest {
         addEvent(event);
 
         assertThat(annotations).hasSize(1);
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
         @SuppressWarnings("unchecked")
@@ -116,7 +116,7 @@ class OtlpTraceEventMapperTest {
         assertThat(annotations).hasSize(1);
         String json = (String) annotations.get(0).getValue();
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue(json, Map.class);
         assertThat(root).containsKey("my-event");
@@ -151,7 +151,7 @@ class OtlpTraceEventMapperTest {
         assertThat(annotations).hasSize(1);
         String json = (String) annotations.get(0).getValue();
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue(json, Map.class);
 

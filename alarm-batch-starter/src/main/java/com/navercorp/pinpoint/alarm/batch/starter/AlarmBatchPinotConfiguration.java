@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.batch.starter;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.AgentStatAlarmDao;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.AgentStatRegistryHandler;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot.PinotAgentStatAlarmDao;
@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
-import tools.jackson.databind.json.JsonMapper;
 
 import javax.sql.DataSource;
 

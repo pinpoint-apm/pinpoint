@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.alarm.sender;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import org.springframework.stereotype.Component;
@@ -38,9 +38,9 @@ public final class AlarmNotificationChannelConfigParser {
 
     private final ObjectReader configReader;
 
-    public AlarmNotificationChannelConfigParser(ObjectMapper objectMapper) {
-        ObjectMapper requiredObjectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
-        this.configReader = requiredObjectMapper.readerFor(JsonNode.class)
+    public AlarmNotificationChannelConfigParser(JsonMapper jsonMapper) {
+        JsonMapper requiredJsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
+        this.configReader = requiredJsonMapper.readerFor(JsonNode.class)
                 .with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
     }
 

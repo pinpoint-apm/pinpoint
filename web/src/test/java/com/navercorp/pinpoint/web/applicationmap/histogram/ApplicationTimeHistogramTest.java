@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.navercorp.pinpoint.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.applicationmap.histogram.TimeHistogram;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -36,7 +36,6 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -46,10 +45,10 @@ public class ApplicationTimeHistogramTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void testViewModel() throws IOException {
+    public void testViewModel() {
 
         Application app = new Application("test", ServiceType.STAND_ALONE);
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, Range.between(0, 10 * 6000));

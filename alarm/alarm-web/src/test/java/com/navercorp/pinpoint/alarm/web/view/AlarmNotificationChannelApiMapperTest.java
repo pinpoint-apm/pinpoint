@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.web.view;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
@@ -28,14 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmNotificationChannelApiMapperTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
     private final AlarmNotificationChannelApiMapper mapper =
-            new AlarmNotificationChannelApiMapper(objectMapper);
+            new AlarmNotificationChannelApiMapper(jsonMapper);
 
     @Test
     void convertsApiConfigObjectToDatabaseJsonString() {
         AlarmNotificationChannelRequest request = new AlarmNotificationChannelRequest();
-        ObjectNode config = objectMapper.createObjectNode();
+        ObjectNode config = jsonMapper.createObjectNode();
         config.put("format", "SLACK");
         config.put("title", "[${severity}] ${name}");
         request.setConfig(config);
@@ -81,7 +81,7 @@ class AlarmNotificationChannelApiMapperTest {
         AlarmNotificationChannel channel = new AlarmNotificationChannel();
         channel.setMethodType(AlarmMethodType.EMAIL);
 
-        String json = objectMapper.writeValueAsString(mapper.toResponse(channel));
+        String json = jsonMapper.writeValueAsString(mapper.toResponse(channel));
 
         // 0 marks a channel that reaches nobody, so a count that was never read must not
         // serialize as one.
@@ -91,7 +91,7 @@ class AlarmNotificationChannelApiMapperTest {
     @Test
     void rejectsNonObjectApiConfig() {
         AlarmNotificationChannelRequest request = new AlarmNotificationChannelRequest();
-        request.setConfig(objectMapper.createArrayNode());
+        request.setConfig(jsonMapper.createArrayNode());
 
         assertThrows(IllegalArgumentException.class, () -> mapper.toModel("DEFAULT", request));
     }

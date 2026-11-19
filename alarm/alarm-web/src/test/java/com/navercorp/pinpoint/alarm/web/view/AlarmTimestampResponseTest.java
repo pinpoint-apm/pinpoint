@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.alarm.web.view;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmEventType;
 import com.navercorp.pinpoint.alarm.vo.AlarmHistoryV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
@@ -57,7 +57,7 @@ class AlarmTimestampResponseTest {
 
     private static TimeZone defaultTimeZone;
 
-    private final ObjectMapper objectMapper = Jackson.newMapper();
+    private final JsonMapper jsonMapper = Jackson.newMapper();
 
     @BeforeAll
     static void fixNonUtcDefaultZone() {
@@ -76,7 +76,7 @@ class AlarmTimestampResponseTest {
         state.setLastFiredAt(STORED);
         state.setNextCheckAt(STORED.plusMinutes(1));
 
-        JsonNode json = objectMapper.valueToTree(state);
+        JsonNode json = jsonMapper.valueToTree(state);
 
         assertEquals(SENT, json.get("lastFiredAt").asString());
         assertEquals("2026-09-21T19:51:12Z", json.get("nextCheckAt").asString());
@@ -89,7 +89,7 @@ class AlarmTimestampResponseTest {
         history.setEventType(AlarmEventType.FIRED);
         history.setCreatedAt(STORED);
 
-        JsonNode json = objectMapper.valueToTree(history);
+        JsonNode json = jsonMapper.valueToTree(history);
 
         assertEquals(SENT, json.get("createdAt").asString());
     }
@@ -102,7 +102,7 @@ class AlarmTimestampResponseTest {
         AlarmTemplateItem item = new AlarmTemplateItem();
         item.setUpdatedAt(STORED);
 
-        JsonNode json = objectMapper.valueToTree(AlarmRuleResponse.from(rule, null, item));
+        JsonNode json = jsonMapper.valueToTree(AlarmRuleResponse.from(rule, null, item));
 
         assertEquals(SENT, json.get("updatedAt").asString());
         // The nested item is the reason this is on the field rather than on a response of its own.
@@ -117,7 +117,7 @@ class AlarmTimestampResponseTest {
         item.setUpdatedAt(STORED);
         template.setItems(List.of(item));
 
-        JsonNode json = objectMapper.valueToTree(template);
+        JsonNode json = jsonMapper.valueToTree(template);
 
         assertEquals(SENT, json.get("updatedAt").asString());
         assertEquals(SENT, json.get("items").get(0).get("updatedAt").asString());
@@ -129,8 +129,8 @@ class AlarmTimestampResponseTest {
         channel.setId(7L);
         channel.setUpdatedAt(STORED);
 
-        JsonNode json = objectMapper.valueToTree(
-                new AlarmNotificationChannelApiMapper(objectMapper).toResponse(channel));
+        JsonNode json = jsonMapper.valueToTree(
+                new AlarmNotificationChannelApiMapper(jsonMapper).toResponse(channel));
 
         assertEquals(SENT, json.get("updatedAt").asString());
     }
@@ -147,12 +147,12 @@ class AlarmTimestampResponseTest {
     void aTimestampFieldIsNotSomewhereToHideTheRestOfTheBody() {
         // Asking a non-scalar token for its text answers null without consuming the subtree, and
         // the bean deserializer then reads that subtree's members as properties of the rule.
-        assertThrows(MismatchedInputException.class, () -> objectMapper.readValue(
+        assertThrows(MismatchedInputException.class, () -> jsonMapper.readValue(
                 "{\"applicationName\":\"a\",\"updatedAt\":{\"applicationName\":\"victim\"}}",
                 AlarmRuleV2.class));
         // An array is refused too, as a date in its array form that does not parse
         // (Jackson 3 reports the bad element as a stream-level coercion error).
-        assertThrows(JacksonException.class, () -> objectMapper.readValue(
+        assertThrows(JacksonException.class, () -> jsonMapper.readValue(
                 "{\"applicationName\":\"a\",\"updatedAt\":[1,2]}", AlarmRuleV2.class));
     }
 
@@ -178,7 +178,7 @@ class AlarmTimestampResponseTest {
     }
 
     private LocalDateTime readUpdatedAt(String sent) throws Exception {
-        return objectMapper.readValue("{\"id\":58,\"updatedAt\":\"" + sent + "\"}",
+        return jsonMapper.readValue("{\"id\":58,\"updatedAt\":\"" + sent + "\"}",
                 AlarmRuleV2.class).getUpdatedAt();
     }
 }

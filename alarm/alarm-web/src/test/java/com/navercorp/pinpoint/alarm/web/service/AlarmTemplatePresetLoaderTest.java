@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.alarm.web.service;
 
 import com.navercorp.pinpoint.alarm.web.model.AlarmTemplatePreset;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.validation.ConditionValidator;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;
@@ -36,12 +36,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmTemplatePresetLoaderTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
     private final ConditionValidator conditionValidator = new ConditionValidator();
     private final FilterKeyValidator filterKeyValidator = new FilterKeyValidator();
 
     private AlarmTemplatePresetLoader load(Resource... resources) {
-        return new AlarmTemplatePresetLoader(objectMapper, conditionValidator, filterKeyValidator,
+        return new AlarmTemplatePresetLoader(jsonMapper, conditionValidator, filterKeyValidator,
                 new AlarmDataSourceRegistry(List.of(new TestAlarmDataSource.Provider())), List.of(resources));
     }
 

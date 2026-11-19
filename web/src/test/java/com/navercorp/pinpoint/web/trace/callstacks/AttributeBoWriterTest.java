@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.trace.callstacks;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeValue;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AttributeBoWriterTest {
 
-    private final AttributeBoWriter writer = new AttributeBoWriter(new ObjectMapper());
+    private final AttributeBoWriter writer = new AttributeBoWriter(new JsonMapper());
 
     @Test
     void toJson_writesScalarTypes() {

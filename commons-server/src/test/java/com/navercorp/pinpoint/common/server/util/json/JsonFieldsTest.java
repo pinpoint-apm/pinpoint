@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.util.json;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
@@ -16,10 +16,10 @@ class JsonFieldsTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    ObjectMapper mapper = Jackson.newMapper();
+    JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    void testObjectKey() throws Exception {
+    void testObjectKey() {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("key1-1", "value1");
         map.put("key2-2", "value2");
@@ -42,7 +42,7 @@ class JsonFieldsTest {
     }
 
     @Test
-    void stringKey() throws Exception {
+    void stringKey() {
 
         Map<String, String> map = new LinkedHashMap<>();
         map.put("key1", "value1");
@@ -62,7 +62,7 @@ class JsonFieldsTest {
 
 
     @Test
-    void test_addField() throws Exception {
+    void test_addField() {
         Map<String, String> map = new LinkedHashMap<>();
         map.put("key1", "value1");
         String mapString = mapper.writeValueAsString(map);
@@ -116,7 +116,7 @@ class JsonFieldsTest {
     }
 
     @Test
-    void jsonNodeFactory_sample() throws Exception {
+    void jsonNodeFactory_sample() {
         JsonNodeFactory factory = JsonNodeFactory.instance;
         ObjectNode jsonNodes = factory.objectNode();
         jsonNodes.set("string", factory.pojoNode("value"));

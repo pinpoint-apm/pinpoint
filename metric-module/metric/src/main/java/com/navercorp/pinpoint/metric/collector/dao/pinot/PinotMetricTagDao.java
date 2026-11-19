@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.metric.collector.dao.MetricTagDao;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
@@ -55,13 +55,13 @@ public class PinotMetricTagDao implements MetricTagDao {
             = KafkaCallbacks.loggingCallback("Kafka(MetricJsonTag)", logger);
 
     public PinotMetricTagDao(SqlSessionTemplate sqlPinotSessionTemplate,
-                             ObjectMapper objectMapper,
+                             JsonMapper jsonMapper,
                              KafkaTemplate<String, MetricJsonTag> kafkaTagTemplate,
                              @Value("${kafka.systemmetric.tag.topic}") String topic) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
 
-        Objects.requireNonNull(objectMapper, "objectMapper");
-        this.tagListSerializer = new TagListSerializer(objectMapper);
+        Objects.requireNonNull(jsonMapper, "jsonMapper");
+        this.tagListSerializer = new TagListSerializer(jsonMapper);
 
         this.kafkaTagTemplate = Objects.requireNonNull(kafkaTagTemplate, "kafkaTagTemplate");
         this.topic = Objects.requireNonNull(topic, "topic");

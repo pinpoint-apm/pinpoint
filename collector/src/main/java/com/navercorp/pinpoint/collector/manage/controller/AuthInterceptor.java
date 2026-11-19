@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.manage.controller;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.response.MapResponse;
 import com.navercorp.pinpoint.common.server.response.Result;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,12 +41,12 @@ import java.util.Objects;
 public class AuthInterceptor implements HandlerInterceptor {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper;
+    private final JsonMapper mapper;
 
     private final String password;
     private final boolean isActive;
 
-    public AuthInterceptor(ObjectMapper mapper,
+    public AuthInterceptor(JsonMapper mapper,
                            @Value("${collector.admin.api.rest.active:false}") boolean isActive,
                            @Value("${collector.admin.password:}") String password) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");

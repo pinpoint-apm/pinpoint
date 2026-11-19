@@ -1,8 +1,7 @@
 package com.navercorp.pinpoint.web.response;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.StringNode;
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.Result;
@@ -11,10 +10,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class SimpleResponseTest {
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonMapper mapper = new JsonMapper();
 
     @Test
-    public void testStaticOk() throws JacksonException {
+    public void testStaticOk() {
         Response result = SimpleResponse.ok();
         JsonNode jsonNode = checkOutput(result);
         Assertions.assertEquals(StringNode.valueOf(Result.SUCCESS.name()), jsonNode.get("result"));
@@ -22,7 +21,7 @@ public class SimpleResponseTest {
     }
 
     @Test
-    public void testStaticOkWithMessage() throws JacksonException {
+    public void testStaticOkWithMessage() {
         Response result = SimpleResponse.ok("Test Message");
         checkOutput(result);
         JsonNode jsonNode = checkOutput(result);
@@ -30,7 +29,7 @@ public class SimpleResponseTest {
         Assertions.assertEquals(StringNode.valueOf("Test Message"), jsonNode.get("message"));
     }
 
-    private JsonNode checkOutput(Response codeResult) throws JacksonException {
+    private JsonNode checkOutput(Response codeResult) {
         String jsonString = mapper.writeValueAsString(codeResult);
         return mapper.readTree(jsonString);
     }

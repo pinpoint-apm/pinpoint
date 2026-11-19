@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.alarm.sender.AlarmNotificationChannelConfig;
 import com.navercorp.pinpoint.alarm.sender.AlarmNotificationChannelConfigParser;
 import com.navercorp.pinpoint.alarm.sender.AlarmSendException;
 import com.navercorp.pinpoint.alarm.sender.AlarmSender;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
 import com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationChannelDao;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmNotificationServiceTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
     private StubAlarmChannelBindingDao bindingDao;
     private StubAlarmNotificationChannelDao channelDao;
     private RecordingAlarmSender emailSender;
@@ -57,8 +57,8 @@ class AlarmNotificationServiceTest {
         emailSender = new RecordingAlarmSender(AlarmMethodType.EMAIL);
         smsSender = new RecordingAlarmSender(AlarmMethodType.SMS);
         service = new AlarmNotificationService(
-                bindingDao, channelDao, List.of(emailSender, smsSender), objectMapper,
-                new AlarmNotificationChannelConfigParser(objectMapper));
+                bindingDao, channelDao, List.of(emailSender, smsSender), jsonMapper,
+                new AlarmNotificationChannelConfigParser(jsonMapper));
     }
 
     @Test
@@ -72,7 +72,7 @@ class AlarmNotificationServiceTest {
                 service.prepareNotifications(rule(1L), MetricQueryResult.empty());
 
         assertEquals(2, result.deliveries().size());
-        assertEquals("email-title", objectMapper.readTree(result.deliveries().get(0).payload())
+        assertEquals("email-title", jsonMapper.readTree(result.deliveries().get(0).payload())
                 .path("subject").asString());
         assertEquals(1, emailSender.prepareCount);
         assertEquals(1, smsSender.prepareCount);
@@ -214,7 +214,7 @@ class AlarmNotificationServiceTest {
         AlarmNotificationOutbox outbox = new AlarmNotificationOutbox();
         outbox.setId(501L);
         outbox.setMethodType(AlarmMethodType.EMAIL);
-        outbox.setPayload(objectMapper.writeValueAsString(payload));
+        outbox.setPayload(jsonMapper.writeValueAsString(payload));
 
         service.deliver(outbox);
 

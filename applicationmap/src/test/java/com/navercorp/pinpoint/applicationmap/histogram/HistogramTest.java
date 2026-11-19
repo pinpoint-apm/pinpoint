@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.applicationmap.histogram;
 
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
@@ -37,7 +37,7 @@ public class HistogramTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper objectMapper = Jackson.newMapper();
+    private final JsonMapper objectMapper = Jackson.newMapper();
 
     @Test
     public void pingSlot() {
@@ -99,7 +99,7 @@ public class HistogramTest {
     }
 
     @Test
-    public void testJson() throws Exception {
+    public void testJson() {
         HistogramSchema schema = ServiceType.STAND_ALONE.getHistogramSchema();
         Histogram original = new Histogram(ServiceType.STAND_ALONE);
         original.addCallCount(schema.getFastSlot().getSlotTime(), 100);

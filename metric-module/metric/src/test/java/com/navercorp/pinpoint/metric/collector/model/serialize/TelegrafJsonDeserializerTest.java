@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.metric.collector.model.serialize;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -19,11 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TelegrafJsonDeserializerTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
 
     @Test
-    public void deserialize_batch() throws IOException {
+    public void deserialize_batch() {
 
         InputStream stream = this.getClass().getResourceAsStream("/telegraf-json/telegraf-batch.json");
 
@@ -38,7 +37,7 @@ public class TelegrafJsonDeserializerTest {
     }
 
     @Test
-    public void deserialize_standard() throws IOException {
+    public void deserialize_standard() {
 
         InputStream stream = this.getClass().getResourceAsStream("/telegraf-json/telegraf-standard.json");
 

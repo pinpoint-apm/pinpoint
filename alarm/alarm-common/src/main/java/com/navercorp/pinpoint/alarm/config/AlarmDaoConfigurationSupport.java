@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.config;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmHistoryV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationChannelDao;
@@ -126,8 +126,8 @@ public abstract class AlarmDaoConfigurationSupport {
     }
 
     @Bean
-    public AlarmRuleEntityMapper alarmRuleEntityMapper(ObjectMapper objectMapper) {
-        return new AlarmRuleEntityMapper(objectMapper);
+    public AlarmRuleEntityMapper alarmRuleEntityMapper(JsonMapper jsonMapper) {
+        return new AlarmRuleEntityMapper(jsonMapper);
     }
 
     @Bean

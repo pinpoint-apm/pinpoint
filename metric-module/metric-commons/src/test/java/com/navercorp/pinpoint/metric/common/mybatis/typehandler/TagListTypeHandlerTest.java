@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.metric.common.mybatis.typehandler;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 
 public class TagListTypeHandlerTest {
 
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = new JsonMapper();
 
 
     @Test

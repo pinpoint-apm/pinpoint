@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.alarm.service;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;
@@ -65,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmEvaluationServiceTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
     private StubAlarmStateDao stateDao;
     private StubAlarmHistoryV2Dao historyDao;
     private StubAlarmNotificationOutboxDao outboxDao;
@@ -78,11 +78,11 @@ class AlarmEvaluationServiceTest {
         stateDao = new StubAlarmStateDao();
         historyDao = new StubAlarmHistoryV2Dao();
         outboxDao = new StubAlarmNotificationOutboxDao();
-        notificationService = new StubAlarmNotificationService(objectMapper);
+        notificationService = new StubAlarmNotificationService(jsonMapper);
         transactionManager = new TrackingTransactionManager();
         AlarmEventPersistenceService persistenceService = new AlarmEventPersistenceService(
                 lockingRuleDao(), stateDao, historyDao, outboxDao,
-                notificationService, transactionManager, objectMapper);
+                notificationService, transactionManager, jsonMapper);
         evaluationService = new AlarmEvaluationService(stateDao, persistenceService, new ConditionEvaluator());
     }
 
@@ -117,7 +117,7 @@ class AlarmEvaluationServiceTest {
         assertEquals(0, delivery.getAttemptCount());
         assertEquals(stateDao.lastState.getLastNotificationEnqueuedAt(), delivery.getAvailableAt());
         assertEquals(0, notificationService.deliverCount);
-        JsonNode context = objectMapper.readTree(history.getContext());
+        JsonNode context = jsonMapper.readTree(history.getContext());
         assertEquals(1, context.path("notification").path("pending").asInt());
         assertEquals(0, context.path("notification").path("sent").asInt());
         JsonNode effectiveRule = context.path("effective_rule");
@@ -163,7 +163,7 @@ class AlarmEvaluationServiceTest {
 
         evaluationService.evaluate(createRule(1L, null), queryService);
 
-        JsonNode details = objectMapper.readTree(historyDao.inserted.get(0).getContext())
+        JsonNode details = jsonMapper.readTree(historyDao.inserted.get(0).getContext())
                 .path("results").get(0).path("details");
         assertEquals(List.of("3 of 5 agents > 100.00", "[agent-a] 150.00", "... and 2 more"),
                 List.of(details.get(0).asText(), details.get(1).asText(), details.get(2).asText()));
@@ -444,7 +444,7 @@ class AlarmEvaluationServiceTest {
         assertEquals(AlarmStatus.FIRING, stateDao.lastState.getStatus());
         assertEquals(AlarmEventType.FIRED, historyDao.inserted.get(0).getEventType());
         assertTrue(outboxDao.inserted.isEmpty());
-        JsonNode notification = objectMapper.readTree(historyDao.inserted.get(0).getContext())
+        JsonNode notification = jsonMapper.readTree(historyDao.inserted.get(0).getContext())
                 .path("notification");
         assertEquals(1, notification.path("preparation_failed").asInt());
         assertEquals("recipient lookup failed",
@@ -462,7 +462,7 @@ class AlarmEvaluationServiceTest {
 
         assertEquals(1, outboxDao.inserted.size());
         assertEquals(20L, outboxDao.inserted.get(0).getChannelId());
-        JsonNode notification = objectMapper.readTree(historyDao.inserted.get(0).getContext())
+        JsonNode notification = jsonMapper.readTree(historyDao.inserted.get(0).getContext())
                 .path("notification");
         assertEquals(1, notification.path("pending").asInt());
         assertEquals(1, notification.path("preparation_failed").asInt());
@@ -590,9 +590,9 @@ class AlarmEvaluationServiceTest {
         private AlarmRuleV2 lastPreparedRule;
         private int deliverCount;
 
-        private StubAlarmNotificationService(ObjectMapper objectMapper) {
+        private StubAlarmNotificationService(JsonMapper jsonMapper) {
             super(noop(AlarmChannelBindingDao.class), noop(AlarmNotificationChannelDao.class),
-                    List.of(), objectMapper, new AlarmNotificationChannelConfigParser(objectMapper));
+                    List.of(), jsonMapper, new AlarmNotificationChannelConfigParser(jsonMapper));
         }
 
         @Override

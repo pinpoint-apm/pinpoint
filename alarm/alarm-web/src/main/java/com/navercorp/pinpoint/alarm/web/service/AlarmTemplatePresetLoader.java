@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.alarm.web.service;
 
 import com.navercorp.pinpoint.alarm.web.model.AlarmTemplatePreset;
 import org.springframework.util.StringUtils;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmDataSource;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
 import com.navercorp.pinpoint.alarm.validation.AlarmValidationConstants;
@@ -60,20 +60,20 @@ public class AlarmTemplatePresetLoader {
     private final AlarmDataSourceRegistry dataSourceRegistry;
 
     @Autowired
-    public AlarmTemplatePresetLoader(ObjectMapper objectMapper,
+    public AlarmTemplatePresetLoader(JsonMapper jsonMapper,
                                      ConditionValidator conditionValidator,
                                      FilterKeyValidator filterKeyValidator,
                                      AlarmDataSourceRegistry dataSourceRegistry) {
-        this(objectMapper, conditionValidator, filterKeyValidator, dataSourceRegistry,
+        this(jsonMapper, conditionValidator, filterKeyValidator, dataSourceRegistry,
                 resolvePresetResources());
     }
 
-    AlarmTemplatePresetLoader(ObjectMapper objectMapper,
+    AlarmTemplatePresetLoader(JsonMapper jsonMapper,
                               ConditionValidator conditionValidator,
                               FilterKeyValidator filterKeyValidator,
                               AlarmDataSourceRegistry dataSourceRegistry,
                               List<Resource> resources) {
-        Objects.requireNonNull(objectMapper, "objectMapper");
+        Objects.requireNonNull(jsonMapper, "jsonMapper");
         Objects.requireNonNull(conditionValidator, "conditionValidator");
         Objects.requireNonNull(filterKeyValidator, "filterKeyValidator");
         this.dataSourceRegistry = Objects.requireNonNull(dataSourceRegistry, "dataSourceRegistry");
@@ -89,7 +89,7 @@ public class AlarmTemplatePresetLoader {
         }
         List<AlarmTemplatePreset> presets = new ArrayList<>(resources.size());
         for (Resource resource : resources) {
-            presets.add(read(objectMapper, resource));
+            presets.add(read(jsonMapper, resource));
         }
         List<AlarmTemplatePreset> offered = presets.stream()
                 .filter(preset -> isInstalled(preset, dataSourceRegistry))
@@ -131,9 +131,9 @@ public class AlarmTemplatePresetLoader {
         }
     }
 
-    private static AlarmTemplatePreset read(ObjectMapper objectMapper, Resource resource) {
+    private static AlarmTemplatePreset read(JsonMapper jsonMapper, Resource resource) {
         try (InputStream inputStream = resource.getInputStream()) {
-            return objectMapper.readValue(inputStream, AlarmTemplatePreset.class);
+            return jsonMapper.readValue(inputStream, AlarmTemplatePreset.class);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read alarm template preset: " + resource, e);
         }

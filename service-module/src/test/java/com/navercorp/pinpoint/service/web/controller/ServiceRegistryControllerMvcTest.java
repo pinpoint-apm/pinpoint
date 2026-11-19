@@ -38,13 +38,13 @@ class ServiceRegistryControllerMvcTest {
     private ReservedServiceRegistry reservedServiceRegistry;
 
     private MockMvc mockMvc;
-    private final JsonMapper objectMapper = JsonMapper.builder().build();
+    private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     @BeforeEach
     void setUp() {
         ServiceRegistryController controller = new ServiceRegistryController(serviceRegistryService, reservedServiceRegistry);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setMessageConverters(new JacksonJsonHttpMessageConverter(objectMapper))
+                .setMessageConverters(new JacksonJsonHttpMessageConverter(jsonMapper))
                 .build();
     }
 
@@ -57,7 +57,7 @@ class ServiceRegistryControllerMvcTest {
 
         MvcResult result = mockMvc.perform(post("/api/v2/services")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(serviceNameRequest)))
+                        .content(jsonMapper.writeValueAsString(serviceNameRequest)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -83,7 +83,7 @@ class ServiceRegistryControllerMvcTest {
 
         mockMvc.perform(post("/api/v2/services")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -111,7 +111,7 @@ class ServiceRegistryControllerMvcTest {
 
         mockMvc.perform(post("/api/v2/services")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(serviceRegistryService);
@@ -123,7 +123,7 @@ class ServiceRegistryControllerMvcTest {
 
         mockMvc.perform(post("/api/v2/services")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(serviceRegistryService);
@@ -135,7 +135,7 @@ class ServiceRegistryControllerMvcTest {
 
         mockMvc.perform(post("/api/v2/services")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(serviceRegistryService);
@@ -147,7 +147,7 @@ class ServiceRegistryControllerMvcTest {
 
         mockMvc.perform(post("/api/v2/services")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(serviceRegistryService);
@@ -159,7 +159,7 @@ class ServiceRegistryControllerMvcTest {
 
         mockMvc.perform(post("/api/v2/services")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(serviceRegistryService);

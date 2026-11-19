@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 
 /**
  *
@@ -34,10 +33,10 @@ public class FilterHintTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void convert() throws IOException {
+    public void convert() {
 
         String json = """
                 { "TO_APPLICATION" : ["IP1", 1, "IP2", 2], "TO_APPLICATION2" : ["IP3", 3, "IP4", 4] }""";
@@ -59,7 +58,7 @@ public class FilterHintTest {
     }
 
     @Test
-    public void convert_duplicate_applicationName_filter() throws IOException {
+    public void convert_duplicate_applicationName_filter() {
 
         String json = """
                 { "TO_APPLICATION" : ["IP1", 1, "IP2", 2], "TO_APPLICATION" : ["IP3", 3, "IP4", 4] }""";
@@ -81,7 +80,7 @@ public class FilterHintTest {
     }
 
     @Test
-    public void empty() throws IOException {
+    public void empty() {
         String json = "{}";
 
         final FilterHint hint = mapper.readValue(json, FilterHint.class);
@@ -92,7 +91,7 @@ public class FilterHintTest {
     }
 
     @Test
-    public void empty_array() throws IOException {
+    public void empty_array() {
 
         String json = """
                 { "TO_APPLICATION" : [] }""";
@@ -112,7 +111,7 @@ public class FilterHintTest {
     }
 
     @Test
-    public void empty_array2() throws IOException {
+    public void empty_array2() {
 
         String json = """
                 { "TO_APPLICATION" : [], "TO_APPLICATION2" : ["IP3", 3, "IP4", 4] }""";

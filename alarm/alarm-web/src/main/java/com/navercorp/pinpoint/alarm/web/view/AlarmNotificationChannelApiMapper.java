@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.alarm.web.view;
 import org.springframework.util.StringUtils;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
 import org.springframework.stereotype.Component;
 
@@ -28,10 +28,10 @@ import java.util.Objects;
 @Component
 public class AlarmNotificationChannelApiMapper {
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
-    public AlarmNotificationChannelApiMapper(ObjectMapper objectMapper) {
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+    public AlarmNotificationChannelApiMapper(JsonMapper jsonMapper) {
+        this.jsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
     }
 
     public AlarmNotificationChannel toModel(String serviceName, AlarmNotificationChannelRequest request) {
@@ -83,7 +83,7 @@ public class AlarmNotificationChannelApiMapper {
             return null;
         }
         try {
-            JsonNode parsed = objectMapper.readTree(config);
+            JsonNode parsed = jsonMapper.readTree(config);
             if (parsed == null || !parsed.isObject()) {
                 throw new IllegalStateException("Stored channel config must be a JSON object");
             }

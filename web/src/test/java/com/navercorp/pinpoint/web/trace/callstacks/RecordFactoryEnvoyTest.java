@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.trace.callstacks;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -120,6 +120,6 @@ public class RecordFactoryEnvoyTest {
                 new DefaultAnnotationKeyRegistryService(metadata),
                 formatter.build(),
                 new ApiParserProvider(),
-                new AttributeBoWriter(new ObjectMapper()));
+                new AttributeBoWriter(new JsonMapper()));
     }
 }

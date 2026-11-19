@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -20,12 +20,12 @@ public class OtlpTraceEventMapper {
     private static final String FIELD_TIME = "time";
     private static final String FIELD_ATTRIBUTES = "attributes";
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
     private final int valueMaxBytes;
 
-    public OtlpTraceEventMapper(ObjectMapper objectMapper,
+    public OtlpTraceEventMapper(JsonMapper jsonMapper,
                                 @Value("${pinpoint.collector.otlptrace.event.value-max-bytes:8192}") int valueMaxBytes) {
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+        this.jsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
         if (valueMaxBytes < 0) {
             throw new IllegalArgumentException("valueMaxBytes must be >= 0: " + valueMaxBytes);
         }
@@ -60,7 +60,7 @@ public class OtlpTraceEventMapper {
 
     private String toJson(OtelEvent otelEvent, TruncationListener onTruncated) {
         final StringBuilderWriter buffer = new StringBuilderWriter();
-        try (JsonGenerator generator = objectMapper.createGenerator(buffer)) {
+        try (JsonGenerator generator = jsonMapper.createGenerator(buffer)) {
             generator.writeStartObject();
             generator.writeName(otelEvent.name());
 

@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.user.dao.UserGroupDao;
@@ -85,7 +85,7 @@ public class AlarmControllerTest {
     @Autowired
     private UserGroupDao userGroupDao;
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     private MockMvc mockMvc;
     

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.filter;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -51,7 +51,7 @@ public class DefaultFilterBuilder implements FilterBuilder<List<SpanBo>> {
 
     private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    public DefaultFilterBuilder(ObjectMapper mapper, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
+    public DefaultFilterBuilder(JsonMapper mapper, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
         Objects.requireNonNull(mapper, "mapper");
         this.filterHintReader = mapper.readerFor(FilterHint.class);
         this.filterDescriptorReader = mapper.readerForListOf(FilterDescriptor.class);
