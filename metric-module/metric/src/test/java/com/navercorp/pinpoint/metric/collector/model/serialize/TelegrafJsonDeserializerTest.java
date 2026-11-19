@@ -7,6 +7,8 @@ import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,5 +49,31 @@ public class TelegrafJsonDeserializerTest {
                 .hasSize(1)
                 .flatMap(TelegrafMetric::getFields)
                 .containsOnlyOnce(new TelegrafMetric.Field("field_1", 30));
+    }
+
+    @Test
+    public void deserialize_batch_failOnTrailingTokens() {
+        InputStream stream = this.getClass().getResourceAsStream("/telegraf-json/telegraf-batch.json");
+
+        TelegrafMetrics systemMetrics = strictMapper().readValue(stream, TelegrafMetrics.class);
+
+        assertThat(systemMetrics.getMetrics()).hasSize(2);
+    }
+
+    @Test
+    public void deserialize_batch_skipFieldAfterMetrics() {
+        String json = """
+                {"metrics":[{"fields":{"field_1":30},"name":"cpu","tags":{"host":"host1"},"timestamp":1700000000}],"extra":{"a":[1,2]}}
+                """;
+
+        TelegrafMetrics systemMetrics = strictMapper().readValue(json, TelegrafMetrics.class);
+
+        assertThat(systemMetrics.getMetrics()).hasSize(1);
+    }
+
+    private static JsonMapper strictMapper() {
+        return Jackson.newMapper().rebuild()
+                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
     }
 }
