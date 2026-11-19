@@ -59,6 +59,10 @@ public class TelegrafJsonDeserializer extends ValueDeserializer<TelegrafMetrics>
                 ctxt.handleUnexpectedToken(TelegrafMetrics.class, jp);
             }
             List<TelegrafMetric> metrics = jp.readValueAs(batchType);
+            // consume the rest of the wrapper object so that the parser ends on its END_OBJECT
+            while (jp.nextToken() != JsonToken.END_OBJECT) {
+                jp.skipChildren();
+            }
             return new TelegrafMetrics(metrics);
         } else {
             // standard
