@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class OtlpTraceSpanMapperTest {
 
-    static ObjectMapper json = new ObjectMapper();
+    static JsonMapper json = new JsonMapper();
 
     // =======================================================================
     // extractHostAndPort

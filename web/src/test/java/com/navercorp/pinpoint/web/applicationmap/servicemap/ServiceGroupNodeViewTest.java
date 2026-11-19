@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.servicemap;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -48,9 +48,9 @@ import java.util.List;
  */
 public class ServiceGroupNodeViewTest {
 
-    private final ObjectMapper mapper = mapper();
+    private final JsonMapper mapper = mapper();
 
-    static ObjectMapper mapper() {
+    static JsonMapper mapper() {
         SimpleModule module = new SimpleModule();
         AlertViewService alertViewService = new AlertViewService();
         AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();

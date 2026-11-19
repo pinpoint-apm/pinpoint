@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.alarm.sender;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import org.junit.jupiter.api.Test;
 
@@ -29,10 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AlarmDeliveryPayloadTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
 
     @Test
-    void emailSnapshot_roundTripsOnlyEmailFields() throws Exception {
+    void emailSnapshot_roundTripsOnlyEmailFields() {
         AlarmDeliveryPayload payload = AlarmDeliveryPayload.forEmail(
                 "subject", "<p>body</p>", List.of("user@example.test"));
 
@@ -43,7 +43,7 @@ class AlarmDeliveryPayloadTest {
     }
 
     @Test
-    void smsSnapshot_roundTripsOnlyFinalContentAndRecipients() throws Exception {
+    void smsSnapshot_roundTripsOnlyFinalContentAndRecipients() {
         AlarmDeliveryPayload payload = AlarmDeliveryPayload.forSms(
                 "title\nbody", List.of("01012345678"));
 
@@ -53,7 +53,7 @@ class AlarmDeliveryPayloadTest {
     }
 
     @Test
-    void webhookSnapshot_roundTripsFinalRequestBodyWithoutFormat() throws Exception {
+    void webhookSnapshot_roundTripsFinalRequestBodyWithoutFormat() {
         AlarmDeliveryPayload payload = AlarmDeliveryPayload.forWebhook(
                 "{\"text\":\"title\\nbody\"}", "https://example.test/hook");
 
@@ -87,11 +87,11 @@ class AlarmDeliveryPayloadTest {
         );
     }
 
-    private void assertRoundTrip(AlarmDeliveryPayload payload, Map<String, Object> expected) throws Exception {
-        String serialized = objectMapper.writeValueAsString(payload);
-        JsonNode actual = objectMapper.readTree(serialized);
+    private void assertRoundTrip(AlarmDeliveryPayload payload, Map<String, Object> expected) {
+        String serialized = jsonMapper.writeValueAsString(payload);
+        JsonNode actual = jsonMapper.readTree(serialized);
 
-        assertEquals(objectMapper.valueToTree(expected), actual);
-        assertEquals(payload, objectMapper.readValue(serialized, AlarmDeliveryPayload.class));
+        assertEquals(jsonMapper.valueToTree(expected), actual);
+        assertEquals(payload, jsonMapper.readValue(serialized, AlarmDeliveryPayload.class));
     }
 }

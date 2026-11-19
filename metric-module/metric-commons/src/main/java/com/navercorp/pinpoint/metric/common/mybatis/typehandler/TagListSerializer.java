@@ -21,7 +21,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import org.apache.commons.io.output.StringBuilderWriter;
@@ -39,9 +39,9 @@ public class TagListSerializer {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper;
+    private final JsonMapper mapper;
 
-    public TagListSerializer(ObjectMapper mapper) {
+    public TagListSerializer(JsonMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 

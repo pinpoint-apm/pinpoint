@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.util;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class OtelLinkValueSerdeTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonMapper mapper = new JsonMapper();
 
     @Test
     void roundTrip_allFields() {
@@ -79,7 +79,7 @@ class OtelLinkValueSerdeTest {
     }
 
     @Test
-    void toJson_wireFormat_longsAsString_timestampAsNumber() throws Exception {
+    void toJson_wireFormat_longsAsString_timestampAsNumber() {
         OtelLinkValue value = new OtelLinkValue(
                 new PinpointServerTraceId("agent", 1, 2),
                 111L,

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
@@ -33,10 +33,10 @@ public class DotSerializerTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void testSerialize() throws Exception {
+    public void testSerialize() {
         ServerTraceId transactionId = PinpointServerTraceId.of("aigw.dev.1^1395798795017^1527177");
         Dot dot = new Dot(transactionId, 100, 99, 1, "agent");
         String jsonValue = mapper.writeValueAsString(dot);

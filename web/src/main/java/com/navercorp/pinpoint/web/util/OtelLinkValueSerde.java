@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.util;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.json.JsonMapper;
 
 
 /**
@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  */
 public final class OtelLinkValueSerde {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.shared();
 
     private OtelLinkValueSerde() {
     }
@@ -41,7 +41,7 @@ public final class OtelLinkValueSerde {
             return null;
         }
         try {
-            final JsonNode root = OBJECT_MAPPER.readTree(json);
+            final JsonNode root = MAPPER.readTree(json);
             if (!root.isObject()) {
                 return null;
             }
@@ -101,7 +101,7 @@ public final class OtelLinkValueSerde {
 
     public static String toJson(OtelLinkValue value) {
         final StringBuilderWriter writer = new StringBuilderWriter();
-        try (JsonGenerator gen = OBJECT_MAPPER.createGenerator(writer)) {
+        try (JsonGenerator gen = MAPPER.createGenerator(writer)) {
             gen.writeStartObject();
             if (value.traceId() != null) {
                 gen.writeStringProperty("traceId", value.traceId().toString());

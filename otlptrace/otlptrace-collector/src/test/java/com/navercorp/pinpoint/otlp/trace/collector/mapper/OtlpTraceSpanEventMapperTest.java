@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -64,8 +64,8 @@ class OtlpTraceSpanEventMapperTest {
     @BeforeEach
     void setUp() {
         mapper = new OtlpTraceSpanEventMapper(
-                new OtlpTraceEventMapper(new ObjectMapper(), 8192),
-                new OtlpTraceLinkMapper(new ObjectMapper(), 8192),
+                new OtlpTraceEventMapper(new JsonMapper(), 8192),
+                new OtlpTraceLinkMapper(new JsonMapper(), 8192),
                 TEST_REGISTRY,
                 new OtlpMessagingTypeResolver(TEST_REGISTRY),
                 new OtlpClientTypeResolver(TEST_REGISTRY),
@@ -1151,7 +1151,7 @@ class OtlpTraceSpanEventMapperTest {
         Object value = findLinkAnnotation(event);
         assertThat(value).isNotNull();
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) value, Map.class);
         assertThat(root).containsEntry("traceId", "09090909090909090909090909090909");

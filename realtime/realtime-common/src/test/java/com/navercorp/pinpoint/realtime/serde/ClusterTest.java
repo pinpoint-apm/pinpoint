@@ -1,11 +1,10 @@
 package com.navercorp.pinpoint.realtime.serde;
 
 import tools.jackson.core.JsonParser;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,10 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ClusterTest {
 
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = new JsonMapper();
 
     @Test
-    void deserialize() throws IOException {
+    void deserialize() {
 
         Map<String, Object> clusterKeyMap = Map.of(
                 "serviceName", "service1",

@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.alarm.web.view;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.TestAlarmDataSource;
 import org.junit.jupiter.api.Test;
 
@@ -25,14 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class AlarmCatalogResponseTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
 
     @Test
     void preservesCatalogApiResponseShape() {
         AlarmCatalogResponse.DataSource response =
                 AlarmCatalogResponse.DataSource.from(TestAlarmDataSource.AGENT_STAT);
 
-        JsonNode json = objectMapper.valueToTree(response);
+        JsonNode json = jsonMapper.valueToTree(response);
 
         assertEquals("AGENT_STAT", json.get("value").asString());
         assertEquals("Agent Stat", json.get("label").asString());

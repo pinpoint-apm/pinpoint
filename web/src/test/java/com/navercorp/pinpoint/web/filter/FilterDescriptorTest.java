@@ -19,14 +19,13 @@ package com.navercorp.pinpoint.web.filter;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -40,10 +39,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FilterDescriptorTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void convert() throws IOException {
+    public void convert() {
 
         String jsonString = writeJsonString();
 
@@ -66,7 +65,7 @@ public class FilterDescriptorTest {
         Assertions.assertEquals("/**", descriptor.getOption().getUrlPattern());
     }
 
-    private String writeJsonString() throws IOException {
+    private String writeJsonString() {
         StringWriter writer = new StringWriter();
 
         try (JsonGenerator json = mapper.createGenerator(writer)) {
@@ -107,7 +106,7 @@ public class FilterDescriptorTest {
     }
 
     @Test
-    public void convert_array() throws IOException {
+    public void convert_array() {
 
         String arrayJson = "[" + writeJsonString() + "]";
 

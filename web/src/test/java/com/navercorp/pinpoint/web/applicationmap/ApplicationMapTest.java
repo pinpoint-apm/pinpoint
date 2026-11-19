@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
@@ -25,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 
 /**
  * @author emeroad
@@ -33,10 +32,10 @@ import java.io.IOException;
 public class ApplicationMapTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void root() throws IOException {
+    public void root() {
         ApplicationMap app = ApplicationMapFactory.build(NodeList.of(), LinkList.of(), Range.between(0, 1));
         String s = mapper.writeValueAsString(app);
         logger.debug(s);

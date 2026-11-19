@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.channel;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,8 +43,8 @@ public class ChannelSpringConfigTest {
     @Configuration
     static class ObjectMapperConfig {
         @Bean
-        public ObjectMapper objectMapper() {
-            return new ObjectMapper();
+        public JsonMapper objectMapper() {
+            return new JsonMapper();
         }
     }
 }

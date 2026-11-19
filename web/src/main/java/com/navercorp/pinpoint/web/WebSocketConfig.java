@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.AgentServiceImpl;
@@ -75,7 +75,7 @@ public class WebSocketConfig {
     }
 
     @Bean
-    public PinpointWebSocketMessageConverter pinpointWebSocketMessageConverter(ObjectMapper mapper) {
+    public PinpointWebSocketMessageConverter pinpointWebSocketMessageConverter(JsonMapper mapper) {
         return new PinpointWebSocketMessageConverter(mapper);
     }
 

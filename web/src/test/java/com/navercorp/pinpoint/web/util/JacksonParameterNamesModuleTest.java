@@ -18,8 +18,7 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,8 +28,8 @@ import java.util.Objects;
 public class JacksonParameterNamesModuleTest {
 
     @Test
-    void parameterNamesModule_args1() throws JacksonException {
-        ObjectMapper mapper = Jackson.newMapper();
+    void parameterNamesModule_args1() {
+        JsonMapper mapper = Jackson.newMapper();
 
         Person1 user = new Person1("user");
         String json = mapper.writeValueAsString(user);
@@ -42,8 +41,8 @@ public class JacksonParameterNamesModuleTest {
 
 
     @Test
-    void parameterNamesModule_arg2() throws JacksonException {
-        ObjectMapper mapper = Jackson.newMapper();
+    void parameterNamesModule_arg2() {
+        JsonMapper mapper = Jackson.newMapper();
 
         Person2 user = new Person2("user", 10);
         String json = mapper.writeValueAsString(user);

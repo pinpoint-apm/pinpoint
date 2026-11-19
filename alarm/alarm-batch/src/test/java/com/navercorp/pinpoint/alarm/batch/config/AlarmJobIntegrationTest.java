@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.alarm.batch.config;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmHistoryV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationChannelDao;
@@ -138,7 +138,7 @@ class AlarmJobIntegrationTest {
     private PlatformTransactionManager transactionManager;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @Autowired
     private MetricQueryService mockMetricQueryService;
@@ -749,13 +749,13 @@ class AlarmJobIntegrationTest {
                 1, nowUtc(), Duration.ofMinutes(1)).get(0);
         AlarmNotificationResultService resultService = new AlarmNotificationResultService(
                 alarmNotificationOutboxDao, alarmStateDao, alarmHistoryV2Dao,
-                transactionManager, objectMapper);
+                transactionManager, jsonMapper);
         LocalDateTime sentAt = nowUtc().withNano(0);
 
         assertTrue(resultService.markSent(claimed, sentAt));
 
         assertEquals(sentAt, alarmStateDao.selectByRuleId(rule.getId()).getLastNotifiedAt());
-        JsonNode context = objectMapper.readTree(alarmHistoryV2Dao.selectById(history.getId()).getContext());
+        JsonNode context = jsonMapper.readTree(alarmHistoryV2Dao.selectById(history.getId()).getContext());
         assertEquals(1, context.path("notification").path("sent").asInt());
         assertEquals(1, context.path("notification").path("failed").asInt());
         assertEquals(1, context.path("notification").path("pending").asInt());

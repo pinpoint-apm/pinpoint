@@ -17,14 +17,13 @@
 package com.navercorp.pinpoint.common.dao.pinot;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;

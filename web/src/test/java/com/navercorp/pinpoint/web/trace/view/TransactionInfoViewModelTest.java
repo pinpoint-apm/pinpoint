@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.web.trace.view;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,10 +28,10 @@ class TransactionInfoViewModelTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    void fieldName() throws JacksonException {
+    void fieldName() {
         Field.CallStackMeta callStackMeta = Field.getCallStackMeta();
 
-        ObjectMapper mapper = Jackson.newMapper();
+        JsonMapper mapper = Jackson.newMapper();
         String json = mapper.writeValueAsString(callStackMeta);
 
         logger.debug("{}", json);

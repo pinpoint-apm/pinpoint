@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.alarm.web.service.AlarmRuleService;
 import com.navercorp.pinpoint.alarm.web.service.AlarmTemplateService;
 import com.navercorp.pinpoint.alarm.web.view.AlarmNotificationChannelApiMapper;
 import com.navercorp.pinpoint.alarm.web.view.AlarmNotificationChannelRequest;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleChannel;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
@@ -61,7 +61,7 @@ class AlarmControllerSecurityTest {
         ruleController = new AlarmRuleController(alarmRuleService);
         templateController = new AlarmTemplateController(templateService);
         channelController = new AlarmChannelController(
-                channelService, new AlarmNotificationChannelApiMapper(new ObjectMapper()));
+                channelService, new AlarmNotificationChannelApiMapper(new JsonMapper()));
     }
 
     @Test

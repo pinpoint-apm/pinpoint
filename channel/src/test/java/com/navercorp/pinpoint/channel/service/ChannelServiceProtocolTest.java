@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.channel.service;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.channel.ChannelProviderRegistry;
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.MemoryChannelProvider;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author youngjin.kim2
  */
 public class ChannelServiceProtocolTest {
-    JsonSerdeFactory factory = new JacksonSerdeFactory(new ObjectMapper());
+    JsonSerdeFactory factory = new JacksonSerdeFactory(new JsonMapper());
 
     @Test
     public void shouldThrowWithWrongSerde() {

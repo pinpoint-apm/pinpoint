@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.server.util.Utf8;
@@ -26,12 +26,12 @@ public class OtlpTraceLinkMapper {
     private static final String FIELD_ATTRIBUTES = "attributes";
     private static final String FIELD_DROPPED = "dropped";
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
     private final int valueMaxBytes;
 
-    public OtlpTraceLinkMapper(ObjectMapper objectMapper,
+    public OtlpTraceLinkMapper(JsonMapper jsonMapper,
                                @Value("${pinpoint.collector.otlptrace.link.value-max-bytes:8192}") int valueMaxBytes) {
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+        this.jsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
         if (valueMaxBytes < 0) {
             throw new IllegalArgumentException("valueMaxBytes must be >= 0: " + valueMaxBytes);
         }
@@ -63,7 +63,7 @@ public class OtlpTraceLinkMapper {
 
     private String toJson(OtelLink otelLink, TruncationListener onTruncated) {
         final StringBuilderWriter buffer = new StringBuilderWriter();
-        try (JsonGenerator generator = objectMapper.createGenerator(buffer)) {
+        try (JsonGenerator generator = jsonMapper.createGenerator(buffer)) {
             generator.writeStartObject();
             if (!otelLink.traceId().isEmpty()) {
                 generator.writeStringProperty(FIELD_TRACE_ID, ByteStringUtils.encodeBase16(otelLink.traceId()));

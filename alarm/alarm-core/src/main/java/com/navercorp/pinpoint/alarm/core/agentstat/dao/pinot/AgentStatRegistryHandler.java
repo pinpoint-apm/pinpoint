@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.alarm.core.agentstat.dao.pinot;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.core.agentstat.dao.model.AgentStatQueryParameter;
 import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.alarm.core.agentstat.vo.AgentUsage;
@@ -30,7 +30,6 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.type.TypeReference;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Objects;

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.user.dao.UserDao;
@@ -80,7 +80,7 @@ public class UserGroupControllerTest {
     @Autowired
     private UserDao userDao;
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     private MockMvc mockMvc;
 
@@ -238,7 +238,7 @@ public class UserGroupControllerTest {
 
 //    @SuppressWarnings("unchecked")
 //    @Test
-//    public void updateMember() throws Exception  {
+//    public void updateMember() {
 //        MvcResult mvcResult = this.mockMvc.perform(post("/api/userGroup/member").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
 //                        .andExpect(status().isOk())
 //                        .andExpect(content().contentType("application/json;charset=UTF-8"))

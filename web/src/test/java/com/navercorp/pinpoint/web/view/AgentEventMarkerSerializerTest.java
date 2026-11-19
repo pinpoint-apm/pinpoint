@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
@@ -30,11 +30,11 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 public class AgentEventMarkerSerializerTest {
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    public void serializeTest() throws Exception {
+    public void serializeTest() {
         AgentEventMarker marker = makeData();
         String jsonValue = mapper.writeValueAsString(marker);
         Map<String, Object> map = mapper.readValue(jsonValue, TypeRef.map());

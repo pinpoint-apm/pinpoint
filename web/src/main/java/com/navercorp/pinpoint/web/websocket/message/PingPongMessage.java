@@ -18,8 +18,8 @@
 package com.navercorp.pinpoint.web.websocket.message;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class PingPongMessage {
     private final String ping;
     private final String pong;
 
-    public static PingPongMessage newMessage(ObjectMapper mapper) {
+    public static PingPongMessage newMessage(JsonMapper mapper) {
         String ping = toJson(mapper, new PingMessage());
         String pong = toJson(mapper, new PongMessage());
         return new PingPongMessage(ping, pong);
@@ -39,7 +39,7 @@ public class PingPongMessage {
         this.pong = Objects.requireNonNull(pong, "pong");
     }
 
-    private static String toJson(ObjectMapper mapper, Object object) {
+    private static String toJson(JsonMapper mapper, Object object) {
         try {
             return mapper.writeValueAsString(object);
         } catch (JacksonException e) {

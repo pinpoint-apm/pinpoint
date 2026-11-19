@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.alarm.vo;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.DatabindException;
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 
@@ -27,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmJsonMappingTest {
 
-    private final ObjectMapper objectMapper = JsonMapper.builder()
+    private final JsonMapper jsonMapper = JsonMapper.builder()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
     @Test
-    void alarmCondition_deserializesLeafEnums() throws Exception {
+    void alarmCondition_deserializesLeafEnums() {
         String json = """
                 {
                   "type": "LEAF",
@@ -47,7 +46,7 @@ class AlarmJsonMappingTest {
                 }
                 """;
 
-        AlarmCondition condition = objectMapper.readValue(json, AlarmCondition.class);
+        AlarmCondition condition = jsonMapper.readValue(json, AlarmCondition.class);
 
         assertEquals(AlarmCondition.Type.LEAF, condition.getType());
         assertEquals("error_count", condition.getMetric());
@@ -61,7 +60,7 @@ class AlarmJsonMappingTest {
     }
 
     @Test
-    void alarmCondition_deserializesGroupTree() throws Exception {
+    void alarmCondition_deserializesGroupTree() {
         String json = """
                 {
                   "type": "GROUP",
@@ -73,7 +72,7 @@ class AlarmJsonMappingTest {
                 }
                 """;
 
-        AlarmCondition condition = objectMapper.readValue(json, AlarmCondition.class);
+        AlarmCondition condition = jsonMapper.readValue(json, AlarmCondition.class);
 
         assertEquals(AlarmCondition.Operator.AND, condition.getOperator());
         assertEquals(2, condition.getCriteria().size());
@@ -82,20 +81,20 @@ class AlarmJsonMappingTest {
     }
 
     @Test
-    void alarmCondition_acceptsDoubleEqualsAliasAndNormalizesOnWrite() throws Exception {
+    void alarmCondition_acceptsDoubleEqualsAliasAndNormalizesOnWrite() {
         String json = """
                 {"type": "LEAF", "metric": "error_count", "op": "==", "threshold": 100, "windowSec": 300}
                 """;
 
-        AlarmCondition condition = objectMapper.readValue(json, AlarmCondition.class);
+        AlarmCondition condition = jsonMapper.readValue(json, AlarmCondition.class);
         assertEquals(AlarmCondition.ComparisonOp.EQ, condition.getOp());
 
-        String written = objectMapper.writeValueAsString(condition);
+        String written = jsonMapper.writeValueAsString(condition);
         assertTrue(written.contains("\"op\":\"=\""), written);
     }
 
     @Test
-    void alarmCondition_roundTrip() throws Exception {
+    void alarmCondition_roundTrip() {
         String json = """
                 {
                   "type": "GROUP",
@@ -106,8 +105,8 @@ class AlarmJsonMappingTest {
                 }
                 """;
 
-        AlarmCondition condition = objectMapper.readValue(json, AlarmCondition.class);
-        AlarmCondition reread = objectMapper.readValue(objectMapper.writeValueAsString(condition), AlarmCondition.class);
+        AlarmCondition condition = jsonMapper.readValue(json, AlarmCondition.class);
+        AlarmCondition reread = jsonMapper.readValue(jsonMapper.writeValueAsString(condition), AlarmCondition.class);
 
         assertEquals(condition.getOperator(), reread.getOperator());
         AlarmCondition leaf = reread.getCriteria().get(0);
@@ -122,7 +121,7 @@ class AlarmJsonMappingTest {
                 """;
 
         assertThrows(DatabindException.class,
-                () -> objectMapper.readValue(json, AlarmCondition.class));
+                () -> jsonMapper.readValue(json, AlarmCondition.class));
     }
 
     @Test
@@ -132,19 +131,19 @@ class AlarmJsonMappingTest {
                 """;
 
         assertThrows(DatabindException.class,
-                () -> objectMapper.readValue(json, AlarmCondition.class));
+                () -> jsonMapper.readValue(json, AlarmCondition.class));
     }
 
     @Test
-    void alarmCondition_acceptsLowercaseTypeAndNormalizesOnWrite() throws Exception {
+    void alarmCondition_acceptsLowercaseTypeAndNormalizesOnWrite() {
         String json = """
                 {"type": "leaf", "metric": "error_count", "op": ">", "threshold": 100, "windowSec": 300}
                 """;
 
-        AlarmCondition condition = objectMapper.readValue(json, AlarmCondition.class);
+        AlarmCondition condition = jsonMapper.readValue(json, AlarmCondition.class);
 
         assertEquals(AlarmCondition.Type.LEAF, condition.getType());
-        assertEquals("LEAF", objectMapper.valueToTree(condition).path("type").asString());
+        assertEquals("LEAF", jsonMapper.valueToTree(condition).path("type").asString());
     }
 
     @Test
@@ -154,7 +153,7 @@ class AlarmJsonMappingTest {
                 """;
 
         assertThrows(DatabindException.class,
-                () -> objectMapper.readValue(json, AlarmCondition.class));
+                () -> jsonMapper.readValue(json, AlarmCondition.class));
     }
 
     @Test
@@ -164,7 +163,7 @@ class AlarmJsonMappingTest {
                 """;
 
         assertThrows(DatabindException.class,
-                () -> objectMapper.readValue(json, AlarmCondition.class));
+                () -> jsonMapper.readValue(json, AlarmCondition.class));
     }
 
     @Test
@@ -181,14 +180,14 @@ class AlarmJsonMappingTest {
                 """;
 
         assertThrows(DatabindException.class,
-                () -> objectMapper.readValue(json, AlarmCondition.class));
+                () -> jsonMapper.readValue(json, AlarmCondition.class));
     }
 
     @Test
-    void alarmFilter_writesOpAsName() throws Exception {
+    void alarmFilter_writesOpAsName() {
         AlarmFilter filter = new AlarmFilter("agent", AlarmFilter.Op.NOT_CONTAINS, "staging");
 
-        String written = objectMapper.writeValueAsString(filter);
+        String written = jsonMapper.writeValueAsString(filter);
         assertTrue(written.contains("\"op\":\"NOT_CONTAINS\""), written);
     }
 
@@ -199,7 +198,7 @@ class AlarmJsonMappingTest {
                 """;
 
         assertThrows(DatabindException.class,
-                () -> objectMapper.readValue(json, AlarmFilter.class));
+                () -> jsonMapper.readValue(json, AlarmFilter.class));
     }
 
     @Test
@@ -214,6 +213,6 @@ class AlarmJsonMappingTest {
                 """;
 
         assertThrows(DatabindException.class,
-                () -> objectMapper.readValue(json, AlarmFilter.class));
+                () -> jsonMapper.readValue(json, AlarmFilter.class));
     }
 }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -42,10 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AgentActiveThreadDumpListSerializerTest {
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void serializeTest() throws Exception {
+    public void serializeTest() {
         ThreadInfo[] allThreadInfo = ThreadMXBeanUtils.dumpAllThread();
         AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(allThreadInfo);
         String jsonValue = mapper.writeValueAsString(activeThreadDumpList);

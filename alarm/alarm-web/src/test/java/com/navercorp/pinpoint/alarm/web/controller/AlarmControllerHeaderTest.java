@@ -28,7 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -75,7 +75,7 @@ class AlarmControllerHeaderTest {
     void createChannelUsesDefaultServiceNameWhenHeaderIsMissing() throws Exception {
         AlarmChannelService service = channelService();
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new AlarmChannelController(
-                service, new AlarmNotificationChannelApiMapper(new ObjectMapper()))).build();
+                service, new AlarmNotificationChannelApiMapper(new JsonMapper()))).build();
 
         mockMvc.perform(post("/api/alarm/channel")
                         .param("applicationName", "test-app")
@@ -91,7 +91,7 @@ class AlarmControllerHeaderTest {
     void createChannelUsesServiceNameHeader() throws Exception {
         AlarmChannelService service = channelService();
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new AlarmChannelController(
-                service, new AlarmNotificationChannelApiMapper(new ObjectMapper()))).build();
+                service, new AlarmNotificationChannelApiMapper(new JsonMapper()))).build();
 
         mockMvc.perform(post("/api/alarm/channel")
                         .header(ServiceConstants.KEY, "service-a")

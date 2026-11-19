@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.install;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.web.install.model.AgentInstallationInfo;
@@ -33,12 +33,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AgentInstallationInfoTest {
 
     @Test
-    public void testName() throws Exception {
+    public void testName() {
         AgentInstallationInfo agentInstallInfo = new AgentInstallationInfo(new GithubAgentDownloadInfo("1.0.0", "downloadUrl"));
 
-        ObjectMapper objectMapper = Jackson.newMapper();
-        String jsonString = objectMapper.writeValueAsString(agentInstallInfo);
-        Map<String, Object> map = objectMapper.readValue(jsonString, TypeRef.map());
+        JsonMapper jsonMapper = Jackson.newMapper();
+        String jsonString = jsonMapper.writeValueAsString(agentInstallInfo);
+        Map<String, Object> map = jsonMapper.readValue(jsonString, TypeRef.map());
 
         assertThat(map)
                 .containsKey("version")

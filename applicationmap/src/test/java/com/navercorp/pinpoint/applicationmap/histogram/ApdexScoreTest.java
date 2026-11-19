@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.applicationmap.histogram;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.json.JSONException;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ApdexScoreTest {
 
-    private final ObjectMapper MAPPER = Jackson.newMapper();
+    private final JsonMapper MAPPER = Jackson.newMapper();
 
     @Test
     public void getApdexScore() {

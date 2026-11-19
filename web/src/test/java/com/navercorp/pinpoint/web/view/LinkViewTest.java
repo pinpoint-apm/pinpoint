@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.view;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
@@ -44,10 +44,10 @@ public class LinkViewTest {
 
     final Logger logger = LogManager.getLogger(this.getClass());
 
-    final ObjectMapper MAPPER = mapper();
+    final JsonMapper MAPPER = mapper();
 
 
-    static ObjectMapper mapper() {
+    static JsonMapper mapper() {
         SimpleModule module = new SimpleModule();
         AlertViewService alertViewService = new AlertViewService();
         AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();

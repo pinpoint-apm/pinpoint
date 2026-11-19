@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -93,7 +93,7 @@ class OtlpTraceMapperTest {
     }
 
     static OtlpTraceMapper newMapper(ServiceLookupService serviceLookupService) {
-        ObjectMapper json = new ObjectMapper();
+        JsonMapper json = new JsonMapper();
         OtlpTraceEventMapper eventMapper = new OtlpTraceEventMapper(json, 8192);
         OtlpExceptionInfoResolver exceptionInfoResolver = new OtlpExceptionInfoResolver();
         OtlpMessagingTypeResolver messagingTypeResolver = new OtlpMessagingTypeResolver(REGISTRY);

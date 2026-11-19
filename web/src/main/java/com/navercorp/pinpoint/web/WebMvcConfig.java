@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.web.interceptor.AdminAuthInterceptor;
 import com.navercorp.pinpoint.web.vo.ApplicationPairsConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,11 +63,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${admin.password:}")
     private String password;
 
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @Autowired
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public void setJsonMapper(JsonMapper jsonMapper) {
+        this.jsonMapper = jsonMapper;
     }
 
     @Override
@@ -139,6 +139,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
 
-        registry.addConverter(new ApplicationPairsConverter(objectMapper));
+        registry.addConverter(new ApplicationPairsConverter(jsonMapper));
     }
 }

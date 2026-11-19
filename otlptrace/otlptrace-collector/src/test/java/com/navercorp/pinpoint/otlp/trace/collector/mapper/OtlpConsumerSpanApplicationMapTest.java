@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.collector.applicationmap.model.AcceptorHostRow;
 import com.navercorp.pinpoint.collector.applicationmap.model.ApplicationMapBuilder;
@@ -60,7 +60,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 class OtlpConsumerSpanApplicationMapTest {
 
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final JsonMapper JSON = new JsonMapper();
 
     private static final byte[] TRACE_ID = {
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,

@@ -2,17 +2,17 @@ package com.navercorp.pinpoint.web.response;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class CodeResultTest {
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void getMessage_NON_NULL() throws JacksonException {
+    public void getMessage_NON_NULL() {
         CodeResult<?> result = new CodeResult(1);
         checkOutput(result);
     }
@@ -23,7 +23,7 @@ public class CodeResultTest {
         checkOutput(result);
     }
 
-    private void checkOutput(CodeResult<?> codeResult) throws JacksonException {
+    private void checkOutput(CodeResult<?> codeResult) {
         String jsonString = mapper.writeValueAsString(codeResult);
         JsonNode jsonNode = mapper.readTree(jsonString);
         Assertions.assertNotNull(jsonNode.get("code"));

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.web.applicationmap.ServerGroupListTest;
@@ -40,10 +40,10 @@ public class ServerGroupListSerializerTest {
 
     HyperLinkFactory hyperLinkFactory = new HyperLinkFactory(List.of());
 
-    ObjectMapper mapper = Jackson.newMapper();
+    JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void testSerialize() throws Exception {
+    public void testSerialize() {
         AgentAndStatus agentInfo = ServerGroupListTest.createAgentInfo("agentId1", "testHost");
         Set<AgentAndStatus> agentInfoSet = Set.of(agentInfo);
 

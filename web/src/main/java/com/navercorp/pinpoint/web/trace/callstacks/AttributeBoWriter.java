@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.web.trace.callstacks;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.bo.AttributeBo;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValue;
 import com.navercorp.pinpoint.common.trace.attribute.AttributeKeyValueList;
@@ -42,9 +42,9 @@ public class AttributeBoWriter {
 
     static final String JSON_PROCESSING_ERROR = "json processing error";
 
-    private final ObjectMapper mapper;
+    private final JsonMapper mapper;
 
-    public AttributeBoWriter(ObjectMapper mapper) {
+    public AttributeBoWriter(JsonMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 

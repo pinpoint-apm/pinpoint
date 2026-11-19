@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.alarm.dao.AlarmTemplateDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmTemplateItemDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmRuleV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmStateDao;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryService;
 import com.navercorp.pinpoint.alarm.evaluation.ConditionEvaluator;
 import com.navercorp.pinpoint.alarm.service.AlarmNotificationService;
@@ -184,12 +184,12 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
     }
 
     // ---- DAO beans ----
-    // Everything except the ObjectMapper is inherited from AlarmDaoConfigurationSupport,
+    // Everything except the JsonMapper is inherited from AlarmDaoConfigurationSupport,
     // the same class the deployables use, so this config cannot drift from them.
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+    public JsonMapper objectMapper() {
+        return new JsonMapper();
     }
 
     /** What a deployable contributes; here, the one the test rules point at. */
@@ -225,11 +225,11 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
             AlarmHistoryV2Dao alarmHistoryV2Dao,
             AlarmNotificationOutboxDao alarmNotificationOutboxDao,
             AlarmNotificationService alarmNotificationService,
-            ObjectMapper objectMapper,
+            JsonMapper jsonMapper,
             org.springframework.transaction.PlatformTransactionManager transactionManager) {
         return new AlarmEventPersistenceService(
                 alarmRuleV2Dao, alarmStateDao, alarmHistoryV2Dao, alarmNotificationOutboxDao,
-                alarmNotificationService, transactionManager, objectMapper);
+                alarmNotificationService, transactionManager, jsonMapper);
     }
 
     @Bean

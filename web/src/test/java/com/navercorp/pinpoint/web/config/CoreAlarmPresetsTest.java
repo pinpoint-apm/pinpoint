@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.config;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.core.service.CoreAlarmDataSourceProvider;
 import com.navercorp.pinpoint.alarm.core.vo.CoreAlarmDataSource;
 import com.navercorp.pinpoint.alarm.service.AlarmDataSourceRegistry;
@@ -31,7 +31,7 @@ class CoreAlarmPresetsTest {
     // The core presets ship in a module whose own tests run no validator over them.
     @Test
     void theCorePresetsLoad() {
-        AlarmTemplatePresetLoader loader = new AlarmTemplatePresetLoader(new ObjectMapper(),
+        AlarmTemplatePresetLoader loader = new AlarmTemplatePresetLoader(new JsonMapper(),
                 new ConditionValidator(), new FilterKeyValidator(), registry);
 
         assertThat(loader.getPresets()).extracting(AlarmTemplatePreset::name)

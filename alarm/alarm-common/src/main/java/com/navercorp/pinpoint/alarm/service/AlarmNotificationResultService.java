@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.alarm.service;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -59,15 +59,16 @@ public class AlarmNotificationResultService {
                                           AlarmHistoryV2Dao historyDao,
                                           @Qualifier("transactionManager")
                                           PlatformTransactionManager transactionManager,
-                                          ObjectMapper objectMapper) {
+                                          JsonMapper jsonMapper) {
         this.outboxDao = Objects.requireNonNull(outboxDao, "outboxDao");
         this.stateDao = Objects.requireNonNull(stateDao, "stateDao");
         this.historyDao = Objects.requireNonNull(historyDao, "historyDao");
         this.requiresNew = new TransactionTemplate(Objects.requireNonNull(transactionManager, "transactionManager"));
         this.requiresNew.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        Objects.requireNonNull(objectMapper, "objectMapper");
-        this.contextReader = objectMapper.readerFor(JsonNode.class);
-        this.contextWriter = objectMapper.writerFor(JsonNode.class);
+
+        Objects.requireNonNull(jsonMapper, "jsonMapper");
+        this.contextReader = jsonMapper.readerFor(JsonNode.class);
+        this.contextWriter = jsonMapper.writerFor(JsonNode.class);
     }
 
     public boolean markSent(AlarmNotificationOutbox delivery, LocalDateTime sentAt) {

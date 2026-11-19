@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.applicationmap.histogram;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
@@ -36,11 +36,11 @@ public class HistogramSerializerTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper objectMapper = Jackson.newMapper();
+    private final JsonMapper jsonMapper = Jackson.newMapper();
 
 
     @Test
-    public void testSerialize() throws Exception {
+    public void testSerialize() {
         Histogram original = new Histogram(ServiceType.STAND_ALONE);
         HistogramSchema schema = original.getHistogramSchema();
         original.addCallCount(schema.getFastSlot().getSlotTime(), 1);
@@ -49,8 +49,8 @@ public class HistogramSerializerTest {
         original.addCallCount(schema.getVerySlowSlot().getSlotTime(), 4);
         original.addCallCount(schema.getNormalErrorSlot().getSlotTime(), 5);
 
-        String jacksonJson = objectMapper.writeValueAsString(original);
-        Map<String, Object> objectMapperHashMap = objectMapper.readValue(jacksonJson, TypeRef.map());
+        String jacksonJson = jsonMapper.writeValueAsString(original);
+        Map<String, Object> objectMapperHashMap = jsonMapper.readValue(jacksonJson, TypeRef.map());
 
         logger.debug("{}", jacksonJson);
 

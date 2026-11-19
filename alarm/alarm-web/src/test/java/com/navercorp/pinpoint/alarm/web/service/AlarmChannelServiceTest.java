@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.web.service;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.vo.AlarmApplication;
 import com.navercorp.pinpoint.alarm.validation.AlarmValidationConstants;
 import com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao;
@@ -596,7 +596,7 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
                 channelDao,
                 channelBindingDao,
                 ruleDao,
-                new AlarmNotificationChannelConfigParser(new ObjectMapper()),
+                new AlarmNotificationChannelConfigParser(new JsonMapper()),
                 new AlarmBundleLocks(ruleDao, templateDao, templateItemDao)
         );
     }

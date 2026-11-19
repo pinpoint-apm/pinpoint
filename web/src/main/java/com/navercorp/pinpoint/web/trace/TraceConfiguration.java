@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.trace;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.buffer.StringAllocatorFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.config.SpanSerializeConfiguration;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
@@ -79,7 +79,7 @@ public class TraceConfiguration {
         // RecorderFactoryProvider (scanned above) requires this bean; keep it in this nested config
         // so contexts importing only TraceServiceConfiguration (e.g. batch) can start.
         @Bean
-        public AttributeBoWriter attributeBoWriter(ObjectMapper mapper) {
+        public AttributeBoWriter attributeBoWriter(JsonMapper mapper) {
             return new AttributeBoWriter(mapper);
         }
     }

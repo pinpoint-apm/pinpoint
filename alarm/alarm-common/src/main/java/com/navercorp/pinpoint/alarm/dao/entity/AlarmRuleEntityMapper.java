@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.alarm.dao.entity;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
@@ -37,14 +37,14 @@ public class AlarmRuleEntityMapper {
     private final ObjectReader filtersReader;
     private final ObjectWriter filtersWriter;
 
-    public AlarmRuleEntityMapper(ObjectMapper objectMapper) {
-        Objects.requireNonNull(objectMapper, "objectMapper");
-        this.conditionReader = objectMapper.readerFor(AlarmCondition.class);
-        this.conditionWriter = objectMapper.writerFor(AlarmCondition.class);
+    public AlarmRuleEntityMapper(JsonMapper jsonMapper) {
+        Objects.requireNonNull(jsonMapper, "jsonMapper");
+        this.conditionReader = jsonMapper.readerFor(AlarmCondition.class);
+        this.conditionWriter = jsonMapper.writerFor(AlarmCondition.class);
         TypeReference<List<AlarmFilter>> filtersType = new TypeReference<>() {
         };
-        this.filtersReader = objectMapper.readerFor(filtersType);
-        this.filtersWriter = objectMapper.writerFor(filtersType);
+        this.filtersReader = jsonMapper.readerFor(filtersType);
+        this.filtersWriter = jsonMapper.writerFor(filtersType);
     }
 
     public AlarmRuleV2 toModel(AlarmRuleEntity source) {

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.channel;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.channel.serde.JacksonSerdeFactory;
 import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,7 @@ public class ChannelSpringConfig {
     }
 
     @Bean
-    public JsonSerdeFactory jsonSerdeFactory(ObjectMapper objectMapper) {
-        return new JacksonSerdeFactory(objectMapper);
+    public JsonSerdeFactory jsonSerdeFactory(JsonMapper jsonMapper) {
+        return new JacksonSerdeFactory(jsonMapper);
     }
 }

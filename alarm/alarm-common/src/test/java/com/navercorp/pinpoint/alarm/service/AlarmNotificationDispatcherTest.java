@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.alarm.service;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.alarm.dao.AlarmChannelBindingDao;
 import com.navercorp.pinpoint.alarm.dao.AlarmHistoryV2Dao;
 import com.navercorp.pinpoint.alarm.dao.AlarmNotificationChannelDao;
@@ -64,7 +64,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmNotificationDispatcherTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = new JsonMapper();
     private InMemoryOutboxDao outboxDao;
     private InMemoryHistoryDao historyDao;
     private InMemoryStateDao stateDao;
@@ -79,11 +79,11 @@ class AlarmNotificationDispatcherTest {
         outboxDao = new InMemoryOutboxDao();
         historyDao = new InMemoryHistoryDao();
         stateDao = new InMemoryStateDao();
-        notificationService = new RecordingNotificationService(objectMapper);
+        notificationService = new RecordingNotificationService(jsonMapper);
         NoOpTransactionManager transactionManager = new NoOpTransactionManager();
         claimService = new AlarmNotificationOutboxClaimService(outboxDao, transactionManager, Set.of("PRIMARY"));
         AlarmNotificationResultService resultService = new AlarmNotificationResultService(
-                outboxDao, stateDao, historyDao, transactionManager, objectMapper);
+                outboxDao, stateDao, historyDao, transactionManager, jsonMapper);
         dispatcher = new AlarmNotificationDispatcher(
                 claimService, notificationService, resultService,
                 10, 5, Duration.ofMinutes(1), clock);
@@ -96,7 +96,7 @@ class AlarmNotificationDispatcherTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> new AlarmNotificationDispatcher(claimService, notificationService,
                         new AlarmNotificationResultService(outboxDao, stateDao, historyDao,
-                                new NoOpTransactionManager(), objectMapper),
+                                new NoOpTransactionManager(), jsonMapper),
                         10, 255, Duration.ofMinutes(1), clock));
         assertTrue(e.getMessage().contains("254"), e.getMessage());
     }
@@ -149,7 +149,7 @@ class AlarmNotificationDispatcherTest {
         assertEquals(AlarmNotificationOutboxStatus.SENT, delivery.getStatus());
         assertNull(delivery.getAvailableAt());
         assertEquals(LocalDateTime.now(clock), stateDao.state.getLastNotifiedAt());
-        JsonNode context = objectMapper.readTree(historyDao.history.getContext());
+        JsonNode context = jsonMapper.readTree(historyDao.history.getContext());
         assertEquals(1, context.path("notification").path("sent").asInt());
         assertEquals(0, context.path("notification").path("pending").asInt());
         assertEquals(1, outboxDao.selectCountsCalls);
@@ -169,7 +169,7 @@ class AlarmNotificationDispatcherTest {
         assertEquals(AlarmNotificationOutboxStatus.RETRY, second.getStatus());
         assertEquals(LocalDateTime.now(clock).plusMinutes(1), second.getAvailableAt());
         assertEquals(List.of(1L, 2L), notificationService.deliveryIds);
-        JsonNode firstAttemptContext = objectMapper.readTree(historyDao.history.getContext());
+        JsonNode firstAttemptContext = jsonMapper.readTree(historyDao.history.getContext());
         assertEquals(1, firstAttemptContext.path("notification").path("sent").asInt());
         assertEquals(1, firstAttemptContext.path("notification").path("pending").asInt());
         assertEquals(1, outboxDao.selectCountsCalls);
@@ -181,7 +181,7 @@ class AlarmNotificationDispatcherTest {
 
         assertEquals(AlarmNotificationOutboxStatus.SENT, second.getStatus());
         assertEquals(List.of(1L, 2L, 2L), notificationService.deliveryIds);
-        JsonNode secondAttemptContext = objectMapper.readTree(historyDao.history.getContext());
+        JsonNode secondAttemptContext = jsonMapper.readTree(historyDao.history.getContext());
         assertEquals(2, secondAttemptContext.path("notification").path("sent").asInt());
         assertEquals(0, secondAttemptContext.path("notification").path("pending").asInt());
         assertEquals(2, outboxDao.selectCountsCalls);
@@ -199,7 +199,7 @@ class AlarmNotificationDispatcherTest {
 
         assertEquals(5, delivery.getAttemptCount());
         assertEquals(AlarmNotificationOutboxStatus.DEAD, delivery.getStatus());
-        JsonNode context = objectMapper.readTree(historyDao.history.getContext());
+        JsonNode context = jsonMapper.readTree(historyDao.history.getContext());
         assertEquals(1, context.path("notification").path("failed").asInt());
         assertEquals(0, context.path("notification").path("pending").asInt());
         assertEquals(1, outboxDao.selectCountsCalls);
@@ -359,9 +359,9 @@ class AlarmNotificationDispatcherTest {
         private Duration sendDuration = Duration.ZERO;
         private MutableClock clock;
 
-        private RecordingNotificationService(ObjectMapper objectMapper) {
+        private RecordingNotificationService(JsonMapper jsonMapper) {
             super(noop(AlarmChannelBindingDao.class), noop(AlarmNotificationChannelDao.class),
-                    List.of(), objectMapper, new AlarmNotificationChannelConfigParser(objectMapper));
+                    List.of(), jsonMapper, new AlarmNotificationChannelConfigParser(jsonMapper));
         }
 
         @Override

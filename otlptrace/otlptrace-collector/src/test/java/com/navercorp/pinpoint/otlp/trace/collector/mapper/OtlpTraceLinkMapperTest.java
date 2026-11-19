@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -28,7 +28,7 @@ class OtlpTraceLinkMapperTest {
 
     @BeforeEach
     void setUp() {
-        mapper = new OtlpTraceLinkMapper(new ObjectMapper(), 8192);
+        mapper = new OtlpTraceLinkMapper(new JsonMapper(), 8192);
         annotations = new ArrayList<>();
     }
 
@@ -52,7 +52,7 @@ class OtlpTraceLinkMapperTest {
         AnnotationBo bo = annotations.get(0);
         assertThat(bo.getKey()).isEqualTo(AnnotationKey.OPENTELEMETRY_LINK.getCode());
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) bo.getValue(), Map.class);
         assertThat(root).containsKey("traceId");
@@ -72,7 +72,7 @@ class OtlpTraceLinkMapperTest {
 
         addLink(link);
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
         assertThat(root).containsEntry("traceState", "aws=t61rcWkgMzE,dd=s:1;o:rum");
@@ -87,7 +87,7 @@ class OtlpTraceLinkMapperTest {
 
         addLink(link);
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
         assertThat(root).doesNotContainKey("traceState");
@@ -103,7 +103,7 @@ class OtlpTraceLinkMapperTest {
 
         addLink(link);
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
         @SuppressWarnings("unchecked")
@@ -121,7 +121,7 @@ class OtlpTraceLinkMapperTest {
 
         addLink(link);
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
         assertThat(root).containsEntry("dropped", 5);
@@ -136,7 +136,7 @@ class OtlpTraceLinkMapperTest {
 
         addLink(link);
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
         assertThat(root).doesNotContainKey("dropped");
@@ -203,7 +203,7 @@ class OtlpTraceLinkMapperTest {
 
         addLink(link);
 
-        ObjectMapper om = new ObjectMapper();
+        JsonMapper om = new JsonMapper();
         @SuppressWarnings("unchecked")
         Map<String, Object> root = om.readValue((String) annotations.get(0).getValue(), Map.class);
         assertThat(root).containsKeys("traceId", "spanId", "traceState", "attributes", "dropped");

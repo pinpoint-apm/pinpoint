@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.trace.view;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.trace.callstacks.ErrorKey;
@@ -31,7 +31,7 @@ public class TransactionCallTreeCallStackSerializerTest {
 
     private static final int ERROR_KEY_INDEX = TransactionCallTreeViewModel.Field.errorKey.ordinal();
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonMapper mapper = new JsonMapper();
 
     private Record mockRecord() {
         Record record = mock(Record.class);
@@ -40,7 +40,7 @@ public class TransactionCallTreeCallStackSerializerTest {
     }
 
     @Test
-    public void serialize_errorKey_asObject() throws Exception {
+    public void serialize_errorKey_asObject() {
         Record record = mockRecord();
         when(record.getErrorKey()).thenReturn(new ErrorKey(ServiceUid.DEFAULT_SERVICE_UID_NAME, "app-name", "agent-id", "agent-id^0^30", 100L, 1400L));
 
@@ -60,7 +60,7 @@ public class TransactionCallTreeCallStackSerializerTest {
     }
 
     @Test
-    public void serialize_withoutErrorKey_writesNull() throws Exception {
+    public void serialize_withoutErrorKey_writesNull() {
         Record record = mockRecord();
 
         TransactionCallTreeViewModel.CallStack callStack = new TransactionCallTreeViewModel.CallStack(record, 0, -1);

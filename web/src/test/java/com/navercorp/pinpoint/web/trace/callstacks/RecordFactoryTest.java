@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.trace.callstacks;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
@@ -82,7 +82,7 @@ public class RecordFactoryTest {
     private ApiParserProvider apiParserProvider;
 
     private RecordFactory newRecordFactory() {
-        AttributeBoWriter attributeBoWriter = new AttributeBoWriter(new ObjectMapper());
+        AttributeBoWriter attributeBoWriter = new AttributeBoWriter(new JsonMapper());
         RecorderFactoryProvider recorderFactoryProvider = new RecorderFactoryProvider(mockServiceTypeRegistryService,
                 mockAnnotationKeyMatcherService, mockAnnotationKeyRegistryService, mockAnnotationRecordFormatter, apiParserProvider,
                 attributeBoWriter);
@@ -349,7 +349,7 @@ public class RecordFactoryTest {
         ServiceTypeRegistryService mockedRegistry = mock(ServiceTypeRegistryService.class);
         AnnotationRecordFormatter annotationRecordFormatter = mock(AnnotationRecordFormatter.class);
         ApiParserProvider mockedApiParserProvider = new ApiParserProvider();
-        AttributeBoWriter attributeBoWriter = new AttributeBoWriter(new ObjectMapper());
+        AttributeBoWriter attributeBoWriter = new AttributeBoWriter(new JsonMapper());
         when(mockedProvider.getRecordFactory()).thenReturn(
                 new RecordFactory(mockedAnnotationKeyMatcherService, mockedRegistry, mockedAnnotationKeyRegistryService, annotationRecordFormatter, mockedApiParserProvider, attributeBoWriter)
         );

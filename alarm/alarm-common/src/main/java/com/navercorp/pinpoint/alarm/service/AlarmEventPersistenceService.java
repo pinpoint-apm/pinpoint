@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.util.StringUtils;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryKey;
 import com.navercorp.pinpoint.alarm.evaluation.MetricQueryResult;
@@ -76,7 +76,7 @@ public class AlarmEventPersistenceService {
                                         AlarmNotificationService notificationService,
                                         @Qualifier("transactionManager")
                                         PlatformTransactionManager transactionManager,
-                                        ObjectMapper objectMapper) {
+                                        JsonMapper jsonMapper) {
         this.ruleDao = Objects.requireNonNull(ruleDao, "ruleDao");
         this.stateDao = Objects.requireNonNull(stateDao, "stateDao");
         this.historyDao = Objects.requireNonNull(historyDao, "historyDao");
@@ -84,9 +84,9 @@ public class AlarmEventPersistenceService {
         this.notificationService = Objects.requireNonNull(notificationService, "notificationService");
         this.requiresNew = new TransactionTemplate(Objects.requireNonNull(transactionManager, "transactionManager"));
         this.requiresNew.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        ObjectMapper requiredObjectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
-        this.alarmContextWriter = requiredObjectMapper.writerFor(AlarmContext.class);
-        this.checkFailedContextWriter = requiredObjectMapper.writerFor(CheckFailedContext.class);
+        JsonMapper requiredJsonMapper = Objects.requireNonNull(jsonMapper, "jsonMapper");
+        this.alarmContextWriter = requiredJsonMapper.writerFor(AlarmContext.class);
+        this.checkFailedContextWriter = requiredJsonMapper.writerFor(CheckFailedContext.class);
     }
 
     public void recordFired(AlarmRuleV2 rule,

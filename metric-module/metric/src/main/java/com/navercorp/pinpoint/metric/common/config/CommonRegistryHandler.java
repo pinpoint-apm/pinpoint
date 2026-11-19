@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.metric.common.config;
 
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
@@ -15,7 +15,6 @@ import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.type.TypeReference;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Objects;

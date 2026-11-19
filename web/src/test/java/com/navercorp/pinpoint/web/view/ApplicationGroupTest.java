@@ -1,8 +1,7 @@
 package com.navercorp.pinpoint.web.view;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.bo.Application;
@@ -18,10 +17,10 @@ public class ApplicationGroupTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = Jackson.newMapper();
+    private final JsonMapper mapper = Jackson.newMapper();
 
     @Test
-    public void getApplicationList() throws JacksonException {
+    public void getApplicationList() {
         Application app1 = new Application("test1", ServiceType.TEST);
         Application app2 = new Application("test2", ServiceType.TEST);
         ApplicationGroup group = new ApplicationGroup(List.of(app1, app2));
