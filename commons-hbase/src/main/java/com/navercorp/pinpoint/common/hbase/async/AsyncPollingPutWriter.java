@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.hbase.async;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.AutoCloseables;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 
@@ -69,7 +69,9 @@ public class AsyncPollingPutWriter implements HbasePutWriter, Closeable {
 
     @Override
     public void close() {
-        IOUtils.closeQuietly(pollers);
+        for (AsyncPollerThread poller : pollers) {
+            AutoCloseables.closeQuietly(poller);
+        }
     }
 
     @Override

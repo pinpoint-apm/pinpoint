@@ -30,10 +30,10 @@ import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.common.util.StopWatch;
 import com.navercorp.pinpoint.common.util.concurrent.FutureUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.AutoCloseables;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
@@ -414,7 +414,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                             try {
                                 return action.extractData(scanner);
                             } finally {
-                                IOUtils.closeQuietly(scanner);
+                                AutoCloseables.closeQuietly(scanner);
                                 reporter.collect(scanner.getScanMetrics());
                             }
                         }
