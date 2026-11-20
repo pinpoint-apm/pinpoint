@@ -1989,7 +1989,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>templating-maven-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.0</version>
                     <executions>
                         <execution>
                             <id>filter-src</id>
