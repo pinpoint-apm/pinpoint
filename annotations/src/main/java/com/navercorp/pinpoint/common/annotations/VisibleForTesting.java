@@ -28,6 +28,6 @@ import java.lang.annotation.RetentionPolicy;
  * @author Johannes Henkel
  */
 @Documented
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 public @interface VisibleForTesting {
 }
