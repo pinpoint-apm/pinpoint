@@ -187,7 +187,7 @@ export const OpenTelemetryDashboardFetcher = () => {
         },
         {
           successMessage: t('OPEN_TELEMETRY.SAVE_DASHBOARD_SUCCESS'),
-          errorMessage: t('SAVE_DASHBOARD_FAIL.SAVE_DASHBOARD_FAIL'),
+          errorMessage: t('OPEN_TELEMETRY.SAVE_DASHBOARD_FAIL'),
         },
       );
     }
