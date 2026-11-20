@@ -1525,7 +1525,7 @@
             <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
-                <version>1.9.0</version>
+                <version>1.10.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
