@@ -51,6 +51,8 @@ export const OpenTelemetryDashboardFetcher = () => {
     [data],
   );
   const { mutate: updateMetrics, isPending } = usePatchOtlpMetricDefUserDefined({
+    // 모든 호출이 `updateMetricsWithToastMessage`를 지나 자체 실패 토스트를 띄우므로 글로벌 토스트는 끈다.
+    meta: { ignoreGlobalError: true },
     onSuccess: (res) => {
       if (res.result === 'SUCCESS') {
         refetch();
