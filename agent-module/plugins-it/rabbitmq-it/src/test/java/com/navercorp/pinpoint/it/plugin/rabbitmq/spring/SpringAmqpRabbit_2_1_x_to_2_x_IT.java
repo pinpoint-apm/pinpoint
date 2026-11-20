@@ -63,7 +63,7 @@ import java.util.List;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-rabbitmq-plugin", "com.navercorp.pinpoint:pinpoint-jetty-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
-@Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE],(2.1.1.RELEASE,2.1.9.RELEASE),(2.1.9.RELEASE,2.4.14)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
+@Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE],(2.1.1.RELEASE,2.1.9.RELEASE),(2.1.9.RELEASE,2.4.max]", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 @JvmArgument("-DtestLoggerEnable=false")
 @SharedDependency({TestcontainersOption.TEST_CONTAINER, TestcontainersOption.RABBITMQ})

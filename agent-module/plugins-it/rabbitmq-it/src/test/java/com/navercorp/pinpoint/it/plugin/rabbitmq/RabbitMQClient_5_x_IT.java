@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
-@Dependency({"com.rabbitmq:amqp-client:[5.0.0,5.14.3)", "org.apache.qpid:qpid-broker:6.1.1"})
+@Dependency({"com.rabbitmq:amqp-client:[5.0.0,5.max]", "org.apache.qpid:qpid-broker:6.1.1"})
 @SharedDependency({TestcontainersOption.TEST_CONTAINER, TestcontainersOption.RABBITMQ})
 @SharedTestLifeCycleClass(TestBrokerServer.class)
 public class RabbitMQClient_5_x_IT extends RabbitMQClientITBase {
@@ -59,7 +59,7 @@ public class RabbitMQClient_5_x_IT extends RabbitMQClientITBase {
     public void testPush_nio() throws Exception {
         ConnectionFactory connectionFactory = getConnectionFactory();
         connectionFactory.setAutomaticRecoveryEnabled(false);
-        connectionFactory.useNio();
+        useNio(connectionFactory);
 
         testRunner.runPushTest();
     }
@@ -68,7 +68,7 @@ public class RabbitMQClient_5_x_IT extends RabbitMQClientITBase {
     public void testPush_nio_autorecovery() throws Exception {
         ConnectionFactory connectionFactory = getConnectionFactory();
         connectionFactory.setAutomaticRecoveryEnabled(true);
-        connectionFactory.useNio();
+        useNio(connectionFactory);
 
         testRunner.runPushTest();
     }
@@ -93,7 +93,7 @@ public class RabbitMQClient_5_x_IT extends RabbitMQClientITBase {
     public void testPull_nio() throws Exception {
         ConnectionFactory connectionFactory = getConnectionFactory();
         connectionFactory.setAutomaticRecoveryEnabled(false);
-        connectionFactory.useNio();
+        useNio(connectionFactory);
 
         testRunner.runPullTest();
     }
@@ -102,8 +102,14 @@ public class RabbitMQClient_5_x_IT extends RabbitMQClientITBase {
     public void testPull_nio_autorecovery() throws Exception {
         ConnectionFactory connectionFactory = getConnectionFactory();
         connectionFactory.setAutomaticRecoveryEnabled(true);
-        connectionFactory.useNio();
+        useNio(connectionFactory);
 
         testRunner.runPullTest();
+    }
+
+    // useNio() returns ConnectionFactory in 5.27.0 and 5.27.1 only and void in every other release,
+    // so a direct call compiled against either signature fails with NoSuchMethodError on the other.
+    private static void useNio(ConnectionFactory connectionFactory) throws Exception {
+        ConnectionFactory.class.getMethod("useNio").invoke(connectionFactory);
     }
 }

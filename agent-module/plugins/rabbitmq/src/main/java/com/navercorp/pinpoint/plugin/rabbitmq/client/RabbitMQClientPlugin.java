@@ -160,6 +160,11 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
             if (constructor2 != null) {
                 constructor2.addScopedInterceptor(SocketFrameHandlerConstructInterceptor.class, RabbitMQClientConstants.RABBITMQ_FRAME_HANDLER_CREATION_SCOPE);
             }
+            // 5.14.3, 5.16.1+ (maxInboundMessageBodySize was added to the constructor)
+            final InstrumentMethod constructor3 = target.getConstructor("java.net.Socket", "java.util.concurrent.ExecutorService", "int");
+            if (constructor3 != null) {
+                constructor3.addScopedInterceptor(SocketFrameHandlerConstructInterceptor.class, RabbitMQClientConstants.RABBITMQ_FRAME_HANDLER_CREATION_SCOPE);
+            }
             return target.toBytecode();
         }
     }
@@ -191,7 +196,16 @@ public class RabbitMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod constructor = target.getConstructor("com.rabbitmq.client.Method", "com.rabbitmq.client.impl.AMQContentHeader", "byte[]");
+            // The public constructors delegate inwards, so only the innermost one is intercepted.
+            // 5.38.0+ (Method, AMQContentHeader, ByteBuffer, WriteListener, Runnable)
+            InstrumentMethod constructor = target.getConstructor("com.rabbitmq.client.Method", "com.rabbitmq.client.impl.AMQContentHeader", "java.nio.ByteBuffer", "com.rabbitmq.client.WriteListener", "java.lang.Runnable");
+            if (constructor == null) {
+                // 5.31.0+ (the body became a ByteBuffer)
+                constructor = target.getConstructor("com.rabbitmq.client.Method", "com.rabbitmq.client.impl.AMQContentHeader", "java.nio.ByteBuffer", "com.rabbitmq.client.WriteListener");
+            }
+            if (constructor == null) {
+                constructor = target.getConstructor("com.rabbitmq.client.Method", "com.rabbitmq.client.impl.AMQContentHeader", "byte[]");
+            }
             if (constructor != null) {
                 constructor.addScopedInterceptor(AMQCommandConstructInterceptor.class, RabbitMQClientConstants.RABBITMQ_PRODUCER_SCOPE, ExecutionPolicy.INTERNAL);
             }
