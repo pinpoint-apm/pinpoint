@@ -107,12 +107,20 @@ export const useAlarmV2RuleSave = ({
   const invalidateAlarmQueries = useInvalidateAlarmQueries();
 
   const saveRule = async (values: FormValues, selectedChannelIds: number[]) => {
+    let ruleData: AlarmV2Rule.RuleSaveData;
     try {
-      const ruleData = buildRuleSaveData(values, {
+      ruleData = buildRuleSaveData(values, {
         serviceName,
         applicationName,
         applicationType: currentRule?.applicationType ?? fallbackApplicationType,
       });
+    } catch {
+      // No request has gone out yet, so the global error toast has nothing to report.
+      toast.error(t('CONFIGURATION.ALARM_V2.RULE_UPDATE_FAILED'));
+      return;
+    }
+
+    try {
       let ruleId: number;
 
       if (currentRule?.id) {
@@ -150,7 +158,7 @@ export const useAlarmV2RuleSave = ({
       closeView();
       await invalidateAlarmQueries();
     } catch {
-      toast.error(t('CONFIGURATION.ALARM_V2.RULE_UPDATE_FAILED'));
+      // A failed save is reported by the global error toast with the server message (MutationCache).
     }
   };
 
@@ -227,7 +235,7 @@ export const useAlarmV2TemplateSave = ({
       closeView();
       await invalidateAlarmQueries();
     } catch {
-      toast.error(t('CONFIGURATION.ALARM_V2.TEMPLATE_UPDATE_FAILED'));
+      // A failed save is reported by the global error toast with the server message (MutationCache).
     }
   };
 

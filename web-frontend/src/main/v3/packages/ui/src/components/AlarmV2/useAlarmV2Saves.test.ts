@@ -140,13 +140,15 @@ describe('useAlarmV2TemplateSave', () => {
       expect(closeView).not.toHaveBeenCalled();
     });
 
-    test('tells the viewer when the bundle itself cannot be saved', async () => {
+    // The global error toast (MutationCache) already reports it with the server message.
+    test('leaves a failed bundle save to the global error toast', async () => {
       mockSaveTemplateAsync.mockRejectedValueOnce(new Error('nope'));
       const { result, closeView } = setup();
 
       await result.current.runTemplateSave(templateData, []);
 
-      expect(mockToast.error).toHaveBeenCalledWith('CONFIGURATION.ALARM_V2.TEMPLATE_UPDATE_FAILED');
+      expect(mockToast.error).not.toHaveBeenCalled();
+      expect(mockToast.success).not.toHaveBeenCalled();
       expect(closeView).not.toHaveBeenCalled();
     });
   });
@@ -223,13 +225,26 @@ describe('useAlarmV2RuleSave', () => {
     expect(mockLinkChannelAsync).not.toHaveBeenCalled();
   });
 
-  test('tells the viewer when the rule cannot be saved', async () => {
+  // The global error toast (MutationCache) already reports it with the server message.
+  test('leaves a failed rule save to the global error toast', async () => {
     mockSaveRuleAsync.mockRejectedValueOnce(new Error('nope'));
     const { result, closeView } = setupRule();
 
     await result.current.saveRule(values, []);
 
+    expect(mockToast.error).not.toHaveBeenCalled();
+    expect(mockToast.success).not.toHaveBeenCalled();
+    expect(closeView).not.toHaveBeenCalled();
+  });
+
+  // No request goes out, so nothing but this toast tells the viewer the save did not happen.
+  test('tells the viewer when the rule cannot be built without an application type', async () => {
+    const { result, closeView } = setupRule({ fallbackApplicationType: undefined });
+
+    await result.current.saveRule(values, []);
+
     expect(mockToast.error).toHaveBeenCalledWith('CONFIGURATION.ALARM_V2.RULE_UPDATE_FAILED');
+    expect(mockSaveRuleAsync).not.toHaveBeenCalled();
     expect(closeView).not.toHaveBeenCalled();
   });
 });
