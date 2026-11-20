@@ -1,5 +1,6 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { END_POINTS, ErrorResponse, WebhookInclude } from '@pinpoint-fe/ui/src/constants';
+import { assertSuccessResult, requestJson } from './reactQueryHelper';
 
 type WebhookIncludeMutationVariable = {
   params: WebhookInclude.Parameters;
@@ -14,26 +15,16 @@ export const useWebhookIncludeMutation = (
     unknown
   >,
 ) => {
-  const updateData = async ({ params, method }: WebhookIncludeMutationVariable) => {
-    try {
-      const response = await fetch(`${END_POINTS.INCLUDE_WEBHOOK}`, {
+  const updateData = async ({ params, method }: WebhookIncludeMutationVariable) =>
+    assertSuccessResult(
+      await requestJson<WebhookInclude.Response>(`${END_POINTS.INCLUDE_WEBHOOK}`, {
         method,
         body: JSON.stringify(params),
         headers: {
           'Content-Type': 'application/json',
         },
-      });
-
-      const data = await response.json();
-
-      if (data?.result !== 'SUCCESS') {
-        throw data;
-      }
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  };
+      }),
+    );
 
   return useMutation({
     mutationFn: updateData,

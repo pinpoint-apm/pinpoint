@@ -60,9 +60,6 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
       setCurrentTargetWebhookData(undefined);
       refetchWebhookList();
     },
-    onError: () => {
-      toast.success(t('COMMON.REMOVE_FAIL'));
-    },
   });
 
   return (

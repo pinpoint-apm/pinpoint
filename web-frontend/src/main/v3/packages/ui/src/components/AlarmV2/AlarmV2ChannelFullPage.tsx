@@ -42,9 +42,6 @@ export const AlarmV2ChannelFullPage = ({
       onClose();
       void queryClient.invalidateQueries({ queryKey: [END_POINTS.ALARM_V2_CHANNEL] });
     },
-    onError: () => {
-      toast.error(t('CONFIGURATION.ALARM_V2.CHANNEL_UPDATE_FAILED'));
-    },
   });
 
   return (
