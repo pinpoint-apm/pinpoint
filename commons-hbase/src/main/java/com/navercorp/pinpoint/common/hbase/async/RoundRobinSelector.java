@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.hbase.async;
 
-import com.navercorp.pinpoint.common.util.IOUtils;
+import org.apache.commons.lang3.AutoCloseables;
 import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +42,7 @@ public class RoundRobinSelector implements ConnectionSelector, Closeable {
     public void close() {
         logger.info("Closing connections {}", connections.length);
         for (AsyncConnection connection : connections) {
-            IOUtils.closeQuietly(connection, (ioe) -> logger.warn("Failed to close connection", ioe));
+            AutoCloseables.closeQuietly(connection, (e) -> logger.warn("Failed to close connection", e));
         }
     }
 

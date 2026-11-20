@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.hbase.wd;
 import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.AutoCloseables;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -101,7 +101,7 @@ public class DistributedScanner implements ResultScanner {
     @Override
     public void close() {
         for (LocalScanner scanner : localScanners) {
-            IOUtils.closeQuietly(scanner);
+            AutoCloseables.closeQuietly(scanner);
         }
     }
 
