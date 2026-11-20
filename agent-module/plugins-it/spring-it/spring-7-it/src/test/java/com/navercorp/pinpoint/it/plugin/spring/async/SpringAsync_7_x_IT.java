@@ -18,9 +18,8 @@ package com.navercorp.pinpoint.it.plugin.spring.async;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.api.Dependency;
 import com.navercorp.pinpoint.test.plugin.api.ImportPlugin;
-import com.navercorp.pinpoint.test.plugin.api.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.api.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
+import com.navercorp.pinpoint.test.plugin.api.PluginTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -37,9 +36,8 @@ import java.util.concurrent.TimeUnit;
  * - Direct {@link ThreadPoolTaskExecutor#submitCompletable(java.util.concurrent.Callable)}:
  *   exercises the new {@code submitCompletable} interceptor in {@code AsyncTaskExecutorTransform}.
  */
-@PluginForkedTest
+@PluginTest
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(17)
 @Dependency({"org.springframework:spring-context:[7.0.0,)", "org.springframework:spring-test"})
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 public class SpringAsync_7_x_IT {
