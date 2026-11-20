@@ -149,9 +149,10 @@ public class AMQCommandConstructInterceptor implements AroundInterceptor {
             }
             return false;
         }
-        if (argsLength != 3) {
+        // (Method, AMQContentHeader, body), followed by WriteListener in 5.31.0+ and Runnable in 5.38.0+
+        if (argsLength < 3) {
             if (isDebug) {
-                logger.debug("Expected 3 arguments, but found {}", args.length);
+                logger.debug("Expected at least 3 arguments, but found {}", args.length);
             }
             return false;
         }
