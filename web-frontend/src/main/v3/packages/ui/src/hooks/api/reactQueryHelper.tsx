@@ -132,6 +132,25 @@ export const requestJson = async <T = unknown,>(url: string, init?: RequestInit)
   return response.json();
 };
 
+const SUCCESS_RESULT = 'SUCCESS';
+
+/**
+ * `SimpleResponse`(`{ result, message? }`)로 답하는 API용. 상태 코드가 2xx여도 `result`가
+ * `SUCCESS`가 아니면 실패다. 그때도 body를 그대로 던지지 않고 Error로 감싸 던진다 —
+ * 에러 토스트와 상위 처리는 `message`를 가진 Error를 전제로 한다.
+ */
+export const assertSuccessResult = <T extends { result?: string; message?: string }>(
+  data: T,
+): T => {
+  if (data?.result !== SUCCESS_RESULT) {
+    const message = data?.message || 'The request was not completed.';
+    const err = Object.assign(new Error(message), data);
+    err.message = message;
+    throw err;
+  }
+  return data;
+};
+
 /**
  * 글로벌 에러 토스트. 모듈 레벨이라 useReactToastifyToast 훅을 쓸 수 없으므로, 동일한
  * default store를 통해 toastCountAtom을 직접 갱신해 "Clear All" 동작을 토스트와 일치시킨다.

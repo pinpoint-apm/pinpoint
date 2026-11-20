@@ -390,7 +390,9 @@ describe('AlarmV2Page', () => {
       });
     });
 
-    test('tells the viewer when a rule cannot be saved', async () => {
+    // The global error toast (MutationCache) reports it with the server message, so the
+    // page adds none of its own and reports no success.
+    test('leaves a failed rule save to the global error toast', async () => {
       storeSelection();
       mockMutateRuleSaveAsync.mockRejectedValueOnce(new Error('nope'));
       renderPage('?view=rule-new');
@@ -399,7 +401,9 @@ describe('AlarmV2Page', () => {
         await mockSubmitRuleForm?.({ name: 'a rule' }, []);
       });
 
-      expect(mockToast.error).toHaveBeenCalled();
+      expect(mockMutateRuleSaveAsync).toHaveBeenCalled();
+      expect(mockToast.error).not.toHaveBeenCalled();
+      expect(mockToast.success).not.toHaveBeenCalled();
     });
   });
 });

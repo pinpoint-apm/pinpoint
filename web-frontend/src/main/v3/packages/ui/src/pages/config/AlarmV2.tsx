@@ -268,18 +268,12 @@ const AlarmV2PageBody = ({
       closeView();
       void invalidateAlarmQueries();
     },
-    onError: () => {
-      toast.error(t('CONFIGURATION.ALARM_V2.RULE_DELETE_FAILED'));
-    },
   });
 
   const { mutate: mutateRuleToggle } = useAlarmV2RuleMutation({
     onSuccess: () => {
       toast.success(t('CONFIGURATION.ALARM_V2.RULE_UPDATED'));
       void invalidateAlarmQueries();
-    },
-    onError: () => {
-      toast.error(t('CONFIGURATION.ALARM_V2.RULE_UPDATE_FAILED'));
     },
   });
 
@@ -289,9 +283,6 @@ const AlarmV2PageBody = ({
       setCurrentDeletingChannel(undefined);
       closeView();
       void invalidateAlarmQueries();
-    },
-    onError: () => {
-      toast.error(t('CONFIGURATION.ALARM_V2.CHANNEL_DELETE_FAILED'));
     },
   });
 
@@ -313,7 +304,7 @@ const AlarmV2PageBody = ({
       toast.success(t('CONFIGURATION.ALARM_V2.TEMPLATE_APPLIED'));
       await invalidateAlarmQueries();
     } catch {
-      toast.error(t('CONFIGURATION.ALARM_V2.TEMPLATE_APPLY_FAILED'));
+      // 실패는 전역 에러 토스트가 서버 메시지와 함께 알린다(MutationCache).
     }
   };
 
@@ -336,7 +327,7 @@ const AlarmV2PageBody = ({
       toast.success(t('CONFIGURATION.ALARM_V2.TEMPLATE_UNAPPLIED'));
       await invalidateAlarmQueries();
     } catch {
-      toast.error(t('CONFIGURATION.ALARM_V2.TEMPLATE_UNAPPLY_FAILED'));
+      // 실패는 전역 에러 토스트가 서버 메시지와 함께 알린다(MutationCache).
     }
   };
 
@@ -345,9 +336,6 @@ const AlarmV2PageBody = ({
       toast.success(t('CONFIGURATION.ALARM_V2.TEMPLATE_DELETED'));
       setCurrentDeletingTemplate(undefined);
       void invalidateAlarmQueries();
-    },
-    onError: () => {
-      toast.error(t('CONFIGURATION.ALARM_V2.TEMPLATE_DELETE_FAILED'));
     },
   });
 

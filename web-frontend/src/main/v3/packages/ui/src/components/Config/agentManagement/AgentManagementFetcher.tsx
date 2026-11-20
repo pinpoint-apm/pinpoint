@@ -29,12 +29,6 @@ export const AgentManagementFetcher = ({
     serviceTypeName: application?.serviceType,
   });
 
-  const onError = React.useCallback(() => {
-    toast.error(t('COMMON.REMOVE_FAIL'), {
-      autoClose: 2000,
-    });
-  }, []);
-
   const onSuccess = React.useCallback(() => {
     toast.success(t('COMMON.REMOVE_SUCCESS'), {
       autoClose: 2000,
@@ -42,7 +36,6 @@ export const AgentManagementFetcher = ({
   }, []);
 
   const { mutate: deleteApplication } = useDeleteApplication({
-    onError,
     onSuccess: () => {
       onSuccess();
       onRemoveApplicationSuccess?.();
@@ -50,7 +43,6 @@ export const AgentManagementFetcher = ({
   });
 
   const { mutate: deleteAgent } = useDeleteAgent({
-    onError,
     onSuccess: () => {
       onSuccess();
       refetch();
