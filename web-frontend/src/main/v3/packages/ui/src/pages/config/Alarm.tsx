@@ -68,9 +68,6 @@ export const AlarmPage = ({
       setCurrentTargetAlarmData(undefined);
       refetchAlarmList();
     },
-    onError: () => {
-      toast.error(t('COMMON.REMOVE_FAIL'));
-    },
   });
   const { permissionContext } = React.useContext(AlarmPermissionContext);
 

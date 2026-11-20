@@ -1,5 +1,6 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { END_POINTS, AlarmRule, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
+import { assertSuccessResult, requestJson } from './reactQueryHelper';
 
 type AlarmRuleMutationVariable = {
   params: AlarmRule.PostParameters | AlarmRule.PutParameters | AlarmRule.DeleteParmeters;
@@ -14,25 +15,16 @@ export const useAlarmRuleMutation = (
     unknown
   >,
 ) => {
-  const updateData = async ({ params, method }: AlarmRuleMutationVariable) => {
-    try {
-      const response = await fetch(`${END_POINTS.ALARM_RULE}`, {
+  const updateData = async ({ params, method }: AlarmRuleMutationVariable) =>
+    assertSuccessResult(
+      await requestJson<AlarmRule.MutaionResponse>(`${END_POINTS.ALARM_RULE}`, {
         method,
         body: JSON.stringify(params),
         headers: {
           'Content-Type': 'application/json',
         },
-      });
-      const data = await response.json();
-
-      if (data?.result !== 'SUCCESS') {
-        throw data;
-      }
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  };
+      }),
+    );
 
   return useMutation({
     mutationFn: updateData,

@@ -1,6 +1,7 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { DeleteService, END_POINTS, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { assertSuccessResult, requestJson } from './reactQueryHelper';
 
 export const useDeleteService = (
   options?: UseMutationOptions<
@@ -14,15 +15,11 @@ export const useDeleteService = (
     params: DeleteService.Parameters,
   ): Promise<DeleteService.Response> => {
     const queryString = convertParamsToQueryString(params);
-    const response = await fetch(`${END_POINTS.SERVICE}?${queryString}`, {
-      method: 'DELETE',
-    });
-    const data = await response.json();
-
-    if (!response.ok || data?.result !== 'SUCCESS') {
-      throw data;
-    }
-    return data;
+    return assertSuccessResult(
+      await requestJson<DeleteService.Response>(`${END_POINTS.SERVICE}?${queryString}`, {
+        method: 'DELETE',
+      }),
+    );
   };
 
   return useMutation({
