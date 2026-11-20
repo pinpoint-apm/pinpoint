@@ -27,7 +27,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-annotations</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.vertx/vertx-core -->

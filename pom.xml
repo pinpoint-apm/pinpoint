@@ -362,6 +362,7 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-annotations</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
