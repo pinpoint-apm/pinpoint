@@ -50,7 +50,7 @@ export const OpenTelemetryDashboardFetcher = () => {
     () => sortBy(data?.appMetricDefinitionList, ['layout.y', 'layout.x']),
     [data],
   );
-  const { mutate: updateMetrics, isPending } = usePatchOtlpMetricDefUserDefined({
+  const { mutateAsync: updateMetrics, isPending } = usePatchOtlpMetricDefUserDefined({
     // 모든 호출이 `updateMetricsWithToastMessage`를 지나 자체 실패 토스트를 띄우므로 글로벌 토스트는 끈다.
     meta: { ignoreGlobalError: true },
     onSuccess: (res) => {
@@ -84,14 +84,15 @@ export const OpenTelemetryDashboardFetcher = () => {
       errorMessage: string;
     },
   ) => {
-    updateMetrics(props, {
-      onSuccess: () => {
+    // `mutate`의 호출별 콜백은 겹친 호출 중 마지막 것에만 불린다. 글로벌 토스트를 껐으므로
+    // 앞선 호출의 실패가 조용히 사라지지 않도록 호출마다 결과를 직접 받는다.
+    updateMetrics(props)
+      .then(() => {
         toast.success(successMessage);
-      },
-      onError: () => {
+      })
+      .catch(() => {
         toast.error(errorMessage);
-      },
-    });
+      });
   };
 
   // grid-layout 변경 시 사용
