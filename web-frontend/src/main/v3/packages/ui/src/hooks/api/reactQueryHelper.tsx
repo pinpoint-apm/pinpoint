@@ -117,6 +117,22 @@ export const queryFn = (url: string, options?: QueryFnOptions) => async () => {
 };
 
 /**
+ * 뮤테이션 등 `queryFn`을 쓰지 않는 요청의 공통 경로. 응답이 실패면 `parseResponseError`로
+ * 상태 코드가 실린 Error를 던지고, 성공이면 JSON body를 돌려준다.
+ *
+ * `fetch` 뒤에 `response.json()`만 부르면 4xx/5xx의 ProblemDetail body가 성공 데이터로
+ * `onSuccess`까지 흘러간다 — 상태 코드를 반드시 이 함수에서 거른다.
+ */
+export const requestJson = async <T = unknown,>(url: string, init?: RequestInit): Promise<T> => {
+  const response = await fetch(url, init);
+
+  if (!response.ok) {
+    await parseResponseError(response);
+  }
+  return response.json();
+};
+
+/**
  * 글로벌 에러 토스트. 모듈 레벨이라 useReactToastifyToast 훅을 쓸 수 없으므로, 동일한
  * default store를 통해 toastCountAtom을 직접 갱신해 "Clear All" 동작을 토스트와 일치시킨다.
  * toastId를 지정하면 react-toastify가 동일 id의 중복 토스트를 억제한다(폴링 실패 누적 방지).
