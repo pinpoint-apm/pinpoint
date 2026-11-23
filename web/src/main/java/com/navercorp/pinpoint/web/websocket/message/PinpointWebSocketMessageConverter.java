@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.websocket.message;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.json.JsonMapper;
-import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,11 +42,13 @@ public class PinpointWebSocketMessageConverter {
     private static final Logger LOGGER = LogManager.getLogger(PinpointWebSocketMessageConverter.class);
 
     private final JsonMapper mapper;
+    private final ObjectReader mapReader;
 
     private final PingPongMessage pingPongMessage;
 
     public PinpointWebSocketMessageConverter(JsonMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
+        this.mapReader = mapper.readerForMapOf(Object.class);
         this.pingPongMessage = PingPongMessage.newMessage(mapper);
     }
 
@@ -110,7 +112,7 @@ public class PinpointWebSocketMessageConverter {
     }
 
     private Map<String, Object> readMap(JsonNode parameterNode) {
-        return mapper.convertValue(parameterNode, TypeRef.map());
+        return mapReader.readValue(parameterNode);
     }
 
     public String getRequestTextMessage(String command, Map<String, Object> params) throws JacksonException {
