@@ -32,17 +32,25 @@
 
         <!-- newer than the amqp-client managed by the Spring Boot 4 BOM -->
         <rabbitmq.amqp-client.version>5.38.0</rabbitmq.amqp-client.version>
+        <!-- newer than the spring-amqp managed by the Spring Boot 4 BOM -->
+        <rabbitmq.spring-amqp.version>4.2.0</rabbitmq.spring-amqp.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- declared before the BOM import so that it takes precedence -->
+            <!-- declared before the BOM import so that they take precedence -->
             <dependency>
                 <groupId>com.rabbitmq</groupId>
                 <artifactId>amqp-client</artifactId>
                 <version>${rabbitmq.amqp-client.version}</version>
             </dependency>
-            <!-- spring-rabbit 4.x comes from the Spring Boot 4 BOM -->
+            <dependency>
+                <groupId>org.springframework.amqp</groupId>
+                <artifactId>spring-amqp-bom</artifactId>
+                <version>${rabbitmq.spring-amqp.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
