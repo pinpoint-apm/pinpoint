@@ -117,15 +117,21 @@
 }
 
 /* v4 의 container 는 가운데 정렬·안쪽 여백이 없다. JS 설정(center, padding 2rem, screens 는 2xl 1400px
-   하나뿐)을 잇는다 — 그 사이 브레이크포인트에서는 폭을 묶지 않고, 1400px 부터 1400px 로 묶는다. */
+   하나뿐)을 잇는다 — 그 사이 브레이크포인트에서는 폭을 묶지 않고, 1400px 부터 1400px 로 묶는다.
+   `@media` 안을 `& { }` 로 감싼다. 결과 CSS 는 같지만, 선택자 없는 선언을 SonarCloud 의 CSS 분석이
+   버그(css:S8767)로 잡는다. */
 @utility container {
   margin-inline: auto;
   padding-inline: 2rem;
 
   @media (width >= 40rem) {
-    max-width: none;
+    & {
+      max-width: none;
+    }
   }
   @media (width >= 1400px) {
-    max-width: 1400px;
+    & {
+      max-width: 1400px;
+    }
   }
 }
