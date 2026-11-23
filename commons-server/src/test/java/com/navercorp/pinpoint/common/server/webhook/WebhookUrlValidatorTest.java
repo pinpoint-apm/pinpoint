@@ -55,6 +55,12 @@ class WebhookUrlValidatorTest {
     }
 
     @Test
+    void validateSyntaxEncodesWhatIsNotAsciiAndKeepsExistingEscapes() {
+        assertThat(WebhookUrlValidator.validateSyntax("https://8.8.8.8/hook/한글?sig=a%2Bb"))
+                .isEqualTo("https://8.8.8.8/hook/%ED%95%9C%EA%B8%80?sig=a%2Bb");
+    }
+
+    @Test
     void validateSyntaxRejectsMalformedUrl() {
         assertInvalidSyntax("ftp://8.8.8.8/webhook");
         assertInvalidSyntax("https://user:password@8.8.8.8/webhook");

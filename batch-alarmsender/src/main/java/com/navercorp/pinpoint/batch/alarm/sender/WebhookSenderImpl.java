@@ -31,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,7 +82,7 @@ public class WebhookSenderImpl implements WebhookSender {
         for (Webhook webhook : webhookSendInfoList) {
             try {
                 String validatedUrl = WebhookUrlValidator.validateSyntax(webhook.getUrl());
-                restTemplate.exchange(validatedUrl, HttpMethod.POST, httpEntity, String.class);
+                restTemplate.exchange(URI.create(validatedUrl), HttpMethod.POST, httpEntity, String.class);
                 logger.info("Successfully sent webhook : {}", webhook);
             } catch (IllegalArgumentException e) {
                 logger.warn("Webhook url is not valid. Failed Webhook : {} for Checker : {}", webhook, checker, e);

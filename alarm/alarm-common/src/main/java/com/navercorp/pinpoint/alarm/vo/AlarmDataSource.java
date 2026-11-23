@@ -85,6 +85,14 @@ public interface AlarmDataSource {
     }
 
     /**
+     * The page that lists a rule's history, as a path under the web's base URL. The service
+     * segment and the query that opens the rule go after it.
+     */
+    default String alarmPagePath() {
+        return "/config/alarm";
+    }
+
+    /**
      * The service of a rule as a path segment, for every link that opens a page of the web.
      * A rule saved without a service belongs to DEFAULT, the service the web takes when a request
      * names none.

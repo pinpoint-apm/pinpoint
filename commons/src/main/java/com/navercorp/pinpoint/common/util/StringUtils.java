@@ -188,6 +188,20 @@ public final class StringUtils {
     }
 
     /**
+     * The first {@code maxWidth} chars of {@code str}, or one fewer when the cut would split a
+     * surrogate pair, with no marker for what was cut. {@code null} stays {@code null}.
+     */
+    public static String truncate(final String str, final int maxWidth) {
+        if (maxWidth < 0) {
+            throw new IllegalArgumentException("negative maxWidth:" + maxWidth);
+        }
+        if (str == null || str.length() <= maxWidth) {
+            return str;
+        }
+        return str.substring(0, abbreviateEndIndex(str, maxWidth));
+    }
+
+    /**
      * An unpaired high surrogate left by cutting a surrogate pair in half
      * is not encodable to UTF-8 (e.g. protobuf throws UnpairedSurrogateException),
      * so drop the high surrogate instead of splitting the pair.

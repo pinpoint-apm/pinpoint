@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.webhook.WebhookDnsResolver;
 import com.navercorp.pinpoint.common.server.webhook.WebhookHostPolicy;
 import com.navercorp.pinpoint.user.service.UserGroupService;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
+import org.apache.hc.client5.http.classic.ExecChainHandler;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -51,6 +52,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Wires the senders the outbox dispatcher delivers through.
@@ -73,6 +77,12 @@ public class AlarmNotificationConfiguration {
 
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
     private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
+    /**
+     * The read timeout starts again with every packet, so a receiver that trickles its answer
+     * would hold the single dispatch thread, and every other service's notifications, for as
+     * long as it likes. This bounds the whole exchange.
+     */
+    private static final Duration EXCHANGE_TIMEOUT = Duration.ofSeconds(30);
 
     /**
      * Host names allowed to resolve into private ranges. Empty by default, which blocks every
@@ -112,12 +122,29 @@ public class AlarmNotificationConfiguration {
                 .setDefaultConnectionConfig(connectionConfig)
                 .build();
 
-        // redirects stay disabled: an allowed host must not be able to hand out a 30x to an internal address
+        // redirects stay disabled: an allowed host must not be able to hand out a 30x to an internal address.
+        // Retries too: the outbox already retries with a backoff, and a retry inside the client would run
+        // past the exchange deadline, which is set once per call.
         return HttpClients.custom()
                 .setConnectionManager(connectionManager)
                 .setDefaultRequestConfig(requestConfig)
                 .disableRedirectHandling()
+                .disableAutomaticRetries()
+                .addExecInterceptorFirst("exchangeDeadline", exchangeDeadline(EXCHANGE_TIMEOUT))
                 .build();
+    }
+
+    /**
+     * Drops the connection when the deadline passes, which ends a read in progress. Spring drains
+     * the body when it closes a response, so not reading the body does not help. An exchange that
+     * finished first has released its connection already, and the late discard does nothing.
+     */
+    static ExecChainHandler exchangeDeadline(Duration timeout) {
+        Executor deadline = CompletableFuture.delayedExecutor(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        return (request, scope, chain) -> {
+            deadline.execute(scope.execRuntime::discardEndpoint);
+            return chain.proceed(request, scope);
+        };
     }
 
     /**
@@ -149,12 +176,9 @@ public class AlarmNotificationConfiguration {
             TemplateEngine alarmTemplateEngine,
             @Value("${alarm.email.logo:classpath:templates/alarm/pinpoint-logo-base64.txt}") Resource logoResource,
             @Value("${alarm.pinpoint.web.url:}") String pinpointWebUrl,
-            // The page an alarm links back to. Shared code cannot know it: the path is a
-            // deployment's own route.
-            @Value("${alarm.pinpoint.web.alarm-path:/config/alarm}") String alarmPagePath,
             AlarmDataSourceRegistry dataSourceRegistry) {
         return new AlarmMessageFormatter(alarmTemplateEngine,
-                resolveLogoDataUri(logoResource), pinpointWebUrl, alarmPagePath, dataSourceRegistry);
+                resolveLogoDataUri(logoResource), pinpointWebUrl, dataSourceRegistry);
     }
 
     /**

@@ -24,11 +24,13 @@ import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +90,64 @@ class WebhookAlarmSenderTest {
         } finally {
             server.stop(0);
         }
+    }
+
+    // Teams workflow and other signed urls carry escapes in the query; encoding their '%' again breaks the signature.
+    @Test
+    void storedEscapesReachTheReceiverUnchanged() throws IOException {
+        List<String> rawQueries = new ArrayList<>();
+        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/alarm", exchange -> {
+            rawQueries.add(exchange.getRequestURI().getRawQuery());
+            exchange.sendResponseHeaders(200, 0);
+            exchange.getResponseBody().close();
+        });
+        server.start();
+
+        try {
+            String query = "sp=%2Ftriggers%2Fmanual%2Frun&sig=ab%2Bcd%3D&room=%EC%95%8C%EB%9E%8C";
+            // the room is stored as typed; it goes out percent-encoded, while the stored escapes stay
+            String webhookUrl = "http://127.0.0.1:" + server.getAddress().getPort()
+                    + "/alarm?sp=%2Ftriggers%2Fmanual%2Frun&sig=ab%2Bcd%3D&room=알람";
+            WebhookAlarmSender sender = new WebhookAlarmSender(new RestTemplate(), mock(AlarmMessageFormatter.class));
+            AlarmNotificationOutbox delivery = new AlarmNotificationOutbox();
+            delivery.setId(9002L);
+            delivery.setMethodType(AlarmMethodType.WEBHOOK);
+
+            sender.send(delivery, AlarmDeliveryPayload.forWebhook("{}", webhookUrl));
+
+            assertEquals(List.of(query), rawQueries);
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void describeKeepsTheUrlOfAClientFailureOutOfTheLog() {
+        HttpClientErrorException notFound = HttpClientErrorException.create(
+                "404 Not Found on POST request for \"https://hooks.slack.com/services/T000/B000/SECRET\"",
+                HttpStatus.NOT_FOUND, "Not Found", null, null, null);
+        AlarmSendException failure = new AlarmSendException("Failed to send webhook alarm: delivery_id=1", notFound);
+
+        assertEquals("AlarmSendException: Failed to send webhook alarm: delivery_id=1 <- NotFound status=404",
+                AlarmSendException.describe(failure));
+        assertNull(AlarmSendException.stackTraceOf(failure));
+    }
+
+    @Test
+    void describeShowsTheStartOfARejectionOnOneLine() {
+        HttpClientErrorException badRequest = HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "Bad Request",
+                null, "invalid_payload\nforged line".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+
+        assertEquals("BadRequest status=400 body=invalid_payload forged line", AlarmSendException.describe(badRequest));
+    }
+
+    // Away from HTTP nothing puts a url in a message, and the stack trace is what finds the bug.
+    @Test
+    void stackTraceOfKeepsAFailureWithoutAClientException() {
+        IllegalStateException failure = new IllegalStateException("no recipients");
+
+        assertEquals(failure, AlarmSendException.stackTraceOf(failure));
     }
 
     // Slack and friends put the credential in the path, so only the host may be logged.
@@ -154,7 +214,7 @@ class WebhookAlarmSenderTest {
     @Test
     void aRedirectIsNotADelivery() {
         RestTemplate restTemplate = mock(RestTemplate.class);
-        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(), eq(String.class)))
+        when(restTemplate.exchange(any(URI.class), any(HttpMethod.class), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("moved", HttpStatus.FOUND));
         WebhookAlarmSender sender = new WebhookAlarmSender(
                 restTemplate, mock(AlarmMessageFormatter.class));

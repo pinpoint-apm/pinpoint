@@ -80,8 +80,13 @@ public final class WebhookUrlValidator {
         return uri.toString();
     }
 
+    /**
+     * The url to send to, in ASCII form: characters outside ASCII are percent-encoded and existing
+     * escapes stay as they are, since the client writes the request line in ASCII. Pass it to the
+     * client as a {@link URI}; a String url gets its '%' encoded once more.
+     */
     public static String validateSyntax(String url) {
-        return validateUriSyntax(url).toString();
+        return validateUriSyntax(url).toASCIIString();
     }
 
     private static URI validateUriSyntax(String url) {

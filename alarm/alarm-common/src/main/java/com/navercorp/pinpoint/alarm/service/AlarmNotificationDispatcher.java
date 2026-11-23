@@ -180,8 +180,9 @@ public class AlarmNotificationDispatcher {
         boolean exhausted = delivery.getAttemptCount() >= maxAttempts;
         if (exhausted || isPermanent(failure)) {
             if (resultService.markDead(delivery)) {
-                logger.error("Alarm notification delivery is dead: delivery_id={}, attempt_count={}",
-                        delivery.getId(), delivery.getAttemptCount(), failure);
+                logger.error("Alarm notification delivery is dead: delivery_id={}, attempt_count={}, failure={}",
+                        delivery.getId(), delivery.getAttemptCount(), AlarmSendException.describe(failure),
+                        AlarmSendException.stackTraceOf(failure));
             } else {
                 logger.warn("Dead result was ignored because the delivery claim expired: delivery_id={}",
                         delivery.getId());
@@ -194,8 +195,9 @@ public class AlarmNotificationDispatcher {
         LocalDateTime availableAt = LocalDateTime.now(clock).plus(delay);
         if (resultService.scheduleRetry(delivery, availableAt)) {
             logger.warn("Alarm notification delivery scheduled for retry: "
-                            + "delivery_id={}, attempt_count={}, next={}",
-                    delivery.getId(), delivery.getAttemptCount(), availableAt, failure);
+                            + "delivery_id={}, attempt_count={}, next={}, failure={}",
+                    delivery.getId(), delivery.getAttemptCount(), availableAt, AlarmSendException.describe(failure),
+                    AlarmSendException.stackTraceOf(failure));
         } else {
             logger.warn("Retry result was ignored because the delivery claim expired: delivery_id={}",
                     delivery.getId());
