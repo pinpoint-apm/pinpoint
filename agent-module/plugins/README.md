@@ -115,7 +115,7 @@ _Last updated: 2026-10-27_
 | [rabbitmq](rabbitmq) | `com.rabbitmq:amqp-client` | `[3.0.0, 5.x]` | 1.7.0 |
 | [rocketmq](rocketmq) | `org.apache.rocketmq:rocketmq-client` | `[4.0, 5.5]` | 2.2.0 |
 | [activemq-client](activemq-client) | `org.apache.activemq:activemq-client` | `[5.1.0, 6.4]` | 1.6.0 |
-| [pulsar](pulsar) | `org.apache.pulsar:pulsar-client` | `[4.0.0, )` | 3.1.0 |
+| [pulsar](pulsar) | `org.apache.pulsar:pulsar-client` | `[4.0.0, 5.0]` | 3.1.0 |
 | [paho-mqtt](paho-mqtt) | `org.eclipse.paho:org.eclipse.paho.mqttv5.client` | `1.2.5` (tested) | — |
 
 ## Reactive / Async / Resilience

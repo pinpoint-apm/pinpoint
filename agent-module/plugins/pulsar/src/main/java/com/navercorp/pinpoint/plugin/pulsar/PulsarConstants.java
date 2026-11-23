@@ -32,6 +32,7 @@ public class PulsarConstants {
     public static final String ACCEPTOR_HOST = "PULSAR_ACCEPTOR_HOST";
     public static final String IS_ASYNC_SEND = "IS_ASYNC_SEND";
     public static final String SCOPE = "PULSAR_SEND_COMPLETED";
+    public static final String SEND_SCOPE = "PULSAR_SEND";
 
     public static final ServiceType PULSAR_CLIENT = ServiceTypeFactory.of(
             8670, "PULSAR_CLIENT", "PULSAR_CLIENT", QUEUE, RECORD_STATISTICS);

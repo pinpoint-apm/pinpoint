@@ -29,13 +29,12 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.plugin.pulsar.PulsarClientUtils;
 import com.navercorp.pinpoint.plugin.pulsar.PulsarConstants;
 import com.navercorp.pinpoint.plugin.pulsar.description.PulsarEntryMethodDescriptor;
 import com.navercorp.pinpoint.plugin.pulsar.field.accessor.TopicInfoAccessor;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
-import org.apache.pulsar.client.impl.ConsumerImpl;
-import org.apache.pulsar.common.naming.TopicName;
 
 import java.util.Objects;
 
@@ -135,12 +134,17 @@ public class ConsumerImplEntryPointInterceptor extends SpanRecursiveAroundInterc
                 recorder.recordServiceType(PulsarConstants.PULSAR_CLIENT);
                 recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
 
-                final ConsumerImpl<?> consumer = (ConsumerImpl<?>) target;
-                String serviceUrl = consumer.getClient().getLookup().getServiceUrl();
-                recorder.recordEndPoint(serviceUrl);
-                recorder.recordRemoteAddress(serviceUrl);
+                // No implementation types here: the shaded pulsar-client 5.x relocates them
+                final String serviceUrl = PulsarClientUtils.getServiceUrl(target);
+                if (serviceUrl != null) {
+                    recorder.recordEndPoint(serviceUrl);
+                    recorder.recordRemoteAddress(serviceUrl);
+                }
 
-                final String topic = ((TopicInfoAccessor) target)._$PINPOINT$_getTopicInfo();
+                String topic = null;
+                if (target instanceof TopicInfoAccessor) {
+                    topic = ((TopicInfoAccessor) target)._$PINPOINT$_getTopicInfo();
+                }
                 recorder.recordRpcName(createRpcName(recorder, topic));
                 recorder.recordAttribute(PulsarConstants.PULSAR_TOPIC_ANNOTATION_KEY, topic);
                 MessageId messageId = message.getMessageId();
@@ -165,7 +169,7 @@ public class ConsumerImplEntryPointInterceptor extends SpanRecursiveAroundInterc
             private String createRpcName(final SpanRecorder recorder, String topic) {
                 final StringBuilder rpcName = new StringBuilder("pulsar://");
                 rpcName.append("topic=").append(topic);
-                int partitionIndex = TopicName.getPartitionIndex(topic);
+                int partitionIndex = PulsarClientUtils.getPartitionIndex(topic);
                 recorder.recordAttribute(PulsarConstants.PULSAR_PARTITION_ANNOTATION_KEY, partitionIndex);
                 rpcName.append("&partition=").append(partitionIndex);
                 return rpcName.toString();
@@ -175,8 +179,8 @@ public class ConsumerImplEntryPointInterceptor extends SpanRecursiveAroundInterc
         private static class SupportContinueTraceFactory extends DefaultTraceFactory {
             @Override
             public Trace createTrace(Object target, TraceContext traceContext, Message<?> message) {
-                String flag = message.getProperties().get(Header.HTTP_FLAGS.name());
-                if (!SamplingFlagUtils.isSamplingFlag(flag)) {
+                final String sampled = message.getProperty(Header.HTTP_SAMPLED.toString());
+                if (!SamplingFlagUtils.isSamplingFlag(sampled)) {
                     final Trace trace = traceContext.disableSampling();
                     if (isDebug) {
                         logger.debug("remotecall sampling flag found. skip trace");
