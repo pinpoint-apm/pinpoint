@@ -188,7 +188,7 @@ public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport 
     // the same class the deployables use, so this config cannot drift from them.
 
     @Bean
-    public JsonMapper objectMapper() {
+    public JsonMapper jsonMapper() {
         return new JsonMapper();
     }
 

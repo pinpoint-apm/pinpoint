@@ -34,7 +34,7 @@ import org.testcontainers.utility.DockerImageName;
  * @author youngjin.kim2
  */
 @DisplayName("stream channel test")
-@ContextConfiguration(classes = {ChannelSpringConfig.class, RedisStreamConfig.class, ObjectMapperConfig.class})
+@ContextConfiguration(classes = {ChannelSpringConfig.class, RedisStreamConfig.class, JsonMapperConfig.class})
 @SpringBootTest
 @Testcontainers
 public class StreamChannelTest {

@@ -52,7 +52,7 @@ class AlarmWebModuleTest {
         }
 
         @Bean
-        JsonMapper objectMapper() {
+        JsonMapper jsonMapper() {
             return new JsonMapper();
         }
 
