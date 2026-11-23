@@ -1,7 +1,7 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { END_POINTS, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 import { AlarmV2Template } from '@pinpoint-fe/ui/src/constants/types';
-import { parseResponseError } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
+import { request } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
 
 type TemplatePayload = Pick<AlarmV2Template.TemplateData, 'name' | 'description' | 'items'>;
 
@@ -37,15 +37,11 @@ export const useAlarmV2TemplateMutation = (
       body = JSON.stringify(variable.params);
     }
 
-    const response = await fetch(url, {
+    const response = await request(url, {
       method: variable.method,
       body,
       headers: body ? { 'Content-Type': 'application/json' } : undefined,
     });
-
-    if (!response.ok) {
-      await parseResponseError(response);
-    }
 
     // Only the create answers with a body; the caller needs the new id to link channels.
     if (variable.method !== 'POST') {

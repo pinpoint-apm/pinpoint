@@ -1,7 +1,7 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { END_POINTS, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 import { AlarmV2Rule } from '@pinpoint-fe/ui/src/constants/types';
-import { parseResponseError } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
+import { request } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
 
 type AlarmV2TemplateApplyVariable = {
   /** Stamps one rule per bundle item onto the application, or removes them again. */
@@ -25,14 +25,10 @@ export const useAlarmV2TemplateApplyMutation = (
       applicationType: variable.applicationType,
     });
 
-    const response = await fetch(
+    const response = await request(
       `${END_POINTS.ALARM_V2_TEMPLATE}/${variable.id}/applications?${params}`,
       { method: variable.method === 'APPLY' ? 'POST' : 'DELETE' },
     );
-
-    if (!response.ok) {
-      await parseResponseError(response);
-    }
 
     // Applying answers with the rules it created; removing them answers with nothing.
     if (variable.method === 'UNAPPLY') {

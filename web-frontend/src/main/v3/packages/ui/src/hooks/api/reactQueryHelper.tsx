@@ -118,17 +118,28 @@ export const queryFn = (url: string, options?: QueryFnOptions) => async () => {
 
 /**
  * 뮤테이션 등 `queryFn`을 쓰지 않는 요청의 공통 경로. 응답이 실패면 `parseResponseError`로
- * 상태 코드가 실린 Error를 던지고, 성공이면 JSON body를 돌려준다.
+ * 상태 코드가 실린 Error를 던지고, 성공이면 body를 읽지 않은 `Response`를 돌려준다.
  *
- * `fetch` 뒤에 `response.json()`만 부르면 4xx/5xx의 ProblemDetail body가 성공 데이터로
- * `onSuccess`까지 흘러간다 — 상태 코드를 반드시 이 함수에서 거른다.
+ * 성공 응답에 body가 없거나(DELETE 등) JSON이 아닌 요청에 쓴다. JSON body를 읽는다면
+ * `requestJson`을 쓴다.
  */
-export const requestJson = async <T = unknown,>(url: string, init?: RequestInit): Promise<T> => {
+export const request = async (url: string, init?: RequestInit): Promise<Response> => {
   const response = await fetch(url, init);
 
   if (!response.ok) {
     await parseResponseError(response);
   }
+  return response;
+};
+
+/**
+ * `request`에 JSON body 읽기를 더한 것.
+ *
+ * `fetch` 뒤에 `response.json()`만 부르면 4xx/5xx의 ProblemDetail body가 성공 데이터로
+ * `onSuccess`까지 흘러간다 — 상태 코드를 반드시 `request`에서 거른다.
+ */
+export const requestJson = async <T = unknown,>(url: string, init?: RequestInit): Promise<T> => {
+  const response = await request(url, init);
   return response.json();
 };
 

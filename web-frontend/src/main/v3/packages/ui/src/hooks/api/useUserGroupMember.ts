@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { END_POINTS, ConfigGroupMember } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { queryFn, parseResponseError } from './reactQueryHelper';
+import { queryFn, requestJson } from './reactQueryHelper';
 
 const getQueryString = (queryParams: ConfigGroupMember.Parameters) => {
   if (queryParams.userGroupId) {
@@ -30,17 +30,13 @@ interface PostUserGroupMemberProps {
 export const usePostUserGroupMember = ({ onCompleteSubmit, onError }: PostUserGroupMemberProps) => {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (params: ConfigGroupMember.Body) => {
-      const response = await fetch(END_POINTS.CONFIG_GROUP_MEMBER, {
+      return requestJson(END_POINTS.CONFIG_GROUP_MEMBER, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(params),
       });
-      if (!response.ok) {
-        await parseResponseError(response);
-      }
-      return response.json();
     },
   });
 
@@ -68,17 +64,13 @@ export const useDeleteUserGroupMember = ({
 }: DeleteUserGroupMemberProps) => {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (params: ConfigGroupMember.Body) => {
-      const response = await fetch(END_POINTS.CONFIG_GROUP_MEMBER, {
+      return requestJson(END_POINTS.CONFIG_GROUP_MEMBER, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(params),
       });
-      if (!response.ok) {
-        await parseResponseError(response);
-      }
-      return response.json();
     },
   });
 

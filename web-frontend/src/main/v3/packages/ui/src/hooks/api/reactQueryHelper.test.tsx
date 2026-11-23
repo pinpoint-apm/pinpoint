@@ -35,6 +35,8 @@ import {
   parseResponseError,
   queryClient,
   queryFn,
+  request,
+  requestJson,
   retryUnlessForbidden,
   serviceScopedQueryKeyHashFn,
   showGlobalErrorToast,
@@ -369,6 +371,56 @@ describe('queryFn', () => {
 
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(new Headers(init.headers).get(SERVICE_NAME_HEADER)).toBe('other-service');
+  });
+});
+
+describe('request / requestJson', () => {
+  const fetchMock = jest.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    global.fetch = fetchMock as unknown as typeof fetch;
+  });
+
+  // body가 없는 성공 응답(DELETE 등)도 있으므로 request는 body를 읽지 않는다.
+  test('request resolves with the response without reading the body', async () => {
+    const json = jest.fn();
+    const response = { ok: true, status: 204, json } as unknown as Response;
+    fetchMock.mockResolvedValueOnce(response);
+
+    await expect(request('/api/x', { method: 'DELETE' })).resolves.toBe(response);
+    expect(fetchMock).toHaveBeenCalledWith('/api/x', { method: 'DELETE' });
+    expect(json).not.toHaveBeenCalled();
+  });
+
+  test('request rejects with the response status when the response is not ok', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 403,
+      json: () => Promise.resolve({ status: 403, title: 'Forbidden', detail: 'Access denied' }),
+    });
+
+    await expect(request('/api/x')).rejects.toMatchObject({
+      status: 403,
+      message: 'Access denied',
+    });
+  });
+
+  test('requestJson resolves with the JSON body', async () => {
+    fetchMock.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 1 }) });
+
+    await expect(requestJson('/api/x', { method: 'POST' })).resolves.toEqual({ id: 1 });
+  });
+
+  // 실패 응답의 ProblemDetail body가 성공 데이터로 흘러가면 안 된다.
+  test('requestJson rejects instead of resolving with an error body', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: () => Promise.resolve({ status: 500, title: 'Internal Server Error' }),
+    });
+
+    await expect(requestJson('/api/x')).rejects.toMatchObject({ status: 500 });
   });
 });
 

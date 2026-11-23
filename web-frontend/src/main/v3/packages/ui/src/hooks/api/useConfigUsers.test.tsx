@@ -4,16 +4,28 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
 
 // reactQueryHelper transitively imports the ECharts (ESM) stack via ErrorToast.
-// Mock queryFn/parseResponseError so babel-jest does not choke and we can drive errors.
-jest.mock('./reactQueryHelper', () => ({
-  queryFn: (url: string) => async () => {
-    const response = await fetch(url);
-    return response.json();
-  },
-  parseResponseError: jest.fn(async () => {
+// Mock the request helpers so babel-jest does not choke and we can drive errors.
+jest.mock('./reactQueryHelper', () => {
+  const parseResponseError = jest.fn(async () => {
     throw new Error('parsed error');
-  }),
-}));
+  });
+  const request = async (url: string, init?: RequestInit) => {
+    const response = await fetch(url, init);
+    if (!response.ok) {
+      await parseResponseError();
+    }
+    return response;
+  };
+  return {
+    queryFn: (url: string) => async () => {
+      const response = await fetch(url);
+      return response.json();
+    },
+    parseResponseError,
+    request,
+    requestJson: async (url: string, init?: RequestInit) => (await request(url, init)).json(),
+  };
+});
 
 import { usePostConfigUser, usePutConfigUser, useDeleteConfigUser } from './useConfigUsers';
 
