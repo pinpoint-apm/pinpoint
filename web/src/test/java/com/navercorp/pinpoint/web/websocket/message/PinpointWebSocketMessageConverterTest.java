@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,10 +34,9 @@ public class PinpointWebSocketMessageConverterTest {
     private final PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter(Jackson.newMapper());
 
     @Test
-    public void requestMessageTest() throws Exception {
+    public void requestMessageTest() {
         String command = "command";
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("test", "test");
+        Map<String, Object> parameters = Map.of("test", "test");
 
         String textMessage = messageConverter.getRequestTextMessage(command, parameters);
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(textMessage);
@@ -53,10 +51,9 @@ public class PinpointWebSocketMessageConverterTest {
     }
 
     @Test
-    public void responseMessageTest() throws Exception {
+    public void responseMessageTest() {
         String command = "command";
-        Map<String, Object> result = new HashMap<>();
-        result.put("test", "test");
+        Map<String, Object> result = Map.of("test", "test");
 
         String textMessage = messageConverter.getResponseTextMessage(command, result);
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(textMessage);
@@ -71,10 +68,9 @@ public class PinpointWebSocketMessageConverterTest {
     }
 
     @Test
-    public void sendMessageTest() throws Exception {
+    public void sendMessageTest() {
         String command = "command";
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("test", "test");
+        Map<String, Object> parameters = Map.of("test", "test");
 
         String textMessage = messageConverter.getSendTextMessage(command, parameters);
         PinpointWebSocketMessage webSocketMessage = messageConverter.getWebSocketMessage(textMessage);
@@ -112,15 +108,15 @@ public class PinpointWebSocketMessageConverterTest {
     @Test
     public void UnknownMessageTest() {
         PinpointWebSocketMessage emptyString = messageConverter.getWebSocketMessage("");
-        Assertions.assertSame(emptyString.getClass(), UnknownMessage.class);
+        Assertions.assertSame(UnknownMessage.class, emptyString.getClass());
         assertEquals(PinpointWebSocketMessageType.UNKNOWN, emptyString.getType());
 
         PinpointWebSocketMessage nullValue = messageConverter.getWebSocketMessage(null);
-        Assertions.assertSame(nullValue.getClass(), UnknownMessage.class);
+        Assertions.assertSame(UnknownMessage.class, nullValue.getClass());
         assertEquals(PinpointWebSocketMessageType.UNKNOWN, nullValue.getType());
 
         PinpointWebSocketMessage emptyObject = messageConverter.getWebSocketMessage("{}");
-        Assertions.assertSame(emptyObject.getClass(), UnknownMessage.class);
+        Assertions.assertSame(UnknownMessage.class, emptyObject.getClass());
         assertEquals(PinpointWebSocketMessageType.UNKNOWN, emptyObject.getType());
     }
 
