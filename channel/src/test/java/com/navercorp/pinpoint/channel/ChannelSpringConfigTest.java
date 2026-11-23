@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author youngjin.kim2
  */
-@ContextConfiguration(classes = {ChannelSpringConfig.class, ChannelSpringConfigTest.ObjectMapperConfig.class})
+@ContextConfiguration(classes = {ChannelSpringConfig.class, ChannelSpringConfigTest.JsonMapperConfig.class})
 @SpringBootTest
 public class ChannelSpringConfigTest {
 
@@ -41,9 +41,9 @@ public class ChannelSpringConfigTest {
     }
 
     @Configuration
-    static class ObjectMapperConfig {
+    static class JsonMapperConfig {
         @Bean
-        public JsonMapper objectMapper() {
+        public JsonMapper jsonMapper() {
             return new JsonMapper();
         }
     }
