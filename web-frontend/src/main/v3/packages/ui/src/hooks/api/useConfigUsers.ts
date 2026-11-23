@@ -1,7 +1,7 @@
 import { useQuery, UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { ConfigUsers, END_POINTS, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { queryFn, parseResponseError } from './reactQueryHelper';
+import { queryFn, requestJson } from './reactQueryHelper';
 
 const getQueryString = (queryParams?: Partial<ConfigUsers.Parameters>) => {
   if (queryParams?.searchKey) {
@@ -28,19 +28,14 @@ export const useGetConfigUsers = (
 export const usePostConfigUser = (
   options?: UseMutationOptions<ConfigUsers.Response, ErrorResponse, ConfigUsers.User, unknown>,
 ) => {
-  const postData = async (formData: ConfigUsers.User) => {
-    const response = await fetch(`${END_POINTS.CONFIG_USERS}`, {
+  const postData = (formData: ConfigUsers.User) =>
+    requestJson<ConfigUsers.Response>(END_POINTS.CONFIG_USERS, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(formData),
     });
-    if (!response.ok) {
-      await parseResponseError(response);
-    }
-    return response.json();
-  };
 
   return useMutation({
     mutationFn: postData,
@@ -51,22 +46,17 @@ export const usePostConfigUser = (
 export const usePutConfigUser = (
   options?: UseMutationOptions<ConfigUsers.Response, ErrorResponse, ConfigUsers.User, unknown>,
 ) => {
-  const puttData = async (formData: ConfigUsers.User) => {
-    const response = await fetch(`${END_POINTS.CONFIG_USERS}`, {
+  const putData = (formData: ConfigUsers.User) =>
+    requestJson<ConfigUsers.Response>(END_POINTS.CONFIG_USERS, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(formData),
     });
-    if (!response.ok) {
-      await parseResponseError(response);
-    }
-    return response.json();
-  };
 
   return useMutation({
-    mutationFn: puttData,
+    mutationFn: putData,
     ...options,
   });
 };
@@ -74,19 +64,14 @@ export const usePutConfigUser = (
 export const useDeleteConfigUser = (
   options?: UseMutationOptions<ConfigUsers.Response, ErrorResponse, string, unknown>,
 ) => {
-  const deleteData = async (userId: string) => {
-    const response = await fetch(`${END_POINTS.CONFIG_USERS}`, {
+  const deleteData = (userId: string) =>
+    requestJson<ConfigUsers.Response>(END_POINTS.CONFIG_USERS, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ userId }),
     });
-    if (!response.ok) {
-      await parseResponseError(response);
-    }
-    return response.json();
-  };
 
   return useMutation({
     mutationFn: deleteData,

@@ -1,7 +1,7 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { END_POINTS, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 import { AlarmV2Channel } from '@pinpoint-fe/ui/src/constants/types';
-import { parseResponseError } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
+import { request } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
 
 type AlarmV2ChannelMutationVariable =
   | {
@@ -93,15 +93,11 @@ export const useAlarmV2ChannelMutation = (
       ...(body ? { 'Content-Type': 'application/json' } : {}),
     };
 
-    const response = await fetch(url, {
+    const response = await request(url, {
       method,
       body,
       headers: Object.keys(headers).length > 0 ? headers : undefined,
     });
-
-    if (!response.ok) {
-      await parseResponseError(response);
-    }
 
     if (
       variable.method === 'PUT' ||

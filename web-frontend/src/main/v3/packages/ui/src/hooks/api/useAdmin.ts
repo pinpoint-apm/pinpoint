@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { parseResponseError } from './reactQueryHelper';
+import { request } from './reactQueryHelper';
 
 type deleteApplicationParams = {
   applicationName: string;
@@ -15,15 +15,12 @@ export const useDeleteApplication = (
 ) => {
   const deleteApplication = async (params: deleteApplicationParams) => {
     const queryString = convertParamsToQueryString(params);
-    const response = await fetch(`${END_POINTS.ADMIN_APPLICATIONS}?${queryString}`, {
+    await request(`${END_POINTS.ADMIN_APPLICATIONS}?${queryString}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    if (!response.ok) {
-      await parseResponseError(response);
-    }
     return null;
   };
 
@@ -46,15 +43,12 @@ export const useDeleteAgent = (
 ) => {
   const deleteAgent = async (params: deleteAgentParams) => {
     const queryString = convertParamsToQueryString(params);
-    const response = await fetch(`${END_POINTS.ADMIN_AGENTS}?${queryString}`, {
+    await request(`${END_POINTS.ADMIN_AGENTS}?${queryString}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    if (!response.ok) {
-      await parseResponseError(response);
-    }
     return null;
   };
 
