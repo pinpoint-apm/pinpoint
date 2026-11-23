@@ -18,25 +18,33 @@ package com.navercorp.pinpoint.alarm.batch.config;
 import com.navercorp.pinpoint.common.server.webhook.WebhookHostPolicy;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -69,6 +77,57 @@ class AlarmNotificationConfigurationWebhookTest {
                         cause.getMessage());
                 // Refused at resolution, so the server never saw a request.
                 assertEquals(0, requestCount.get());
+            }
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    // The read timeout restarts with every byte, so only a deadline on the whole exchange stops a trickle.
+    @Test
+    void webhookRestTemplateGivesUpOnAResponseThatNeverEnds() throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
+        server.createContext("/trickle", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            exchange.sendResponseHeaders(200, 0);
+            try (OutputStream body = exchange.getResponseBody()) {
+                while (true) {
+                    body.write('x');
+                    body.flush();
+                    Thread.sleep(100);
+                }
+            } catch (IOException | InterruptedException ignored) {
+                // the client hung up
+            }
+        });
+        server.createContext("/webhook", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            byte[] ok = "ok".getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, ok.length);
+            exchange.getResponseBody().write(ok);
+            exchange.close();
+        });
+        server.setExecutor(Executors.newCachedThreadPool());
+        server.start();
+
+        try {
+            String base = "http://127.0.0.1:" + server.getAddress().getPort();
+            // the host policy refuses loopback outright, so the deadline goes on a client without it
+            try (CloseableHttpClient client = HttpClients.custom()
+                    .addExecInterceptorFirst("exchangeDeadline",
+                            AlarmNotificationConfiguration.exchangeDeadline(Duration.ofMillis(500)))
+                    .build()) {
+                RestTemplate restTemplate = configuration.webhookRestTemplate(client);
+                HttpEntity<?> request = new HttpEntity<>("{}", jsonHeaders());
+
+                assertTimeoutPreemptively(Duration.ofSeconds(5), () -> assertThrows(RestClientException.class,
+                        () -> restTemplate.exchange(URI.create(base + "/trickle"), HttpMethod.POST, request, String.class)));
+
+                // The deadline of an exchange that already finished does not cut a later one on the same connection.
+                URI ok = URI.create(base + "/webhook");
+                assertEquals("ok", restTemplate.exchange(ok, HttpMethod.POST, request, String.class).getBody());
+                Thread.sleep(700);
+                assertEquals("ok", restTemplate.exchange(ok, HttpMethod.POST, request, String.class).getBody());
             }
         } finally {
             server.stop(0);

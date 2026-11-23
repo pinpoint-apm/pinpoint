@@ -22,7 +22,7 @@
             <span style="font-size:18px;font-weight:bold;color:#212121" th:text="${name}"></span>
         </div>
         <div th:if="${description != null and !description.isBlank()}"
-             style="color:#666;font-size:13px;margin-top:6px" th:text="${description}"></div>
+             style="color:#666;font-size:13px;margin-top:6px;white-space:pre-line" th:text="${description}"></div>
     </div>
 
     <!-- body -->
@@ -67,8 +67,8 @@
                     <td style="padding:8px 12px;font-family:monospace" th:text="${row.metric()}"></td>
                     <td style="padding:8px 12px;text-align:right;font-weight:bold;color:#d32f2f" th:text="${row.value()}"></td>
                     <td style="padding:8px 12px;color:#555">
-                        <th:block th:if="${row.displayCondition()}">
-                            <span th:text="${row.op() + ' ' + row.threshold()}"></span>
+                        <th:block th:if="${row.conditions() != null}">
+                            <span th:text="${row.conditions()}"></span>
                             <span th:if="${row.windowSec() != null}" style="color:#999;font-size:12px"
                                   th:text="'(window: ' + ${row.windowSec()} + 's)'"></span>
                         </th:block>
@@ -105,7 +105,7 @@
             <div style="font-size:13px;background:#f9f9f9;border-radius:6px;padding:10px 12px">
                 <span th:each="f : ${filters}"
                       style="display:inline-block;background:#e8eaf6;color:#3949ab;border-radius:4px;padding:2px 8px;margin:2px;font-family:monospace"
-                      th:text="${f.key + ' ' + f.op + ' ' + f.value}"></span>
+                      th:text="${f}"></span>
             </div>
         </div>
 

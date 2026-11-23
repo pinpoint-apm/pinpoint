@@ -82,8 +82,8 @@ public class WebhookAlarmSender implements AlarmSender {
         try {
             url = WebhookUrlValidator.validateSyntax(destinations.get(0));
         } catch (IllegalArgumentException e) {
-            throw new AlarmSendException(
-                    "Invalid webhook URL: delivery_id=" + delivery.getId(), e);
+            // no cause: its message carries the url, and a failure without one is already permanent
+            throw new AlarmSendException("Invalid webhook URL: delivery_id=" + delivery.getId());
         }
 
         String content = deliveryPayload.content();
@@ -96,9 +96,10 @@ public class WebhookAlarmSender implements AlarmSender {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<>(content, headers);
-            response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            response = restTemplate.exchange(URI.create(url), HttpMethod.POST, entity, String.class);
         } catch (Exception e) {
-            logger.error("Failed to send webhook alarm: delivery_id={}, host={}", delivery.getId(), host(url), e);
+            logger.error("Failed to send webhook alarm: delivery_id={}, host={}, failure={}",
+                    delivery.getId(), host(url), AlarmSendException.describe(e));
             throw new AlarmSendException("Failed to send webhook alarm: delivery_id=" + delivery.getId(), e);
         }
 

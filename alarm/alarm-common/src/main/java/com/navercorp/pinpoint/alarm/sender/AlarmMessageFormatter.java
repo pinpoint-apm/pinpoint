@@ -27,10 +27,10 @@ import com.navercorp.pinpoint.alarm.vo.AlarmCondition;
 import com.navercorp.pinpoint.alarm.vo.AlarmFilter;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleV2;
 import com.navercorp.pinpoint.alarm.vo.AlarmSeverity;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -43,6 +43,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -82,7 +83,17 @@ public class AlarmMessageFormatter {
      */
     private static final int SMS_DETAIL_MAX_BYTES = 1200;
     private static final int UNLIMITED_DETAIL_BYTES = Integer.MAX_VALUE;
-    private static final Pattern CONTROL_CHARS = Pattern.compile("\\p{Cntrl}");
+    /** C0 and C1 controls and the Unicode line and paragraph separators, each of which can break a line. */
+    private static final Pattern LINE_BREAKING_CHARS = Pattern.compile("[\\p{Cc}\\p{Zl}\\p{Zp}]");
+    /**
+     * Invisible characters that change how the text around them reads: bidi marks, embeddings,
+     * overrides and isolates, which can show the text after them reversed, and the zero width space
+     * and BOM. The joiners stay, since emoji sequences and some scripts need them.
+     */
+    private static final Pattern INVISIBLE_CONTROLS =
+            Pattern.compile("[\\u200B\\u200E\\u200F\\u202A-\\u202E\\u2066-\\u2069\\uFEFF]");
+    /** Past this a difference between a value and a threshold is double noise, not data. */
+    private static final int MAX_DISPLAY_SCALE = 10;
 
     /**
      * Wraps base64-encoded PNG text as a data URI usable in the email template.
@@ -95,18 +106,14 @@ public class AlarmMessageFormatter {
     private final AlarmDataSourceRegistry dataSourceRegistry;
     private final String logoDataUri;
     private final String pinpointBaseUrl;
-    /** Path of the rule page the notification links back to; routing is the deployment's. */
-    private final String alarmPagePath;
 
     public AlarmMessageFormatter(TemplateEngine templateEngine, String logoDataUri, String pinpointBaseUrl,
-                                 String alarmPagePath, AlarmDataSourceRegistry dataSourceRegistry) {
+                                 AlarmDataSourceRegistry dataSourceRegistry) {
         this.templateEngine = Objects.requireNonNull(templateEngine, "templateEngine");
         this.dataSourceRegistry = Objects.requireNonNull(dataSourceRegistry, "dataSourceRegistry");
         this.logoDataUri = Objects.requireNonNullElse(logoDataUri, "");
         this.pinpointBaseUrl = StringUtils.hasText(pinpointBaseUrl)
                 ? pinpointBaseUrl.stripTrailing().replaceAll("/+$", "") : null;
-        // The service segment goes after it, and a trailing '/' would make that "//{service}".
-        this.alarmPagePath = Objects.requireNonNull(alarmPagePath, "alarmPagePath").replaceAll("/+$", "");
     }
 
     public String formatTitle(AlarmRuleV2 rule, String customTitle, MetricQueryResult metricResults) {
@@ -168,7 +175,7 @@ public class AlarmMessageFormatter {
 
     private String buildWebhookBody(AlarmRuleV2 rule, MetricQueryResult metricResults, ZonedDateTime now,
                                     boolean mrkdwn) {
-        Map<MetricQueryKey, AlarmCondition> leafByMetric = buildLeafByMetricKey(rule);
+        Map<MetricQueryKey, List<AlarmCondition>> leavesByMetric = buildLeavesByMetricKey(rule);
         AlarmSeverity severity = rule.getSeverity();
 
         StringBuilder sb = new StringBuilder();
@@ -178,12 +185,16 @@ public class AlarmMessageFormatter {
             // fields instead of repeating it.
             sb.append(severityEmoji(severity)).append(' ')
                     .append(bold("[" + severityName(severity) + "]", mrkdwn)).append(' ')
-                    .append(bold("[" + escapeMrkdwn(nullSafe(rule.getApplicationName()), mrkdwn) + "]", mrkdwn))
-                    .append(' ').append(escapeMrkdwn(nullSafe(rule.getName()), mrkdwn)).append("\n\n");
+                    .append(bold("[" + escapeMrkdwn(field(rule.getApplicationName()), mrkdwn) + "]", mrkdwn))
+                    .append(' ');
+            if (StringUtils.hasText(rule.getTemplateName())) {
+                sb.append(bold("[" + escapeMrkdwn(field(rule.getTemplateName()), mrkdwn) + "]", mrkdwn)).append(' ');
+            }
+            sb.append(escapeMrkdwn(field(rule.getName()), mrkdwn)).append("\n\n");
         }
 
         if (StringUtils.hasText(rule.getDescription())) {
-            appendField(sb, "📝", "Description", rule.getDescription(), mrkdwn);
+            appendLine(sb, "📝", "Description", lines(rule.getDescription(), "    "), mrkdwn);
         }
         appendField(sb, "🌐", "Service", nullSafe(rule.getServiceName()), mrkdwn);
         appendField(sb, "📦", "Application", nullSafe(rule.getApplicationName()), mrkdwn);
@@ -191,14 +202,12 @@ public class AlarmMessageFormatter {
 
         sb.append("\n• 🔍 ").append(bold("Conditions:", mrkdwn)).append("\n");
         for (Map.Entry<MetricQueryKey, Double> e : metricResults.values().entrySet()) {
-            AlarmCondition leaf = leafByMetric.get(e.getKey());
+            Measured measured = Measured.of(e.getValue(), leavesByMetric.get(e.getKey()));
             sb.append("    └ ").append(code(metricName(e.getKey()), mrkdwn))
-                    .append(" : ").append(formatNumber(e.getValue()));
-            if (hasDisplayCondition(leaf)) {
-                sb.append(" (").append(escapeMrkdwn(nullSafe(leaf.getOp()), mrkdwn)).append(" ").append(formatNumber(leaf.getThreshold()));
-                if (leaf.getWindowSec() != null) {
-                    sb.append(", window: ").append(leaf.getWindowSec()).append("s");
-                }
+                    .append(" : ").append(measured.value());
+            if (measured.conditions() != null) {
+                sb.append(" (").append(escapeMrkdwn(measured.conditions(), mrkdwn));
+                appendWindow(sb, measured.windowSec());
                 sb.append(")");
             }
             sb.append("\n");
@@ -217,9 +226,9 @@ public class AlarmMessageFormatter {
         if (!CollectionUtils.isEmpty(filters)) {
             sb.append("\n• 🚫 ").append(bold("Filters:", mrkdwn)).append("\n");
             for (AlarmFilter f : filters) {
-                sb.append("    └ ").append(code(escapeMrkdwn(nullSafe(f.getKey()), mrkdwn), mrkdwn))
-                        .append(" ").append(nullSafe(f.getOp()))
-                        .append(" [").append(escapeMrkdwn(nullSafe(f.getValue()), mrkdwn)).append("]\n");
+                sb.append("    └ ").append(code(escapeMrkdwn(field(f.getKey()), mrkdwn), mrkdwn))
+                        .append(" ").append(field(f.getOp()))
+                        .append(" [").append(escapeMrkdwn(field(f.getValue()), mrkdwn)).append("]\n");
             }
         }
 
@@ -254,13 +263,17 @@ public class AlarmMessageFormatter {
             appendField(sb, "🔗", "View Details", detailLink, false);
         }
         if (historyLink != null) {
-            appendField(sb, "📜", "History", historyLink, false);
+            appendField(sb, "📜", "Alarm History", historyLink, false);
         }
     }
 
     private static void appendField(StringBuilder sb, String emoji, String label, String value, boolean mrkdwn) {
+        appendLine(sb, emoji, label, field(value), mrkdwn);
+    }
+
+    private static void appendLine(StringBuilder sb, String emoji, String label, String cleaned, boolean mrkdwn) {
         sb.append("• ").append(emoji).append(' ').append(bold(label + ":", mrkdwn))
-                .append(' ').append(escapeMrkdwn(value, mrkdwn)).append("\n");
+                .append(' ').append(escapeMrkdwn(cleaned, mrkdwn)).append("\n");
     }
 
     private static String bold(String text, boolean mrkdwn) {
@@ -312,16 +325,62 @@ public class AlarmMessageFormatter {
         return escaped.replace("\n", "<br>\n");
     }
 
-    private static Map<MetricQueryKey, AlarmCondition> buildLeafByMetricKey(AlarmRuleV2 rule) {
+    /** One query can serve several conditions, such as {@code x > 100 OR x < 1}, so a key maps to all of them. */
+    private static Map<MetricQueryKey, List<AlarmCondition>> buildLeavesByMetricKey(AlarmRuleV2 rule) {
         List<AlarmCondition> leaves = rule.getConditions() != null
                 ? ConditionUtils.extractLeaves(rule.getConditions()) : List.of();
         return leaves.stream()
                 .filter(l -> l.getMetric() != null)
-                .collect(Collectors.toMap(MetricQueryKey::from, l -> l, (a, b) -> a));
+                .collect(Collectors.groupingBy(MetricQueryKey::from));
+    }
+
+    /**
+     * A metric's value and the conditions on it as the default bodies show them, or no conditions
+     * for a trigger with no threshold to show. The window is part of the query key, so the
+     * conditions of one key share it. The value and the thresholds get the same precision, enough
+     * that a value never reads equal to a threshold it differs from.
+     */
+    record Measured(String value, String conditions, Integer windowSec) {
+        static Measured of(Double value, List<AlarmCondition> leaves) {
+            List<AlarmCondition> shown = leaves == null ? List.of()
+                    : leaves.stream().filter(AlarmMessageFormatter::hasDisplayCondition).toList();
+            int scale = displayScale(value, shown);
+            if (shown.isEmpty()) {
+                return new Measured(formatNumber(value, scale), null, null);
+            }
+            String conditions = shown.stream()
+                    .map(l -> nullSafe(l.getOp()) + " " + formatNumber(l.getThreshold(), scale))
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+            return new Measured(formatNumber(value, scale), conditions, shown.get(0).getWindowSec());
+        }
+    }
+
+    private static int displayScale(Double value, List<AlarmCondition> leaves) {
+        int scale = 2;
+        if (value == null || !Double.isFinite(value)) {
+            return scale;
+        }
+        for (AlarmCondition leaf : leaves) {
+            Double threshold = leaf.getThreshold();
+            if (threshold == null || !Double.isFinite(threshold) || threshold.equals(value)) {
+                continue;
+            }
+            while (scale < MAX_DISPLAY_SCALE && round(value, scale).compareTo(round(threshold, scale)) == 0) {
+                scale++;
+            }
+        }
+        return scale;
+    }
+
+    private static void appendWindow(StringBuilder sb, Integer windowSec) {
+        if (windowSec != null) {
+            sb.append(", window: ").append(windowSec).append("s");
+        }
     }
 
     private String buildDefaultHtmlBody(AlarmRuleV2 rule, MetricQueryResult metricResults, ZonedDateTime now) {
-        Map<MetricQueryKey, AlarmCondition> leafByMetric = buildLeafByMetricKey(rule);
+        Map<MetricQueryKey, List<AlarmCondition>> leavesByMetric = buildLeavesByMetricKey(rule);
         List<ConditionRow> conditions = metricResults.values().entrySet().stream()
                 .map(e -> {
                     Details details = metricResults.details(e.getKey());
@@ -329,7 +388,9 @@ public class AlarmMessageFormatter {
                             ? summaryText(details.summary(), HTML_DETAIL_MAX_CHARS) : null;
                     Rendered lines = buildDetails(new Details(null, details.lines(), details.omitted()),
                             DetailStyle.FULL, HTML_DETAIL_MAX_CHARS, UNLIMITED_DETAIL_BYTES);
-                    return ConditionRow.from(e.getKey(), e.getValue(), leafByMetric.get(e.getKey()), summary, lines);
+                    Measured measured = Measured.of(e.getValue(), leavesByMetric.get(e.getKey()));
+                    return new ConditionRow(metricName(e.getKey()), measured.value(), measured.conditions(),
+                            measured.windowSec(), summary, lines);
                 })
                 .toList();
 
@@ -338,37 +399,25 @@ public class AlarmMessageFormatter {
         context.setVariable("brandText", BRAND_TEXT);
         context.setVariable("severityColor", severityColor(rule.getSeverity()));
         context.setVariable("severityName", rule.getSeverity() != null ? rule.getSeverity().name() : "UNKNOWN");
-        context.setVariable("name", nullSafe(rule.getName()));
-        context.setVariable("description", rule.getDescription());
-        context.setVariable("serviceName", nullSafe(rule.getServiceName()));
-        context.setVariable("applicationName", nullSafe(rule.getApplicationName()));
-        context.setVariable("dataSource", nullSafe(rule.getDataSource()));
+        context.setVariable("name", field(rule.getName()));
+        context.setVariable("description", rule.getDescription() != null ? lines(rule.getDescription(), "") : null);
+        context.setVariable("serviceName", field(rule.getServiceName()));
+        context.setVariable("applicationName", field(rule.getApplicationName()));
+        context.setVariable("dataSource", field(rule.getDataSource()));
         context.setVariable("checkInterval", formatInterval(rule.getCheckIntervalSec()));
         context.setVariable("firedAt", now.format(DT_FORMAT));
         context.setVariable("conditions", conditions);
-        context.setVariable("filters", rule.getFilters() != null ? rule.getFilters() : List.of());
+        context.setVariable("filters", rule.getFilters() != null
+                ? rule.getFilters().stream().map(AlarmMessageFormatter::filterText).toList() : List.of());
         context.setVariable("detailLink",
                 buildDetailLink(rule, metricResults.range()));
         context.setVariable("historyLink", buildHistoryLink(rule));
         return templateEngine.process(HTML_BODY_TEMPLATE, context);
     }
 
-    /**
-     * View row for the conditions table in the default HTML body. {@code op} is the
-     * comparison symbol; condition columns are {@code null} when the leaf is a pulse
-     * trigger with no displayable threshold.
-     */
-    record ConditionRow(String metric, String value, boolean displayCondition,
-                        String op, String threshold, Integer windowSec, String summary, Rendered details) {
-        static ConditionRow from(MetricQueryKey key, Double value, AlarmCondition leaf, String summary,
-                                 Rendered details) {
-            if (!hasDisplayCondition(leaf)) {
-                return new ConditionRow(metricName(key), formatNumber(value), false, null, null, null,
-                        summary, details);
-            }
-            return new ConditionRow(metricName(key), formatNumber(value), true,
-                    nullSafe(leaf.getOp()), formatNumber(leaf.getThreshold()), leaf.getWindowSec(), summary, details);
-        }
+    /** View row for the conditions table in the default HTML body; the conditions are {@code null} as in {@link Measured}. */
+    record ConditionRow(String metric, String value, String conditions, Integer windowSec,
+                        String summary, Rendered details) {
     }
 
     /** A detail line as rendered: the id is null where the channel hides it, and the url is absolute or null. */
@@ -484,16 +533,7 @@ public class AlarmMessageFormatter {
         if (text.length() <= maxChars) {
             return text;
         }
-        return text.substring(0, truncateEndIndex(text, maxChars)) + "...";
-    }
-
-    /**
-     * A lone high surrogate left by cutting a surrogate pair in half is not encodable to
-     * UTF-8, so it turns into '?' once the message is stored or sent. Drop it instead.
-     */
-    private static int truncateEndIndex(String text, int maxChars) {
-        return maxChars > 0 && Character.isHighSurrogate(text.charAt(maxChars - 1))
-                ? maxChars - 1 : maxChars;
+        return StringUtils.truncate(text, maxChars) + "...";
     }
 
     /**
@@ -501,7 +541,8 @@ public class AlarmMessageFormatter {
      * the plain and webhook bodies are line oriented and a newline forges a field.
      */
     private static String stripControlChars(String text) {
-        return CONTROL_CHARS.matcher(text).replaceAll(" ");
+        String lineSafe = LINE_BREAKING_CHARS.matcher(text).replaceAll(" ");
+        return INVISIBLE_CONTROLS.matcher(lineSafe).replaceAll("");
     }
 
     private static String severityColor(AlarmSeverity severity) {
@@ -516,28 +557,25 @@ public class AlarmMessageFormatter {
 
     private String buildDefaultBody(AlarmRuleV2 rule, MetricQueryResult metricResults, ZonedDateTime now,
                                     int detailBudgetBytes) {
-        Map<MetricQueryKey, AlarmCondition> leafByMetric = buildLeafByMetricKey(rule);
+        Map<MetricQueryKey, List<AlarmCondition>> leavesByMetric = buildLeavesByMetricKey(rule);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Service: ").append(nullSafe(rule.getServiceName())).append("\n");
-        sb.append("Application: ").append(nullSafe(rule.getApplicationName())).append("\n");
-        sb.append("Data Source: ").append(nullSafe(rule.getDataSource())).append("\n");
+        sb.append("Service: ").append(field(rule.getServiceName())).append("\n");
+        sb.append("Application: ").append(field(rule.getApplicationName())).append("\n");
+        sb.append("Data Source: ").append(field(rule.getDataSource())).append("\n");
 
         if (StringUtils.hasText(rule.getDescription())) {
-            sb.append("Description: ").append(rule.getDescription()).append("\n");
+            sb.append("Description: ").append(lines(rule.getDescription(), "  ")).append("\n");
         }
 
         sb.append("Conditions:\n");
         int detailBudget = detailBudgetBytes;
         for (Map.Entry<MetricQueryKey, Double> e : metricResults.values().entrySet()) {
-            AlarmCondition leaf = leafByMetric.get(e.getKey());
-            sb.append("  ").append(metricName(e.getKey())).append(": ").append(formatNumber(e.getValue()));
-            if (hasDisplayCondition(leaf)) {
-                sb.append(" (condition: ").append(nullSafe(leaf.getOp())).append(" ")
-                        .append(formatNumber(leaf.getThreshold()));
-                if (leaf.getWindowSec() != null) {
-                    sb.append(", window: ").append(leaf.getWindowSec()).append("s");
-                }
+            Measured measured = Measured.of(e.getValue(), leavesByMetric.get(e.getKey()));
+            sb.append("  ").append(metricName(e.getKey())).append(": ").append(measured.value());
+            if (measured.conditions() != null) {
+                sb.append(" (condition: ").append(measured.conditions());
+                appendWindow(sb, measured.windowSec());
                 sb.append(")");
             }
             sb.append("\n");
@@ -557,8 +595,7 @@ public class AlarmMessageFormatter {
         if (!CollectionUtils.isEmpty(filters)) {
             sb.append("Filters:\n");
             for (AlarmFilter f : filters) {
-                sb.append("  ").append(f.getKey()).append(" ").append(f.getOp())
-                  .append(" ").append(f.getValue()).append("\n");
+                sb.append("  ").append(filterText(f)).append("\n");
             }
         }
 
@@ -599,15 +636,20 @@ public class AlarmMessageFormatter {
     /**
      * The service goes in the path, where the web reads the service of a page, so the link opens
      * the rule's service whichever one the recipient has selected. Two applications can share a
-     * name and differ in type, so the link carries both.
+     * name and differ in type, so the link carries both. Each data source has its own alarm page,
+     * so a rule whose data source is not installed here gets no link, like the detail link.
      */
     private String buildHistoryLink(AlarmRuleV2 rule) {
         if (pinpointBaseUrl == null || rule.getId() == null) {
             return null;
         }
+        AlarmDataSource dataSource = dataSourceRegistry.find(rule.getDataSource()).orElse(null);
+        if (dataSource == null) {
+            return null;
+        }
         return String.format("%s%s/%s?ruleId=%d&applicationName=%s&applicationType=%s",
                 pinpointBaseUrl,
-                alarmPagePath,
+                dataSource.alarmPagePath(),
                 AlarmDataSource.serviceSegment(rule.getServiceName()),
                 rule.getId(),
                 URLEncoder.encode(nullSafe(rule.getApplicationName()), StandardCharsets.UTF_8),
@@ -620,12 +662,12 @@ public class AlarmMessageFormatter {
         // previous chained-replace implementation
         Map<String, String> variables = new HashMap<>();
         variables.put("severity", rule.getSeverity() != null ? rule.getSeverity().name() : "");
-        variables.put("name", nullSafe(rule.getName()));
-        variables.put("description", nullSafe(rule.getDescription()));
-        variables.put("service_name", nullSafe(rule.getServiceName()));
-        variables.put("application_name", nullSafe(rule.getApplicationName()));
-        variables.put("template_name", nullSafe(rule.getTemplateName()));
-        variables.put("data_source", nullSafe(rule.getDataSource()));
+        variables.put("name", field(rule.getName()));
+        variables.put("description", field(rule.getDescription()));
+        variables.put("service_name", field(rule.getServiceName()));
+        variables.put("application_name", field(rule.getApplicationName()));
+        variables.put("template_name", field(rule.getTemplateName()));
+        variables.put("data_source", field(rule.getDataSource()));
         variables.put("check_interval", rule.getCheckIntervalSec() != null
                 ? String.valueOf(rule.getCheckIntervalSec()) : "");
         variables.put("fired_at", now.format(DT_FORMAT));
@@ -636,15 +678,17 @@ public class AlarmMessageFormatter {
         variables.put("rum_link", detailLink);
         variables.put("history_link", nullSafe(buildHistoryLink(rule)));
 
+        // values at the precision of the default bodies, so no channel shows a value equal to a threshold it missed
+        Map<MetricQueryKey, List<AlarmCondition>> leavesByMetric = buildLeavesByMetricKey(rule);
         if (!metricResults.isEmpty()) {
             String summary = metricResults.values().entrySet().stream()
-                    .map(e -> metricName(e.getKey()) + "=" + formatNumber(e.getValue()))
+                    .map(e -> metricName(e.getKey()) + "=" + Measured.of(e.getValue(), leavesByMetric.get(e.getKey())).value())
                     .collect(Collectors.joining(", "));
             variables.put("metrics", summary);
 
             Map.Entry<MetricQueryKey, Double> first = metricResults.values().entrySet().iterator().next();
             variables.put("metric", metricName(first.getKey()));
-            variables.put("value", formatNumber(first.getValue()));
+            variables.put("value", Measured.of(first.getValue(), leavesByMetric.get(first.getKey())).value());
             variables.put("summary", buildSummaries(metricResults));
             variables.put("details", buildDetailSummary(metricResults, detailBudgetBytes, style));
         }
@@ -653,8 +697,10 @@ public class AlarmMessageFormatter {
             List<AlarmCondition> leaves = ConditionUtils.extractLeaves(rule.getConditions());
             if (!leaves.isEmpty()) {
                 AlarmCondition firstLeaf = leaves.get(0);
+                Double firstValue = metricResults.values().get(MetricQueryKey.from(firstLeaf));
                 variables.put("op", nullSafe(firstLeaf.getOp()));
-                variables.put("threshold", formatNumber(firstLeaf.getThreshold()));
+                variables.put("threshold",
+                        formatNumber(firstLeaf.getThreshold(), displayScale(firstValue, List.of(firstLeaf))));
             }
         }
 
@@ -665,7 +711,7 @@ public class AlarmMessageFormatter {
         }
         else {
             filterSummary = filters.stream()
-                    .map(f -> f.getKey() + " " + f.getOp() + " " + f.getValue())
+                    .map(AlarmMessageFormatter::filterText)
                     .collect(Collectors.joining(", "));
         }
         variables.put("filters", filterSummary);
@@ -713,6 +759,29 @@ public class AlarmMessageFormatter {
         return intervalSec != null ? intervalSec + "s" : "";
     }
 
+    /**
+     * A rule field as the line-oriented bodies and the title show it. The rule's author is not
+     * always the one who reads the notification, so a newline must not forge a field there either.
+     */
+    private static String field(Object value) {
+        return stripControlChars(nullSafe(value));
+    }
+
+    /**
+     * A field the author may write on several lines, such as the description. Each line is cleaned
+     * like {@link #field}, and the lines after the first start with {@code indent}, so none of them
+     * reads as a field of its own.
+     */
+    private static String lines(String value, String indent) {
+        return Arrays.stream(nullSafe(value).split("\\R"))
+                .map(AlarmMessageFormatter::field)
+                .collect(Collectors.joining("\n" + indent));
+    }
+
+    private static String filterText(AlarmFilter filter) {
+        return field(filter.getKey()) + " " + field(filter.getOp()) + " " + field(filter.getValue());
+    }
+
     // ComparisonOp.toString() is its symbol, so formatted output matches the raw string form
     private static String nullSafe(Object value) {
         return Objects.toString(value, "");
@@ -720,13 +789,21 @@ public class AlarmMessageFormatter {
 
     /** Two decimals at most and no trailing zeros: 7.0 reads 7, 40.98925 reads 40.99. */
     static String formatNumber(Double value) {
+        return formatNumber(value, 2);
+    }
+
+    private static String formatNumber(Double value, int scale) {
         if (value == null) {
             return "";
         }
         if (!Double.isFinite(value)) {
             return String.valueOf(value);
         }
-        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+        return round(value, scale).stripTrailingZeros().toPlainString();
+    }
+
+    private static BigDecimal round(double value, int scale) {
+        return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP);
     }
 
     private static String metricName(MetricQueryKey metricKey) {

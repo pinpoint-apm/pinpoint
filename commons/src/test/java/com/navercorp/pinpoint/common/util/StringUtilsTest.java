@@ -91,6 +91,17 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void truncate() {
+        assertEquals("abcdefg", StringUtils.truncate("abcdefg\ud83d\ude80xyz", 8));
+        assertEquals("abcdefg\ud83d\ude80", StringUtils.truncate("abcdefg\ud83d\ude80xyz", 9));
+        assertEquals("abcdefgh", StringUtils.truncate("abcdefghijk", 8));
+        assertEquals("abc", StringUtils.truncate("abc", 3));
+        assertEquals("", StringUtils.truncate("abc", 0));
+        Assertions.assertNull(StringUtils.truncate(null, 3));
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> StringUtils.truncate("abc", -1));
+    }
+
+    @Test
     public void appendAbbreviate() {
         StringBuilder buffer = new StringBuilder();
 

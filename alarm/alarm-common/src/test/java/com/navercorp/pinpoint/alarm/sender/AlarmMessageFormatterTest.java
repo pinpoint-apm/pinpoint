@@ -49,13 +49,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AlarmMessageFormatterTest {
 
-    private static final String ALARM_PAGE_PATH = "/config/alarm";
-
     private final AlarmMessageFormatter formatter =
-            new AlarmMessageFormatter(templateEngine(), AlarmMessageFormatter.toLogoPngBase64("dGVzdC1sb2dv"), null, ALARM_PAGE_PATH,
+            new AlarmMessageFormatter(templateEngine(), AlarmMessageFormatter.toLogoPngBase64("dGVzdC1sb2dv"), null,
                     new AlarmDataSourceRegistry(List.of(new TestAlarmDataSource.Provider())));
     private final AlarmMessageFormatter linkFormatter =
-            new AlarmMessageFormatter(templateEngine(), "", "https://pinpoint.example.com/", ALARM_PAGE_PATH,
+            new AlarmMessageFormatter(templateEngine(), "", "https://pinpoint.example.com/",
                     new AlarmDataSourceRegistry(List.of(new TestAlarmDataSource.Provider())));
 
     private static TemplateEngine templateEngine() {
@@ -166,7 +164,7 @@ class AlarmMessageFormatterTest {
 
     @Test
     void defaultHtmlBody_blankLogo_fallsBackToBrandText() {
-        AlarmMessageFormatter noLogoFormatter = new AlarmMessageFormatter(templateEngine(), "", null, ALARM_PAGE_PATH, new AlarmDataSourceRegistry(List.of(new TestAlarmDataSource.Provider())));
+        AlarmMessageFormatter noLogoFormatter = new AlarmMessageFormatter(templateEngine(), "", null, new AlarmDataSourceRegistry(List.of(new TestAlarmDataSource.Provider())));
         AlarmRuleV2 rule = createRule();
 
         String html = noLogoFormatter.formatHtmlBody(rule, null, metricResults(rule, 127.0));
@@ -502,7 +500,7 @@ class AlarmMessageFormatterTest {
 
         assertThat(body).matches("(?s).*• 🕒 Fired At: [^\\n]+\\n\\n"
                 + "• 🔗 View Details: https://pinpoint\\.example\\.com/detail/test-service/test-app@\\?from=\\d+&to=\\d+\\n"
-                + "• 📜 History: https://pinpoint\\.example\\.com/config/alarm/test-service\\?ruleId=7"
+                + "• 📜 Alarm History: https://pinpoint\\.example\\.com/config/alarm/test-service\\?ruleId=7"
                 + "&applicationName=test-app&applicationType=");
     }
 
@@ -510,20 +508,20 @@ class AlarmMessageFormatterTest {
     void webhookBody_leavesOutTheLinksItCannotBuild() {
         AlarmRuleV2 rule = createNewGroupRule();
         rule.setId(7L);
-        AlarmMessageFormatter noDataSources = new AlarmMessageFormatter(templateEngine(), "",
-                "https://pinpoint.example.com/", ALARM_PAGE_PATH, new AlarmDataSourceRegistry(List.of()));
+        AlarmMessageFormatter noScreen = new AlarmMessageFormatter(templateEngine(), "",
+                "https://pinpoint.example.com/", new AlarmDataSourceRegistry(List.of(() -> List.of(screenless()))));
 
         assertThat(formatter.formatWebhookBody(rule, null, metricResults(rule, 1.0), true))
                 .doesNotContain("🔗", "📜", "https://");
-        assertThat(noDataSources.formatWebhookBody(rule, null, metricResults(rule, 1.0), true))
+        assertThat(noScreen.formatWebhookBody(rule, null, metricResults(rule, 1.0), true))
                 .endsWith("\n\n• 🔗 <https://pinpoint.example.com/config/alarm/test-service?ruleId=7"
                         + "&applicationName=test-app&applicationType=|Alarm History>");
-        assertThat(noDataSources.formatWebhookBody(rule, null, metricResults(rule, 1.0), false))
-                .contains("• 📜 History: https://").doesNotContain("View Details");
+        assertThat(noScreen.formatWebhookBody(rule, null, metricResults(rule, 1.0), false))
+                .contains("• 📜 Alarm History: https://").doesNotContain("View Details");
 
         rule.setId(null);
         assertThat(linkFormatter.formatWebhookBody(rule, null, metricResults(rule, 1.0), false))
-                .contains("• 🔗 View Details: https://").doesNotContain("History:");
+                .contains("• 🔗 View Details: https://").doesNotContain("Alarm History:");
     }
 
     @Test
@@ -584,17 +582,24 @@ class AlarmMessageFormatterTest {
     }
 
     @Test
-    void historyLink_dropsTheTrailingSlashOfTheConfiguredPath() {
-        AlarmMessageFormatter slashed = new AlarmMessageFormatter(templateEngine(), "",
-                "https://pinpoint.example.com", "/config/alarm/",
-                new AlarmDataSourceRegistry(List.of(new TestAlarmDataSource.Provider())));
+    void historyLink_opensTheAlarmPageOfTheRulesDataSource() {
+        AlarmDataSource ownPage = new TestDataSource() {
+            @Override
+            public String alarmPagePath() {
+                return "/config/otherAlarm";
+            }
+        };
+        AlarmMessageFormatter withOwnPage = new AlarmMessageFormatter(templateEngine(), "",
+                "https://pinpoint.example.com", new AlarmDataSourceRegistry(List.of(() -> List.of(ownPage))));
+        AlarmMessageFormatter noDataSources = new AlarmMessageFormatter(templateEngine(), "",
+                "https://pinpoint.example.com", new AlarmDataSourceRegistry(List.of()));
         AlarmRuleV2 rule = createRule();
         rule.setId(7L);
         rule.setServiceName("shop");
 
-        String link = slashed.formatBody(rule, "${history_link}", MetricQueryResult.empty());
-
-        assertTrue(link.startsWith("https://pinpoint.example.com/config/alarm/shop?"), link);
+        assertThat(withOwnPage.formatBody(rule, "${history_link}", MetricQueryResult.empty()))
+                .startsWith("https://pinpoint.example.com/config/otherAlarm/shop?ruleId=7&");
+        assertEquals("", noDataSources.formatBody(rule, "${history_link}", MetricQueryResult.empty()));
     }
 
     // The web reads the service of a page from its path, so the link carries the service of
@@ -665,7 +670,7 @@ class AlarmMessageFormatterTest {
     @Test
     void detailLink_isEmptyWhenNoInstalledModuleOwnsTheDataSource() {
         AlarmMessageFormatter noDataSources = new AlarmMessageFormatter(templateEngine(), "",
-                "https://pinpoint.example.com/", ALARM_PAGE_PATH, new AlarmDataSourceRegistry(List.of()));
+                "https://pinpoint.example.com/", new AlarmDataSourceRegistry(List.of()));
         AlarmRuleV2 rule = createNewGroupRule();
         rule.setApplicationType(AlarmApplication.TYPE_JAVASCRIPT);
         long toMs = 1789041600000L;
@@ -680,34 +685,9 @@ class AlarmMessageFormatterTest {
     // distribution contributes no route, and the link is dropped the same way.
     @Test
     void detailLink_isEmptyForADataSourceWithNoScreen() {
-        AlarmDataSource screenless = new AlarmDataSource() {
-            @Override
-            public String name() {
-                return TestAlarmDataSource.AGENT_STAT.name();
-            }
-
-            @Override
-            public String label() {
-                return "screenless";
-            }
-
-            @Override
-            public String category() {
-                return AlarmDataSource.APM_CATEGORY;
-            }
-
-            @Override
-            public List<String> filterKeys() {
-                return List.of();
-            }
-
-            @Override
-            public List<AlarmMetricDefinition> metrics() {
-                return List.of();
-            }
-        };
+        AlarmDataSource screenless = screenless();
         AlarmMessageFormatter noScreen = new AlarmMessageFormatter(templateEngine(), "",
-                "https://pinpoint.example.com/", ALARM_PAGE_PATH,
+                "https://pinpoint.example.com/",
                 new AlarmDataSourceRegistry(List.of(() -> List.of(screenless))));
         AlarmRuleV2 rule = createNewGroupRule();
         rule.setApplicationType(AlarmApplication.TYPE_JAVASCRIPT);
@@ -827,5 +807,143 @@ class AlarmMessageFormatterTest {
 
     private MetricQueryResult metricResultsWithRange(AlarmRuleV2 rule, double value, QueriedRange range) {
         return MetricQueryResult.of(Map.of(MetricQueryKey.from(rule.getConditions()), value), range);
+    }
+
+    @Test
+    void everyConditionOnAMetricIsShown() {
+        AlarmRuleV2 rule = createRule();
+        AlarmCondition above = leaf(AlarmCondition.ComparisonOp.GT, 100.0);
+        AlarmCondition below = leaf(AlarmCondition.ComparisonOp.LT, 1.0);
+        AlarmCondition group = new AlarmCondition();
+        group.setType(AlarmCondition.Type.GROUP);
+        group.setOperator(AlarmCondition.Operator.OR);
+        group.setCriteria(List.of(above, below));
+        rule.setConditions(group);
+        MetricQueryResult results = MetricQueryResult.of(Map.of(MetricQueryKey.from(below), 0.0));
+
+        assertThat(formatter.formatSmsBody(rule, null, results))
+                .contains("  error_count: 0 (condition: > 100, < 1, window: 300s)\n");
+        assertThat(formatter.formatWebhookBody(rule, null, results, false))
+                .contains("    └ error_count : 0 (> 100, < 1, window: 300s)\n");
+        assertThat(formatter.formatWebhookBody(rule, null, results, true))
+                .contains("    └ `error_count` : 0 (&gt; 100, &lt; 1, window: 300s)\n");
+        assertThat(formatter.formatHtmlBody(rule, null, results)).contains("&gt; 100, &lt; 1");
+    }
+
+    @Test
+    void aValueIsNeverShownEqualToAThresholdItMissed() {
+        AlarmRuleV2 rule = createRule();
+        rule.setConditions(leaf(AlarmCondition.ComparisonOp.LT, 100.0));
+
+        assertThat(formatter.formatSmsBody(rule, null, metricResults(rule, 99.999)))
+                .contains("error_count: 99.999 (condition: < 100,");
+        assertThat(formatter.formatSmsBody(rule, null, metricResults(rule, 40.98925)))
+                .contains("error_count: 40.99 (condition: < 100,");
+        assertEquals("error_count=99.999 < 100 / 99.999",
+                formatter.formatSmsBody(rule, "${metrics} ${op} ${threshold} / ${value}", metricResults(rule, 99.999)));
+    }
+
+    @Test
+    void slackHeadlineNamesTheBundleLikeTheTitle() {
+        AlarmRuleV2 rule = createRule();
+        rule.setTemplateName("default bundle");
+
+        assertThat(formatter.formatWebhookBody(rule, null, metricResults(rule, 127.0), true))
+                .startsWith("\ud83d\udea8 *[CRITICAL]* *[test-app]* *[default bundle]* Test Alarm\n");
+    }
+
+    @Test
+    void detailLines_dropUnicodeLineBreaksAndFormatCharacters() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        MetricQueryResult results = metricResults(rule, 1.0,
+                List.of("a\u2028b\u2029c\u0085d \u202Eevil\u200B"));
+
+        assertThat(formatter.formatBody(rule, null, results)).contains("    - a b c d evil\n");
+    }
+
+    // The joiners hold emoji sequences and some scripts together, so they stay.
+    @Test
+    void detailLines_keepZeroWidthJoiners() {
+        AlarmRuleV2 rule = createNewGroupRule();
+        String family = "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67";
+        MetricQueryResult results = metricResults(rule, 1.0, List.of("hi " + family));
+
+        assertThat(formatter.formatBody(rule, null, results)).contains("    - hi " + family + "\n");
+    }
+
+    @Test
+    void htmlBody_dropsBidiOverridesFromRuleFields() {
+        AlarmRuleV2 rule = createRule();
+        rule.setName("pay\u202Eevil");
+        rule.setDescription("first\u202E");
+
+        assertThat(formatter.formatHtmlBody(rule, null, metricResults(rule, 127.0)))
+                .contains("payevil").doesNotContain("\u202E");
+    }
+
+    @Test
+    void ruleFieldsCannotForgeALine() {
+        AlarmRuleV2 rule = createRule();
+        rule.setName("Test Alarm\n• 🔗 View Details: https://evil.example");
+        rule.setDescription("desc\u2028• 🌐 Service: forged");
+        AlarmFilter filter = new AlarmFilter();
+        filter.setKey("agentId");
+        filter.setOp(AlarmFilter.Op.EQ);
+        filter.setValue("a\nFired at: never");
+        rule.setFilters(List.of(filter));
+        MetricQueryResult results = metricResults(rule, 127.0);
+
+        assertThat(formatter.formatTitle(rule, null, results)).doesNotContain("\n");
+        assertThat(formatter.formatWebhookBody(rule, null, results, true))
+                .contains("Test Alarm • 🔗 View Details", "Description:* desc\n    • 🌐 Service: forged\n",
+                        "[a Fired at: never]")
+                .doesNotContain("\n• 🔗 View Details", "\n• 🌐 Service: forged");
+        assertThat(formatter.formatSmsBody(rule, null, results))
+                .contains("Description: desc\n  • 🌐 Service: forged\n", "  agentId EQ a Fired at: never\n");
+        assertThat(formatter.formatHtmlBody(rule, null, results))
+                .contains("agentId EQ a Fired at: never").doesNotContain("a\nFired at");
+    }
+
+    private static AlarmCondition leaf(AlarmCondition.ComparisonOp op, double threshold) {
+        AlarmCondition leaf = new AlarmCondition();
+        leaf.setType(AlarmCondition.Type.LEAF);
+        leaf.setMetric("error_count");
+        leaf.setOp(op);
+        leaf.setThreshold(threshold);
+        leaf.setWindowSec(300);
+        leaf.setAggregation(AlarmCondition.Aggregation.COUNT);
+        return leaf;
+    }
+
+    private static AlarmDataSource screenless() {
+        return new TestDataSource();
+    }
+
+    /** Owns AGENT_STAT and nothing else: no detail screen, the default alarm page. */
+    private static class TestDataSource implements AlarmDataSource {
+        @Override
+        public String name() {
+            return TestAlarmDataSource.AGENT_STAT.name();
+        }
+
+        @Override
+        public String label() {
+            return "screenless";
+        }
+
+        @Override
+        public String category() {
+            return AlarmDataSource.APM_CATEGORY;
+        }
+
+        @Override
+        public List<String> filterKeys() {
+            return List.of();
+        }
+
+        @Override
+        public List<AlarmMetricDefinition> metrics() {
+            return List.of();
+        }
     }
 }
