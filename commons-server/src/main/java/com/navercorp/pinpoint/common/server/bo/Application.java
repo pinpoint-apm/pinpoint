@@ -51,14 +51,6 @@ public final class Application {
         return service;
     }
 
-    /**
-     * @deprecated use {@link #getApplicationName()}
-     */
-    @Deprecated
-    public String getName() {
-        return getApplicationName();
-    }
-
     public String getApplicationName() {
         return applicationName;
     }
