@@ -16,5 +16,6 @@
     <modules>
         <module>pulsar-40-it</module>
         <module>pulsar-41-it</module>
+        <module>pulsar-50-it</module>
     </modules>
 </project>

@@ -19,22 +19,72 @@
             -Dprofiler.pulsar.producer.enable=true
             -Dprofiler.pulsar.consumer.enable=true
         </pinpoint.agent.jvmargument>
+
+        <!-- pulsar-client 4.1+ needs Java 17; Spring Boot 4 like the other JDK 17 testwebs -->
+        <jdk.version>17</jdk.version>
+        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
+        <spring.version>${spring7.version}</spring.version>
+        <spring-boot.version>${spring-boot4.version}</spring-boot.version>
+        <jakarta.annotation-api.version>${jakarta.annotation-api2.version}</jakarta.annotation-api.version>
+        <jaxb.version>${jaxb4.version}</jaxb.version>
+
+        <!-- the latest client; the plugin itself compiles against plugins-bom.pulsar.version -->
+        <testweb.pulsar-client.version>5.0.1</testweb.pulsar-client.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- declared before the BOM import so that it takes precedence over the Pulsar managed by Spring Boot -->
+            <dependency>
+                <groupId>org.apache.pulsar</groupId>
+                <artifactId>pulsar-client</artifactId>
+                <version>${testweb.pulsar-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.pulsar</groupId>
+                <artifactId>pulsar-client-api</artifactId>
+                <version>${testweb.pulsar-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <!-- the shaded client, the artifact applications normally depend on -->
         <dependency>
             <groupId>org.apache.pulsar</groupId>
             <artifactId>pulsar-client</artifactId>
-            <version>${plugins-bom.pulsar.version}</version>
+        </dependency>
+        <!-- pulsar-client 5.0.x needs org.apache.pulsar.common.naming.TopicDomain but no longer depends on the
+             artifact that has it; without this the client fails with NoClassDefFoundError even without the agent -->
+        <dependency>
+            <groupId>org.apache.pulsar</groupId>
+            <artifactId>pulsar-client-admin-api</artifactId>
+            <version>${testweb.pulsar-client.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <scope>compile</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
     </dependencies>
 

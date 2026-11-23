@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.test.plugin.api.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.api.PluginForkedTest;
 import com.navercorp.pinpoint.test.plugin.api.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.api.SharedTestLifeCycleClass;
-import org.junit.jupiter.api.Test;
-import test.pinpoint.plugin.pulsar.TestProducer;
 
 /**
  * @author zhouzixin@apache.org
@@ -41,11 +39,8 @@ import test.pinpoint.plugin.pulsar.TestProducer;
 @SharedTestLifeCycleClass(TestBrokerServer.class)
 public class PulsarClient_4_x_IT extends PulsarClientITBase {
 
-    @Test
-    public void testSend() throws Exception {
-        try (TestProducer testProducer = new TestProducer()) {
-            testProducer.sendMessage(serviceUrl);
-            verifySend();
-        }
+    @Override
+    String implPackage() {
+        return "org.apache.pulsar.client.impl";
     }
 }

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.pulsar.field.accessor.TopicInfoAccessor;
-import org.apache.pulsar.client.impl.ConsumerImpl;
 
 /**
  * @author zhouzixin@apache.org
@@ -42,11 +41,14 @@ public class ConsumerConstructorInterceptor implements AroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        if (throwable != null || !(target instanceof ConsumerImpl)) {
+        if (throwable != null) {
             return;
         }
-
-        String topic = ArrayArgumentUtils.getArgument(args, 1, String.class);
-        ((TopicInfoAccessor) target)._$PINPOINT$_setTopicInfo(topic);
+        // ConsumerImpl(PulsarClientImpl client, String topic, ...)
+        ClientConfigConstructorInterceptor.copyClientConfig(target, ArrayArgumentUtils.getArgument(args, 0, Object.class));
+        if (target instanceof TopicInfoAccessor) {
+            String topic = ArrayArgumentUtils.getArgument(args, 1, String.class);
+            ((TopicInfoAccessor) target)._$PINPOINT$_setTopicInfo(topic);
+        }
     }
 }

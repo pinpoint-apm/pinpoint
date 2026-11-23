@@ -26,8 +26,11 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 import static org.apache.pulsar.client.api.SubscriptionInitialPosition.Earliest;
 
@@ -94,15 +97,27 @@ public class PulsarPluginController {
         }
     }
 
+    private static Map<String, String> pinpointHeaders(Message<?> msg) {
+        Map<String, String> headers = new TreeMap<>();
+        for (Map.Entry<String, String> entry : msg.getProperties().entrySet()) {
+            if (entry.getKey().startsWith("Pinpoint-")) {
+                headers.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return headers;
+    }
+
     class MessageInterceptor<T> implements MessageListener<T> {
         @Override
         public void received(final Consumer<T> consumer, final Message<T> msg) {
             try {
+                // the headers are logged so that the propagation from the producer can be checked without a collector
                 logger.info(
-                        "Received message: {}, key = {}, value = {}",
+                        "Received message: {}, key = {}, value = {}, headers={}",
                         msg.getMessageId(),
                         msg.getKey(),
-                        new String(msg.getData())
+                        new String(msg.getData()),
+                        pinpointHeaders(msg)
                 );
                 consumer.acknowledge(msg);
             } catch (Exception e) {

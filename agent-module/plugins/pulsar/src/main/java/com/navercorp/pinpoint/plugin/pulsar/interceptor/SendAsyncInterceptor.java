@@ -18,26 +18,26 @@ package com.navercorp.pinpoint.plugin.pulsar.interceptor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import com.navercorp.pinpoint.plugin.pulsar.PulsarClientUtils;
 import com.navercorp.pinpoint.plugin.pulsar.PulsarConstants;
-import org.apache.pulsar.client.impl.MessageImpl;
-import org.apache.pulsar.client.impl.ProducerImpl;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils.SAMPLING_RATE_FALSE;
+import org.apache.pulsar.client.api.Producer;
 
 /**
+ * ProducerImpl.sendAsync(Message, SendCallback): records the producer event and opens the async context of the
+ * send callback. The trace headers were already added by {@link MessageBuilderSendAsyncInterceptor}, which passes
+ * the next trace id through the scope.
+ *
  * @author zhouzixin@apache.org
  */
 public class SendAsyncInterceptor implements AroundInterceptor {
@@ -47,10 +47,12 @@ public class SendAsyncInterceptor implements AroundInterceptor {
 
     private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
+    private final InterceptorScope scope;
 
-    public SendAsyncInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
+    public SendAsyncInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext, InterceptorScope scope) {
         this.methodDescriptor = methodDescriptor;
         this.traceContext = traceContext;
+        this.scope = scope;
     }
 
     @Override
@@ -109,40 +111,37 @@ public class SendAsyncInterceptor implements AroundInterceptor {
         recorder.recordServiceType(PulsarConstants.PULSAR_CLIENT);
         recorder.recordApi(methodDescriptor);
 
-        ProducerImpl<?> producer = (ProducerImpl<?>) target;
-        final String url = producer.getClient().getLookup().getServiceUrl(), topic = producer.getTopic();
-        recorder.recordEndPoint(url);
-        recorder.recordDestinationId(url);
-        recorder.recordAttribute(PulsarConstants.PULSAR_TOPIC_ANNOTATION_KEY, topic);
-        recorder.recordAttribute(PulsarConstants.PULSAR_BROKER_URL_ANNOTATION_KEY, url);
+        // No implementation types here: the shaded pulsar-client 5.x relocates them
+        final String url = PulsarClientUtils.getServiceUrl(target);
+        if (url != null) {
+            recorder.recordEndPoint(url);
+            recorder.recordDestinationId(url);
+        }
+        if (target instanceof Producer) {
+            final String topic = ((Producer<?>) target).getTopic();
+            recorder.recordAttribute(PulsarConstants.PULSAR_TOPIC_ANNOTATION_KEY, topic);
+        }
+        if (url != null) {
+            recorder.recordAttribute(PulsarConstants.PULSAR_BROKER_URL_ANNOTATION_KEY, url);
+        }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        final TraceId nextTraceId = trace.getTraceId().getNextTraceId();
-        recorder.recordNextSpanId(nextTraceId.getSpanId());
-        final Map<String, Object> paramMap = new HashMap<>();
-        if (trace.canSampled()) {
-            paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextTraceId.getFlags()));
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            paramMap.put(
-                    Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
-                    String.valueOf(traceContext.getServerTypeCode())
-            );
-            if (traceContext.getServiceName() != null) {
-                paramMap.put(Header.HTTP_PARENT_SERVICE_NAME.toString(), traceContext.getServiceName());
-            }
-            paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextTraceId.getParentSpanId()));
-            paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextTraceId.getSpanId()));
-            paramMap.put(Header.HTTP_TRACE_ID.toString(), nextTraceId.getTransactionId());
-            paramMap.put(PulsarConstants.ACCEPTOR_HOST, url);
-            paramMap.put(PulsarConstants.IS_ASYNC_SEND, trace.isAsync());
-        } else {
-            paramMap.put(Header.HTTP_SAMPLED.toString(), SAMPLING_RATE_FALSE);
+        final TraceId nextTraceId = getNextTraceId();
+        if (nextTraceId != null) {
+            recorder.recordNextSpanId(nextTraceId.getSpanId());
         }
-        final MessageImpl<?> message = (MessageImpl<?>) args[0];
-        for (final Map.Entry<String, Object> entry : paramMap.entrySet()) {
-            message.getMessageBuilder().addProperty()
-                    .setKey(entry.getKey())
-                    .setValue(String.valueOf(entry.getValue()));
+    }
+
+    // Set by MessageBuilderSendAsyncInterceptor when the message went through TypedMessageBuilderImpl.sendAsync()
+    private TraceId getNextTraceId() {
+        final InterceptorScopeInvocation invocation = scope.getCurrentInvocation();
+        if (invocation == null) {
+            return null;
         }
+        final Object attachment = invocation.getAttachment();
+        if (attachment instanceof TraceId) {
+            invocation.removeAttachment();
+            return (TraceId) attachment;
+        }
+        return null;
     }
 }

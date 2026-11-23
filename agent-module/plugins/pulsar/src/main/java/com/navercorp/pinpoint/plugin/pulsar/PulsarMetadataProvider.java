@@ -33,5 +33,7 @@ public class PulsarMetadataProvider implements TraceMetadataProvider {
         context.addAnnotationKey(PulsarConstants.PULSAR_MESSAGE_SIZE_ANNOTATION_KEY);
         context.addAnnotationKey(PulsarConstants.PULSAR_TOPIC_ANNOTATION_KEY);
         context.addAnnotationKey(PulsarConstants.PULSAR_BROKER_URL_ANNOTATION_KEY);
+        context.addAnnotationKey(PulsarConstants.PULSAR_RETRY_COUNT_ANNOTATION_KEY);
+        context.addAnnotationKey(PulsarConstants.PULSAR_SEQUENCE_ID_ANNOTATION_KEY);
     }
 }

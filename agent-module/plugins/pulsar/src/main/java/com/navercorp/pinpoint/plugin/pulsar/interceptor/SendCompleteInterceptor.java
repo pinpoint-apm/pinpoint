@@ -20,8 +20,10 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextTraceBlockSimpleAroundInterceptor;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.pulsar.PulsarConstants;
-import org.apache.pulsar.client.impl.OpSendMsgStats;
+import com.navercorp.pinpoint.plugin.pulsar.field.getter.RetryCountGetter;
+import com.navercorp.pinpoint.plugin.pulsar.field.getter.SequenceIdGetter;
 
 /**
  * @author zhouzixin@apache.org
@@ -39,12 +41,17 @@ public class SendCompleteInterceptor extends AsyncContextTraceBlockSimpleAroundI
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        if (args[1] instanceof OpSendMsgStats) {
-            OpSendMsgStats sendMsgStats = (OpSendMsgStats) args[1];
-            recorder.recordAttribute(PulsarConstants.PULSAR_SEQUENCE_ID_ANNOTATION_KEY, sendMsgStats.getSequenceId());
-            recorder.recordAttribute(PulsarConstants.PULSAR_RETRY_COUNT_ANNOTATION_KEY, sendMsgStats.getRetryCount());
+        // OpSendMsgStatsImpl (relocated in the shaded pulsar-client 5.x), absent on sendComplete(Throwable)
+        final Object sendMsgStats = ArrayArgumentUtils.getArgument(args, 1, Object.class);
+        if (sendMsgStats instanceof SequenceIdGetter) {
+            final long sequenceId = ((SequenceIdGetter) sendMsgStats)._$PINPOINT$_getSequenceId();
+            recorder.recordAttribute(PulsarConstants.PULSAR_SEQUENCE_ID_ANNOTATION_KEY, sequenceId);
+        }
+        if (sendMsgStats instanceof RetryCountGetter) {
+            final int retryCount = ((RetryCountGetter) sendMsgStats)._$PINPOINT$_getRetryCount();
+            recorder.recordAttribute(PulsarConstants.PULSAR_RETRY_COUNT_ANNOTATION_KEY, retryCount);
         }
         recorder.recordApi(methodDescriptor);
-        recorder.recordException((Throwable) args[0]);
+        recorder.recordException(ArrayArgumentUtils.getArgument(args, 0, Throwable.class));
     }
 }

@@ -20,43 +20,32 @@ import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.pulsar.PulsarContainer;
 import org.testcontainers.utility.DockerImageName;
-import test.pinpoint.plugin.pulsar.TestConsumer;
 
-import java.io.IOException;
 import java.util.Properties;
 
 /**
+ * Broker only. The producer and the consumer run in the test, on the class loader the agent instruments.
+ *
  * @author zhouzixin@apache.org
  */
 public class TestBrokerServer implements SharedTestLifeCycle {
 
     private PulsarContainer container;
-    private TestConsumer testConsumer;
 
     @Override
     public Properties beforeAll() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
         container = new PulsarContainer(DockerImageName.parse("apachepulsar/pulsar:4.0.10"));
         container.start();
-        String serviceUrl = container.getPulsarBrokerUrl();
-        testConsumer = new TestConsumer(serviceUrl);
-        testConsumer.start();
 
         Properties properties = new Properties();
-        properties.setProperty("SERVICE_URL", serviceUrl);
+        properties.setProperty("SERVICE_URL", container.getPulsarBrokerUrl());
         System.getProperties().putAll(properties);
         return properties;
     }
 
     @Override
     public void afterAll() {
-        if (testConsumer != null) {
-            try {
-                testConsumer.close();
-            } catch (IOException ignored) {
-                // Nobody cares me.
-            }
-        }
         if (container != null) {
             container.stop();
         }
