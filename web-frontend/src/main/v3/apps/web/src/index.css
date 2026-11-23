@@ -1,9 +1,16 @@
-@import 'tailwindcss';
-@import '@pinpoint-fe/ui/src/theme.css';
+/*
+  Preflight (base reset) only, so it applies from the first paint before the JS bundle loads.
+  Utilities come from `@pinpoint-fe/ui/src/globals.css`, which the app imports and which also
+  scans this app's sources; generating them here too would ship every utility twice.
 
-@source '../index.html';
-@source './**/*.{ts,tsx}';
-@source '../../../packages/ui/src/**/*.{ts,tsx}';
+  Do not add `@import 'tailwindcss'` or an `@layer ...;` order statement here. With no utilities,
+  the optimizer moves the empty layers into a statement at the end of this file, and the build
+  drops its semicolon when it concatenates the next stylesheet — the rule after it is then
+  swallowed. Layer order still holds: globals.css declares `properties` before `components` and
+  `utilities`.
+*/
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
