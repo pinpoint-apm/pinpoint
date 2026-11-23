@@ -1,10 +1,10 @@
 import colors from 'tailwindcss/colors';
 
 /**
- * 테마 색 정의. `tailwind.config.js`(빌드)와 `src/constants/theme.ts`(런타임)가 함께 쓴다.
+ * 테마 색 정의. `src/constants/theme.ts`(런타임)가 읽는다.
  *
- * 설정 파일에서 떼어낸 이유: 런타임 코드가 설정 파일을 임포트하면 플러그인(`tailwindcss-animate`
- * 등)까지 앱·테스트 모듈 그래프로 끌려 들어온다. 색만 필요하므로 색만 나눠 둔다.
+ * 유틸리티 클래스(`bg-primary` 등)는 `src/theme.css` 의 `--color-*` 로 만들어진다. 두 곳의 값은
+ * 같아야 한다 — 색을 바꾸면 둘 다 고치고, `src/lib/tailwindTheme.test.ts` 가 어긋남을 잡는다.
  */
 export const themeColors = {
   border: 'hsl(var(--ui-border))',

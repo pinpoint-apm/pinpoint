@@ -39,7 +39,7 @@ const DialogContent = ({
   ref?: React.Ref<React.ElementRef<typeof DialogPrimitive.Content>>;
 }) => (
   // 중앙 정렬(`translate-x/y-[-50%]`)은 Tailwind 4 에서 `translate` 속성을 쓰고,
-  // tailwindcss-animate 의 키프레임은 `transform` 을 쓴다. 서로 다른 속성이라 합산되므로
+  // tw-animate-css 의 키프레임은 `transform` 을 쓴다. 서로 다른 속성이라 합산되므로
   // 정렬을 상쇄하려던 `slide-*-left-1/2`/`-[48%]` 를 두면 창 하나 너비만큼 옆에서 날아온다.
   // (3 까지는 둘 다 `transform` 이라 키프레임이 정렬을 덮어썼다.) 지금은 fade + zoom 만 쓴다.
   <DialogPortal>
