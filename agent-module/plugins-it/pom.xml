@@ -62,6 +62,7 @@
         <module>okhttp-it</module>
         <module>thrift-it</module>
         <module>rabbitmq-it</module>
+        <module>rabbitmq-spring-it</module>
         <module>rxjava-it</module>
         <module>spring-it</module>
         <module>thread-it</module>

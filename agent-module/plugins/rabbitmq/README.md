@@ -2,7 +2,7 @@
 * Since: Pinpoint 1.7.0
 * See: https://www.rabbitmq.com/
 * Range: com.rabbitmq/amqp-client [3.0.0, 5.x]
-* Range: org.springframework.amqp/spring-rabbit [1.3.3, 2.4] (optional, instrumented when present)
+* Range: org.springframework.amqp/spring-rabbit [1.3.3, 4.2] (optional, instrumented when present)
 
 #### Tracing custom Consumers
 RabbitMQ plugin traces `Consumer.handleDelivery(...)` implementations to record calls made when a *basic.deliver* is

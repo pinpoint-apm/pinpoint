@@ -35,9 +35,12 @@
 
         <pinpoint.agent.profile>local</pinpoint.agent.profile>
         <pinpoint.agent.sampling-rate>1</pinpoint.agent.sampling-rate>
+        <!-- agent log level; run with -Dpinpoint.agent.logging.level=DEBUG to log every flushed Span / SpanChunk -->
+        <pinpoint.agent.logging.level>INFO</pinpoint.agent.logging.level>
         <pinpoint.agent.default.jvmargument>
             -D${project.name}
             -Dpinpoint.profiler.profiles.active=${pinpoint.agent.profile}
+            -Dpinpoint.logging.level=${pinpoint.agent.logging.level}
             -Dpinpoint.serviceName=DEFAULT
             -Dpinpoint.applicationName=PluginTest
             -Dpinpoint.agentName=PluginTestAgent
