@@ -1,6 +1,7 @@
 /**
- * 화면의 층(z-index) 표. `tailwind.config.js`(빌드)와 `theme.ts`(런타임)가 함께 쓴다.
- * TS 로 둔 것은 층 이름을 타입으로 한 번만 적기 위해서다. Tailwind 는 설정을 jiti 로 읽어 TS 도 읽는다.
+ * 화면의 층(z-index) 표. `theme.ts`(런타임)가 읽고, 유틸리티 클래스용으로 `src/theme.css` 의
+ * `--z-index-*` 에 같은 값을 적는다(`lib/tailwindTheme.test.ts` 가 둘을 맞춰 본다).
+ * TS 로 둔 것은 층 이름을 타입으로 한 번만 적기 위해서다.
  * `z-header`, `z-popup` 처럼 이름으로 쓴다.
  *
  * 층을 새로 쌓을 때 숫자를 하나 더 올리지 말고 여기서 자리를 정한다. 예전에는 기준 없이 그때그때

@@ -1,7 +1,32 @@
 /* Tailwind CSS v4 entry for the library bundle.
  * Imports only the theme tokens and generated utilities (no preflight/base
  * reset) so the picker does not clobber host page styles.
- * The legacy JS config (prefix `rdp`, custom theme) is loaded via @config. */
-@import 'tailwindcss/theme.css' layer(theme);
+ * Every utility carries the `rdp:` prefix (`rdp:flex`) so it cannot clash with the host page. */
+@import 'tailwindcss/theme.css' layer(theme) prefix(rdp);
 @import 'tailwindcss/utilities.css' layer(utilities);
-@config '../../tailwind.config.js';
+
+@source '../../index.html';
+@source '../**/*.{js,ts,jsx,tsx}';
+
+@theme inline {
+  /* Accent colors stay open as CSS variables. The defaults match the original
+   * (rich-datetime-picker); pinpoint fills them with its theme colors (--ui-*) in
+   * packages/ui/src/components/DatetimePicker/datetime-picker.css. */
+  --color-primary: var(--rdp-primary, #9338ff);
+  --color-stateRed: var(--rdp-danger, #f84302);
+  --color-rgba1: rgba(0, 0, 0, 0.1);
+  --color-rgba15: rgba(0, 0, 0, 0.15);
+  --color-rgba2: rgba(0, 0, 0, 0.2);
+  --color-rgba5: rgba(0, 0, 0, 0.5);
+  --color-rgba8: rgba(0, 0, 0, 0.8);
+  --color-rgba06: rgba(0, 0, 0, 0.06);
+  --color-rgbaPrimary: var(--rdp-primary-soft, rgba(147, 56, 255, 0.1));
+
+  --shadow-box1: 2px 2px 12px 0px rgba(0, 0, 0, 0.2);
+
+  --spacing-7_5: 1.875rem;
+  --spacing-12_5: 3.125rem;
+  --spacing-13: 3.25rem;
+  --spacing-70: 17.5rem;
+  --spacing-85: 21.25rem;
+}

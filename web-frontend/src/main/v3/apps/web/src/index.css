@@ -1,6 +1,9 @@
 @import 'tailwindcss';
+@import '@pinpoint-fe/ui/src/theme.css';
 
-@config '../tailwind.config.js';
+@source '../index.html';
+@source './**/*.{ts,tsx}';
+@source '../../../packages/ui/src/**/*.{ts,tsx}';
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,

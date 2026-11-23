@@ -99,7 +99,7 @@ const CustomTimeViewSlider = ({
         {
           'rdp:left-0 rdp:rounded-l rdp:border-r rdp:border-r-rgba2': direction === 'left',
           'rdp:right-0 rdp:rounded-r rdp:border-l rdp:border-l-rgba2': direction === 'right',
-          'rdp:left-0 rdp:w-full rdp:rounded-bl rdp:rounded-br rdp:border-t rdp:border-t-rgba2':
+          'rdp:left-0 rdp:w-full rdp:rounded-br rdp:rounded-bl rdp:border-t rdp:border-t-rgba2':
             direction === 'bottom',
           'rdp:translate-x-0 rdp:opacity-0': !show,
           'rdp:opacity-100': show,

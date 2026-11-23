@@ -1,0 +1,131 @@
+/*
+ * pinpoint 공용 Tailwind 테마. `globals.css`(ui 패키지)와 앱의 진입 CSS(`apps/web/src/index.css`)가
+ * 함께 가져다 쓴다. 예전의 `tailwind.config.js` 를 CSS 로 옮긴 것이다.
+ *
+ * 이 파일은 테마·변형·유틸리티만 정의한다. `@import 'tailwindcss'` 와 `@source` 는 가져다 쓰는
+ * 쪽이 정한다 — 무엇을 훑을지는 진입 CSS 마다 다르다.
+ *
+ * `@theme inline` 을 쓰는 이유: 값을 CSS 변수로 한 번 더 감싸지 않고 유틸리티에 그대로 넣는다.
+ * 대부분의 값이 이미 `var(--ui-*)` 를 가리키고 있고, JS 설정 시절과 같은 CSS 가 나온다.
+ *
+ * JS 에서도 읽는 값이 있다. 색은 `tailwind.colors.js`, 층은 `constants/zIndexLayers.ts` 와 값이
+ * 같아야 한다 — `src/lib/tailwindTheme.test.ts` 가 둘을 맞춰 본다.
+ */
+@import 'tw-animate-css';
+@import 'tailwind-scrollbar-hide/v4';
+
+/* `.dark` 를 단 요소의 자손에 적용한다(JS 설정의 `darkMode: ['class']` 와 같은 선택자). */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --blur-xs: 2px;
+
+  --text-xxs: 0.625rem;
+
+  --container-8xl: 90rem;
+
+  --spacing-90: 22.5rem;
+  --spacing-160: 40rem;
+
+  --border-width-1: 1px;
+
+  --radius-lg: var(--ui-radius);
+  --radius-md: calc(var(--ui-radius) - 2px);
+  --radius-sm: calc(var(--ui-radius) - 4px);
+
+  /* 색. JS 쪽 정의는 `tailwind.colors.js` */
+  --color-border: hsl(var(--ui-border));
+  --color-input: hsl(var(--ui-input));
+  --color-ring: hsl(var(--ui-ring));
+  --color-background: hsl(var(--ui-background));
+  --color-foreground: hsl(var(--ui-foreground));
+  --color-primary: hsl(var(--ui-primary));
+  --color-primary-foreground: hsl(var(--ui-primary-foreground));
+  --color-secondary: hsl(var(--ui-secondary));
+  --color-secondary-foreground: hsl(var(--ui-secondary-foreground));
+  --color-destructive: hsl(var(--ui-destructive));
+  --color-destructive-foreground: hsl(var(--ui-destructive-foreground));
+  --color-muted: hsl(var(--ui-muted));
+  --color-muted-foreground: hsl(var(--ui-muted-foreground));
+  --color-accent: hsl(var(--ui-accent));
+  --color-accent-foreground: hsl(var(--ui-accent-foreground));
+  --color-popover: hsl(var(--ui-popover));
+  --color-popover-foreground: hsl(var(--ui-popover-foreground));
+  --color-card: hsl(var(--ui-card));
+  --color-card-foreground: hsl(var(--ui-card-foreground));
+  /* pinpoint. 팔레트 값(emerald-400 등)을 그대로 적는다 */
+  --color-status-success: oklch(76.5% 0.177 163.223); /* emerald-400 */
+  --color-status-good: hsl(var(--ui-primary));
+  --color-status-warn: oklch(70.5% 0.213 47.604); /* orange-500 */
+  --color-status-fail: oklch(63.7% 0.237 25.331); /* red-500 */
+  --color-fast: oklch(84.5% 0.143 164.978); /* emerald-300 */
+  --color-normal: oklch(80.9% 0.105 251.813); /* blue-300 */
+  --color-delay: oklch(83.7% 0.128 66.29); /* orange-300 */
+  --color-slow: oklch(70.5% 0.213 47.604); /* orange-500 */
+  --color-error: oklch(63.7% 0.237 25.331); /* red-500 */
+
+  /* 층. 뜻과 JS 쪽 정의는 `constants/zIndexLayers.ts` */
+  --z-index-chart-overlay: 30;
+  --z-index-map-menu: 40;
+  --z-index-drawer: 50;
+  --z-index-chart-board: 60;
+  --z-index-resize-handle: 61;
+  --z-index-header: 70;
+  --z-index-popup: 100;
+  --z-index-toast: 200;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-blink: blink 1s infinite;
+  --animate-blinkWithBgColor: blinkWithBgColor 1s infinite;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes blinkWithBgColor {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      background-color: hsl(var(--ui-primary));
+      color: hsl(var(--ui-primary-foreground));
+    }
+  }
+}
+
+/* v4 의 container 는 가운데 정렬·안쪽 여백이 없다. JS 설정(center, padding 2rem, screens 는 2xl 1400px
+   하나뿐)을 잇는다 — 그 사이 브레이크포인트에서는 폭을 묶지 않고, 1400px 부터 1400px 로 묶는다. */
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+
+  @media (width >= 40rem) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}

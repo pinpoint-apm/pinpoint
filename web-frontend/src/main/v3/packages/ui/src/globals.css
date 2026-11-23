@@ -1,8 +1,11 @@
 @import 'tailwindcss';
+/* 테마·변형·플러그인. 앱의 진입 CSS 도 같은 파일을 가져다 쓴다. */
+@import './theme.css';
 
-/* 테마·content·플러그인 설정은 계속 JS 설정 파일에 둔다. v4 는 CSS 우선 설정을 권하지만
-   apps/web 이 preset 으로 이 설정과 datetime-picker 설정을 합쳐 쓰고 있어, 그 합성을 유지한다. */
-@config '../tailwind.config.js';
+/* 이 패키지의 소스를 훑는다. 자동 탐지는 빌드를 돌린 곳(앱) 기준이라 이 패키지가 빠질 수 있다. */
+@source './**/*.{ts,tsx}';
+/* 클래스 이름을 문자열로 조합하는 곳이 있어 소스에서 찾지 못한다. */
+@source inline('flex-none');
 
 /* v4 의 기본 테두리 색이 currentcolor 로 바뀌었다. v3 와 같은 화면을 유지하기 위한 보정.
    지우려면 이 기본값에 의존하는 모든 요소에 테두리 색 유틸리티를 명시해야 한다. */

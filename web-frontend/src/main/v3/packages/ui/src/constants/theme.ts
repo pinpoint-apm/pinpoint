@@ -10,8 +10,8 @@ import { oklchToHex } from '../lib/oklch';
  * Tailwind 4 에는 `resolveConfig` 가 없다. JS 쪽에서 실제로 쓰는 것은 색과 브레이크포인트
  * 둘뿐이라, 기본 테마와 우리 색 정의를 직접 합친다.
  *
- * 색 정의만 따로 임포트하는 이유: `tailwind.config.js` 를 그대로 임포트하면 플러그인까지 앱·테스트
- * 모듈 그래프로 끌려 들어온다(그 중 일부는 ESM 전용이라 jest 가 읽지 못한다).
+ * 유틸리티 클래스용 테마는 CSS(`src/theme.css`)에 있어 JS 로 읽을 수 없다. 색은 같은 값을 적어 둔
+ * `tailwind.colors.js` 에서 읽는다(두 곳의 값은 `lib/tailwindTheme.test.ts` 가 맞춰 본다).
  */
 
 /**

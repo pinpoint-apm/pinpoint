@@ -1,5 +1,5 @@
 /* datetime-picker 의 강조색을 pinpoint 테마색으로 맞춘다.
-   피커는 이 변수들이 없으면 원본의 보라색을 쓴다(packages/datetime-picker/tailwind.config.js). */
+   피커는 이 변수들이 없으면 원본의 보라색을 쓴다(packages/datetime-picker/src/components/tailwind.css). */
 .rich-datetime-picker {
   --rdp-primary: hsl(var(--ui-primary));
   --rdp-primary-soft: hsl(var(--ui-primary) / 0.1);

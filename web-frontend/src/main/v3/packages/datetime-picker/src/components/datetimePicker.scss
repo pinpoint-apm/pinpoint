@@ -350,7 +350,7 @@
   }
 
   .rich-datetime-picker__tooltip--bottom-end {
-    @apply rdp:right-0 rdp:top-[calc(100%+4px)];
+    @apply rdp:top-[calc(100%+4px)] rdp:right-0;
   }
 
   .rich-datetime-picker__tooltip--right-end {
@@ -392,7 +392,7 @@
      오클릭이 나는 걸 막는다. 패널 높이는 항상 같은 만큼 늘어나므로 흔들림이 없다.
      line-clamp로 최대 성장을 두 줄로 묶고, 잘린 전문은 title 속성으로 노출한다. */
   .rich-datetime-picker__error {
-    @apply rdp:min-h-4 rdp:text-xs rdp:leading-4 rdp:text-stateRed rdp:line-clamp-2;
+    @apply rdp:line-clamp-2 rdp:min-h-4 rdp:text-xs rdp:leading-4 rdp:text-stateRed;
 
     /* consumer가 넣은 ISO 문자열·URL 같은 무분절 토큰이 320px을 넘지 않게 */
     overflow-wrap: anywhere;

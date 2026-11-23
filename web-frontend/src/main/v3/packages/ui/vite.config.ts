@@ -20,7 +20,6 @@ export default defineConfig({
         'i18next',
         'react-i18next',
         'tailwindcss',
-        'tailwindcss-animate',
         'tailwind-scrollbar-hide',
         '@tanstack/react-query',
       ],
