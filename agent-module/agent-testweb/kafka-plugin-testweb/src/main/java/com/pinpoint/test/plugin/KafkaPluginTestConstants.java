@@ -3,7 +3,8 @@ package com.pinpoint.test.plugin;
 import java.util.UUID;
 
 public class KafkaPluginTestConstants {
-    public static final String BROKER_URL = "localhost:32769";
+    // override with -Dkafka.broker.url=host:port
+    public static final String BROKER_URL = System.getProperty("kafka.broker.url", "localhost:9092");
     public static final String TOPIC = "kafka-it-topic";
     public static final String MESSAGE = "message-" + UUID.randomUUID().toString();
     public static final String GROUP_ID = "kafka-it-group";

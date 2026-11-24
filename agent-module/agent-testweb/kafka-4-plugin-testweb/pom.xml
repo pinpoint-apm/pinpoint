@@ -15,31 +15,70 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jdk.version>17</jdk.version>
-        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
+            -Dprofiler.kafka.producer.enable=true
+            -Dprofiler.kafka.consumer.enable=true
+            -Dprofiler.kafka.consumer.entryPoint=com.pinpoint.test.plugin.TestConsumerRecordEntryPoint.consumeRecord
         </pinpoint.agent.jvmargument>
+
+        <!-- kafka-clients 4.x needs Java 11+; Spring Boot 4 like the other JDK 17 testwebs -->
+        <jdk.version>17</jdk.version>
+        <jdk.home>${env.JAVA_17_HOME}</jdk.home>
+        <spring.version>${spring7.version}</spring.version>
+        <spring-boot.version>${spring-boot4.version}</spring-boot.version>
+        <jakarta.annotation-api.version>${jakarta.annotation-api2.version}</jakarta.annotation-api.version>
+        <jaxb.version>${jaxb4.version}</jaxb.version>
+
+        <!-- newer than the kafka-clients managed by the Spring Boot 4 BOM -->
+        <testweb.kafka-clients.version>4.4.0</testweb.kafka-clients.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- declared before the BOM import so that it takes precedence -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${testweb.kafka-clients.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers-kafka</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>4.0.0</version>
         </dependency>
     </dependencies>
 

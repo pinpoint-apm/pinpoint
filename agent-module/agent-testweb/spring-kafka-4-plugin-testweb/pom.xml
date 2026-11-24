@@ -29,11 +29,25 @@
         <spring-boot.version>${spring-boot4.version}</spring-boot.version>
         <jakarta.annotation-api.version>${jakarta.annotation-api2.version}</jakarta.annotation-api.version>
         <jaxb.version>${jaxb4.version}</jaxb.version>
+
+        <!-- newer than the spring-kafka and kafka-clients managed by the Spring Boot 4 BOM -->
+        <testweb.spring-kafka.version>4.2.0</testweb.spring-kafka.version>
+        <testweb.kafka-clients.version>4.4.0</testweb.kafka-clients.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- spring-kafka 4.x and kafka-clients 4.x come from the Spring Boot 4 BOM -->
+            <!-- declared before the BOM import so that they take precedence -->
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${testweb.spring-kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${testweb.kafka-clients.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>

@@ -31,10 +31,11 @@ public class KafkaPluginController {
         consumer.start();
 
         try {
-            TimeUnit.SECONDS.sleep(3);
+            final int consumed = consumer.awaitConsumed(KafkaPluginTestConstants.MAX_TRACE_WAIT_TIME + TimeUnit.SECONDS.toMillis(5));
+            return "consumed " + consumed;
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return "interrupted";
         }
-
-        return "OK";
     }
 }
