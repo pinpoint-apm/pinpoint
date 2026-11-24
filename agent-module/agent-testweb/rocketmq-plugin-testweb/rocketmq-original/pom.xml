@@ -22,6 +22,9 @@
             -Dprofiler.rocketmq.consumer.enable=true
             -Dprofiler.rocketmq.basePackage=com.pinpoint.test.plugin
         </pinpoint.agent.jvmargument>
+
+        <!-- the latest client; the plugin itself compiles against plugins-bom.rocketmq.version -->
+        <testweb.rocketmq-client.version>5.5.1</testweb.rocketmq-client.version>
     </properties>
 
     <dependencies>
@@ -44,6 +47,13 @@
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Spring 5 only handles javax.annotation.PostConstruct, and Tomcat 9 needs javax.annotation,
+             which Java 11+ no longer ships (spring-boot:start runs on the Maven JVM) -->
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -56,7 +66,7 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <version>${plugins-bom.rocketmq.version}</version>
+            <version>${testweb.rocketmq-client.version}</version>
         </dependency>
     </dependencies>
 
