@@ -2,22 +2,25 @@
 * Since: Pinpoint 2.2.0
 * See: https://rocketmq.apache.org/
 * Range: org.apache.rocketmq/rocketmq-client [4.0, 5.5]
+  * Synchronous send is traced from 4.0.0.
+  * The push consumer is traced from 4.1.0.
+  * Asynchronous send (`SendCallback`) is traced and propagated from 4.3.0.
 
 ### RocketMQ Configuration
 To enable RocketMQ Producer, set the following option in *pinpoint.config*:
 ```
-profiler.RocketMQ.producer.enable=true
+profiler.rocketmq.producer.enable=true
 ```
 To enable RocketMQ Consumer, set the following option in *pinpoint.config*:
 ```
-profiler.RocketMQ.consumer.enable=true
+profiler.rocketmq.consumer.enable=true
 ```
 To enable RocketMQ, set the following option in *profiler.rocketmq.basePackage*:
 - Comma separated list of package names
 - eg) profiler.rocketmq.basePackage=com.company
 - eg) profiler.rocketmq.basePackage=com.company.shopping.cart, com.company.payment
 ```
-profiler.rocketmq.consumer.basePackage=
+profiler.rocketmq.basePackage=
 ```
 ### Caution
 #### Caution for Consumer

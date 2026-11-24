@@ -25,13 +25,13 @@ import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.apache.rocketmq.remoting.exception.RemotingException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.UnsupportedEncodingException;
 /**
  * @author messi-gao
@@ -47,19 +47,24 @@ public class RocketMQOriginalProducer {
     @Value("${namesrvAddr}")
     private String namesrvAddr;
 
-    @Bean
-    public DefaultMQProducer producer() throws MQClientException {
-        DefaultMQProducer producer = new
-                DefaultMQProducer("test");
+    private DefaultMQProducer producer;
+
+    // Created here, not as a @Bean of this class injected back into it: Spring Boot 2.6+ rejects that circular reference.
+    @PostConstruct
+    public void init() throws MQClientException {
+        producer = new DefaultMQProducer("test");
         // Specify name server addresses.
         producer.setNamesrvAddr(namesrvAddr);
         //Launch the instance.
         producer.start();
-        return producer;
     }
 
-    @Autowired
-    private DefaultMQProducer producer;
+    @PreDestroy
+    public void destroy() {
+        if (producer != null) {
+            producer.shutdown();
+        }
+    }
 
     @GetMapping("/original/send")
     public String send()
