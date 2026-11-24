@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.Providers;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -44,11 +44,11 @@ import static org.mockito.Mockito.when;
 public class JarFileAnalyzerTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final String PACKAGE_PREFIX = "org.apache.commons.io.";
+    private static final String PACKAGE_PREFIX = "org.apache.commons.logging.";
 
     @Test
     public void packageAnalyzer() throws IOException {
-        URL url = CodeSourceUtils.getCodeLocation(IOUtils.class);
+        URL url = CodeSourceUtils.getCodeLocation(Log.class);
 
         JarFile jarFile = new JarFile(url.getFile());
         logger.debug("jarFile:{}", jarFile.getName());
