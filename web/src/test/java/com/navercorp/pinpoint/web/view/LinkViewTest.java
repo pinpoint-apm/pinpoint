@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.module.SimpleModule;
@@ -58,7 +57,7 @@ public class LinkViewTest {
 
 
     @Test
-    public void testSerializeV3() throws JacksonException {
+    public void testSerializeV3() {
         LinkView linkView = newLinkView();
 
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();

@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.alarm.dao.entity;
 
+import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
@@ -172,7 +173,7 @@ public class AlarmRuleEntityMapper {
         try {
             return conditionReader.readValue(json);
         } catch (JacksonException e) {
-            throw new IllegalStateException("Failed to deserialize alarm condition", e);
+            throw new JsonRuntimeException("Failed to deserialize alarm condition", e);
         }
     }
 
@@ -183,7 +184,7 @@ public class AlarmRuleEntityMapper {
         try {
             return filtersReader.readValue(json);
         } catch (JacksonException e) {
-            throw new IllegalStateException("Failed to deserialize alarm filters", e);
+            throw new JsonRuntimeException("Failed to deserialize alarm filters", e);
         }
     }
 
@@ -194,7 +195,7 @@ public class AlarmRuleEntityMapper {
         try {
             return conditionWriter.writeValueAsString(condition);
         } catch (JacksonException e) {
-            throw new IllegalStateException("Failed to serialize alarm condition", e);
+            throw new JsonRuntimeException("Failed to serialize alarm condition", e);
         }
     }
 
@@ -205,7 +206,7 @@ public class AlarmRuleEntityMapper {
         try {
             return filtersWriter.writeValueAsString(filters);
         } catch (JacksonException e) {
-            throw new IllegalStateException("Failed to serialize alarm filters", e);
+            throw new JsonRuntimeException("Failed to serialize alarm filters", e);
         }
     }
 }
