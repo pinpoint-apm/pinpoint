@@ -24,11 +24,11 @@ public class UserServiceConfigExporter implements FrontendConfigExporter {
     public void export(Map<String, Object> export) {
         String userId = userService.getUserIdFromSecurity();
         if (StringUtils.hasLength(userId)) {
+            export.put("userId", userId);
             User user = userService.selectUserByUserId(userId);
             if (user == null) {
                 logger.info("User({}) info don't saved database.", userId);
             } else {
-                export.put("userId", user.getUserId());
                 export.put("userName", user.getName());
                 export.put("userDepartment", user.getDepartment());
             }

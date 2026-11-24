@@ -29,3 +29,12 @@ To restrict access per application, do all of the following:
 1) Enable method security (`@EnableMethodSecurity`).
 2) Register a bean named `naverPermissionEvaluator` that implements the methods the annotations call.
 3) Register a `ServerMapDataFilter` bean to filter the server map and the real-time active thread count.
+
+## Alarm recipients
+
+An alarm can send email or SMS to the members of a user group.
+By default, every user can select any user group.
+Set `alarm.channel.member-check.enabled=true` to let a user select only the groups that the user is a member of.
+This applies to v1 alarm rules and to v2 alarm channels.
+- `ROLE_ADMIN` can select any user group through the API. The alarm editors show only the user's own groups, also to `ROLE_ADMIN`.
+- A basic login account is not a user in the Users list. Add a user with the same ID as the login ID, then add that user to the group.

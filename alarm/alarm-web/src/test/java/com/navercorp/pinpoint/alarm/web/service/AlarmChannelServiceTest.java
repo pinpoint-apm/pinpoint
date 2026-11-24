@@ -28,6 +28,9 @@ import com.navercorp.pinpoint.alarm.vo.AlarmChannelOwnerType;
 import com.navercorp.pinpoint.alarm.vo.AlarmMethodType;
 import com.navercorp.pinpoint.alarm.vo.AlarmNotificationChannel;
 import com.navercorp.pinpoint.alarm.vo.AlarmRuleChannel;
+import com.navercorp.pinpoint.user.service.UserGroupService;
+import com.navercorp.pinpoint.user.service.UserService;
+import org.springframework.beans.factory.ObjectProvider;
 import com.navercorp.pinpoint.user.vo.UserGroup;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -39,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class AlarmChannelServiceTest extends AlarmServiceTestSupport {
 
@@ -70,6 +74,114 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("User group not found: deleted-group", exception.getReason());
         assertEquals(0, channelDao.insertedCount);
+    }
+
+    @Test
+    void createChannelAcceptsMemberOfUserGroup() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team");
+        AlarmChannelService service = newChannelService(channelDao, loggedIn("alice", "team"));
+
+        service.createChannel(userGroupChannel(null, AlarmMethodType.EMAIL, "team"));
+
+        assertEquals(1, channelDao.insertedCount);
+    }
+
+    @Test
+    void createChannelRejectsNonMemberOfUserGroup() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team");
+        AlarmChannelService service = newChannelService(channelDao, loggedIn("mallory", "other"));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.createChannel(userGroupChannel(null, AlarmMethodType.SMS, "team"))
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Not a member of user group", exception.getReason());
+        assertEquals(0, channelDao.insertedCount);
+    }
+
+    @Test
+    void createChannelRejectsAnyGroupWithoutLogin() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team");
+        AlarmChannelService service = newChannelService(channelDao, loggedIn(null));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> service.createChannel(userGroupChannel(null, AlarmMethodType.EMAIL, "team")));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(0, channelDao.insertedCount);
+    }
+
+    @Test
+    void createChannelAllowsAnyGroupWhenTheMemberCheckIsOff() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team");
+        AlarmChannelService service = newChannelService(channelDao, memberCheckOff());
+
+        service.createChannel(userGroupChannel(null, AlarmMethodType.EMAIL, "team"));
+
+        assertEquals(1, channelDao.insertedCount);
+    }
+
+    @Test
+    void updateChannelKeepsUnchangedDestinationForNonMember() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team");
+        channelDao.setChannel(userGroupChannel(4L, AlarmMethodType.EMAIL, "team"));
+        AlarmChannelService service = newChannelService(channelDao, loggedIn("mallory"));
+
+        service.updateChannel(SERVICE_NAME, userGroupChannel(4L, AlarmMethodType.EMAIL, "team"));
+
+        assertEquals(1, channelDao.updatedCount);
+    }
+
+    @Test
+    void updateChannelRejectsNonMemberWhenDestinationChanges() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team", "other");
+        channelDao.setChannel(userGroupChannel(4L, AlarmMethodType.EMAIL, "team"));
+        AlarmChannelService service = newChannelService(channelDao, loggedIn("mallory"));
+
+        assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateChannel(SERVICE_NAME, userGroupChannel(4L, AlarmMethodType.EMAIL, "other"))
+        );
+
+        assertEquals(0, channelDao.updatedCount);
+    }
+
+    @Test
+    void updateChannelRejectsNonMemberWhenOnlyMethodChanges() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team");
+        channelDao.setChannel(userGroupChannel(4L, AlarmMethodType.EMAIL, "team"));
+        AlarmChannelService service = newChannelService(channelDao, loggedIn("mallory"));
+
+        assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateChannel(SERVICE_NAME, userGroupChannel(4L, AlarmMethodType.SMS, "team"))
+        );
+
+        assertEquals(0, channelDao.updatedCount);
+    }
+
+    @Test
+    void updateChannelRejectsNonMemberWhenWebhookTurnsIntoEmail() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team");
+        channelDao.setChannel(webhookChannel(4L, "https://example.com/hook"));
+        AlarmChannelService service = newChannelService(channelDao, loggedIn("mallory"));
+
+        assertThrows(
+                ResponseStatusException.class,
+                () -> service.updateChannel(SERVICE_NAME, userGroupChannel(4L, AlarmMethodType.EMAIL, "team"))
+        );
+
+        assertEquals(0, channelDao.updatedCount);
     }
 
     @Test
@@ -490,6 +602,23 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
     }
 
     @Test
+    void linkRuleChannelDoesNotRequireMembership() {
+        RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
+        channelDao.setUserGroupIds("team");
+        channelDao.setChannel(userGroupChannel(4L, AlarmMethodType.EMAIL, "team"));
+        RecordingChannelBindingDao channelBindingDao = new RecordingChannelBindingDao();
+        AlarmChannelService service = newChannelService(new RecordingRuleDao(true), stub(AlarmTemplateDao.class),
+                stub(AlarmTemplateItemDao.class), channelDao, channelBindingDao, loggedIn("mallory"));
+
+        AlarmRuleChannel ruleChannel = new AlarmRuleChannel();
+        ruleChannel.setRuleId(7L);
+        ruleChannel.setChannelId(4L);
+        service.linkRuleChannel(APPLICATION, ruleChannel);
+
+        assertEquals(1, channelBindingDao.inserted.size());
+    }
+
+    @Test
     void linkRuleChannelRejectsTemplateLinkedRule() {
         RecordingRuleDao ruleDao = new RecordingRuleDao(true).withTemplateItemId(10L);
         RecordingChannelDao channelDao = new RecordingChannelDao(0, 0);
@@ -592,13 +721,45 @@ class AlarmChannelServiceTest extends AlarmServiceTestSupport {
                                                   AlarmTemplateItemDao templateItemDao,
                                                   RecordingChannelDao channelDao,
                                                   AlarmChannelBindingDao channelBindingDao) {
+        return newChannelService(ruleDao, templateDao, templateItemDao, channelDao, channelBindingDao,
+                loggedIn(null));
+    }
+
+    private AlarmChannelService newChannelService(AlarmRuleV2Dao ruleDao,
+                                                  AlarmTemplateDao templateDao,
+                                                  AlarmTemplateItemDao templateItemDao,
+                                                  RecordingChannelDao channelDao,
+                                                  AlarmChannelBindingDao channelBindingDao,
+                                                  UserGroupMembershipValidator members) {
         return new AlarmChannelService(
                 channelDao,
                 channelBindingDao,
                 ruleDao,
                 new AlarmNotificationChannelConfigParser(new JsonMapper()),
-                new AlarmBundleLocks(ruleDao, templateDao, templateItemDao)
+                new AlarmBundleLocks(ruleDao, templateDao, templateItemDao),
+                members
         );
+    }
+
+    private AlarmChannelService newChannelService(RecordingChannelDao channelDao, UserGroupMembershipValidator members) {
+        return newChannelService(stub(AlarmRuleV2Dao.class), stub(AlarmTemplateDao.class),
+                stub(AlarmTemplateItemDao.class), channelDao, new RecordingChannelBindingDao(), members);
+    }
+
+    private static UserGroupMembershipValidator memberCheckOff() {
+        return new UserGroupMembershipValidator(mock(UserService.class), mock(), false);
+    }
+
+    private static UserGroupMembershipValidator loggedIn(String userId, String... memberOf) {
+        UserService userService = mock(UserService.class);
+        when(userService.getUserIdFromSecurity()).thenReturn(userId == null ? "" : userId);
+        UserGroupService userGroupService = mock(UserGroupService.class);
+        for (String groupId : memberOf) {
+            when(userGroupService.checkValid(userId, groupId)).thenReturn(true);
+        }
+        ObjectProvider<UserGroupService> userGroupProvider = mock();
+        when(userGroupProvider.getObject()).thenReturn(userGroupService);
+        return new UserGroupMembershipValidator(userService, userGroupProvider, true);
     }
 
     static List<InvalidConfig> invalidCreateChannelConfigs() {

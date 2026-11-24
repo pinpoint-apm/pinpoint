@@ -57,17 +57,20 @@ public class AlarmChannelService {
     private final AlarmRuleV2Dao ruleDao;
     private final AlarmNotificationChannelConfigParser channelConfigParser;
     private final AlarmBundleLocks locks;
+    private final UserGroupMembershipValidator membershipValidator;
 
     public AlarmChannelService(AlarmNotificationChannelDao channelDao,
                                AlarmChannelBindingDao channelBindingDao,
                                AlarmRuleV2Dao ruleDao,
                                AlarmNotificationChannelConfigParser channelConfigParser,
-                               AlarmBundleLocks locks) {
+                               AlarmBundleLocks locks,
+                               UserGroupMembershipValidator membershipValidator) {
         this.channelDao = Objects.requireNonNull(channelDao, "channelDao");
         this.channelBindingDao = Objects.requireNonNull(channelBindingDao, "channelBindingDao");
         this.ruleDao = Objects.requireNonNull(ruleDao, "ruleDao");
         this.channelConfigParser = Objects.requireNonNull(channelConfigParser, "channelConfigParser");
         this.locks = Objects.requireNonNull(locks, "locks");
+        this.membershipValidator = Objects.requireNonNull(membershipValidator, "membershipValidator");
     }
 
     // ---- Channel CRUD ----
@@ -81,6 +84,7 @@ public class AlarmChannelService {
     public AlarmNotificationChannel createChannel(AlarmNotificationChannel channel) {
         AlarmOwnerships.verifyServiceName(channel.getServiceName());
         validateChannelDestination(channel);
+        validateChannelMembership(channel);
         validateChannelConfig(channel);
         channelDao.insert(channel);
         return channel;
@@ -106,6 +110,10 @@ public class AlarmChannelService {
         AlarmOwnerships.verifyChannel(currentChannel, serviceName);
         channel.setServiceName(serviceName);
         validateChannelDestination(channel);
+        if (channel.getMethodType() != currentChannel.getMethodType()
+                || !Objects.equals(channel.getDestination(), currentChannel.getDestination())) {
+            validateChannelMembership(channel);
+        }
         validateChannelConfig(channel);
         channelDao.update(channel);
     }
@@ -243,6 +251,12 @@ public class AlarmChannelService {
         String userGroupId = channel.getDestination();
         if (userGroupId == null || !channelDao.existsUserGroup(userGroupId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User group not found: " + userGroupId);
+        }
+    }
+
+    private void validateChannelMembership(AlarmNotificationChannel channel) {
+        if (isUserGroupDestination(channel)) {
+            membershipValidator.validate(channel.getDestination());
         }
     }
 
