@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlarmV2ChannelForm } from './AlarmV2ChannelForm';
-import { useGetUserGroup } from '@pinpoint-fe/ui/src/hooks';
+import { useConfiguration, useGetUserGroup } from '@pinpoint-fe/ui/src/hooks';
 import { useAlarmV2ChannelMutation } from '@pinpoint-fe/ui/src/hooks/api';
 import { useReactToastifyToast } from '@pinpoint-fe/ui/src/components/Toast';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
+import { getAlarmUserGroupQuery } from '@pinpoint-fe/ui/src/utils';
 import { AlarmV2FullPage, AlarmV2ViewFallback } from './AlarmV2FullPage';
 import { AlarmV2Channel } from '@pinpoint-fe/ui/src/constants/types';
 
@@ -31,7 +32,10 @@ export const AlarmV2ChannelFullPage = ({
   const queryClient = useQueryClient();
   // The view is up before the list arrives, and a link can name a channel that is
   // not there at all. The form that reads the groups draws only once one is found.
-  const { data: userGroupList } = useGetUserGroup({}, { enabled: !!currentTargetChannel });
+  const userGroupQuery = getAlarmUserGroupQuery(useConfiguration());
+  const { data: userGroupList } = useGetUserGroup(userGroupQuery.params, {
+    enabled: !!currentTargetChannel && userGroupQuery.enabled,
+  });
   const { mutate: saveChannel, isPending } = useAlarmV2ChannelMutation({
     onSuccess: () => {
       toast.success(
@@ -60,6 +64,7 @@ export const AlarmV2ChannelFullPage = ({
           key={currentTargetChannel.id ? `channel-${currentTargetChannel.id}` : 'channel-new'}
           data={currentTargetChannel}
           userGroups={userGroupList}
+          userGroupsNeedLogin={!userGroupQuery.enabled}
           pending={isPending}
           onCancel={onClose}
           onSubmit={(values) =>
