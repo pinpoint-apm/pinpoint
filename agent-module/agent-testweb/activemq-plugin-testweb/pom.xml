@@ -24,7 +24,7 @@
 
     <!-- ActiveMQ 5.x speaks javax.jms and 6.x speaks jakarta.jms, so each line has its own app -->
     <modules>
-        <module>activemq-5-original</module>
-        <module>activemq-6-springboot</module>
+        <module>activemq-5</module>
+        <module>activemq-6</module>
     </modules>
 </project>

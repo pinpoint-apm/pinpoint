@@ -70,7 +70,7 @@ public class ActiveMQ5Controller {
             }
         }
         list.sort(Comparator.comparing(HrefTag::getPath));
-        return new ApiLinkPage("activemq-5-original")
+        return new ApiLinkPage("activemq-5")
                 .addHrefTag(list)
                 .build();
     }
@@ -132,7 +132,7 @@ public class ActiveMQ5Controller {
             if (message == null) {
                 return "nothing received from " + RECEIVE_QUEUE;
             }
-            return "received " + ((TextMessage) message).getText();
+            return "received " + ((TextMessage) message).getText() + " headers=" + PinpointHeaders.of(message);
         } finally {
             session.close();
         }

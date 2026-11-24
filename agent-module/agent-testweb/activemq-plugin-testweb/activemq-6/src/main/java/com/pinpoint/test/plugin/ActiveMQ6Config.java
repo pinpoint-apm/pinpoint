@@ -16,8 +16,12 @@
 
 package com.pinpoint.test.plugin;
 
+import jakarta.jms.Connection;
 import jakarta.jms.ConnectionFactory;
+import jakarta.jms.JMSException;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +32,7 @@ import org.springframework.jms.config.SimpleJmsListenerContainerFactory;
 public class ActiveMQ6Config {
 
     static final String SIMPLE_CONTAINER_FACTORY = "simpleJmsListenerContainerFactory";
+    static final String CLIENT_CONNECTION = "activeMQClientConnection";
 
     /**
      * Broker inside the app. Set activemq.broker.embedded=false to use an external broker at spring.activemq.broker-url.
@@ -43,6 +48,21 @@ public class ActiveMQ6Config {
         broker.addConnector(brokerUrl);
         broker.start();
         return broker;
+    }
+
+    /**
+     * Connection of the ActiveMQ client itself, for the endpoints that call the JMS API without Spring JMS. The
+     * ConnectionFactory of Spring Boot hands out cached proxies, which hide ActiveMQMessageProducer.
+     */
+    @Bean(name = CLIENT_CONNECTION, destroyMethod = "close")
+    public Connection activeMQClientConnection(@Value("${spring.activemq.broker-url}") String brokerUrl,
+                                               ObjectProvider<BrokerService> broker) throws JMSException {
+        // start the embedded broker, when there is one, before connecting to it
+        broker.getIfAvailable();
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
+        Connection connection = connectionFactory.createConnection();
+        connection.start();
+        return connection;
     }
 
     /**

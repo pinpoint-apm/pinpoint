@@ -110,7 +110,7 @@
         <plugins-bom.postgresql.version>42.3.10</plugins-bom.postgresql.version>
         <plugins-bom.mssql.version>7.0.0.jre8</plugins-bom.mssql.version>
         <plugins-bom.activemq.version>5.13.2</plugins-bom.activemq.version>
-        <plugins-bom.activemq6.version>6.2.10</plugins-bom.activemq6.version>
+        <plugins-bom.activemq6.version>6.4.0</plugins-bom.activemq6.version>
         <plugins-bom.jtds.version>1.2.8</plugins-bom.jtds.version>
         <plugins-bom.mariadb.version>1.3.4</plugins-bom.mariadb.version>
 

@@ -10,7 +10,7 @@
         <version>4.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-activemq-5-original</artifactId>
+    <artifactId>pinpoint-activemq-5</artifactId>
     <packaging>jar</packaging>
 
     <properties>
