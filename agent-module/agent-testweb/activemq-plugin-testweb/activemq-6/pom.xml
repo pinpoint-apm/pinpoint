@@ -10,10 +10,12 @@
         <version>4.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-activemq-6-springboot</artifactId>
+    <artifactId>pinpoint-activemq-6</artifactId>
     <packaging>jar</packaging>
 
     <properties>
+        <!-- newer than the ActiveMQ managed by the Spring Boot 4 BOM -->
+        <activemq6.version>6.4.0</activemq6.version>
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
@@ -21,6 +23,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- imported before the Spring Boot BOM so that it takes precedence -->
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-bom</artifactId>
+                <version>${activemq6.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -45,7 +55,7 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
-        <!-- ActiveMQ 6.x (jakarta.jms), the line Spring Boot manages -->
+        <!-- ActiveMQ 6.x (jakarta.jms) with Spring JMS; the client endpoints use the same activemq-client -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-activemq</artifactId>

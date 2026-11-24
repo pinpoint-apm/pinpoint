@@ -49,7 +49,7 @@ public class ActiveMQ5Listener {
         MessageConsumer consumer = session.createConsumer(session.createQueue(ActiveMQ5Controller.LISTENER_QUEUE));
         consumer.setMessageListener(message -> {
             try {
-                logger.info("Received {}", ((TextMessage) message).getText());
+                logger.info("Received {} headers={}", ((TextMessage) message).getText(), PinpointHeaders.of(message));
             } catch (JMSException e) {
                 logger.warn("Failed to read the message", e);
             }

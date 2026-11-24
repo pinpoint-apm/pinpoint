@@ -18,6 +18,9 @@ package com.pinpoint.test.plugin;
 
 import com.pinpoint.test.common.view.ApiLinkPage;
 import com.pinpoint.test.common.view.HrefTag;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.TextMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,18 +32,21 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Spring JMS on ActiveMQ 6.x: JmsTemplate and the @JmsListener containers of {@link ActiveMQ6SpringListener}.
+ */
 @RestController
-public class ActiveMQ6Controller {
+public class ActiveMQ6SpringController {
 
-    static final String LISTENER_QUEUE = "pinpoint.activemq6.listener";
-    static final String SIMPLE_LISTENER_QUEUE = "pinpoint.activemq6.simple-listener";
-    static final String RECEIVE_QUEUE = "pinpoint.activemq6.receive";
+    static final String LISTENER_QUEUE = "pinpoint.activemq6.spring.listener";
+    static final String SIMPLE_LISTENER_QUEUE = "pinpoint.activemq6.spring.simple-listener";
+    static final String RECEIVE_QUEUE = "pinpoint.activemq6.spring.receive";
 
     private final JmsTemplate jmsTemplate;
     private final RequestMappingHandlerMapping handlerMapping;
 
-    public ActiveMQ6Controller(JmsTemplate jmsTemplate,
-                               @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlerMapping) {
+    public ActiveMQ6SpringController(JmsTemplate jmsTemplate,
+                                     @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlerMapping) {
         this.jmsTemplate = jmsTemplate;
         this.handlerMapping = handlerMapping;
     }
@@ -54,7 +60,7 @@ public class ActiveMQ6Controller {
             }
         }
         list.sort(Comparator.comparing(HrefTag::getPath));
-        return new ApiLinkPage("activemq-6-springboot")
+        return new ApiLinkPage("activemq-6")
                 .addHrefTag(list)
                 .build();
     }
@@ -62,31 +68,31 @@ public class ActiveMQ6Controller {
     /**
      * Sends with JmsTemplate to the queue of the default @JmsListener container.
      */
-    @GetMapping("/activemq6/send")
+    @GetMapping("/activemq6/spring/send")
     public String send() {
-        jmsTemplate.convertAndSend(LISTENER_QUEUE, "send");
+        jmsTemplate.convertAndSend(LISTENER_QUEUE, "spring/send");
         return "sent to " + LISTENER_QUEUE;
     }
 
     /**
      * Sends with JmsTemplate to the queue of the simple @JmsListener container.
      */
-    @GetMapping("/activemq6/sendToSimpleListener")
+    @GetMapping("/activemq6/spring/sendToSimpleListener")
     public String sendToSimpleListener() {
-        jmsTemplate.convertAndSend(SIMPLE_LISTENER_QUEUE, "sendToSimpleListener");
+        jmsTemplate.convertAndSend(SIMPLE_LISTENER_QUEUE, "spring/sendToSimpleListener");
         return "sent to " + SIMPLE_LISTENER_QUEUE;
     }
 
     /**
      * Sends and then pulls the message back with JmsTemplate.receive.
      */
-    @GetMapping("/activemq6/sendAndReceive")
-    public String sendAndReceive() {
-        jmsTemplate.convertAndSend(RECEIVE_QUEUE, "sendAndReceive");
-        Object received = jmsTemplate.receiveAndConvert(RECEIVE_QUEUE);
+    @GetMapping("/activemq6/spring/sendAndReceive")
+    public String sendAndReceive() throws JMSException {
+        jmsTemplate.convertAndSend(RECEIVE_QUEUE, "spring/sendAndReceive");
+        Message received = jmsTemplate.receive(RECEIVE_QUEUE);
         if (received == null) {
             return "nothing received from " + RECEIVE_QUEUE;
         }
-        return "received " + received;
+        return "received " + ((TextMessage) received).getText() + " headers=" + PinpointHeaders.of(received);
     }
 }

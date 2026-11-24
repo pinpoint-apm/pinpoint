@@ -1,7 +1,7 @@
 ## ActiveMQ 
 * Since: Pinpoint 1.6.0
 * See: https://activemq.apache.org/
-* Range: org.apache.activemq/activemq-client [5.1.0, 6.2]
+* Range: org.apache.activemq/activemq-client [5.1.0, 6.4]
 
 ### Pinpoint Configuration
 pinpoint.config
