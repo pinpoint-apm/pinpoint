@@ -30,7 +30,6 @@
     "react-router": "^7.18.3"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.10",
     "@hookform/resolvers": "^5.9.1",
     "@pinpoint-fe/datetime-picker": "*",
     "@pinpoint-fe/scatter-chart": "*",
@@ -71,8 +70,6 @@
     "html-to-image": "^1.11.11",
     "libphonenumber-js": "^1.13.15",
     "lodash": "^4.18.0",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.omit": "^4.5.0",
     "lucide-react": "^1.32.0",
     "rc-drawer": "^7.3.0",
     "rc-slider": "^11.1.9",
@@ -112,8 +109,6 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.25",
-    "@types/lodash.clonedeep": "^4.5.9",
-    "@types/lodash.omit": "^4.5.9",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.70.0",

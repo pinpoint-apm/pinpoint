@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { AlarmRule } from '@pinpoint-fe/ui/src/constants';
-import omit from 'lodash.omit';
+import omit from 'lodash/omit';
 import {
   useAlarmRuleMutation,
   useConfiguration,
