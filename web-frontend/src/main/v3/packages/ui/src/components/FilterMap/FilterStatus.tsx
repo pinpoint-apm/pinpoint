@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tab } from '@headlessui/react';
+import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import { HiOutlineArrowRight } from 'react-icons/hi';
@@ -31,65 +31,68 @@ export const FilterStatus = ({
   };
   return (
     <div>
-      <Tab.Group selectedIndex={tabIndex} onChange={onChangeTabIndex}>
-        <Tab.List className="px-2 bg-gray-100 rounded-t">
+      {/* 탭은 index 로 다루고, Radix 의 value 는 문자열이라 index 를 문자열로 바꿔 싣는다. */}
+      <TabsPrimitive.Root
+        value={String(tabIndex ?? 0)}
+        onValueChange={(value) => onChangeTabIndex?.(Number(value))}
+      >
+        <TabsPrimitive.List className="px-2 bg-gray-100 rounded-t">
           {filterStates?.map((state, i) => (
-            <Tab
+            <TabsPrimitive.Trigger
               key={i}
+              value={String(i)}
               className={cn('py-2 pt-3 px-1 rounded-t', { 'pt-2 bg-background': tabIndex === i })}
             >
               <Servers filterState={state} minimize={true} />
-            </Tab>
+            </TabsPrimitive.Trigger>
           ))}
-        </Tab.List>
-        <Tab.Panels>
-          {filterStates?.map((state, i) => (
-            <Tab.Panel key={i} className="px-4">
-              <div className="flex items-center h-12 px-1 mb-1 font-semibold">Applied Filters</div>
-              <div className="px-2">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
-                  Application:
-                  <Badge variant="secondary">
-                    <Servers filterState={state} />
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
-                  Agent:
-                  <Badge variant="secondary" className="gap-2">
-                    {state.applicationName ? (
-                      state.agentName || 'All'
-                    ) : (
-                      <>
-                        {state.fromAgentName || 'All'}
-                        <HiOutlineArrowRight />
-                        {state.toAgentName || 'All'}
-                      </>
-                    )}
-                  </Badge>
-                </div>
-                {state.url && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
-                    URL Pattern:
-                    <Badge variant="secondary">{atob(state.url || '')}</Badge>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
-                  Response Time:
-                  <Badge variant="secondary">
-                    {state.responseFrom} ~ {state.responseTo}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
-                  Transaction Result:
-                  <Badge variant="secondary">
-                    {getTransactionResultText(state.transactionResult)}
-                  </Badge>
-                </div>
+        </TabsPrimitive.List>
+        {filterStates?.map((state, i) => (
+          <TabsPrimitive.Content key={i} value={String(i)} className="px-4">
+            <div className="flex items-center h-12 px-1 mb-1 font-semibold">Applied Filters</div>
+            <div className="px-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
+                Application:
+                <Badge variant="secondary">
+                  <Servers filterState={state} />
+                </Badge>
               </div>
-            </Tab.Panel>
-          ))}
-        </Tab.Panels>
-      </Tab.Group>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
+                Agent:
+                <Badge variant="secondary" className="gap-2">
+                  {state.applicationName ? (
+                    state.agentName || 'All'
+                  ) : (
+                    <>
+                      {state.fromAgentName || 'All'}
+                      <HiOutlineArrowRight />
+                      {state.toAgentName || 'All'}
+                    </>
+                  )}
+                </Badge>
+              </div>
+              {state.url && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
+                  URL Pattern:
+                  <Badge variant="secondary">{atob(state.url || '')}</Badge>
+                </div>
+              )}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
+                Response Time:
+                <Badge variant="secondary">
+                  {state.responseFrom} ~ {state.responseTo}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground h-9">
+                Transaction Result:
+                <Badge variant="secondary">
+                  {getTransactionResultText(state.transactionResult)}
+                </Badge>
+              </div>
+            </div>
+          </TabsPrimitive.Content>
+        ))}
+      </TabsPrimitive.Root>
       <div className="flex items-center justify-center px-2 py-1 mt-5 mb-4 rounded">{toggler}</div>
     </div>
   );
