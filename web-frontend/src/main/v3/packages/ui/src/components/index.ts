@@ -40,7 +40,6 @@ export * from './ServerMapQueryOptions';
 export * from './ServerMapSearchList';
 export * from './Service';
 export * from './ServiceMap';
-export * from './Sidebar';
 export * from './Slider';
 export * from './Toast';
 export * from './Transaction';
