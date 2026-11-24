@@ -26,10 +26,15 @@ import com.navercorp.pinpoint.common.server.dao.ApplicationDao;
 import com.navercorp.pinpoint.mybatis.DefaultMyBatisConfigurationCustomizer;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
 import com.navercorp.pinpoint.service.service.ServiceModelResolver;
+import com.navercorp.pinpoint.user.config.UserConfigProperties;
+import com.navercorp.pinpoint.user.dao.UserGroupDao;
+import com.navercorp.pinpoint.user.service.UserGroupServiceImpl;
+import com.navercorp.pinpoint.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import javax.sql.DataSource;
 
@@ -38,8 +43,13 @@ import static org.mockito.Mockito.mock;
 
 class AlarmWebModuleTest {
 
-    /** What a web supplies: the main datasource, its mybatis customizer, and the application index. */
+    /**
+     * What a web supplies: the main datasource, its mybatis customizer, the application index,
+     * and the user services. The user group service is the real one, because it takes the alarm
+     * deletion listener and so closes a bean cycle through the channel service.
+     */
     @Configuration
+    @Import(UserGroupServiceImpl.class)
     static class WebBeans {
         @Bean
         DataSource dataSource() {
@@ -59,6 +69,21 @@ class AlarmWebModuleTest {
         @Bean
         ApplicationDao applicationDao() {
             return mock(ApplicationDao.class);
+        }
+
+        @Bean
+        UserService userService() {
+            return mock(UserService.class);
+        }
+
+        @Bean
+        UserGroupDao mysqlUserGroupDao() {
+            return mock(UserGroupDao.class);
+        }
+
+        @Bean
+        UserConfigProperties userConfigProperties() {
+            return new UserConfigProperties();
         }
 
         @Bean

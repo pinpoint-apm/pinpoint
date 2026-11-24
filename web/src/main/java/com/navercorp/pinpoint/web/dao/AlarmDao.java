@@ -32,6 +32,8 @@ public interface AlarmDao {
 
     void deleteRule(String ruleId);
 
+    Rule selectRuleByRuleId(String ruleId);
+
     List<Rule> selectRuleByUserGroupId(String userGroupId);
     
     List<Rule> selectRuleByApplicationName(String applicationName);

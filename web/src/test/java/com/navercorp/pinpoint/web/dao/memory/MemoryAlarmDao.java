@@ -73,6 +73,11 @@ public class MemoryAlarmDao implements AlarmDao {
 
 
     @Override
+    public Rule selectRuleByRuleId(String ruleId) {
+        return alarmRule.get(ruleId);
+    }
+
+    @Override
     public List<Rule> selectRuleByUserGroupId(String userGroupId) {
         List<Rule> ruleList = new ArrayList<>();
 

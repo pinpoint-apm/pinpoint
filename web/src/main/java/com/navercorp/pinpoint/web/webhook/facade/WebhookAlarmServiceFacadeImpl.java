@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.webhook.facade;
 
+import com.navercorp.pinpoint.web.alarm.AlarmRuleMembershipValidator;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.webhook.service.WebhookAlarmService;
@@ -31,14 +32,18 @@ public class WebhookAlarmServiceFacadeImpl implements WebhookAlarmServiceFacade 
     private final WebhookAlarmService webhookAlarmService;
 
     private final AlarmDao alarmDao;
+    private final AlarmRuleMembershipValidator ruleMembershipValidator;
 
-    public WebhookAlarmServiceFacadeImpl(WebhookAlarmService webhookAlarmService, AlarmDao alarmDao) {
+    public WebhookAlarmServiceFacadeImpl(WebhookAlarmService webhookAlarmService, AlarmDao alarmDao,
+                                         AlarmRuleMembershipValidator ruleMembershipValidator) {
         this.webhookAlarmService = Objects.requireNonNull(webhookAlarmService, "webhookAlarmService");
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
+        this.ruleMembershipValidator = Objects.requireNonNull(ruleMembershipValidator, "ruleMembershipValidator");
     }
 
     @Override
     public String insertRuleWithWebhooks(Rule rule, List<String> webhookIds) {
+        ruleMembershipValidator.validateInsert(rule);
         String ruleId = alarmDao.insertRule(rule);
 
         webhookAlarmService.insertRuleWithWebhooks(ruleId, webhookIds);
@@ -49,6 +54,7 @@ public class WebhookAlarmServiceFacadeImpl implements WebhookAlarmServiceFacade 
 
     @Override
     public void updateRuleWithWebhooks(Rule rule, List<String> webhookIds) {
+        ruleMembershipValidator.validateUpdate(rule);
         alarmDao.updateRule(rule);
         alarmDao.deleteCheckerResult(rule.getRuleId());
 

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
+import com.navercorp.pinpoint.web.alarm.AlarmRuleMembershipValidator;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.alarm.vo.RuleDeleteRequest;
@@ -56,9 +57,11 @@ public class AlarmController {
     public final static String APPLICATION_NAME_PARAMS = "applicationName";
 
     private final AlarmService alarmService;
+    private final AlarmRuleMembershipValidator ruleMembershipValidator;
 
-    public AlarmController(AlarmService alarmService) {
+    public AlarmController(AlarmService alarmService, AlarmRuleMembershipValidator ruleMembershipValidator) {
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
+        this.ruleMembershipValidator = Objects.requireNonNull(ruleMembershipValidator, "ruleMembershipValidator");
     }
 
     @PreAuthorize("@naverPermissionEvaluator.hasAlarmPermission(#serviceName.getName(), #rule.getApplicationName(), T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
@@ -67,6 +70,7 @@ public class AlarmController {
         if (Rule.isRuleInvalidForPost(rule)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "there is not applicationName/checkerName/userGroupId/threashold to insert alarm rule");
         }
+        ruleMembershipValidator.validateInsert(rule);
         final String ruleId = alarmService.insertRule(rule);
         return new AlarmResponse(Result.SUCCESS, ruleId);
     }
@@ -100,6 +104,7 @@ public class AlarmController {
                     "There is not ruleId/userGroupId/applicationName/checkerName to publish alarm rule"
             );
         }
+        ruleMembershipValidator.validateUpdate(rule);
         alarmService.updateRule(rule);
         return SimpleResponse.ok();
     }

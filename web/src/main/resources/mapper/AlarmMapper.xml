@@ -21,6 +21,12 @@
         WHERE rule_id = #{ruleId} 
     </delete>
     
+    <select id="selectRuleByRuleId" resultType="Rule">
+        SELECT *, application_id AS application_name
+        FROM alarm_rule
+        WHERE rule_id = #{ruleId}
+    </select>
+
     <select id="selectRuleByUserGroupId" resultType="Rule">
         SELECT *, application_id AS application_name
         FROM alarm_rule
