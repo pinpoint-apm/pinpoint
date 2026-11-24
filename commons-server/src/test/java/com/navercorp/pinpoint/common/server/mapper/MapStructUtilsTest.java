@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.mapper;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.Test;
@@ -71,7 +70,7 @@ class MapStructUtilsTest {
 
 
     @Test
-    void stringListToJson() throws JacksonException {
+    void stringListToJson() {
         JsonMapper mapper = Jackson.newMapper();
         MapStructUtils mapStructUtils = new MapStructUtils(mapper);
 
@@ -81,7 +80,7 @@ class MapStructUtilsTest {
     }
 
     @Test
-    void integerListToJson() throws JacksonException {
+    void integerListToJson() {
         JsonMapper mapper = Jackson.newMapper();
         MapStructUtils mapStructUtils = new MapStructUtils(mapper);
 

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.filter;
 
+import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectReader;
@@ -143,7 +144,7 @@ public class DefaultFilterBuilder implements FilterBuilder<List<SpanBo>> {
         try {
             return filterHintReader.readValue(jsonFilterHint);
         } catch (JacksonException e) {
-            throw new RuntimeException("FilterHint read fail. error:" + e.getMessage(), e);
+            throw new JsonRuntimeException("FilterHint read fail. error:" + e.getMessage(), e);
         }
     }
 
@@ -151,7 +152,7 @@ public class DefaultFilterBuilder implements FilterBuilder<List<SpanBo>> {
         try {
             return filterDescriptorReader.readValue(jsonFilterText);
         } catch (JacksonException e) {
-            throw new RuntimeException("FilterDescriptor read fail. error:" + e.getMessage(), e);
+            throw new JsonRuntimeException("FilterDescriptor read fail. error:" + e.getMessage(), e);
         }
     }
 }

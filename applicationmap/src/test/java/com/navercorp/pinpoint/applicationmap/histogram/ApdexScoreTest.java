@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.applicationmap.histogram;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.json.JSONException;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-import java.io.IOException;
 import java.util.List;
 
 public class ApdexScoreTest {
@@ -60,19 +58,22 @@ public class ApdexScoreTest {
     }
 
     @Test
-    public void getApdexScore_format() throws IOException, JSONException {
+    public void getApdexScore_format() throws JSONException {
 
         final String actualStr = MAPPER.writeValueAsString(new ApdexScore(100, 0, 100));
 
-        JSONAssert.assertEquals("{\"apdexScore\":1.0}", actualStr, JSONCompareMode.LENIENT);
+        JSONAssert.assertEquals("""
+                {"apdexScore":1.0}""", actualStr, JSONCompareMode.LENIENT);
     }
 
     @Test
-    public void getApdexScore_formula() throws JacksonException, JSONException {
+    public void getApdexScore_formula() throws JSONException {
         ApdexScore apdexScore = new ApdexScore(100, 50, 200);
         final String actualStr = MAPPER.writeValueAsString(apdexScore);
 
-        JSONAssert.assertEquals("{\"apdexScore\":0.625,\"apdexFormula\":{\"satisfiedCount\":100,\"toleratingCount\":50,\"totalSamples\":200}}", actualStr, JSONCompareMode.LENIENT);
+        JSONAssert.assertEquals("""
+                        {"apdexScore":0.625,"apdexFormula":{"satisfiedCount":100,"toleratingCount":50,"totalSamples":200}}""",
+                actualStr, JSONCompareMode.LENIENT);
     }
 
 }
