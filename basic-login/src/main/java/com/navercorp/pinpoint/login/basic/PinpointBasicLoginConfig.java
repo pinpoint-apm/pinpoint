@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.login.basic;
 
+import com.navercorp.pinpoint.common.server.config.ActuatorProperties;
 import com.navercorp.pinpoint.login.basic.config.BasicLoginConfiguration;
 import com.navercorp.pinpoint.login.basic.service.BasicLoginConstants;
 import com.navercorp.pinpoint.login.basic.service.BasicLoginService;
@@ -49,9 +50,11 @@ import java.util.Objects;
 public class PinpointBasicLoginConfig {
 
     private final BasicLoginService basicLoginService;
+    private final ActuatorProperties actuatorProperties;
 
-    public PinpointBasicLoginConfig(BasicLoginService basicLoginService) {
+    public PinpointBasicLoginConfig(BasicLoginService basicLoginService, ActuatorProperties actuatorProperties) {
         this.basicLoginService = Objects.requireNonNull(basicLoginService, "basicLoginService");
+        this.actuatorProperties = Objects.requireNonNull(actuatorProperties, "actuatorProperties");
     }
 
     @Bean
@@ -82,6 +85,13 @@ public class PinpointBasicLoginConfig {
         http
                 .authorizeHttpRequests(customizer -> {
                     customizer.requestMatchers("/api/admin/**").hasRole("ADMIN");
+
+                    // actuator endpoints: only the health check stays open
+                    String healthPath = actuatorProperties.getHealthPath();
+                    customizer.requestMatchers(healthPath, healthPath + "/**").permitAll();
+
+                    String basePath = actuatorProperties.getBasePath();
+                    customizer.requestMatchers(basePath, basePath + "/**").hasRole("ADMIN");
                 })
                 .exceptionHandling(customizer -> {
                     customizer.accessDeniedPage(BasicLoginConstants.URI_NOT_AUTHORIZED);

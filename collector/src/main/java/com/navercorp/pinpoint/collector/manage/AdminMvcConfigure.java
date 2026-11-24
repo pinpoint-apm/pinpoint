@@ -17,29 +17,37 @@
 package com.navercorp.pinpoint.collector.manage;
 
 import com.navercorp.pinpoint.collector.manage.controller.AuthInterceptor;
+import com.navercorp.pinpoint.common.server.config.ActuatorProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Objects;
+import org.springframework.web.servlet.handler.MappedInterceptor;
 
 
 /**
- *
+ * Guards the admin API and the actuator endpoints with the admin password. Only the health check stays open.
  */
 @Configuration
-public class AdminMvcConfigure implements WebMvcConfigurer {
+public class AdminMvcConfigure {
 
-    private final AuthInterceptor interceptor;
+    private static final String ADMIN_PATH = "/admin/**";
 
-    public AdminMvcConfigure(AuthInterceptor interceptor) {
-        this.interceptor = Objects.requireNonNull(interceptor, "interceptor");
+    @Bean
+    public ActuatorProperties actuatorProperties() {
+        return new ActuatorProperties();
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor)
-                .addPathPatterns("/admin/**");
+    /**
+     * A {@link MappedInterceptor} bean is picked up by every handler mapping. An interceptor of a
+     * {@code WebMvcConfigurer} is not: the handler mapping of the actuator endpoints ignores it.
+     */
+    @Bean
+    public MappedInterceptor adminAuthInterceptor(AuthInterceptor interceptor, ActuatorProperties actuatorProperties) {
+        String basePath = actuatorProperties.getBasePath();
+        String[] includePatterns = {ADMIN_PATH, basePath, basePath + "/**"};
+
+        String healthPath = actuatorProperties.getHealthPath();
+        String[] excludePatterns = {healthPath, healthPath + "/**"};
+        return new MappedInterceptor(includePatterns, excludePatterns, interceptor);
     }
 
 }
