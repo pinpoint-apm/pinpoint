@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { ErrorAnalysisTransactionInfo } from '@pinpoint-fe/ui/src/constants';
 
 // The utils barrel also loads the chart helpers, and echarts ships ESM only, which jest cannot

@@ -25,6 +25,18 @@ jobs:
         working-directory: ./web-frontend/src/main/v3
         run: yarn install --frozen-lockfile
 
+      # The build only type-checks what the app imports, and the ui tests run through babel-jest,
+      # which strips types. This is the only place test files are type-checked.
+      - name: Type check
+        working-directory: ./web-frontend/src/main/v3
+        run: yarn typecheck
+
+      # Package lint scripts are not part of the build; without this a style lint error only
+      # shows up when someone builds the datetime-picker package itself.
+      - name: Style lint
+        working-directory: ./web-frontend/src/main/v3
+        run: yarn workspace @pinpoint-fe/datetime-picker lint:style
+
       - name: Test
         working-directory: ./web-frontend/src/main/v3
         run: yarn test

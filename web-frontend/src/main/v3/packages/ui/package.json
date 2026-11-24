@@ -18,7 +18,8 @@
     "clean": "yarn clean:dist && yarn clean:node_modules",
     "clean:node_modules": "rm -rf node_modules",
     "clean:dist": "rm -rf dist",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.17.19",
