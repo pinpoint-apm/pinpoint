@@ -38,6 +38,7 @@ import { useReactToastifyToast } from '../../components/Toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
 import { cn } from '../../lib/utils';
+import { getAlarmUserGroupQuery, withSavedUserGroup } from '@pinpoint-fe/ui/src/utils';
 import { HelpPopover } from '../../components/HelpPopover';
 
 export interface AlarmDetailProps {
@@ -155,7 +156,14 @@ export const AlarmDetail = ({
   const { refetch: refetchUsedWebhookList } = useGetWebhook({
     ruleId: data?.ruleId,
   });
-  const { data: userGroupList } = useGetUserGroup({ userGroupId: '' }, { enabled: !!editable });
+  const userGroupQuery = getAlarmUserGroupQuery(configuration);
+  const { data: userGroupList } = useGetUserGroup(userGroupQuery.params, {
+    enabled: !!editable && userGroupQuery.enabled,
+  });
+  const userGroupIds = withSavedUserGroup(
+    userGroupList?.map((item) => item.id) ?? [],
+    data?.userGroupId,
+  );
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -279,14 +287,18 @@ export const AlarmDetail = ({
                         )}
                       </FormControl>
                       <SelectContent>
-                        {userGroupList?.map((item) => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.id}
+                        {userGroupIds.map((id) => (
+                          <SelectItem key={id} value={id}>
+                            {id}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription></FormDescription>
+                    <FormDescription>
+                      {editable &&
+                        !userGroupQuery.enabled &&
+                        t('CONFIGURATION.ALARM.NO_LOGIN_USER_GROUP')}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 );

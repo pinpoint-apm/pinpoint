@@ -26,6 +26,7 @@ import { LoadingButton } from '@pinpoint-fe/ui';
 import { cn } from '@pinpoint-fe/ui/src/lib/utils';
 import { MdOutlineWarningAmber } from 'react-icons/md';
 import { hasNoRecipient } from './hasNoRecipient';
+import { withSavedUserGroup } from '@pinpoint-fe/ui/src/utils';
 
 type WebhookFormat = 'DEFAULT' | 'SLACK';
 
@@ -82,6 +83,7 @@ const isHttpUrl = (value: string) => {
 export interface AlarmV2ChannelFormProps {
   data?: Partial<AlarmV2Channel.ChannelData>;
   userGroups?: ConfigUserGroup.UserGroup[];
+  userGroupsNeedLogin?: boolean;
   pending?: boolean;
   controlsDisabled?: boolean;
   controlsDisabledReason?: string;
@@ -92,6 +94,7 @@ export interface AlarmV2ChannelFormProps {
 export const AlarmV2ChannelForm = ({
   data,
   userGroups,
+  userGroupsNeedLogin,
   pending,
   controlsDisabled,
   controlsDisabledReason,
@@ -118,6 +121,14 @@ export const AlarmV2ChannelForm = ({
   });
 
   const watchMethodType = form.watch('methodType');
+  // Another method to the same group is a new way to reach it, so the server checks the group again.
+  const userGroupIds = withSavedUserGroup(
+    userGroups?.map((ug) => ug.id) ?? [],
+    watchMethodType === data?.methodType && data?.methodType !== 'WEBHOOK'
+      ? data?.destination
+      : undefined,
+  );
+
   const formControlsDisabled = !!controlsDisabled || !!pending;
   // The count the server sent describes the group the channel was saved with. Once the user
   // picks another group it says nothing about the one on screen, so it goes away until saved.
@@ -190,7 +201,13 @@ export const AlarmV2ChannelForm = ({
                   const nextMethodType = methodType as FormValues['methodType'];
                   const destinationTypeChanged =
                     (field.value === 'WEBHOOK') !== (nextMethodType === 'WEBHOOK');
-                  if (!isEdit || destinationTypeChanged) {
+                  const destination = form.getValues('destination');
+                  const keepsDestination =
+                    isEdit &&
+                    !destinationTypeChanged &&
+                    (nextMethodType === data?.methodType ||
+                      !!userGroups?.some((ug) => ug.id === destination));
+                  if (!keepsDestination) {
                     form.setValue('destination', '');
                   }
                   if (!isEdit) {
@@ -248,13 +265,16 @@ export const AlarmV2ChannelForm = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {userGroups?.map((ug) => (
-                      <SelectItem key={ug.id} value={ug.id || ''}>
-                        {ug.id}
+                    {userGroupIds.map((id) => (
+                      <SelectItem key={id} value={id}>
+                        {id}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+              )}
+              {watchMethodType !== 'WEBHOOK' && userGroupsNeedLogin && (
+                <FormDescription>{t('CONFIGURATION.ALARM.NO_LOGIN_USER_GROUP')}</FormDescription>
               )}
               {showNoRecipient && (
                 <FormDescription className="flex items-start gap-1.5 text-sm text-orange-700">

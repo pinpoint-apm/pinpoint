@@ -210,6 +210,7 @@
       "USER_GROUP": "User Group",
       "SELECT_RULE": "Select rule",
       "SELECT_USER_GROUP": "Select user group",
+      "NO_LOGIN_USER_GROUP": "No user is logged in, so no group can be selected. Check the server property alarm.channel.member-check.enabled.",
       "THRESHOLD_MIN": "Must be greater than {{min}}",
       "THRESHOLD_MAX": "Must be less than {{max}}"
     },

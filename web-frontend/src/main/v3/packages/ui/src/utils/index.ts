@@ -1,3 +1,4 @@
+export * from './alarmUserGroup';
 export * from './array';
 export * from './date';
 export * from './dom';

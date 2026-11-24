@@ -14,6 +14,8 @@ export interface Configuration {
   showInspector: boolean;
   showHeatmap: boolean;
   openSource: boolean;
+  userId?: string;
+  alarmChannelMemberCheck?: boolean;
   version: string;
   'experimental.enableHeatmap.value': boolean;
   'experimental.enableHeatmap.description': string;

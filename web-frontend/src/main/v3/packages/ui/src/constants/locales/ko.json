@@ -209,6 +209,7 @@
       "USER_GROUP": "사용자 그룹",
       "SELECT_RULE": "규칙을 선택하세요",
       "SELECT_USER_GROUP": "사용자 그룹을 선택하세요",
+      "NO_LOGIN_USER_GROUP": "로그인한 사용자가 없어 그룹을 고를 수 없습니다. 서버 속성 alarm.channel.member-check.enabled를 확인하세요.",
       "THRESHOLD_MIN": "{{min}}보다 커야 합니다",
       "THRESHOLD_MAX": "{{max}}보다 작아야 합니다"
     },

@@ -104,6 +104,7 @@ jest.mock('@tanstack/react-query', () => ({
 let mockIsForbidden = false;
 let mockIsDefaultService = false;
 jest.mock('@pinpoint-fe/ui/src/hooks', () => ({
+  useConfiguration: () => undefined,
   useGetUserGroup: () => ({ data: [] }),
   useIsForbiddenPath: () => mockIsForbidden,
   useIsDefaultService: () => mockIsDefaultService,
