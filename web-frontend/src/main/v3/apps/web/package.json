@@ -16,6 +16,7 @@
     "clean:dist": "rm -rf dist",
     "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\"",
     "test": "exit 0",
+    "typecheck": "tsc --noEmit",
     "test:e2e": "yarn playwright test"
   },
   "dependencies": {

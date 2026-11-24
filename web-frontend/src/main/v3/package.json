@@ -14,6 +14,7 @@
     "dev:forbidden": "yarn workspace @pinpoint-fe/web dev:forbidden",
     "lint": "yarn workspaces run lint",
     "test": "yarn workspaces run test",
+    "typecheck": "yarn workspaces run typecheck",
     "test:e2e": "yarn workspace @pinpoint-fe/web test:e2e",
     "clean": "yarn workspace @pinpoint-fe/web clean && rm -rf node_modules"
   },

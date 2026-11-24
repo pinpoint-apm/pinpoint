@@ -11,6 +11,7 @@
     "dev": "vite build --watch",
     "devBuild": "vite build",
     "test": "jest",
+    "typecheck": "tsc --noEmit",
     "build": "yarn lint && tsc && vite build",
     "lint": "yarn format && eslint ./src && yarn lint:style",
     "clean": "yarn clean:dist && yarn clean:node_modules",

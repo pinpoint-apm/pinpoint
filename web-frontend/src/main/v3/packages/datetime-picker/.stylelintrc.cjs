@@ -34,17 +34,18 @@ module.exports = {
     // 알파값 표기(0.5 / 50%)도 같은 이유로 보지 않는다. 이 패키지는 rich-datetime-picker 를
     // 그대로 복사해 쓰므로, 원본 스타일시트를 고치지 않고 다시 덮어쓸 수 있게 규칙 쪽을 맞춘다.
     'alpha-value-notation': null,
-    // `@config` 는 바로 위 `@import` 와 한 묶음이라 빈 줄 없이 붙여 쓴다(src/components/tailwind.css).
-    'at-rule-empty-line-before': [
-      'always',
-      {
-        except: ['blockless-after-same-name-blockless', 'first-nested'],
-        ignore: ['after-comment'],
-        ignoreAtRules: ['config'],
-      },
-    ],
   },
   overrides: [
+    {
+      // Tailwind 테마 변수는 이름이 곧 클래스 이름이다(`--color-stateRed` → `rdp:text-stateRed`,
+      // `--spacing-7_5` → `rdp:mr-7_5`). 이름을 kebab-case 로 바꾸면 그 클래스를 쓰는 곳을 모두
+      // 바꿔야 하므로 이름 규칙은 보지 않는다. 종류(색·그림자·간격)별로 빈 줄을 두어 묶는 것도 허용한다.
+      files: ['src/components/tailwind.css'],
+      rules: {
+        'custom-property-pattern': null,
+        'custom-property-empty-line-before': null,
+      },
+    },
     {
       files: ['**/*.scss'],
       extends: ['stylelint-config-standard-scss'],

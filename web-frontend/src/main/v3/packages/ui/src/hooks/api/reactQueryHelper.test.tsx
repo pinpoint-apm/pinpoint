@@ -43,7 +43,11 @@ import {
 } from './reactQueryHelper';
 
 // 옵저버 수는 "지금 화면이 이 조회를 쓰고 있는가"를 가른다. 기본값은 쓰고 있는 상태다.
-const makeQuery = ({ observers = 1, ...over }: Partial<Query> & { observers?: number } = {}) =>
+// `Query` 에도 `observers`(옵저버 배열) 필드가 있어, 같은 이름의 숫자 옵션과 겹치지 않게 뺀다.
+const makeQuery = ({
+  observers = 1,
+  ...over
+}: Partial<Omit<Query, 'observers'>> & { observers?: number } = {}) =>
   ({
     queryHash: '["/api/test",""]',
     queryKey: ['/api/test'],
@@ -62,7 +66,7 @@ const cachedQuery = (queryKey: unknown[], observers: number) => {
   queryClient.setQueryData(queryKey, []);
   const query = queryClient.getQueryCache().find({ queryKey });
   query!.getObserversCount = () => observers;
-  return query as unknown as Query;
+  return query as unknown as Query<unknown, unknown, unknown, readonly unknown[]>;
 };
 
 describe('reactQueryHelper global query error handling', () => {
