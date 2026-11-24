@@ -18,16 +18,39 @@ package com.pinpoint.test.plugin;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.header.Header;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * The consumer entry point registered with profiler.kafka.consumer.entryPoint (see the module pom).
+ * Prints the trace headers of the records it receives, so that the propagation from the producer can be checked
+ * from the app output without a collector.
+ */
 public class TestConsumerRecordEntryPoint {
 
+    private static final String PINPOINT_HEADER_PREFIX = "Pinpoint-";
+
     public void consumeRecord(ConsumerRecord<String, String> record) {
-        // cosume record ...
-        // This method is called for kafka consumer invocatino. This method does nothing.
+        System.out.println("Received record: " + record.value() + ", headers=" + pinpointHeaders(record));
     }
 
     public void consumeRecord(ConsumerRecords<String, String> records) {
-        // cosume records ...
-        // This method is called for kafka consumer invocatino. This method does nothing.
+        System.out.println("Received records: " + records.count());
+        for (ConsumerRecord<String, String> record : records) {
+            System.out.println("  " + record.value() + ", headers=" + pinpointHeaders(record));
+        }
+    }
+
+    private static Map<String, String> pinpointHeaders(ConsumerRecord<String, String> record) {
+        Map<String, String> headers = new TreeMap<>();
+        for (Header header : record.headers()) {
+            if (header.key().startsWith(PINPOINT_HEADER_PREFIX)) {
+                headers.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));
+            }
+        }
+        return headers;
     }
 }

@@ -17,17 +17,38 @@
     <properties>
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
+            -Dprofiler.kafka.producer.enable=true
+            -Dprofiler.kafka.consumer.enable=true
+            -Dprofiler.kafka.consumer.entryPoint=com.pinpoint.test.plugin.TestConsumerRecordEntryPoint.consumeRecord
         </pinpoint.agent.jvmargument>
     </properties>
 
     <dependencies>
+        <!-- servlet stack: the reactor-netty and netty managed by the root pom do not run with Spring Boot 2 WebFlux -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Tomcat 9 needs javax.annotation, which Java 11+ no longer ships (spring-boot:start runs on the Maven JVM) -->
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

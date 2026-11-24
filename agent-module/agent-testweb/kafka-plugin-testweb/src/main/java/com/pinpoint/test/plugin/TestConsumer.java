@@ -20,11 +20,9 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Properties;
@@ -51,10 +49,19 @@ public class TestConsumer {
         consumerThread.start();
     }
 
+    /**
+     * Waits until the first batch is consumed or the wait time is over, and returns the number of consumed records.
+     */
+    public int awaitConsumed(long timeoutMillis) throws InterruptedException {
+        consumerThread.join(timeoutMillis);
+        return poller.consumed;
+    }
+
     private static class Poller implements Runnable {
 
         private final KafkaConsumer<String, String> consumer;
         private final TestConsumerRecordEntryPoint entryPoint = new TestConsumerRecordEntryPoint();
+        private volatile int consumed;
 
         private Poller(String brokerUrl) {
             Properties props = new Properties();
@@ -64,6 +71,8 @@ public class TestConsumer {
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, String.valueOf(true));
             props.put(ConsumerConfig.GROUP_ID_CONFIG, KafkaPluginTestConstants.GROUP_ID);
+            // a new group starts from the records that /producer already sent
+            props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
             consumer = new KafkaConsumer<>(props);
         }
 
@@ -74,28 +83,30 @@ public class TestConsumer {
         @Override
         public void run() {
             consumer.subscribe(Collections.singleton(KafkaPluginTestConstants.TOPIC));
-            consumer.poll(Duration.ofMillis(0));
-            consumer.seekToBeginning(Collections.singleton(new TopicPartition(KafkaPluginTestConstants.TOPIC, KafkaPluginTestConstants.PARTITION)));
-            final int count = 1;
+            // the first polls only join the group, so keep polling until the first batch arrives
+            final long deadline = System.currentTimeMillis() + KafkaPluginTestConstants.MAX_TRACE_WAIT_TIME;
 
             try {
-                for(int i = 0; i < count; i++) {
-                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
-                    if(records != null && records.count() > 0) {
-                        Iterator<ConsumerRecord<String, String>> iterator = records.iterator();
-                        if (!iterator.hasNext()) {
-                            continue;
-                        }
-                        ConsumerRecord<String, String> firstRecord = iterator.next();
-                        String traceType = firstRecord.key();
-                        if (traceType.equals(TRACE_TYPE_MULTI_RECORDS)) {
-                            entryPoint.consumeRecord(records);
-                        } else if (traceType.equals(TRACE_TYPE_RECORD)) {
-                            records.forEach(entryPoint::consumeRecord);
-                        }
+                while (System.currentTimeMillis() < deadline) {
+                    // poll(long), not poll(Duration): poll(Duration) was added in 2.0.0 and this app runs from 0.11.0.0
+                    ConsumerRecords<String, String> records = consumer.poll(1000L);
+                    if (records == null || records.count() == 0) {
+                        continue;
                     }
+                    Iterator<ConsumerRecord<String, String>> iterator = records.iterator();
+                    ConsumerRecord<String, String> firstRecord = iterator.next();
+                    String traceType = firstRecord.key();
+                    if (TRACE_TYPE_MULTI_RECORDS.equals(traceType)) {
+                        entryPoint.consumeRecord(records);
+                    } else if (TRACE_TYPE_RECORD.equals(traceType)) {
+                        records.forEach(entryPoint::consumeRecord);
+                    }
+                    consumed = records.count();
+                    break;
                 }
             } catch (WakeupException ignore) {
+            } finally {
+                consumer.close();
             }
         }
     }

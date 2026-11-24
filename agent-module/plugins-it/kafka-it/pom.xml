@@ -21,5 +21,6 @@
     <modules>
         <module>kafka-2-it</module>
         <module>kafka-3-it</module>
+        <module>kafka-4-it</module>
     </modules>
 </project>
