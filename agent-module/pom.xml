@@ -90,7 +90,10 @@
         <plugins-bom.jackson-annotations.version>2.21</plugins-bom.jackson-annotations.version>
         <plugins-bom.redisson.version>3.10.4</plugins-bom.redisson.version>
         <plugins-bom.lettuce.version>6.5.2.RELEASE</plugins-bom.lettuce.version>
-        <plugins-bom.kotlin.version>1.8.22</plugins-bom.kotlin.version>
+        <!-- kotlin-stdlib comes with many libraries, each at its own version: a module pins it to one of
+             the two below with the kotlin-bom, by the major version its libraries need -->
+        <plugins-bom.kotlin1.version>1.9.25</plugins-bom.kotlin1.version>
+        <plugins-bom.kotlin2.version>2.3.21</plugins-bom.kotlin2.version>
         <plugins-bom.kotlinx-coroutines.version>1.5.2</plugins-bom.kotlinx-coroutines.version>
         <plugins-bom.pulsar.version>4.0.0</plugins-bom.pulsar.version>
         <plugins-bom.rocketmq.version>4.7.1</plugins-bom.rocketmq.version>
