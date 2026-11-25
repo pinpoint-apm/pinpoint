@@ -58,7 +58,7 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.mysql.MySQLContainer;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -69,8 +69,7 @@ import static org.mockito.Mockito.when;
 @TestConfiguration
 public class AlarmJobIntegrationTestConfig extends AlarmDaoConfigurationSupport {
 
-    @SuppressWarnings("resource") // started once below, reaped by ryuk when the jvm goes
-    public static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.0.34")
+    public static final MySQLContainer MYSQL = new MySQLContainer("mysql:8.0.46")
             .withDatabaseName("pinpoint")
             .withUsername("test")
             .withPassword("test")
