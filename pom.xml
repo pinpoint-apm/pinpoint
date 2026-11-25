@@ -104,6 +104,7 @@
         <module>commons-buffer</module>
         <module>commons-config</module>
         <module>commons-profiler</module>
+        <module>hbase-shaded-resolver</module>
         <module>commons-hbase</module>
         <module>hbase-testcluster</module>
         <module>commons-timeseries</module>
@@ -421,6 +422,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-hbase</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-hbase-shaded-resolver</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
