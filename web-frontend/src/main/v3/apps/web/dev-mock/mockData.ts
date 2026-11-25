@@ -256,7 +256,7 @@ export const makeServiceMapResponse = (from: number, to: number) => {
 const receivedServiceLabel = (requestedServiceName: string) =>
   `pServiceName=${requestedServiceName || '(none)'}`;
 
-/** `/api/histogram/statistics`, `/api/histogram/statistics/links` 응답. */
+/** `/api/histogram/statistics`, `/api/servermap/linkHistogram` 응답. */
 export const makeHistogramStatisticsResponse = (
   applicationName: string,
   requestedServiceName: string,

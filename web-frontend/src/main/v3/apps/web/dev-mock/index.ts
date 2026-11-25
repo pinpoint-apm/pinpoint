@@ -198,12 +198,20 @@ const handlers: Record<string, MockHandler> = {
     },
   ),
 
-  '/api/histogram/statistics/links': forMockApplication(
-    (applicationName, { url, requestedServiceName }) => {
-      const { from, to } = getRange(url);
-      return makeHistogramStatisticsResponse(applicationName, requestedServiceName, from, to);
-    },
-  ),
+  // 링크 조회는 service를 헤더가 아니라 파라미터(from/to 각각)로 싣는다. 출발지가 mock 대상이면
+  // 출발지를, 아니면(USER 등) 도착지를 기준으로 응답한다.
+  '/api/servermap/linkHistogram': ({ url }) => {
+    const side = MOCK_TARGET_NAMES.includes(url.searchParams.get('fromApplicationName') || '')
+      ? 'from'
+      : 'to';
+    const applicationName = url.searchParams.get(`${side}ApplicationName`) || '';
+    if (!MOCK_TARGET_NAMES.includes(applicationName)) {
+      return PASS_THROUGH;
+    }
+    const { from, to } = getRange(url);
+    const serviceName = url.searchParams.get(`${side}ServiceName`) || '';
+    return makeHistogramStatisticsResponse(applicationName, serviceName, from, to);
+  },
 
   '/api/getApdexScore': forMockApplication((applicationName, { requestedServiceName }) =>
     makeApdexScoreResponse(applicationName, requestedServiceName),
