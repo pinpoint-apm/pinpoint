@@ -1,7 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
 import { useAtom } from 'jotai';
 import { scatterDataByApplicationKeyAtom, scatterDataAtom } from './scatter';
-import { newData, previousData, resultData, scatterData, totalData } from './scatterMock';
+import {
+  newData,
+  previousData,
+  resultData,
+  scatterData,
+  totalData,
+} from './__fixtures__/scatterMock';
 
 describe('Test scatter atom', () => {
   describe('Test "scatterDataByApplicationKeyAtom"', () => {

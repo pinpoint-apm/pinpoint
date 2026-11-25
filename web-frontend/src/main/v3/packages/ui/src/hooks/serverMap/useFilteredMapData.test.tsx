@@ -14,7 +14,7 @@ import {
   prevTimestamp,
   resultLink,
   resultNode,
-} from '@pinpoint-fe/ui/src/utils/helper/filteredMap/mergeMock';
+} from '@pinpoint-fe/ui/src/utils/helper/filteredMap/__fixtures__/mergeMock';
 import { useFilteredMapData } from './useFilteredMapData';
 
 jest.mock('@pinpoint-fe/ui/src/hooks/api/useGetFilteredServerMapData', () => ({
