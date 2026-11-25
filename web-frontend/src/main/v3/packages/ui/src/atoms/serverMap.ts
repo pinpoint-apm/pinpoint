@@ -75,21 +75,34 @@ export const serverMapCurrentTargetDataAtom = atom((get) => {
   const currentTarget = get(serverMapCurrentTargetAtom);
   const serverMapData = get(serverMapDataAtom);
 
+  // service group 노드는 그래프상 단일 노드로 그리지만, 팝업에서 자식(subNodes)을 클릭하면
+  // currentTarget이 자식 노드 key를 가리키므로 lookup 대상에 자식까지 포함한다.
+  const getFlattenedNodes = () =>
+    ((serverMapData?.applicationMapData?.nodeDataArray as ServerMapNodeDataArray) || []).flatMap(
+      (node) => {
+        const subNodes = (node as GetServerMap.NodeData).subNodes;
+        return Array.isArray(subNodes) ? [node, ...subNodes] : [node];
+      },
+    );
+
   if (currentTarget?.serviceType === 'USER') {
-    return (serverMapData?.applicationMapData?.nodeDataArray as ServerMapNodeDataArray)?.find(
+    // USER 노드는 applicationName·serviceType이 모두 'USER'라 이름으로는 구별되지 않는다.
+    // USER가 여럿이면(호출받는 WAS마다 하나씩 생긴다) 고른 노드의 key로 찾아야 한다.
+    // 이름으로만 찾으면 늘 첫 USER로 고정돼, 다른 USER를 골라도 그 USER의 정보가 나온다.
+    // key로 못 찾을 때만(id 없이 세운 target) 첫 USER로 폴백한다.
+    const userNodes = getFlattenedNodes().filter(
       ({ serviceType }) => serviceType === currentTarget.serviceType,
     );
+    const targetId = currentTarget.id;
+    const selectedUserNode = targetId
+      ? userNodes.find(
+          (node) => node.key === targetId || (node as GetServerMap.NodeData).nodeKey === targetId,
+        )
+      : undefined;
+    return selectedUserNode ?? userNodes[0];
   } else if (currentTarget?.type === 'node') {
     const fallbackKey = `${currentTarget?.applicationName}^${currentTarget?.serviceType}`;
-    const allNodes =
-      (serverMapData?.applicationMapData?.nodeDataArray as ServerMapNodeDataArray) || [];
-    // service group 노드는 그래프상 단일 노드로 그리지만, 팝업에서 자식(subNodes)을 클릭하면
-    // currentTarget이 자식 노드 key를 가리키므로 lookup 대상에 자식까지 포함한다.
-    const flattenedNodes = allNodes.flatMap((node) => {
-      const subNodes = (node as GetServerMap.NodeData).subNodes;
-      return Array.isArray(subNodes) ? [node, ...subNodes] : [node];
-    });
-    return flattenedNodes.find((node) => {
+    return getFlattenedNodes().find((node) => {
       const nodeKey = (node as GetServerMap.NodeData).nodeKey;
       return (
         node.key === currentTarget?.id ||
