@@ -45,7 +45,7 @@ public class SubconnectionExpiringLoadBalancerTest {
         final SynchronizationContext syncContext = helper.getSynchronizationContext();
         final SubconnectionExpiringLoadBalancer lb = new SubconnectionExpiringLoadBalancer(helper, renewPeriodMillis, TimeUnit.MILLISECONDS);
 
-        syncContext.execute(() -> lb.handleResolvedAddresses(mockAddresses()));
+        syncContext.execute(() -> lb.acceptResolvedAddresses(mockAddresses()));
 
         final LoadBalancer.PickResult firstPicked = helper.getLatestPicker().pickSubchannel(null);
         final LoadBalancer.PickResult secondPicked = helper.getLatestPicker().pickSubchannel(null);
@@ -66,19 +66,19 @@ public class SubconnectionExpiringLoadBalancerTest {
         final LoadBalancer.ResolvedAddresses addr1 = mockAddresses();
         final LoadBalancer.ResolvedAddresses addr2 = mockAddresses();
 
-        syncContext.execute(() -> lb.handleResolvedAddresses(addr1));
+        syncContext.execute(() -> lb.acceptResolvedAddresses(addr1));
         final MockLoadBalancerHelper.MockSubchannel sc = helper.getLatestSubchannel();
         assertThat(sc.getAllAddresses()).isEqualTo(addr1.getAddresses());
 
-        syncContext.execute(() -> lb.handleResolvedAddresses(addr2));
+        syncContext.execute(() -> lb.acceptResolvedAddresses(addr2));
         assertThat(sc.getAllAddresses()).isEqualTo(addr2.getAddresses());
 
         syncContext.execute(() -> sc.listener.onSubchannelState(ConnectivityStateInfo.forTransientFailure(Status.UNKNOWN)));
-        syncContext.execute(() -> lb.handleResolvedAddresses(addr1));
+        syncContext.execute(() -> lb.acceptResolvedAddresses(addr1));
         assertThat(sc.getAllAddresses()).isEqualTo(addr1.getAddresses());
 
         syncContext.execute(() -> sc.listener.onSubchannelState(ConnectivityStateInfo.forNonError(ConnectivityState.CONNECTING)));
-        syncContext.execute(() -> lb.handleResolvedAddresses(addr2));
+        syncContext.execute(() -> lb.acceptResolvedAddresses(addr2));
         assertThat(sc.getAllAddresses()).isEqualTo(addr2.getAddresses());
     }
 
@@ -92,7 +92,7 @@ public class SubconnectionExpiringLoadBalancerTest {
 
         final LoadBalancer.ResolvedAddresses addr = mockAddresses();
 
-        syncContext.execute(() -> lb.handleResolvedAddresses(addr));
+        syncContext.execute(() -> lb.acceptResolvedAddresses(addr));
         syncContext.execute(() -> lb.shutdown());
 
         assertThat(helper.subchannels).isNotEmpty();
