@@ -11,7 +11,6 @@ export namespace GetHistogramStatistics {
     bidirectional?: boolean;
     useStatisticsAgentState?: boolean;
     nodeKey?: string;
-    linkKey?: string;
     fromApplicationNames?: string;
     fromServiceTypeCodes?: string;
     toApplicationNames?: string;

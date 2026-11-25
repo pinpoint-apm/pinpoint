@@ -440,9 +440,9 @@ export const getSelectedTargetApplication = (
     return applicationName && serviceType ? { applicationName, serviceType } : undefined;
   }
 
-  // 링크는 표시용 `sourceInfo`를 그대로 쓴다. `/histogram/statistics/links`는 `applicationName`을
-  // 읽지 않고 `linkKey`만 쪼개 양쪽 application을 만들기 때문에(`getLinkTimeHistogramData`)
-  // 이 값이 조회에 영향을 주지 않는다. 링크의 출발지는 호출하는 쪽이라 WAS 아니면 USER인데,
+  // 링크는 표시용 `sourceInfo`를 그대로 쓴다. 링크 조회(`/servermap/linkHistogram`)는 이 값이 아니라
+  // 링크의 sourceInfo/targetInfo에서 service·applicationName·serviceTypeCode를 직접 읽기 때문에
+  // (`useGetHistogramStatistics`) 이 값이 조회에 영향을 주지 않는다. 링크의 출발지는 호출하는 쪽이라 WAS 아니면 USER인데,
   // WAS는 name==desc라 어긋날 값도 없다.
   const sourceInfo = (currentTargetData as GetServerMap.LinkData | undefined)?.sourceInfo;
   return sourceInfo?.applicationName && sourceInfo?.serviceType

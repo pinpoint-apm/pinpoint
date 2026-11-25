@@ -149,7 +149,11 @@ export const ServerMapChartsBoardFetcher = ({
     nodeKey:
       (currentTargetData as GetServerMap.NodeData)?.nodeKey ||
       (baseApplication ? getApplicationKey(baseApplication) : undefined), // 원래 optional인데 첫 페이지 로딩 시 currentTargetData가 없을 때, currentTargetData가 application으로 잡힐 때 두번 중복 call 방지를 위해 required 처럼 사용
-    linkKey: (currentTargetData as GetServerMap.LinkData)?.linkKey,
+    // 백엔드가 내려준 링크만 링크 API로 조회한다(`linkKey`가 있는 것). 화면에서 묶은 service group
+    // 링크는 linkKey가 없고 sourceInfo/targetInfo도 첫 자식의 것이라, 예전처럼 노드 API로 둔다.
+    link: (currentTargetData as GetServerMap.LinkData)?.linkKey
+      ? (currentTargetData as GetServerMap.LinkData)
+      : undefined,
     serviceName: targetServiceName,
   });
 
