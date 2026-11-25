@@ -36,7 +36,6 @@ import org.springframework.batch.core.partition.Partitioner;
 import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -81,7 +80,7 @@ public class AgentCountJobConfig {
     }
 
     @Bean
-    public TaskletStep agentCountStep(
+    public Step agentCountStep(
             JobRepository jobRepository,
             @Qualifier("transactionManager") PlatformTransactionManager transactionManager,
             @Qualifier("agentCountReader") AgentCountReader agentCountReader,
@@ -89,12 +88,14 @@ public class AgentCountJobConfig {
             @Qualifier("agentCountWriter") AgentCountWriter agentCountWriter) {
 
         return new StepBuilder("agentCountStep", jobRepository)
-                .<Application, Integer>chunk(1, transactionManager)
+                .<Application, Integer>chunk(1)
+                .transactionManager(transactionManager)
                 .reader(agentCountReader)
                 .processor(agentCountProcessor)
                 .writer(agentCountWriter)
                 .faultTolerant()
-                .retryLimit(10)
+                // retries after the first attempt: 10 attempts in total, as before
+                .retryLimit(9)
                 .retry(Exception.class)
                 .build();
     }

@@ -37,7 +37,6 @@ import org.springframework.batch.core.partition.Partitioner;
 import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -86,20 +85,23 @@ public class UriAlarmJobConfig {
     }
 
     @Bean
-    public TaskletStep uriAlarmStep(
+    public Step uriAlarmStep(
             JobRepository jobRepository,
             @Qualifier("transactionManager") PlatformTransactionManager transactionManager,
             @Qualifier("uriAlarmReader") UriStatAlarmReader uriAlarmReader,
             @Qualifier("uriAlarmProcessor") UriStatAlarmProcessor uriAlarmProcessor,
             @Qualifier("uriAlarmWriter") UriStatAlarmWriter uriAlarmWriter,
-            @Qualifier("uriAlarmExecutor") TaskExecutor uriAlarmExecutor) {
+            @Qualifier("uriAlarmExecutor") ThreadPoolTaskExecutor uriAlarmExecutor) {
 
+        // The chunk-oriented step of Spring Batch 6 processes the items of a chunk concurrently and writes them
+        // in the step thread: a chunk has to hold one item per worker to keep the workers busy
+        int chunkSize = Math.max(1, uriAlarmExecutor.getCorePoolSize());
         return new StepBuilder("uriAlarmStep", jobRepository)
-                .<PinotAlarmKey, com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers>chunk(1, transactionManager)
+                .<PinotAlarmKey, com.navercorp.pinpoint.pinot.alarm.checker.PinotAlarmCheckers>chunk(chunkSize)
+                .transactionManager(transactionManager)
                 .reader(uriAlarmReader)
                 .processor(uriAlarmProcessor)
                 .writer(uriAlarmWriter)
-                // Spring Batch 6 removed throttleLimit; concurrency is bounded by uriAlarmExecutor's pool size
                 .taskExecutor(uriAlarmExecutor)
                 .build();
     }
@@ -132,7 +134,7 @@ public class UriAlarmJobConfig {
     }
 
     @Bean
-    public TaskExecutor uriAlarmExecutor(
+    public ThreadPoolTaskExecutor uriAlarmExecutor(
             @Value("${alarm.worker.maxSize:2}") int maxPoolSize,
             @Value("${alarm.worker.coreSize:2}") int corePoolSize) {
 
