@@ -59,8 +59,15 @@ public class SubconnectionExpiringLoadBalancer extends LoadBalancer {
     }
 
     @Override
-    public void handleResolvedAddresses(ResolvedAddresses resolvedAddresses) {
+    public Status acceptResolvedAddresses(ResolvedAddresses resolvedAddresses) {
         final List<EquivalentAddressGroup> addresses = resolvedAddresses.getAddresses();
+        if (addresses.isEmpty()) {
+            final Status unavailable = Status.UNAVAILABLE.withDescription(
+                    "NameResolver returned no usable address. addrs=" + addresses
+                            + ", attrs=" + resolvedAddresses.getAttributes());
+            handleNameResolutionError(unavailable);
+            return unavailable;
+        }
         this.updateAddresses(addresses);
         this.currentAddresses = addresses;
 
@@ -69,6 +76,7 @@ public class SubconnectionExpiringLoadBalancer extends LoadBalancer {
             this.createSubchannel();
             helper.updateBalancingState(CONNECTING, new Picker(PickResult.withNoResult()));
         }
+        return Status.OK;
     }
 
     private void updateAddresses(List<EquivalentAddressGroup> addresses) {

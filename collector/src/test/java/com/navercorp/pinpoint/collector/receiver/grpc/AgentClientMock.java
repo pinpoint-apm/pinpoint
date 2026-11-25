@@ -26,12 +26,7 @@ import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
-import io.grpc.Attributes;
 import io.grpc.ClientInterceptor;
-import io.grpc.ConnectivityState;
-import io.grpc.ConnectivityStateInfo;
-import io.grpc.EquivalentAddressGroup;
-import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -41,15 +36,9 @@ import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import static io.grpc.ConnectivityState.CONNECTING;
-import static io.grpc.ConnectivityState.SHUTDOWN;
-import static io.grpc.ConnectivityState.TRANSIENT_FAILURE;
 
 /**
  * @author jaehong.kim
@@ -60,7 +49,6 @@ public class AgentClientMock {
     private final ManagedChannel channel;
     private final AgentGrpc.AgentStub agentStub;
     private final MetadataGrpc.MetadataBlockingStub metadataStub;
-
 
     public AgentClientMock(final String host, final int port, final boolean agentHeader) {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
@@ -132,7 +120,6 @@ public class AgentClientMock {
         }
     }
 
-
     private <T> QueueingStreamObserver<T> getResponseObserver() {
         return new QueueingStreamObserver<>();
     }
@@ -165,91 +152,5 @@ public class AgentClientMock {
         public void onCompleted() {
             logger.info("Completed");
         }
-    }
-
-    public static class CustomLoadBalancerFactory extends LoadBalancer.Factory {
-        @Override
-        public LoadBalancer newLoadBalancer(LoadBalancer.Helper helper) {
-            return new CustomLoadBalancer(helper);
-        }
-    }
-
-    static class CustomLoadBalancer extends LoadBalancer {
-        private final Helper helper;
-        private Subchannel subchannel;
-
-        public CustomLoadBalancer(Helper helper) {
-            this.helper = helper;
-        }
-
-        @Override
-        public void handleResolvedAddresses(ResolvedAddresses resolvedAddresses) {
-            if (subchannel == null) {
-                CreateSubchannelArgs.Builder builder = CreateSubchannelArgs.newBuilder();
-                List<EquivalentAddressGroup> servers = resolvedAddresses.getAddresses();
-                builder.setAddresses(servers);
-                builder.setAttributes(Attributes.EMPTY);
-                CreateSubchannelArgs subchannelArgs = builder.build();
-
-                subchannel = helper.createSubchannel(subchannelArgs);
-
-                // The channel state does not get updated when doing name resolving today, so for the moment
-                // let LB report CONNECTION and call subchannel.requestConnection() immediately.
-                helper.updateBalancingState(CONNECTING, new Picker(PickResult.withSubchannel(subchannel)));
-                subchannel.requestConnection();
-            } else {
-                List<EquivalentAddressGroup> servers = resolvedAddresses.getAddresses();
-                subchannel.updateAddresses(servers);
-            }
-        }
-
-        @Override
-        public void handleNameResolutionError(Status error) {
-            if (subchannel != null) {
-                subchannel.shutdown();
-                subchannel = null;
-            }
-            // NB(lukaszx0) Whether we should propagate the error unconditionally is arguable. It's fine
-            // for time being.
-            helper.updateBalancingState(TRANSIENT_FAILURE, new Picker(PickResult.withError(error)));
-        }
-
-        @Override
-        public void handleSubchannelState(Subchannel subchannel, ConnectivityStateInfo stateInfo) {
-            ConnectivityState currentState = stateInfo.getState();
-            if (subchannel != this.subchannel || currentState == SHUTDOWN) {
-                return;
-            }
-
-            PickResult pickResult = switch (currentState) {
-                case CONNECTING -> PickResult.withNoResult();
-                case READY, IDLE -> PickResult.withSubchannel(subchannel);
-                case TRANSIENT_FAILURE -> PickResult.withError(stateInfo.getStatus());
-                default -> throw new IllegalArgumentException("Unsupported state:" + currentState);
-            };
-
-            helper.updateBalancingState(currentState, new Picker(pickResult));
-        }
-
-        @Override
-        public void shutdown() {
-            if (subchannel != null) {
-                subchannel.shutdown();
-            }
-        }
-    }
-
-    static final class Picker extends LoadBalancer.SubchannelPicker {
-        private final LoadBalancer.PickResult result;
-
-        Picker(LoadBalancer.PickResult result) {
-            this.result = Objects.requireNonNull(result, "result");
-        }
-
-        @Override
-        public LoadBalancer.PickResult pickSubchannel(LoadBalancer.PickSubchannelArgs args) {
-            return result;
-        }
-
     }
 }
