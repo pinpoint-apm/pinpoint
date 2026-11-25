@@ -118,7 +118,11 @@ export const LayoutWithSideNavigation = ({
     [activeItem, pathname],
   );
 
-  const renderMenuItemContent = (item: SideNavigationMenuItem, isChildItem?: boolean) => {
+  const renderMenuItemContent = (
+    item: SideNavigationMenuItem,
+    isChildItem?: boolean,
+    compact?: boolean,
+  ) => {
     const itemClassName = cn('w-full', { 'justify-center': collapsed });
 
     const itemChildren = (
@@ -143,7 +147,8 @@ export const LayoutWithSideNavigation = ({
                 'flex-1 min-w-0 transition-opacity truncate',
                 isActive(item) ? 'opacity-100' : 'opacity-70',
                 {
-                  'pl-6 pr-2': !item?.icon,
+                  'pl-6 pr-2': !item?.icon && !compact,
+                  'pl-3 pr-1': !item?.icon && compact,
                 },
               )}
             >
@@ -368,7 +373,11 @@ const SidebarMenuButtonWithDropdownMenu = ({
 }: {
   item: SideNavigationMenuItem;
   isActive: (item: SideNavigationMenuItem) => boolean;
-  renderMenuItemContent: (item: SideNavigationMenuItem, isChildItem?: boolean) => React.ReactNode;
+  renderMenuItemContent: (
+    item: SideNavigationMenuItem,
+    isChildItem?: boolean,
+    compact?: boolean,
+  ) => React.ReactNode;
   collapsed: boolean;
   triggerClassName?: string;
 }) => {
@@ -438,7 +447,8 @@ const SidebarMenuButtonWithDropdownMenu = ({
   );
   const hasLeftSection = !!item.leftChildItems && item.leftChildItems.length > 0;
 
-  const renderChildList = (childItems: SideNavigationMenuItem[]) => (
+  // 두 칸짜리 메뉴의 오른쪽 칸은 너비가 고정이라, 긴 이름이 덜 잘리도록 항목의 좌우 여백을 줄인다.
+  const renderChildList = (childItems: SideNavigationMenuItem[], compact?: boolean) => (
     <div className="space-y-1">
       {childItems
         .filter((childItem) => !childItem.hide)
@@ -458,7 +468,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
             onPointerMove={searchable ? keepSearchFocus : undefined}
             onPointerLeave={searchable ? keepSearchFocus : undefined}
           >
-            {renderMenuItemContent(childItem, true)}
+            {renderMenuItemContent(childItem, true, compact)}
           </DropdownMenuItem>
         ))}
     </div>
@@ -507,7 +517,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
         {searchable && query.trim() && filteredChildItems.length === 0 ? (
           <div className="px-6 py-2 text-sm opacity-50">{item.childItemsSearchEmptyText}</div>
         ) : (
-          renderChildList(filteredChildItems)
+          renderChildList(filteredChildItems, hasLeftSection)
         )}
       </div>
     </>
@@ -538,19 +548,22 @@ const SidebarMenuButtonWithDropdownMenu = ({
         className={cn(
           'rounded-md border-none shadow-lg bg-(--blue-900) text-(--white-default)',
           SNB_SCROLLBAR_CLASS_NAME,
-          hasLeftSection ? 'min-w-[440px]' : 'w-full min-w-[220px]',
+          { 'w-full min-w-[220px]': !hasLeftSection },
         )}
       >
         {hasLeftSection ? (
+          // 두 칸 모두 너비를 고정한다. 내용대로 두면 검색 결과나 고른 항목(굵은 글씨·체크 표시)에 따라
+          // 창이 넓어졌다 좁아지고, 항목이 적은 왼쪽 칸은 밀려 좁아진다. 왼쪽은 다른 메뉴 한 개(220px)와
+          // 같은 너비이고, 오른쪽에서 넘치는 service 이름은 말줄임(...)으로 보인다.
           <div className="flex">
-            <div className="flex-1 pr-2 border-r border-white/10">
+            <div className="w-[220px] shrink-0 pr-2 border-r border-white/10">
               <div className="flex items-center h-10 pl-6 pr-2 text-sm">
                 <span className="opacity-50">{item.leftSectionTitle ?? ''}</span>
               </div>
               <Separator className="mb-2 opacity-50" />
               {renderChildList(item.leftChildItems ?? [])}
             </div>
-            <div className="flex-1 pl-2">{rightSection}</div>
+            <div className="w-[260px] shrink-0 pl-2">{rightSection}</div>
           </div>
         ) : (
           rightSection
