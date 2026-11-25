@@ -332,7 +332,7 @@ public final class ASMGuardedInterceptorFactory implements GuardedInterceptorFac
         // COMPUTE_MAXS: instructions are unchanged, but descriptors change length. EXPAND_FRAMES
         // because the remapper requires expanded frames to retype their entries.
         final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        final ClassRemapper remapper = new RetypingClassRemapper(classWriter, new SimpleRemapper(mapping), concreteInternalName);
+        final ClassRemapper remapper = new RetypingClassRemapper(classWriter, new SimpleRemapper(ASMVersion.VERSION, mapping), concreteInternalName);
         classReader.accept(remapper, ClassReader.EXPAND_FRAMES);
         return classWriter.toByteArray();
     }
