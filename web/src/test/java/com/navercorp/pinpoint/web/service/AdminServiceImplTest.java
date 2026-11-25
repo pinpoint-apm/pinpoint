@@ -59,27 +59,27 @@ public class AdminServiceImplTest {
     }
 
     @Test
-    public void removeApplicationName() {
+    public void removeApplicationOfAllServiceTypes() {
         // given
-        doNothing().when(applicationIndexService).deleteApplicationName(APPLICATION_NAME1);
+        doNothing().when(applicationIndexService).deleteApplication(Service.DEFAULT, APPLICATION_NAME1);
 
         // when
-        adminService.removeApplicationName(APPLICATION_NAME1);
+        adminService.removeApplication(Service.DEFAULT, APPLICATION_NAME1);
 
         // then
-        verify(applicationIndexService).deleteApplicationName(APPLICATION_NAME1);
+        verify(applicationIndexService).deleteApplication(Service.DEFAULT, APPLICATION_NAME1);
     }
 
     @Test
-    public void removeAgentId() {
+    public void removeAgentOfAllServiceTypes() {
         // given
-        doNothing().when(applicationIndexService).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
+        doNothing().when(applicationIndexService).deleteAgentIds(Service.DEFAULT, APPLICATION_NAME1, List.of(AGENT_ID1));
 
         // when
-        adminService.removeAgentId(APPLICATION_NAME1, AGENT_ID1);
+        adminService.removeAgent(Service.DEFAULT, APPLICATION_NAME1, AGENT_ID1);
 
         // then
-        verify(applicationIndexService).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
+        verify(applicationIndexService).deleteAgentIds(Service.DEFAULT, APPLICATION_NAME1, List.of(AGENT_ID1));
     }
 
     @Test

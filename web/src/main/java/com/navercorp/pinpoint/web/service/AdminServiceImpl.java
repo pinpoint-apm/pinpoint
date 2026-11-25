@@ -54,9 +54,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @Deprecated
-    public void removeApplicationName(String applicationName) {
-        this.applicationIndexService.deleteApplicationName(applicationName);
+    public void removeApplication(Service service, String applicationName) {
+        this.applicationIndexService.deleteApplication(service, applicationName);
     }
 
     @Override
@@ -65,9 +64,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @Deprecated
-    public void removeAgentId(String applicationName, String agentId) {
-        applicationIndexService.deleteAgentId(applicationName, agentId);
+    public void removeAgent(Service service, String applicationName, String agentId) {
+        applicationIndexService.deleteAgentIds(service, applicationName, List.of(agentId));
     }
 
     @Override
