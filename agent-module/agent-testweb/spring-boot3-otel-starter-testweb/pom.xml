@@ -28,6 +28,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- before spring-boot-dependencies: the first import wins -->
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-bom</artifactId>
+                <version>${plugins-bom.kotlin2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- the OTel instrumentation BOM must come before spring-boot-dependencies -->
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
