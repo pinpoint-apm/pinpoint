@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.QueueIdGetter;
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.SendCallbackGetter;
 import com.navercorp.pinpoint.plugin.rocketmq.field.accessor.TopicGetter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,6 +102,9 @@ public class ProducerSendInterceptor implements AroundInterceptor {
                 // entry point scope
                 entryScope(trace);
 
+            } else if (trace == null) {
+                markUnsampled(args);
+                return;
             }
             if (trace == null) {
                 return;
@@ -193,27 +197,43 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         recorder.recordNextSpanId(nextTraceId.getSpanId());
         // set header
         final Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextTraceId.getFlags()));
+        paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+        paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
+                String.valueOf(traceContext.getServerTypeCode()));
+        if (traceContext.getServiceName() != null) {
+            paramMap.put(Header.HTTP_PARENT_SERVICE_NAME.toString(), traceContext.getServiceName());
+        }
+        paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextTraceId.getParentSpanId()));
+        paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextTraceId.getSpanId()));
+        paramMap.put(Header.HTTP_TRACE_ID.toString(), nextTraceId.getTransactionId());
+        paramMap.put(RocketMQConstants.ACCEPTOR_HOST, endPoint);
+        paramMap.put(RocketMQConstants.IS_ASYNC_SEND, trace.isAsync());
+        appendProperties(requestHeader, paramMap);
+    }
+
+    /**
+     * A synchronous send from an unsampled trace only adds Pinpoint-Sampled=s0, so that the consumer does not start
+     * a trace for the message either.
+     */
+    private void markUnsampled(Object[] args) {
+        final Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null || trace.canSampled()) {
+            return;
+        }
+        final Object requestHeader = ArrayArgumentUtils.getArgument(args, 3, Object.class);
+        appendProperties(requestHeader, Collections.<String, Object>singletonMap(Header.HTTP_SAMPLED.toString(), SAMPLING_RATE_FALSE));
+    }
+
+    private static void appendProperties(Object requestHeader, Map<String, Object> paramMap) {
+        if (!(requestHeader instanceof PropertiesGetter) || !(requestHeader instanceof PropertiesSetter)) {
+            return;
+        }
         final String headerProperties = ((PropertiesGetter) requestHeader)._$PINPOINT$_getProperties();
         final StringBuilder properties = headerProperties == null ? new StringBuilder() : new StringBuilder(headerProperties);
         // Some client versions drop the trailing separator, which would glue the first appended entry onto the last value
         if (properties.length() > 0 && properties.charAt(properties.length() - 1) != PROPERTY_SEPARATOR) {
             properties.append(PROPERTY_SEPARATOR);
-        }
-        if (trace.canSampled()) {
-            paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextTraceId.getFlags()));
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
-                    String.valueOf(traceContext.getServerTypeCode()));
-            if (traceContext.getServiceName() != null) {
-                paramMap.put(Header.HTTP_PARENT_SERVICE_NAME.toString(), traceContext.getServiceName());
-            }
-            paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextTraceId.getParentSpanId()));
-            paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextTraceId.getSpanId()));
-            paramMap.put(Header.HTTP_TRACE_ID.toString(), nextTraceId.getTransactionId());
-            paramMap.put(RocketMQConstants.ACCEPTOR_HOST, endPoint);
-            paramMap.put(RocketMQConstants.IS_ASYNC_SEND, trace.isAsync());
-        } else {
-            paramMap.put(Header.HTTP_SAMPLED.toString(), SAMPLING_RATE_FALSE);
         }
         for (Map.Entry<String, Object> entry : paramMap.entrySet()) {
             properties.append(entry.getKey());

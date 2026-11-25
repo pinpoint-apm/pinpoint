@@ -221,7 +221,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
             public Trace createTrace(Object target, TraceContext traceContext, List<MessageExt> msgs) {
                 final MessageExt messageExt = msgs.get(0);
                 if (!SamplingFlagUtils.isSamplingFlag(
-                        messageExt.getUserProperty(Header.HTTP_FLAGS.name()))) {
+                        messageExt.getUserProperty(Header.HTTP_SAMPLED.toString()))) {
                     final Trace trace = traceContext.disableSampling();
                     if (isDebug) {
                         logger.debug("remotecall sampling flag found. skip trace");

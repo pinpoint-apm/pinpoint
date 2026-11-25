@@ -57,6 +57,13 @@ public class RocketMQClient_4_0_x_IT extends RocketMQClientITBase {
         super.syncSend_orderlyListener();
     }
 
+    @Test
+    @Disabled("the push consumer is traced from 4.1.0")
+    @Override
+    public void syncSend_skipUnsampledMessage() throws Exception {
+        super.syncSend_skipUnsampledMessage();
+    }
+
     /**
      * The async send runs on the calling thread, where ProducerSendInterceptor skips it because a trace is already
      * active: it is neither traced nor propagated.
