@@ -166,7 +166,7 @@ class AlarmEvaluationServiceTest {
         JsonNode details = jsonMapper.readTree(historyDao.inserted.get(0).getContext())
                 .path("results").get(0).path("details");
         assertEquals(List.of("3 of 5 agents > 100.00", "[agent-a] 150.00", "... and 2 more"),
-                List.of(details.get(0).asText(), details.get(1).asText(), details.get(2).asText()));
+                List.of(details.get(0).asString(), details.get(1).asString(), details.get(2).asString()));
         assertEquals(3, details.size());
     }
 
