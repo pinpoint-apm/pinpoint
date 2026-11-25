@@ -31,13 +31,17 @@ public interface AdminService {
     int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
     String MIN_DURATION_DAYS_FOR_INACTIVITY_STR = "" + MIN_DURATION_DAYS_FOR_INACTIVITY;
 
-    @Deprecated
-    void removeApplicationName(String applicationName);
+    /**
+     * Removes the application of every service type registered under the name.
+     */
+    void removeApplication(Service service, String applicationName);
 
     void removeApplication(Service service, String applicationName, int serviceTypeCode);
 
-    @Deprecated
-    void removeAgentId(String applicationName, String agentId);
+    /**
+     * Removes the agent from the application of every service type registered under the name.
+     */
+    void removeAgent(Service service, String applicationName, String agentId);
 
     void removeAgent(Service service, String applicationName, int serviceTypeCode, String agentId);
 

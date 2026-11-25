@@ -31,8 +31,10 @@ public interface ApplicationIndexService {
 
     List<Application> selectApplication(Service service, String applicationName);
 
-    @Deprecated
-    void deleteApplicationName(String applicationName);
+    /**
+     * Deletes the application of every service type registered under the name.
+     */
+    void deleteApplication(Service service, String applicationName);
 
     void deleteApplication(Service service, String applicationName, int serviceTypeCode);
 
@@ -45,9 +47,6 @@ public interface ApplicationIndexService {
     void deleteAgentIds(Service service, String applicationName, List<String> agentIds);
 
     void deleteAgentIds(Service service, String applicationName, int serviceTypeCode, List<String> agentIds);
-
-    @Deprecated
-    void deleteAgentId(String applicationName, String agentId);
 
     void deleteAgentId(Service service, String applicationName, int serviceTypeCode, String agentId);
 }

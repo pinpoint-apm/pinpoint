@@ -71,7 +71,7 @@ public class AdminController {
     public String removeApplicationName(@RequestParam("applicationName") @NotBlank String applicationName) {
         logger.info("Removing application - applicationName: [{}]", applicationName);
         try {
-            this.adminService.removeApplicationName(applicationName);
+            this.adminService.removeApplication(Service.DEFAULT, applicationName);
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing applicationName", e);
@@ -107,7 +107,7 @@ public class AdminController {
     ) {
         logger.info("Removing agent - applicationName: [{}], agentId: [{}]", applicationName, agentId);
         try {
-            this.adminService.removeAgentId(applicationName, agentId);
+            this.adminService.removeAgent(Service.DEFAULT, applicationName, agentId);
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing agentId", e);

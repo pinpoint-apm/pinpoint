@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.dao.AgentIdDao;
 import com.navercorp.pinpoint.common.server.dao.ApplicationDao;
 import com.navercorp.pinpoint.common.server.bo.Application;
@@ -58,12 +57,12 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         return this.applicationDao.getApplications(service.getServiceUid(), applicationName);
     }
 
-    @Deprecated
     @Override
-    public void deleteApplicationName(String applicationName) {
-        List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
+    public void deleteApplication(Service service, String applicationName) {
+        int serviceUid = service.getServiceUid();
+        List<Application> applicationList = this.applicationDao.getApplications(serviceUid, applicationName);
         for (Application application : applicationList) {
-            deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getApplicationName(), application.getServiceTypeCode());
+            deleteApplication(serviceUid, application.getApplicationName(), application.getServiceTypeCode());
         }
     }
 
@@ -115,12 +114,6 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     public void deleteAgentIds(Service service, String applicationName, int serviceTypeCode, List<String> agentIds) {
         logger.info("delete AgentIds. applicationName:{}, serviceTypeCode:{}, agentIds:{}", applicationName, serviceTypeCode, agentIds);
         deleteAgentIds(service.getServiceUid(), applicationName, serviceTypeCode, agentIds);
-    }
-
-    @Override
-    @Deprecated
-    public void deleteAgentId(String applicationName, String agentId) {
-        deleteAgentIds(Service.DEFAULT, applicationName, List.of(agentId));
     }
 
     @Override
