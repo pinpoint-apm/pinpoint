@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.async;
@@ -79,6 +80,7 @@ public abstract class RocketMQClientITBase {
     private static final String PARENT_SPAN_ID_PROPERTY = "Pinpoint-pSpanID";
     private static final String ACCEPTOR_HOST_PROPERTY = "ROCKETMQ_ACCEPTOR_HOST";
     private static final String IS_ASYNC_SEND_PROPERTY = "IS_ASYNC_SEND";
+    private static final String SAMPLED_PROPERTY = "Pinpoint-Sampled";
 
     private static final AtomicInteger SEQUENCE = new AtomicInteger();
 
@@ -230,6 +232,56 @@ public abstract class RocketMQClientITBase {
         verifier.verifyTraceCount(0);
     }
 
+    /**
+     * A message from an unsampled trace carries Pinpoint-Sampled=s0 only: the consumer must not start a trace for it.
+     */
+    @Test
+    public void syncSend_skipUnsampledMessage() throws Exception {
+        final MessageHolder messageHolder = new MessageHolder();
+        // one queue consumed in order: the first message is done with before the second one is consumed
+        consumer.registerMessageListener(new TestOrderlyListener(messageHolder));
+        consumer.start();
+
+        // sent on a thread without a trace, so the producer interceptor adds nothing
+        final Message unsampled = newMessage();
+        unsampled.putUserProperty(SAMPLED_PROPERTY, "s0");
+        sendWithoutTrace(unsampled);
+        final MessageExt skipped = awaitMessage(messageHolder);
+        Assertions.assertEquals("s0", skipped.getUserProperty(SAMPLED_PROPERTY), SAMPLED_PROPERTY);
+
+        final SendResult sendResult = producer.send(newMessage());
+        Assertions.assertEquals(SendStatus.SEND_OK, sendResult.getSendStatus());
+        final MessageExt received = awaitMessage(messageHolder);
+        assertPropagated(received, false);
+
+        // only the traced message has a consumer trace
+        final PluginTestVerifier verifier = awaitTraces(3);
+        verifier.verifyDiscreteTrace(producerSend());
+        verifier.verifyDiscreteTrace(
+                consumerRoot(received),
+                event(ROCKETMQ_CLIENT_INTERNAL_SERVICE_TYPE, orderlyConsumeMessage(TestOrderlyListener.class),
+                        annotation("rocketmq.send.status", "SUCCESS")));
+        verifier.verifyTraceCount(0);
+    }
+
+    private static void sendWithoutTrace(Message message) throws Exception {
+        final AtomicReference<Object> result = new AtomicReference<>();
+        final Thread sender = new Thread(() -> {
+            try {
+                result.set(producer.send(message));
+            } catch (Throwable th) {
+                result.set(th);
+            }
+        }, "rocketmq-it-untraced-sender");
+        sender.start();
+        sender.join(MAX_MESSAGE_WAIT_TIME);
+        if (result.get() instanceof Exception) {
+            throw (Exception) result.get();
+        }
+        Assertions.assertTrue(result.get() instanceof SendResult, "send result: " + result.get());
+        Assertions.assertEquals(SendStatus.SEND_OK, ((SendResult) result.get()).getSendStatus());
+    }
+
     private MessageExt sendAndReceive(MessageHolder messageHolder) throws Exception {
         consumer.start();
 
@@ -252,7 +304,7 @@ public abstract class RocketMQClientITBase {
      * createTopic(key, newTopic, queueNum) is the 4.x signature; 5.x replaced it with
      * createTopic(key, newTopic, queueNum, attributes), so neither can be linked statically for the whole range.
      */
-    private static void createTopic(DefaultMQProducer producer, String topic) throws Exception {
+    static void createTopic(DefaultMQProducer producer, String topic) throws Exception {
         final String key = RocketMQITConstants.AUTO_CREATE_TOPIC_KEY;
         try {
             final Method createTopic = DefaultMQProducer.class.getMethod("createTopic", String.class, String.class, int.class);

@@ -5,6 +5,7 @@
   * Synchronous send is traced from 4.0.0.
   * The push consumer is traced from 4.1.0.
   * Asynchronous send (`SendCallback`) is traced and propagated from 4.3.0.
+  * An asynchronous send from an unsampled trace does not propagate `Pinpoint-Sampled=s0`.
 
 ### RocketMQ Configuration
 To enable RocketMQ Producer, set the following option in *pinpoint.config*:
