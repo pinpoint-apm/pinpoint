@@ -53,7 +53,6 @@ import org.springframework.batch.core.partition.Partitioner;
 import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.ItemWriter;
@@ -99,19 +98,22 @@ public class AlarmJobConfig {
     }
 
     @Bean(name = "alarmStep")
-    public TaskletStep alarmStep(JobRepository jobRepository,
-                                 @Qualifier("transactionManager") PlatformTransactionManager transactionManager,
-                                 @Qualifier("alarmExecutor") TaskExecutor alarmExecutor,
-                                 @Qualifier("reader") ItemReader<Application> reader,
-                                 @Qualifier("processor") ItemProcessor<Application, AppAlarmChecker> processor,
-                                 @Qualifier("writer") ItemWriter<AppAlarmChecker> writer) {
+    public Step alarmStep(JobRepository jobRepository,
+                          @Qualifier("transactionManager") PlatformTransactionManager transactionManager,
+                          @Qualifier("alarmExecutor") ThreadPoolTaskExecutor alarmExecutor,
+                          @Qualifier("reader") ItemReader<Application> reader,
+                          @Qualifier("processor") ItemProcessor<Application, AppAlarmChecker> processor,
+                          @Qualifier("writer") ItemWriter<AppAlarmChecker> writer) {
 
+        // The chunk-oriented step of Spring Batch 6 processes the items of a chunk concurrently and writes them
+        // in the step thread: a chunk has to hold one item per worker to keep the workers busy
+        int chunkSize = Math.max(1, alarmExecutor.getCorePoolSize());
         return new StepBuilder("alarmStep", jobRepository)
-                .<Application, AppAlarmChecker>chunk(1, transactionManager)
+                .<Application, AppAlarmChecker>chunk(chunkSize)
+                .transactionManager(transactionManager)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
-                // Spring Batch 6 removed throttleLimit; concurrency is bounded by alarmExecutor's pool size
                 .taskExecutor(alarmExecutor)
                 .build();
     }
