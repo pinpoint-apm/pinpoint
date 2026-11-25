@@ -39,7 +39,7 @@ public class MysqlDBTest {
     public static void beforeClass() {
         Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not enabled");
 
-        container = new MySQLContainer("mysql:8.0.36");
+        container = new MySQLContainer("mysql:8.0.46");
         container.waitingFor(Wait.forListeningPort());
         container.withDatabaseName(DATABASE_NAME);
         container.withUsername(USERNAME);
