@@ -5,7 +5,7 @@ import {
   serverMapCurrentTargetAtom,
   serverMapCurrentTargetDataAtom,
 } from './serverMap';
-import { serverMapData, resultData } from './serverMapMock';
+import { serverMapData, resultData } from './__fixtures__/serverMapMock';
 
 describe('Test serverMap atom', () => {
   describe('Test "serverMapDataAtom", "serverMapCurrentTargetAtom", "serverMapCurrentTargetDataAtom"', () => {

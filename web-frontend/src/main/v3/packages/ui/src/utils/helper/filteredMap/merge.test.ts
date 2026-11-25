@@ -8,7 +8,7 @@ import {
   prevNode,
   resultLink,
   resultNode,
-} from './mergeMock';
+} from './__fixtures__/mergeMock';
 
 describe('Test merge helper utils', () => {
   describe('Test "mergeFilteredMapNodeData"', () => {
