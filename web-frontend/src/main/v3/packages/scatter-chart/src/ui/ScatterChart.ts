@@ -1,4 +1,4 @@
-import merge from 'lodash.merge';
+import merge from 'lodash/merge';
 import Color from 'color';
 import { toPng } from 'html-to-image';
 

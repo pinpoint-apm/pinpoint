@@ -29,8 +29,7 @@
     "@testing-library/dom": "^10.4.1",
     "color": "^5.0.3",
     "html-to-image": "^1.11.11",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.merge": "^4.6.2"
+    "lodash": "^4.18.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -38,8 +37,7 @@
     "@storybook/addon-links": "^10.6.2",
     "@storybook/html-vite": "^10.6.2",
     "@types/jest": "^30.0.0",
-    "@types/lodash.clonedeep": "^4.5.7",
-    "@types/lodash.merge": "^4.6.7",
+    "@types/lodash": "^4.17.25",
     "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.70.0",
     "chromatic": "^18.8.1",
