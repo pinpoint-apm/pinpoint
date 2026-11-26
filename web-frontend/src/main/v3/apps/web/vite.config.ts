@@ -4,19 +4,19 @@ import svgr from 'vite-plugin-svgr';
 // [MOCK #10497][MOCK #10744] 로컬 확인용 임시 mock. 삭제 방법은 ./dev-mock/README.md 참고.
 import { serviceMapMockPlugin, forbiddenMockPlugin } from './dev-mock';
 // import { visualizer } from 'rollup-plugin-visualizer';
-// import react from '@vitejs/plugin-react';
 
-// import { BASE_PATH } from '@pinpoint-fe/ui/src/constants'; // TODO: import from ui
 const BASE_PATH = process.env.BASE_PATH || '';
 const isDev = process.env.NODE_ENV === 'development';
-const target = isDev ? 'http://localhost:8080' : 'http://localhost:8080';
+const target = 'http://localhost:8080';
 const basePath = isDev ? '/' : BASE_PATH || '/';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    'process.env': {},
-    global: {},
+    // `@pinpoint-fe/ui/src/constants/path.ts` 가 읽는 값. 브라우저에는 `process` 가 없으므로 이 키만
+    // 빌드 시점에 치환한다. 예전에는 `process.env` 전체를 `{}` 로 바꿔 두어 런타임 BASE_PATH 가
+    // 환경변수와 무관하게 언제나 ''였다. 그 동작을 그대로 유지한다.
+    'process.env.BASE_PATH': JSON.stringify(''),
   },
   server: {
     hmr: { overlay: false },
