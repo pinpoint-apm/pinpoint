@@ -104,6 +104,7 @@ public class ChannelFactoryTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void build() throws InterruptedException {
 
         HeaderFactory headerFactory = new ClientHeaderFactoryV1("agentId", "agentName", "appName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
@@ -196,6 +197,7 @@ public class ChannelFactoryTest {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseObserver) {
             return new StreamObserver<PSpanMessage>() {
                 @Override
