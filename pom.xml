@@ -236,7 +236,7 @@
         <kafka.client.version>${kafka.client4.version}</kafka.client.version>
 
         <jakarta.servlet5.version>5.0.0</jakarta.servlet5.version>
-        <jakarta.servlet6.version>6.0.0</jakarta.servlet6.version>
+        <jakarta.servlet6.version>6.1.0</jakarta.servlet6.version>
         <jaxb4.version>4.0.0</jaxb4.version>
         <jakarta.validation-api3.version>3.1.1</jakarta.validation-api3.version>
 
