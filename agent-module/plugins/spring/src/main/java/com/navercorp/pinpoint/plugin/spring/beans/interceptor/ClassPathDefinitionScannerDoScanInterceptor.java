@@ -50,7 +50,7 @@ public class ClassPathDefinitionScannerDoScanInterceptor implements AroundInterc
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (result == null || throwable != null || !(result instanceof Set)) {
+        if (throwable != null || !(result instanceof Set)) {
             return;
         }
 
