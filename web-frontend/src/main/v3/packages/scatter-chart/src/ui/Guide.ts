@@ -1,4 +1,4 @@
-import cloneDeep from 'lodash.clonedeep';
+import cloneDeep from 'lodash/cloneDeep';
 import { Coord, DeepNonNullable, GuideOption, Padding } from '../types/types';
 import { drawLine, drawRect, drawText } from '../utils/draw';
 import { Axis } from './Axis';
