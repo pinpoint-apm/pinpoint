@@ -35,8 +35,8 @@ import java.time.Duration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -133,71 +133,24 @@ class MapHistogramControllerTest {
     }
 
     @Test
-    void wasToWas_needsOneAuthorizedEnd() {
-        Service service = Service.DEFAULT;
-        String serviceName = service.getServiceName();
+    void rejectedLink_isForbidden() {
+        Service service = new Service("svc", 100);
         stubServices(service);
         MapHistogramController controller = newController(serverMapDataFilter);
+        Application from = new Application(service, "was1", ServiceType.STAND_ALONE);
+        Application to = new Application(service, "was2", ServiceType.STAND_ALONE);
 
-        when(serverMapDataFilter.filter(any(Application.class))).thenReturn(true);
-        assertForbidden(() -> controller.getLinkHistogram(rangeForm(),
-                serviceName, "was1", 1000,
-                serviceName, "was2", 1000));
-        verify(responseTimeHistogramService, never()).selectLinkHistogram(any(), any(), any());
-
-        when(serverMapDataFilter.filter(new Application(service, "was2", ServiceType.STAND_ALONE))).thenReturn(false);
-        controller.getLinkHistogram(rangeForm(),
-                serviceName, "was1", 1000,
-                serviceName, "was2", 1000);
-        verify(responseTimeHistogramService).selectLinkHistogram(any(), any(), any());
-    }
-
-    @Test
-    void mixedService_needsOneAuthorizedEnd() {
-        Service service = new Service("svc", 100);
-        String defaultName = Service.DEFAULT.getServiceName();
-        stubServices(service, Service.DEFAULT);
-        MapHistogramController controller = newController(serverMapDataFilter);
-
-        when(serverMapDataFilter.filter(any(Application.class))).thenReturn(true);
+        when(serverMapDataFilter.filterLink(from, to)).thenReturn(true);
         assertForbidden(() -> controller.getLinkHistogram(rangeForm(),
                 "svc", "was1", 1000,
-                defaultName, "was2", 1000));
-        assertForbidden(() -> controller.getLinkHistogram(rangeForm(),
-                defaultName, "was2", 1000,
-                "svc", "was1", 1000));
+                "svc", "was2", 1000));
         verify(responseTimeHistogramService, never()).selectLinkHistogram(any(), any(), any());
 
-        when(serverMapDataFilter.filter(new Application(service, "was1", ServiceType.STAND_ALONE))).thenReturn(false);
+        when(serverMapDataFilter.filterLink(from, to)).thenReturn(false);
         controller.getLinkHistogram(rangeForm(),
                 "svc", "was1", 1000,
-                defaultName, "was2", 1000);
-        controller.getLinkHistogram(rangeForm(),
-                defaultName, "was2", 1000,
-                "svc", "was1", 1000);
-        verify(responseTimeHistogramService, times(2)).selectLinkHistogram(any(), any(), any());
-    }
-
-    @Test
-    void defaultNonWas_grantsNothing() {
-        ServiceType db = ServiceType.UNKNOWN_DB;
-        when(serviceTypeRegistry.findServiceType(db.getCode())).thenReturn(db);
-        String defaultName = Service.DEFAULT.getServiceName();
-        stubServices(Service.DEFAULT);
-        MapHistogramController controller = newController(serverMapDataFilter);
-
-        // an unauthorized WAS -> DB is denied
-        when(serverMapDataFilter.filter(new Application(Service.DEFAULT, "was1", ServiceType.STAND_ALONE))).thenReturn(true);
-        assertForbidden(() -> controller.getLinkHistogram(rangeForm(),
-                defaultName, "was1", 1000,
-                defaultName, "db1", db.getCode()));
-        verify(responseTimeHistogramService, never()).selectLinkHistogram(any(), any(), any());
-
-        // non-WAS -> non-WAS has nothing to authorize
-        controller.getLinkHistogram(rangeForm(),
-                defaultName, "db1", db.getCode(),
-                defaultName, "db2", db.getCode());
-        verify(responseTimeHistogramService).selectLinkHistogram(any(), any(), any());
+                "svc", "was2", 1000);
+        verify(responseTimeHistogramService).selectLinkHistogram(eq(from), eq(to), any());
     }
 
     private void assertForbidden(Executable executable) {
