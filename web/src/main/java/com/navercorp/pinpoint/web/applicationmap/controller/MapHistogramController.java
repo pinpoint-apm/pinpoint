@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.service.service.ServiceModelResolver;
 import com.navercorp.pinpoint.service.web.resolver.ServiceParam;
-import com.navercorp.pinpoint.service.web.vo.ServiceConstants;
 import com.navercorp.pinpoint.service.web.vo.ServiceName;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
@@ -307,38 +306,13 @@ public class MapHistogramController {
         return applicationValidator.newApplication(service, applicationName, serviceTypeCode, null);
     }
 
-    // authorization check for a link
     private void checkAuthorized(Application fromApplication, Application toApplication) {
         if (serverMapDataFilter == null) {
             return;
         }
-        final boolean fromDefault = isDefaultService(fromApplication);
-        final boolean toDefault = isDefaultService(toApplication);
-        // 1. non-DEFAULT: pass if the service is authorized. only the service name is checked
-        if (!fromDefault && !serverMapDataFilter.filter(fromApplication)) {
-            return;
+        if (serverMapDataFilter.filterLink(fromApplication, toApplication)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized link");
         }
-        if (!toDefault && !serverMapDataFilter.filter(toApplication)) {
-            return;
-        }
-        // 2-1. DEFAULT WAS: pass if the WAS is authorized
-        final boolean fromWas = fromDefault && fromApplication.getServiceType().isWas();
-        final boolean toWas = toDefault && toApplication.getServiceType().isWas();
-        if (fromWas && !serverMapDataFilter.filter(fromApplication)) {
-            return;
-        }
-        if (toWas && !serverMapDataFilter.filter(toApplication)) {
-            return;
-        }
-        // 2-2. both DEFAULT non-WAS: nothing to authorize
-        if (fromDefault && toDefault && !fromWas && !toWas) {
-            return;
-        }
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized link");
-    }
-
-    private boolean isDefaultService(Application application) {
-        return ServiceConstants.DEFAULT.equals(application.getService().getServiceName());
     }
 
     private Service getService(ServiceName serviceName) {

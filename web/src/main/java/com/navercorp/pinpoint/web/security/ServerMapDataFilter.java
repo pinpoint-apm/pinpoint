@@ -32,6 +32,9 @@ public interface ServerMapDataFilter {
     boolean filter(Application application);
 
     List<Application> filterApplications(List<Application> applications);
+
+    // true if the link between the two applications must be rejected
+    boolean filterLink(Application fromApplication, Application toApplication);
     
     boolean filter(WebSocketSession webSocketSession, RequestMessage requestMessage);
     

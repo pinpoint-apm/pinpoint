@@ -170,6 +170,11 @@ public abstract class LinkSelectorTestBase {
         }
 
         @Override
+        public boolean filterLink(Application fromApplication, Application toApplication) {
+            return false;
+        }
+
+        @Override
         public boolean filter(WebSocketSession webSocketSession, RequestMessage requestMessage) {
             return false;
         }
