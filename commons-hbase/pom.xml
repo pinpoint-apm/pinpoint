@@ -71,6 +71,11 @@
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-shaded-client</artifactId>
         </dependency>
+        <!-- the InetAddressResolverProvider that the shaded HBase jars register but do not contain (JDK 18+) -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-hbase-shaded-resolver</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-hbase-testcluster</artifactId>
