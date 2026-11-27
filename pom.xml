@@ -184,10 +184,9 @@
 
         <mysql-connector-j.verison>8.4.0</mysql-connector-j.verison>
 
-        <fastxml.jackson.version>2.21.8</fastxml.jackson.version>
+        <fastxml.jackson.version>2.21.9</fastxml.jackson.version>
         <!-- Jackson 3 (tools.jackson) for the JDK 17 server modules; the agent stays on Jackson 2 -->
         <tools.jackson.version>3.1.7</tools.jackson.version>
-        <fastxml.jackson-annotation.version>2.21</fastxml.jackson-annotation.version>
         <mapstruct.version>1.6.3</mapstruct.version>
 
         <httpcomponents.version>4.5.14</httpcomponents.version>
@@ -1096,11 +1095,6 @@
                 <version>${tools.jackson.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-annotation</artifactId>
-                <version>${fastxml.jackson-annotation.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mapstruct</groupId>
