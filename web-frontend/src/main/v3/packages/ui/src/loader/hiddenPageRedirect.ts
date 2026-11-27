@@ -95,16 +95,22 @@ export const getHiddenMapPageRedirect: HiddenPageRule = ({
       return undefined;
     }
 
-    // DEFAULT가 아닌 service는 소속 application을 모두 모아 그려 기준 application이 없다.
-    // 그대로 실어 보내면 목적지 로더가 곧 지우면서 한 번 더 움직인다.
-    // service가 정해지지 않았으면 DEFAULT로 다룬다(경로 빌더가 싣는 값과 같다).
-    const application =
-      !serviceName || serviceName === DEFAULT_SERVICE ? getApplicationTypeAndName(pathname) : null;
+    const application = getApplicationTypeAndName(pathname);
 
     // 실시간 보기는 기간을 화면이 직접 만들기 때문에 query string을 싣지 않는다.
-    return isServerMapRealtime
-      ? getServiceMapRealtimePath(serviceName, application)
-      : `${getServiceMapPath(serviceName, application)}${search}`;
+    // DEFAULT가 아닌 service의 실시간 보기는 기준 application이 없으므로 싣지 않는다.
+    // service가 정해지지 않았으면 DEFAULT로 다룬다(경로 빌더가 싣는 값과 같다).
+    if (isServerMapRealtime) {
+      return getServiceMapRealtimePath(
+        serviceName,
+        !serviceName || serviceName === DEFAULT_SERVICE ? application : null,
+      );
+    }
+
+    // 실시간이 아닌 map은 DEFAULT가 아니어도 application을 싣는다. 기준 application으로 쓰이지는
+    // 않지만(화면이 경로에서 지운다) 화면이 지우기 전에 읽어 그 노드를 선택해 둔다 — 그 노드를
+    // 보려고 연 링크(알람의 View Details 등)이기 때문이다. (`ServerMapPage`)
+    return `${getServiceMapPath(serviceName, application)}${search}`;
   }
 
   if (isUnderPage(pathname, APP_PATH.SERVICE_MAP_REALTIME)) {

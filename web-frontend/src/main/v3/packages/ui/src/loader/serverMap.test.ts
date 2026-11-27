@@ -109,16 +109,16 @@ describe('serverMapRouteLoader', () => {
       expect(result.url).toBe('/serviceMap/DEFAULT');
     });
 
-    // DEFAULT가 아닌 service는 소속 application을 모두 모아 그려 기준 application이 없다.
-    // 실어 보내면 목적지 로더가 곧 지우면서 한 번 더 움직인다.
-    test('drops the application for a non-DEFAULT service', async () => {
+    // DEFAULT가 아닌 service는 기준 application이 없지만, 화면이 경로에서 지우기 전에 읽어 그
+    // 노드를 선택해 둔다(알람의 View Details 링크 등). 그래서 실어 보낸다. (이슈 #11280)
+    test('keeps the application for a non-DEFAULT service', async () => {
       (getRequestService as jest.Mock).mockReturnValue('blogService');
 
       const result = (await serverMapRouteLoader(
         makeArgs(`http://localhost${BASE}?${VALID}`, { application: APP }),
       )) as unknown as { __isRedirect: boolean; url: string };
 
-      expect(result.url).toBe(`/serviceMap/blogService?${VALID}`);
+      expect(result.url).toBe(`/serviceMap/blogService/${APP}?${VALID}`);
     });
   });
 });

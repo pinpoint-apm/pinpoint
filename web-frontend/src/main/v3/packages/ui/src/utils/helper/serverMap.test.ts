@@ -3,6 +3,7 @@ import {
   findCallerApplication,
   findLinkOfApplications,
   findNodeOfApplication,
+  findNodeOrSubNodeOfApplication,
   getBaseNodeId,
   getSelectedTargetApplication,
   getTimeSeriesApdexInfo,
@@ -372,6 +373,34 @@ describe('Test serverMap helper utils', () => {
       expect(parseNodeServiceName('')).toBeUndefined();
       expect(parseNodeServiceName()).toBeUndefined();
       expect(parseNodeServiceName('^ACL-PORTAL-DEV^SPRING_BOOT')).toBeUndefined();
+    });
+  });
+
+  describe('Test "findNodeOrSubNodeOfApplication"', () => {
+    const application: ApplicationType = { applicationName: 'b-1', serviceType: 'TOMCAT' };
+    const appNode = { key: 'blogService^b-1^TOMCAT' } as GetServerMap.NodeData;
+    const subNode = { key: 'B^b-1^TOMCAT', applicationName: 'b-1' } as GetServerMap.NodeData;
+    const groupNode = { key: 'B', subNodes: [subNode] } as GetServerMap.NodeData;
+
+    test('Prefer a node drawn on the map', () => {
+      expect(findNodeOrSubNodeOfApplication([groupNode, appNode], application)).toBe(appNode);
+    });
+
+    // 접힌 service group에 묶인 application은 group이 아니라 그 자식을 돌려준다.
+    // group은 선택 대상이 아니기 때문이다.
+    test('Find the child of a collapsed service group', () => {
+      expect(findNodeOrSubNodeOfApplication([groupNode], application)).toBe(subNode);
+    });
+
+    test('Return undefined when nothing matches', () => {
+      expect(
+        findNodeOrSubNodeOfApplication([groupNode], {
+          applicationName: 'x',
+          serviceType: 'TOMCAT',
+        }),
+      ).toBeUndefined();
+      expect(findNodeOrSubNodeOfApplication(undefined, application)).toBeUndefined();
+      expect(findNodeOrSubNodeOfApplication([groupNode], null)).toBeUndefined();
     });
   });
 

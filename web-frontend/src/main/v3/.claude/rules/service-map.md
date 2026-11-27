@@ -119,8 +119,16 @@ service다** — 모든 조회에 `pServiceName` 헤더가 실리고 캐시도 s
   전달된다(기본값 `true` → servermap은 영향 없음).
 - 백엔드도 같은 규칙이다: `MapController#getSourceApplications`.
 - application이 많아 노드가 과도해지면 service를 나누도록 가이드한다 (선택 박스를 주지 않는 이유).
-- 비DEFAULT 모드에서는 기준 application이 없으므로: 특정 노드를 센터링/선택하지 않고,
+- 비DEFAULT 모드에서는 기준 application이 없으므로: 특정 노드를 센터링하지 않고,
   경로에 들어온 application 세그먼트는 지운다.
+  - **다만 지우기 전에 읽어 그 노드를 한 번 선택해 둔다** (`ServerMapPage`, 이슈 #11280).
+    알람의 View Details처럼 그 노드를 보려고 연 링크이기 때문이다. 선택은 노드를 클릭한 것과
+    같다 — 통계 조회의 기준은 경로가 아니라 고른 노드에서 나오므로 아래 "경로에 남은 application
+    세그먼트" 함정에 걸리지 않는다. 접힌 service group 안의 application이면 그 자식을 고른다
+    (`findNodeOrSubNodeOfApplication`). map은 그 노드로 **한 번** 옮겨 보여준다
+    (`serverMapFocusNodeIdAtom` → `ServerMapCore`의 `focusNodeId`). 기준 노드(`baseNodeId`)로 삼지는
+    않는다 — 기준 노드가 바뀌면 cytoscape를 새로 만들고 강조 스타일도 달라진다. 같은 이유로 `/serverMap/{app}` → `/serviceMap/...`
+    리다이렉트도 application을 싣는다(실시간 보기는 싣지 않는다).
 - **두 모드는 실시간 보기(`/serviceMap/realtime`)에도 그대로 있다.** 비DEFAULT에서는 우측 패널
   (스캐터/액티브 스레드)의 조회 대상이 map에서 클릭한 노드로 정해진다. 아무것도 고르지 않았으면
   map만 그리고, 우측 패널은 조회를 시작하지 않은 채 노드를 고르라는 안내 문구를 띄운다

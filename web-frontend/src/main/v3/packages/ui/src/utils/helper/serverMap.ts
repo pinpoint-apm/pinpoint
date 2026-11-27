@@ -157,6 +157,38 @@ export const findNodeOfApplication = <T extends GetServerMap.NodeData | Filtered
 ): T | undefined => nodes?.find((node) => isNodeOfApplication(node, application));
 
 /**
+ * map에서 이 application을 그리는 노드. 접힌 service group 안의 자식(`subNodes`)까지 찾는다.
+ * 없으면 undefined다.
+ *
+ * `findNodeOfApplication`은 그래프에 그려지는 노드만 본다. 그런데 비DEFAULT servicemap에서는
+ * application이 다른 service의 group에 묶여 그 자체로는 그려지지 않을 수 있다. 그 application을
+ * **고른 것과 같은 선택**을 만들어야 할 때(링크로 들어온 application을 선택해 둘 때) 쓴다 —
+ * group 노드를 돌려주면 안 된다. group은 선택 대상이 아니다(`ServiceMapFetcher#handleClickNode`).
+ */
+export const findNodeOrSubNodeOfApplication = (
+  nodes: GetServerMap.NodeData[] | undefined,
+  application?: ApplicationType | null,
+): GetServerMap.NodeData | undefined => {
+  const node = findNodeOfApplication(nodes, application);
+
+  if (node) {
+    return node;
+  }
+
+  for (const groupNode of nodes ?? []) {
+    const subNode = Array.isArray(groupNode.subNodes)
+      ? findNodeOfApplication(groupNode.subNodes, application)
+      : undefined;
+
+    if (subNode) {
+      return subNode;
+    }
+  }
+
+  return undefined;
+};
+
+/**
  * map 링크가 이 두 application을 잇는 것인지. 노드와 같은 이유로 `key`의 뒤 두 토큰으로 비교한다.
  * 링크 key는 노드 이름 둘을 '~'로 이은 것이다(`{from}~{to}`).
  */

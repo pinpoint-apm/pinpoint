@@ -31,6 +31,16 @@ export const serverMapDataAtom = atom<GetServerMap.Response | FilteredMap.Respon
 );
 
 /**
+ * map이 한 번 가운데로 옮겨 보여줄 노드의 id. 옮기고 나면 map이 비운다.
+ *
+ * 선택(`serverMapCurrentTargetAtom`)과 따로 두는 이유: 사용자가 노드를 클릭할 때마다 화면이
+ * 움직이면 안 된다. 기준 노드가 없는 map(비DEFAULT servicemap)에 링크로 들어온 application처럼
+ * **페이지가 대신 고른 선택**만 그 노드를 보여주도록 옮긴다(`ServerMapPage`, 이슈 #11280).
+ * 기준 노드가 있는 map은 기준 노드로 센터링하므로 이 값을 쓰지 않는다.
+ */
+export const serverMapFocusNodeIdAtom = atom<string | undefined>(undefined);
+
+/**
  * 선택된 타겟과 **그것을 고른 경로**. 경로를 함께 담는 이유는 아래 `serverMapCurrentTargetAtom`
  * 주석 참고.
  */

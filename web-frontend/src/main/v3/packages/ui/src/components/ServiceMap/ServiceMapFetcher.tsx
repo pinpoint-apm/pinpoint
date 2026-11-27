@@ -1,10 +1,11 @@
 import React from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { MergedEdge, MergedNode } from '@pinpoint-fe/server-map';
 import {
   serverMapDataAtom,
   currentServerAtom,
   serverMapCurrentTargetAtom,
+  serverMapFocusNodeIdAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
 import {
@@ -37,6 +38,7 @@ export const ServiceMapFetcher = ({ shouldPoll, ...props }: ServiceMapFetcherPro
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const serverMapCurrentTarget = useAtomValue(serverMapCurrentTargetAtom);
+  const [focusNodeId, setFocusNodeId] = useAtom(serverMapFocusNodeIdAtom);
   const { application, dateRange, queryOption } = useServerMapSearchParameters();
   const isDefaultService = useIsDefaultService();
   const experimentalOption = useExperimentals();
@@ -184,6 +186,9 @@ export const ServiceMapFetcher = ({ shouldPoll, ...props }: ServiceMapFetcherPro
       // 그 요소(또는 그것을 대신 그리는 묶음 요소)를 하이라이트할 수 있다.
       selectedId={serverMapCurrentTarget?.id}
       onMergeStateChange={handleMergeStateChange}
+      // 기준 노드가 없는 map에서 페이지가 대신 고른 노드(링크로 들어온 application)를 보여준다.
+      focusNodeId={focusNodeId}
+      onFocusNode={() => setFocusNodeId(undefined)}
       baseNodeId={baseNodeId}
       inputPlaceHolder={t('COMMON.SEARCH_INPUT')}
       {...props}
