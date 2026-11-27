@@ -60,14 +60,18 @@ describe('useHiddenPageRedirect', () => {
       );
     });
 
-    // 전역 선택값이 DEFAULT가 아니면 기준 application이 없다.
-    test('drops the application for a non-DEFAULT service', () => {
+    // 전역 선택값이 DEFAULT가 아니면 기준 application은 없지만, 화면이 그 노드를 선택해 두도록
+    // application을 싣는다. 실시간 보기는 예전처럼 지운다. (이슈 #11280)
+    test('keeps the application for a non-DEFAULT service, except in the realtime view', () => {
       act(() => {
         store.set(selectedServiceAtom, 'blogService');
       });
 
       expect(renderRedirect(`/serverMap/${APP}?${PERIOD}`, true)).toBe(
-        `/serviceMap/blogService?${PERIOD}`,
+        `/serviceMap/blogService/${APP}?${PERIOD}`,
+      );
+      expect(renderRedirect(`/serverMap/realtime/${APP}`, true)).toBe(
+        '/serviceMap/realtime/blogService',
       );
     });
 

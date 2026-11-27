@@ -7,6 +7,7 @@ import {
   convertParamsToQueryString,
   getServerImagePath,
   findNodeOfApplication,
+  findNodeOrSubNodeOfApplication,
   getFormattedDateRange,
   getRealtimePath,
 } from '@pinpoint-fe/ui/src/utils';
@@ -15,6 +16,7 @@ import { useServerMapCurrentTarget } from '@pinpoint-fe/ui/src/hooks/serverMap';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
+  serverMapFocusNodeIdAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/src/atoms';
 import {
@@ -96,6 +98,7 @@ export const ServerMapPage = ({
   const { dateRange, application, search, searchParameters, queryOption, pathname } =
     useServerMapSearchParameters();
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
+  const setServerMapFocusNodeId = useSetAtom(serverMapFocusNodeIdAtom);
   // 이전 경로에서 고른 선택은 이 map에서 살려 두지 않는다. 아톰을 그대로 읽으면 (merged 노드처럼
   // `nodes`를 들고 있는 선택은) 아래 effect가 그것을 그대로 유지하며 지금 경로로 도장을 다시
   // 찍어, 이 map에 없는 노드가 선택된 상태가 된다. 그러면 조회 대상이 없는데도 우측 패널이
@@ -107,13 +110,21 @@ export const ServerMapPage = ({
   const { t } = useTranslation();
   // 기준 application이 필요 없는 map은 고를 대상이 없으므로 곧바로 그린다.
   const showMap = !requiresApplication || !!application;
+  // 기준 application이 필요 없는 map의 경로에 실려 들어온 application. 경로에서는 지우되,
+  // map이 도착하면 그 노드를 한 번 선택한다. 한 번 쓰면 비운다.
+  const pendingTargetApplicationRef = React.useRef<ApplicationType | null>(null);
 
   // 기준 application이 필요 없는 map에서는 경로의 application 세그먼트가 아무 의미를 갖지 않는다.
   // 다른 화면에서 고른 application이 링크를 타고 실려 들어올 수 있는데, 그대로 두면 노드를
   // 클릭했을 때 통계 조회의 기준 application이 그 값으로 잡혀 클릭한 노드와 다른 데이터를
   // 보여준다. 그래서 경로에서 지운다. (기간은 유지해야 하므로 query string은 그대로 넘긴다.)
+  //
+  // 다만 그 application은 "이 노드를 보러 왔다"는 뜻이기도 하다(알람의 View Details 링크 등).
+  // 지우기 전에 기억해 두었다가, map이 도착하면 그 노드를 **클릭한 것과 같은 선택**으로 한 번
+  // 세운다(아래 effect). 통계 조회의 기준은 경로가 아니라 고른 노드에서 나오므로 위 문제가 없다.
   React.useEffect(() => {
     if (!requiresApplication && application) {
+      pendingTargetApplicationRef.current = application;
       navigate(`${getPagePath(null)}${search}`, { replace: true });
     }
     // getPagePath는 servicemap에서 serviceName을 캡처하므로(useCallback) service가 바뀌면 바뀐다.
@@ -138,6 +149,7 @@ export const ServerMapPage = ({
   React.useEffect(() => {
     return () => {
       setServerMapCurrentTarget(undefined);
+      setServerMapFocusNodeId(undefined);
     };
   }, []);
 
@@ -187,6 +199,40 @@ export const ServerMapPage = ({
     }
   }, [serverMapData]);
 
+  // 경로에서 지운 application을 선택으로 세운다(위 "경로에서 지운다" effect 참고).
+  // - 경로가 아직 그 application을 싣고 있으면(지우는 이동 전) 기다린다. 지금 세우면 그 경로로
+  //   도장이 찍혀, 지운 뒤의 경로에서는 남의 선택이 되고 initPage가 곧 비운다.
+  // - 위 effect들보다 뒤에 둔다. 같은 commit에서 initPage·serverMapData effect가 비우거나
+  //   덮어쓴 다음에 세워야 남는다.
+  // - map이 와도 그 application이 없으면(다른 service의 application이 실려 온 링크) 아무것도
+  //   고르지 않은 상태로 둔다. 비DEFAULT map의 원래 동작이다.
+  // 접힌 service group 안의 application이면 group이 아니라 그 자식을 고른다 — 팝업에서 그
+  // application을 고른 것(`ServiceMapFetcher#handleClickSubNode`)과 같은 선택이다.
+  React.useEffect(() => {
+    const pendingApplication = pendingTargetApplicationRef.current;
+    const nodeDataArray = serverMapData?.applicationMapData?.nodeDataArray as
+      GetServerMap.NodeData[] | undefined;
+
+    if (!pendingApplication || application || !nodeDataArray?.length) {
+      return;
+    }
+
+    pendingTargetApplicationRef.current = null;
+    const node = findNodeOrSubNodeOfApplication(nodeDataArray, pendingApplication);
+
+    if (node) {
+      setServerMapCurrentTarget({
+        id: node.key,
+        applicationName: node.applicationName,
+        serviceType: node.serviceType,
+        imgPath: getServerImagePath(node),
+        type: 'node',
+      });
+      // 기준 노드가 없는 map은 전체 노드 기준으로 센터링되어, 고른 노드가 화면 밖에 있을 수 있다.
+      setServerMapFocusNodeId(node.key);
+    }
+  }, [serverMapData, application?.applicationName, application?.serviceType, pathname]);
+
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate, isRealtime }) => {
       if (isRealtime) {
@@ -205,6 +251,9 @@ export const ServerMapPage = ({
 
   const initPage = () => {
     setServerMapCurrentTarget(undefined);
+    // 옮겨 보여주지 못한 채 남은 요청(그 노드가 끝내 그려지지 않음)이 다른 map에서 실행되지 않도록.
+    // 이 effect는 아래 선택 effect보다 앞이라, 같은 commit에서 세운 요청은 지우지 않는다.
+    setServerMapFocusNodeId(undefined);
     setShowFilter(false);
   };
 

@@ -103,6 +103,13 @@ export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'
   selectedSubNodeId?: string;
   onClickSubLink?: (subLink: GetServerMap.LinkData) => void;
   selectedSubLinkId?: string;
+  /**
+   * 한 번 가운데로 옮겨 보여줄 노드의 id. 그려지면 옮기고 `onFocusNode`를 부른다 — 부른 쪽은 이 값을
+   * 비워 다시 옮기지 않게 한다. 접힌 service group의 자식이면 그 group으로 옮긴다.
+   * 사용자 클릭이 아니라 페이지가 대신 고른 선택을 보여줄 때 쓴다(`serverMapFocusNodeIdAtom`).
+   */
+  focusNodeId?: string;
+  onFocusNode?: () => void;
   inputPlaceHolder?: string;
   queryOption?: ServerMapQueryOptionProps['queryOption'];
   onApplyChangedOption?: ServerMapQueryOptionProps['onApply'];
@@ -127,6 +134,8 @@ export const ServerMapCore = ({
   selectedSubNodeId,
   onClickSubLink,
   selectedSubLinkId,
+  focusNodeId,
+  onFocusNode,
   onApplyChangedOption,
   queryOption,
   inputPlaceHolder,
@@ -330,6 +339,44 @@ export const ServerMapCore = ({
       cy.off('pan zoom layoutstop', updatePosition);
     };
   }, [popperContentType]);
+
+  // 페이지가 대신 고른 노드를 가운데로 옮긴다(`focusNodeId` 참고). 그 노드가 아직 그려지지 않았으면
+  // 기다린다 — map 데이터가 그래프에 들어가는 것(`serverMapData`)은 선택보다 한 박자 늦다.
+  // 접힌 group의 자식은 그래프에 노드가 없으므로 그것을 그리는 group(또는 펼친 상자)으로 옮기고,
+  // 자동 merge로 묶였으면 묶음 노드로 옮긴다. 검색 목록에서 고를 때와 같은 대상이다.
+  React.useEffect(() => {
+    const cy = cyRef.current;
+
+    if (!focusNodeId || !cy) {
+      return;
+    }
+
+    let target = cy.getElementById(focusNodeId);
+
+    if (target.empty()) {
+      const group = (
+        data?.applicationMapData?.nodeDataArray as GetServerMap.NodeData[] | undefined
+      )?.find((node) => node.subNodes?.some((subNode) => subNode.key === focusNodeId));
+      const groupId = getDrawnServiceGroupId(group);
+
+      if (groupId) {
+        target = cy.getElementById(groupId);
+      }
+    }
+
+    if (target.empty()) {
+      target = cy
+        .nodes()
+        .filter((node) =>
+          Boolean((node.data().nodes as Node[] | undefined)?.some(({ id }) => id === focusNodeId)),
+        );
+    }
+
+    if (target.nonempty()) {
+      cy.center(target);
+      onFocusNode?.();
+    }
+  }, [focusNodeId, serverMapData]);
 
   // 기준 application이 바뀌면 다른 map이다. 이전 map에서 펼친 상태를 이어 가지 않는다.
   useUpdateEffect(() => {
