@@ -51,6 +51,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- before spring-boot-dependencies: the first import wins -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${plugins-bom.jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
