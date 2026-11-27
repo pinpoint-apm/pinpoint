@@ -19,7 +19,6 @@ export const useGetConfigUsers = (
   const { data, isLoading, refetch } = useQuery<ConfigUsers.Response>({
     queryKey: [END_POINTS.CONFIG_USERS, params],
     queryFn: queryFn(`${END_POINTS.CONFIG_USERS}${queryString}`),
-    enabled: !!queryString,
     throwOnError,
   });
   return { data, isLoading, refetch };
