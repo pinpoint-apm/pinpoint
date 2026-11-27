@@ -28,7 +28,7 @@ management:
     health:
       probes:
         enabled: true
-      show-details: always
+      show-details: never
       access: read_only
     beans:
       access: read_only
@@ -36,10 +36,10 @@ management:
       access: read_only
     configprops:
       access: read_only
-      show-values: always
+      show-values: never
     env:
       access: read_only
-      show-values: always
+      show-values: never
     logfile:
       access: read_only
     loggers:
@@ -63,7 +63,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,beans,conditions,configprops,env,logfile,loggers,mappings,info,threaddump,metrics,pause
+        include: health,conditions,logfile,mappings,info,metrics,pause
       base-path: /monitor
       path-mapping:
         health: l7check

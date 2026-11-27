@@ -15,7 +15,7 @@ server:
     include-exception: true
     include-message: always
     include-binding-errors: always
-    include-stacktrace: always
+    include-stacktrace: never
     whitelabel:
       enabled: true
   max-http-request-header-size: 32KB
@@ -35,17 +35,17 @@ management:
       enabled: true
   endpoint:
     health:
-      show-details: always
+      show-details: never
       access: read_only
     beans:
       access: read_only
     conditions:
       access: read_only
     configprops:
-      show-values: always
+      show-values: never
       access: read_only
     env:
-      show-values: always
+      show-values: never
       access: read_only
     logfile:
       access: read_only
@@ -70,7 +70,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,beans,conditions,configprops,env,logfile,loggers,mappings,info,threaddump,pause
+        include: health,conditions,logfile,mappings,info,pause
       base-path: /monitor
       path-mapping:
         health: l7check
