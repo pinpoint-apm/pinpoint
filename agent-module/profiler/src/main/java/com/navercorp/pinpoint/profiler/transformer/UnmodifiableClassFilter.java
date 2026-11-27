@@ -35,6 +35,7 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
     public UnmodifiableClassFilter() {
         this(Collections.emptyList());
     }
+
     public UnmodifiableClassFilter(List<String> allowJdkClassNames) {
         this.allowJdkClassNames = newJdkClassNameMap(allowJdkClassNames);
     }
@@ -57,6 +58,15 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
         // fast skip java classes
         if (className.startsWith("java")) {
             if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {
+                if (allowJdkClassName(className)) {
+                    return CONTINUE;
+                }
+                return SKIP;
+            }
+        }
+
+        if (className.startsWith("jdk")) {
+            if (className.startsWith("/", 3)) {
                 if (allowJdkClassName(className)) {
                     return CONTINUE;
                 }
